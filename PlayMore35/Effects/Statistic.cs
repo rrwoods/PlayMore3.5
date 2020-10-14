@@ -30,7 +30,7 @@ namespace PlayMore35.Effects {
             Dictionary<string, int> penalties = new Dictionary<string, int>();
             Dictionary<string, int> bonuses = new Dictionary<string, int>();
             foreach (EffectPart part in pool.GetEffects(this)) {
-                int amount = part.Amount.Get(pool);
+                int amount = part.ComputeAmount(pool);
                 if (amount == 0) {
                     continue;
                 }

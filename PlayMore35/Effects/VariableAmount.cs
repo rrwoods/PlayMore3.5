@@ -11,9 +11,19 @@ namespace PlayMore35.Effects {
         }
 
         private readonly Statistic stat;
+        private bool halve = false;
 
         public int Get(EffectPool pool) {
-            return stat.GetValue(pool);
+            int value = stat.GetValue(pool);
+            if (halve) {
+                value /= 2;
+            }
+            return value;
+        }
+
+        public VariableAmount Halve() {
+            this.halve = true;
+            return this; // method chaining
         }
     }
 }

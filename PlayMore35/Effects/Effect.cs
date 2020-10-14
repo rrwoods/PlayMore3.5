@@ -12,8 +12,9 @@ namespace PlayMore35.Effects {
 
         public List<EffectPart> EffectParts { get; }
 
-        public void AddPart(EffectPart part) {
+        public Effect AddPart(EffectPart part) {
             this.EffectParts.Add(part);
+            return this; // method chaining
         }
     }
 }

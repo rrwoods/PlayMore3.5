@@ -10,7 +10,7 @@ namespace PlayMore35.Effects.Tests {
     [TestClass()]
     public class EffectPoolTests {
         [TestMethod()]
-        public void EffectPoolTest() {
+        public void TestOverlapping() {
             EffectPool pool = new EffectPool();
 
             Effect bless = new Effect();
@@ -43,6 +43,26 @@ namespace PlayMore35.Effects.Tests {
             Statistic shortSwordAttack = new Statistic("attack rolls with short sword");
             shortSwordAttack.AddTag("attack rolls");
             Assert.AreEqual(+1, shortSwordAttack.GetValue(pool));
+        }
+
+        [TestMethod()]
+        public void TestComputeAbilityModifier() {
+            EffectPool pool = new EffectPool();
+
+            Statistic strengthScore = new Statistic("STR");
+            Effect assignedScore = new Effect()
+                .AddPart(new EffectPart(7, "untyped", "STR"));
+            pool.AddEffect(assignedScore);
+
+            Statistic strengthMod = new Statistic("STR mod");
+            EffectPart fromScore = new EffectPart("untyped", "STR mod")
+                .AddAmount(new VariableAmount(strengthScore).Halve())
+                .AddAmount(-5);
+            Effect rawMod = new Effect()
+                .AddPart(fromScore);
+            pool.AddEffect(rawMod);
+
+            Assert.AreEqual(-2, strengthMod.GetValue(pool));
         }
     }
 }
