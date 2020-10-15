@@ -123,5 +123,21 @@ namespace PlayMore35.GameRules {
                     )
             );
         }
+
+        public void SaveModifier(string save, string ability) {
+            string saveName = save + " saves";
+            string baseSaveName = "Base " + save;
+            Statistic baseSave = new Statistic(baseSaveName);
+            Stats.Add(baseSave);
+
+            Stats.Add(new Statistic(saveName));
+            Rules.AddEffect(
+                new Effect("Total " + save + " modifier")
+                    .AddPart(new EffectPart("untyped", saveName)
+                        .AddAmount(new VariableAmount(baseSave))
+                        .AddAmount(new VariableAmount(abilityModifiers[ability]))
+                    )
+            );
+        }
     }
 }
