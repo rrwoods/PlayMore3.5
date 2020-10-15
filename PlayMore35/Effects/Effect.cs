@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class Effect {
-        public Effect() {
+        public Effect(string name) {
+            this.Name = name;
             this.EffectParts = new List<EffectPart>();
         }
+
+        public string Name { get; private set; }
 
         public List<EffectPart> EffectParts { get; }
 
@@ -16,5 +19,6 @@ namespace PlayMore35.Effects {
             this.EffectParts.Add(part);
             return this; // method chaining
         }
+
     }
 }

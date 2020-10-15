@@ -13,7 +13,7 @@ namespace PlayMore35.Effects.Tests {
         public void TestOverlapping() {
             EffectPool pool = new EffectPool();
 
-            Effect bless = new Effect();
+            Effect bless = new Effect("bless");
             bless.AddPart(new EffectPart(+1, "morale", "attack rolls"));
             bless.AddPart(new EffectPart(+1, "morale", "saves vs fear"));
             pool.AddEffect(bless);
@@ -24,7 +24,7 @@ namespace PlayMore35.Effects.Tests {
             willSavesVsFear.AddTag("All saves");
             Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
 
-            Effect inspireCourage = new Effect();
+            Effect inspireCourage = new Effect("inspire courage");
             inspireCourage.AddPart(new EffectPart(+1, "morale", "attack rolls"));
             inspireCourage.AddPart(new EffectPart(+1, "morale", "damage rolls"));
             inspireCourage.AddPart(new EffectPart(+1, "morale", "saves vs charm"));
@@ -32,7 +32,7 @@ namespace PlayMore35.Effects.Tests {
             pool.AddEffect(inspireCourage);
             Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
 
-            Effect weaponFocus = new Effect();
+            Effect weaponFocus = new Effect("Weapon Focus: longsword");
             weaponFocus.AddPart(new EffectPart(+1, "untyped", "attack rolls with longsword"));
             pool.AddEffect(weaponFocus);
 
@@ -48,9 +48,9 @@ namespace PlayMore35.Effects.Tests {
         [TestMethod()]
         public void TestComputeAbilityModifier() {
             EffectPool pool = new EffectPool();
-
+            
             Statistic strengthScore = new Statistic("STR");
-            Effect assignedScore = new Effect()
+            Effect assignedScore = new Effect("Assigned STR")
                 .AddPart(new EffectPart(7, "untyped", "STR"));
             pool.AddEffect(assignedScore);
 
@@ -58,7 +58,7 @@ namespace PlayMore35.Effects.Tests {
             EffectPart fromScore = new EffectPart("untyped", "STR mod")
                 .AddAmount(new VariableAmount(strengthScore).Halve())
                 .AddAmount(-5);
-            Effect rawMod = new Effect()
+            Effect rawMod = new Effect("Base STR mod")
                 .AddPart(fromScore);
             pool.AddEffect(rawMod);
 

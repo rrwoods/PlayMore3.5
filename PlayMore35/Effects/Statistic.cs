@@ -13,12 +13,20 @@ namespace PlayMore35.Effects {
             this.AddTag(name);
         }
 
+        // For things like "an Initiative check is a Dexterity check",
+        // or setting up Dexterity checks themselves to be the Dexterity modifier plus some stuff.
+        public Statistic(string name, Statistic basedOn) {
+            this.Name = name;
+            this.tags.AddRange(basedOn.tags);
+        }
+
         public string Name { get; private set; }
 
         private readonly List<string> tags = new List<string>();
 
-        public void AddTag(string tag) {
+        public Statistic AddTag(string tag) {
             this.tags.Add(tag);
+            return this; // method chaining
         }
 
         public bool HasTag(string tag) {

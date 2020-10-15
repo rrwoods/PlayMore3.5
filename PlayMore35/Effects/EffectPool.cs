@@ -11,14 +11,16 @@ namespace PlayMore35.Effects {
 
         }
 
-        private readonly List<EffectPart> Effects = new List<EffectPart>();
+        private readonly Dictionary<string, Effect> Effects = new Dictionary<string, Effect>();
 
         public void AddEffect(Effect effect) {
-            this.Effects.AddRange(effect.EffectParts);
+            this.Effects[effect.Name] = effect;
         }
 
         public IEnumerable<EffectPart> GetEffects(Statistic affecting) {
-            return this.Effects.Where(x => affecting.HasTag(x.Affects));
+            return this.Effects.Values
+                .SelectMany(x => x.EffectParts)
+                .Where(x => affecting.HasTag(x.Affects));
         }
     }
 }
