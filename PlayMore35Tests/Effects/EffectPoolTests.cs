@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.Effects;
+using PlayMore35.GameRules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,6 +64,24 @@ namespace PlayMore35.Effects.Tests {
             pool.AddEffect(rawMod);
 
             Assert.AreEqual(-2, strengthMod.GetValue(pool));
+        }
+
+        [TestMethod()]
+        public void TestConditionalEffects() {
+            GameRules.GameRules r = new GameRules.GameRules();
+            EffectPool rules = r.Rules;
+            rules.SetValue(5, "Tumble ranks");
+
+            // make all the ability modifiers zero
+            rules.SetValue(10, "STR score");
+            rules.SetValue(10, "DEX score");
+            rules.SetValue(10, "CON score");
+            rules.SetValue(10, "INT score");
+            rules.SetValue(10, "WIS score");
+            rules.SetValue(10, "CHA score");
+
+            Assert.AreEqual(+2, new Statistic("Jump").GetValue(rules));
+            Assert.AreEqual(+5, new Statistic("Tumble").GetValue(rules));
         }
     }
 }

@@ -14,11 +14,15 @@ namespace PlayMore35.Effects {
         private readonly Dictionary<string, Effect> Effects = new Dictionary<string, Effect>();
 
         public void AddEffect(Effect effect) {
-            this.Effects[effect.Name] = effect;
+            Effects[effect.Name] = effect;
+        }
+
+        public void SetValue(int value, string affects) {
+            AddEffect(new Effect(affects).AddPart(new EffectPart("untyped", affects).AddAmount(value)));
         }
 
         public IEnumerable<EffectPart> GetEffects(Statistic affecting) {
-            return this.Effects.Values
+            return Effects.Values
                 .SelectMany(x => x.EffectParts)
                 .Where(x => affecting.HasTag(x.Affects));
         }

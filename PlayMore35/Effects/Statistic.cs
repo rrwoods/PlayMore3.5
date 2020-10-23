@@ -9,15 +9,15 @@ namespace PlayMore35.Effects {
         private static string[] stackingTypes = { "circumstance", "dodge", "racial", "untyped" };
 
         public Statistic(string name) {
-            this.Name = name;
-            this.AddTag(name);
+            Name = name;
+            AddTag(name);
         }
 
         // For things like "an Initiative check is a Dexterity check",
         // or setting up Dexterity checks themselves to be the Dexterity modifier plus some stuff.
         public Statistic(string name, Statistic basedOn) {
-            this.Name = name;
-            this.tags.AddRange(basedOn.tags);
+            Name = name;
+            tags.AddRange(basedOn.tags);
         }
 
         public string Name { get; private set; }
@@ -25,12 +25,12 @@ namespace PlayMore35.Effects {
         private readonly List<string> tags = new List<string>();
 
         public Statistic AddTag(string tag) {
-            this.tags.Add(tag);
+            tags.Add(tag);
             return this; // method chaining
         }
 
         public bool HasTag(string tag) {
-            return this.tags.Contains(tag);
+            return tags.Contains(tag);
         }
 
         public int GetValue(EffectPool pool) {

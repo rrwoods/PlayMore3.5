@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using PlayMore35.Effects;
 
 namespace PlayMore35.GameRules {
-    class GameRules {
+    public class GameRules {
         public EffectPool Rules { get; private set; } = new EffectPool();
 
         public List<Statistic> Stats { get; private set; } = new List<Statistic>();
@@ -27,7 +27,7 @@ namespace PlayMore35.GameRules {
 
             SkillModifier("Appraise", "INT");
             SkillModifier("Balance", "DEX");
-            SkillModifier("Bluff", "CHA");
+            Statistic bluffRanks = SkillModifier("Bluff", "CHA");
             SkillModifier("Climb", "STR");
             SkillModifier("Concentration", "CON");
             SkillModifier("Craft", "INT"); // TODO : need subskills
@@ -38,21 +38,21 @@ namespace PlayMore35.GameRules {
             SkillModifier("Escape Artist", "DEX");
             SkillModifier("Forgery", "INT");
             SkillModifier("Gather Information", "CHA");
-            SkillModifier("Handle Animal", "CHA");
+            Statistic handleAnimalRanks = SkillModifier("Handle Animal", "CHA");
             SkillModifier("Heal", "WIS");
             SkillModifier("Hide", "DEX");
             SkillModifier("Intimidate", "CHA");
-            SkillModifier("Jump", "STR");
-            SkillModifier("Knowledge (arcana)", "INT");
-            SkillModifier("Knowledge (architecture and engineering)", "INT");
-            SkillModifier("Knowledge (dungeoneering)", "INT");
-            SkillModifier("Knowledge (geography)", "INT");
-            SkillModifier("Knowledge (history)", "INT");
-            SkillModifier("Knowledge (local)", "INT");
-            SkillModifier("Knowledge (nature)", "INT");
-            SkillModifier("Knowledge (nobility and royalty)", "INT");
-            SkillModifier("Knowledge (religion)", "INT");
-            SkillModifier("Knowledge (the planes)", "INT");
+            Statistic jumpRanks = SkillModifier("Jump", "STR");
+            Statistic knowledgeArcanaRanks = SkillModifier("Knowledge (arcana)", "INT");
+            Statistic knowledgeArchitectureRanks = SkillModifier("Knowledge (architecture and engineering)", "INT");
+            Statistic knowledgeDungeoneeringRanks = SkillModifier("Knowledge (dungeoneering)", "INT");
+            Statistic knowledgeGeographyRanks = SkillModifier("Knowledge (geography)", "INT");
+            Statistic knowledgeHistoryRanks = SkillModifier("Knowledge (history)", "INT");
+            Statistic knowledgeLocalRanks = SkillModifier("Knowledge (local)", "INT");
+            Statistic knowledgeNatureRanks = SkillModifier("Knowledge (nature)", "INT");
+            Statistic knowledgeNobilityRanks = SkillModifier("Knowledge (nobility and royalty)", "INT");
+            Statistic knowledgeReligionRanks = SkillModifier("Knowledge (religion)", "INT");
+            Statistic knowledgePlanesRanks = SkillModifier("Knowledge (the planes)", "INT");
             SkillModifier("Listen", "WIS");
             SkillModifier("Move Silently", "DEX");
             SkillModifier("Open Lock", "DEX");
@@ -68,17 +68,31 @@ namespace PlayMore35.GameRules {
             SkillModifier("Profession", "WIS"); // TODO : need subskills
             SkillModifier("Ride", "DEX");
             SkillModifier("Search", "INT");
-            SkillModifier("Sense Motive", "WIS");
+            Statistic senseMotiveRanks = SkillModifier("Sense Motive", "WIS");
             SkillModifier("Sleight Of Hand", "DEX");
             SkillModifier("Spellcraft", "INT");
             SkillModifier("Spot", "WIS");
-            SkillModifier("Survival", "WIS");
+            Statistic survivalRanks = SkillModifier("Survival", "WIS");
             SkillModifier("Swim", "STR");
-            SkillModifier("Tumble", "DEX");
+            Statistic tumbleRanks = SkillModifier("Tumble", "DEX");
             SkillModifier("Use Magic Device", "CHA");
             SkillModifier("Use Rope", "DEX");
             // TODO : expanded skills -- psionics, iaijutsu, martial lore, etc
 
+            SkillSynergy(bluffRanks, "Diplomacy");
+            SkillSynergy(bluffRanks, "Intimidate");
+            SkillSynergy(bluffRanks, "Sleight of Hand");
+            SkillSynergy(handleAnimalRanks, "Ride");
+            SkillSynergy(jumpRanks, "Tumble");
+            SkillSynergy(knowledgeArcanaRanks, "Spellcraft");
+            SkillSynergy(knowledgeLocalRanks, "Gather Information");
+            SkillSynergy(knowledgeNobilityRanks, "Diplomacy");
+            SkillSynergy(senseMotiveRanks, "Diplomacy");
+            SkillSynergy(survivalRanks, "Knowledge (nature)");
+            SkillSynergy(tumbleRanks, "Balance");
+            SkillSynergy(tumbleRanks, "Jump");
+            // TODO : multiple conditions
+            // 5 ranks in bluff gives +2 Disguise to act in character
         }
 
         // returns the check stat, so i can make initiative later.
@@ -104,24 +118,25 @@ namespace PlayMore35.GameRules {
             return checks;
         }
 
-        public void SkillModifier(string skill, string ability) {
+        public Statistic SkillModifier(string skill, string ability) {
             string skillRanksName = skill + " ranks";
             Statistic skillRanks = new Statistic(skillRanksName);
             Stats.Add(skillRanks);
 
-            string skillChecks = skill + " checks";
-            Stats.Add(new Statistic(skillChecks)
+            Stats.Add(new Statistic(skill)
                 .AddTag("All skills")
                 .AddTag(ability + " skills")
             );
 
             Rules.AddEffect(
                 new Effect("Base " + skill + " modifier")
-                    .AddPart(new EffectPart("untyped", skillChecks)
+                    .AddPart(new EffectPart("untyped", skill)
                         .AddAmount(new VariableAmount(skillRanks))
                         .AddAmount(new VariableAmount(abilityModifiers[ability]))
                     )
             );
+
+            return skillRanks;
         }
 
         public void SaveModifier(string save, string ability) {
@@ -137,6 +152,20 @@ namespace PlayMore35.GameRules {
                         .AddAmount(new VariableAmount(baseSave))
                         .AddAmount(new VariableAmount(abilityModifiers[ability]))
                     )
+            );
+        }
+
+        public void SkillSynergy(Statistic fiveRanksIn, string givesPlusTwoOn) {
+            Rules.AddEffect(
+                new Effect("Synergy: " + fiveRanksIn.Name + " -> " + givesPlusTwoOn)
+                    .AddPart(new EffectPart("untyped", givesPlusTwoOn)
+                        .AddAmount(new ConditionalAmount(
+                            new VariableAmount(fiveRanksIn),
+                            ConditionalAmount.Relation.GREATER_THAN_OR_EQUAL,
+                            new FixedAmount(5),
+                            new FixedAmount(2)
+                        ))
+                )
             );
         }
     }

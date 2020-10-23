@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Effects\ConditionalAmount.cs" />
     <Compile Include="Effects\Effect.cs" />
     <Compile Include="Effects\IAmount.cs" />
     <Compile Include="Effects\EffectPart.cs" />
