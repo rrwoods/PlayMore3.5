@@ -14,8 +14,8 @@ namespace PlayMore35.Effects {
 
         private IAmount Amount = null;
 
-        public ConditionalAmount(int left, Relation relationship, int right, int amount) {
-            Left = new FixedAmount(left);
+        public ConditionalAmount(IAmount left, Relation relationship, int right, int amount) {
+            Left = left;
             Relationship = relationship;
             Right = new FixedAmount(right);
             Amount = new FixedAmount(amount);

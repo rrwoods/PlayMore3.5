@@ -9,7 +9,7 @@ namespace PlayMore35.GameRules {
     public class GameRules {
         public EffectPool Rules { get; private set; } = new EffectPool();
 
-        public List<Statistic> Stats { get; private set; } = new List<Statistic>();
+        public Dictionary<string, Statistic> Stats { get; private set; } = new Dictionary<string, Statistic>();
 
         // TODO : Non-default constructor(s) to load houserules or custom rules from files.
         // Or, should we always load the official rules, then modify those rules with houserules?
@@ -19,7 +19,8 @@ namespace PlayMore35.GameRules {
         // The default constructor sets up 3.5's official rules.
         public GameRules() {
             AbilityScore("STR");
-            Stats.Add(new Statistic("Initiative", AbilityScore("DEX")));
+            AbilityScore("DEX");
+            AddStat(new Statistic("Initiative", Stats["DEX checks"]));
             AbilityScore("CON");
             AbilityScore("INT");
             AbilityScore("WIS");
@@ -91,14 +92,39 @@ namespace PlayMore35.GameRules {
             SkillSynergy(survivalRanks, "Knowledge (nature)");
             SkillSynergy(tumbleRanks, "Balance");
             SkillSynergy(tumbleRanks, "Jump");
-            // TODO : multiple conditions
-            // 5 ranks in bluff gives +2 Disguise to act in character
+            // TODO : 5 ranks in bluff gives +2 Disguise to act in character, etc
+
+            Statistic ac = new Statistic("AC");
+            Statistic touchAC = new Statistic("Touch AC", ac)
+                .ignoreModifierType("armor")
+                .ignoreModifierType("shield")
+                .ignoreModifierType("natural armor");
+            Statistic flatFootedAC = new Statistic("Flat-footed AC", ac)
+                .ignoreModifierType("dodge");
+            Statistic flatFootedTouchAC = new Statistic("Flat-footed touch AC", touchAC)
+                .ignoreModifierType("dodge");
+            AddStat(ac);
+            AddStat(touchAC);
+            AddStat(flatFootedAC);
+            AddStat(flatFootedTouchAC);
+
+            Rules.AddEffect(new Effect("DEX bonus to AC")
+                .AddPart(new EffectPart(Stats["DEX modifier"], "dodge", "AC"))
+            );
+
+            Rules.AddEffect(new Effect("Base AC")
+                .AddPart(new EffectPart(10, "untyped", "AC"))
+            );
+        }
+
+        private void AddStat(Statistic stat) {
+            Stats[stat.Name] = stat;
         }
 
         // returns the check stat, so i can make initiative later.
-        public Statistic AbilityScore(string ability) {
+        private void AbilityScore(string ability) {
             Statistic abilityScore = new Statistic(ability + " score");
-            Stats.Add(abilityScore);
+            AddStat(abilityScore);
             string abilityModifierName = ability + " modifier";
             Rules.AddEffect(
                 new Effect("Base " + ability + " modifier")
@@ -109,21 +135,20 @@ namespace PlayMore35.GameRules {
             );
 
             Statistic abilityModifier = new Statistic(abilityModifierName);
-            Stats.Add(abilityModifier);
+            AddStat(abilityModifier);
             Statistic checks = new Statistic(ability + " checks", abilityModifier)
-                .AddTag("ability checks");
-            Stats.Add(checks);
+                .AddTag("Ability checks");
+            AddStat(checks);
 
             abilityModifiers[ability] = abilityModifier;
-            return checks;
         }
 
-        public Statistic SkillModifier(string skill, string ability) {
+        private Statistic SkillModifier(string skill, string ability) {
             string skillRanksName = skill + " ranks";
             Statistic skillRanks = new Statistic(skillRanksName);
-            Stats.Add(skillRanks);
+            AddStat(skillRanks);
 
-            Stats.Add(new Statistic(skill)
+            AddStat(new Statistic(skill)
                 .AddTag("All skills")
                 .AddTag(ability + " skills")
             );
@@ -139,13 +164,13 @@ namespace PlayMore35.GameRules {
             return skillRanks;
         }
 
-        public void SaveModifier(string save, string ability) {
+        private void SaveModifier(string save, string ability) {
             string saveName = save + " saves";
             string baseSaveName = "Base " + save;
             Statistic baseSave = new Statistic(baseSaveName);
-            Stats.Add(baseSave);
+            AddStat(baseSave);
 
-            Stats.Add(new Statistic(saveName));
+            AddStat(new Statistic(saveName));
             Rules.AddEffect(
                 new Effect("Total " + save + " modifier")
                     .AddPart(new EffectPart("untyped", saveName)
@@ -155,15 +180,12 @@ namespace PlayMore35.GameRules {
             );
         }
 
-        public void SkillSynergy(Statistic fiveRanksIn, string givesPlusTwoOn) {
+        private void SkillSynergy(Statistic fiveRanksIn, string givesPlusTwoOn) {
             Rules.AddEffect(
                 new Effect("Synergy: " + fiveRanksIn.Name + " -> " + givesPlusTwoOn)
                     .AddPart(new EffectPart("untyped", givesPlusTwoOn)
                         .AddAmount(new ConditionalAmount(
-                            new VariableAmount(fiveRanksIn),
-                            ConditionalAmount.Relation.GREATER_THAN_OR_EQUAL,
-                            new FixedAmount(5),
-                            new FixedAmount(2)
+                            new VariableAmount(fiveRanksIn), ConditionalAmount.Relation.GREATER_THAN_OR_EQUAL, 5, 2
                         ))
                 )
             );

@@ -18,6 +18,7 @@ namespace PlayMore35.Effects {
         public Statistic(string name, Statistic basedOn) {
             Name = name;
             tags.AddRange(basedOn.tags);
+            ignoredModifierTypes.AddRange(basedOn.ignoredModifierTypes);
         }
 
         public string Name { get; private set; }
@@ -33,6 +34,13 @@ namespace PlayMore35.Effects {
             return tags.Contains(tag);
         }
 
+        private readonly List<string> ignoredModifierTypes = new List<string>();
+
+        public Statistic ignoreModifierType(string type) {
+            ignoredModifierTypes.Add(type);
+            return this; // method chaining
+        }
+
         public int GetValue(EffectPool pool) {
             int total = 0;
             Dictionary<string, int> penalties = new Dictionary<string, int>();
@@ -44,6 +52,10 @@ namespace PlayMore35.Effects {
                 }
 
                 string type = part.Type;
+                if (ignoredModifierTypes.Contains(type)) {
+                    continue;
+                }
+
                 if (stackingTypes.Contains(type)) {
                     total += amount;
                     continue;

@@ -66,22 +66,56 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual(-2, strengthMod.GetValue(pool));
         }
 
-        [TestMethod()]
-        public void TestConditionalEffects() {
-            GameRules.GameRules r = new GameRules.GameRules();
-            EffectPool rules = r.Rules;
-            rules.SetValue(5, "Tumble ranks");
+        private GameRules.GameRules rules() {
+            GameRules.GameRules rules = new GameRules.GameRules();
+            EffectPool p = rules.Rules;
 
             // make all the ability modifiers zero
-            rules.SetValue(10, "STR score");
-            rules.SetValue(10, "DEX score");
-            rules.SetValue(10, "CON score");
-            rules.SetValue(10, "INT score");
-            rules.SetValue(10, "WIS score");
-            rules.SetValue(10, "CHA score");
+            p.SetValue(10, "STR score");
+            p.SetValue(10, "DEX score");
+            p.SetValue(10, "CON score");
+            p.SetValue(10, "INT score");
+            p.SetValue(10, "WIS score");
+            p.SetValue(10, "CHA score");
 
-            Assert.AreEqual(+2, new Statistic("Jump").GetValue(rules));
-            Assert.AreEqual(+5, new Statistic("Tumble").GetValue(rules));
+            return rules;
+        }
+
+        private void checkStat(int expected, GameRules.GameRules r, EffectPool p, string stat) {
+            Assert.AreEqual(expected, r.Stats[stat].GetValue(p));
+        }
+
+        [TestMethod()]
+        public void TestConditionalEffects() {
+            GameRules.GameRules r = rules();
+            EffectPool p = r.Rules;
+
+            p.SetValue(5, "Tumble ranks");
+            checkStat(+2, r, p, "Jump");
+            checkStat(+5, r, p, "Tumble");
+        }
+
+        [TestMethod()]
+        public void TestInitiativeChaining() {
+            GameRules.GameRules r = rules();
+            EffectPool p = r.Rules;
+            p.AddEffect(new Effect("somethin").AddPart(new EffectPart(4, "untyped", "Ability checks")));
+            checkStat(+4, r, p, "Initiative");
+        }
+
+        [TestMethod()]
+        public void TestAC() {
+            GameRules.GameRules r = rules();
+            EffectPool p = r.Rules;
+
+            p.AddEffect(new Effect("haste").AddPart(new EffectPart(1, "dodge", "AC")));
+            p.AddEffect(new Effect("ring").AddPart(new EffectPart(2, "deflection", "AC")));
+            p.AddEffect(new Effect("breastplate").AddPart(new EffectPart(4, "armor", "AC")));
+
+            checkStat(17, r, p, "AC");
+            checkStat(16, r, p, "Flat-footed AC");
+            checkStat(13, r, p, "Touch AC");
+            checkStat(12, r, p, "Flat-footed touch AC");
         }
     }
 }
