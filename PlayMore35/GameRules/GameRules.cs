@@ -94,6 +94,23 @@ namespace PlayMore35.GameRules {
             SkillSynergy(tumbleRanks, "Jump");
             // TODO : 5 ranks in bluff gives +2 Disguise to act in character, etc
 
+            AddStat(new Statistic("Armor check penalty"));
+            ArmorCheckPenalty("Balance");
+            ArmorCheckPenalty("Climb");
+            ArmorCheckPenalty("Balance");
+            ArmorCheckPenalty("Escape Artist");
+            ArmorCheckPenalty("Hide");
+            ArmorCheckPenalty("Jump");
+            ArmorCheckPenalty("Move Silently");
+            ArmorCheckPenalty("Sleight of Hand");
+            Rules.AddEffect(
+                new Effect("Armor check penalty to Swim")
+                    .AddPart(new EffectPart(new VariableAmount(Stats["Armor check penalty"]).Double(), "untyped", "Swim"))
+            );
+            // TODO : (after toggle-effects are in)
+            // apply ACP these specific skills only if the character is proficient with their armor
+            // apply ACP to all STR and DEX skills if the character is not proficient with their armor
+
             Statistic ac = new Statistic("AC");
             Statistic touchAC = new Statistic("Touch AC", ac)
                 .ignoreModifierType("armor")
@@ -188,6 +205,13 @@ namespace PlayMore35.GameRules {
                             new VariableAmount(fiveRanksIn), ConditionalAmount.Relation.GREATER_THAN_OR_EQUAL, 5, 2
                         ))
                 )
+            );
+        }
+
+        private void ArmorCheckPenalty(string skill) {
+            Rules.AddEffect(
+                new Effect("Armor check penalty to " + skill)
+                    .AddPart(new EffectPart(Stats["Armor check penalty"], "untyped", skill))
             );
         }
     }
