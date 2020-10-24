@@ -23,8 +23,7 @@ namespace PlayMore35.Effects {
 
         public IEnumerable<Modifier> GetModifiers(Statistic affecting) {
             return Effects.Values
-                .SelectMany(x => x.Modifiers)
-                .Where(x => affecting.HasTag(x.Affects));
+                .SelectMany(x => x.GetModifiers(this, affecting));
         }
     }
 }

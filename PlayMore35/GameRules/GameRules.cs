@@ -20,11 +20,11 @@ namespace PlayMore35.GameRules {
         public GameRules() {
             AbilityScore("STR");
             AbilityScore("DEX");
-            AddStat(new Statistic("Initiative", Stats["DEX checks"]));
             AbilityScore("CON");
             AbilityScore("INT");
             AbilityScore("WIS");
             AbilityScore("CHA");
+            AddStat(new Statistic("Initiative", Stats["DEX checks"]));
 
             SkillModifier("Appraise", "INT");
             SkillModifier("Balance", "DEX");
@@ -200,11 +200,8 @@ namespace PlayMore35.GameRules {
         private void SkillSynergy(Statistic fiveRanksIn, string givesPlusTwoOn) {
             Rules.AddEffect(
                 new Effect("Synergy: " + fiveRanksIn.Name + " -> " + givesPlusTwoOn)
-                    .AddModifier(new Modifier("untyped", givesPlusTwoOn)
-                        .AddAmount(new ConditionalAmount(
-                            new VariableAmount(fiveRanksIn), ConditionalAmount.Relation.GREATER_THAN_OR_EQUAL, 5, 2
-                        ))
-                )
+                    .AddModifier(new Modifier(2, "untyped", givesPlusTwoOn))
+                    .SetToggle(new ConditionalToggle(new VariableAmount(fiveRanksIn), Relation.GREATER_THAN_OR_EQUAL, 5))
             );
         }
 

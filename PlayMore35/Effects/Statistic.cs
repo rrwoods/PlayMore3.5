@@ -45,13 +45,13 @@ namespace PlayMore35.Effects {
             int total = 0;
             Dictionary<string, int> penalties = new Dictionary<string, int>();
             Dictionary<string, int> bonuses = new Dictionary<string, int>();
-            foreach (Modifier part in pool.GetModifiers(this)) {
-                int amount = part.ComputeAmount(pool);
+            foreach (Modifier mod in pool.GetModifiers(this)) {
+                int amount = mod.ComputeAmount(pool);
                 if (amount == 0) {
                     continue;
                 }
 
-                string type = part.Type;
+                string type = mod.Type;
                 if (ignoredModifierTypes.Contains(type)) {
                     continue;
                 }
