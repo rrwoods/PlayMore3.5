@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using PlayMore35.Effects;
 
+using static PlayMore35.GameRules.Constants;
+
 namespace PlayMore35.GameRules {
     public class GameRules {
         public EffectPool Rules { get; private set; } = new EffectPool();
@@ -18,119 +20,119 @@ namespace PlayMore35.GameRules {
 
         // The default constructor sets up 3.5's official rules.
         public GameRules() {
-            AbilityScore("STR");
-            AbilityScore("DEX");
-            AbilityScore("CON");
-            AbilityScore("INT");
-            AbilityScore("WIS");
-            AbilityScore("CHA");
-            AddStat(new Statistic("Initiative", Stats["DEX checks"]));
+            AbilityScore(STR);
+            AbilityScore(DEX);
+            AbilityScore(CON);
+            AbilityScore(INT);
+            AbilityScore(WIS);
+            AbilityScore(CHA);
+            AddStat(new Statistic(INITIATIVE, Stats[DEX_CHECKS]));
 
-            SkillModifier("Appraise", "INT");
-            SkillModifier("Balance", "DEX");
-            Statistic bluffRanks = SkillModifier("Bluff", "CHA");
-            SkillModifier("Climb", "STR");
-            SkillModifier("Concentration", "CON");
-            SkillModifier("Craft", "INT"); // TODO : need subskills
-            SkillModifier("Decipher Script", "INT");
-            SkillModifier("Diplomacy", "CHA");
-            SkillModifier("Disable Device", "INT");
-            SkillModifier("Disguise", "CHA");
-            SkillModifier("Escape Artist", "DEX");
-            SkillModifier("Forgery", "INT");
-            SkillModifier("Gather Information", "CHA");
-            Statistic handleAnimalRanks = SkillModifier("Handle Animal", "CHA");
-            SkillModifier("Heal", "WIS");
-            SkillModifier("Hide", "DEX");
-            SkillModifier("Intimidate", "CHA");
-            Statistic jumpRanks = SkillModifier("Jump", "STR");
-            Statistic knowledgeArcanaRanks = SkillModifier("Knowledge (arcana)", "INT");
-            Statistic knowledgeArchitectureRanks = SkillModifier("Knowledge (architecture and engineering)", "INT");
-            Statistic knowledgeDungeoneeringRanks = SkillModifier("Knowledge (dungeoneering)", "INT");
-            Statistic knowledgeGeographyRanks = SkillModifier("Knowledge (geography)", "INT");
-            Statistic knowledgeHistoryRanks = SkillModifier("Knowledge (history)", "INT");
-            Statistic knowledgeLocalRanks = SkillModifier("Knowledge (local)", "INT");
-            Statistic knowledgeNatureRanks = SkillModifier("Knowledge (nature)", "INT");
-            Statistic knowledgeNobilityRanks = SkillModifier("Knowledge (nobility and royalty)", "INT");
-            Statistic knowledgeReligionRanks = SkillModifier("Knowledge (religion)", "INT");
-            Statistic knowledgePlanesRanks = SkillModifier("Knowledge (the planes)", "INT");
-            SkillModifier("Listen", "WIS");
-            SkillModifier("Move Silently", "DEX");
-            SkillModifier("Open Lock", "DEX");
-            SkillModifier("Perform (act)", "CHA");
-            SkillModifier("Perform (comedy)", "CHA");
-            SkillModifier("Perform (dance)", "CHA");
-            SkillModifier("Perform (keyboard instruments)", "CHA");
-            SkillModifier("Perform (oratory)", "CHA");
-            SkillModifier("Perform (percussion instruments)", "CHA");
-            SkillModifier("Perform (string instruments)", "CHA");
-            SkillModifier("Perform (wind instruments)", "CHA");
-            SkillModifier("Perform (sing)", "CHA");
-            SkillModifier("Profession", "WIS"); // TODO : need subskills
-            SkillModifier("Ride", "DEX");
-            SkillModifier("Search", "INT");
-            Statistic senseMotiveRanks = SkillModifier("Sense Motive", "WIS");
-            SkillModifier("Sleight Of Hand", "DEX");
-            SkillModifier("Spellcraft", "INT");
-            SkillModifier("Spot", "WIS");
-            Statistic survivalRanks = SkillModifier("Survival", "WIS");
-            SkillModifier("Swim", "STR");
-            Statistic tumbleRanks = SkillModifier("Tumble", "DEX");
-            SkillModifier("Use Magic Device", "CHA");
-            SkillModifier("Use Rope", "DEX");
+            SkillModifier(APPRAISE, INT);
+            SkillModifier(BALANCE, DEX);
+            SkillModifier(BLUFF, CHA);
+            SkillModifier(CLIMB, STR);
+            SkillModifier(CONCENTRATION, CON);
+            SkillModifier(CRAFT, INT);
+            SkillModifier(DECIPHER_SCRIPT, INT);
+            SkillModifier(DIPLOMACY, CHA);
+            SkillModifier(DISABLE_DEVICE, INT);
+            SkillModifier(DISGUISE, CHA);
+            SkillModifier(ESCAPE_ARTIST, DEX);
+            SkillModifier(FORGERY, INT);
+            SkillModifier(GATHER_INFORMATION, CHA);
+            SkillModifier(HANDLE_ANIMAL, CHA);
+            SkillModifier(HEAL, WIS);
+            SkillModifier(HIDE, DEX);
+            SkillModifier(INTIMIDATE, CHA);
+            SkillModifier(JUMP, STR);
+            SkillModifier(KNOWLEDGE_ARCANA, INT);
+            SkillModifier(KNOWLEDGE_ARCHITECTURE_AND_ENGINEERING, INT);
+            SkillModifier(KNOWLEDGE_DUNGEONEERING, INT);
+            SkillModifier(KNOWLEDGE_GEOGRAPHY, INT);
+            SkillModifier(KNOWLEDGE_HISTORY, INT);
+            SkillModifier(KNOWLEDGE_LOCAL, INT);
+            SkillModifier(KNOWLEDGE_NATURE, INT);
+            SkillModifier(KNOWLEDGE_NOBILITY_AND_ROYALTY, INT);
+            SkillModifier(KNOWLEDGE_RELIGION, INT);
+            SkillModifier(KNOWLEDGE_THE_PLANES, INT);
+            SkillModifier(LISTEN, WIS);
+            SkillModifier(MOVE_SILENTLY, DEX);
+            SkillModifier(OPEN_LOCK, DEX);
+            SkillModifier(PERFORM_ACT, CHA);
+            SkillModifier(PERFORM_COMEDY, CHA);
+            SkillModifier(PERFORM_DANCE, CHA);
+            SkillModifier(PERFORM_KEYBOARD_INSTRUMENTS, CHA);
+            SkillModifier(PERFORM_ORATORY, CHA);
+            SkillModifier(PERFORM_PERCUSSION_INSTRUMENTS, CHA);
+            SkillModifier(PERFORM_STRING_INSTRUMENTS, CHA);
+            SkillModifier(PERFORM_WIND_INSTRUMENTS, CHA);
+            SkillModifier(PERFORM_SING, CHA);
+            SkillModifier(PROFESSION, WIS);
+            SkillModifier(RIDE, DEX);
+            SkillModifier(SEARCH, INT);
+            SkillModifier(SENSE_MOTIVE, WIS);
+            SkillModifier(SLEIGHT_OF_HAND, DEX);
+            SkillModifier(SPELLCRAFT, INT);
+            SkillModifier(SPOT, WIS);
+            SkillModifier(SURVIVAL, WIS);
+            SkillModifier(SWIM, STR);
+            SkillModifier(TUMBLE, DEX);
+            SkillModifier(USE_MAGIC_DEVICE, CHA);
+            SkillModifier(USE_ROPE, DEX);
             // TODO : expanded skills -- psionics, iaijutsu, martial lore, etc
 
-            SkillSynergy(bluffRanks, "Diplomacy");
-            SkillSynergy(bluffRanks, "Intimidate");
-            SkillSynergy(bluffRanks, "Sleight of Hand");
-            SkillSynergy(handleAnimalRanks, "Ride");
-            SkillSynergy(jumpRanks, "Tumble");
-            SkillSynergy(knowledgeArcanaRanks, "Spellcraft");
-            SkillSynergy(knowledgeLocalRanks, "Gather Information");
-            SkillSynergy(knowledgeNobilityRanks, "Diplomacy");
-            SkillSynergy(senseMotiveRanks, "Diplomacy");
-            SkillSynergy(survivalRanks, "Knowledge (nature)");
-            SkillSynergy(tumbleRanks, "Balance");
-            SkillSynergy(tumbleRanks, "Jump");
+            SkillSynergy(Stats[BLUFF + RANKS], DIPLOMACY);
+            SkillSynergy(Stats[BLUFF + RANKS], INTIMIDATE);
+            SkillSynergy(Stats[BLUFF + RANKS], SLEIGHT_OF_HAND);
+            SkillSynergy(Stats[HANDLE_ANIMAL + RANKS], RIDE);
+            SkillSynergy(Stats[JUMP + RANKS], TUMBLE);
+            SkillSynergy(Stats[KNOWLEDGE_ARCANA + RANKS], SPELLCRAFT);
+            SkillSynergy(Stats[KNOWLEDGE_LOCAL + RANKS], GATHER_INFORMATION);
+            SkillSynergy(Stats[KNOWLEDGE_NOBILITY_AND_ROYALTY + RANKS], DIPLOMACY);
+            SkillSynergy(Stats[SENSE_MOTIVE + RANKS], DIPLOMACY);
+            SkillSynergy(Stats[SURVIVAL + RANKS], KNOWLEDGE_NATURE);
+            SkillSynergy(Stats[TUMBLE + RANKS], BALANCE);
+            SkillSynergy(Stats[TUMBLE + RANKS], JUMP);
             // TODO : 5 ranks in bluff gives +2 Disguise to act in character, etc
 
-            AddStat(new Statistic("Armor check penalty"));
-            ArmorCheckPenalty("Balance");
-            ArmorCheckPenalty("Climb");
-            ArmorCheckPenalty("Balance");
-            ArmorCheckPenalty("Escape Artist");
-            ArmorCheckPenalty("Hide");
-            ArmorCheckPenalty("Jump");
-            ArmorCheckPenalty("Move Silently");
-            ArmorCheckPenalty("Sleight of Hand");
+            AddStat(new Statistic(ARMOR_CHECK_PENALTY));
+            ArmorCheckPenalty(BALANCE);
+            ArmorCheckPenalty(CLIMB);
+            ArmorCheckPenalty(BALANCE);
+            ArmorCheckPenalty(ESCAPE_ARTIST);
+            ArmorCheckPenalty(HIDE);
+            ArmorCheckPenalty(JUMP);
+            ArmorCheckPenalty(MOVE_SILENTLY);
+            ArmorCheckPenalty(SLEIGHT_OF_HAND);
             Rules.AddEffect(
-                new Effect("Armor check penalty to Swim")
-                    .AddModifier(new Modifier(new VariableAmount(Stats["Armor check penalty"]).Double(), "untyped", "Swim"))
+                new Effect(ARMOR_CHECK_PENALTY + " to " + SWIM)
+                    .AddModifier(new Modifier(new VariableAmount(Stats[ARMOR_CHECK_PENALTY]).Double(), UNTYPED, SWIM))
             );
             // TODO : (after toggle-effects are in)
             // apply ACP these specific skills only if the character is proficient with their armor
             // apply ACP to all STR and DEX skills if the character is not proficient with their armor
 
-            Statistic ac = new Statistic("AC");
-            Statistic touchAC = new Statistic("Touch AC", ac)
-                .ignoreModifierType("armor")
-                .ignoreModifierType("shield")
-                .ignoreModifierType("natural armor");
-            Statistic flatFootedAC = new Statistic("Flat-footed AC", ac)
-                .ignoreModifierType("dodge");
-            Statistic flatFootedTouchAC = new Statistic("Flat-footed touch AC", touchAC)
-                .ignoreModifierType("dodge");
+            Statistic ac = new Statistic(AC);
+            Statistic touchAC = new Statistic(TOUCH_AC, ac)
+                .ignoreModifierType(ARMOR)
+                .ignoreModifierType(SHIELD)
+                .ignoreModifierType(NATURAL_ARMOR);
+            Statistic flatFootedAC = new Statistic(FLAT_FOOTED_AC, ac)
+                .ignoreModifierType(DODGE);
+            Statistic flatFootedTouchAC = new Statistic(FLAT_FOOTED_TOUCH_AC, touchAC)
+                .ignoreModifierType(DODGE);
             AddStat(ac);
             AddStat(touchAC);
             AddStat(flatFootedAC);
             AddStat(flatFootedTouchAC);
 
             Rules.AddEffect(new Effect("DEX bonus to AC")
-                .AddModifier(new Modifier(Stats["DEX modifier"], "dodge", "AC"))
+                .AddModifier(new Modifier(Stats[DEX_MODIFIER], DODGE, AC))
             );
 
             Rules.AddEffect(new Effect("Base AC")
-                .AddModifier(new Modifier(10, "untyped", "AC"))
+                .AddModifier(new Modifier(10, UNTYPED, AC))
             );
         }
 
@@ -138,7 +140,6 @@ namespace PlayMore35.GameRules {
             Stats[stat.Name] = stat;
         }
 
-        // returns the check stat, so i can make initiative later.
         private void AbilityScore(string ability) {
             Statistic abilityScore = new Statistic(ability + " score");
             AddStat(abilityScore);
@@ -154,31 +155,29 @@ namespace PlayMore35.GameRules {
             Statistic abilityModifier = new Statistic(abilityModifierName);
             AddStat(abilityModifier);
             Statistic checks = new Statistic(ability + " checks", abilityModifier)
-                .AddTag("Ability checks");
+                .AddTag(ABILITY_CHECKS);
             AddStat(checks);
 
             abilityModifiers[ability] = abilityModifier;
         }
 
-        private Statistic SkillModifier(string skill, string ability) {
+        private void SkillModifier(string skill, string ability) {
             string skillRanksName = skill + " ranks";
             Statistic skillRanks = new Statistic(skillRanksName);
             AddStat(skillRanks);
 
             AddStat(new Statistic(skill)
-                .AddTag("All skills")
+                .AddTag(ALL_SKILLS)
                 .AddTag(ability + " skills")
             );
 
             Rules.AddEffect(
                 new Effect("Base " + skill + " modifier")
-                    .AddModifier(new Modifier("untyped", skill)
+                    .AddModifier(new Modifier(UNTYPED, skill)
                         .AddAmount(new VariableAmount(skillRanks))
                         .AddAmount(new VariableAmount(abilityModifiers[ability]))
                     )
             );
-
-            return skillRanks;
         }
 
         private void SaveModifier(string save, string ability) {
@@ -190,7 +189,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(saveName));
             Rules.AddEffect(
                 new Effect("Total " + save + " modifier")
-                    .AddModifier(new Modifier("untyped", saveName)
+                    .AddModifier(new Modifier(UNTYPED, saveName)
                         .AddAmount(new VariableAmount(baseSave))
                         .AddAmount(new VariableAmount(abilityModifiers[ability]))
                     )
@@ -207,8 +206,8 @@ namespace PlayMore35.GameRules {
 
         private void ArmorCheckPenalty(string skill) {
             Rules.AddEffect(
-                new Effect("Armor check penalty to " + skill)
-                    .AddModifier(new Modifier(Stats["Armor check penalty"], "untyped", skill))
+                new Effect(ARMOR_CHECK_PENALTY + " to " + skill)
+                    .AddModifier(new Modifier(Stats[ARMOR_CHECK_PENALTY], UNTYPED, skill))
             );
         }
     }

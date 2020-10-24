@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using static PlayMore35.GameRules.Constants;
+
 namespace PlayMore35.Effects.Tests {
     [TestClass()]
     public class EffectPoolTests {
@@ -14,35 +16,35 @@ namespace PlayMore35.Effects.Tests {
         public void TestOverlapping() {
             EffectPool pool = new EffectPool();
 
+            string FEAR = "fear";
             Effect bless = new Effect("bless");
-            bless.AddModifier(new Modifier(+1, "morale", "attack rolls"));
-            bless.AddModifier(new Modifier(+1, "morale", "saves vs fear"));
+            bless.AddModifier(new Modifier(+1, MORALE, "attack rolls"));
+            bless.AddModifier(new Modifier(+1, MORALE, ALL_SAVES + VS + FEAR));
             pool.AddEffect(bless);
 
-            Statistic willSavesVsFear = new Statistic("Will saves vs fear");
-            willSavesVsFear.AddTag("saves vs fear");
-            willSavesVsFear.AddTag("Will saves");
-            willSavesVsFear.AddTag("All saves");
+            Statistic willSavesVsFear = new Statistic(WILL_SAVES + VS + FEAR);
+            willSavesVsFear.AddTag(ALL_SAVES + VS + FEAR);
+            willSavesVsFear.AddTag(WILL_SAVES);
+            willSavesVsFear.AddTag(ALL_SAVES);
             Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
 
             Effect inspireCourage = new Effect("inspire courage");
-            inspireCourage.AddModifier(new Modifier(+1, "morale", "attack rolls"));
-            inspireCourage.AddModifier(new Modifier(+1, "morale", "damage rolls"));
-            inspireCourage.AddModifier(new Modifier(+1, "morale", "saves vs charm"));
-            inspireCourage.AddModifier(new Modifier(+1, "morale", "saves vs fear"));
+            inspireCourage.AddModifier(new Modifier(+1, MORALE, ATTACK_ROLLS));
+            inspireCourage.AddModifier(new Modifier(+1, MORALE, DAMAGE_ROLLS));
+            inspireCourage.AddModifier(new Modifier(+1, MORALE, ALL_SAVES + VS + FEAR));
             pool.AddEffect(inspireCourage);
             Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
 
             Effect weaponFocus = new Effect("Weapon Focus: longsword");
-            weaponFocus.AddModifier(new Modifier(+1, "untyped", "attack rolls with longsword"));
+            weaponFocus.AddModifier(new Modifier(+1, UNTYPED, ATTACK_ROLLS + WITH + "longsword"));
             pool.AddEffect(weaponFocus);
 
-            Statistic longswordAttack = new Statistic("attack rolls with longsword");
-            longswordAttack.AddTag("attack rolls");
+            Statistic longswordAttack = new Statistic(ATTACK_ROLLS + WITH + "longsword");
+            longswordAttack.AddTag(ATTACK_ROLLS);
             Assert.AreEqual(+2, longswordAttack.GetValue(pool));
 
-            Statistic shortSwordAttack = new Statistic("attack rolls with short sword");
-            shortSwordAttack.AddTag("attack rolls");
+            Statistic shortSwordAttack = new Statistic(ATTACK_ROLLS + WITH + "short sword");
+            shortSwordAttack.AddTag(ATTACK_ROLLS);
             Assert.AreEqual(+1, shortSwordAttack.GetValue(pool));
         }
 
@@ -51,12 +53,12 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = rules.Rules;
 
             // make all the ability modifiers zero
-            p.SetValue(10, "STR score");
-            p.SetValue(10, "DEX score");
-            p.SetValue(10, "CON score");
-            p.SetValue(10, "INT score");
-            p.SetValue(10, "WIS score");
-            p.SetValue(10, "CHA score");
+            p.SetValue(10, STR_SCORE);
+            p.SetValue(10, DEX_SCORE);
+            p.SetValue(10, CON_SCORE);
+            p.SetValue(10, INT_SCORE);
+            p.SetValue(10, WIS_SCORE);
+            p.SetValue(10, CHA_SCORE);
 
             return rules;
         }
@@ -70,9 +72,9 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.SetValue(7, "STR score");
-            CheckStat(-2, r, p, "STR modifier");
-            CheckStat(0, r, p, "DEX modifier");
+            p.SetValue(7, STR_SCORE);
+            CheckStat(-2, r, p, STR_MODIFIER);
+            CheckStat(0, r, p, DEX_MODIFIER);
         }
 
         [TestMethod()]
@@ -80,17 +82,17 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.SetValue(5, "Tumble ranks");
-            CheckStat(+2, r, p, "Jump");
-            CheckStat(+5, r, p, "Tumble");
+            p.SetValue(5, TUMBLE + RANKS);
+            CheckStat(+2, r, p, JUMP);
+            CheckStat(+5, r, p, TUMBLE);
         }
 
         [TestMethod()]
         public void TestInitiativeChaining() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            p.AddEffect(new Effect("somethin").AddModifier(new Modifier(4, "untyped", "Ability checks")));
-            CheckStat(+4, r, p, "Initiative");
+            p.AddEffect(new Effect("somethin").AddModifier(new Modifier(4, UNTYPED, ABILITY_CHECKS)));
+            CheckStat(+4, r, p, INITIATIVE);
         }
 
         [TestMethod()]
@@ -98,14 +100,14 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.AddEffect(new Effect("haste").AddModifier(new Modifier(1, "dodge", "AC")));
-            p.AddEffect(new Effect("ring").AddModifier(new Modifier(2, "deflection", "AC")));
-            p.AddEffect(new Effect("breastplate").AddModifier(new Modifier(4, "armor", "AC")));
+            p.AddEffect(new Effect("haste").AddModifier(new Modifier(1, DODGE, AC)));
+            p.AddEffect(new Effect("ring").AddModifier(new Modifier(2, DEFLECTION, AC)));
+            p.AddEffect(new Effect("breastplate").AddModifier(new Modifier(4, ARMOR, AC)));
 
-            CheckStat(17, r, p, "AC");
-            CheckStat(16, r, p, "Flat-footed AC");
-            CheckStat(13, r, p, "Touch AC");
-            CheckStat(12, r, p, "Flat-footed touch AC");
+            CheckStat(17, r, p, AC);
+            CheckStat(16, r, p, FLAT_FOOTED_AC);
+            CheckStat(13, r, p, TOUCH_AC);
+            CheckStat(12, r, p, FLAT_FOOTED_TOUCH_AC);
         }
 
         [TestMethod()]
@@ -113,10 +115,10 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.SetValue(-5, "Armor check penalty");
-            CheckStat(-5, r, p, "Balance");
-            CheckStat(-10, r, p, "Swim");
-            CheckStat(0, r, p, "Diplomacy");
+            p.SetValue(-5, ARMOR_CHECK_PENALTY);
+            CheckStat(-5, r, p, BALANCE);
+            CheckStat(-10, r, p, SWIM);
+            CheckStat(0, r, p, DIPLOMACY);
         }
     }
 }

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using static PlayMore35.GameRules.Constants;
+
 namespace PlayMore35.Effects {
     public class Statistic {
-        private static string[] stackingTypes = { "circumstance", "dodge", "racial", "untyped" };
+        private static string[] stackingTypes = { CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
 
         public Statistic(string name) {
             Name = name;
