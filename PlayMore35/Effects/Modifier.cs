@@ -5,34 +5,34 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
-    public class EffectPart {
-        public EffectPart(int amount, string type, string affects)
+    public class Modifier {
+        public Modifier(int amount, string type, string affects)
             : this(new FixedAmount(amount), type, affects) {
             
         }
 
-        public EffectPart(Statistic amount, string type, string affects)
+        public Modifier(Statistic amount, string type, string affects)
             : this(new VariableAmount(amount), type, affects) {
 
         }
 
-        public EffectPart(IAmount amount, string type, string affects)
+        public Modifier(IAmount amount, string type, string affects)
             : this(type, affects) {
             this.AddAmount(amount);
         }
 
-        public EffectPart(string type, string affects) {
+        public Modifier(string type, string affects) {
             this.Type = type;
             this.Affects = affects;
         }
 
         private readonly List<IAmount> Amounts = new List<IAmount>();
 
-        public EffectPart AddAmount(int amount) {
+        public Modifier AddAmount(int amount) {
             return this.AddAmount(new FixedAmount(amount));
         }
 
-        public EffectPart AddAmount(IAmount amount) {
+        public Modifier AddAmount(IAmount amount) {
             this.Amounts.Add(amount);
             return this; // method chaining
         }

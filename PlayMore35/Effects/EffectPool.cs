@@ -18,12 +18,12 @@ namespace PlayMore35.Effects {
         }
 
         public void SetValue(int value, string affects) {
-            AddEffect(new Effect(affects).AddPart(new EffectPart("untyped", affects).AddAmount(value)));
+            AddEffect(new Effect(affects).AddModifier(new Modifier("untyped", affects).AddAmount(value)));
         }
 
-        public IEnumerable<EffectPart> GetEffects(Statistic affecting) {
+        public IEnumerable<Modifier> GetModifiers(Statistic affecting) {
             return Effects.Values
-                .SelectMany(x => x.EffectParts)
+                .SelectMany(x => x.Modifiers)
                 .Where(x => affecting.HasTag(x.Affects));
         }
     }

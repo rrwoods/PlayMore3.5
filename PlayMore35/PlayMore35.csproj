@@ -78,7 +78,7 @@
     <Compile Include="Effects\ConditionalAmount.cs" />
     <Compile Include="Effects\Effect.cs" />
     <Compile Include="Effects\IAmount.cs" />
-    <Compile Include="Effects\EffectPart.cs" />
+    <Compile Include="Effects\Modifier.cs" />
     <Compile Include="Effects\EffectPool.cs" />
     <Compile Include="Effects\FixedAmount.cs" />
     <Compile Include="Effects\Statistic.cs" />

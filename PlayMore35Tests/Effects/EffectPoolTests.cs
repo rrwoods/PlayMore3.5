@@ -15,8 +15,8 @@ namespace PlayMore35.Effects.Tests {
             EffectPool pool = new EffectPool();
 
             Effect bless = new Effect("bless");
-            bless.AddPart(new EffectPart(+1, "morale", "attack rolls"));
-            bless.AddPart(new EffectPart(+1, "morale", "saves vs fear"));
+            bless.AddModifier(new Modifier(+1, "morale", "attack rolls"));
+            bless.AddModifier(new Modifier(+1, "morale", "saves vs fear"));
             pool.AddEffect(bless);
 
             Statistic willSavesVsFear = new Statistic("Will saves vs fear");
@@ -26,15 +26,15 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
 
             Effect inspireCourage = new Effect("inspire courage");
-            inspireCourage.AddPart(new EffectPart(+1, "morale", "attack rolls"));
-            inspireCourage.AddPart(new EffectPart(+1, "morale", "damage rolls"));
-            inspireCourage.AddPart(new EffectPart(+1, "morale", "saves vs charm"));
-            inspireCourage.AddPart(new EffectPart(+1, "morale", "saves vs fear"));
+            inspireCourage.AddModifier(new Modifier(+1, "morale", "attack rolls"));
+            inspireCourage.AddModifier(new Modifier(+1, "morale", "damage rolls"));
+            inspireCourage.AddModifier(new Modifier(+1, "morale", "saves vs charm"));
+            inspireCourage.AddModifier(new Modifier(+1, "morale", "saves vs fear"));
             pool.AddEffect(inspireCourage);
             Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
 
             Effect weaponFocus = new Effect("Weapon Focus: longsword");
-            weaponFocus.AddPart(new EffectPart(+1, "untyped", "attack rolls with longsword"));
+            weaponFocus.AddModifier(new Modifier(+1, "untyped", "attack rolls with longsword"));
             pool.AddEffect(weaponFocus);
 
             Statistic longswordAttack = new Statistic("attack rolls with longsword");
@@ -89,7 +89,7 @@ namespace PlayMore35.Effects.Tests {
         public void TestInitiativeChaining() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            p.AddEffect(new Effect("somethin").AddPart(new EffectPart(4, "untyped", "Ability checks")));
+            p.AddEffect(new Effect("somethin").AddModifier(new Modifier(4, "untyped", "Ability checks")));
             CheckStat(+4, r, p, "Initiative");
         }
 
@@ -98,9 +98,9 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.AddEffect(new Effect("haste").AddPart(new EffectPart(1, "dodge", "AC")));
-            p.AddEffect(new Effect("ring").AddPart(new EffectPart(2, "deflection", "AC")));
-            p.AddEffect(new Effect("breastplate").AddPart(new EffectPart(4, "armor", "AC")));
+            p.AddEffect(new Effect("haste").AddModifier(new Modifier(1, "dodge", "AC")));
+            p.AddEffect(new Effect("ring").AddModifier(new Modifier(2, "deflection", "AC")));
+            p.AddEffect(new Effect("breastplate").AddModifier(new Modifier(4, "armor", "AC")));
 
             CheckStat(17, r, p, "AC");
             CheckStat(16, r, p, "Flat-footed AC");

@@ -105,7 +105,7 @@ namespace PlayMore35.GameRules {
             ArmorCheckPenalty("Sleight of Hand");
             Rules.AddEffect(
                 new Effect("Armor check penalty to Swim")
-                    .AddPart(new EffectPart(new VariableAmount(Stats["Armor check penalty"]).Double(), "untyped", "Swim"))
+                    .AddModifier(new Modifier(new VariableAmount(Stats["Armor check penalty"]).Double(), "untyped", "Swim"))
             );
             // TODO : (after toggle-effects are in)
             // apply ACP these specific skills only if the character is proficient with their armor
@@ -126,11 +126,11 @@ namespace PlayMore35.GameRules {
             AddStat(flatFootedTouchAC);
 
             Rules.AddEffect(new Effect("DEX bonus to AC")
-                .AddPart(new EffectPart(Stats["DEX modifier"], "dodge", "AC"))
+                .AddModifier(new Modifier(Stats["DEX modifier"], "dodge", "AC"))
             );
 
             Rules.AddEffect(new Effect("Base AC")
-                .AddPart(new EffectPart(10, "untyped", "AC"))
+                .AddModifier(new Modifier(10, "untyped", "AC"))
             );
         }
 
@@ -145,7 +145,7 @@ namespace PlayMore35.GameRules {
             string abilityModifierName = ability + " modifier";
             Rules.AddEffect(
                 new Effect("Base " + ability + " modifier")
-                    .AddPart(new EffectPart("untyped", abilityModifierName)
+                    .AddModifier(new Modifier("untyped", abilityModifierName)
                         .AddAmount(-5)
                         .AddAmount(new VariableAmount(abilityScore).Halve())
                     )
@@ -172,7 +172,7 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(
                 new Effect("Base " + skill + " modifier")
-                    .AddPart(new EffectPart("untyped", skill)
+                    .AddModifier(new Modifier("untyped", skill)
                         .AddAmount(new VariableAmount(skillRanks))
                         .AddAmount(new VariableAmount(abilityModifiers[ability]))
                     )
@@ -190,7 +190,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(saveName));
             Rules.AddEffect(
                 new Effect("Total " + save + " modifier")
-                    .AddPart(new EffectPart("untyped", saveName)
+                    .AddModifier(new Modifier("untyped", saveName)
                         .AddAmount(new VariableAmount(baseSave))
                         .AddAmount(new VariableAmount(abilityModifiers[ability]))
                     )
@@ -200,7 +200,7 @@ namespace PlayMore35.GameRules {
         private void SkillSynergy(Statistic fiveRanksIn, string givesPlusTwoOn) {
             Rules.AddEffect(
                 new Effect("Synergy: " + fiveRanksIn.Name + " -> " + givesPlusTwoOn)
-                    .AddPart(new EffectPart("untyped", givesPlusTwoOn)
+                    .AddModifier(new Modifier("untyped", givesPlusTwoOn)
                         .AddAmount(new ConditionalAmount(
                             new VariableAmount(fiveRanksIn), ConditionalAmount.Relation.GREATER_THAN_OR_EQUAL, 5, 2
                         ))
@@ -211,7 +211,7 @@ namespace PlayMore35.GameRules {
         private void ArmorCheckPenalty(string skill) {
             Rules.AddEffect(
                 new Effect("Armor check penalty to " + skill)
-                    .AddPart(new EffectPart(Stats["Armor check penalty"], "untyped", skill))
+                    .AddModifier(new Modifier(Stats["Armor check penalty"], "untyped", skill))
             );
         }
     }
