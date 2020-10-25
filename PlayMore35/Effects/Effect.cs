@@ -12,7 +12,7 @@ namespace PlayMore35.Effects {
 
         public string Name { get; private set; }
 
-        private IToggle Toggle = AlwaysOn.Instance;
+        public IToggle Toggle = AlwaysOn.Instance;
         private readonly List<Modifier> Modifiers = new List<Modifier>();
 
         public Effect AddModifier(Modifier mod) {

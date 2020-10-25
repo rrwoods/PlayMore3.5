@@ -18,23 +18,36 @@ namespace PlayMore35.Items {
             public enum Type { MANUFACTURED, PRIMARY_NATURAL, SECONDARY_NATURAL };
             public enum Proficiency { SIMPLE, MARTIAL, EXOTIC };
             public enum Effort { LIGHT, ONE_HANDED, TWO_HANDED };
-            public enum Range { MELEE, REACH_MELEE, RANGED };
+            public enum Range { MELEE, REACH_MELEE, THROWN, PROJECTILE };
 
             public Type AttackType = Type.MANUFACTURED;
             public Proficiency ProficencyCategory = Proficiency.SIMPLE;
             public Effort EffortCategory = Effort.LIGHT;
             public Range RangeCategory = Range.MELEE;
-            public bool Finesse = false; // true if the Weapon Finesse feat applies to this attack
+            public bool Finesse = true; // true if the Weapon Finesse feat applies to this attack
+            public bool OffHand = false;
 
             public string DamageDieMedium = "1d4";
             public int ThreatRange = 19;
             public int CriticalMultiplier = 2;
             public int RangeIncrement = 0;
             public int StrengthRating = -1; // only relevant for ranged weapons (composite bows); -1 = noncomposite
-            public string DamageType = "Piercing or slashing";
+            public string DamageType = PIERCING + OR + SLASHING;
+
+            public bool IsRanged() {
+                switch (RangeCategory) {
+                    case Range.MELEE:
+                    case Range.REACH_MELEE:
+                        return false;
+                    case Range.PROJECTILE:
+                    case Range.THROWN:
+                        return true;
+                }
+                return false;
+            }
 
             public int GetAttackBonus(GameRules.GameRules rules) {
-                string attackStat = (RangeCategory == Range.RANGED ? RANGED : MELEE) + ATTACK_ROLLS + WITH + W.Name;
+                string attackStat = (IsRanged() ? RANGED : MELEE) + ATTACK_ROLLS + WITH + W.Name;
                 return rules.Stats[attackStat].GetValue(rules.Rules);
             }
         }
@@ -49,7 +62,7 @@ namespace PlayMore35.Items {
         // Set finesse to true if the character has the Weapon Finesse feat
         public void Register(GameRules.GameRules rules, bool finesse) {
             foreach (Attack attack in Attacks) {
-                string range = (attack.RangeCategory == Attack.Range.RANGED ? RANGED : MELEE);
+                string range = (attack.IsRanged() ? RANGED : MELEE);
                 Effects.Statistic attackStat = new Effects.Statistic(range + ATTACK_ROLLS + WITH + Name)
                     .AddTag(ATTACK_ROLLS)
                     .AddTag(range + ATTACK_ROLLS)
@@ -71,37 +84,67 @@ namespace PlayMore35.Items {
                 rules.AddStat(attackStat);
                 rules.AddStat(damageStat);
 
-                // TODO : Extra attacks (and iteratives)
+                // TODO : Extra attacks (and iteratives, maybe via extra attacks)
                 rules.Rules.AddEffect(new Effects.Effect("Base attack bonus for " + Name)
                     .AddModifier(new Effects.Modifier(rules.Stats[BASE_ATTACK_BONUS], UNTYPED, attackStat.Name))
                 );
 
-                if (attack.RangeCategory == Attack.Range.RANGED) {
+                if (attack.IsRanged()) {
                     rules.Rules.AddEffect(new Effects.Effect("DEX modifier for " + Name + " attacks")
                         .AddModifier(new Effects.Modifier(rules.Stats[DEX_MODIFIER], UNTYPED, attackStat.Name))
                     );
-                    if (attack.StrengthRating >= 0) {
+                    if (attack.RangeCategory == Attack.Range.THROWN) {
+                        rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " damage")
+                            .AddModifier(new Effects.Modifier(rules.Stats[STR_MODIFIER], UNTYPED, damageStat.Name))
+                        );
+                    } else if (attack.StrengthRating >= 0) {
                         rules.Rules.AddEffect(new Effects.Effect("Insufficient strength for " + Name)
                             .AddModifier(new Effects.Modifier(-2, UNTYPED, attackStat.Name))
                             .SetToggle(new Effects.ConditionalToggle(rules.Stats[STR_MODIFIER], Effects.Relation.LESS_THAN, attack.StrengthRating))
                         );
+                        rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " damage")
+                            .AddModifier(new Effects.Modifier(
+                                new Effects.LesserAmount(
+                                    new Effects.VariableAmount(rules.Stats[STR_MODIFIER]),
+                                    new Effects.FixedAmount(attack.StrengthRating)
+                                ),
+                                UNTYPED,
+                                RANGED + DAMAGE_ROLLS + WITH + Name
+                            ))
+                        );
+                    } else {
+                        rules.Rules.AddEffect(new Effects.Effect("STR penalty for " + Name + " damage")
+                            .AddModifier(new Effects.Modifier(rules.Stats[STR_PENALTY], UNTYPED, damageStat.Name))
+                        );
                     }
-                } else if (finesse) {
-                    // When Weapon Finesse applies, you use DEX or STR whichever is better at the time.
-                    rules.Rules.AddEffect(new Effects.Effect("Finesse modifier for " + Name + " attacks")
+                } else {
+                    if (finesse && attack.Finesse) {
+                        // When Weapon Finesse applies, you use DEX or STR whichever is better at the time.
+                        rules.Rules.AddEffect(new Effects.Effect("Finesse modifier for " + Name + " attacks")
+                            .AddModifier(new Effects.Modifier(
+                                new Effects.GreaterAmount(rules.Stats[DEX_MODIFIER], rules.Stats[STR_MODIFIER]),
+                                UNTYPED,
+                                attackStat.Name
+                            ))
+                        );
+                    } else {
+                        rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " attacks")
+                            .AddModifier(new Effects.Modifier(rules.Stats[STR_MODIFIER], UNTYPED, attackStat.Name))
+                        );
+                    }
+
+                    float damageFactor = 1f;
+                    if (attack.EffortCategory == Attack.Effort.TWO_HANDED) {
+                        damageFactor = 1.5f;
+                    } else if (attack.OffHand) {
+                        damageFactor = 0.5f;
+                    }
+                    rules.Rules.AddEffect(new Effects.Effect("STR bonus for " + Name + " damage")
                         .AddModifier(new Effects.Modifier(
-                            new Effects.GreaterAmount(rules.Stats[DEX_MODIFIER], rules.Stats[STR_MODIFIER]),
-                            UNTYPED,
-                            attackStat.Name
+                            new Effects.VariableAmount(rules.Stats[STR_BONUS], damageFactor), UNTYPED, damageStat.Name
                         ))
                     );
-                } else {
-                    rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " attacks")
-                        .AddModifier(new Effects.Modifier(rules.Stats[STR_MODIFIER], UNTYPED, attackStat.Name))
-                    );
                 }
-
-
             }
         }
     }

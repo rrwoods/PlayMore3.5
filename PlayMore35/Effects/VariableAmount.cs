@@ -10,6 +10,11 @@ namespace PlayMore35.Effects {
             this.stat = stat;
         }
 
+        public VariableAmount(Statistic stat, float factor)
+            : this(stat) {
+            this.factor = factor;
+        }
+
         private readonly Statistic stat;
         private float factor = 1f;
 

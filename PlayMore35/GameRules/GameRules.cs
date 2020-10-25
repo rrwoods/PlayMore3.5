@@ -173,6 +173,28 @@ namespace PlayMore35.GameRules {
             AddStat(checks);
 
             abilityModifiers[ability] = abilityModifier;
+
+            Statistic abilityBonus = new Statistic(ability + " bonus");
+            AddStat(abilityBonus);
+            Rules.AddEffect(
+                new Effect(ability + " bonus")
+                    .AddModifier(new Modifier(
+                        new GreaterAmount(new FixedAmount(0), new VariableAmount(abilityModifier)),
+                        UNTYPED,
+                        abilityBonus.Name
+                    ))
+            );
+
+            Statistic abilityPenalty = new Statistic(ability + " penalty");
+            AddStat(abilityPenalty);
+            Rules.AddEffect(
+                new Effect(ability + " penalty")
+                    .AddModifier(new Modifier(
+                        new LesserAmount(new FixedAmount(0), new VariableAmount(abilityModifier)),
+                        UNTYPED,
+                        abilityPenalty.Name
+                    ))
+            );
         }
 
         private void SkillModifier(string skill, string ability) {

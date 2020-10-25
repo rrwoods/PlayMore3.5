@@ -25,5 +25,12 @@ namespace PlayMore35.Effects {
             return Effects.Values
                 .SelectMany(x => x.GetModifiers(this, affecting));
         }
+
+        public bool EffectActive(string name) {
+            if (!Effects.ContainsKey(name)) {
+                return false;
+            }
+            return Effects[name].Toggle.On(this);
+        }
     }
 }

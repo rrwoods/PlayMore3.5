@@ -120,5 +120,67 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(-10, r, p, SWIM);
             CheckStat(0, r, p, DIPLOMACY);
         }
+
+        [TestMethod()]
+        public void TestWeapons() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            p.SetValue(16, STR_SCORE);
+
+            Items.Weapon dagger = new Items.Weapon(); // dagger is the default set of stats including name, no changes required.
+            dagger.Attacks.Add(new Items.Weapon.Attack(dagger) {
+                OffHand = true
+            });
+            dagger.Tags.Add("shadow hand");
+            dagger.Register(r, false);
+            CheckStat(+3, r, p, MELEE + ATTACK_ROLLS + WITH + dagger.Name);
+            CheckStat(+1, r, p, MELEE + DAMAGE_ROLLS + WITH + dagger.Name);
+
+            p.AddEffect(new Effect("discipline focus")
+                .AddModifier(new Modifier(+1, UNTYPED, ATTACK_ROLLS + WITH + "shadow hand" + WEAPONS))
+            );
+            CheckStat(+4, r, p, MELEE + ATTACK_ROLLS + WITH + dagger.Name);
+
+            p.SetValue(20, DEX_SCORE);
+            Items.Weapon compositeBow2 = new Items.Weapon {
+                Name = "Composite shortbow (+2 Str)"
+            };
+            compositeBow2.Attacks.Add(new Items.Weapon.Attack(compositeBow2) {
+                ProficencyCategory = Items.Weapon.Attack.Proficiency.MARTIAL,
+                EffortCategory = Items.Weapon.Attack.Effort.ONE_HANDED,
+                RangeCategory = Items.Weapon.Attack.Range.PROJECTILE,
+                Finesse = false,
+                OffHand = false,
+                DamageDieMedium = "1d6",
+                ThreatRange = 20,
+                CriticalMultiplier = 3,
+                RangeIncrement = 70,
+                StrengthRating = +2,
+                DamageType = "Piercing"
+            });
+            compositeBow2.Register(r, false);
+            CheckStat(+5, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow2.Name);
+            CheckStat(+2, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow2.Name);
+
+            Items.Weapon compositeBow4 = new Items.Weapon {
+                Name = "Composite shortbow (+4 Str)"
+            };
+            compositeBow4.Attacks.Add(new Items.Weapon.Attack(compositeBow4) {
+                ProficencyCategory = Items.Weapon.Attack.Proficiency.MARTIAL,
+                EffortCategory = Items.Weapon.Attack.Effort.ONE_HANDED,
+                RangeCategory = Items.Weapon.Attack.Range.PROJECTILE,
+                Finesse = false,
+                OffHand = false,
+                DamageDieMedium = "1d6",
+                ThreatRange = 20,
+                CriticalMultiplier = 3,
+                RangeIncrement = 70,
+                StrengthRating = +4,
+                DamageType = "Piercing"
+            });
+            compositeBow4.Register(r, false);
+            CheckStat(+3, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow4.Name);
+            CheckStat(+3, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow4.Name);
+        }
     }
 }

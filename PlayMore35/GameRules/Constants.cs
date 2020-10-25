@@ -27,6 +27,20 @@ namespace PlayMore35.GameRules {
         public static readonly string WIS_MODIFIER = "WIS modifier";
         public static readonly string CHA_MODIFIER = "CHA modifier";
 
+        public static readonly string STR_BONUS = "STR bonus";
+        public static readonly string DEX_BONUS = "DEX bonus";
+        public static readonly string CON_BONUS = "CON bonus";
+        public static readonly string INT_BONUS = "INT bonus";
+        public static readonly string WIS_BONUS = "WIS bonus";
+        public static readonly string CHA_BONUS = "CHA bonus";
+
+        public static readonly string STR_PENALTY = "STR penalty";
+        public static readonly string DEX_PENALTY = "DEX penalty";
+        public static readonly string CON_PENALTY = "CON penalty";
+        public static readonly string INT_PENALTY = "INT penalty";
+        public static readonly string WIS_PENALTY = "WIS penalty";
+        public static readonly string CHA_PENALTY = "CHA penalty";
+
         public static readonly string STR_CHECKS = "STR checks";
         public static readonly string DEX_CHECKS = "DEX checks";
         public static readonly string CON_CHECKS = "CON checks";
@@ -147,5 +161,11 @@ namespace PlayMore35.GameRules {
         public static readonly string DAMAGE_ROLLS = "damage rolls";
         public static readonly string WITH = " with ";
         public static readonly string WEAPONS = " weapons"; // for weapon tags, i.e. ATTACK_ROLLS + WITH + "shadow hand" + WEAPONS
+
+        public static readonly string BLUDGEONING = "bludgeoning";
+        public static readonly string PIERCING = "piercing";
+        public static readonly string SLASHING = "slashing";
+        public static readonly string AND = " and ";
+        public static readonly string OR = " or ";
     }
 }
