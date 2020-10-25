@@ -24,7 +24,6 @@ namespace PlayMore35.Items {
             public Proficiency ProficencyCategory = Proficiency.SIMPLE;
             public Effort EffortCategory = Effort.LIGHT;
             public Range RangeCategory = Range.MELEE;
-            public bool Finesse = true; // true if the Weapon Finesse feat applies to this attack
             public bool OffHand = false;
 
             public string DamageDieMedium = "1d4";
@@ -118,20 +117,9 @@ namespace PlayMore35.Items {
                         );
                     }
                 } else {
-                    if (finesse && attack.Finesse) {
-                        // When Weapon Finesse applies, you use DEX or STR whichever is better at the time.
-                        rules.Rules.AddEffect(new Effects.Effect("Finesse modifier for " + Name + " attacks")
-                            .AddModifier(new Effects.Modifier(
-                                new Effects.GreaterAmount(rules.Stats[DEX_MODIFIER], rules.Stats[STR_MODIFIER]),
-                                UNTYPED,
-                                attackStat.Name
-                            ))
-                        );
-                    } else {
-                        rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " attacks")
-                            .AddModifier(new Effects.Modifier(rules.Stats[STR_MODIFIER], UNTYPED, attackStat.Name))
-                        );
-                    }
+                    rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " attacks")
+                        .AddModifier(new Effects.Modifier(rules.Stats[STR_MODIFIER], UNTYPED, attackStat.Name))
+                    );
 
                     float damageFactor = 1f;
                     if (attack.EffortCategory == Attack.Effort.TWO_HANDED) {
