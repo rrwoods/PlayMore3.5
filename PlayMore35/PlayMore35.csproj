@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="GameRules\Constants.cs" />
     <Compile Include="GameRules\GameRules.cs" />
+    <Compile Include="Items\Attack.cs" />
     <Compile Include="Items\Weapon.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

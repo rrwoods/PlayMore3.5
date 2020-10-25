@@ -122,13 +122,13 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod()]
-        public void TestWeapons() {
+        public void TestMeleeWeapon() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
             p.SetValue(16, STR_SCORE);
 
             Items.Weapon dagger = new Items.Weapon(); // dagger is the default set of stats including name, no changes required.
-            dagger.Attacks.Add(new Items.Weapon.Attack(dagger) {
+            dagger.Attacks.Add(new Items.Attack(dagger) {
                 OffHand = true
             });
             dagger.Tags.Add("shadow hand");
@@ -140,15 +140,22 @@ namespace PlayMore35.Effects.Tests {
                 .AddModifier(new Modifier(+1, UNTYPED, ATTACK_ROLLS + WITH + "shadow hand" + WEAPONS))
             );
             CheckStat(+4, r, p, MELEE + ATTACK_ROLLS + WITH + dagger.Name);
+        }
 
+        [TestMethod()]
+        public void TestCompositeBowStrong() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            p.SetValue(16, STR_SCORE);
             p.SetValue(20, DEX_SCORE);
-            Items.Weapon compositeBow2 = new Items.Weapon {
+
+            Items.Weapon compositeBow = new Items.Weapon {
                 Name = "Composite shortbow (+2 Str)"
             };
-            compositeBow2.Attacks.Add(new Items.Weapon.Attack(compositeBow2) {
-                ProficencyCategory = Items.Weapon.Attack.Proficiency.MARTIAL,
-                EffortCategory = Items.Weapon.Attack.Effort.ONE_HANDED,
-                RangeCategory = Items.Weapon.Attack.Range.PROJECTILE,
+            compositeBow.Attacks.Add(new Items.Attack(compositeBow) {
+                ProficencyCategory = Items.Attack.Proficiency.MARTIAL,
+                EffortCategory = Items.Attack.Effort.ONE_HANDED,
+                RangeCategory = Items.Attack.Range.PROJECTILE,
                 OffHand = false,
                 DamageDieMedium = "1d6",
                 ThreatRange = 20,
@@ -157,17 +164,25 @@ namespace PlayMore35.Effects.Tests {
                 StrengthRating = +2,
                 DamageType = "Piercing"
             });
-            compositeBow2.Register(r, false);
-            CheckStat(+5, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow2.Name);
-            CheckStat(+2, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow2.Name);
+            compositeBow.Register(r, false);
+            CheckStat(+5, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow.Name);
+            CheckStat(+2, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow.Name);
+        }
+
+        [TestMethod()]
+        public void TestCompositeBowWeak() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            p.SetValue(16, STR_SCORE);
+            p.SetValue(20, DEX_SCORE);
 
             Items.Weapon compositeBow4 = new Items.Weapon {
                 Name = "Composite shortbow (+4 Str)"
             };
-            compositeBow4.Attacks.Add(new Items.Weapon.Attack(compositeBow4) {
-                ProficencyCategory = Items.Weapon.Attack.Proficiency.MARTIAL,
-                EffortCategory = Items.Weapon.Attack.Effort.ONE_HANDED,
-                RangeCategory = Items.Weapon.Attack.Range.PROJECTILE,
+            compositeBow4.Attacks.Add(new Items.Attack(compositeBow4) {
+                ProficencyCategory = Items.Attack.Proficiency.MARTIAL,
+                EffortCategory = Items.Attack.Effort.ONE_HANDED,
+                RangeCategory = Items.Attack.Range.PROJECTILE,
                 OffHand = false,
                 DamageDieMedium = "1d6",
                 ThreatRange = 20,
