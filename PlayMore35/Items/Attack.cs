@@ -41,7 +41,7 @@ namespace PlayMore35.Items {
 
         public int GetAttackBonus(GameRules.GameRules rules) {
             string attackStat = (IsRanged() ? RANGED : MELEE) + ATTACK_ROLLS + WITH + W.Name;
-            return rules.Stats[attackStat].GetValue(rules.Rules);
+            return rules.Stats()[attackStat].GetValue(rules.Rules);
         }
     }
 }

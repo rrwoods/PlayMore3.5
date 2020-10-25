@@ -42,26 +42,26 @@ namespace PlayMore35.Items {
 
                 // TODO : Extra attacks (and iteratives, maybe via extra attacks)
                 rules.Rules.AddEffect(new Effects.Effect("Base attack bonus for " + Name)
-                    .AddModifier(new Effects.Modifier(rules.Stats[BASE_ATTACK_BONUS], UNTYPED, attackStat.Name))
+                    .AddModifier(new Effects.Modifier(rules.Stats()[BASE_ATTACK_BONUS], UNTYPED, attackStat.Name))
                 );
 
                 if (attack.IsRanged()) {
                     rules.Rules.AddEffect(new Effects.Effect("DEX modifier for " + Name + " attacks")
-                        .AddModifier(new Effects.Modifier(rules.Stats[DEX_MODIFIER], UNTYPED, attackStat.Name))
+                        .AddModifier(new Effects.Modifier(rules.Stats()[DEX_MODIFIER], UNTYPED, attackStat.Name))
                     );
                     if (attack.RangeCategory == Attack.Range.THROWN) {
                         rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " damage")
-                            .AddModifier(new Effects.Modifier(rules.Stats[STR_MODIFIER], UNTYPED, damageStat.Name))
+                            .AddModifier(new Effects.Modifier(rules.Stats()[STR_MODIFIER], UNTYPED, damageStat.Name))
                         );
                     } else if (attack.StrengthRating >= 0) {
                         rules.Rules.AddEffect(new Effects.Effect("Insufficient strength for " + Name)
                             .AddModifier(new Effects.Modifier(-2, UNTYPED, attackStat.Name))
-                            .SetToggle(new Effects.ConditionalToggle(rules.Stats[STR_MODIFIER], Effects.Relation.LESS_THAN, attack.StrengthRating))
+                            .SetToggle(new Effects.ConditionalToggle(rules.Stats()[STR_MODIFIER], Effects.Relation.LESS_THAN, attack.StrengthRating))
                         );
                         rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " damage")
                             .AddModifier(new Effects.Modifier(
                                 new Effects.LesserAmount(
-                                    new Effects.VariableAmount(rules.Stats[STR_MODIFIER]),
+                                    new Effects.VariableAmount(rules.Stats()[STR_MODIFIER]),
                                     new Effects.FixedAmount(attack.StrengthRating)
                                 ),
                                 UNTYPED,
@@ -70,12 +70,12 @@ namespace PlayMore35.Items {
                         );
                     } else {
                         rules.Rules.AddEffect(new Effects.Effect("STR penalty for " + Name + " damage")
-                            .AddModifier(new Effects.Modifier(rules.Stats[STR_PENALTY], UNTYPED, damageStat.Name))
+                            .AddModifier(new Effects.Modifier(rules.Stats()[STR_PENALTY], UNTYPED, damageStat.Name))
                         );
                     }
                 } else {
                     rules.Rules.AddEffect(new Effects.Effect("STR modifier for " + Name + " attacks")
-                        .AddModifier(new Effects.Modifier(rules.Stats[STR_MODIFIER], UNTYPED, attackStat.Name))
+                        .AddModifier(new Effects.Modifier(rules.Stats()[STR_MODIFIER], UNTYPED, attackStat.Name))
                     );
 
                     float damageFactor = 1f;
@@ -86,7 +86,7 @@ namespace PlayMore35.Items {
                     }
                     rules.Rules.AddEffect(new Effects.Effect("STR bonus for " + Name + " damage")
                         .AddModifier(new Effects.Modifier(
-                            new Effects.VariableAmount(rules.Stats[STR_BONUS], damageFactor), UNTYPED, damageStat.Name
+                            new Effects.VariableAmount(rules.Stats()[STR_BONUS], damageFactor), UNTYPED, damageStat.Name
                         ))
                     );
                 }

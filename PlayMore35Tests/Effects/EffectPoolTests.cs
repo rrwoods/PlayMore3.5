@@ -64,7 +64,7 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private void CheckStat(int expected, GameRules.GameRules r, EffectPool p, string stat) {
-            Assert.AreEqual(expected, r.Stats[stat].GetValue(p));
+            Assert.AreEqual(expected, r.Stats()[stat].GetValue(p));
         }
 
         [TestMethod()]

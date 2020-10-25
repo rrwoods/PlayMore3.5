@@ -11,7 +11,15 @@ namespace PlayMore35.GameRules {
     public class GameRules {
         public EffectPool Rules { get; private set; } = new EffectPool();
 
-        public Dictionary<string, Statistic> Stats { get; private set; } = new Dictionary<string, Statistic>();
+        private readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
+
+        public void AddStat(Statistic stat) {
+            stats[stat.Name] = stat;
+        }
+
+        public Dictionary<string, Statistic> Stats() {
+            return stats;
+        }
 
         // TODO : Non-default constructor(s) to load houserules or custom rules from files.
         // Or, should we always load the official rules, then modify those rules with houserules?
@@ -26,7 +34,7 @@ namespace PlayMore35.GameRules {
             AbilityScore(INT);
             AbilityScore(WIS);
             AbilityScore(CHA);
-            AddStat(new Statistic(INITIATIVE, Stats[DEX_CHECKS]));
+            AddStat(new Statistic(INITIATIVE, stats[DEX_CHECKS]));
 
             SkillModifier(APPRAISE, INT);
             SkillModifier(BALANCE, DEX);
@@ -82,18 +90,18 @@ namespace PlayMore35.GameRules {
             SkillModifier(USE_ROPE, DEX);
             // TODO : expanded skills -- psionics, iaijutsu, martial lore, etc
 
-            SkillSynergy(Stats[BLUFF + RANKS], DIPLOMACY);
-            SkillSynergy(Stats[BLUFF + RANKS], INTIMIDATE);
-            SkillSynergy(Stats[BLUFF + RANKS], SLEIGHT_OF_HAND);
-            SkillSynergy(Stats[HANDLE_ANIMAL + RANKS], RIDE);
-            SkillSynergy(Stats[JUMP + RANKS], TUMBLE);
-            SkillSynergy(Stats[KNOWLEDGE_ARCANA + RANKS], SPELLCRAFT);
-            SkillSynergy(Stats[KNOWLEDGE_LOCAL + RANKS], GATHER_INFORMATION);
-            SkillSynergy(Stats[KNOWLEDGE_NOBILITY_AND_ROYALTY + RANKS], DIPLOMACY);
-            SkillSynergy(Stats[SENSE_MOTIVE + RANKS], DIPLOMACY);
-            SkillSynergy(Stats[SURVIVAL + RANKS], KNOWLEDGE_NATURE);
-            SkillSynergy(Stats[TUMBLE + RANKS], BALANCE);
-            SkillSynergy(Stats[TUMBLE + RANKS], JUMP);
+            SkillSynergy(stats[BLUFF + RANKS], DIPLOMACY);
+            SkillSynergy(stats[BLUFF + RANKS], INTIMIDATE);
+            SkillSynergy(stats[BLUFF + RANKS], SLEIGHT_OF_HAND);
+            SkillSynergy(stats[HANDLE_ANIMAL + RANKS], RIDE);
+            SkillSynergy(stats[JUMP + RANKS], TUMBLE);
+            SkillSynergy(stats[KNOWLEDGE_ARCANA + RANKS], SPELLCRAFT);
+            SkillSynergy(stats[KNOWLEDGE_LOCAL + RANKS], GATHER_INFORMATION);
+            SkillSynergy(stats[KNOWLEDGE_NOBILITY_AND_ROYALTY + RANKS], DIPLOMACY);
+            SkillSynergy(stats[SENSE_MOTIVE + RANKS], DIPLOMACY);
+            SkillSynergy(stats[SURVIVAL + RANKS], KNOWLEDGE_NATURE);
+            SkillSynergy(stats[TUMBLE + RANKS], BALANCE);
+            SkillSynergy(stats[TUMBLE + RANKS], JUMP);
             // TODO : 5 ranks in bluff gives +2 Disguise to act in character, etc
 
             AddStat(new Statistic(ARMOR_CHECK_PENALTY));
@@ -107,7 +115,7 @@ namespace PlayMore35.GameRules {
             ArmorCheckPenalty(SLEIGHT_OF_HAND);
             Rules.AddEffect(
                 new Effect(ARMOR_CHECK_PENALTY + " to " + SWIM)
-                    .AddModifier(new Modifier(new VariableAmount(Stats[ARMOR_CHECK_PENALTY]).Double(), UNTYPED, SWIM))
+                    .AddModifier(new Modifier(new VariableAmount(stats[ARMOR_CHECK_PENALTY]).Double(), UNTYPED, SWIM))
             );
             // TODO : (after toggle-effects are in)
             // apply ACP these specific skills only if the character is proficient with their armor
@@ -128,7 +136,7 @@ namespace PlayMore35.GameRules {
             AddStat(flatFootedTouchAC);
 
             Rules.AddEffect(new Effect("DEX bonus to AC")
-                .AddModifier(new Modifier(Stats[DEX_MODIFIER], DODGE, AC))
+                .AddModifier(new Modifier(stats[DEX_MODIFIER], DODGE, AC))
             );
 
             Rules.AddEffect(new Effect("Base AC")
@@ -138,20 +146,16 @@ namespace PlayMore35.GameRules {
 
             AddStat(new Statistic(SPECIAL_SIZE_MODIFIER)); // TODO : actually calculate this lol
             Rules.AddEffect(new Effect("Hide special size modifier")
-                .AddModifier(new Modifier(new VariableAmount(Stats[SPECIAL_SIZE_MODIFIER]).Negate(), UNTYPED, HIDE))
+                .AddModifier(new Modifier(new VariableAmount(stats[SPECIAL_SIZE_MODIFIER]).Negate(), UNTYPED, HIDE))
             );
 
             AddStat(new Statistic(BASE_ATTACK_BONUS));
             Rules.AddEffect(new Effect("Base grapple")
-                .AddModifier(new Modifier(Stats[BASE_ATTACK_BONUS], UNTYPED, GRAPPLE))
-                .AddModifier(new Modifier(Stats[STR_MODIFIER], UNTYPED, GRAPPLE))
-                .AddModifier(new Modifier(Stats[SPECIAL_SIZE_MODIFIER], UNTYPED, GRAPPLE))
+                .AddModifier(new Modifier(stats[BASE_ATTACK_BONUS], UNTYPED, GRAPPLE))
+                .AddModifier(new Modifier(stats[STR_MODIFIER], UNTYPED, GRAPPLE))
+                .AddModifier(new Modifier(stats[SPECIAL_SIZE_MODIFIER], UNTYPED, GRAPPLE))
             );
 
-        }
-
-        public void AddStat(Statistic stat) {
-            Stats[stat.Name] = stat;
         }
 
         private void AbilityScore(string ability) {
@@ -243,7 +247,7 @@ namespace PlayMore35.GameRules {
         private void ArmorCheckPenalty(string skill) {
             Rules.AddEffect(
                 new Effect(ARMOR_CHECK_PENALTY + " to " + skill)
-                    .AddModifier(new Modifier(Stats[ARMOR_CHECK_PENALTY], UNTYPED, skill))
+                    .AddModifier(new Modifier(stats[ARMOR_CHECK_PENALTY], UNTYPED, skill))
             );
         }
     }
