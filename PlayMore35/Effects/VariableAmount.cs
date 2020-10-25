@@ -26,5 +26,10 @@ namespace PlayMore35.Effects {
             factor = 2f;
             return this;
         }
+
+        public VariableAmount Negate() {
+            factor = -1f;
+            return this;
+        }
     }
 }

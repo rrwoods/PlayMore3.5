@@ -134,9 +134,23 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("Base AC")
                 .AddModifier(new Modifier(10, UNTYPED, AC))
             );
+
+
+            AddStat(new Statistic(SPECIAL_SIZE_MODIFIER)); // TODO : actually calculate this lol
+            Rules.AddEffect(new Effect("Hide special size modifier")
+                .AddModifier(new Modifier(new VariableAmount(Stats[SPECIAL_SIZE_MODIFIER]).Negate(), UNTYPED, HIDE))
+            );
+
+            AddStat(new Statistic(BASE_ATTACK_BONUS));
+            Rules.AddEffect(new Effect("Base grapple")
+                .AddModifier(new Modifier(Stats[BASE_ATTACK_BONUS], UNTYPED, GRAPPLE))
+                .AddModifier(new Modifier(Stats[STR_MODIFIER], UNTYPED, GRAPPLE))
+                .AddModifier(new Modifier(Stats[SPECIAL_SIZE_MODIFIER], UNTYPED, GRAPPLE))
+            );
+
         }
 
-        private void AddStat(Statistic stat) {
+        public void AddStat(Statistic stat) {
             Stats[stat.Name] = stat;
         }
 

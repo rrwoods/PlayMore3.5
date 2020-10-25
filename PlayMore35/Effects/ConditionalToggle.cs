@@ -21,6 +21,10 @@ namespace PlayMore35.Effects {
 
         }
 
+        public ConditionalToggle(Statistic left, Relation relationship, int right)
+            : this(new VariableAmount(left), relationship, new FixedAmount(right)) {
+        }
+
         public bool On(EffectPool pool) {
             int left = Left.Get(pool);
             int right = Right.Get(pool);

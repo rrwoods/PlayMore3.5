@@ -129,6 +129,8 @@ namespace PlayMore35.GameRules {
         public static readonly string UNTYPED = "untyped";
 
         public static readonly string SIZE_CATEGORY = "Size category";
+        public static readonly string SIZE_MODIFIER = "Size modifier";
+        public static readonly string SPECIAL_SIZE_MODIFIER = "Special size modifier"; // negate for Hide
 
         public static readonly string FORT_SAVES = "Fort saves";
         public static readonly string REF_SAVES = "Ref saves";
@@ -136,10 +138,14 @@ namespace PlayMore35.GameRules {
         public static readonly string ALL_SAVES = "All saves";
         public static readonly string VS = " vs ";
 
-        public static readonly string MELEE = "Melee";
-        public static readonly string RANGED = "Ranged";
+        public static readonly string BASE_ATTACK_BONUS = "Base attack bonus";
+        public static readonly string GRAPPLE = "Grapple";
+
+        public static readonly string MELEE = "Melee ";
+        public static readonly string RANGED = "Ranged ";
         public static readonly string ATTACK_ROLLS = "attack rolls";
         public static readonly string DAMAGE_ROLLS = "damage rolls";
         public static readonly string WITH = " with ";
+        public static readonly string WEAPONS = " weapons"; // for weapon tags, i.e. ATTACK_ROLLS + WITH + "shadow hand" + WEAPONS
     }
 }
