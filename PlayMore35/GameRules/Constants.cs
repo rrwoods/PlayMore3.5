@@ -142,9 +142,19 @@ namespace PlayMore35.GameRules {
         public static readonly string SIZE = "size";
         public static readonly string UNTYPED = "untyped";
 
+        public static readonly string MAX_HP = "Maximum hit points";
+
         public static readonly string SIZE_CATEGORY = "Size category";
         public static readonly string SIZE_MODIFIER = "Size modifier";
         public static readonly string SPECIAL_SIZE_MODIFIER = "Special size modifier"; // negate for Hide
+
+        public static readonly string ALL_SPEEDS = "All speeds";
+        public static readonly string LAND_SPEED = "Land speed";
+        public static readonly string BURROW_SPEED = "Burrow speed";
+        public static readonly string CLIMB_SPEED = "Climb speed";
+        public static readonly string SWIM_SPEED = "Swim speed";
+        public static readonly string FLY_SPEED = "Fly speed";
+        public static readonly string MANEUVERABILITY = "Maneuverability";
 
         public static readonly string FORT_SAVES = "Fort saves";
         public static readonly string REF_SAVES = "Ref saves";

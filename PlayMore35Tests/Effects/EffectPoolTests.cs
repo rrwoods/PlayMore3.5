@@ -102,7 +102,7 @@ namespace PlayMore35.Effects.Tests {
 
             p.AddEffect(new Effect("haste").AddModifier(new Modifier(1, DODGE, AC)));
             p.AddEffect(new Effect("ring").AddModifier(new Modifier(2, DEFLECTION, AC)));
-            p.AddEffect(new Effect("breastplate").AddModifier(new Modifier(4, ARMOR, AC)));
+            p.AddEffect(new Effect("dragon scales").AddModifier(new Modifier(4, UNTYPED, NATURAL_ARMOR)));
 
             CheckStat(17, r, p, AC);
             CheckStat(16, r, p, FLAT_FOOTED_AC);

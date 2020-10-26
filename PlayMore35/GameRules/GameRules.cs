@@ -84,6 +84,8 @@ namespace PlayMore35.GameRules {
             AbilityScore(CHA);
             AddStat(new Statistic(INITIATIVE, stats[DEX_CHECKS]));
 
+            AddStat(new Statistic(MAX_HP));
+
             SkillModifier(APPRAISE, INT);
             SkillModifier(BALANCE, DEX);
             SkillModifier(BLUFF, CHA);
@@ -183,7 +185,7 @@ namespace PlayMore35.GameRules {
             AddStat(flatFootedAC);
             AddStat(flatFootedTouchAC);
 
-            Rules.AddEffect(new Effect("DEX bonus to AC")
+            Rules.AddEffect(new Effect("DEX to AC")
                 .AddModifier(new Modifier(stats[DEX_MODIFIER], DODGE, AC))
             );
 
@@ -191,6 +193,19 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(10, UNTYPED, AC))
             );
 
+            AddStat(new Statistic(NATURAL_ARMOR)); // this is the same name as the bonus type. eh.
+            Rules.AddEffect(new Effect(NATURAL_ARMOR)
+                .AddModifier(new Modifier(stats[NATURAL_ARMOR], NATURAL_ARMOR, AC))
+            );
+
+            AddStat(new Statistic(LAND_SPEED).AddTag(ALL_SPEEDS));
+            AddStat(new Statistic(BURROW_SPEED).AddTag(ALL_SPEEDS));
+            AddStat(new Statistic(CLIMB_SPEED).AddTag(ALL_SPEEDS));
+            AddStat(new Statistic(SWIM_SPEED).AddTag(ALL_SPEEDS));
+            AddStat(new Statistic(FLY_SPEED).AddTag(ALL_SPEEDS));
+            AddStat(new Statistic(MANEUVERABILITY));
+
+            AddStat(new Statistic(SIZE_CATEGORY)); // TODO : "derived" stats for Space and Reach, via a (new) LookupAmount
 
             AddStat(new Statistic(SPECIAL_SIZE_MODIFIER)); // TODO : actually calculate this lol
             Rules.AddEffect(new Effect("Hide special size modifier")
