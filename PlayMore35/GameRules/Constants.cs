@@ -41,6 +41,20 @@ namespace PlayMore35.GameRules {
         public static readonly string WIS_PENALTY = "WIS penalty";
         public static readonly string CHA_PENALTY = "CHA penalty";
 
+        public static readonly string STR_DAMAGE = "STR damage";
+        public static readonly string DEX_DAMAGE = "DEX damage";
+        public static readonly string CON_DAMAGE = "CON damage";
+        public static readonly string INT_DAMAGE = "INT damage";
+        public static readonly string WIS_DAMAGE = "WIS damage";
+        public static readonly string CHA_DAMAGE = "CHA damage";
+
+        public static readonly string STR_DRAIN = "STR drain";
+        public static readonly string DEX_DRAIN = "DEX drain";
+        public static readonly string CON_DRAIN = "CON drain";
+        public static readonly string INT_DRAIN = "INT drain";
+        public static readonly string WIS_DRAIN = "WIS drain";
+        public static readonly string CHA_DRAIN = "CHA drain";
+
         public static readonly string STR_CHECKS = "STR checks";
         public static readonly string DEX_CHECKS = "DEX checks";
         public static readonly string CON_CHECKS = "CON checks";
@@ -120,8 +134,6 @@ namespace PlayMore35.GameRules {
 
         public static readonly string AC = "AC";
         public static readonly string TOUCH_AC = "Touch AC";
-        public static readonly string FLAT_FOOTED_AC = "Flat-footed AC";
-        public static readonly string FLAT_FOOTED_TOUCH_AC = "Flat-footed touch AC";
 
         public static readonly string ALCHEMICAL = "alchemical";
         public static readonly string ARMOR = "armor";

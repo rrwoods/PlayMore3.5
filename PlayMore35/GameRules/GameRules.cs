@@ -176,14 +176,8 @@ namespace PlayMore35.GameRules {
                 .ignoreModifierType(ARMOR)
                 .ignoreModifierType(SHIELD)
                 .ignoreModifierType(NATURAL_ARMOR);
-            Statistic flatFootedAC = new Statistic(FLAT_FOOTED_AC, ac)
-                .ignoreModifierType(DODGE);
-            Statistic flatFootedTouchAC = new Statistic(FLAT_FOOTED_TOUCH_AC, touchAC)
-                .ignoreModifierType(DODGE);
             AddStat(ac);
             AddStat(touchAC);
-            AddStat(flatFootedAC);
-            AddStat(flatFootedTouchAC);
 
             Rules.AddEffect(new Effect("DEX to AC")
                 .AddModifier(new Modifier(stats[DEX_MODIFIER], DODGE, AC))
@@ -280,10 +274,24 @@ namespace PlayMore35.GameRules {
         private void AbilityScore(string ability) {
             Statistic abilityScore = new Statistic(ability + " score");
             AddStat(abilityScore);
+
+            Statistic abilityDamage = new Statistic(ability + " damage");
+            AddStat(abilityDamage);
+            Rules.AddEffect(
+                new Effect(ability + " damage")
+                    .AddModifier(new Modifier(new VariableAmount(stats[ability + " damage"], -1), UNTYPED, ability + " score"))
+            );
+            Statistic abilityDrain = new Statistic(ability + " drain");
+            AddStat(abilityDrain);
+            Rules.AddEffect(
+                new Effect(ability + " drain")
+                    .AddModifier(new Modifier(new VariableAmount(stats[ability + " drain"], -1), UNTYPED, ability + " drain"))
+            );
+
             string abilityModifierName = ability + " modifier";
             Rules.AddEffect(
                 new Effect("Base " + ability + " modifier")
-                    .AddModifier(new Modifier("untyped", abilityModifierName)
+                    .AddModifier(new Modifier(UNTYPED, abilityModifierName)
                         .AddAmount(-5)
                         .AddAmount(new VariableAmount(abilityScore, 0.5f))
                     )
@@ -358,7 +366,7 @@ namespace PlayMore35.GameRules {
         private void SkillSynergy(Statistic fiveRanksIn, string givesPlusTwoOn) {
             Rules.AddEffect(
                 new Effect("Synergy: " + fiveRanksIn.Name + " -> " + givesPlusTwoOn)
-                    .AddModifier(new Modifier(2, "untyped", givesPlusTwoOn))
+                    .AddModifier(new Modifier(2, UNTYPED, givesPlusTwoOn))
                     .SetToggle(new ConditionalToggle(new VariableAmount(fiveRanksIn), Relation.GREATER_THAN_OR_EQUAL, 5))
             );
         }

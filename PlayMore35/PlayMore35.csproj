@@ -76,7 +76,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Effects\LesserAmount.cs" />
-    <Compile Include="Effects\ToggleableAmount.cs" />
     <Compile Include="Effects\ConditionalToggle.cs" />
     <Compile Include="Effects\Effect.cs" />
     <Compile Include="Effects\GreaterAmount.cs" />
