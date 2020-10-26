@@ -6,19 +6,67 @@ using System.Threading.Tasks;
 using PlayMore35.Effects;
 
 using static PlayMore35.GameRules.Constants;
+using static PlayMore35.Items.AttackNames;
 
 namespace PlayMore35.GameRules {
     public class GameRules {
         public EffectPool Rules { get; private set; } = new EffectPool();
 
+        private readonly List<Items.Weapon> weapons = new List<Items.Weapon>();
         private readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
 
         public void AddStat(Statistic stat) {
             stats[stat.Name] = stat;
         }
 
+        public void AddWeapon(Items.Weapon weapon) {
+            weapons.Add(weapon);
+        }
+
         public Dictionary<string, Statistic> Stats() {
-            return stats;
+            Dictionary<string, Statistic> snapshot = new Dictionary<string, Statistic>(stats);
+
+            foreach (Items.Weapon weapon in weapons) {
+                string name = weapon.Name;
+
+                foreach (Items.Attack attack in weapon.Attacks) {
+                    string range = attack.RangeCategory.Name();
+                    Statistic attackStat = new Statistic(range + ATTACK_ROLLS + WITH + name)
+                        .AddTag(ATTACK_ROLLS)
+                        .AddTag(range + ATTACK_ROLLS)
+                        .AddTag(ATTACK_ROLLS + WITH + name);
+                    Statistic damageStat = new Statistic(range + DAMAGE_ROLLS + WITH + name)
+                        .AddTag(DAMAGE_ROLLS)
+                        .AddTag(range + DAMAGE_ROLLS)
+                        .AddTag(DAMAGE_ROLLS + WITH + name);
+
+                    List<string> tags = new List<string>(weapon.Tags) {
+                        attack.AttackType.Name(),
+                        attack.ProficencyCategory.Name(),
+                        attack.EffortCategory.Name(),
+                        attack.RangeCategory.FullName()
+                    };
+                    if (attack.EffortCategory != Items.Attack.Effort.TWO_HANDED) {
+                        tags.Add(attack.OffHand ? OFF_HAND : PRIMARY_HAND);
+                    }
+                    if (attack.RangeCategory == Items.Attack.Range.PROJECTILE && attack.StrengthRating >= 0) {
+                        tags.Add("+" + attack.StrengthRating + " STR");
+                    }
+                    foreach (string tag in tags) {
+                        attackStat
+                            .AddTag(ATTACK_ROLLS + WITH + tag + WEAPONS)
+                            .AddTag(range + ATTACK_ROLLS + WITH + tag + WEAPONS);
+                        damageStat
+                            .AddTag(DAMAGE_ROLLS + WITH + tag + WEAPONS)
+                            .AddTag(range + DAMAGE_ROLLS + WITH + tag + WEAPONS);
+                    }
+
+                    snapshot[attackStat.Name] = attackStat;
+                    snapshot[damageStat.Name] = damageStat;
+                }
+            }
+
+            return snapshot;
         }
 
         // TODO : Non-default constructor(s) to load houserules or custom rules from files.
@@ -115,7 +163,7 @@ namespace PlayMore35.GameRules {
             ArmorCheckPenalty(SLEIGHT_OF_HAND);
             Rules.AddEffect(
                 new Effect(ARMOR_CHECK_PENALTY + " to " + SWIM)
-                    .AddModifier(new Modifier(new VariableAmount(stats[ARMOR_CHECK_PENALTY]).Double(), UNTYPED, SWIM))
+                    .AddModifier(new Modifier(new VariableAmount(stats[ARMOR_CHECK_PENALTY], 2f), UNTYPED, SWIM))
             );
             // TODO : (after toggle-effects are in)
             // apply ACP these specific skills only if the character is proficient with their armor
@@ -146,7 +194,7 @@ namespace PlayMore35.GameRules {
 
             AddStat(new Statistic(SPECIAL_SIZE_MODIFIER)); // TODO : actually calculate this lol
             Rules.AddEffect(new Effect("Hide special size modifier")
-                .AddModifier(new Modifier(new VariableAmount(stats[SPECIAL_SIZE_MODIFIER]).Negate(), UNTYPED, HIDE))
+                .AddModifier(new Modifier(new VariableAmount(stats[SPECIAL_SIZE_MODIFIER], -1), UNTYPED, HIDE))
             );
 
             AddStat(new Statistic(BASE_ATTACK_BONUS));
@@ -156,6 +204,62 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(stats[SPECIAL_SIZE_MODIFIER], UNTYPED, GRAPPLE))
             );
 
+            Rules.AddEffect(new Effect(BASE_ATTACK_BONUS)
+                .AddModifier(new Modifier(stats[BASE_ATTACK_BONUS], UNTYPED, ATTACK_ROLLS))
+            );
+
+            Rules.AddEffect(new Effect("DEX to ranged attacks")
+                .AddModifier(new Modifier(stats[DEX_MODIFIER], UNTYPED, RANGED + ATTACK_ROLLS))
+            );
+            // Weapon Finesse will use ability-substitution technology
+            Rules.AddEffect(new Effect("STR to melee attacks")
+                .AddModifier(new Modifier(stats[STR_MODIFIER], UNTYPED, MELEE + ATTACK_ROLLS))
+            );
+
+            Rules.AddEffect(new Effect("1½ STR bonus to two-handed weapon damage")
+                .AddModifier(new Modifier(
+                    new VariableAmount(stats[STR_BONUS], 1.5f),
+                    UNTYPED,
+                    MELEE + DAMAGE_ROLLS + WITH + TWO_HANDED + WEAPONS
+                ))
+            );
+            Rules.AddEffect(new Effect("STR bonus to primary-hand weapon damage")
+                .AddModifier(new Modifier(stats[STR_BONUS], UNTYPED, MELEE + DAMAGE_ROLLS + WITH + PRIMARY_HAND + WEAPONS))
+            );
+            Rules.AddEffect(new Effect("½ STR bonus to off-hand weapon damage")
+                .AddModifier(new Modifier(
+                    new VariableAmount(stats[STR_BONUS], 0.5f),
+                    UNTYPED,
+                    MELEE + DAMAGE_ROLLS + WITH + OFF_HAND + WEAPONS
+                ))
+            );
+
+            Rules.AddEffect(new Effect("STR penalty to projectile weapon damage")
+                .AddModifier(new Modifier(stats[STR_PENALTY], UNTYPED, RANGED + DAMAGE_ROLLS + WITH + PROJECTILE + WEAPONS))
+            );
+            Rules.AddEffect(new Effect("STR to thrown weapon damage")
+                .AddModifier(new Modifier(stats[STR_MODIFIER], UNTYPED, RANGED + DAMAGE_ROLLS + WITH + THROWN + WEAPONS))
+            );
+
+            // XXX : I hate this.  I hate this so much.
+            // But I currently see no other way of dealing with composite bows.
+            for (int strengthRating = 0; strengthRating <= 10; strengthRating++) {
+                string strText = "+" + strengthRating + " STR";
+                Rules.AddEffect(new Effect("Insufficient STR for " + strText + " composite bow")
+                    .SetToggle(new ConditionalToggle(stats[STR_MODIFIER], Relation.LESS_THAN, strengthRating))
+                    .AddModifier(new Modifier(-2, UNTYPED, RANGED + ATTACK_ROLLS + WITH + strText + WEAPONS))
+                );
+                Rules.AddEffect(new Effect(strText + " composite bow damage")
+                    .AddModifier(new Modifier(
+                        new LesserAmount(
+                            new VariableAmount(stats[STR_BONUS]), // if there's a penalty, we already applied it above.
+                            new FixedAmount(strengthRating)
+                        ),
+                        UNTYPED,
+                        RANGED + DAMAGE_ROLLS + WITH + strText + WEAPONS
+                    ))
+                );
+            }
         }
 
         private void AbilityScore(string ability) {
@@ -166,7 +270,7 @@ namespace PlayMore35.GameRules {
                 new Effect("Base " + ability + " modifier")
                     .AddModifier(new Modifier("untyped", abilityModifierName)
                         .AddAmount(-5)
-                        .AddAmount(new VariableAmount(abilityScore).Halve())
+                        .AddAmount(new VariableAmount(abilityScore, 0.5f))
                     )
             );
 

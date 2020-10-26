@@ -38,10 +38,68 @@ namespace PlayMore35.Items {
             }
             return false;
         }
+    }
 
-        public int GetAttackBonus(GameRules.GameRules rules) {
-            string attackStat = (IsRanged() ? RANGED : MELEE) + ATTACK_ROLLS + WITH + W.Name;
-            return rules.Stats()[attackStat].GetValue(rules.Rules);
+    public static class AttackNames {
+        public static string Name(this Attack.Type x) {
+            switch (x) {
+                case Attack.Type.MANUFACTURED:
+                    return MANUFACTURED;
+                case Attack.Type.PRIMARY_NATURAL:
+                case Attack.Type.SECONDARY_NATURAL:
+                    return NATURAL;
+            }
+            return null;
+        }
+
+        public static string Name(this Attack.Proficiency x) {
+            switch (x) {
+                case Attack.Proficiency.SIMPLE:
+                    return SIMPLE;
+                case Attack.Proficiency.MARTIAL:
+                    return MARTIAL;
+                case Attack.Proficiency.EXOTIC:
+                    return EXOTIC;
+            }
+            return null;
+        }
+
+        public static string Name(this Attack.Effort x) {
+            switch (x) {
+                case Attack.Effort.LIGHT:
+                    return LIGHT;
+                case Attack.Effort.ONE_HANDED:
+                    return ONE_HANDED;
+                case Attack.Effort.TWO_HANDED:
+                    return TWO_HANDED;
+            }
+            return null;
+        }
+
+        public static string Name(this Attack.Range x) {
+            switch (x) {
+                case Attack.Range.MELEE:
+                case Attack.Range.REACH_MELEE:
+                    return MELEE;
+                case Attack.Range.THROWN:
+                case Attack.Range.PROJECTILE:
+                    return RANGED;
+            }
+            return null;
+        }
+
+        public static string FullName(this Attack.Range x) {
+            switch (x) {
+                case Attack.Range.MELEE:
+                    return MELEE_NAME;
+                case Attack.Range.REACH_MELEE:
+                    return REACH;
+                case Attack.Range.THROWN:
+                    return THROWN;
+                case Attack.Range.PROJECTILE:
+                    return PROJECTILE;
+            }
+            return null;
         }
     }
 }

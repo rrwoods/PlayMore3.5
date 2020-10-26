@@ -132,7 +132,7 @@ namespace PlayMore35.Effects.Tests {
                 OffHand = true
             });
             dagger.Tags.Add("shadow hand");
-            dagger.Register(r, false);
+            r.AddWeapon(dagger);
             CheckStat(+3, r, p, MELEE + ATTACK_ROLLS + WITH + dagger.Name);
             CheckStat(+1, r, p, MELEE + DAMAGE_ROLLS + WITH + dagger.Name);
 
@@ -164,7 +164,7 @@ namespace PlayMore35.Effects.Tests {
                 StrengthRating = +2,
                 DamageType = "Piercing"
             });
-            compositeBow.Register(r, false);
+            r.AddWeapon(compositeBow);
             CheckStat(+5, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow.Name);
             CheckStat(+2, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow.Name);
         }
@@ -176,10 +176,10 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(16, STR_SCORE);
             p.SetValue(20, DEX_SCORE);
 
-            Items.Weapon compositeBow4 = new Items.Weapon {
+            Items.Weapon compositeBow = new Items.Weapon {
                 Name = "Composite shortbow (+4 Str)"
             };
-            compositeBow4.Attacks.Add(new Items.Attack(compositeBow4) {
+            compositeBow.Attacks.Add(new Items.Attack(compositeBow) {
                 ProficencyCategory = Items.Attack.Proficiency.MARTIAL,
                 EffortCategory = Items.Attack.Effort.ONE_HANDED,
                 RangeCategory = Items.Attack.Range.PROJECTILE,
@@ -191,9 +191,9 @@ namespace PlayMore35.Effects.Tests {
                 StrengthRating = +4,
                 DamageType = "Piercing"
             });
-            compositeBow4.Register(r, false);
-            CheckStat(+3, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow4.Name);
-            CheckStat(+3, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow4.Name);
+            r.AddWeapon(compositeBow);
+            CheckStat(+3, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow.Name);
+            CheckStat(+3, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow.Name);
         }
     }
 }

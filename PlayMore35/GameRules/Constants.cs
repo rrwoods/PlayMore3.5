@@ -159,12 +159,31 @@ namespace PlayMore35.GameRules {
         public static readonly string RANGED = "Ranged ";
         public static readonly string ATTACK_ROLLS = "attack rolls";
         public static readonly string DAMAGE_ROLLS = "damage rolls";
+
         public static readonly string WITH = " with ";
+        public static readonly string MANUFACTURED = "manufactured";
+        public static readonly string NATURAL = "natural";
+        public static readonly string SIMPLE = "simple";
+        public static readonly string MARTIAL = "martial";
+        public static readonly string EXOTIC = "exotic";
+        public static readonly string LIGHT = "light";
+        public static readonly string ONE_HANDED = "one-handed";
+        public static readonly string TWO_HANDED = "two-handed";
+        public static readonly string PRIMARY_HAND = "primary-hand";
+        public static readonly string OFF_HAND = "off-hand";
+        public static readonly string MELEE_NAME = "melee"; // the tag for the weapon range, as opposed to the prefix.  probably will never be used in practice.
+        public static readonly string REACH = "reach";
+        public static readonly string THROWN = "thrown";
+        public static readonly string PROJECTILE = "projectile";
         public static readonly string WEAPONS = " weapons"; // for weapon tags, i.e. ATTACK_ROLLS + WITH + "shadow hand" + WEAPONS
 
-        public static readonly string BLUDGEONING = "bludgeoning";
-        public static readonly string PIERCING = "piercing";
-        public static readonly string SLASHING = "slashing";
+        // Usage: Weapon.Name + STRENGTH_RATING.  Forming a Statistic out of a composite bow's strength rating lets us use it in
+        // ConditionalToggles, which lets us do the appropriate attack penalty and damage bonus.
+        public static readonly string STRENGTH_RATING = " strength rating";
+
+        public static readonly string BLUDGEONING = "Bludgeoning";
+        public static readonly string PIERCING = "Piercing";
+        public static readonly string SLASHING = "Slashing";
         public static readonly string AND = " and ";
         public static readonly string OR = " or ";
     }
