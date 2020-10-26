@@ -143,6 +143,25 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod()]
+        public void TestEnhancementBonus() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            p.SetValue(16, STR_SCORE);
+
+            Items.Weapon dagger = new Items.Weapon() {
+                Name = "+1 dagger"
+            };
+            p.AddEffect(new Effect("+1 dagger enhancement bonus")
+                .AddModifier(new Modifier(+1, ENHANCEMENT, ATTACK_ROLLS + WITH + dagger.Name))
+                .AddModifier(new Modifier(+1, ENHANCEMENT, DAMAGE_ROLLS + WITH + dagger.Name))
+            );
+            dagger.Attacks.Add(new Items.Attack(dagger));
+            r.AddWeapon(dagger);
+            CheckStat(+4, r, p, MELEE + ATTACK_ROLLS + WITH + dagger.Name);
+            CheckStat(+4, r, p, MELEE + DAMAGE_ROLLS + WITH + dagger.Name);
+        }
+
+        [TestMethod()]
         public void TestCompositeBowStrong() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
@@ -157,7 +176,7 @@ namespace PlayMore35.Effects.Tests {
                 EffortCategory = Items.Attack.Effort.ONE_HANDED,
                 RangeCategory = Items.Attack.Range.PROJECTILE,
                 OffHand = false,
-                DamageDieMedium = "1d6",
+                DamageDiceMedium = new Dictionary<int, int> { [6] = 1 },
                 ThreatRange = 20,
                 CriticalMultiplier = 3,
                 RangeIncrement = 70,
@@ -184,7 +203,7 @@ namespace PlayMore35.Effects.Tests {
                 EffortCategory = Items.Attack.Effort.ONE_HANDED,
                 RangeCategory = Items.Attack.Range.PROJECTILE,
                 OffHand = false,
-                DamageDieMedium = "1d6",
+                DamageDiceMedium = new Dictionary<int, int> { [6] = 1 },
                 ThreatRange = 20,
                 CriticalMultiplier = 3,
                 RangeIncrement = 70,

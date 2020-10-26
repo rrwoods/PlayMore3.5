@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.Items {
@@ -20,7 +21,9 @@ namespace PlayMore35.Items {
         public Range RangeCategory = Range.MELEE;
         public bool OffHand = false;
 
-        public string DamageDieMedium = "1d4";
+        // {die size => quantity}
+        public Dictionary<int, int> DamageDiceMedium = new Dictionary<int, int> { [4] = 1 }; // 1d4
+
         public int ThreatRange = 19;
         public int CriticalMultiplier = 2;
         public int RangeIncrement = 0;
