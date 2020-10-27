@@ -86,6 +86,41 @@ namespace PlayMore35.GameRules {
 
             AddStat(new Statistic(MAX_HP));
 
+            AddStat(new Statistic(CURRENT_HP));
+            Rules.AddEffect(new Effect(MAX_HP)
+                .AddModifier(new Modifier(stats[MAX_HP], UNTYPED, CURRENT_HP))
+            );
+
+            AddStat(new Statistic(LETHAL_DAMAGE));
+            Rules.AddEffect(new Effect("Subtract damage from hit points")
+                .AddModifier(new Modifier(new VariableAmount(stats[LETHAL_DAMAGE], -1f), UNTYPED, CURRENT_HP))
+            );
+
+            // The UI should automatically clear this flag when you damage yourself to the negatives or heal out of them.
+            ControllableToggle stable = new ControllableToggle("stable");
+            Rules.AddEffect(new Effect("disabled")
+                .SetToggle(new AnyToggle(
+                    new ConditionalToggle(stats[CURRENT_HP], Relation.EQUAL, 0),
+                    new AllToggle(
+                        new ConditionalToggle(stats[CURRENT_HP], Relation.LESS_THAN, 0),
+                        stable
+                    )
+                ))
+                // TODO : text about what disabled means
+            );
+
+            Rules.AddEffect(new Effect("dying")
+                .SetToggle(new AllToggle(
+                    new ConditionalToggle(stats[CURRENT_HP], Relation.LESS_THAN, 0),
+                    new UnToggle(stable)
+                ))
+                // TODO : text "can't act"
+                // TODO : text "1 lethal damage per round"
+                // TODO : text "healing stabilizes; 10%/round to auto-stabilize"
+            );
+                    
+            AddStat(new Statistic(NONLETHAL_DAMAGE));
+
             SkillModifier(APPRAISE, INT);
             SkillModifier(BALANCE, DEX);
             SkillModifier(BLUFF, CHA);
@@ -173,9 +208,9 @@ namespace PlayMore35.GameRules {
 
             Statistic ac = new Statistic(AC);
             Statistic touchAC = new Statistic(TOUCH_AC, ac)
-                .ignoreModifierType(ARMOR)
-                .ignoreModifierType(SHIELD)
-                .ignoreModifierType(NATURAL_ARMOR);
+                .IgnoreModifierType(ARMOR)
+                .IgnoreModifierType(SHIELD)
+                .IgnoreModifierType(NATURAL_ARMOR);
             AddStat(ac);
             AddStat(touchAC);
 
@@ -269,10 +304,179 @@ namespace PlayMore35.GameRules {
                     ))
                 );
             }
+
+            // TODO : "lose DEX to AC" as a concept.
+            // Need to be careful with this.  There are some conditions that "lose DEX to AC" that are negated by
+            // e.g. uncanny dodge, and there are some that are not.  Might just want two versions of "lose DEX to AC",
+            // a "soft" and a "hard", and make the soft one check uncanny dodge in its condition.  Or something.
+
+            Rules.AddEffect(new Effect("blinded")
+                .Controllable()
+                .AddModifier(new Modifier(-2, UNTYPED, AC))
+                // TODO : lose DEX to AC
+                // TODO : text "move at half speed"
+                // TODO : text "all vision activities and checks (like Spot) auto-fail"
+                // TODO : text "opponents have total concealment"
+                .AddModifier(new Modifier(-4, UNTYPED, SEARCH))
+                .AddModifier(new Modifier(-4, UNTYPED, STR_SKILLS))
+                .AddModifier(new Modifier(-4, UNTYPED, DEX_SKILLS))
+            );
+
+            // not bothering with confused status -- you have to look it up anyway, and it's prone to DM fiat
+
+            Rules.AddEffect(new Effect("cowering")
+                .Controllable()
+                // TODO : text "can't act"
+                // TODO : lose DEX to AC
+                .AddModifier(new Modifier(-2, UNTYPED, AC))
+            );
+
+            // even though this is an entirely textual entirely controllable effect (meaning you turn it "dazed" on to basically
+            // just see "you are dazed"), i'm including it anyway.  there are many things that have a "can't act" effect which i
+            // am strongly considering making its own thing.
+            Rules.AddEffect(new Effect("dazed")
+                .Controllable()
+                // TODO : text "can't act"
+            );
+
+            Rules.AddEffect(new Effect("dazzled")
+                .Controllable()
+                .AddModifier(new Modifier(-1, UNTYPED, ATTACK_ROLLS))
+                .AddModifier(new Modifier(-1, UNTYPED, SEARCH))
+                .AddModifier(new Modifier(-1, UNTYPED, SPOT))
+            );
+
+            Rules.AddEffect(new Effect("deafened")
+                .Controllable()
+                .AddModifier(new Modifier(-4, UNTYPED, INITIATIVE))
+                // TODO : text "auto-fail Listen checks"
+                // TODO : text 20% spell failure on spells with verbal components
+            );
+
+            AddStat(new Statistic(NEGATIVE_LEVELS));
+            Rules.AddEffect(new Effect("energy drained")
+                // A toggle isn't strictly necessary here since all the values will be zero if the character has no negative levels
+                // It's included anyway so that it's easier to exclude it from the effects list in the frontend
+                .SetToggle(new ConditionalToggle(stats[NEGATIVE_LEVELS], Relation.GREATER_THAN, 0))
+                .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1f), UNTYPED, ATTACK_ROLLS))
+                .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1f), UNTYPED, ALL_SAVES))
+                .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1f), UNTYPED, ALL_SKILLS))
+                .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1f), UNTYPED, ABILITY_CHECKS))
+                .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -5f), UNTYPED, ATTACK_ROLLS))
+                // TODO : -1 effective level for spellcasting; lose a highest-level spell slot
+            );
+
+            Rules.AddEffect(new Effect("entangled")
+                .Controllable()
+                // TODO : text "move at half speed", "can't run or charge"
+                .AddModifier(new Modifier(-2, UNTYPED, ATTACK_ROLLS))
+                .AddModifier(new Modifier(-4, UNTYPED, DEX_SCORE))
+                // TODO : text "spellcasting requires DC 15 Concentration, or lose spell"
+            );
+
+            Rules.AddEffect(new Effect("exhausted")
+                .Controllable()
+                // TODO : text "move at half speed"
+                // TODO : text "can't run or charge" -- exhausted doesn't actually say this but fatigued does.
+                .AddModifier(new Modifier(-6, UNTYPED, STR_SCORE))
+                .AddModifier(new Modifier(-6, UNTYPED, DEX_SCORE))
+                // TODO : text "rest one hour to be fatigued instead of exhausted"
+            );
+
+            Rules.AddEffect(new Effect("fascinated")
+                .Controllable()
+                // TODO : text "can't act"
+                .AddModifier(new Modifier(-4, UNTYPED, LISTEN))
+                .AddModifier(new Modifier(-4, UNTYPED, SPOT))
+            );
+
+            Rules.AddEffect(new Effect("fatigued")
+                .Controllable()
+                // TODO : text "can't run or charge"
+                .AddModifier(new Modifier(-2, UNTYPED, STR_SCORE))
+                .AddModifier(new Modifier(-2, UNTYPED, DEX_SCORE))
+            );
+
+            Rules.AddEffect(new Effect("flat-footed")
+                .Controllable()
+                // TODO : lose DEX to AC
+                // TODO : text "can't take immediate actions or attacks of opportunity"
+            );
+
+            Rules.AddEffect(new Effect("invisible")
+                .Controllable()
+                .AddModifier(new Modifier(+2, UNTYPED, ATTACK_ROLLS))
+                // TODO : text "opponents lose DEX to AC"
+            );
+
+            Rules.AddEffect(new Effect("nauseated")
+                .Controllable()
+                // TODO : text "can't attack"
+                // TODO : text "can't cast spells or concentrate on spells"
+                // TODO : text "can't concentrate on anything"
+                // TODO : text "can only take one move action each turn"
+            );
+
+            Rules.AddEffect(new Effect("prone")
+                .Controllable()
+                .AddModifier(new Modifier(-4, UNTYPED, MELEE + ATTACK_ROLLS))
+                // TODO : text "can't use non-crossbow ranged weapons"
+                // TODO : text "+4 AC vs ranged"
+                // TODO : text "-4 AC vs melee"
+            );
+
+            Rules.AddEffect(new Effect("sickened")
+                .Controllable()
+                .AddModifier(new Modifier(-2, UNTYPED, ATTACK_ROLLS))
+                .AddModifier(new Modifier(-2, UNTYPED, DAMAGE_ROLLS))
+                .AddModifier(new Modifier(-2, UNTYPED, ALL_SAVES))
+                .AddModifier(new Modifier(-2, UNTYPED, ALL_SKILLS))
+                .AddModifier(new Modifier(-2, UNTYPED, ABILITY_CHECKS))
+            );
+
+            Rules.AddEffect(new Effect("staggered")
+                .SetToggle(new ConditionalToggle(
+                    new VariableAmount(stats[NONLETHAL_DAMAGE]),
+                    Relation.EQUAL,
+                    new VariableAmount(stats[CURRENT_HP])
+                ))
+                // TODO : text "one standard or one move action only"
+            );
+
+            Rules.AddEffect(new Effect("stunned")
+                .Controllable()
+                .AddModifier(new Modifier(-2, UNTYPED, AC))
+                // lose DEX to AC
+                // text "can't act"
+                // text "drop all held items"
+            );
+
+            IToggle unconscious = new AnyToggle(
+                new ConditionalToggle(stats[CURRENT_HP], Relation.LESS_THAN, 0),
+                new ConditionalToggle(
+                    new VariableAmount(stats[NONLETHAL_DAMAGE]),
+                    Relation.GREATER_THAN,
+                    new VariableAmount(stats[CURRENT_HP])
+                )
+            );
+            Rules.AddEffect(new Effect("unconscious").SetToggle(unconscious));
+            Rules.AddEffect(new Effect("helpless and paralyzed")
+                // There's no real effect here; setting STR and DEX to zero in the same effect where
+                // we check STR and DEX causes an infinite stack overflow.
+                .SetToggle(new AnyToggle(
+                    new ControllableToggle("helpless and paralyzed"),
+                    new ConditionalToggle(stats[STR_SCORE], Relation.EQUAL, 0),
+                    new ConditionalToggle(stats[DEX_SCORE], Relation.EQUAL, 0),
+                    unconscious
+                ))
+                // TODO : text "can't act"
+                // TODO : text "helpless and paralyzed", probably in all sections
+                // TODO : text "effective STR 0 and DEX 0"
+            );
         }
 
         private void AbilityScore(string ability) {
-            Statistic abilityScore = new Statistic(ability + " score");
+            Statistic abilityScore = new Statistic(ability + " score").Minimum(0);
             AddStat(abilityScore);
 
             Statistic abilityDamage = new Statistic(ability + " damage");

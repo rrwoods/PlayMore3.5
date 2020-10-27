@@ -10,6 +10,11 @@ namespace PlayMore35.Effects {
     public class Statistic {
         private static string[] stackingTypes = { CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
 
+        public string Name { get; private set; }
+        private readonly List<string> tags = new List<string>();
+        private int? minValue = null;
+        private int? maxValue = null;
+
         public Statistic(string name) {
             Name = name;
             AddTag(name);
@@ -23,10 +28,6 @@ namespace PlayMore35.Effects {
             ignoredModifierTypes.AddRange(basedOn.ignoredModifierTypes);
         }
 
-        public string Name { get; private set; }
-
-        private readonly List<string> tags = new List<string>();
-
         public Statistic AddTag(string tag) {
             tags.Add(tag);
             return this; // method chaining
@@ -36,9 +37,19 @@ namespace PlayMore35.Effects {
             return tags.Contains(tag);
         }
 
+        public Statistic Minimum(int minimum) {
+            minValue = minimum;
+            return this;
+        }
+
+        public Statistic Maximum(int maximum) {
+            maxValue = maximum;
+            return this;
+        }
+
         private readonly List<string> ignoredModifierTypes = new List<string>();
 
-        public Statistic ignoreModifierType(string type) {
+        public Statistic IgnoreModifierType(string type) {
             ignoredModifierTypes.Add(type);
             return this; // method chaining
         }
@@ -71,7 +82,17 @@ namespace PlayMore35.Effects {
                 dict[type] = Math.Max(current, amount);
             }
 
-            return total - penalties.Values.Sum() + bonuses.Values.Sum();
+            total -= penalties.Values.Sum();
+            total += bonuses.Values.Sum();
+
+            if (minValue != null && total < minValue) {
+                total = (int)minValue;
+            }
+            if (maxValue != null && total > maxValue) {
+                total = (int)maxValue;
+            }
+
+            return total;
         }
     }
 }

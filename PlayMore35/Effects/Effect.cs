@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PlayMore35.Effects {
     public class Effect {
         public Effect(string name) {
-            this.Name = name;
+            Name = name;
         }
 
         public string Name { get; private set; }
@@ -22,6 +22,11 @@ namespace PlayMore35.Effects {
 
         public Effect SetToggle(IToggle toggle) {
             Toggle = toggle;
+            return this;
+        }
+
+        public Effect Controllable() {
+            Toggle = new ControllableToggle(Name);
             return this;
         }
 

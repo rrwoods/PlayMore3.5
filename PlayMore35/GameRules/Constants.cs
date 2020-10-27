@@ -155,6 +155,10 @@ namespace PlayMore35.GameRules {
         public static readonly string UNTYPED = "untyped";
 
         public static readonly string MAX_HP = "Maximum hit points";
+        public static readonly string CURRENT_HP = "Current hit points";
+        public static readonly string LETHAL_DAMAGE = "Lethal damage";
+        public static readonly string NONLETHAL_DAMAGE = "Nonlethal damage";
+        public static readonly string NEGATIVE_LEVELS = "Negative levels";
 
         public static readonly string SIZE_CATEGORY = "Size category";
         public static readonly string SIZE_MODIFIER = "Size modifier";
