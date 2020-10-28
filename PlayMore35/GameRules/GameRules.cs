@@ -245,14 +245,18 @@ namespace PlayMore35.GameRules {
             string excessSpeed = "speed over 30 ft, in units of 10 ft";
             AddStat(new Statistic(excessSpeed));
             Rules.AddEffect(new Effect(excessSpeed)
-                .AddModifier(new Modifier(new VariableAmount(stats[LAND_SPEED], 0.1m), UNTYPED, excessSpeed))
-                .AddModifier(new Modifier(-3, UNTYPED, excessSpeed))
+                .AddModifier(new Modifier(UNTYPED, excessSpeed)
+                    .AddAmount(new VariableAmount(stats[LAND_SPEED], 0.1m))
+                    .AddAmount(-3)
+                )
             );
             string lackingSpeed = "speed under 30 ft, in units of 10 ft";
             AddStat(new Statistic(lackingSpeed));
             Rules.AddEffect(new Effect(lackingSpeed)
-                .AddModifier(new Modifier(new VariableAmount(stats[LAND_SPEED], -0.1m), UNTYPED, lackingSpeed))
-                .AddModifier(new Modifier(+3, UNTYPED, lackingSpeed))
+                .AddModifier(new Modifier(UNTYPED, lackingSpeed)
+                    .AddAmount(new VariableAmount(stats[LAND_SPEED], -0.1m))
+                    .AddAmount(+3)
+                )
             );
 
             Rules.AddEffect(new Effect("Speed penalty")
@@ -477,7 +481,7 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1), UNTYPED, ALL_SAVES))
                 .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1), UNTYPED, ALL_SKILLS))
                 .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1), UNTYPED, ABILITY_CHECKS))
-                .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -5), UNTYPED, ATTACK_ROLLS))
+                .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -5), UNTYPED, MAX_HP))
                 // TODO : -1 effective level for spellcasting; lose a highest-level spell slot
             );
 
