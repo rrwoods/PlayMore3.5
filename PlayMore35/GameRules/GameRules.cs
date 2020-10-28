@@ -305,6 +305,24 @@ namespace PlayMore35.GameRules {
                 );
             }
 
+            AddStat(new Statistic(FEAR_LEVEL).Minimum(0).Maximum(3));
+            Rules.AddEffect(new Effect(SHAKEN)
+                .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.GREATER_THAN_OR_EQUAL, 1))
+                .AddModifier(new Modifier(-2, UNTYPED, ATTACK_ROLLS))
+                .AddModifier(new Modifier(-2, UNTYPED, ALL_SAVES))
+                .AddModifier(new Modifier(-2, UNTYPED, ALL_SKILLS))
+                .AddModifier(new Modifier(-2, UNTYPED, ABILITY_CHECKS))
+            );
+            Rules.AddEffect(new Effect(FRIGHTENED)
+                .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.EQUAL, 2))
+                // TODO : text "must flee from source of fear"
+            );
+            Rules.AddEffect(new Effect(PANICKED)
+                .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.EQUAL, 3))
+                // TODO : text "must drop all held items and flee at top speed along a random path, cowering if cornered"
+            );
+
+
             // TODO : "lose DEX to AC" as a concept.
             // Need to be careful with this.  There are some conditions that "lose DEX to AC" that are negated by
             // e.g. uncanny dodge, and there are some that are not.  Might just want two versions of "lose DEX to AC",
@@ -460,11 +478,11 @@ namespace PlayMore35.GameRules {
                 )
             );
             Rules.AddEffect(new Effect("unconscious").SetToggle(unconscious));
-            Rules.AddEffect(new Effect("helpless and paralyzed")
+            Rules.AddEffect(new Effect(HELPLESS_AND_PARALYZED)
                 // There's no real effect here; setting STR and DEX to zero in the same effect where
                 // we check STR and DEX causes an infinite stack overflow.
                 .SetToggle(new AnyToggle(
-                    new ControllableToggle("helpless and paralyzed"),
+                    new ControllableToggle(HELPLESS_AND_PARALYZED),
                     new ConditionalToggle(stats[STR_SCORE], Relation.EQUAL, 0),
                     new ConditionalToggle(stats[DEX_SCORE], Relation.EQUAL, 0),
                     unconscious

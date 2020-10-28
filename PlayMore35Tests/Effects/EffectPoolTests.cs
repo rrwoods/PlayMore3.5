@@ -212,5 +212,16 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(+3, r, p, RANGED + ATTACK_ROLLS + WITH + compositeBow.Name);
             CheckStat(+3, r, p, RANGED + DAMAGE_ROLLS + WITH + compositeBow.Name);
         }
+
+        [TestMethod()]
+        public void TestFearStacking() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            p.SetValue(20, DEX_SCORE);
+
+            CheckStat(+5, r, p, DEX_CHECKS);
+            p.SetValue(1, FEAR_LEVEL);
+            CheckStat(+3, r, p, DEX_CHECKS);
+        }
     }
 }

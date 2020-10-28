@@ -159,6 +159,7 @@ namespace PlayMore35.GameRules {
         public static readonly string LETHAL_DAMAGE = "Lethal damage";
         public static readonly string NONLETHAL_DAMAGE = "Nonlethal damage";
         public static readonly string NEGATIVE_LEVELS = "Negative levels";
+        public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
 
         public static readonly string SIZE_CATEGORY = "Size category";
         public static readonly string SIZE_MODIFIER = "Size modifier";
@@ -171,6 +172,11 @@ namespace PlayMore35.GameRules {
         public static readonly string SWIM_SPEED = "Swim speed";
         public static readonly string FLY_SPEED = "Fly speed";
         public static readonly string MANEUVERABILITY = "Maneuverability";
+
+        public static readonly string FEAR_LEVEL = "Fear level";
+        public static readonly string SHAKEN = "shaken";
+        public static readonly string FRIGHTENED = "frightened";
+        public static readonly string PANICKED = "panicked";
 
         public static readonly string FORT_SAVES = "Fort saves";
         public static readonly string REF_SAVES = "Ref saves";
