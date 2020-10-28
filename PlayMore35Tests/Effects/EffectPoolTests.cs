@@ -223,5 +223,32 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(1, FEAR_LEVEL);
             CheckStat(+3, r, p, DEX_CHECKS);
         }
+
+        [TestMethod()]
+        public void TestSpecialSizeModifier() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            p.SetValue(20, DEX_SCORE);
+
+            // no ranks in hide, +5 dex +0 str +0 bab, medium size:  +5 hide, +0 grapple
+            CheckStat(+5, r, p, HIDE);
+            CheckStat(+0, r, p, GRAPPLE);
+
+            // colossal size, which gives -16 hide +16 grapple
+            p.SetValue(4, SIZE_CATEGORY);
+
+            CheckStat(-11, r, p, HIDE);
+            CheckStat(+16, r, p, GRAPPLE);
+        }
+
+        [TestMethod()]
+        public void TestReachLookup() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+
+            CheckStat(5, r, p, REACH);
+            p.SetValue(4, SIZE_CATEGORY);
+            CheckStat(30, r, p, REACH);
+        }
     }
 }

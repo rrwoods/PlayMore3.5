@@ -234,14 +234,72 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(FLY_SPEED).AddTag(ALL_SPEEDS));
             AddStat(new Statistic(MANEUVERABILITY));
 
-            AddStat(new Statistic(SIZE_CATEGORY)); // TODO : "derived" stats for Space and Reach, via a (new) LookupAmount
+            // Medium at 0 makes a lot of calculations more smooth
+            AddStat(new Statistic(SIZE_CATEGORY).Minimum(-4).Maximum(+4));
 
-            AddStat(new Statistic(SPECIAL_SIZE_MODIFIER)); // TODO : actually calculate this lol
+            AddStat(new Statistic(SIZE_MODIFIER));
+            Rules.AddEffect(new Effect(SIZE_MODIFIER + " calculation")
+                .AddModifier(new Modifier(
+                    new LookupAmount(
+                        stats[SIZE_CATEGORY],
+                        new Dictionary<int, int> {
+                            [-4] = +8,
+                            [-3] = +4,
+                            [-2] = +2,
+                            [-1] = +1,
+                            [0] = +0,
+                            [+1] = -1,
+                            [+2] = -2,
+                            [+3] = -4,
+                            [+4] = -8
+                        }
+                    ),
+                    UNTYPED,
+                    SIZE_MODIFIER
+                ))
+            );
+            Rules.AddEffect(new Effect(SIZE_MODIFIER)
+                .AddModifier(new Modifier(stats[SIZE_MODIFIER], SIZE, ATTACK_ROLLS))
+                .AddModifier(new Modifier(stats[SIZE_MODIFIER], SIZE, AC))
+            );
+
+            AddStat(new Statistic(SPECIAL_SIZE_MODIFIER));
+            Rules.AddEffect(new Effect(SPECIAL_SIZE_MODIFIER)
+                .AddModifier(new Modifier(new VariableAmount(stats[SIZE_CATEGORY], 4), UNTYPED, SPECIAL_SIZE_MODIFIER))
+            );
             Rules.AddEffect(new Effect("Hide special size modifier")
                 .AddModifier(new Modifier(new VariableAmount(stats[SPECIAL_SIZE_MODIFIER], -1), UNTYPED, HIDE))
             );
 
+            // for now (or maybe forever) i'm not dealing with the fact that there's a long/tall distinction, or the fact
+            // that "some exceptions exist" to these values.  for player characters i'm assuming tall, and i'm assuming that
+            // space never changes, and i'm assuming that if reach changes it's via an effect not a base reach difference.
+            // if this is not the case... i'll just let the player say what these values are and remove these effects.
+
+            // TODO : Space (it's a LookupText, basically)
+            AddStat(new Statistic(REACH).Minimum(0));
+            Rules.AddEffect(new Effect(REACH)
+                .AddModifier(new Modifier(
+                    new LookupAmount(stats[SIZE_CATEGORY],
+                        new Dictionary<int, int> {
+                            [-4] = 0,
+                            [-3] = 0,
+                            [-2] = 0,
+                            [-1] = 5,
+                            [0]  = 5,
+                            [+1] = 10,
+                            [+2] = 15,
+                            [+3] = 20,
+                            [+4] = 30
+                        }
+                    ),
+                    UNTYPED,
+                    REACH
+                ))
+            );
+
             AddStat(new Statistic(BASE_ATTACK_BONUS));
+            AddStat(new Statistic(GRAPPLE));
             Rules.AddEffect(new Effect("Base grapple")
                 .AddModifier(new Modifier(stats[BASE_ATTACK_BONUS], UNTYPED, GRAPPLE))
                 .AddModifier(new Modifier(stats[STR_MODIFIER], UNTYPED, GRAPPLE))
