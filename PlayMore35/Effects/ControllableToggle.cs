@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
-    class ControllableToggle : IToggle {
+    public class ControllableToggle : IToggle {
         public string Name { get; }
         public bool on = false;
 

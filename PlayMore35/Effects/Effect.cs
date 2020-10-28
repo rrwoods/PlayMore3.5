@@ -14,6 +14,7 @@ namespace PlayMore35.Effects {
 
         public IToggle Toggle = AlwaysOn.Instance;
         private readonly List<Modifier> Modifiers = new List<Modifier>();
+        public Multiplier Factor = null;
 
         public Effect AddModifier(Modifier mod) {
             Modifiers.Add(mod);
@@ -23,6 +24,11 @@ namespace PlayMore35.Effects {
 
         public Effect SetToggle(IToggle toggle) {
             Toggle = toggle;
+            return this;
+        }
+
+        public Effect SetMultiplier(Multiplier multiplier) {
+            Factor = multiplier;
             return this;
         }
 
@@ -42,6 +48,16 @@ namespace PlayMore35.Effects {
             return Toggle.On(pool)
                 ? potential
                 : Enumerable.Empty<Modifier>();
+        }
+
+        public decimal GetMultiplier(EffectPool pool, Statistic affecting) {
+            if (Factor == null) {
+                return 1m;
+            }
+            if (affecting.HasTag(Factor.Affects) && Toggle.On(pool)) {
+                return Factor.Factor;
+            }
+            return 1m;
         }
     }
 }

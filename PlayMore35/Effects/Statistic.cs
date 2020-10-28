@@ -14,6 +14,7 @@ namespace PlayMore35.Effects {
         private readonly List<string> tags = new List<string>();
         private int? minValue = null;
         private int? maxValue = null;
+        private int precision = 1;
 
         public Statistic(string name) {
             Name = name;
@@ -30,7 +31,7 @@ namespace PlayMore35.Effects {
 
         public Statistic AddTag(string tag) {
             tags.Add(tag);
-            return this; // method chaining
+            return this;
         }
 
         public bool HasTag(string tag) {
@@ -47,15 +48,20 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        public Statistic RoundTo(int precision) {
+            this.precision = precision;
+            return this;
+        }
+
         private readonly List<string> ignoredModifierTypes = new List<string>();
 
         public Statistic IgnoreModifierType(string type) {
             ignoredModifierTypes.Add(type);
-            return this; // method chaining
+            return this;
         }
 
         public int GetValue(EffectPool pool) {
-            int total = 0;
+            decimal total = 0;
             Dictionary<string, int> penalties = new Dictionary<string, int>();
             Dictionary<string, int> bonuses = new Dictionary<string, int>();
             IEnumerable<Modifier> mods = pool.GetModifiers(this);
@@ -85,14 +91,20 @@ namespace PlayMore35.Effects {
             total -= penalties.Values.Sum();
             total += bonuses.Values.Sum();
 
-            if (minValue != null && total < minValue) {
-                total = (int)minValue;
+            total *= pool.GetMultipliers(this);
+
+            // As of this writing the only thing we use this precision value on is speed, which always rounds *up* to
+            // the nearest 5 feet.
+            int roundedTotal = (int) (Math.Ceiling(decimal.Divide(total, precision)) * precision);
+
+            if (minValue != null && roundedTotal < minValue) {
+                roundedTotal = (int)minValue;
             }
-            if (maxValue != null && total > maxValue) {
-                total = (int)maxValue;
+            if (maxValue != null && roundedTotal > maxValue) {
+                roundedTotal = (int)maxValue;
             }
 
-            return total;
+            return roundedTotal;
         }
     }
 }

@@ -21,16 +21,21 @@ namespace PlayMore35.Effects {
             AddEffect(new Effect(affects).AddModifier(new Modifier("untyped", affects).AddAmount(value)));
         }
 
+        // this is probably only needed by tests?  might get rid of it once i don't need to programmatically toggle
+        // controllable-toggles anymore.
+        public Effect GetEffect(string name) {
+            return Effects[name];
+        }
+
         public IEnumerable<Modifier> GetModifiers(Statistic affecting) {
             return Effects.Values
                 .SelectMany(x => x.GetModifiers(this, affecting));
         }
 
-        public bool EffectActive(string name) {
-            if (!Effects.ContainsKey(name)) {
-                return false;
-            }
-            return Effects[name].Toggle.On(this);
+        public decimal GetMultipliers(Statistic affecting) {
+            return Effects.Values
+                .Select(x => x.GetMultiplier(this, affecting))
+                .Aggregate(1m, (acc, val) => acc * val);
         }
     }
 }

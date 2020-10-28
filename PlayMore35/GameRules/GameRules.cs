@@ -227,23 +227,28 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(stats[NATURAL_ARMOR], NATURAL_ARMOR, AC))
             );
 
-            AddStat(new Statistic(LAND_SPEED).AddTag(ALL_SPEEDS));
-            AddStat(new Statistic(BURROW_SPEED).AddTag(ALL_SPEEDS));
-            AddStat(new Statistic(CLIMB_SPEED).AddTag(ALL_SPEEDS));
-            AddStat(new Statistic(SWIM_SPEED).AddTag(ALL_SPEEDS));
-            AddStat(new Statistic(FLY_SPEED).AddTag(ALL_SPEEDS));
+            AddStat(new Statistic(LAND_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            AddStat(new Statistic(BURROW_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            AddStat(new Statistic(CLIMB_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            AddStat(new Statistic(SWIM_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            AddStat(new Statistic(FLY_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
             AddStat(new Statistic(MANEUVERABILITY));
+
+            Rules.AddEffect(new Effect("Encumbrance speed penalty")
+                .Controllable() // TODO : automatically determine based on armor/inventory ... ugh, armor.
+                .SetMultiplier(new Multiplier(0.666m, ALL_SPEEDS))
+            );
 
             // ... yeah, this jumps (heh) through some hoops.  nothing to see here, move along.
             // (i'm purposefully abusing integer math to get rounding on these amounts, and doing amount stacking via
             // statistic chaining to do divide-subtract-multiply.  sue me :P )
-            string excessSpeed = "speed in excess of 30 ft, in units of 10 ft";
+            string excessSpeed = "speed over 30 ft, in units of 10 ft";
             AddStat(new Statistic(excessSpeed));
             Rules.AddEffect(new Effect(excessSpeed)
                 .AddModifier(new Modifier(new VariableAmount(stats[LAND_SPEED], 0.1m), UNTYPED, excessSpeed))
                 .AddModifier(new Modifier(-3, UNTYPED, excessSpeed))
             );
-            string lackingSpeed = "speed shy of 30 ft, in units of 10 ft";
+            string lackingSpeed = "speed under 30 ft, in units of 10 ft";
             AddStat(new Statistic(lackingSpeed));
             Rules.AddEffect(new Effect(lackingSpeed)
                 .AddModifier(new Modifier(new VariableAmount(stats[LAND_SPEED], -0.1m), UNTYPED, lackingSpeed))
@@ -278,7 +283,7 @@ namespace PlayMore35.GameRules {
                             [+1] = -1,
                             [+2] = -2,
                             [+3] = -4,
-                            [+4] = -8
+                            [+4] = -8,
                         }
                     ),
                     UNTYPED,
@@ -309,7 +314,7 @@ namespace PlayMore35.GameRules {
                             [+1] = 10,
                             [+2] = 15,
                             [+3] = 20,
-                            [+4] = 30
+                            [+4] = 30,
                         }
                     ),
                     UNTYPED,

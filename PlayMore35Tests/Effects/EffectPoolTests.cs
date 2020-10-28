@@ -286,5 +286,30 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(10, LAND_SPEED);
             CheckStat(-12, r, p, JUMP);
         }
+
+        [TestMethod()]
+        public void TestEncumbrance() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+
+            ControllableToggle encumbered = (ControllableToggle) p.GetEffect("Encumbrance speed penalty").Toggle;
+            encumbered.on = true;
+
+            Dictionary<int, int> encumbranceTable = new Dictionary<int, int> {
+                [20] = 15,
+                [30] = 20,
+                [40] = 30,
+                [50] = 35,
+                [60] = 40,
+                [70] = 50,
+                [80] = 55,
+                [90] = 60,
+                [100] = 70,
+            };
+            foreach (var item in encumbranceTable) {
+                p.SetValue(item.Key, LAND_SPEED);
+                CheckStat(item.Value, r, p, LAND_SPEED);
+            }
+        }
     }
 }
