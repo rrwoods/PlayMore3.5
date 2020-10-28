@@ -60,6 +60,9 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(10, WIS_SCORE);
             p.SetValue(10, CHA_SCORE);
 
+            // speed 30 to make sure jump isn't affected
+            p.SetValue(30, LAND_SPEED);
+
             return rules;
         }
 
@@ -249,6 +252,39 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(5, r, p, REACH);
             p.SetValue(4, SIZE_CATEGORY);
             CheckStat(30, r, p, REACH);
+        }
+
+        [TestMethod()]
+        public void TestSpeedModifierToJump() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+
+            // no ranks, +0 ability, no speed modifier.
+            CheckStat(+0, r, p, JUMP);
+
+            p.SetValue(35, LAND_SPEED);
+            CheckStat(+0, r, p, JUMP);
+
+            p.SetValue(40, LAND_SPEED);
+            CheckStat(+4, r, p, JUMP);
+
+            p.SetValue(45, LAND_SPEED);
+            CheckStat(+4, r, p, JUMP);
+
+            p.SetValue(50, LAND_SPEED);
+            CheckStat(+8, r, p, JUMP);
+
+            p.SetValue(25, LAND_SPEED);
+            CheckStat(+0, r, p, JUMP);
+
+            p.SetValue(20, LAND_SPEED);
+            CheckStat(-6, r, p, JUMP);
+
+            p.SetValue(15, LAND_SPEED);
+            CheckStat(-6, r, p, JUMP);
+
+            p.SetValue(10, LAND_SPEED);
+            CheckStat(-12, r, p, JUMP);
         }
     }
 }

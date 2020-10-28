@@ -17,6 +17,7 @@ namespace PlayMore35.Effects {
 
         public Effect AddModifier(Modifier mod) {
             Modifiers.Add(mod);
+            mod.Name = Name;
             return this; // method chaining
         }
 

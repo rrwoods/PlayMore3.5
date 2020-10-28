@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class Modifier {
+        public string Name = "";
+
         public Modifier(int amount, string type, string affects)
             : this(new FixedAmount(amount), type, affects) {
             
@@ -18,22 +20,22 @@ namespace PlayMore35.Effects {
 
         public Modifier(IAmount amount, string type, string affects)
             : this(type, affects) {
-            this.AddAmount(amount);
+            AddAmount(amount);
         }
 
         public Modifier(string type, string affects) {
-            this.Type = type;
-            this.Affects = affects;
+            Type = type;
+            Affects = affects;
         }
 
         private readonly List<IAmount> Amounts = new List<IAmount>();
 
         public Modifier AddAmount(int amount) {
-            return this.AddAmount(new FixedAmount(amount));
+            return AddAmount(new FixedAmount(amount));
         }
 
         public Modifier AddAmount(IAmount amount) {
-            this.Amounts.Add(amount);
+            Amounts.Add(amount);
             return this; // method chaining
         }
 
@@ -42,7 +44,7 @@ namespace PlayMore35.Effects {
         public string Affects { get; private set; }
 
         public int ComputeAmount(EffectPool pool) {
-            return this.Amounts.Select(x => x.Get(pool)).Sum();
+            return Amounts.Select(x => x.Get(pool)).Sum();
         }
     }
 }

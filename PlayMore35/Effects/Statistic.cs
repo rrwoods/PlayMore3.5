@@ -58,8 +58,8 @@ namespace PlayMore35.Effects {
             int total = 0;
             Dictionary<string, int> penalties = new Dictionary<string, int>();
             Dictionary<string, int> bonuses = new Dictionary<string, int>();
-            IEnumerable<Modifier> enumerable = pool.GetModifiers(this);
-            foreach (Modifier mod in enumerable) {
+            IEnumerable<Modifier> mods = pool.GetModifiers(this);
+            foreach (Modifier mod in mods) {
                 int amount = mod.ComputeAmount(pool);
                 if (amount == 0) {
                     continue;

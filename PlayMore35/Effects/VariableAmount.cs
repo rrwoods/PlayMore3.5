@@ -10,16 +10,16 @@ namespace PlayMore35.Effects {
             this.stat = stat;
         }
 
-        public VariableAmount(Statistic stat, float factor)
+        public VariableAmount(Statistic stat, decimal factor)
             : this(stat) {
             this.factor = factor;
         }
 
         private readonly Statistic stat;
-        private float factor = 1f;
+        private readonly decimal factor = 1;
 
         public int Get(EffectPool pool) {
-            return (int) (stat.GetValue(pool) * factor);
+            return (int) Math.Floor(stat.GetValue(pool) * factor);
         }
     }
 }
