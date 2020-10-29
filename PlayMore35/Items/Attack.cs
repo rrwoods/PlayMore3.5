@@ -21,8 +21,7 @@ namespace PlayMore35.Items {
         public Range RangeCategory = Range.MELEE;
         public bool OffHand = false;
 
-        // {die size => quantity}
-        public Dictionary<int, int> DamageDiceMedium = new Dictionary<int, int> { [4] = 1 }; // 1d4
+        public (int qty, int size) DamageDieMedium = (1, 4);
 
         public int ThreatRange = 19;
         public int CriticalMultiplier = 2;
@@ -40,6 +39,44 @@ namespace PlayMore35.Items {
                     return true;
             }
             return false;
+        }
+
+        // keys are the Medium damage dice
+        // values are lists of damage dice ordered from Fine to Colossal
+        private static readonly Dictionary<(int, int), List<(int, int)>> damageSteps =
+            new Dictionary<(int, int), List<(int, int)>> {
+                [(1,2)]  = new List<(int, int)> { (0,1), (0,1), (0,1), (1,1),  (1,2),  (1,3), (1,4), (1,6), (1,8) },
+                [(1,3)]  = new List<(int, int)> { (0,1), (0,1), (1,1), (1,2),  (1,3),  (1,4), (1,6), (1,8), (2,6) },
+                [(1,4)]  = new List<(int, int)> { (0,1), (1,1), (1,2), (1,3),  (1,4),  (1,6), (1,8), (2,6), (3,6) },
+                [(1,6)]  = new List<(int, int)> { (1,1), (1,2), (1,3), (1,4),  (1,6),  (1,8), (2,6), (3,6), (4,6) },
+                [(2,4)]  = new List<(int, int)> { (1,2), (1,3), (1,4), (1,6),  (2,4),  (2,6), (3,6), (4,6), (6,6) },
+                [(1,8)]  = new List<(int, int)> { (1,2), (1,3), (1,4), (1,6),  (1,8),  (2,6), (3,6), (4,6), (6,6) },
+                [(1,10)] = new List<(int, int)> { (1,3), (1,4), (1,6), (1,8),  (1,10), (2,8), (3,8), (4,8), (6,8) },
+                [(1,12)] = new List<(int, int)> { (1,4), (1,6), (1,8), (1,10), (1,12), (3,6), (4,6), (6,6), (8,6) },
+                [(2,6)]  = new List<(int, int)> { (1,4), (1,6), (1,8), (1,10), (2,6),  (3,6), (4,6), (6,6), (8,6) },
+            };
+
+        // sizeChange = how many size categories up or down this weapon is from its "normal" state.
+        // use this for things like Enlarge Person.  it will clamp to the -4 to +4 range automatically.
+        // this function always creates a new dictionary for the return value, so modifying it won't affect future results.
+        // it will only ever have one key in it, but this format facilitates adding other dice of different sizes later (like
+        // modifying the damage via sneak attack for example).
+        // return value is {size => quantity}
+        public Dictionary<int, int> DamageDice(int sizeChange = 0) {
+            int sizeCategory = W.SizeCategory + sizeChange;
+            if (sizeCategory == 0) {
+                return new Dictionary<int, int> { [DamageDieMedium.size] = DamageDieMedium.qty };
+            }
+
+            if (sizeCategory < -4) {
+                sizeCategory = -4;
+            }
+            if (sizeCategory > +4) {
+                sizeCategory = +4;
+            }
+
+            (int adjustedQty, int adjustedSize) = damageSteps[DamageDieMedium][sizeCategory + 4];
+            return new Dictionary<int, int> { [adjustedSize] = adjustedQty };
         }
     }
 
@@ -105,4 +142,6 @@ namespace PlayMore35.Items {
             return null;
         }
     }
+
+
 }

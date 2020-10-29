@@ -10,6 +10,8 @@ namespace PlayMore35.Items {
     public class Weapon {
         public string Name = "Dagger";
 
+        public int SizeCategory = 0; // 0 is medium
+
         public List<Attack> Attacks = new List<Attack>();
 
         public List<string> Tags = new List<string>();

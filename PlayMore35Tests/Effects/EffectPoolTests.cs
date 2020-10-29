@@ -177,7 +177,7 @@ namespace PlayMore35.Effects.Tests {
                 EffortCategory = Items.Attack.Effort.ONE_HANDED,
                 RangeCategory = Items.Attack.Range.PROJECTILE,
                 OffHand = false,
-                DamageDiceMedium = new Dictionary<int, int> { [6] = 1 },
+                DamageDieMedium = (1,6),
                 ThreatRange = 20,
                 CriticalMultiplier = 3,
                 RangeIncrement = 70,
@@ -204,7 +204,7 @@ namespace PlayMore35.Effects.Tests {
                 EffortCategory = Items.Attack.Effort.ONE_HANDED,
                 RangeCategory = Items.Attack.Range.PROJECTILE,
                 OffHand = false,
-                DamageDiceMedium = new Dictionary<int, int> { [6] = 1 },
+                DamageDieMedium = (1,6),
                 ThreatRange = 20,
                 CriticalMultiplier = 3,
                 RangeIncrement = 70,
@@ -310,6 +310,18 @@ namespace PlayMore35.Effects.Tests {
                 p.SetValue(item.Key, LAND_SPEED);
                 CheckStat(item.Value, r, p, LAND_SPEED);
             }
+        }
+
+        [TestMethod()]
+        public void TestWeaponDamageBySize() {
+            Items.Weapon dagger = new Items.Weapon();
+            dagger.Attacks.Add(new Items.Attack(dagger));
+
+            var dice = dagger.Attacks[0].DamageDice(+2);
+            Assert.AreEqual(1, dice[8]);
+
+            var colossalDice = dagger.Attacks[0].DamageDice(+1000);
+            Assert.AreEqual(3, colossalDice[6]);
         }
     }
 }
