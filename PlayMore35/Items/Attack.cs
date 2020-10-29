@@ -4,7 +4,7 @@ using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.Items {
     public class Attack {
-        private readonly Weapon W;
+        public readonly Weapon W;
 
         public Attack(Weapon w) {
             W = w;
@@ -75,6 +75,18 @@ namespace PlayMore35.Items {
             }
 
             return new Effects.DiceGroup(damageSteps[DamageDieMedium][sizeCategory + 4]);
+        }
+
+        public Effects.DiceGroup FinalDamageDice(GameRules.GameRules rules, int sizeChange = 0) {
+            string damageRollStat = (IsRanged() ? RANGED : MELEE) + DAMAGE_ROLLS + WITH + W.Name;
+            int modifier = rules.Stats()[damageRollStat].GetValue(rules.Rules);
+
+            string extraDiceStat = (IsRanged() ? RANGED : MELEE) + EXTRA_DAMAGE_DICE + WITH + W.Name;
+            Effects.DiceGroup extraDice = rules.ExtraDice()[extraDiceStat].GetValue(rules.Rules);
+
+            return BaseDamageDice(sizeChange)
+                .AddDice(extraDice)
+                .AddDice(modifier, 1);
         }
     }
 

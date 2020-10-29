@@ -37,5 +37,18 @@ namespace PlayMore35.Effects {
                 .Select(x => x.GetMultiplier(this, affecting))
                 .Aggregate(1m, (acc, val) => acc * val);
         }
+
+        public DiceGroup GetExtraDice(DiceStatistic affecting) {
+            DiceGroup ret = new DiceGroup();
+
+            foreach (DiceGroup extra in
+                Effects.Values
+                    .Select(x => x.GetExtraDice(this, affecting))
+                    .Where(x => x != null)
+            ) {
+                ret.AddDice(extra);
+            }
+            return ret;
+        }
     }
 }

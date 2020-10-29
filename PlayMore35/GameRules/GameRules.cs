@@ -23,6 +23,22 @@ namespace PlayMore35.GameRules {
             weapons.Add(weapon);
         }
 
+        private List<string> tagsForAttack(Items.Attack attack) {
+            List<string> tags = new List<string>(attack.W.Tags) {
+                attack.AttackType.Name(),
+                attack.ProficencyCategory.Name(),
+                attack.EffortCategory.Name(),
+                attack.RangeCategory.FullName()
+            };
+            if (attack.EffortCategory != Items.Attack.Effort.TWO_HANDED) {
+                tags.Add(attack.OffHand ? OFF_HAND : PRIMARY_HAND);
+            }
+            if (attack.RangeCategory == Items.Attack.Range.PROJECTILE && attack.StrengthRating >= 0) {
+                tags.Add("+" + attack.StrengthRating + " STR");
+            }
+            return tags;
+        }
+
         public Dictionary<string, Statistic> Stats() {
             Dictionary<string, Statistic> snapshot = new Dictionary<string, Statistic>(stats);
 
@@ -40,18 +56,7 @@ namespace PlayMore35.GameRules {
                         .AddTag(range + DAMAGE_ROLLS)
                         .AddTag(DAMAGE_ROLLS + WITH + name);
 
-                    List<string> tags = new List<string>(weapon.Tags) {
-                        attack.AttackType.Name(),
-                        attack.ProficencyCategory.Name(),
-                        attack.EffortCategory.Name(),
-                        attack.RangeCategory.FullName()
-                    };
-                    if (attack.EffortCategory != Items.Attack.Effort.TWO_HANDED) {
-                        tags.Add(attack.OffHand ? OFF_HAND : PRIMARY_HAND);
-                    }
-                    if (attack.RangeCategory == Items.Attack.Range.PROJECTILE && attack.StrengthRating >= 0) {
-                        tags.Add("+" + attack.StrengthRating + " STR");
-                    }
+                    List<string> tags = tagsForAttack(attack);
                     foreach (string tag in tags) {
                         attackStat
                             .AddTag(ATTACK_ROLLS + WITH + tag + WEAPONS)
@@ -63,6 +68,33 @@ namespace PlayMore35.GameRules {
 
                     snapshot[attackStat.Name] = attackStat;
                     snapshot[damageStat.Name] = damageStat;
+                }
+            }
+
+            return snapshot;
+        }
+
+        public Dictionary<string, DiceStatistic> ExtraDice() {
+            Dictionary<string, DiceStatistic> snapshot = new Dictionary<string, DiceStatistic>();
+
+            foreach (Items.Weapon weapon in weapons) {
+                string name = weapon.Name;
+
+                foreach (Items.Attack attack in weapon.Attacks) {
+                    string range = attack.RangeCategory.Name();
+                    DiceStatistic stat = new DiceStatistic(range + EXTRA_DAMAGE_DICE + WITH + name)
+                        .AddTag(EXTRA_DAMAGE_DICE)
+                        .AddTag(range + EXTRA_DAMAGE_DICE)
+                        .AddTag(range + EXTRA_DAMAGE_DICE + WITH + name);
+
+                    List<string> tags = tagsForAttack(attack);
+                    foreach (string tag in tags) {
+                        stat
+                            .AddTag(EXTRA_DAMAGE_DICE + WITH + tag + WEAPONS)
+                            .AddTag(range + EXTRA_DAMAGE_DICE + WITH + tag + WEAPONS);
+                    }
+
+                    snapshot[stat.Name] = stat;
                 }
             }
 

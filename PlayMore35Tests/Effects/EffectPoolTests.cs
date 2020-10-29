@@ -337,9 +337,31 @@ namespace PlayMore35.Effects.Tests {
 
             var colossalDice = dagger.Attacks[0].BaseDamageDice(+1000);
             Assert.AreEqual("3d6", colossalDice.ToString());
+            colossalDice.AddDice(-7, 1);
+            Assert.AreEqual("3d6 - 7", colossalDice.ToString());
 
             var fineDice = dagger.Attacks[0].BaseDamageDice(-1000);
             Assert.AreEqual("—", fineDice.ToString());
+        }
+
+        [TestMethod()]
+        public void TestExtraDamageEffects() {
+            Items.Weapon dagger = new Items.Weapon();
+            Items.Attack attack = new Items.Attack(dagger);
+            dagger.Attacks.Add(attack);
+
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            r.AddWeapon(dagger);
+
+            DiceGroup normalDice = attack.FinalDamageDice(r);
+            Assert.AreEqual("1d4", normalDice.ToString());
+
+            p.AddEffect(new Effect("Sneak attack")
+                .SetExtraDice(new ExtraDice(new DiceGroup(2, 6), EXTRA_DAMAGE_DICE))
+            );
+            DiceGroup sneakDice = attack.FinalDamageDice(r);
+            Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
         }
     }
 }

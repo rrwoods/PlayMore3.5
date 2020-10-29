@@ -15,6 +15,7 @@ namespace PlayMore35.Effects {
         public IToggle Toggle = AlwaysOn.Instance;
         private readonly List<Modifier> Modifiers = new List<Modifier>();
         public Multiplier Factor = null;
+        public ExtraDice Dice = null;
 
         public Effect AddModifier(Modifier mod) {
             Modifiers.Add(mod);
@@ -29,6 +30,11 @@ namespace PlayMore35.Effects {
 
         public Effect SetMultiplier(Multiplier multiplier) {
             Factor = multiplier;
+            return this;
+        }
+
+        public Effect SetExtraDice(ExtraDice extraDice) {
+            Dice = extraDice;
             return this;
         }
 
@@ -58,6 +64,16 @@ namespace PlayMore35.Effects {
                 return Factor.Factor;
             }
             return 1m;
+        }
+
+        public DiceGroup GetExtraDice(EffectPool pool, DiceStatistic affecting) {
+            if (Dice == null) {
+                return null;
+            }
+            if (affecting.HasTag(Dice.Affects) && Toggle.On(pool)) {
+                return Dice.Dice;
+            }
+            return null;
         }
     }
 }

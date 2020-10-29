@@ -24,31 +24,59 @@ namespace PlayMore35.Effects {
 
         }
 
-        public void AddDice(int quantity, int size) {
+        public DiceGroup AddDice(int quantity, int size) {
             if (quantity == 0) {
-                return;
+                return this;
             }
 
             if (dice.ContainsKey(size)) {
                 dice[size] += quantity;
+                // the use case here is applying a flat modifier that cancels out another flat modifier
+                if (dice[size] == 0) {
+                    dice.Remove(size);
+                }
             } else {
                 dice[size] = quantity;
             }
+
+            return this;
+        }
+
+        public DiceGroup AddDice(DiceGroup additionalDice) {
+            foreach (var die in additionalDice.dice) {
+                AddDice(die.Value, die.Key);
+            }
+            return this;
         }
 
         public override string ToString() {
+            if (!dice.Any()) {
+                return "—";
+            }
+
             List<string> components = new List<string>();
             foreach(var die in dice.OrderByDescending(d => d.Key)) {
                 if (die.Key == 1) {
-                    components.Add("" + die.Value);
+                    continue;
                 } else {
                     components.Add("" + die.Value + "d" + die.Key);
                 }
             }
-            if (components.Any()) {
-                return string.Join(" + ", components);
+
+            if (!components.Any()) {
+                // we get here when the only potential component is of die size 1
+                // this means we're looking at only a flat amount, so just return it.
+                return "" + dice[1];
             }
-            return "—";
+
+            string ret = string.Join(" + ", components);
+            if (!dice.ContainsKey(1)) {
+                return ret;
+            }
+            int modifier = dice[1];
+            return modifier > 0
+                ? ret + " + " + modifier
+                : ret + " - " + (-modifier); // a lot of work to put a space before it, but it keeps things consistent
         }
     }
 }

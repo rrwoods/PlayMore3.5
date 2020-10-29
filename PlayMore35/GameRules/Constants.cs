@@ -193,6 +193,7 @@ namespace PlayMore35.GameRules {
         public static readonly string RANGED = "Ranged ";
         public static readonly string ATTACK_ROLLS = "attack rolls";
         public static readonly string DAMAGE_ROLLS = "damage rolls";
+        public static readonly string EXTRA_DAMAGE_DICE = "extra damage dice";
 
         public static readonly string WITH = " with ";
         public static readonly string MANUFACTURED = "manufactured";
