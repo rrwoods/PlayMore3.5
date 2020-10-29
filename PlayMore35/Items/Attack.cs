@@ -58,14 +58,13 @@ namespace PlayMore35.Items {
 
         // sizeChange = how many size categories up or down this weapon is from its "normal" state.
         // use this for things like Enlarge Person.  it will clamp to the -4 to +4 range automatically.
-        // this function always creates a new dictionary for the return value, so modifying it won't affect future results.
+        // this function always creates a new dice group for the return value, so modifying it won't affect future results.
         // it will only ever have one key in it, but this format facilitates adding other dice of different sizes later (like
         // modifying the damage via sneak attack for example).
-        // return value is {size => quantity}
-        public Dictionary<int, int> DamageDice(int sizeChange = 0) {
+        public Effects.DiceGroup BaseDamageDice(int sizeChange = 0) {
             int sizeCategory = W.SizeCategory + sizeChange;
             if (sizeCategory == 0) {
-                return new Dictionary<int, int> { [DamageDieMedium.size] = DamageDieMedium.qty };
+                return new Effects.DiceGroup(DamageDieMedium.qty, DamageDieMedium.size);
             }
 
             if (sizeCategory < -4) {
@@ -75,8 +74,7 @@ namespace PlayMore35.Items {
                 sizeCategory = +4;
             }
 
-            (int adjustedQty, int adjustedSize) = damageSteps[DamageDieMedium][sizeCategory + 4];
-            return new Dictionary<int, int> { [adjustedSize] = adjustedQty };
+            return new Effects.DiceGroup(damageSteps[DamageDieMedium][sizeCategory + 4]);
         }
     }
 

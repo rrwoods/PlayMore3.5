@@ -313,15 +313,33 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod()]
+        public void TestDiceBasic() {
+            DiceGroup dice = new DiceGroup(1, 4);
+            Assert.AreEqual("1d4", dice.ToString());
+
+            dice.AddDice(2, 4);
+            Assert.AreEqual("3d4", dice.ToString());
+
+            dice.AddDice(5, 6);
+            Assert.AreEqual("5d6 + 3d4", dice.ToString());
+
+            dice.AddDice(4, 1);
+            Assert.AreEqual("5d6 + 3d4 + 4", dice.ToString());
+        }
+
+        [TestMethod()]
         public void TestWeaponDamageBySize() {
             Items.Weapon dagger = new Items.Weapon();
             dagger.Attacks.Add(new Items.Attack(dagger));
 
-            var dice = dagger.Attacks[0].DamageDice(+2);
-            Assert.AreEqual(1, dice[8]);
+            var hugeDice = dagger.Attacks[0].BaseDamageDice(+2);
+            Assert.AreEqual("1d8", hugeDice.ToString());
 
-            var colossalDice = dagger.Attacks[0].DamageDice(+1000);
-            Assert.AreEqual(3, colossalDice[6]);
+            var colossalDice = dagger.Attacks[0].BaseDamageDice(+1000);
+            Assert.AreEqual("3d6", colossalDice.ToString());
+
+            var fineDice = dagger.Attacks[0].BaseDamageDice(-1000);
+            Assert.AreEqual("—", fineDice.ToString());
         }
     }
 }
