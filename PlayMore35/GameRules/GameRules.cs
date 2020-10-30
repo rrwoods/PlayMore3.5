@@ -23,7 +23,7 @@ namespace PlayMore35.GameRules {
             weapons.Add(weapon);
         }
 
-        private List<string> tagsForAttack(Items.Attack attack) {
+        private List<string> TagsForAttack(Items.Attack attack) {
             List<string> tags = new List<string>(attack.W.Tags) {
                 attack.AttackType.Name(),
                 attack.ProficencyCategory.Name(),
@@ -36,6 +36,7 @@ namespace PlayMore35.GameRules {
             if (attack.RangeCategory == Items.Attack.Range.PROJECTILE && attack.StrengthRating >= 0) {
                 tags.Add("+" + attack.StrengthRating + " STR");
             }
+            tags.Add(SIZE_CATEGORIES[attack.W.SizeCategory + 4]);
             return tags;
         }
 
@@ -56,7 +57,7 @@ namespace PlayMore35.GameRules {
                         .AddTag(range + DAMAGE_ROLLS)
                         .AddTag(DAMAGE_ROLLS + WITH + name);
 
-                    List<string> tags = tagsForAttack(attack);
+                    List<string> tags = TagsForAttack(attack);
                     foreach (string tag in tags) {
                         attackStat
                             .AddTag(ATTACK_ROLLS + WITH + tag + WEAPONS)
@@ -87,7 +88,7 @@ namespace PlayMore35.GameRules {
                         .AddTag(range + EXTRA_DAMAGE_DICE)
                         .AddTag(range + EXTRA_DAMAGE_DICE + WITH + name);
 
-                    List<string> tags = tagsForAttack(attack);
+                    List<string> tags = TagsForAttack(attack);
                     foreach (string tag in tags) {
                         stat
                             .AddTag(EXTRA_DAMAGE_DICE + WITH + tag + WEAPONS)
@@ -428,6 +429,25 @@ namespace PlayMore35.GameRules {
                         UNTYPED,
                         RANGED + DAMAGE_ROLLS + WITH + strText + WEAPONS
                     ))
+                );
+            }
+
+            // XXX : more hate but again i'm not seeing another way.
+            for (int sizeCategory = -4; sizeCategory <= +4; sizeCategory++) {
+                string sizeText = SIZE_CATEGORIES[sizeCategory + 4];
+                Rules.AddEffect(new Effect("Attack penalty for using " + sizeText + " weapon (too large)")
+                    .SetToggle(new ConditionalToggle(stats[SIZE_CATEGORY], Relation.GREATER_THAN, sizeCategory))
+                    .AddModifier(new Modifier(UNTYPED, ATTACK_ROLLS + WITH + sizeText + WEAPONS)
+                        .AddAmount(new VariableAmount(stats[SIZE_CATEGORY], -2))
+                        .AddAmount(sizeCategory * 2)
+                    )
+                );
+                Rules.AddEffect(new Effect("Attack penalty for using " + sizeText + " weapon (too small)")
+                    .SetToggle(new ConditionalToggle(stats[SIZE_CATEGORY], Relation.LESS_THAN, sizeCategory))
+                    .AddModifier(new Modifier(UNTYPED, ATTACK_ROLLS + WITH + sizeText + WEAPONS)
+                        .AddAmount(new VariableAmount(stats[SIZE_CATEGORY], 2))
+                        .AddAmount(-sizeCategory * 2)
+                    )
                 );
             }
 

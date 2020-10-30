@@ -161,6 +161,7 @@ namespace PlayMore35.GameRules {
         public static readonly string NEGATIVE_LEVELS = "Negative levels";
         public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
 
+        public static readonly string[] SIZE_CATEGORIES = { "fine", "diminutive", "tiny", "small", "medium", "large", "huge", "gargantuan", "colossal" };
         public static readonly string SIZE_CATEGORY = "Size category";
         public static readonly string SIZE_MODIFIER = "Size modifier";
         public static readonly string SPECIAL_SIZE_MODIFIER = "Special size modifier"; // negate for Hide

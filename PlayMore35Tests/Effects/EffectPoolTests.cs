@@ -363,5 +363,19 @@ namespace PlayMore35.Effects.Tests {
             DiceGroup sneakDice = attack.FinalDamageDice(r);
             Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
         }
+
+        [TestMethod()]
+        public void TestWrongSizeWeapon() {
+            Items.Weapon dagger = new Items.Weapon();
+            Items.Attack attack = new Items.Attack(dagger);
+            dagger.Attacks.Add(attack);
+            dagger.SizeCategory = +4;
+
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+            r.AddWeapon(dagger);
+
+            CheckStat(-8, r, p, MELEE + ATTACK_ROLLS + WITH + dagger.Name);
+        }
     }
 }
