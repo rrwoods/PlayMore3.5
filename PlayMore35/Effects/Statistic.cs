@@ -8,7 +8,7 @@ using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.Effects {
     public class Statistic {
-        private static string[] stackingTypes = { CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
+        private static string[] stackingTypes = { BASE, CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
 
         public string Name { get; private set; }
         private readonly List<string> tags = new List<string>();
