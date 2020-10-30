@@ -74,6 +74,7 @@ namespace PlayMore35.GameRules {
         public static readonly string ALL_SKILLS = "All skills";
 
         public static readonly string APPRAISE = "Appraise";
+        public static readonly string AUTOHYPNOSIS = "Autohypnosis";
         public static readonly string BALANCE = "Balance";
         public static readonly string BLUFF = "Bluff";
         public static readonly string CLIMB = "Climb";
@@ -83,12 +84,15 @@ namespace PlayMore35.GameRules {
         public static readonly string DIPLOMACY = "Diplomacy";
         public static readonly string DISABLE_DEVICE = "Disable Device";
         public static readonly string DISGUISE = "Disguise";
+        public static readonly string DISGUISE_ACT_IN_CHARACTER = "Disguise (act in character)";
         public static readonly string ESCAPE_ARTIST = "Escape Artist";
+        public static readonly string ESCAPE_ARTIST_ROPE = "Escape Artist (rope)";
         public static readonly string FORGERY = "Forgery";
         public static readonly string GATHER_INFORMATION = "Gather Information";
         public static readonly string HANDLE_ANIMAL = "Handle Animal";
         public static readonly string HEAL = "Heal";
         public static readonly string HIDE = "Hide";
+        public static readonly string IAIJUTSU_FOCUS = "Iaijutsu Focus";
         public static readonly string INTIMIDATE = "Intimidate";
         public static readonly string JUMP = "Jump";
         public static readonly string KNOWLEDGE_ARCANA = "Knowledge (arcana)";
@@ -102,6 +106,7 @@ namespace PlayMore35.GameRules {
         public static readonly string KNOWLEDGE_RELIGION = "Knowledge (religion)";
         public static readonly string KNOWLEDGE_THE_PLANES = "Knowledge (the planes)";
         public static readonly string LISTEN = "Listen";
+        public static readonly string MARTIAL_LORE = "Martial Lore";
         public static readonly string MOVE_SILENTLY = "Move Silently";
         public static readonly string OPEN_LOCK = "Open Lock";
         public static readonly string PERFORM = "Perform";
@@ -115,18 +120,30 @@ namespace PlayMore35.GameRules {
         public static readonly string PERFORM_WIND_INSTRUMENTS = "Perform (wind instruments)";
         public static readonly string PERFORM_SING = "Perform (sing)";
         public static readonly string PROFESSION = "Profession";
+        public static readonly string PSICRAFT = "Psicraft";
+        public static readonly string PSICRAFT_ADDRESS_POWER_STONE = "Psicraft (address power stone)";
         public static readonly string RIDE = "Ride";
         public static readonly string SEARCH = "Search";
+        public static readonly string SEARCH_SECRET_DOORS = "Search (secret doors)";
         public static readonly string SENSE_MOTIVE = "Sense Motive";
         public static readonly string SLEIGHT_OF_HAND = "Sleight Of Hand";
         public static readonly string SPEAK_LANGUAGE = "Speak Language";
         public static readonly string SPELLCRAFT = "Spellcraft";
+        public static readonly string SPELLCRAFT_DECIPHER_SCROLL = "Spellcraft (decipher scroll)";
         public static readonly string SPOT = "Spot";
         public static readonly string SURVIVAL = "Survival";
+        public static readonly string SURVIVAL_LOST = "Survival (lost/avoid hazards)";
+        public static readonly string SURVIVAL_ABOVEGROUND = "Survival (aboveground natural)";
+        public static readonly string SURVIVAL_PLANAR = "Survival (on other planes)";
+        public static readonly string SURVIVAL_FOLLOW_TRACKS = "Survival (following tracks)";
         public static readonly string SWIM = "Swim";
         public static readonly string TUMBLE = "Tumble";
         public static readonly string USE_MAGIC_DEVICE = "Use Magic Device";
+        public static readonly string USE_MAGIC_DEVICE_SCROLL = "Use Magic Device (scroll)";
+        public static readonly string USE_PSIONIC_DEVICE = "Use Psionic Device";
+        public static readonly string USE_PSIONIC_DEVICE_POWER_STONE = "Use Psionic Device (power stone)";
         public static readonly string USE_ROPE = "Use Rope";
+        public static readonly string USE_ROPE_BINDINGS = "Use Rope (bindings)";
 
         public static readonly string RANKS = " ranks";
 

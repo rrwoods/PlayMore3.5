@@ -155,6 +155,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(NONLETHAL_DAMAGE));
 
             SkillModifier(APPRAISE, INT);
+            SkillModifier(AUTOHYPNOSIS, WIS);
             SkillModifier(BALANCE, DEX);
             SkillModifier(BLUFF, CHA);
             SkillModifier(CLIMB, STR);
@@ -170,6 +171,7 @@ namespace PlayMore35.GameRules {
             SkillModifier(HANDLE_ANIMAL, CHA);
             SkillModifier(HEAL, WIS);
             SkillModifier(HIDE, DEX);
+            SkillModifier(IAIJUTSU_FOCUS, CHA);
             SkillModifier(INTIMIDATE, CHA);
             SkillModifier(JUMP, STR);
             SkillModifier(KNOWLEDGE_ARCANA, INT);
@@ -182,6 +184,7 @@ namespace PlayMore35.GameRules {
             SkillModifier(KNOWLEDGE_NOBILITY_AND_ROYALTY, INT);
             SkillModifier(KNOWLEDGE_RELIGION, INT);
             SkillModifier(KNOWLEDGE_THE_PLANES, INT);
+            SkillModifier(MARTIAL_LORE, INT);
             SkillModifier(LISTEN, WIS);
             SkillModifier(MOVE_SILENTLY, DEX);
             SkillModifier(OPEN_LOCK, DEX);
@@ -195,6 +198,7 @@ namespace PlayMore35.GameRules {
             SkillModifier(PERFORM_WIND_INSTRUMENTS, CHA);
             SkillModifier(PERFORM_SING, CHA);
             SkillModifier(PROFESSION, WIS);
+            SkillModifier(PSICRAFT, INT);
             SkillModifier(RIDE, DEX);
             SkillModifier(SEARCH, INT);
             SkillModifier(SENSE_MOTIVE, WIS);
@@ -205,8 +209,20 @@ namespace PlayMore35.GameRules {
             SkillModifier(SWIM, STR);
             SkillModifier(TUMBLE, DEX);
             SkillModifier(USE_MAGIC_DEVICE, CHA);
+            SkillModifier(USE_PSIONIC_DEVICE, CHA);
             SkillModifier(USE_ROPE, DEX);
-            // TODO : expanded skills -- psionics, iaijutsu, martial lore, etc
+            AddStat(new Statistic(DISGUISE_ACT_IN_CHARACTER,      stats[DISGUISE]));
+            AddStat(new Statistic(ESCAPE_ARTIST_ROPE,             stats[ESCAPE_ARTIST]));
+            AddStat(new Statistic(PSICRAFT_ADDRESS_POWER_STONE,   stats[PSICRAFT]));
+            AddStat(new Statistic(SEARCH_SECRET_DOORS,            stats[SEARCH]));
+            AddStat(new Statistic(SPELLCRAFT_DECIPHER_SCROLL,     stats[SPELLCRAFT]));
+            AddStat(new Statistic(SURVIVAL_LOST,                  stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_ABOVEGROUND,           stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_PLANAR,                stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_FOLLOW_TRACKS,         stats[SURVIVAL]));
+            AddStat(new Statistic(USE_MAGIC_DEVICE_SCROLL,        stats[USE_MAGIC_DEVICE]));
+            AddStat(new Statistic(USE_PSIONIC_DEVICE_POWER_STONE, stats[USE_PSIONIC_DEVICE]));
+            AddStat(new Statistic(USE_ROPE_BINDINGS,              stats[USE_ROPE]));
 
             SkillSynergy(stats[BLUFF + RANKS], DIPLOMACY);
             SkillSynergy(stats[BLUFF + RANKS], INTIMIDATE);
