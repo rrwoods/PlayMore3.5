@@ -267,14 +267,11 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(10, UNTYPED, AC))
             );
 
-            Rules.AddEffect(new Effect("DEX to AC")
-                .AddModifier(new Modifier(stats[DEX_MODIFIER], DODGE, AC))
-            );
-
             AddStat(new Statistic(NATURAL_ARMOR)); // this is the same name as the bonus type. eh.
             Rules.AddEffect(new Effect(NATURAL_ARMOR)
                 .AddModifier(new Modifier(stats[NATURAL_ARMOR], NATURAL_ARMOR, AC))
             );
+
 
             AddStat(new Statistic(LAND_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
             AddStat(new Statistic(BURROW_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
@@ -485,15 +482,10 @@ namespace PlayMore35.GameRules {
             );
 
 
-            // TODO : "lose DEX to AC" as a concept.
-            // Need to be careful with this.  There are some conditions that "lose DEX to AC" that are negated by
-            // e.g. uncanny dodge, and there are some that are not.  Might just want two versions of "lose DEX to AC",
-            // a "soft" and a "hard", and make the soft one check uncanny dodge in its condition.  Or something.
-
             Rules.AddEffect(new Effect("blinded")
                 .Controllable()
                 .AddModifier(new Modifier(-2, UNTYPED, AC))
-                // TODO : lose DEX to AC
+                .SetFlag(DENIED_DEX)
                 // TODO : text "move at half speed"
                 // TODO : text "all vision activities and checks (like Spot) auto-fail"
                 // TODO : text "opponents have total concealment"
@@ -514,7 +506,7 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("cowering")
                 .Controllable()
                 // TODO : text "can't act"
-                // TODO : lose DEX to AC
+                .SetFlag(DENIED_DEX)
                 .AddModifier(new Modifier(-2, UNTYPED, AC))
             );
 
@@ -586,7 +578,7 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("flat-footed")
                 .Controllable()
-                // TODO : lose DEX to AC
+                .SetFlag(FLAT_FOOTED)
                 // TODO : text "can't take immediate actions or attacks of opportunity"
             );
 
@@ -633,7 +625,7 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("stunned")
                 .Controllable()
                 .AddModifier(new Modifier(-2, UNTYPED, AC))
-                // lose DEX to AC
+                .SetFlag(DENIED_DEX)
                 // text "can't act"
                 // text "drop all held items"
             );
@@ -659,6 +651,22 @@ namespace PlayMore35.GameRules {
                 // TODO : text "can't act"
                 // TODO : text "helpless and paralyzed", probably in all sections
                 // TODO : text "effective STR 0 and DEX 0"
+            );
+
+            Rules.AddEffect(new Effect("DEX to AC")
+                .AddModifier(new Modifier(stats[DEX_MODIFIER], DODGE, AC))
+                .SetToggle(new AnyToggle(
+                    // DEX always applies if it's negative
+                    new ConditionalToggle(stats[DEX_MODIFIER], Relation.LESS_THAN, 0),
+                    // Otherwise check if we're denied our dex bonus -- flat-footed without uncanny, or hard denied
+                    new UnToggle(new AnyToggle(
+                        new FlagToggle(DENIED_DEX),
+                        new AllToggle(
+                            new FlagToggle(FLAT_FOOTED),
+                            new UnToggle(new FlagToggle(UNCANNY_DODGE))
+                        )
+                    ))
+                ))
             );
         }
 

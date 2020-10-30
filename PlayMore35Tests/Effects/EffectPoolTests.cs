@@ -112,6 +112,32 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod()]
+        public void TestFlatFootedAC() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+
+            p.SetValue(12, DEX_SCORE);
+            CheckStat(11, r, p, AC);
+            p.AddEffect(new Effect("ff").SetFlag(FLAT_FOOTED));
+            CheckStat(10, r, p, AC);
+            p.AddEffect(new Effect("ud").SetFlag(UNCANNY_DODGE));
+            CheckStat(11, r, p, AC);
+        }
+
+        [TestMethod()]
+        public void TestDeniedDex() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+
+            p.SetValue(12, DEX_SCORE);
+            CheckStat(11, r, p, AC);
+            p.AddEffect(new Effect("deny").SetFlag(DENIED_DEX));
+            CheckStat(10, r, p, AC);
+            p.AddEffect(new Effect("ud").SetFlag(UNCANNY_DODGE));
+            CheckStat(10, r, p, AC);
+        }
+
+        [TestMethod()]
         public void TestACP() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;

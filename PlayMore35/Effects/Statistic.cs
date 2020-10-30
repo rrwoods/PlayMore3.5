@@ -15,6 +15,7 @@ namespace PlayMore35.Effects {
         private int? minValue = null;
         private int? maxValue = null;
         private int precision = 1;
+        private readonly Dictionary<string, IToggle> ignoredModifierTypes = new Dictionary<string, IToggle>();
 
         public Statistic(string name) {
             Name = name;
@@ -26,7 +27,9 @@ namespace PlayMore35.Effects {
         public Statistic(string name, Statistic basedOn) {
             Name = name;
             tags.AddRange(basedOn.tags);
-            ignoredModifierTypes.AddRange(basedOn.ignoredModifierTypes);
+            foreach (var ignore in basedOn.ignoredModifierTypes) {
+                ignoredModifierTypes.Add(ignore.Key, ignore.Value);
+            }
         }
 
         public Statistic AddTag(string tag) {
@@ -53,10 +56,13 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        private readonly List<string> ignoredModifierTypes = new List<string>();
-
         public Statistic IgnoreModifierType(string type) {
-            ignoredModifierTypes.Add(type);
+            ignoredModifierTypes.Add(type, AlwaysOn.Instance);
+            return this;
+        }
+
+        public Statistic IgnoreModiferType(string type, IToggle when) {
+            ignoredModifierTypes.Add(type, when);
             return this;
         }
 
@@ -72,7 +78,7 @@ namespace PlayMore35.Effects {
                 }
 
                 string type = mod.Type;
-                if (ignoredModifierTypes.Contains(type)) {
+                if (ignoredModifierTypes.ContainsKey(type) && ignoredModifierTypes[type].On(pool)) {
                     continue;
                 }
 

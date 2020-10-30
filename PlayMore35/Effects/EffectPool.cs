@@ -50,5 +50,10 @@ namespace PlayMore35.Effects {
             }
             return ret;
         }
+
+        public bool HasFlag(string flag) {
+            return Effects.Values
+                .Any(x => (x.Flag == flag) && (x.Toggle.On(this)));
+        }
     }
 }

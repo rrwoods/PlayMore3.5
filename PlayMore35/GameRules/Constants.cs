@@ -151,6 +151,9 @@ namespace PlayMore35.GameRules {
 
         public static readonly string AC = "AC";
         public static readonly string TOUCH_AC = "Touch AC";
+        public static readonly string FLAT_FOOTED = "Flat-footed";
+        public static readonly string UNCANNY_DODGE = "Uncanny dodge";
+        public static readonly string DENIED_DEX = "Denied DEX to AC";
 
         public static readonly string ALCHEMICAL = "alchemical";
         public static readonly string ARMOR = "armor";
