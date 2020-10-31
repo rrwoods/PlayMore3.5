@@ -19,7 +19,7 @@ namespace PlayMore35.Effects {
         private readonly decimal factor = 1;
 
         public int Get(EffectPool pool) {
-            return (int) Math.Floor(stat.GetValue(pool) * factor);
+            return (int) Math.Floor(stat.GetValue(pool).value * factor);
         }
     }
 }

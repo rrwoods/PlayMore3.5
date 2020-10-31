@@ -31,6 +31,7 @@ namespace PlayMore35.Effects {
 
         public Effect SetMultiplier(Multiplier multiplier) {
             Factor = multiplier;
+            Factor.Name = Name;
             return this;
         }
 
@@ -62,14 +63,14 @@ namespace PlayMore35.Effects {
                 : Enumerable.Empty<Modifier>();
         }
 
-        public decimal GetMultiplier(EffectPool pool, Statistic affecting) {
+        public Multiplier GetMultiplier(EffectPool pool, Statistic affecting) {
             if (Factor == null) {
-                return 1m;
+                return null;
             }
             if (affecting.HasTag(Factor.Affects) && Toggle.On(pool)) {
-                return Factor.Factor;
+                return Factor;
             }
-            return 1m;
+            return null;
         }
 
         public DiceGroup GetExtraDice(EffectPool pool, DiceStatistic affecting) {

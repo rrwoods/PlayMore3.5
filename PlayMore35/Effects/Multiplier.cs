@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class Multiplier {
+        public string Name = "";
         public decimal Factor { get; private set; }
         public string Affects { get; private set; }
 

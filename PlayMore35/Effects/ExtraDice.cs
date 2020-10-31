@@ -13,7 +13,5 @@ namespace PlayMore35.Effects {
             Dice = dice;
             Affects = affects;
         }
-
-
     }
 }

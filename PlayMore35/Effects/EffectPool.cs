@@ -32,10 +32,10 @@ namespace PlayMore35.Effects {
                 .SelectMany(x => x.GetModifiers(this, affecting));
         }
 
-        public decimal GetMultipliers(Statistic affecting) {
+        public IEnumerable<Multiplier> GetMultipliers(Statistic affecting) {
             return Effects.Values
                 .Select(x => x.GetMultiplier(this, affecting))
-                .Aggregate(1m, (acc, val) => acc * val);
+                .Where(x => x != null);
         }
 
         public DiceGroup GetExtraDice(DiceStatistic affecting) {

@@ -486,7 +486,7 @@ namespace PlayMore35.GameRules {
                 .Controllable()
                 .AddModifier(new Modifier(-2, UNTYPED, AC))
                 .SetFlag(DENIED_DEX)
-                // TODO : text "move at half speed"
+                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
                 // TODO : text "all vision activities and checks (like Spot) auto-fail"
                 // TODO : text "opponents have total concealment"
                 .AddModifier(new Modifier(-4, UNTYPED, SEARCH))
@@ -547,7 +547,8 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("entangled")
                 .Controllable()
-                // TODO : text "move at half speed", "can't run or charge"
+                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
+                // TODO : "can't run or charge"
                 .AddModifier(new Modifier(-2, UNTYPED, ATTACK_ROLLS))
                 .AddModifier(new Modifier(-4, UNTYPED, DEX_SCORE))
                 // TODO : text "spellcasting requires DC 15 Concentration, or lose spell"
@@ -555,7 +556,7 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("exhausted")
                 .Controllable()
-                // TODO : text "move at half speed"
+                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
                 // TODO : text "can't run or charge" -- exhausted doesn't actually say this but fatigued does.
                 .AddModifier(new Modifier(-6, UNTYPED, STR_SCORE))
                 .AddModifier(new Modifier(-6, UNTYPED, DEX_SCORE))

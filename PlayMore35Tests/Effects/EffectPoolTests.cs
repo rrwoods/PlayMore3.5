@@ -26,14 +26,14 @@ namespace PlayMore35.Effects.Tests {
             willSavesVsFear.AddTag(ALL_SAVES + VS + FEAR);
             willSavesVsFear.AddTag(WILL_SAVES);
             willSavesVsFear.AddTag(ALL_SAVES);
-            Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
+            Assert.AreEqual(+1, willSavesVsFear.GetValue(pool).value);
 
             Effect inspireCourage = new Effect("inspire courage");
             inspireCourage.AddModifier(new Modifier(+1, MORALE, ATTACK_ROLLS));
             inspireCourage.AddModifier(new Modifier(+1, MORALE, DAMAGE_ROLLS));
             inspireCourage.AddModifier(new Modifier(+1, MORALE, ALL_SAVES + VS + FEAR));
             pool.AddEffect(inspireCourage);
-            Assert.AreEqual(+1, willSavesVsFear.GetValue(pool));
+            Assert.AreEqual(+1, willSavesVsFear.GetValue(pool).value);
 
             Effect weaponFocus = new Effect("Weapon Focus: longsword");
             weaponFocus.AddModifier(new Modifier(+1, UNTYPED, ATTACK_ROLLS + WITH + "longsword"));
@@ -41,11 +41,15 @@ namespace PlayMore35.Effects.Tests {
 
             Statistic longswordAttack = new Statistic(ATTACK_ROLLS + WITH + "longsword");
             longswordAttack.AddTag(ATTACK_ROLLS);
-            Assert.AreEqual(+2, longswordAttack.GetValue(pool));
+            (int value, List<string> explanation) = longswordAttack.GetValue(pool);
+            Assert.AreEqual(+2, value);
+            foreach (string x in explanation) {
+                Console.WriteLine(x);
+            }
 
             Statistic shortSwordAttack = new Statistic(ATTACK_ROLLS + WITH + "short sword");
             shortSwordAttack.AddTag(ATTACK_ROLLS);
-            Assert.AreEqual(+1, shortSwordAttack.GetValue(pool));
+            Assert.AreEqual(+1, shortSwordAttack.GetValue(pool).value);
         }
 
         private GameRules.GameRules Rules() {
@@ -67,7 +71,7 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private void CheckStat(int expected, GameRules.GameRules r, EffectPool p, string stat) {
-            Assert.AreEqual(expected, r.Stats()[stat].GetValue(p));
+            Assert.AreEqual(expected, r.Stats()[stat].GetValue(p).value);
         }
 
         [TestMethod()]
@@ -336,6 +340,7 @@ namespace PlayMore35.Effects.Tests {
                 p.SetValue(item.Key, LAND_SPEED);
                 CheckStat(item.Value, r, p, LAND_SPEED);
             }
+            r.Stats()[LAND_SPEED].GetValue(p).explanation.ForEach(x => Console.WriteLine(x));
         }
 
         [TestMethod()]

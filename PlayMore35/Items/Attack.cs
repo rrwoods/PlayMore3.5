@@ -79,7 +79,7 @@ namespace PlayMore35.Items {
 
         public Effects.DiceGroup FinalDamageDice(GameRules.GameRules rules, int sizeChange = 0) {
             string damageRollStat = (IsRanged() ? RANGED : MELEE) + DAMAGE_ROLLS + WITH + W.Name;
-            int modifier = rules.Stats()[damageRollStat].GetValue(rules.Rules);
+            int modifier = rules.Stats()[damageRollStat].GetValue(rules.Rules).value;
 
             string extraDiceStat = (IsRanged() ? RANGED : MELEE) + EXTRA_DAMAGE_DICE + WITH + W.Name;
             Effects.DiceGroup extraDice = rules.ExtraDice()[extraDiceStat].GetValue(rules.Rules);
