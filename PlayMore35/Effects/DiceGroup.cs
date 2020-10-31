@@ -9,6 +9,8 @@ namespace PlayMore35.Effects {
         // {size => quantity}, except that die size of 1 represents a flat amount
         private Dictionary<int, int> dice = new Dictionary<int, int>();
 
+        public string Name = "";
+
         public DiceGroup() {
 
         }

@@ -38,17 +38,10 @@ namespace PlayMore35.Effects {
                 .Where(x => x != null);
         }
 
-        public DiceGroup GetExtraDice(DiceStatistic affecting) {
-            DiceGroup ret = new DiceGroup();
-
-            foreach (DiceGroup extra in
-                Effects.Values
+        public IEnumerable<DiceGroup> GetExtraDice(DiceStatistic affecting) {
+            return Effects.Values
                     .Select(x => x.GetExtraDice(this, affecting))
-                    .Where(x => x != null)
-            ) {
-                ret.AddDice(extra);
-            }
-            return ret;
+                    .Where(x => x != null);
         }
 
         public bool HasFlag(string flag) {

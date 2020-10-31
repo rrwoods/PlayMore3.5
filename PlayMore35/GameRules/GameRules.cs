@@ -400,17 +400,17 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(stats[STR_MODIFIER], BASE, MELEE + ATTACK_ROLLS))
             );
 
-            Rules.AddEffect(new Effect("1½ STR bonus to two-handed weapon damage")
+            Rules.AddEffect(new Effect("STR (x1.5 to two-handed weapon damage)")
                 .AddModifier(new Modifier(
                     new VariableAmount(stats[STR_BONUS], 1.5m),
                     BASE,
                     MELEE + DAMAGE_ROLLS + WITH + TWO_HANDED + WEAPONS
                 ))
             );
-            Rules.AddEffect(new Effect("STR bonus to primary-hand weapon damage")
+            Rules.AddEffect(new Effect("STR to primary-hand weapon damage")
                 .AddModifier(new Modifier(stats[STR_BONUS], BASE, MELEE + DAMAGE_ROLLS + WITH + PRIMARY_HAND + WEAPONS))
             );
-            Rules.AddEffect(new Effect("½ STR bonus to off-hand weapon damage")
+            Rules.AddEffect(new Effect("STR (x0.5 to off-hand weapon damage)")
                 .AddModifier(new Modifier(
                     new VariableAmount(stats[STR_BONUS], 0.5m),
                     BASE,

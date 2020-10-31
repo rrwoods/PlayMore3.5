@@ -63,10 +63,6 @@ namespace PlayMore35.Items {
         // modifying the damage via sneak attack for example).
         public Effects.DiceGroup BaseDamageDice(int sizeChange = 0) {
             int sizeCategory = W.SizeCategory + sizeChange;
-            if (sizeCategory == 0) {
-                return new Effects.DiceGroup(DamageDieMedium.qty, DamageDieMedium.size);
-            }
-
             if (sizeCategory < -4) {
                 sizeCategory = -4;
             }
@@ -74,19 +70,31 @@ namespace PlayMore35.Items {
                 sizeCategory = +4;
             }
 
-            return new Effects.DiceGroup(damageSteps[DamageDieMedium][sizeCategory + 4]);
+            Effects.DiceGroup dice = new Effects.DiceGroup(damageSteps[DamageDieMedium][sizeCategory + 4]) {
+                Name = "Base " + SIZE_CATEGORIES[sizeCategory + 4] + " " + W.Name + " damage"
+            };
+            return dice;
         }
 
-        public Effects.DiceGroup FinalDamageDice(GameRules.GameRules rules, int sizeChange = 0) {
+        public (Effects.DiceGroup dice, List<string> explanation) FinalDamageDice(GameRules.GameRules rules, int sizeChange = 0) {
             string damageRollStat = (IsRanged() ? RANGED : MELEE) + DAMAGE_ROLLS + WITH + W.Name;
-            int modifier = rules.Stats()[damageRollStat].GetValue(rules.Rules).value;
+            (int modifier, List<string> modExpl) = rules.Stats()[damageRollStat].GetValue(rules.Rules);
 
             string extraDiceStat = (IsRanged() ? RANGED : MELEE) + EXTRA_DAMAGE_DICE + WITH + W.Name;
-            Effects.DiceGroup extraDice = rules.ExtraDice()[extraDiceStat].GetValue(rules.Rules);
+            var extraDice = rules.ExtraDice()[extraDiceStat].GetValue(rules.Rules);
 
-            return BaseDamageDice(sizeChange)
-                .AddDice(extraDice)
-                .AddDice(modifier, 1);
+            Effects.DiceGroup final = BaseDamageDice(sizeChange);
+            List<string> explanation = new List<string> {
+                final.ToString() + " " + final.Name
+            };
+
+            final.AddDice(extraDice.dice);
+            explanation.AddRange(extraDice.explanation);
+
+            final.AddDice(modifier, 1);
+            explanation.AddRange(modExpl);
+
+            return (final, explanation);
         }
     }
 

@@ -78,6 +78,7 @@ namespace PlayMore35.Effects {
                 return null;
             }
             if (affecting.HasTag(Dice.Affects) && Toggle.On(pool)) {
+                Dice.Dice.Name = Name;
                 return Dice.Dice;
             }
             return null;

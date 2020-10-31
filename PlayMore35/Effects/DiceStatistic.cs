@@ -9,8 +9,6 @@ namespace PlayMore35.Effects {
         public string Name { get; private set; }
         private readonly List<string> tags = new List<string>();
 
-        public DiceGroup Dice { get; private set; } = new DiceGroup();
-
         public DiceStatistic(string name) {
             Name = name;
             AddTag(name);
@@ -25,15 +23,16 @@ namespace PlayMore35.Effects {
             return tags.Contains(tag);
         }
 
-        public DiceStatistic AddDice(DiceGroup dice) {
-            Dice.AddDice(dice);
-            return this;
-        }
+        public (DiceGroup dice, List<string> explanation) GetValue(EffectPool pool) {
+            DiceGroup dice = new DiceGroup();
+            List<string> explanation = new List<string>();
 
-        public DiceGroup GetValue(EffectPool pool) {
-            return new DiceGroup()
-                .AddDice(Dice)
-                .AddDice(pool.GetExtraDice(this));
+            foreach (DiceGroup extra in pool.GetExtraDice(this)) {
+                dice.AddDice(extra);
+                explanation.Add(extra.ToString() + " " + extra.Name);
+            }
+
+            return (dice, explanation);
         }
     }
 }

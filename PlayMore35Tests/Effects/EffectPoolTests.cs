@@ -385,14 +385,33 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
             r.AddWeapon(dagger);
 
-            DiceGroup normalDice = attack.FinalDamageDice(r);
+            var (normalDice, normalExpl) = attack.FinalDamageDice(r);
             Assert.AreEqual("1d4", normalDice.ToString());
 
             p.AddEffect(new Effect("Sneak attack")
                 .SetExtraDice(new ExtraDice(new DiceGroup(2, 6), EXTRA_DAMAGE_DICE))
             );
-            DiceGroup sneakDice = attack.FinalDamageDice(r);
+            var (sneakDice, sneakExpl) = attack.FinalDamageDice(r);
             Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
+
+            p.SetValue(18, STR_SCORE);
+            attack.EffortCategory = Items.Attack.Effort.TWO_HANDED; // shhh, it's just a test. it's okay.
+            
+            p.AddEffect(new Effect("inspire courage")
+                .AddModifier(new Modifier(+1, MORALE, DAMAGE_ROLLS))
+            );
+            p.AddEffect(new Effect("prayer")
+                .AddModifier(new Modifier(+1, LUCK, DAMAGE_ROLLS))
+            );
+
+            p.SetValue(14, DEX_SCORE);
+            p.AddEffect(new Effect("Shadow Blade")
+                .AddModifier(new Modifier(r.Stats()[DEX_MODIFIER], UNTYPED, MELEE + DAMAGE_ROLLS + WITH + dagger.Name))
+            );
+
+            var (lotsaDice, bigExpl) = attack.FinalDamageDice(r);
+            Assert.AreEqual("2d6 + 1d4 + 10", lotsaDice.ToString());
+            bigExpl.ForEach(x => Console.WriteLine(x));          
         }
 
         [TestMethod()]
