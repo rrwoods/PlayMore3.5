@@ -67,6 +67,9 @@ namespace PlayMore35.Effects.Tests {
             // speed 30 to make sure jump isn't affected
             p.SetValue(30, LAND_SPEED);
 
+            // 0 HP causes some weirdness too
+            p.SetValue(1, MAX_HP);
+
             return rules;
         }
 
@@ -451,6 +454,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("low-light vision", senses[1]);
 
             List<string> uncategorized = allText[UNCATEGORIZED];
+            uncategorized.ForEach(x => Console.WriteLine(x));
             Assert.AreEqual(1, uncategorized.Count());
             Assert.AreEqual("[new category] something something", uncategorized[0]);
         }

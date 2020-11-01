@@ -51,7 +51,7 @@ namespace PlayMore35.Effects {
         public Dictionary<string, List<string>> GetTextEffects() {
             var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<String>());
 
-            foreach (Effect e in Effects.Values) {
+            foreach (Effect e in Effects.Values.Where(x => x.Toggle.On(this))) {
                 foreach ((string category, string text) in e.Text) {
                     if (allText.ContainsKey(category)) {
                         allText[category].Add(text);

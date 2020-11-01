@@ -102,9 +102,6 @@ namespace PlayMore35.GameRules {
             return snapshot;
         }
 
-        // TODO : Non-default constructor(s) to load houserules or custom rules from files.
-        // Or, should we always load the official rules, then modify those rules with houserules?
-
         private readonly Dictionary<string, Statistic> abilityModifiers = new Dictionary<string, Statistic>();
 
         // The default constructor sets up 3.5's official rules.
@@ -120,13 +117,18 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(MAX_HP));
 
             AddStat(new Statistic(CURRENT_HP));
-            Rules.AddEffect(new Effect(MAX_HP)
+            Rules.AddEffect(new Effect("Normal hit point total")
                 .AddModifier(new Modifier(stats[MAX_HP], BASE, CURRENT_HP))
             );
 
             AddStat(new Statistic(LETHAL_DAMAGE));
             Rules.AddEffect(new Effect("Subtract damage from hit points")
                 .AddModifier(new Modifier(new VariableAmount(stats[LETHAL_DAMAGE], -1), BASE, CURRENT_HP))
+            );
+
+            Rules.AddEffect(new Effect(CANT_ACT)
+                .SetToggle(new FlagToggle(CANT_ACT))
+                .AddText(ACTIONS, CANT_ACT)
             );
 
             // The UI should automatically clear this flag when you damage yourself to the negatives or heal out of them.
@@ -139,7 +141,9 @@ namespace PlayMore35.GameRules {
                         stable
                     )
                 ))
-                // TODO : text about what disabled means
+                .AddText(ACTIONS, "One move or standard each round (not both, no full-rounds)")
+                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
+                .AddText(ACTIONS, "Any standard or strenuous action deals 1 to you")
             );
 
             Rules.AddEffect(new Effect("dying")
@@ -147,9 +151,9 @@ namespace PlayMore35.GameRules {
                     new ConditionalToggle(stats[CURRENT_HP], Relation.LESS_THAN, 0),
                     new UnToggle(stable)
                 ))
-                // TODO : text "can't act"
-                // TODO : text "1 lethal damage per round"
-                // TODO : text "healing stabilizes; 10%/round to auto-stabilize"
+                .SetFlag(CANT_ACT)
+                .AddText(CONDITION, "You take 1 damage each round")
+                .AddText(CONDITION, "Any healing stabilizes you; 10% chance each round to self-stabilize")
             );
                     
             AddStat(new Statistic(NONLETHAL_DAMAGE));
@@ -474,11 +478,11 @@ namespace PlayMore35.GameRules {
             );
             Rules.AddEffect(new Effect(FRIGHTENED)
                 .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.EQUAL, 2))
-                // TODO : text "must flee from source of fear"
+                .AddText(ACTIONS, "Must flee from source of fear")
             );
             Rules.AddEffect(new Effect(PANICKED)
                 .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.EQUAL, 3))
-                // TODO : text "must drop all held items and flee at top speed along a random path, cowering if cornered"
+                .AddText(ACTIONS, "Must drop all held items and flee at top speed along a random path; cower if cornered")
             );
 
 
@@ -487,8 +491,8 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(-2, UNTYPED, AC))
                 .SetFlag(DENIED_DEX)
                 .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
-                // TODO : text "all vision activities and checks (like Spot) auto-fail"
-                // TODO : text "opponents have total concealment"
+                .AddText(SKILLS, "All vision activities and checks (like Spot) auto-fail")
+                .AddText(ATK_OPTIONS, "Opponents have total concealment")
                 .AddModifier(new Modifier(-4, UNTYPED, SEARCH))
                 .AddModifier(new Modifier(-4, UNTYPED, STR_SKILLS))
                 .AddModifier(new Modifier(-4, UNTYPED, DEX_SKILLS))
@@ -505,17 +509,14 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("cowering")
                 .Controllable()
-                // TODO : text "can't act"
+                .SetFlag(CANT_ACT)
                 .SetFlag(DENIED_DEX)
                 .AddModifier(new Modifier(-2, UNTYPED, AC))
             );
 
-            // even though this is an entirely textual entirely controllable effect (meaning you turn it "dazed" on to basically
-            // just see "you are dazed"), i'm including it anyway.  there are many things that have a "can't act" effect which i
-            // am strongly considering making its own thing.
             Rules.AddEffect(new Effect("dazed")
                 .Controllable()
-                // TODO : text "can't act"
+                .SetFlag(CANT_ACT)
             );
 
             Rules.AddEffect(new Effect("dazzled")
@@ -528,8 +529,8 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("deafened")
                 .Controllable()
                 .AddModifier(new Modifier(-4, UNTYPED, INITIATIVE))
-                // TODO : text "auto-fail Listen checks"
-                // TODO : text 20% spell failure on spells with verbal components
+                .AddText(SKILLS, "Auto-fail Listen checks")
+                .AddText(MISC_CASTING, "20% spell failure on spells with verbal components")
             );
 
             AddStat(new Statistic(NEGATIVE_LEVELS));
@@ -542,37 +543,43 @@ namespace PlayMore35.GameRules {
                 .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1), UNTYPED, ALL_SKILLS))
                 .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -1), UNTYPED, ABILITY_CHECKS))
                 .AddModifier(new Modifier(new VariableAmount(stats[NEGATIVE_LEVELS], -5), UNTYPED, MAX_HP))
-                // TODO : -1 effective level for spellcasting; lose a highest-level spell slot
+                .AddText(MISC_CASTING, "-1 effective spellcasting level, lose a highest-level spell slot")
+                // TODO : handle spellcasting effects in spellcasting subsystem
+            );
+
+            Rules.AddEffect(new Effect(CANT_RUN_OR_CHARGE)
+                .SetToggle(new FlagToggle(CANT_RUN_OR_CHARGE))
+                .AddText(MOVEMENT, CANT_RUN_OR_CHARGE)
             );
 
             Rules.AddEffect(new Effect("entangled")
                 .Controllable()
                 .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
-                // TODO : "can't run or charge"
+                .SetFlag(CANT_RUN_OR_CHARGE)
                 .AddModifier(new Modifier(-2, UNTYPED, ATTACK_ROLLS))
                 .AddModifier(new Modifier(-4, UNTYPED, DEX_SCORE))
-                // TODO : text "spellcasting requires DC 15 Concentration, or lose spell"
+                .AddText(MISC_CASTING, "Spellcasting requires DC 15 concentration, or lose spell")
             );
 
             Rules.AddEffect(new Effect("exhausted")
                 .Controllable()
                 .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
-                // TODO : text "can't run or charge" -- exhausted doesn't actually say this but fatigued does.
+                .SetFlag(CANT_RUN_OR_CHARGE) // exhausted doesn't actually say this but fatigued does.
                 .AddModifier(new Modifier(-6, UNTYPED, STR_SCORE))
                 .AddModifier(new Modifier(-6, UNTYPED, DEX_SCORE))
-                // TODO : text "rest one hour to be fatigued instead of exhausted"
+                .AddText(CONDITION, "Rest one hour to be fatigued instead of exhausted")
             );
 
             Rules.AddEffect(new Effect("fascinated")
                 .Controllable()
-                // TODO : text "can't act"
+                .SetFlag(CANT_ACT)
                 .AddModifier(new Modifier(-4, UNTYPED, LISTEN))
                 .AddModifier(new Modifier(-4, UNTYPED, SPOT))
             );
 
             Rules.AddEffect(new Effect("fatigued")
                 .Controllable()
-                // TODO : text "can't run or charge"
+                .SetFlag(CANT_RUN_OR_CHARGE)
                 .AddModifier(new Modifier(-2, UNTYPED, STR_SCORE))
                 .AddModifier(new Modifier(-2, UNTYPED, DEX_SCORE))
             );
@@ -580,29 +587,28 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("flat-footed")
                 .Controllable()
                 .SetFlag(FLAT_FOOTED)
-                // TODO : text "can't take immediate actions or attacks of opportunity"
+                .AddText(ACTIONS, "Can't take immediate actions or attacks of opportunity")
             );
 
             Rules.AddEffect(new Effect("invisible")
                 .Controllable()
                 .AddModifier(new Modifier(+2, UNTYPED, ATTACK_ROLLS))
-                // TODO : text "opponents lose DEX to AC"
+                .AddText(ATK_OPTIONS, "Deny opponents' DEX to AC")
             );
 
             Rules.AddEffect(new Effect("nauseated")
                 .Controllable()
-                // TODO : text "can't attack"
-                // TODO : text "can't cast spells or concentrate on spells"
-                // TODO : text "can't concentrate on anything"
-                // TODO : text "can only take one move action each turn"
+                .AddText(ATK_OPTIONS, "Can't attack")
+                .AddText(MISC_CASTING, "Can't cast or concentrate on spells")
+                .AddText(ACTIONS, "Can't do anything requiring attention")
+                .AddText(ACTIONS, "Only one move action each turn")
             );
 
             Rules.AddEffect(new Effect("prone")
                 .Controllable()
                 .AddModifier(new Modifier(-4, UNTYPED, MELEE + ATTACK_ROLLS))
-                // TODO : text "can't use non-crossbow ranged weapons"
-                // TODO : text "+4 AC vs ranged"
-                // TODO : text "-4 AC vs melee"
+                .AddText(ATK_OPTIONS, "Can't ranged weapons other than crossbows")
+                .AddText(AC, "+4 vs ranged; -4 vs melee")
             );
 
             Rules.AddEffect(new Effect("sickened")
@@ -620,15 +626,15 @@ namespace PlayMore35.GameRules {
                     Relation.EQUAL,
                     new VariableAmount(stats[CURRENT_HP])
                 ))
-                // TODO : text "one standard or one move action only"
+                .AddText(ACTIONS, "One move or standard each round (not both, no full-rounds)")
             );
 
             Rules.AddEffect(new Effect("stunned")
                 .Controllable()
                 .AddModifier(new Modifier(-2, UNTYPED, AC))
                 .SetFlag(DENIED_DEX)
-                // text "can't act"
-                // text "drop all held items"
+                .SetFlag(CANT_ACT) // TODO : this doesn't work; needs to be AddFlag instead.
+                .AddText(ACTIONS, "Must drop all held items")
             );
 
             IToggle unconscious = new AnyToggle(
@@ -649,9 +655,8 @@ namespace PlayMore35.GameRules {
                     new ConditionalToggle(stats[DEX_SCORE], Relation.EQUAL, 0),
                     unconscious
                 ))
-                // TODO : text "can't act"
-                // TODO : text "helpless and paralyzed", probably in all sections
-                // TODO : text "effective STR 0 and DEX 0"
+                .SetFlag(CANT_ACT)
+                .SetFlag(HELPLESS_AND_PARALYZED) // TODO : this doesn't work; needs to be AddFlag instead.
             );
 
             Rules.AddEffect(new Effect("DEX to AC")
@@ -741,7 +746,6 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(
                 new Effect("Ranks in " + skill) // so-named so it doesn't collide with effects I make in testing.
                 // TODO : that's a bad reason to name things this way.
-
                     .AddModifier(new Modifier(skillRanks, BASE, skill))
             );
             Rules.AddEffect(

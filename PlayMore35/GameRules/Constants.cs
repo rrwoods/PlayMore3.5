@@ -257,10 +257,17 @@ namespace PlayMore35.GameRules {
         public static readonly string ATK_OPTIONS = "atk options"; // stat blocks spell it this way and i like it.
         public static readonly string SQ = "SQ";
         public static readonly string SKILLS = "skills";
+        public static readonly string CONDITION = "condition"; // try really, really hard not to use this -- it's not at any point of performance.
         public static readonly string UNCATEGORIZED = "uncategorized";
         // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
         public static readonly string[] TEXT_CATEGORIES = {
-            SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ATK_OPTIONS, SQ, SKILLS, UNCATEGORIZED
+            SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
         };
+        // future supported categories
+        public static readonly string METAMAGIC = "metamagic";
+        public static readonly string MISC_CASTING = "misc casting";
+
+        public static readonly string CANT_ACT = "Can't act";
+        public static readonly string CANT_RUN_OR_CHARGE = "Can't run or charge";
     }
 }

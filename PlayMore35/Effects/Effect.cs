@@ -19,17 +19,19 @@ namespace PlayMore35.Effects {
         public string Flag = null;
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
+        public Effect SetToggle(IToggle toggle) {
+            Toggle = toggle;
+            return this;
+        }
+
         public Effect AddModifier(Modifier mod) {
             Modifiers.Add(mod);
             mod.Name = Name;
             return this; // method chaining
         }
 
-        public Effect SetToggle(IToggle toggle) {
-            Toggle = toggle;
-            return this;
-        }
-
+        // TODO : All of the "set" methods below this point really should be "add".
+        // There's no reason an effect couldn't multiply multiple stats, or set multiple flags, etc.
         public Effect SetMultiplier(Multiplier multiplier) {
             Factor = multiplier;
             Factor.Name = Name;
