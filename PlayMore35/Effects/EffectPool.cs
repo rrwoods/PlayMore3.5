@@ -5,12 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+using static PlayMore35.GameRules.Constants;
+
 namespace PlayMore35.Effects {
     public class EffectPool {
         public EffectPool() {
 
         }
 
+        // TODO : why is this a dictionary?  when do we need to get an effect by name?
+        // can this be List<Effect> instead?  if not, document why in an arch doc somewhere.
         private readonly Dictionary<string, Effect> Effects = new Dictionary<string, Effect>();
 
         public void AddEffect(Effect effect) {
@@ -44,9 +48,25 @@ namespace PlayMore35.Effects {
                     .Where(x => x != null);
         }
 
+        public Dictionary<string, List<string>> GetTextEffects() {
+            var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<String>());
+
+            foreach (Effect e in Effects.Values) {
+                foreach ((string category, string text) in e.Text) {
+                    if (allText.ContainsKey(category)) {
+                        allText[category].Add(text);
+                    } else {
+                        allText[UNCATEGORIZED].Add("[" + category + "] " + text);
+                    }
+                }
+            }
+
+            return allText;
+        }
+
         public bool HasFlag(string flag) {
             return Effects.Values
-                .Any(x => (x.Flag == flag) && (x.Toggle.On(this)));
+                .Any(x => (x.Flag == flag) && x.Toggle.On(this));
         }
     }
 }

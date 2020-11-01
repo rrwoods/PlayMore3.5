@@ -243,5 +243,24 @@ namespace PlayMore35.GameRules {
         public static readonly string SLASHING = "Slashing";
         public static readonly string AND = " and ";
         public static readonly string OR = " or ";
+
+        public static readonly string SENSES = "senses";
+        public static readonly string EVADE = "evade";
+        // AC -- already exists
+        public static readonly string DR = "DR";
+        public static readonly string REACT = "react";
+        public static readonly string RESIST = "resist";
+        public static readonly string IMMUNE = "immune";
+        public static readonly string SR = "SR";
+        public static readonly string MOVEMENT = "movement";
+        public static readonly string ACTIONS = "actions"; // for "can't act", or "no standard actions", or the like
+        public static readonly string ATK_OPTIONS = "atk options"; // stat blocks spell it this way and i like it.
+        public static readonly string SQ = "SQ";
+        public static readonly string SKILLS = "skills";
+        public static readonly string UNCATEGORIZED = "uncategorized";
+        // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
+        public static readonly string[] TEXT_CATEGORIES = {
+            SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ATK_OPTIONS, SQ, SKILLS, UNCATEGORIZED
+        };
     }
 }

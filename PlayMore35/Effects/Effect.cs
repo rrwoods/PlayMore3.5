@@ -17,6 +17,7 @@ namespace PlayMore35.Effects {
         public Multiplier Factor = null;
         public ExtraDice Dice = null;
         public string Flag = null;
+        public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
         public Effect AddModifier(Modifier mod) {
             Modifiers.Add(mod);
@@ -42,6 +43,11 @@ namespace PlayMore35.Effects {
 
         public Effect SetFlag(string flag) {
             Flag = flag;
+            return this;
+        }
+
+        public Effect AddText(string category, string text) {
+            Text.Add((category, text));
             return this;
         }
 
