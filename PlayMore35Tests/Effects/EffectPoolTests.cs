@@ -411,7 +411,10 @@ namespace PlayMore35.Effects.Tests {
 
             var (lotsaDice, bigExpl) = attack.FinalDamageDice(r);
             Assert.AreEqual("2d6 + 1d4 + 10", lotsaDice.ToString());
-            bigExpl.ForEach(x => Console.WriteLine(x));          
+
+            var (critDice, critExpl) = attack.CriticalDamgeDice(r);
+            Assert.AreEqual("2d6 + 2d4 + 20", critDice.ToString());
+            critExpl.ForEach(x => Console.WriteLine(x));
         }
 
         [TestMethod()]

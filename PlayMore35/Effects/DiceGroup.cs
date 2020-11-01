@@ -51,6 +51,12 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        public void Multiply(int multiplier) {
+            foreach (int size in dice.Keys.ToList()) { // copy the key list to keep from having its order shift while we iterate
+                dice[size] *= multiplier;
+            }
+        }
+
         public override string ToString() {
             if (!dice.Any()) {
                 return "—";

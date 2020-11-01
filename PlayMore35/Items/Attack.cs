@@ -96,6 +96,30 @@ namespace PlayMore35.Items {
 
             return (final, explanation);
         }
+
+        public (Effects.DiceGroup dice, List<string> explanation) CriticalDamgeDice(GameRules.GameRules rules, int sizeChange = 0) {
+            string damageRollStat = (IsRanged() ? RANGED : MELEE) + DAMAGE_ROLLS + WITH + W.Name;
+            (int modifier, List<string> modExpl) = rules.Stats()[damageRollStat].GetValue(rules.Rules);
+
+            string extraDiceStat = (IsRanged() ? RANGED : MELEE) + EXTRA_DAMAGE_DICE + WITH + W.Name;
+            var extraDice = rules.ExtraDice()[extraDiceStat].GetValue(rules.Rules);
+
+            Effects.DiceGroup final = BaseDamageDice(sizeChange);
+            List<string> explanation = new List<string> {
+                final.ToString() + " " + final.Name
+            };
+
+            final.AddDice(modifier, 1);
+            explanation.AddRange(modExpl);
+
+            final.Multiply(CriticalMultiplier);
+            explanation.Add("Critical hit: multiply all previous dice/modifiers by " + CriticalMultiplier);
+
+            final.AddDice(extraDice.dice);
+            explanation.AddRange(extraDice.explanation);
+
+            return (final, explanation);
+        }
     }
 
     public static class AttackNames {
