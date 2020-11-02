@@ -12,31 +12,8 @@ namespace PlayMore35.GameRules {
         public Dictionary<string, Statistic> Stats { get; } = new Dictionary<string, Statistic>();
         private readonly Dictionary<string, Statistic> abilityModifiers = new Dictionary<string, Statistic>();
 
-        public Items.Weapon PrimaryHandWeapon { get; private set; } = null;
-        public Items.Weapon OffHandWeapon { get; private set; } = null;
-
         public void AddStat(Statistic stat) {
             Stats[stat.Name] = stat;
-        }
-
-        public void NoWeapons() {
-            PrimaryHandWeapon = null;
-            OffHandWeapon = null;
-        }
-
-        public void OneHandOneWeapon(Items.Weapon w) {
-            PrimaryHandWeapon = w;
-            OffHandWeapon = null;
-        }
-
-        public void TwoHandOneWeapon(Items.Weapon w) {
-            PrimaryHandWeapon = w;
-            OffHandWeapon = w;
-        }
-
-        public void TwoWeapons(Items.Weapon primary, Items.Weapon off) {
-            PrimaryHandWeapon = primary;
-            OffHandWeapon = off;
         }
 
         // The default constructor sets up 3.5's official rules.
@@ -591,7 +568,7 @@ namespace PlayMore35.GameRules {
 
             string abilityModifierName = ability + " modifier";
             Rules.AddEffect(
-                new Effect("Base " + ability + " modifier")
+                new Effect(ability + " modifier")
                     .AddModifier(abilityModifierName, new Modifier(BASE)
                         .AddAmount(-5)
                         .AddAmount(0.5m, abilityScore)

@@ -23,8 +23,8 @@ namespace PlayMore35.Effects {
 
         // For things like "an Initiative check is a Dexterity check",
         // or setting up Dexterity checks themselves to be the Dexterity modifier plus some stuff.
-        public Statistic(string name, Statistic basedOn) {
-            Name = name;
+        public Statistic(string name, Statistic basedOn) 
+            : this(name) {
             tags.AddRange(basedOn.tags);
             foreach (var ignore in basedOn.ignoredModifierTypes) {
                 ignoredModifierTypes.Add(ignore.Key, ignore.Value);

@@ -6,11 +6,13 @@ using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.Effects {
     public class EffectPool {
+        private readonly Dictionary<string, Effect> Effects = new Dictionary<string, Effect>();
+        public Items.Weapon PrimaryHandWeapon { get; private set; } = null;
+        public Items.Weapon OffHandWeapon { get; private set; } = null;
+
         public EffectPool() {
 
         }
-
-        private readonly Dictionary<string, Effect> Effects = new Dictionary<string, Effect>();
 
         public void AddEffect(Effect effect) {
             Effects[effect.Name] = effect;
@@ -20,13 +22,40 @@ namespace PlayMore35.Effects {
             AddEffect(new Effect("Test set value of " + affects).AddModifier(affects, new Modifier(value, BASE)));
         }
 
+        public void NoWeapons() {
+            PrimaryHandWeapon = null;
+            OffHandWeapon = null;
+        }
+
+        public void OneHandOneWeapon(Items.Weapon w) {
+            PrimaryHandWeapon = w;
+            OffHandWeapon = null;
+        }
+
+        public void TwoHandOneWeapon(Items.Weapon w) {
+            PrimaryHandWeapon = w;
+            OffHandWeapon = w;
+        }
+
+        public void TwoWeapons(Items.Weapon primary, Items.Weapon off) {
+            PrimaryHandWeapon = primary;
+            OffHandWeapon = off;
+        }
+
         public Effect GetEffect(string name) {
             return Effects[name];
         }
 
         public IEnumerable<Modifier> GetModifiers(Statistic affecting) {
-            return Effects.Values
+            IEnumerable<Modifier> mods = Effects.Values
                 .SelectMany(x => x.GetModifiers(this, affecting));
+            if (PrimaryHandWeapon != null) {
+                mods = mods.Concat(PrimaryHandWeapon.GetGlobalModifiers(this, affecting));
+            }
+            if (OffHandWeapon != null && OffHandWeapon != PrimaryHandWeapon) {
+                mods = mods.Concat(OffHandWeapon.GetGlobalModifiers(this, affecting));
+            }
+            return mods;
         }
 
         public IEnumerable<Modifier> GetAttackModifiers(Items.Attack affecting) {

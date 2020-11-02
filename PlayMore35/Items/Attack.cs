@@ -49,9 +49,16 @@ namespace PlayMore35.Items {
             (int qty, int type) damageDieMedium,
             int sizeCategory,
             int criticalMultiplier,
+            List<WeaponProperty> properties,
             int sizeDiscrepancy
         ) {
-            AttackBonus = StackModifiers(rules.Rules.GetAttackModifiers(this), rules.Rules);
+            IEnumerable<Effects.Modifier> atkModsFromProps = properties
+                .Select(x => x.AttackModifier)
+                .Where(x => x != null);
+            IEnumerable<Effects.Modifier> attackModifiers = rules.Rules.GetAttackModifiers(this)
+                .Concat(atkModsFromProps);
+                
+            AttackBonus = StackModifiers(attackModifiers, rules.Rules);
 
             // XXX : This is crappy but composite bows are crappy.  Oh well.
             int compositeStrToDamage = 0;
@@ -77,9 +84,13 @@ namespace PlayMore35.Items {
                 baseExpl
             };
 
-            IEnumerable<Effects.Modifier> damageMods = rules.Rules.GetDamageModifiers(this);
+            IEnumerable<Effects.Modifier> dmgModsFromProps = properties
+                .Select(x => x.DamageModifier)
+                .Where(x => x != null);
+            IEnumerable<Effects.Modifier> damageModifiers = rules.Rules.GetDamageModifiers(this)
+                .Concat(dmgModsFromProps);
             
-            (int mod, List<string> modExpl) = StackModifiers(damageMods, rules.Rules);
+            (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules.Rules);
             damage.AddDice(mod + compositeStrToDamage, 1);
             explanation.AddRange(modExpl);
             if (compositeStrToDamage > 0) {
@@ -93,7 +104,12 @@ namespace PlayMore35.Items {
             critDamage.Multiply(criticalMultiplier);
             critExplanation.Add("Critical hit ×" + criticalMultiplier);
 
-            foreach (Effects.DiceGroup extra in rules.Rules.GetExtraDice(this)) {
+            IEnumerable<Effects.DiceGroup> extraDiceFromProps = properties
+                .Where(x => x.ExtraDamage.qty != 0)
+                .Select(x => new Effects.DiceGroup(x.Name).AddDice(x.ExtraDamage.qty, x.ExtraDamage.size));
+            IEnumerable<Effects.DiceGroup> extraDice = rules.Rules.GetExtraDice(this)
+                .Concat(extraDiceFromProps);
+            foreach (Effects.DiceGroup extra in extraDice) {
                 damage.AddDice(extra);
                 critDamage.AddDice(extra);
                 explanation.Add(extra.ToString() + " " + extra.Name);
@@ -136,7 +152,14 @@ namespace PlayMore35.Items {
                 RangeIncrement = 0,
             };
             attack.Effort = (effort + sizeDiscrepancy) ?? attack.Effort;
-            attack.ComputeAttackBonusAndDamage(rules, atk.DamageDieMedium, attack.WeaponSizeCategory, atk.CriticalMultiplier, sizeDiscrepancy);
+            attack.ComputeAttackBonusAndDamage(
+                rules,
+                atk.DamageDieMedium,
+                attack.WeaponSizeCategory,
+                atk.CriticalMultiplier,
+                atk.Properties,
+                sizeDiscrepancy
+            );
             return attack;
         }
 
@@ -157,7 +180,14 @@ namespace PlayMore35.Items {
                 RangeIncrement = atk.RangeIncrement,
                 StrengthRating = strengthRating
             };
-            attack.ComputeAttackBonusAndDamage(rules, atk.DamageDieMedium, attack.WeaponSizeCategory, atk.CriticalMultiplier, sizeDiscrepancy);
+            attack.ComputeAttackBonusAndDamage(
+                rules, 
+                atk.DamageDieMedium,
+                attack.WeaponSizeCategory,
+                atk.CriticalMultiplier,
+                atk.Properties,
+                sizeDiscrepancy
+            );
             return attack;
         }
 
@@ -181,7 +211,14 @@ namespace PlayMore35.Items {
                 Range = Weapon.Range.THROWN,
                 RangeIncrement = atk.RangeIncrement
             };
-            attack.ComputeAttackBonusAndDamage(rules, atk.DamageDieMedium, attack.WeaponSizeCategory, atk.CriticalMultiplier, sizeDiscrepancy);
+            attack.ComputeAttackBonusAndDamage(
+                rules,
+                atk.DamageDieMedium, 
+                attack.WeaponSizeCategory,
+                atk.CriticalMultiplier, 
+                atk.Properties,
+                sizeDiscrepancy
+            );
             return attack;
         }
 
@@ -234,8 +271,8 @@ namespace PlayMore35.Items {
         // Either being null means that hand is empty.  If the primary hand is empty, this function will generate
         // an empty list of attacks, assuming that the player has no attacks available.
         public static List<Attack> Generate(GameRules.GameRules rules, int sizeChange) {
-            Weapon primaryHandWeapon = rules.PrimaryHandWeapon;
-            Weapon offHandWeapon = rules.OffHandWeapon;
+            Weapon primaryHandWeapon = rules.Rules.PrimaryHandWeapon;
+            Weapon offHandWeapon = rules.Rules.OffHandWeapon;
 
             List<Attack> attacks = new List<Attack>();
             if (primaryHandWeapon == null) {

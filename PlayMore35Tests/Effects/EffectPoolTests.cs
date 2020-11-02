@@ -34,7 +34,10 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private void CheckStat(int expected, GameRules.GameRules r, string stat) {
-            Assert.AreEqual(expected, r.Stats[stat].GetValue(r.Rules).value);
+            (int value, List<string> explanation) = r.Stats[stat].GetValue(r.Rules);
+            Console.WriteLine("------ " + stat + " " + value);
+            explanation.ForEach(x => Console.WriteLine(x));
+            Assert.AreEqual(expected, value);
         }
 
         [TestMethod()]
@@ -111,7 +114,7 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private Items.Weapon Dagger(bool throwable = true) {
-            return new Items.Weapon("Dagger", 0) {
+            return new Items.Weapon("dagger", 0) {
                 Melee = (
                     new Items.AttackMode {
                         ProficencyCategory = Items.Weapon.Proficiency.SIMPLE,
@@ -128,7 +131,7 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private Items.Weapon Longsword() {
-            return new Items.Weapon("Longsword", 0) {
+            return new Items.Weapon("longsword", 0) {
                 Melee = (
                     new Items.AttackMode {
                         ProficencyCategory = Items.Weapon.Proficiency.MARTIAL,
@@ -145,7 +148,7 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private Items.Weapon Greatsword() {
-            return new Items.Weapon("Greatsword", 0) {
+            return new Items.Weapon("greatsword", 0) {
                 Melee = (
                     new Items.AttackMode {
                         ProficencyCategory = Items.Weapon.Proficiency.MARTIAL,
@@ -170,7 +173,7 @@ namespace PlayMore35.Effects.Tests {
 
             Items.Weapon dagger = Dagger();
             dagger.Tags.Add("shadow hand");
-            r.OneHandOneWeapon(dagger);
+            p.OneHandOneWeapon(dagger);
 
             List<Items.Attack> daggerAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(Items.Weapon.Range.MELEE, daggerAttacks[0].Range);
@@ -213,7 +216,7 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(20, DEX_SCORE);
 
             Items.Weapon bow = CompositeBow(+2);
-            r.TwoHandOneWeapon(bow);
+            p.TwoHandOneWeapon(bow);
 
             List<Items.Attack> attack = Items.Attack.Generate(r, 0);
             Assert.AreEqual(1, attack.Count());
@@ -229,7 +232,7 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(20, DEX_SCORE);
 
             Items.Weapon bow = CompositeBow(+4);
-            r.TwoHandOneWeapon(bow);
+            p.TwoHandOneWeapon(bow);
 
             List<Items.Attack> attack = Items.Attack.Generate(r, 0);
             Assert.AreEqual(1, attack.Count());
@@ -354,7 +357,7 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            r.OneHandOneWeapon(Dagger());
+            p.OneHandOneWeapon(Dagger());
 
             p.SetValue(+2, SIZE_CATEGORY);
             Assert.AreEqual("1d8", Items.Attack.Generate(r, +2)[0].Damage.dice.ToString());
@@ -368,7 +371,7 @@ namespace PlayMore35.Effects.Tests {
         public void TestExtraDamageEffects() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            r.OneHandOneWeapon(Dagger());
+            p.OneHandOneWeapon(Dagger());
 
             Items.Attack daggerMelee = Items.Attack.Generate(r, 0)[0];
             var (normalDice, normalExpl) = daggerMelee.Damage;
@@ -395,7 +398,7 @@ namespace PlayMore35.Effects.Tests {
                 .AddDamageModifier(WeaponClass.ALL, new Modifier(r.Stats[DEX_MODIFIER], CIRCUMSTANCE))
             );
 
-            r.TwoHandOneWeapon(Greatsword());
+            p.TwoHandOneWeapon(Greatsword());
             List<Items.Attack> greatswordAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(1, greatswordAttacks.Count());
             Items.Attack greatswordAttack = greatswordAttacks[0];
@@ -415,7 +418,7 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
             // it's big enough that we have to two-hand it
-            r.TwoHandOneWeapon(dagger);
+            p.TwoHandOneWeapon(dagger);
 
             var daggerAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(2, daggerAttacks.Count());
@@ -452,11 +455,21 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private void CheckAttack(int[] expAtkBonus, string[] expDamage, GameRules.GameRules r, Items.Weapon pri, Items.Weapon off) {
-            r.TwoWeapons(pri, off); // this is really just a direct setter for pri and off.
+            r.Rules.TwoWeapons(pri, off); // this is really just a direct setter for pri and off.
 
             List<Items.Attack> attacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(expAtkBonus.Length, attacks.Count());
             for (int i = 0; i < expAtkBonus.Length; i++) {
+                Console.WriteLine("------ " + attacks[i].WeaponName + " " + attacks[i].Hand);
+
+                (int bonus, List<string> bonusExpl) = attacks[i].AttackBonus;
+                Console.WriteLine("Attack bonus " + bonus);
+                bonusExpl.ForEach(x => Console.WriteLine(x));
+
+                (DiceGroup damage, List<string> damageExpl) = attacks[i].Damage;
+                Console.WriteLine("Damage " + damage);
+                damageExpl.ForEach(x => Console.WriteLine(x));
+
                 Assert.AreEqual(expAtkBonus[i], attacks[i].AttackBonus.bonus);
                 Assert.AreEqual(expDamage[i], attacks[i].Damage.dice.ToString());
             }
@@ -516,6 +529,28 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(+2, "1d4", r, dagger, null);
             CheckAttack(+2, "1d8", r, longsword, null);
             CheckAttack(+2, "1d8", r, longsword, longsword);
+        }
+
+        [TestMethod()]
+        public void TestLocalWeaponProperty() {
+            Items.Weapon dagger = Dagger(false);
+            dagger.Melee?.atk.Properties.Add(Items.WeaponProperty.PLUS[2]);
+            CheckAttack(+2, "1d4 + 2", Rules(), dagger, null);
+        }
+
+        [TestMethod()]
+        public void TestGlobalWeaponProperty() {
+            GameRules.GameRules r = Rules();
+
+            Items.Weapon dagger = Dagger(false);
+            dagger.Melee?.atk.Properties.Add(new Items.WeaponProperty("warning") {
+                GlobalEffect = new Effect("warning dagger")
+                    .AddModifier(INITIATIVE, new Modifier(+5, INSIGHT))
+            });
+
+            r.Rules.OneHandOneWeapon(dagger);
+
+            CheckStat(+5, r, INITIATIVE);
         }
     }
 }
