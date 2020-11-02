@@ -370,7 +370,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d4", normalDice.ToString());
 
             p.AddEffect(new Effect("Sneak attack")
-                .SetExtraDice(new ExtraDice(new DiceGroup(2, 6), new WeaponClass()))
+                .SetExtraDice(new ExtraDice(new WeaponClass(), 2, 6))
             );
             daggerMelee = Items.Attack.Generate(r, dagger, null, 0)[0];
             var (sneakDice, sneakExpl) = daggerMelee.Damage;

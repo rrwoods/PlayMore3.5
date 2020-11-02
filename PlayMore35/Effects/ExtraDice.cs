@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace PlayMore35.Effects {
     public class ExtraDice {
         public WeaponClass Affects { get; private set; }
-        public DiceGroup Dice { get; private set; }
+        public (int qty, int size) Dice { get; private set; }
 
-        public ExtraDice(DiceGroup dice, WeaponClass affects) {
-            Dice = dice;
+        public ExtraDice(WeaponClass affects, int qty, int size) {
+            Dice = (qty, size);
             Affects = affects;
         }
     }

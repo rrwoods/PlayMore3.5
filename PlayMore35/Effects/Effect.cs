@@ -128,8 +128,9 @@ namespace PlayMore35.Effects {
                 return null;
             }
             if (Dice.Affects.Matches(affecting) && Toggle.On(pool)) {
-                Dice.Dice.Name = Name;
-                return Dice.Dice;
+                return new DiceGroup(Dice.Dice) {
+                    Name = Name
+                };
             }
             return null;
         }
