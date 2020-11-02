@@ -127,32 +127,41 @@ namespace PlayMore35.GameRules {
             SkillModifier(USE_MAGIC_DEVICE, CHA);
             SkillModifier(USE_PSIONIC_DEVICE, CHA);
             SkillModifier(USE_ROPE, DEX);
+            AddStat(new Statistic(CLIMB_ROPE,                     Stats[CLIMB]));
             AddStat(new Statistic(DISGUISE_ACT_IN_CHARACTER,      Stats[DISGUISE]));
             AddStat(new Statistic(ESCAPE_ARTIST_ROPE,             Stats[ESCAPE_ARTIST]));
             AddStat(new Statistic(PSICRAFT_ADDRESS_POWER_STONE,   Stats[PSICRAFT]));
             AddStat(new Statistic(SEARCH_SECRET_DOORS,            Stats[SEARCH]));
             AddStat(new Statistic(SPELLCRAFT_DECIPHER_SCROLL,     Stats[SPELLCRAFT]));
-            AddStat(new Statistic(SURVIVAL_LOST,                  Stats[SURVIVAL]));
             AddStat(new Statistic(SURVIVAL_ABOVEGROUND,           Stats[SURVIVAL]));
-            AddStat(new Statistic(SURVIVAL_PLANAR,                Stats[SURVIVAL]));
             AddStat(new Statistic(SURVIVAL_FOLLOW_TRACKS,         Stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_LOST,                  Stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_PLANAR,                Stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_UNDERGROUND,           Stats[SURVIVAL]));
             AddStat(new Statistic(USE_MAGIC_DEVICE_SCROLL,        Stats[USE_MAGIC_DEVICE]));
             AddStat(new Statistic(USE_PSIONIC_DEVICE_POWER_STONE, Stats[USE_PSIONIC_DEVICE]));
             AddStat(new Statistic(USE_ROPE_BINDINGS,              Stats[USE_ROPE]));
 
-            SkillSynergy(Stats[BLUFF + RANKS], DIPLOMACY);
-            SkillSynergy(Stats[BLUFF + RANKS], INTIMIDATE);
-            SkillSynergy(Stats[BLUFF + RANKS], SLEIGHT_OF_HAND);
-            SkillSynergy(Stats[HANDLE_ANIMAL + RANKS], RIDE);
-            SkillSynergy(Stats[JUMP + RANKS], TUMBLE);
-            SkillSynergy(Stats[KNOWLEDGE_ARCANA + RANKS], SPELLCRAFT);
-            SkillSynergy(Stats[KNOWLEDGE_LOCAL + RANKS], GATHER_INFORMATION);
-            SkillSynergy(Stats[KNOWLEDGE_NOBILITY_AND_ROYALTY + RANKS], DIPLOMACY);
-            SkillSynergy(Stats[SENSE_MOTIVE + RANKS], DIPLOMACY);
-            SkillSynergy(Stats[SURVIVAL + RANKS], KNOWLEDGE_NATURE);
-            SkillSynergy(Stats[TUMBLE + RANKS], BALANCE);
-            SkillSynergy(Stats[TUMBLE + RANKS], JUMP);
-            // TODO : 5 ranks in bluff gives +2 Disguise to act in character, etc
+            SkillSynergy(BLUFF, DIPLOMACY, DISGUISE_ACT_IN_CHARACTER, INTIMIDATE, SLEIGHT_OF_HAND);
+            SkillSynergy(DECIPHER_SCRIPT, USE_MAGIC_DEVICE_SCROLL);
+            SkillSynergy(ESCAPE_ARTIST, USE_ROPE_BINDINGS);
+            SkillSynergy(HANDLE_ANIMAL, RIDE);
+            SkillSynergy(JUMP, TUMBLE);
+            SkillSynergy(KNOWLEDGE_ARCANA, SPELLCRAFT);
+            SkillSynergy(KNOWLEDGE_ARCHITECTURE_AND_ENGINEERING, SEARCH_SECRET_DOORS);
+            SkillSynergy(KNOWLEDGE_DUNGEONEERING, SURVIVAL_UNDERGROUND);
+            SkillSynergy(KNOWLEDGE_GEOGRAPHY, SURVIVAL_LOST);
+            SkillSynergy(KNOWLEDGE_LOCAL, GATHER_INFORMATION);
+            SkillSynergy(KNOWLEDGE_NATURE, SURVIVAL_ABOVEGROUND);
+            SkillSynergy(KNOWLEDGE_NOBILITY_AND_ROYALTY, DIPLOMACY);
+            SkillSynergy(KNOWLEDGE_THE_PLANES, SURVIVAL_PLANAR);
+            SkillSynergy(SEARCH, SURVIVAL_FOLLOW_TRACKS);
+            SkillSynergy(SENSE_MOTIVE, DIPLOMACY);
+            SkillSynergy(SPELLCRAFT, USE_MAGIC_DEVICE_SCROLL);
+            SkillSynergy(SURVIVAL, KNOWLEDGE_NATURE);
+            SkillSynergy(TUMBLE, BALANCE, JUMP);
+            SkillSynergy(USE_MAGIC_DEVICE, SPELLCRAFT_DECIPHER_SCROLL);
+            SkillSynergy(USE_ROPE, CLIMB_ROPE, ESCAPE_ARTIST_ROPE);
 
             AddStat(new Statistic(ARMOR_CHECK_PENALTY));
             ArmorCheckPenalty(BALANCE);
@@ -641,12 +650,14 @@ namespace PlayMore35.GameRules {
             );
         }
 
-        private void SkillSynergy(Statistic fiveRanksIn, string givesPlusTwoOn) {
-            Rules.AddEffect(
-                new Effect("Synergy: " + fiveRanksIn.Name + " -> " + givesPlusTwoOn)
-                    .AddModifier(givesPlusTwoOn, new Modifier(+2, UNTYPED))
-                    .SetToggle(new ConditionalToggle(new VariableAmount(fiveRanksIn), Relation.GREATER_THAN_OR_EQUAL, 5))
-            );
+        private void SkillSynergy(string fiveRanksIn, params string[] givesPlusTwoOn) {
+            Statistic rankSkill = Stats[fiveRanksIn + RANKS];
+            Effect synergy = new Effect(fiveRanksIn + " synergy")
+                .SetToggle(new ConditionalToggle(rankSkill, Relation.GREATER_THAN_OR_EQUAL, 5));
+            foreach (string skill in givesPlusTwoOn) {
+                synergy.AddModifier(skill, new Modifier(+2, UNTYPED));
+            }
+            Rules.AddEffect(synergy);
         }
 
         private void ArmorCheckPenalty(string skill) {

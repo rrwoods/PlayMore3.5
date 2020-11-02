@@ -117,14 +117,23 @@ namespace PlayMore35.Effects {
                     if (bonusExpl.ContainsKey(type)) {
                         var (mod, name, overlaps) = bonusExpl[type];
                         explanation.Add(Explain(mod, name, type, overlaps));
+                        bonusExpl.Remove(type);
                     }
                     if (penaltyExpl.ContainsKey(type)) {
                         var (mod, name, overlaps) = penaltyExpl[type];
                         explanation.Add(Explain(mod, name, type, overlaps));
+                        penaltyExpl.Remove(type);
                     }
                 }
             }
-            // TODO : handle bonus/penalty types that weren't in the ordering list
+            foreach (var otherBonus in bonusExpl) {
+                var (mod, name, overlaps) = otherBonus.Value;
+                explanation.Add(Explain(mod, name, otherBonus.Key, overlaps));
+            }
+            foreach (var otherPenalty in penaltyExpl) {
+                var (mod, name, overlaps) = otherPenalty.Value;
+                explanation.Add(Explain(mod, name, otherPenalty.Key, overlaps));
+            }
             if (stackingExpl.ContainsKey(UNTYPED)) {
                 foreach (var (mod, name) in stackingExpl[UNTYPED]) {
                     explanation.Add(ExplainBase(mod, name));

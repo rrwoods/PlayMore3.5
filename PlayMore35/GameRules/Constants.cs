@@ -78,6 +78,7 @@ namespace PlayMore35.GameRules {
         public static readonly string BALANCE = "Balance";
         public static readonly string BLUFF = "Bluff";
         public static readonly string CLIMB = "Climb";
+        public static readonly string CLIMB_ROPE = "Climb (rope)";
         public static readonly string CONCENTRATION = "Concentration";
         public static readonly string CRAFT = "Craft";
         public static readonly string DECIPHER_SCRIPT = "Decipher Script";
@@ -132,10 +133,11 @@ namespace PlayMore35.GameRules {
         public static readonly string SPELLCRAFT_DECIPHER_SCROLL = "Spellcraft (decipher scroll)";
         public static readonly string SPOT = "Spot";
         public static readonly string SURVIVAL = "Survival";
-        public static readonly string SURVIVAL_LOST = "Survival (lost/avoid hazards)";
         public static readonly string SURVIVAL_ABOVEGROUND = "Survival (aboveground natural)";
-        public static readonly string SURVIVAL_PLANAR = "Survival (on other planes)";
         public static readonly string SURVIVAL_FOLLOW_TRACKS = "Survival (following tracks)";
+        public static readonly string SURVIVAL_PLANAR = "Survival (on other planes)";
+        public static readonly string SURVIVAL_LOST = "Survival (lost/avoid hazards)";
+        public static readonly string SURVIVAL_UNDERGROUND = "Survival (underground)";
         public static readonly string SWIM = "Swim";
         public static readonly string TUMBLE = "Tumble";
         public static readonly string USE_MAGIC_DEVICE = "Use Magic Device";
