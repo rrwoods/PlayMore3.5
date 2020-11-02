@@ -170,8 +170,9 @@ namespace PlayMore35.Effects.Tests {
 
             Items.Weapon dagger = Dagger();
             dagger.Tags.Add("shadow hand");
+            r.OneHandOneWeapon(dagger);
 
-            List<Items.Attack> daggerAttacks = Items.Attack.Generate(r, dagger, null, 0);
+            List<Items.Attack> daggerAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(Items.Weapon.Range.MELEE, daggerAttacks[0].Range);
             Assert.AreEqual(+3, daggerAttacks[0].AttackBonus.bonus);
             Assert.AreEqual("1d4 + 3", daggerAttacks[0].Damage.dice.ToString());
@@ -182,7 +183,7 @@ namespace PlayMore35.Effects.Tests {
             p.AddEffect(new Effect("discipline focus")
                 .AddAttackModifier(new WeaponClass().Tag("shadow hand"), new Modifier(+1, UNTYPED))
             );
-            daggerAttacks = Items.Attack.Generate(r, dagger, null, 0);
+            daggerAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(Items.Weapon.Range.MELEE, daggerAttacks[0].Range);
             Assert.AreEqual(+4, daggerAttacks[0].AttackBonus.bonus);
         }
@@ -212,7 +213,9 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(20, DEX_SCORE);
 
             Items.Weapon bow = CompositeBow(+2);
-            List<Items.Attack> attack = Items.Attack.Generate(r, bow, bow, 0);
+            r.TwoHandOneWeapon(bow);
+
+            List<Items.Attack> attack = Items.Attack.Generate(r, 0);
             Assert.AreEqual(1, attack.Count());
             Assert.AreEqual(+5, attack[0].AttackBonus.bonus);
             Assert.AreEqual("1d6 + 2", attack[0].Damage.dice.ToString());
@@ -226,7 +229,9 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(20, DEX_SCORE);
 
             Items.Weapon bow = CompositeBow(+4);
-            List<Items.Attack> attack = Items.Attack.Generate(r, bow, bow, 0);
+            r.TwoHandOneWeapon(bow);
+
+            List<Items.Attack> attack = Items.Attack.Generate(r, 0);
             Assert.AreEqual(1, attack.Count());
             Assert.AreEqual(+3, attack[0].AttackBonus.bonus);
             Assert.AreEqual("1d6 + 3", attack[0].Damage.dice.ToString());
@@ -349,35 +354,34 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            Items.Weapon dagger = Dagger();
+            r.OneHandOneWeapon(Dagger());
+
             p.SetValue(+2, SIZE_CATEGORY);
-            Assert.AreEqual("1d8", Items.Attack.Generate(r, dagger, null, +2)[0].Damage.dice.ToString());
+            Assert.AreEqual("1d8", Items.Attack.Generate(r, +2)[0].Damage.dice.ToString());
             p.SetValue(+1000, SIZE_CATEGORY);
-            Assert.AreEqual("3d6", Items.Attack.Generate(r, dagger, null, +1000)[0].Damage.dice.ToString());
+            Assert.AreEqual("3d6", Items.Attack.Generate(r, +1000)[0].Damage.dice.ToString());
             p.SetValue(-1000, SIZE_CATEGORY);
-            Assert.AreEqual("—", Items.Attack.Generate(r, dagger, null, -1000)[0].Damage.dice.ToString());
+            Assert.AreEqual("—", Items.Attack.Generate(r, -1000)[0].Damage.dice.ToString());
         }
 
         [TestMethod()]
         public void TestExtraDamageEffects() {
-            Items.Weapon dagger = Dagger();
-
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
+            r.OneHandOneWeapon(Dagger());
 
-            Items.Attack daggerMelee = Items.Attack.Generate(r, dagger, null, 0)[0];
+            Items.Attack daggerMelee = Items.Attack.Generate(r, 0)[0];
             var (normalDice, normalExpl) = daggerMelee.Damage;
             Assert.AreEqual("1d4", normalDice.ToString());
 
             p.AddEffect(new Effect("Sneak attack")
                 .SetExtraDice(new ExtraDice(new WeaponClass(), 2, 6))
             );
-            daggerMelee = Items.Attack.Generate(r, dagger, null, 0)[0];
+            daggerMelee = Items.Attack.Generate(r, 0)[0];
             var (sneakDice, sneakExpl) = daggerMelee.Damage;
             Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
 
             p.SetValue(18, STR_SCORE);
-            Items.Weapon greatsword = Greatsword();
 
             p.AddEffect(new Effect("inspire courage")
                 .AddDamageModifier(WeaponClass.ALL, new Modifier(+1, MORALE))
@@ -391,7 +395,8 @@ namespace PlayMore35.Effects.Tests {
                 .AddDamageModifier(WeaponClass.ALL, new Modifier(r.Stats[DEX_MODIFIER], CIRCUMSTANCE))
             );
 
-            List<Items.Attack> greatswordAttacks = Items.Attack.Generate(r, greatsword, greatsword, 0);
+            r.TwoHandOneWeapon(Greatsword());
+            List<Items.Attack> greatswordAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(1, greatswordAttacks.Count());
             Items.Attack greatswordAttack = greatswordAttacks[0];
             var (lotsaDice, bigExpl) = greatswordAttack.Damage;
@@ -410,7 +415,9 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
             // it's big enough that we have to two-hand it
-            var daggerAttacks = Items.Attack.Generate(r, dagger, dagger, 0);
+            r.TwoHandOneWeapon(dagger);
+
+            var daggerAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(2, daggerAttacks.Count());
             Items.Attack melee = daggerAttacks[0];
             Assert.AreEqual(-4, melee.AttackBonus.bonus);
@@ -445,7 +452,9 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private void CheckAttack(int[] expAtkBonus, string[] expDamage, GameRules.GameRules r, Items.Weapon pri, Items.Weapon off) {
-            List<Items.Attack> attacks = Items.Attack.Generate(r, pri, off, 0);
+            r.TwoWeapons(pri, off); // this is really just a direct setter for pri and off.
+
+            List<Items.Attack> attacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(expAtkBonus.Length, attacks.Count());
             for (int i = 0; i < expAtkBonus.Length; i++) {
                 Assert.AreEqual(expAtkBonus[i], attacks[i].AttackBonus.bonus);

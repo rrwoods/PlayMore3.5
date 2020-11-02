@@ -8,13 +8,35 @@ namespace PlayMore35.GameRules {
     public class GameRules {
         public EffectPool Rules { get; private set; } = new EffectPool();
 
-        private readonly List<Items.Weapon> weapons = new List<Items.Weapon>();
         // TODO : Stats should be private, with a GetStat(name) method, to ensure no one directly inserts into this dict
         public Dictionary<string, Statistic> Stats { get; } = new Dictionary<string, Statistic>();
         private readonly Dictionary<string, Statistic> abilityModifiers = new Dictionary<string, Statistic>();
 
+        public Items.Weapon PrimaryHandWeapon { get; private set; } = null;
+        public Items.Weapon OffHandWeapon { get; private set; } = null;
+
         public void AddStat(Statistic stat) {
             Stats[stat.Name] = stat;
+        }
+
+        public void NoWeapons() {
+            PrimaryHandWeapon = null;
+            OffHandWeapon = null;
+        }
+
+        public void OneHandOneWeapon(Items.Weapon w) {
+            PrimaryHandWeapon = w;
+            OffHandWeapon = null;
+        }
+
+        public void TwoHandOneWeapon(Items.Weapon w) {
+            PrimaryHandWeapon = w;
+            OffHandWeapon = w;
+        }
+
+        public void TwoWeapons(Items.Weapon primary, Items.Weapon off) {
+            PrimaryHandWeapon = primary;
+            OffHandWeapon = off;
         }
 
         // The default constructor sets up 3.5's official rules.

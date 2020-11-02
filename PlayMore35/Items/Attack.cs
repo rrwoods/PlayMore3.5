@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using static PlayMore35.GameRules.Constants;
 using static PlayMore35.Effects.StackingRules;
@@ -77,6 +78,7 @@ namespace PlayMore35.Items {
             };
 
             IEnumerable<Effects.Modifier> damageMods = rules.Rules.GetDamageModifiers(this);
+            
             (int mod, List<string> modExpl) = StackModifiers(damageMods, rules.Rules);
             damage.AddDice(mod + compositeStrToDamage, 1);
             explanation.AddRange(modExpl);
@@ -231,7 +233,10 @@ namespace PlayMore35.Items {
         // even if they look identical.  
         // Either being null means that hand is empty.  If the primary hand is empty, this function will generate
         // an empty list of attacks, assuming that the player has no attacks available.
-        public static List<Attack> Generate(GameRules.GameRules rules, Weapon primaryHandWeapon, Weapon offHandWeapon, int sizeChange) {
+        public static List<Attack> Generate(GameRules.GameRules rules, int sizeChange) {
+            Weapon primaryHandWeapon = rules.PrimaryHandWeapon;
+            Weapon offHandWeapon = rules.OffHandWeapon;
+
             List<Attack> attacks = new List<Attack>();
             if (primaryHandWeapon == null) {
                 return attacks;

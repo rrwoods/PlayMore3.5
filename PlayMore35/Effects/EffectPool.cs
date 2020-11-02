@@ -10,8 +10,6 @@ namespace PlayMore35.Effects {
 
         }
 
-        // TODO : why is this a dictionary?  when do we need to get an effect by name?
-        // can this be List<Effect> instead?  if not, document why in an arch doc somewhere.
         private readonly Dictionary<string, Effect> Effects = new Dictionary<string, Effect>();
 
         public void AddEffect(Effect effect) {
@@ -22,8 +20,6 @@ namespace PlayMore35.Effects {
             AddEffect(new Effect("Test set value of " + affects).AddModifier(affects, new Modifier(value, BASE)));
         }
 
-        // this is probably only needed by tests?  might get rid of it once i don't need to programmatically toggle
-        // controllable-toggles anymore.
         public Effect GetEffect(string name) {
             return Effects[name];
         }

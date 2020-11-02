@@ -111,6 +111,7 @@
     <Compile Include="Items\Attack.cs" />
     <Compile Include="Items\AttackMode.cs" />
     <Compile Include="Items\Weapon.cs" />
+    <Compile Include="Items\WeaponProperty.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
