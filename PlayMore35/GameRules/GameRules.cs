@@ -98,6 +98,7 @@ namespace PlayMore35.GameRules {
             SkillModifier(KNOWLEDGE_LOCAL, INT);
             SkillModifier(KNOWLEDGE_NATURE, INT);
             SkillModifier(KNOWLEDGE_NOBILITY_AND_ROYALTY, INT);
+            SkillModifier(KNOWLEDGE_PSIONICS, INT);
             SkillModifier(KNOWLEDGE_RELIGION, INT);
             SkillModifier(KNOWLEDGE_THE_PLANES, INT);
             SkillModifier(MARTIAL_LORE, INT);
@@ -123,6 +124,7 @@ namespace PlayMore35.GameRules {
             SkillModifier(SPOT, WIS);
             SkillModifier(SURVIVAL, WIS);
             SkillModifier(SWIM, STR);
+            SkillModifier(TRUESPEAK, INT);
             SkillModifier(TUMBLE, DEX);
             SkillModifier(USE_MAGIC_DEVICE, CHA);
             SkillModifier(USE_PSIONIC_DEVICE, CHA);
@@ -163,22 +165,23 @@ namespace PlayMore35.GameRules {
             SkillSynergy(USE_MAGIC_DEVICE, SPELLCRAFT_DECIPHER_SCROLL);
             SkillSynergy(USE_ROPE, CLIMB_ROPE, ESCAPE_ARTIST_ROPE);
 
+            SkillSynergy(AUTOHYPNOSIS, KNOWLEDGE_PSIONICS);
+            SkillSynergy(CONCENTRATION, AUTOHYPNOSIS);
+            SkillSynergy(KNOWLEDGE_PSIONICS, PSICRAFT);
+            SkillSynergy(PSICRAFT, USE_PSIONIC_DEVICE_POWER_STONE);
+            SkillSynergy(USE_PSIONIC_DEVICE, PSICRAFT_ADDRESS_POWER_STONE);
+
+            // given how utterly insanely hard the truename research use of the knowledge skill is,
+            // i'm assuming no one will ever do it, and therefore not including the intricate web of
+            // synergies associated with it.
+
             AddStat(new Statistic(ARMOR_CHECK_PENALTY));
-            ArmorCheckPenalty(BALANCE);
-            ArmorCheckPenalty(CLIMB);
-            ArmorCheckPenalty(BALANCE);
-            ArmorCheckPenalty(ESCAPE_ARTIST);
-            ArmorCheckPenalty(HIDE);
-            ArmorCheckPenalty(JUMP);
-            ArmorCheckPenalty(MOVE_SILENTLY);
-            ArmorCheckPenalty(SLEIGHT_OF_HAND);
-            Rules.AddEffect(
-                new Effect(ARMOR_CHECK_PENALTY + " to " + SWIM)
-                    .AddModifier(SWIM, new Modifier(2, Stats[ARMOR_CHECK_PENALTY], UNTYPED))
-            );
-            // TODO : (after toggle-effects are in)
-            // apply ACP these specific skills only if the character is proficient with their armor
-            // apply ACP to all STR and DEX skills if the character is not proficient with their armor
+            Effect acp = new Effect(ARMOR_CHECK_PENALTY);
+            foreach (string skill in new string[] { BALANCE, CLIMB, ESCAPE_ARTIST, HIDE, JUMP, MOVE_SILENTLY, SLEIGHT_OF_HAND }) {
+                acp.AddModifier(skill, new Modifier(Stats[ARMOR_CHECK_PENALTY], UNTYPED));
+            }
+            acp.AddModifier(SWIM, new Modifier(2, Stats[ARMOR_CHECK_PENALTY], UNTYPED));
+            Rules.AddEffect(acp);
 
             Statistic ac = new Statistic(AC);
             Statistic touchAC = new Statistic(TOUCH_AC, ac)
@@ -658,13 +661,6 @@ namespace PlayMore35.GameRules {
                 synergy.AddModifier(skill, new Modifier(+2, UNTYPED));
             }
             Rules.AddEffect(synergy);
-        }
-
-        private void ArmorCheckPenalty(string skill) {
-            Rules.AddEffect(
-                new Effect(ARMOR_CHECK_PENALTY + " to " + skill)
-                    .AddModifier(skill, new Modifier(Stats[ARMOR_CHECK_PENALTY], UNTYPED))
-            );
         }
     }
 }

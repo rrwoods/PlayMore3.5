@@ -104,6 +104,7 @@ namespace PlayMore35.GameRules {
         public static readonly string KNOWLEDGE_LOCAL = "Knowledge (local)";
         public static readonly string KNOWLEDGE_NATURE = "Knowledge (nature)";
         public static readonly string KNOWLEDGE_NOBILITY_AND_ROYALTY = "Knowledge (nobility and royalty)";
+        public static readonly string KNOWLEDGE_PSIONICS = "Knowledge (psionics)";
         public static readonly string KNOWLEDGE_RELIGION = "Knowledge (religion)";
         public static readonly string KNOWLEDGE_THE_PLANES = "Knowledge (the planes)";
         public static readonly string LISTEN = "Listen";
@@ -139,6 +140,7 @@ namespace PlayMore35.GameRules {
         public static readonly string SURVIVAL_LOST = "Survival (lost/avoid hazards)";
         public static readonly string SURVIVAL_UNDERGROUND = "Survival (underground)";
         public static readonly string SWIM = "Swim";
+        public static readonly string TRUESPEAK = "Truespeak";
         public static readonly string TUMBLE = "Tumble";
         public static readonly string USE_MAGIC_DEVICE = "Use Magic Device";
         public static readonly string USE_MAGIC_DEVICE_SCROLL = "Use Magic Device (scroll)";
