@@ -187,7 +187,7 @@ namespace PlayMore35.GameRules {
         public static readonly string SIZE_MODIFIER = "Size modifier";
         public static readonly string SPECIAL_SIZE_MODIFIER = "Special size modifier"; // negate for Hide
         public static readonly string SPACE = "space";
-        // public static readonly string REACH = "reach"; (this already exists below)
+        public static readonly string REACH = "reach";
 
         public static readonly string ALL_SPEEDS = "All speeds";
         public static readonly string LAND_SPEED = "Land speed";
@@ -210,29 +210,6 @@ namespace PlayMore35.GameRules {
 
         public static readonly string BASE_ATTACK_BONUS = "Base attack bonus";
         public static readonly string GRAPPLE = "Grapple";
-
-        public static readonly string MELEE = "Melee ";
-        public static readonly string RANGED = "Ranged ";
-        public static readonly string ATTACK_ROLLS = "attack rolls";
-        public static readonly string DAMAGE_ROLLS = "damage rolls";
-        public static readonly string EXTRA_DAMAGE_DICE = "extra damage dice";
-
-        public static readonly string WITH = " with ";
-        public static readonly string MANUFACTURED = "manufactured";
-        public static readonly string NATURAL = "natural";
-        public static readonly string SIMPLE = "simple";
-        public static readonly string MARTIAL = "martial";
-        public static readonly string EXOTIC = "exotic";
-        public static readonly string LIGHT = "light";
-        public static readonly string ONE_HANDED = "one-handed";
-        public static readonly string TWO_HANDED = "two-handed";
-        public static readonly string PRIMARY_HAND = "primary-hand";
-        public static readonly string OFF_HAND = "off-hand";
-        public static readonly string MELEE_NAME = "melee"; // the tag for the weapon range, as opposed to the prefix.  probably will never be used in practice.
-        public static readonly string REACH = "reach";
-        public static readonly string THROWN = "thrown";
-        public static readonly string PROJECTILE = "projectile";
-        public static readonly string WEAPONS = " weapons"; // for weapon tags, i.e. ATTACK_ROLLS + WITH + "shadow hand" + WEAPONS
 
         // Usage: Weapon.Name + STRENGTH_RATING.  Forming a Statistic out of a composite bow's strength rating lets us use it in
         // ConditionalToggles, which lets us do the appropriate attack penalty and damage bonus.

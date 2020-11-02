@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class DiceGroup {
@@ -13,6 +10,10 @@ namespace PlayMore35.Effects {
 
         public DiceGroup() {
 
+        }
+
+        public DiceGroup(string name) {
+            Name = name;
         }
 
         public DiceGroup(int quantity, int size) {

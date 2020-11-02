@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class ExtraDice {
-        public string Affects { get; private set; }
+        public WeaponClass Affects { get; private set; }
         public DiceGroup Dice { get; private set; }
 
-        public ExtraDice(DiceGroup dice, string affects) {
+        public ExtraDice(DiceGroup dice, WeaponClass affects) {
             Dice = dice;
             Affects = affects;
         }

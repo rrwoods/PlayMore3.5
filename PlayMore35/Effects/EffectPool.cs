@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 using static PlayMore35.GameRules.Constants;
 
@@ -22,7 +19,7 @@ namespace PlayMore35.Effects {
         }
 
         public void SetValue(int value, string affects) {
-            AddEffect(new Effect(affects).AddModifier(new Modifier("untyped", affects).AddAmount(value)));
+            AddEffect(new Effect(affects).AddModifier(affects, new Modifier(value, BASE)));
         }
 
         // this is probably only needed by tests?  might get rid of it once i don't need to programmatically toggle
@@ -36,20 +33,30 @@ namespace PlayMore35.Effects {
                 .SelectMany(x => x.GetModifiers(this, affecting));
         }
 
+        public IEnumerable<Modifier> GetAttackModifiers(Items.Attack affecting) {
+            return Effects.Values
+                .SelectMany(x => x.GetAttackModifiers(this, affecting));
+        }
+
+        public IEnumerable<Modifier> GetDamageModifiers(Items.Attack affecting) {
+            return Effects.Values
+                .SelectMany(x => x.GetDamageModifiers(this, affecting));
+        }
+
         public IEnumerable<Multiplier> GetMultipliers(Statistic affecting) {
             return Effects.Values
                 .Select(x => x.GetMultiplier(this, affecting))
                 .Where(x => x != null);
         }
 
-        public IEnumerable<DiceGroup> GetExtraDice(DiceStatistic affecting) {
+        public IEnumerable<DiceGroup> GetExtraDice(Items.Attack affecting) {
             return Effects.Values
                     .Select(x => x.GetExtraDice(this, affecting))
                     .Where(x => x != null);
         }
 
         public Dictionary<string, List<string>> GetTextEffects() {
-            var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<String>());
+            var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<string>());
 
             foreach (Effect e in Effects.Values.Where(x => x.Toggle.On(this))) {
                 foreach ((string category, string text) in e.Text) {

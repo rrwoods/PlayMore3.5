@@ -1,189 +1,298 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using static PlayMore35.GameRules.Constants;
+using static PlayMore35.Effects.StackingRules;
 
 namespace PlayMore35.Items {
     public class Attack {
-        public readonly Weapon W;
-
-        public Attack(Weapon w) {
-            W = w;
-        }
-
-        public enum Type { MANUFACTURED, PRIMARY_NATURAL, SECONDARY_NATURAL };
-        public enum Proficiency { SIMPLE, MARTIAL, EXOTIC };
-        public enum Effort { LIGHT, ONE_HANDED, TWO_HANDED };
-        public enum Range { MELEE, REACH_MELEE, THROWN, PROJECTILE };
-
-        public Type AttackType = Type.MANUFACTURED;
-        public Proficiency ProficencyCategory = Proficiency.SIMPLE;
-        public Effort EffortCategory = Effort.LIGHT;
-        public Range RangeCategory = Range.MELEE;
-        public bool OffHand = false;
-
-        public (int qty, int size) DamageDieMedium = (1, 4);
-
-        public int ThreatRange = 19;
-        public int CriticalMultiplier = 2;
-        public int RangeIncrement = 0;
-        public int StrengthRating = -1; // only relevant for ranged weapons (composite bows); -1 = noncomposite
-        public string DamageType = PIERCING + OR + SLASHING;
-
-        public bool IsRanged() {
-            switch (RangeCategory) {
-                case Range.MELEE:
-                case Range.REACH_MELEE:
-                    return false;
-                case Range.PROJECTILE:
-                case Range.THROWN:
-                    return true;
-            }
-            return false;
-        }
+        public readonly string WeaponName;
+        public readonly List<string> WeaponTags;
+        public readonly int WeaponSizeCategory;
+        public Weapon.Proficiency Proficiency { get; private set; }
+        public Weapon.Effort Effort { get; private set; }
+        public Weapon.Hand Hand { get; private set; }
+        public Weapon.Range Range { get; private set; }
+        public (int bonus, List<string> explanation) AttackBonus; // XXX : {get private set} is missing because i modify the bonus directly.
+        public (Effects.DiceGroup dice, List<string> explanation) Damage { get; private set; }
+        public (Effects.DiceGroup dice, List<string> explanation) CriticalDamage { get; private set; }
+        public string DamageType { get; private set; }
+        public int ThreatRange { get; private set; }
+        public int RangeIncrement { get; private set; }
+        public int StrengthRating { get; private set; } = -1; // only relevant for ranged weapons (composite bows); -1 = noncomposite
 
         // keys are the Medium damage dice
         // values are lists of damage dice ordered from Fine to Colossal
         private static readonly Dictionary<(int, int), List<(int, int)>> damageSteps =
             new Dictionary<(int, int), List<(int, int)>> {
-                [(1,2)]  = new List<(int, int)> { (0,1), (0,1), (0,1), (1,1),  (1,2),  (1,3), (1,4), (1,6), (1,8) },
-                [(1,3)]  = new List<(int, int)> { (0,1), (0,1), (1,1), (1,2),  (1,3),  (1,4), (1,6), (1,8), (2,6) },
-                [(1,4)]  = new List<(int, int)> { (0,1), (1,1), (1,2), (1,3),  (1,4),  (1,6), (1,8), (2,6), (3,6) },
-                [(1,6)]  = new List<(int, int)> { (1,1), (1,2), (1,3), (1,4),  (1,6),  (1,8), (2,6), (3,6), (4,6) },
-                [(2,4)]  = new List<(int, int)> { (1,2), (1,3), (1,4), (1,6),  (2,4),  (2,6), (3,6), (4,6), (6,6) },
-                [(1,8)]  = new List<(int, int)> { (1,2), (1,3), (1,4), (1,6),  (1,8),  (2,6), (3,6), (4,6), (6,6) },
-                [(1,10)] = new List<(int, int)> { (1,3), (1,4), (1,6), (1,8),  (1,10), (2,8), (3,8), (4,8), (6,8) },
-                [(1,12)] = new List<(int, int)> { (1,4), (1,6), (1,8), (1,10), (1,12), (3,6), (4,6), (6,6), (8,6) },
-                [(2,6)]  = new List<(int, int)> { (1,4), (1,6), (1,8), (1,10), (2,6),  (3,6), (4,6), (6,6), (8,6) },
+                [(1, 2)] = new List<(int, int)>  { (0, 1), (0, 1), (0, 1), (1, 1),  (1, 2),  (1, 3), (1, 4), (1, 6), (1, 8) },
+                [(1, 3)] = new List<(int, int)>  { (0, 1), (0, 1), (1, 1), (1, 2),  (1, 3),  (1, 4), (1, 6), (1, 8), (2, 6) },
+                [(1, 4)] = new List<(int, int)>  { (0, 1), (1, 1), (1, 2), (1, 3),  (1, 4),  (1, 6), (1, 8), (2, 6), (3, 6) },
+                [(1, 6)] = new List<(int, int)>  { (1, 1), (1, 2), (1, 3), (1, 4),  (1, 6),  (1, 8), (2, 6), (3, 6), (4, 6) },
+                [(2, 4)] = new List<(int, int)>  { (1, 2), (1, 3), (1, 4), (1, 6),  (2, 4),  (2, 6), (3, 6), (4, 6), (6, 6) },
+                [(1, 8)] = new List<(int, int)>  { (1, 2), (1, 3), (1, 4), (1, 6),  (1, 8),  (2, 6), (3, 6), (4, 6), (6, 6) },
+                [(1, 10)] = new List<(int, int)> { (1, 3), (1, 4), (1, 6), (1, 8),  (1, 10), (2, 8), (3, 8), (4, 8), (6, 8) },
+                [(1, 12)] = new List<(int, int)> { (1, 4), (1, 6), (1, 8), (1, 10), (1, 12), (3, 6), (4, 6), (6, 6), (8, 6) },
+                [(2, 6)] = new List<(int, int)>  { (1, 4), (1, 6), (1, 8), (1, 10), (2, 6),  (3, 6), (4, 6), (6, 6), (8, 6) },
             };
 
-        // sizeChange = how many size categories up or down this weapon is from its "normal" state.
-        // use this for things like Enlarge Person.  it will clamp to the -4 to +4 range automatically.
-        // this function always creates a new dice group for the return value, so modifying it won't affect future results.
-        // it will only ever have one key in it, but this format facilitates adding other dice of different sizes later (like
-        // modifying the damage via sneak attack for example).
-        public Effects.DiceGroup BaseDamageDice(int sizeChange = 0) {
-            int sizeCategory = W.SizeCategory + sizeChange;
-            if (sizeCategory < -4) {
-                sizeCategory = -4;
-            }
-            if (sizeCategory > +4) {
-                sizeCategory = +4;
-            }
-
-            Effects.DiceGroup dice = new Effects.DiceGroup(damageSteps[DamageDieMedium][sizeCategory + 4]) {
-                Name = "Base " + SIZE_CATEGORIES[sizeCategory + 4] + " " + W.Name + " damage"
+        private Effects.DiceGroup BaseDamageDice(int sizeCategory, (int, int) damageDieMedium) {
+            Effects.DiceGroup dice = new Effects.DiceGroup(damageSteps[damageDieMedium][sizeCategory + 4]) {
+                Name = "Base " + SIZE_CATEGORIES[sizeCategory + 4] + " " + WeaponName + " damage"
             };
             return dice;
         }
 
-        public (Effects.DiceGroup dice, List<string> explanation) FinalDamageDice(GameRules.GameRules rules, int sizeChange = 0) {
-            string damageRollStat = (IsRanged() ? RANGED : MELEE) + DAMAGE_ROLLS + WITH + W.Name;
-            (int modifier, List<string> modExpl) = rules.Stats()[damageRollStat].GetValue(rules.Rules);
+        private void ComputeAttackBonusAndDamage(
+            GameRules.GameRules rules,
+            (int qty, int type) damageDieMedium,
+            int sizeCategory,
+            int criticalMultiplier,
+            int sizeDiscrepancy
+        ) {
+            AttackBonus = StackModifiers(rules.Rules.GetAttackModifiers(this), rules.Rules);
 
-            string extraDiceStat = (IsRanged() ? RANGED : MELEE) + EXTRA_DAMAGE_DICE + WITH + W.Name;
-            var extraDice = rules.ExtraDice()[extraDiceStat].GetValue(rules.Rules);
-
-            Effects.DiceGroup final = BaseDamageDice(sizeChange);
-            List<string> explanation = new List<string> {
-                final.ToString() + " " + final.Name
+            // XXX : This is crappy but composite bows are crappy.  Oh well.
+            int compositeStrToDamage = 0;
+            if (Range == Weapon.Range.BOW && StrengthRating >= 0) {
+                int strModifier = rules.Stats()[STR_MODIFIER].GetValue(rules.Rules).value;
+                if (strModifier >= StrengthRating) {
+                    compositeStrToDamage = StrengthRating;
+                } else {
+                    AttackBonus.bonus -= 2;
+                    AttackBonus.explanation.Add("-2 Insufficient STR for +" + StrengthRating + " composite bow");
+                    compositeStrToDamage = Math.Max(strModifier, 0); // penalty would already be applied by game rules.
+                }
+            }
+            if (sizeDiscrepancy != 0) {
+                int attackPenalty = -2 * Math.Abs(sizeDiscrepancy);
+                AttackBonus.bonus += attackPenalty;
+                AttackBonus.explanation.Add("Inappropriately-sized weapon");
+            }
+            
+            Effects.DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);
+            string baseExpl = damage.ToString() + " " + damage.Name;
+            List<string> explanation = new List<string>() {
+                baseExpl
             };
 
-            final.AddDice(extraDice.dice);
-            explanation.AddRange(extraDice.explanation);
-
-            final.AddDice(modifier, 1);
+            IEnumerable<Effects.Modifier> damageMods = rules.Rules.GetDamageModifiers(this);
+            (int mod, List<string> modExpl) = StackModifiers(damageMods, rules.Rules);
+            damage.AddDice(mod + compositeStrToDamage, 1);
             explanation.AddRange(modExpl);
+            if (compositeStrToDamage > 0) {
+                explanation.Add("+" + compositeStrToDamage + " STR to composite bow damage");
+            }
 
-            return (final, explanation);
+            Effects.DiceGroup critDamage = new Effects.DiceGroup(WeaponName + " critical hit damage").AddDice(damage);
+            List<string> critExplanation = new List<string>();
+            critExplanation.AddRange(explanation);
+
+            critDamage.Multiply(criticalMultiplier);
+            critExplanation.Add("Critical hit ×" + criticalMultiplier);
+
+            foreach (Effects.DiceGroup extra in rules.Rules.GetExtraDice(this)) {
+                damage.AddDice(extra);
+                critDamage.AddDice(extra);
+                explanation.Add(extra.ToString() + " " + extra.Name);
+                critExplanation.Add(extra.ToString() + " " + extra.Name);
+            }
+
+            Damage = (damage, explanation);
+            CriticalDamage = (critDamage, critExplanation);
         }
 
-        public (Effects.DiceGroup dice, List<string> explanation) CriticalDamgeDice(GameRules.GameRules rules, int sizeChange = 0) {
-            string damageRollStat = (IsRanged() ? RANGED : MELEE) + DAMAGE_ROLLS + WITH + W.Name;
-            (int modifier, List<string> modExpl) = rules.Stats()[damageRollStat].GetValue(rules.Rules);
+        private Attack(Weapon weapon, int sizeChange, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand) {
+            WeaponName = weapon.Name;
+            WeaponTags = weapon.Tags;
 
-            string extraDiceStat = (IsRanged() ? RANGED : MELEE) + EXTRA_DAMAGE_DICE + WITH + W.Name;
-            var extraDice = rules.ExtraDice()[extraDiceStat].GetValue(rules.Rules);
+            WeaponSizeCategory = weapon.SizeCategory + sizeChange;
+            if (WeaponSizeCategory < -4) {
+                WeaponSizeCategory = -4;
+            }
+            if (WeaponSizeCategory > +4) {
+                WeaponSizeCategory = +4;
+            }
 
-            Effects.DiceGroup final = BaseDamageDice(sizeChange);
-            List<string> explanation = new List<string> {
-                final.ToString() + " " + final.Name
+            Proficiency = atk.ProficencyCategory;
+            Effort = atk.EffortCategory + sizeDiscrepancy;
+            Hand = hand;
+            DamageType = atk.DamageType;
+            ThreatRange = atk.ThreatRange;
+        }
+
+        public static Attack Melee(
+            GameRules.GameRules rules,
+            Weapon weapon,
+            Weapon.Hand hand,
+            int sizeChange,
+            int sizeDiscrepancy,
+            bool firstHead
+        ) {
+            var melee = firstHead ? weapon.Melee : weapon.SecondUniqueHead;
+            if (melee == null) {
+                return null;
+            }
+
+            (AttackMode atk, bool reach) = ((AttackMode, bool)) melee;
+            Attack attack = new Attack(weapon, sizeChange, sizeDiscrepancy, atk, hand) {
+                Range = reach ? Weapon.Range.REACH_MELEE : Weapon.Range.MELEE,
+                RangeIncrement = 0,
             };
+            attack.ComputeAttackBonusAndDamage(rules, atk.DamageDieMedium, attack.WeaponSizeCategory, atk.CriticalMultiplier, sizeDiscrepancy);
+            return attack;
+        }
 
-            final.AddDice(modifier, 1);
-            explanation.AddRange(modExpl);
+        public static Attack Projectile(
+            GameRules.GameRules rules,
+            Weapon weapon,
+            Weapon.Hand hand,
+            int sizeChange,
+            int sizeDiscrepancy
+        ) {
+            if (weapon.Projectile == null) {
+                return null;
+            }
 
-            final.Multiply(CriticalMultiplier);
-            explanation.Add("Critical hit: multiply all previous dice/modifiers by " + CriticalMultiplier);
+            (AttackMode atk, bool bow, int strengthRating) = ((AttackMode, bool, int)) weapon.Projectile;
+            Attack attack = new Attack(weapon, sizeChange, sizeDiscrepancy, atk, hand) {
+                Range = bow ? Weapon.Range.BOW : Weapon.Range.OTHER_PROJECTILE,
+                RangeIncrement = atk.RangeIncrement,
+                StrengthRating = strengthRating
+            };
+            attack.ComputeAttackBonusAndDamage(rules, atk.DamageDieMedium, attack.WeaponSizeCategory, atk.CriticalMultiplier, sizeDiscrepancy);
+            return attack;
+        }
 
-            final.AddDice(extraDice.dice);
-            explanation.AddRange(extraDice.explanation);
+        public static Attack Thrown(
+            GameRules.GameRules rules,
+            Weapon weapon,
+            Weapon.Hand hand,
+            int sizeChange,
+            int sizeDiscrepancy
+        ) {
+            AttackMode atk;
+            if (weapon.Thrown != null) {
+                atk = weapon.Thrown;
+            } else if (weapon.Melee != null) {
+                atk = ( ((AttackMode atk, bool reach)) weapon.Melee).atk;
+            } else {
+                return null; // not dealing with throwing the second head of a double weapon.  for now.
+            }
 
-            return (final, explanation);
+            Attack attack = new Attack(weapon, sizeChange, sizeDiscrepancy, atk, hand) {
+                Range = Weapon.Range.THROWN,
+                RangeIncrement = atk.RangeIncrement
+            };
+            attack.ComputeAttackBonusAndDamage(rules, atk.DamageDieMedium, attack.WeaponSizeCategory, atk.CriticalMultiplier, sizeDiscrepancy);
+            return attack;
+        }
+
+        private static void GenerateOneHandAttacks(
+            List<Attack> attacks,
+            GameRules.GameRules rules,
+            Weapon weapon,
+            int sizeChange,
+            int sizeDiscrepancy,
+            Weapon.Hand[] hands
+        ) {
+            foreach (Weapon.Hand hand in hands) {
+                if (weapon.Melee != null) {
+                    Weapon.Effort? effort = weapon.Melee?.atk.EffortCategory + sizeDiscrepancy;
+                    if (effort == Weapon.Effort.LIGHT || effort == Weapon.Effort.ONE_HANDED) {
+                        // Assuming that there are no one-handed double weapons...
+                        attacks.Add(Melee(rules, weapon, hand, sizeChange, sizeDiscrepancy, true));
+                    }
+                }
+
+                if (weapon.Melee != null) {
+                    Weapon.Effort? effort = weapon.Projectile?.atk.EffortCategory + sizeDiscrepancy;
+                    if (effort == Weapon.Effort.LIGHT || effort == Weapon.Effort.ONE_HANDED) {
+                        attacks.Add(Projectile(rules, weapon, hand, sizeChange, sizeDiscrepancy));
+                    }
+                }
+
+                Weapon.Effort? thrownEffort = weapon.ThrownEffort() + sizeDiscrepancy;
+                if (thrownEffort == Weapon.Effort.LIGHT || thrownEffort == Weapon.Effort.ONE_HANDED) {
+                    attacks.Add(Thrown(rules, weapon, hand, sizeChange, sizeDiscrepancy));
+                }
+            }
+        }
+
+        // TODO : weapon size feats... like Monkey Grip, Oversized TWF, and all that fucking bullshit
+
+        // This function uses _reference_ equality to check whether you're two-handing a weapon.
+        // If they are reference-equal, you're two-handing it.  If not, you have a different weapon in each hand,
+        // even if they look identical.  
+        // Either being null means that hand is empty.  If the primary hand is empty, this function will generate
+        // an empty list of attacks, assuming that the player has no attacks available.
+        public static List<Attack> Generate(GameRules.GameRules rules, Weapon primaryHandWeapon, Weapon offHandWeapon, int sizeChange) {
+            List<Attack> attacks = new List<Attack>();
+            if (primaryHandWeapon == null) {
+                return attacks;
+            }
+
+            int playerSizeCategory = rules.Stats()[SIZE_CATEGORY].GetValue(rules.Rules).value;
+            int priSizeDiscrepancy = primaryHandWeapon.SizeCategory - playerSizeCategory;
+            bool twfAvailable = (offHandWeapon != null);
+            int offSizeDiscrepancy = twfAvailable ? (offHandWeapon.SizeCategory - playerSizeCategory) : 0;
+
+            // Exact same weapon in both hands.  Player is two-handing a single weapon.
+            if (primaryHandWeapon == offHandWeapon) {
+                if (primaryHandWeapon.Melee != null) {
+                    Weapon.Effort effort = (Weapon.Effort)primaryHandWeapon.Melee?.atk.EffortCategory + priSizeDiscrepancy;
+                    if (effort >= Weapon.Effort.LIGHT && effort <= Weapon.Effort.TWO_HANDED) {
+                        // You can't get a mechanical benefit for two-handing a light weapon.
+                        Weapon.Hand hand = effort == Weapon.Effort.LIGHT
+                            ? Weapon.Hand.ONE_HANDED
+                            : Weapon.Hand.TWO_HANDED;
+                        attacks.Add(Melee(rules, primaryHandWeapon, hand, sizeChange, priSizeDiscrepancy, true));
+
+                        // For double weapons with identical heads, generate an identical primary- and off-hand attack.
+                        if (primaryHandWeapon.SecondIdenticalHead) {
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, sizeChange, priSizeDiscrepancy, true));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, sizeChange, offSizeDiscrepancy, true));
+                        }
+
+                        // For double weapons with different heads, generate a primary-hand/off-hand pairing for each ordering.
+                        else if (primaryHandWeapon.SecondUniqueHead != null) {
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, sizeChange, priSizeDiscrepancy, true));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, sizeChange, offSizeDiscrepancy, false));
+
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, sizeChange, priSizeDiscrepancy, false));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, sizeChange, offSizeDiscrepancy, true));
+                        }
+                    }
+                }
+
+                if (primaryHandWeapon.Projectile != null) {
+                    Weapon.Effort effort = (Weapon.Effort)primaryHandWeapon.Projectile?.atk.EffortCategory + priSizeDiscrepancy;
+                    if (effort >= Weapon.Effort.LIGHT && effort <= Weapon.Effort.TWO_HANDED) {
+                        attacks.Add(Projectile(rules, primaryHandWeapon, Weapon.Hand.TWO_HANDED, sizeChange, priSizeDiscrepancy));
+                    }
+                }
+
+                Weapon.Effort? thrownEffort = primaryHandWeapon.ThrownEffort() + priSizeDiscrepancy;
+                if (thrownEffort >= Weapon.Effort.LIGHT && thrownEffort <= Weapon.Effort.TWO_HANDED) {
+                    // I'm assuming all non-improvised weapons are thrown one-handed.  Either way, it doesn't
+                    // affect anything mechanically (I think); STR to damage isn't multiplied or anything like that.
+                    attacks.Add(Thrown(rules, primaryHandWeapon, Weapon.Hand.ONE_HANDED, sizeChange, priSizeDiscrepancy));
+                }
+            }
+            
+            // Contents of hands are different.
+            else {
+                Weapon.Hand[] hands = twfAvailable
+                    ? new Weapon.Hand[] { Weapon.Hand.ONE_HANDED, Weapon.Hand.PRIMARY_HAND_TWF }
+                    : new Weapon.Hand[] { Weapon.Hand.ONE_HANDED };
+                GenerateOneHandAttacks(attacks, rules, primaryHandWeapon, sizeChange, priSizeDiscrepancy, hands);
+                
+                if (twfAvailable) {
+                    GenerateOneHandAttacks(attacks, rules, offHandWeapon, sizeChange, offSizeDiscrepancy, new Weapon.Hand[] { Weapon.Hand.OFF_HAND_TWF });
+                }
+            }
+
+            return attacks;
         }
     }
-
-    public static class AttackNames {
-        public static string Name(this Attack.Type x) {
-            switch (x) {
-                case Attack.Type.MANUFACTURED:
-                    return MANUFACTURED;
-                case Attack.Type.PRIMARY_NATURAL:
-                case Attack.Type.SECONDARY_NATURAL:
-                    return NATURAL;
-            }
-            return null;
-        }
-
-        public static string Name(this Attack.Proficiency x) {
-            switch (x) {
-                case Attack.Proficiency.SIMPLE:
-                    return SIMPLE;
-                case Attack.Proficiency.MARTIAL:
-                    return MARTIAL;
-                case Attack.Proficiency.EXOTIC:
-                    return EXOTIC;
-            }
-            return null;
-        }
-
-        public static string Name(this Attack.Effort x) {
-            switch (x) {
-                case Attack.Effort.LIGHT:
-                    return LIGHT;
-                case Attack.Effort.ONE_HANDED:
-                    return ONE_HANDED;
-                case Attack.Effort.TWO_HANDED:
-                    return TWO_HANDED;
-            }
-            return null;
-        }
-
-        public static string Name(this Attack.Range x) {
-            switch (x) {
-                case Attack.Range.MELEE:
-                case Attack.Range.REACH_MELEE:
-                    return MELEE;
-                case Attack.Range.THROWN:
-                case Attack.Range.PROJECTILE:
-                    return RANGED;
-            }
-            return null;
-        }
-
-        public static string FullName(this Attack.Range x) {
-            switch (x) {
-                case Attack.Range.MELEE:
-                    return MELEE_NAME;
-                case Attack.Range.REACH_MELEE:
-                    return REACH;
-                case Attack.Range.THROWN:
-                    return THROWN;
-                case Attack.Range.PROJECTILE:
-                    return PROJECTILE;
-            }
-            return null;
-        }
-    }
-
-
 }

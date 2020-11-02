@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class Effect {
@@ -13,7 +10,9 @@ namespace PlayMore35.Effects {
         public string Name { get; private set; }
 
         public IToggle Toggle = AlwaysOn.Instance;
-        private readonly List<Modifier> Modifiers = new List<Modifier>();
+        private readonly List<(Modifier mod, string affects)> Modifiers = new List<(Modifier, string)>();
+        private readonly List<(Modifier mod, WeaponClass affects)> AttackModifiers = new List<(Modifier, WeaponClass)>();
+        private readonly List<(Modifier mod, WeaponClass affects)> DamageModifiers = new List<(Modifier, WeaponClass)>();
         public Multiplier Factor = null;
         public ExtraDice Dice = null;
         public string Flag = null;
@@ -24,10 +23,22 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddModifier(Modifier mod) {
-            Modifiers.Add(mod);
+        public Effect AddModifier(string affects, Modifier mod) {
+            Modifiers.Add((mod, affects));
             mod.Name = Name;
-            return this; // method chaining
+            return this;
+        }
+
+        public Effect AddAttackModifier(WeaponClass affects, Modifier mod) {
+            AttackModifiers.Add((mod, affects));
+            mod.Name = Name;
+            return this;
+        }
+
+        public Effect AddDamageModifier(WeaponClass affects, Modifier mod) {
+            DamageModifiers.Add((mod, affects));
+            mod.Name = Name;
+            return this;
         }
 
         // TODO : All of the "set" methods below this point really should be "add".
@@ -58,10 +69,41 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        // TODO : these three functions are identical, except that they pull from different collections
+        // and use a different matching check.  Can they be combined, with some <T> cleverness maybe?
+
         public IEnumerable<Modifier> GetModifiers(EffectPool pool, Statistic affecting) {
             // In order to prevent infinite recursion, we have to check whether we care about what this effect
             // does before checking whether it applies.
-            IEnumerable<Modifier> potential = Modifiers.Where(x => affecting.HasTag(x.Affects));
+            IEnumerable<Modifier> potential = Modifiers
+                .Where(x => affecting.HasTag(x.affects))
+                .Select(x => x.mod);
+            if (!potential.Any()) {
+                return potential;
+            }
+
+            return Toggle.On(pool)
+                ? potential
+                : Enumerable.Empty<Modifier>();
+        }
+
+        public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Items.Attack affecting) {
+            IEnumerable<Modifier> potential = AttackModifiers
+                .Where(x => x.affects.Matches(affecting))
+                .Select(x => x.mod);
+            if (!potential.Any()) {
+                return potential;
+            }
+
+            return Toggle.On(pool)
+                ? potential
+                : Enumerable.Empty<Modifier>();
+        }
+
+        public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Items.Attack affecting) {
+            IEnumerable<Modifier> potential = DamageModifiers
+                .Where(x => x.affects.Matches(affecting))
+                .Select(x => x.mod);
             if (!potential.Any()) {
                 return potential;
             }
@@ -81,11 +123,11 @@ namespace PlayMore35.Effects {
             return null;
         }
 
-        public DiceGroup GetExtraDice(EffectPool pool, DiceStatistic affecting) {
+        public DiceGroup GetExtraDice(EffectPool pool, Items.Attack affecting) {
             if (Dice == null) {
                 return null;
             }
-            if (affecting.HasTag(Dice.Affects) && Toggle.On(pool)) {
+            if (Dice.Affects.Matches(affecting) && Toggle.On(pool)) {
                 Dice.Dice.Name = Name;
                 return Dice.Dice;
             }
