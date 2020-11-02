@@ -34,7 +34,7 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private void CheckStat(int expected, GameRules.GameRules r, EffectPool p, string stat) {
-            Assert.AreEqual(expected, r.Stats()[stat].GetValue(p).value);
+            Assert.AreEqual(expected, r.Stats[stat].GetValue(p).value);
         }
 
         [TestMethod()]
@@ -297,7 +297,7 @@ namespace PlayMore35.Effects.Tests {
                 p.SetValue(item.Key, LAND_SPEED);
                 CheckStat(item.Value, r, p, LAND_SPEED);
             }
-            r.Stats()[LAND_SPEED].GetValue(p).explanation.ForEach(x => Console.WriteLine(x));
+            r.Stats[LAND_SPEED].GetValue(p).explanation.ForEach(x => Console.WriteLine(x));
         }
 
         [TestMethod()]
@@ -321,8 +321,11 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
 
             Items.Weapon dagger = Dagger();
+            p.SetValue(+2, SIZE_CATEGORY);
             Assert.AreEqual("1d8", Items.Attack.Generate(r, dagger, null, +2)[0].Damage.dice.ToString());
+            p.SetValue(+1000, SIZE_CATEGORY);
             Assert.AreEqual("3d6", Items.Attack.Generate(r, dagger, null, +1000)[0].Damage.dice.ToString());
+            p.SetValue(-1000, SIZE_CATEGORY);
             Assert.AreEqual("—", Items.Attack.Generate(r, dagger, null, -1000)[0].Damage.dice.ToString());
         }
 
@@ -369,7 +372,7 @@ namespace PlayMore35.Effects.Tests {
 
             p.SetValue(14, DEX_SCORE);
             p.AddEffect(new Effect("Hit-and-run fighter")
-                .AddDamageModifier(WeaponClass.ALL, new Modifier(r.Stats()[DEX_MODIFIER], CIRCUMSTANCE))
+                .AddDamageModifier(WeaponClass.ALL, new Modifier(r.Stats[DEX_MODIFIER], CIRCUMSTANCE))
             );
 
             List<Items.Attack> greatswordAttacks = Items.Attack.Generate(r, greatsword, greatsword, 0);
