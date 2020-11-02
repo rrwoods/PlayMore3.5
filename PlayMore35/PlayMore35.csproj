@@ -82,7 +82,6 @@
     <Compile Include="Effects\StackingRules.cs" />
     <Compile Include="Effects\ControllableToggle.cs" />
     <Compile Include="Effects\DiceGroup.cs" />
-    <Compile Include="Effects\ExtraDice.cs" />
     <Compile Include="Effects\FlagToggle.cs" />
     <Compile Include="Effects\LookupAmount.cs" />
     <Compile Include="Effects\Multiplier.cs" />

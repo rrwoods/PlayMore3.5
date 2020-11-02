@@ -83,9 +83,9 @@ namespace PlayMore35.Effects.Tests {
 
             p.SetValue(12, DEX_SCORE);
             CheckStat(11, r, AC);
-            p.AddEffect(new Effect("ff").SetFlag(FLAT_FOOTED));
+            p.AddEffect(new Effect("ff").AddFlag(FLAT_FOOTED));
             CheckStat(10, r, AC);
-            p.AddEffect(new Effect("ud").SetFlag(UNCANNY_DODGE));
+            p.AddEffect(new Effect("ud").AddFlag(UNCANNY_DODGE));
             CheckStat(11, r, AC);
         }
 
@@ -96,9 +96,9 @@ namespace PlayMore35.Effects.Tests {
 
             p.SetValue(12, DEX_SCORE);
             CheckStat(11, r, AC);
-            p.AddEffect(new Effect("deny").SetFlag(DENIED_DEX));
+            p.AddEffect(new Effect("deny").AddFlag(DENIED_DEX));
             CheckStat(10, r, AC);
-            p.AddEffect(new Effect("ud").SetFlag(UNCANNY_DODGE));
+            p.AddEffect(new Effect("ud").AddFlag(UNCANNY_DODGE));
             CheckStat(10, r, AC);
         }
 
@@ -378,7 +378,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d4", normalDice.ToString());
 
             p.AddEffect(new Effect("Sneak attack")
-                .SetExtraDice(new ExtraDice(new WeaponClass(), 2, 6))
+                .AddExtraDice(WeaponClass.ALL, 2, 6)
             );
             daggerMelee = Items.Attack.Generate(r, 0)[0];
             var (sneakDice, sneakExpl) = daggerMelee.Damage;

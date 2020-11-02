@@ -8,11 +8,9 @@ namespace PlayMore35.Effects {
     public class Multiplier {
         public string Name = "";
         public decimal Factor { get; private set; }
-        public string Affects { get; private set; }
 
-        public Multiplier(decimal factor, string affects) {
+        public Multiplier(decimal factor) {
             Factor = factor;
-            Affects = affects;
         }
     }
 }

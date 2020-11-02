@@ -70,14 +70,12 @@ namespace PlayMore35.Effects {
 
         public IEnumerable<Multiplier> GetMultipliers(Statistic affecting) {
             return Effects.Values
-                .Select(x => x.GetMultiplier(this, affecting))
-                .Where(x => x != null);
+                .SelectMany(x => x.GetMultipliers(this, affecting));
         }
 
         public IEnumerable<DiceGroup> GetExtraDice(Items.Attack affecting) {
             return Effects.Values
-                    .Select(x => x.GetExtraDice(this, affecting))
-                    .Where(x => x != null);
+                    .SelectMany(x => x.GetExtraDice(this, affecting));
         }
 
         public Dictionary<string, List<string>> GetTextEffects() {
@@ -98,7 +96,7 @@ namespace PlayMore35.Effects {
 
         public bool HasFlag(string flag) {
             return Effects.Values
-                .Any(x => (x.Flag == flag) && x.Toggle.On(this));
+                .Any(x => x.HasFlag(flag) && x.Toggle.On(this));
         }
     }
 }

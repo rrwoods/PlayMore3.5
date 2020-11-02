@@ -54,7 +54,7 @@ namespace PlayMore35.GameRules {
                     )
                 ))
                 .AddText(ACTIONS, "One move or standard each round (not both, no full-rounds)")
-                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
+                .AddMultiplier(ALL_SPEEDS, new Multiplier(0.5m))
                 .AddText(ACTIONS, "Any standard or strenuous action deals 1 to you")
             );
 
@@ -63,7 +63,7 @@ namespace PlayMore35.GameRules {
                     new ConditionalToggle(Stats[CURRENT_HP], Relation.LESS_THAN, 0),
                     new UnToggle(stable)
                 ))
-                .SetFlag(CANT_ACT)
+                .AddFlag(CANT_ACT)
                 .AddText(CONDITION, "You take 1 damage each round")
                 .AddText(CONDITION, "Any healing stabilizes you; 10% chance each round to self-stabilize")
             );
@@ -198,7 +198,7 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("Encumbrance speed penalty")
                 .Controllable() // TODO : automatically determine based on armor/inventory ... ugh, armor.
-                .SetMultiplier(new Multiplier(0.666m, ALL_SPEEDS))
+                .AddMultiplier(ALL_SPEEDS, new Multiplier(0.666m))
             );
 
             // ... yeah, this jumps (heh) through some hoops.  nothing to see here, move along.
@@ -361,8 +361,8 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("blinded")
                 .Controllable()
                 .AddModifier(AC, new Modifier(-2, UNTYPED))
-                .SetFlag(DENIED_DEX)
-                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
+                .AddFlag(DENIED_DEX)
+                .AddMultiplier(ALL_SPEEDS, new Multiplier(0.5m))
                 .AddText(SKILLS, "All vision activities and checks (like Spot) auto-fail")
                 .AddText(ATK_OPTIONS, "Opponents have total concealment")
                 .AddModifier(SEARCH, new Modifier(-4, UNTYPED))
@@ -381,14 +381,14 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("cowering")
                 .Controllable()
-                .SetFlag(CANT_ACT)
-                .SetFlag(DENIED_DEX)
+                .AddFlag(CANT_ACT)
+                .AddFlag(DENIED_DEX)
                 .AddModifier(AC, new Modifier(-2, UNTYPED))
             );
 
             Rules.AddEffect(new Effect("dazed")
                 .Controllable()
-                .SetFlag(CANT_ACT)
+                .AddFlag(CANT_ACT)
             );
 
             Rules.AddEffect(new Effect("dazzled")
@@ -427,8 +427,8 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("entangled")
                 .Controllable()
-                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
-                .SetFlag(CANT_RUN_OR_CHARGE)
+                .AddMultiplier(ALL_SPEEDS, new Multiplier(0.5m))
+                .AddFlag(CANT_RUN_OR_CHARGE)
                 .AddAttackModifier(WeaponClass.ALL, new Modifier(-2, UNTYPED))
                 .AddModifier(DEX_SCORE, new Modifier(-4, UNTYPED))
                 .AddText(MISC_CASTING, "Spellcasting requires DC 15 concentration, or lose spell")
@@ -436,8 +436,8 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("exhausted")
                 .Controllable()
-                .SetMultiplier(new Multiplier(0.5m, ALL_SPEEDS))
-                .SetFlag(CANT_RUN_OR_CHARGE) // exhausted doesn't actually say this but fatigued does.
+                .AddMultiplier(ALL_SPEEDS, new Multiplier(0.5m))
+                .AddFlag(CANT_RUN_OR_CHARGE) // exhausted doesn't actually say this but fatigued does.
                 .AddModifier(STR_SCORE, new Modifier(-6, UNTYPED))
                 .AddModifier(DEX_SCORE, new Modifier(-6, UNTYPED))
                 .AddText(CONDITION, "Rest one hour to be fatigued instead of exhausted")
@@ -445,21 +445,21 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("fascinated")
                 .Controllable()
-                .SetFlag(CANT_ACT)
+                .AddFlag(CANT_ACT)
                 .AddModifier(LISTEN, new Modifier(-4, UNTYPED))
                 .AddModifier(SPOT, new Modifier(-4, UNTYPED))
             );
 
             Rules.AddEffect(new Effect("fatigued")
                 .Controllable()
-                .SetFlag(CANT_RUN_OR_CHARGE)
+                .AddFlag(CANT_RUN_OR_CHARGE)
                 .AddModifier(STR_SCORE, new Modifier(-2, UNTYPED))
                 .AddModifier(DEX_SCORE, new Modifier(-2, UNTYPED))
             );
 
             Rules.AddEffect(new Effect("flat-footed")
                 .Controllable()
-                .SetFlag(FLAT_FOOTED)
+                .AddFlag(FLAT_FOOTED)
                 .AddText(ACTIONS, "Can't take immediate actions or attacks of opportunity")
             );
 
@@ -505,8 +505,8 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("stunned")
                 .Controllable()
                 .AddModifier(AC, new Modifier(-2, UNTYPED))
-                .SetFlag(DENIED_DEX)
-                .SetFlag(CANT_ACT) // TODO : this doesn't work; needs to be AddFlag instead.
+                .AddFlag(DENIED_DEX)
+                .AddFlag(CANT_ACT) // TODO : this doesn't work; needs to be AddFlag instead.
                 .AddText(ACTIONS, "Must drop all held items")
             );
 
@@ -528,8 +528,8 @@ namespace PlayMore35.GameRules {
                     new ConditionalToggle(Stats[DEX_SCORE], Relation.EQUAL, 0),
                     unconscious
                 ))
-                .SetFlag(CANT_ACT)
-                .SetFlag(HELPLESS_AND_PARALYZED) // TODO : this doesn't work; needs to be AddFlag instead.
+                .AddFlag(CANT_ACT)
+                .AddFlag(HELPLESS_AND_PARALYZED) // TODO : this doesn't work; needs to be AddFlag instead.
             );
 
             Rules.AddEffect(new Effect("DEX to AC")

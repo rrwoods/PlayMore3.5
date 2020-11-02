@@ -10,12 +10,14 @@ namespace PlayMore35.Effects {
         public string Name { get; private set; }
 
         public IToggle Toggle = AlwaysOn.Instance;
+
         private readonly List<(Modifier mod, string affects)> Modifiers = new List<(Modifier, string)>();
         private readonly List<(Modifier mod, WeaponClass affects)> AttackModifiers = new List<(Modifier, WeaponClass)>();
         private readonly List<(Modifier mod, WeaponClass affects)> DamageModifiers = new List<(Modifier, WeaponClass)>();
-        public Multiplier Factor = null;
-        public ExtraDice Dice = null;
-        public string Flag = null;
+
+        private readonly List<(Multiplier mult, string affects)> Multipliers = new List<(Multiplier, string)>();
+        private readonly List<(int qty, int size, WeaponClass affects)> ExtraDice = new List<(int, int, WeaponClass)>();
+        private readonly List<string> Flags = new List<string>();
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
         public Effect SetToggle(IToggle toggle) {
@@ -41,21 +43,18 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        // TODO : All of the "set" methods below this point really should be "add".
-        // There's no reason an effect couldn't multiply multiple stats, or set multiple flags, etc.
-        public Effect SetMultiplier(Multiplier multiplier) {
-            Factor = multiplier;
-            Factor.Name = Name;
+        public Effect AddMultiplier(string affects, Multiplier multiplier) {
+            Multipliers.Add((multiplier, affects));
             return this;
         }
 
-        public Effect SetExtraDice(ExtraDice extraDice) {
-            Dice = extraDice;
+        public Effect AddExtraDice(WeaponClass affects, int qty, int size) {
+            ExtraDice.Add((qty, size, affects));
             return this;
         }
 
-        public Effect SetFlag(string flag) {
-            Flag = flag;
+        public Effect AddFlag(string flag) {
+            Flags.Add(flag);
             return this;
         }
 
@@ -113,26 +112,34 @@ namespace PlayMore35.Effects {
                 : Enumerable.Empty<Modifier>();
         }
 
-        public Multiplier GetMultiplier(EffectPool pool, Statistic affecting) {
-            if (Factor == null) {
-                return null;
+        public IEnumerable<Multiplier> GetMultipliers(EffectPool pool, Statistic affecting) {
+            IEnumerable<Multiplier> potential = Multipliers
+                .Where(x => affecting.HasTag(x.affects))
+                .Select(x => x.mult);
+            if (!potential.Any()) {
+                return potential;
             }
-            if (affecting.HasTag(Factor.Affects) && Toggle.On(pool)) {
-                return Factor;
-            }
-            return null;
+
+            return Toggle.On(pool)
+                ? potential
+                : Enumerable.Empty<Multiplier>();
         }
 
-        public DiceGroup GetExtraDice(EffectPool pool, Items.Attack affecting) {
-            if (Dice == null) {
-                return null;
+        public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Items.Attack affecting) {
+            IEnumerable<DiceGroup> potential = ExtraDice
+                .Where(x => x.affects.Matches(affecting))
+                .Select(x => new DiceGroup(Name).AddDice(x.qty, x.size));
+            if (!potential.Any()) {
+                return potential;
             }
-            if (Dice.Affects.Matches(affecting) && Toggle.On(pool)) {
-                return new DiceGroup(Dice.Dice) {
-                    Name = Name
-                };
-            }
-            return null;
+
+            return Toggle.On(pool)
+                ? potential
+                : Enumerable.Empty<DiceGroup>();
+        }
+
+        public bool HasFlag(string flag) {
+            return Flags.Contains(flag);
         }
     }
 }
