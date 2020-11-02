@@ -36,7 +36,7 @@ namespace PlayMore35.GameRules {
 
             AddStat(new Statistic(LETHAL_DAMAGE));
             Rules.AddEffect(new Effect("Subtract damage from hit points")
-                .AddModifier(CURRENT_HP, new Modifier(new VariableAmount(Stats[LETHAL_DAMAGE], -1), BASE))
+                .AddModifier(CURRENT_HP, new Modifier(-1, Stats[LETHAL_DAMAGE], BASE))
             );
 
             Rules.AddEffect(new Effect(CANT_ACT)
@@ -166,7 +166,7 @@ namespace PlayMore35.GameRules {
             ArmorCheckPenalty(SLEIGHT_OF_HAND);
             Rules.AddEffect(
                 new Effect(ARMOR_CHECK_PENALTY + " to " + SWIM)
-                    .AddModifier(SWIM, new Modifier(new VariableAmount(Stats[ARMOR_CHECK_PENALTY], 2), UNTYPED))
+                    .AddModifier(SWIM, new Modifier(2, Stats[ARMOR_CHECK_PENALTY], UNTYPED))
             );
             // TODO : (after toggle-effects are in)
             // apply ACP these specific skills only if the character is proficient with their armor
@@ -209,7 +209,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(excessSpeed));
             Rules.AddEffect(new Effect(excessSpeed)
                 .AddModifier(excessSpeed, new Modifier(UNTYPED)
-                    .AddAmount(new VariableAmount(Stats[LAND_SPEED], 0.1m))
+                    .AddAmount(0.1m, Stats[LAND_SPEED])
                     .AddAmount(-3)
                 )
             );
@@ -217,7 +217,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(lackingSpeed));
             Rules.AddEffect(new Effect(lackingSpeed)
                 .AddModifier(lackingSpeed, new Modifier(UNTYPED)
-                    .AddAmount(new VariableAmount(Stats[LAND_SPEED], -0.1m))
+                    .AddAmount(-0.1m, Stats[LAND_SPEED])
                     .AddAmount(+3)
                 )
             );
@@ -225,12 +225,12 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("Speed penalty")
                 // the rule says "less than 30", but it doesn't actually do anything unless you're at 20 or under.
                 .SetToggle(new ConditionalToggle(Stats[LAND_SPEED], Relation.LESS_THAN_OR_EQUAL, 20))
-                .AddModifier(JUMP, new Modifier(new VariableAmount(Stats[lackingSpeed], -6), UNTYPED))
+                .AddModifier(JUMP, new Modifier(-6, Stats[lackingSpeed], UNTYPED))
             );
             Rules.AddEffect(new Effect("Speed bonus")
                 // the rule stays "more than 30", but it doesn't actually do anything unless you're at 40 or over.
                 .SetToggle(new ConditionalToggle(Stats[LAND_SPEED], Relation.GREATER_THAN_OR_EQUAL, 40))
-                .AddModifier(JUMP, new Modifier(new VariableAmount(Stats[excessSpeed], +4), UNTYPED))
+                .AddModifier(JUMP, new Modifier(+4, Stats[excessSpeed], UNTYPED))
             );
 
             // Medium at 0 makes a lot of calculations more smooth
@@ -300,10 +300,10 @@ namespace PlayMore35.GameRules {
 
             AddStat(new Statistic(SPECIAL_SIZE_MODIFIER));
             Rules.AddEffect(new Effect(SPECIAL_SIZE_MODIFIER + " calculation")
-                .AddModifier(SPECIAL_SIZE_MODIFIER, new Modifier(new VariableAmount(Stats[SIZE_CATEGORY], 4), BASE))
+                .AddModifier(SPECIAL_SIZE_MODIFIER, new Modifier(4, Stats[SIZE_CATEGORY], BASE))
             );
             Rules.AddEffect(new Effect(SPECIAL_SIZE_MODIFIER)
-                .AddModifier(HIDE, new Modifier(new VariableAmount(Stats[SPECIAL_SIZE_MODIFIER], -1), SIZE))
+                .AddModifier(HIDE, new Modifier(-1, Stats[SPECIAL_SIZE_MODIFIER], SIZE))
                 .AddModifier(GRAPPLE, new Modifier(Stats[SPECIAL_SIZE_MODIFIER], SIZE))
             );
 
@@ -318,7 +318,7 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("(STR ×1.5) to two-handed weapon damage")
                 .AddDamageModifier(
                     new WeaponClass().Melee().TwoHandedAttack(),
-                    new Modifier(new VariableAmount(Stats[STR_BONUS], 1.5m), BASE)
+                    new Modifier(1.5m, Stats[STR_BONUS], BASE)
                 )
             );
             Rules.AddEffect(new Effect("(STR) to primary-hand weapon damage")
@@ -327,7 +327,7 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("(STR ×0.5) to off-hand weapon damage")
                 .AddDamageModifier(
                     new WeaponClass().Melee().OffHandAttack(),
-                    new Modifier(new VariableAmount(Stats[STR_BONUS], 0.5m), BASE)
+                    new Modifier(0.5m, Stats[STR_BONUS], BASE)
                 )
             );
 
@@ -407,7 +407,7 @@ namespace PlayMore35.GameRules {
             );
 
             AddStat(new Statistic(NEGATIVE_LEVELS));
-            VariableAmount negativeLevels = new VariableAmount(Stats[NEGATIVE_LEVELS], -1);
+            IAmount negativeLevels = new MultiplyAmount(-1, Stats[NEGATIVE_LEVELS]);
             Rules.AddEffect(new Effect("energy drained")
                 // A toggle isn't strictly necessary here since all the values will be zero if the character has no negative levels
                 // It's included anyway so that it's easier to exclude it from the effects list in the frontend
@@ -416,7 +416,7 @@ namespace PlayMore35.GameRules {
                 .AddModifier(ALL_SAVES, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ALL_SKILLS, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ABILITY_CHECKS, new Modifier(negativeLevels, UNTYPED))
-                .AddModifier(MAX_HP, new Modifier(new VariableAmount(Stats[NEGATIVE_LEVELS], -5), UNTYPED))
+                .AddModifier(MAX_HP, new Modifier(-5, Stats[NEGATIVE_LEVELS], UNTYPED))
                 .AddText(MISC_CASTING, "-1 effective spellcasting level, lose a highest-level spell slot")
                 // TODO : handle spellcasting effects in spellcasting subsystem
             );
@@ -558,13 +558,13 @@ namespace PlayMore35.GameRules {
             AddStat(abilityDamage);
             Rules.AddEffect(
                 new Effect(ability + " damage")
-                    .AddModifier(ability + " score", new Modifier(new VariableAmount(Stats[ability + " damage"], -1), BASE))
+                    .AddModifier(ability + " score", new Modifier(-1, Stats[ability + " damage"], BASE))
             );
             Statistic abilityDrain = new Statistic(ability + " drain");
             AddStat(abilityDrain);
             Rules.AddEffect(
                 new Effect(ability + " drain")
-                    .AddModifier(ability + " score", new Modifier(new VariableAmount(Stats[ability + " drain"], -1), BASE))
+                    .AddModifier(ability + " score", new Modifier(-1, Stats[ability + " drain"], BASE))
             );
 
             string abilityModifierName = ability + " modifier";
@@ -572,7 +572,7 @@ namespace PlayMore35.GameRules {
                 new Effect("Base " + ability + " modifier")
                     .AddModifier(abilityModifierName, new Modifier(BASE)
                         .AddAmount(-5)
-                        .AddAmount(new VariableAmount(abilityScore, 0.5m))
+                        .AddAmount(0.5m, abilityScore)
                     )
             );
 

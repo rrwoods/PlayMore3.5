@@ -15,9 +15,14 @@ namespace PlayMore35.Effects {
             : this(new FixedAmount(amount), type) {
             
         }
-
+        
         public Modifier(Statistic amount, string type)
             : this(new VariableAmount(amount), type) {
+
+        }
+
+        public Modifier(decimal multiplier, Statistic amount, string type)
+            : this(new MultiplyAmount(multiplier, new VariableAmount(amount)), type) {
 
         }
 
@@ -30,9 +35,13 @@ namespace PlayMore35.Effects {
             return AddAmount(new FixedAmount(amount));
         }
 
+        public Modifier AddAmount(decimal multiplier, Statistic amount) {
+            return AddAmount(new MultiplyAmount(multiplier, new VariableAmount(amount)));
+        }
+
         public Modifier AddAmount(IAmount amount) {
             Amounts.Add(amount);
-            return this; // method chaining
+            return this;
         }
 
         public int ComputeAmount(EffectPool pool) {

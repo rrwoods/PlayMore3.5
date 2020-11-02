@@ -14,6 +14,11 @@ namespace PlayMore35.Effects {
             Amount = amount;
         }
 
+        public MultiplyAmount(decimal multiplier, Statistic amount)
+            : this(multiplier, new VariableAmount(amount)) {
+
+        }
+
         public int Get(EffectPool pool) {
             return (int) Math.Floor(Multiplier * Amount.Get(pool));
         }
