@@ -68,6 +68,15 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        public WeaponClass OneHandedAttack() {
+            matchers.Add(new HandMatcher()
+                .AddHand(Weapon.Hand.ONE_HANDED)
+                .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
+                .AddHand(Weapon.Hand.OFF_HAND_TWF)
+            );
+            return this;
+        }
+
         // I don't have a TwoHandedWeapon matcher function here.  You probably don't want it.
         // If you think you want it because of Power Attack, you should read Power Attack ;)
 

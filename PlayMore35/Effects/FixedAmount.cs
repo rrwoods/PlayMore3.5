@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class FixedAmount : IAmount {
-        public FixedAmount(int amount) {
-            this.Amount = amount;
-        }
-
         public int Amount { get; private set; }
 
+        public FixedAmount(int amount) {
+            Amount = amount;
+        }
+
         public int Get(EffectPool pool) {
-            return this.Amount;
+            return Amount;
         }
     }
 }

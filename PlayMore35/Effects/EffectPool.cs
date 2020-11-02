@@ -19,7 +19,7 @@ namespace PlayMore35.Effects {
         }
 
         public void SetValue(int value, string affects) {
-            AddEffect(new Effect(affects).AddModifier(affects, new Modifier(value, BASE)));
+            AddEffect(new Effect("Test set value of " + affects).AddModifier(affects, new Modifier(value, BASE)));
         }
 
         // this is probably only needed by tests?  might get rid of it once i don't need to programmatically toggle

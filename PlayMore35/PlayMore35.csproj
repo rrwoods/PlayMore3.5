@@ -77,6 +77,8 @@
   <ItemGroup>
     <Compile Include="Effects\AnyToggle.cs" />
     <Compile Include="Effects\AllToggle.cs" />
+    <Compile Include="Effects\ControllableAmount.cs" />
+    <Compile Include="Effects\MultiplyAmount.cs" />
     <Compile Include="Effects\StackingRules.cs" />
     <Compile Include="Effects\ControllableToggle.cs" />
     <Compile Include="Effects\DiceGroup.cs" />

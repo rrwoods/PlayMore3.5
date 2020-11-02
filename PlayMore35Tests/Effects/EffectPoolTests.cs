@@ -33,36 +33,31 @@ namespace PlayMore35.Effects.Tests {
             return rules;
         }
 
-        private void CheckStat(int expected, GameRules.GameRules r, EffectPool p, string stat) {
-            Assert.AreEqual(expected, r.Stats[stat].GetValue(p).value);
+        private void CheckStat(int expected, GameRules.GameRules r, string stat) {
+            Assert.AreEqual(expected, r.Stats[stat].GetValue(r.Rules).value);
         }
 
         [TestMethod()]
         public void TestComputeAbilityModifier() {
             GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
-
-            p.SetValue(7, STR_SCORE);
-            CheckStat(-2, r, p, STR_MODIFIER);
-            CheckStat(0, r, p, DEX_MODIFIER);
+            r.Rules.SetValue(7, STR_SCORE);
+            CheckStat(-2, r, STR_MODIFIER);
+            CheckStat(0, r, DEX_MODIFIER);
         }
 
         [TestMethod()]
         public void TestConditionalEffects() {
             GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
-
-            p.SetValue(5, TUMBLE + RANKS);
-            CheckStat(+2, r, p, JUMP);
-            CheckStat(+5, r, p, TUMBLE);
+            r.Rules.SetValue(5, TUMBLE + RANKS);
+            CheckStat(+2, r, JUMP);
+            CheckStat(+5, r, TUMBLE);
         }
 
         [TestMethod()]
         public void TestInitiativeChaining() {
             GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
-            p.AddEffect(new Effect("somethin").AddModifier(ABILITY_CHECKS, new Modifier(4, UNTYPED)));
-            CheckStat(+4, r, p, INITIATIVE);
+            r.Rules.AddEffect(new Effect("somethin").AddModifier(ABILITY_CHECKS, new Modifier(4, UNTYPED)));
+            CheckStat(+4, r, INITIATIVE);
         }
 
         [TestMethod()]
@@ -74,8 +69,8 @@ namespace PlayMore35.Effects.Tests {
             p.AddEffect(new Effect("ring").AddModifier(AC, new Modifier(2, DEFLECTION)));
             p.AddEffect(new Effect("dragon scales").AddModifier(NATURAL_ARMOR, new Modifier(4, RACIAL)));
 
-            CheckStat(17, r, p, AC);
-            CheckStat(13, r, p, TOUCH_AC);
+            CheckStat(17, r, AC);
+            CheckStat(13, r, TOUCH_AC);
         }
 
         [TestMethod()]
@@ -84,11 +79,11 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
 
             p.SetValue(12, DEX_SCORE);
-            CheckStat(11, r, p, AC);
+            CheckStat(11, r, AC);
             p.AddEffect(new Effect("ff").SetFlag(FLAT_FOOTED));
-            CheckStat(10, r, p, AC);
+            CheckStat(10, r, AC);
             p.AddEffect(new Effect("ud").SetFlag(UNCANNY_DODGE));
-            CheckStat(11, r, p, AC);
+            CheckStat(11, r, AC);
         }
 
         [TestMethod()]
@@ -97,11 +92,11 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
 
             p.SetValue(12, DEX_SCORE);
-            CheckStat(11, r, p, AC);
+            CheckStat(11, r, AC);
             p.AddEffect(new Effect("deny").SetFlag(DENIED_DEX));
-            CheckStat(10, r, p, AC);
+            CheckStat(10, r, AC);
             p.AddEffect(new Effect("ud").SetFlag(UNCANNY_DODGE));
-            CheckStat(10, r, p, AC);
+            CheckStat(10, r, AC);
         }
 
         [TestMethod()]
@@ -110,12 +105,12 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
 
             p.SetValue(-5, ARMOR_CHECK_PENALTY);
-            CheckStat(-5, r, p, BALANCE);
-            CheckStat(-10, r, p, SWIM);
-            CheckStat(0, r, p, DIPLOMACY);
+            CheckStat(-5, r, BALANCE);
+            CheckStat(-10, r, SWIM);
+            CheckStat(0, r, DIPLOMACY);
         }
 
-        private Items.Weapon Dagger() {
+        private Items.Weapon Dagger(bool throwable = true) {
             return new Items.Weapon("Dagger", 0) {
                 Melee = (
                     new Items.AttackMode {
@@ -125,7 +120,41 @@ namespace PlayMore35.Effects.Tests {
                         DamageType = PIERCING + OR + SLASHING,
                         ThreatRange = 19,
                         CriticalMultiplier = 2,
-                        RangeIncrement = 10
+                        RangeIncrement = throwable ? 10 : 0
+                    },
+                    false
+                )
+            };
+        }
+
+        private Items.Weapon Longsword() {
+            return new Items.Weapon("Longsword", 0) {
+                Melee = (
+                    new Items.AttackMode {
+                        ProficencyCategory = Items.Weapon.Proficiency.MARTIAL,
+                        EffortCategory = Items.Weapon.Effort.ONE_HANDED,
+                        DamageDieMedium = (1, 8),
+                        DamageType = SLASHING,
+                        ThreatRange = 19,
+                        CriticalMultiplier = 2,
+                        RangeIncrement = 0
+                    },
+                    false
+                )
+            };
+        }
+
+        private Items.Weapon Greatsword() {
+            return new Items.Weapon("Greatsword", 0) {
+                Melee = (
+                    new Items.AttackMode {
+                        ProficencyCategory = Items.Weapon.Proficiency.MARTIAL,
+                        EffortCategory = Items.Weapon.Effort.TWO_HANDED,
+                        DamageDieMedium = (2, 6),
+                        DamageType = SLASHING,
+                        ThreatRange = 19,
+                        CriticalMultiplier = 2,
+                        RangeIncrement = 0
                     },
                     false
                 )
@@ -209,9 +238,9 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
             p.SetValue(20, DEX_SCORE);
 
-            CheckStat(+5, r, p, DEX_CHECKS);
+            CheckStat(+5, r, DEX_CHECKS);
             p.SetValue(1, FEAR_LEVEL);
-            CheckStat(+3, r, p, DEX_CHECKS);
+            CheckStat(+3, r, DEX_CHECKS);
         }
 
         [TestMethod()]
@@ -221,14 +250,14 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(20, DEX_SCORE);
 
             // no ranks in hide, +5 dex +0 str +0 bab, medium size:  +5 hide, +0 grapple
-            CheckStat(+5, r, p, HIDE);
-            CheckStat(+0, r, p, GRAPPLE);
+            CheckStat(+5, r, HIDE);
+            CheckStat(+0, r, GRAPPLE);
 
             // colossal size, which gives -16 hide +16 grapple
             p.SetValue(4, SIZE_CATEGORY);
 
-            CheckStat(-11, r, p, HIDE);
-            CheckStat(+16, r, p, GRAPPLE);
+            CheckStat(-11, r, HIDE);
+            CheckStat(+16, r, GRAPPLE);
         }
 
         [TestMethod()]
@@ -236,9 +265,9 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            CheckStat(5, r, p, REACH);
+            CheckStat(5, r, REACH);
             p.SetValue(4, SIZE_CATEGORY);
-            CheckStat(30, r, p, REACH);
+            CheckStat(30, r, REACH);
         }
 
         [TestMethod()]
@@ -247,31 +276,31 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
 
             // no ranks, +0 ability, no speed modifier.
-            CheckStat(+0, r, p, JUMP);
+            CheckStat(+0, r, JUMP);
 
             p.SetValue(35, LAND_SPEED);
-            CheckStat(+0, r, p, JUMP);
+            CheckStat(+0, r, JUMP);
 
             p.SetValue(40, LAND_SPEED);
-            CheckStat(+4, r, p, JUMP);
+            CheckStat(+4, r, JUMP);
 
             p.SetValue(45, LAND_SPEED);
-            CheckStat(+4, r, p, JUMP);
+            CheckStat(+4, r, JUMP);
 
             p.SetValue(50, LAND_SPEED);
-            CheckStat(+8, r, p, JUMP);
+            CheckStat(+8, r, JUMP);
 
             p.SetValue(25, LAND_SPEED);
-            CheckStat(+0, r, p, JUMP);
+            CheckStat(+0, r, JUMP);
 
             p.SetValue(20, LAND_SPEED);
-            CheckStat(-6, r, p, JUMP);
+            CheckStat(-6, r, JUMP);
 
             p.SetValue(15, LAND_SPEED);
-            CheckStat(-6, r, p, JUMP);
+            CheckStat(-6, r, JUMP);
 
             p.SetValue(10, LAND_SPEED);
-            CheckStat(-12, r, p, JUMP);
+            CheckStat(-12, r, JUMP);
         }
 
         [TestMethod()]
@@ -295,7 +324,7 @@ namespace PlayMore35.Effects.Tests {
             };
             foreach (var item in encumbranceTable) {
                 p.SetValue(item.Key, LAND_SPEED);
-                CheckStat(item.Value, r, p, LAND_SPEED);
+                CheckStat(item.Value, r, LAND_SPEED);
             }
             r.Stats[LAND_SPEED].GetValue(p).explanation.ForEach(x => Console.WriteLine(x));
         }
@@ -348,20 +377,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
 
             p.SetValue(18, STR_SCORE);
-            Items.Weapon greatsword = new Items.Weapon("Greatsword", 0) {
-                Melee = (
-                    new Items.AttackMode {
-                        ProficencyCategory = Items.Weapon.Proficiency.MARTIAL,
-                        EffortCategory = Items.Weapon.Effort.TWO_HANDED,
-                        DamageDieMedium = (2, 6),
-                        DamageType = SLASHING,
-                        ThreatRange = 19,
-                        CriticalMultiplier = 2,
-                        RangeIncrement = 0
-                    },
-                    false
-                )
-            };
+            Items.Weapon greatsword = Greatsword();
 
             p.AddEffect(new Effect("inspire courage")
                 .AddDamageModifier(WeaponClass.ALL, new Modifier(+1, MORALE))
@@ -426,6 +442,71 @@ namespace PlayMore35.Effects.Tests {
             List<string> uncategorized = allText[UNCATEGORIZED];
             Assert.AreEqual(1, uncategorized.Count());
             Assert.AreEqual("[new category] something something", uncategorized[0]);
+        }
+
+        private void CheckAttack(int[] expAtkBonus, string[] expDamage, GameRules.GameRules r, Items.Weapon pri, Items.Weapon off) {
+            List<Items.Attack> attacks = Items.Attack.Generate(r, pri, off, 0);
+            Assert.AreEqual(expAtkBonus.Length, attacks.Count());
+            for (int i = 0; i < expAtkBonus.Length; i++) {
+                Assert.AreEqual(expAtkBonus[i], attacks[i].AttackBonus.bonus);
+                Assert.AreEqual(expDamage[i], attacks[i].Damage.dice.ToString());
+            }
+        }
+
+        private void CheckAttack(int expAtkBonus, string expDamage, GameRules.GameRules r, Items.Weapon pri, Items.Weapon off) {
+            CheckAttack(new int[] { expAtkBonus }, new string[] { expDamage }, r, pri, off);
+        }
+
+        [TestMethod()]
+        public void TestControllableAmount() {
+            GameRules.GameRules r = Rules();
+            EffectPool p = r.Rules;
+
+            ControllableAmount powerAttackAmount = new ControllableAmount("Power attack penalty")
+                .Minimum(0)
+                .Maximum(r.Stats[BASE_ATTACK_BONUS]);
+
+            p.AddEffect(new Effect("Power Attack")
+                .AddAttackModifier(
+                    new WeaponClass().Melee(),
+                    new Modifier(new MultiplyAmount(-1, powerAttackAmount), UNTYPED)
+                )
+                .AddDamageModifier(
+                    new WeaponClass().TwoHandedAttack(),
+                    new Modifier(new MultiplyAmount(2, powerAttackAmount), UNTYPED)
+                )
+                .AddDamageModifier(
+                    new WeaponClass().OneHandedWeapon().OneHandedAttack(),
+                    new Modifier(powerAttackAmount, UNTYPED)
+                )
+            );
+
+            p.SetValue(+2, BASE_ATTACK_BONUS);
+            Items.Weapon dagger = Dagger(false);
+            Items.Weapon longsword = Longsword();
+
+            // Just BAB -- attack at +2, no damage bonus.
+            CheckAttack(+2, "1d4", r, dagger, null);
+            CheckAttack(+2, "1d8", r, longsword, null);
+            CheckAttack(+2, "1d8", r, longsword, longsword);
+
+            // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
+            powerAttackAmount.Amount = 1;
+            CheckAttack(+1, "1d4", r, dagger, null);
+            CheckAttack(+1, "1d8 + 1", r, longsword, null);
+            CheckAttack(+1, "1d8 + 2", r, longsword, longsword);
+
+            // Power attack for "3", clamped to 2 -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
+            powerAttackAmount.Amount = 3;
+            CheckAttack(+0, "1d4", r, dagger, null);
+            CheckAttack(+0, "1d8 + 2", r, longsword, null);
+            CheckAttack(+0, "1d8 + 4", r, longsword, longsword);
+
+            // Power attack for "-1", clamped to 0, same as no power attack
+            powerAttackAmount.Amount = -1;
+            CheckAttack(+2, "1d4", r, dagger, null);
+            CheckAttack(+2, "1d8", r, longsword, null);
+            CheckAttack(+2, "1d8", r, longsword, longsword);
         }
     }
 }
