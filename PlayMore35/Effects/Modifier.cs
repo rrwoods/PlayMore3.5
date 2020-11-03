@@ -16,13 +16,13 @@ namespace PlayMore35.Effects {
             
         }
         
-        public Modifier(Statistic amount, string type)
-            : this(new VariableAmount(amount), type) {
+        public Modifier(string stat, string type)
+            : this(new VariableAmount(stat), type) {
 
         }
 
-        public Modifier(decimal multiplier, Statistic amount, string type)
-            : this(new MultiplyAmount(multiplier, new VariableAmount(amount)), type) {
+        public Modifier(decimal multiplier, string stat, string type)
+            : this(new MultiplyAmount(multiplier, new VariableAmount(stat)), type) {
 
         }
 
@@ -35,8 +35,8 @@ namespace PlayMore35.Effects {
             return AddAmount(new FixedAmount(amount));
         }
 
-        public Modifier AddAmount(decimal multiplier, Statistic amount) {
-            return AddAmount(new MultiplyAmount(multiplier, new VariableAmount(amount)));
+        public Modifier AddAmount(decimal multiplier, string stat) {
+            return AddAmount(new MultiplyAmount(multiplier, new VariableAmount(stat)));
         }
 
         public Modifier AddAmount(IAmount amount) {

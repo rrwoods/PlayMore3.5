@@ -21,7 +21,7 @@ namespace PlayMore35.Effects {
 
         }
 
-        public ConditionalToggle(Statistic left, Relation relationship, int right)
+        public ConditionalToggle(string left, Relation relationship, int right)
             : this(new VariableAmount(left), relationship, new FixedAmount(right)) {
         }
 

@@ -14,8 +14,8 @@ namespace PlayMore35.Effects {
             Amount = amount;
         }
 
-        public MultiplyAmount(decimal multiplier, Statistic amount)
-            : this(multiplier, new VariableAmount(amount)) {
+        public MultiplyAmount(decimal multiplier, string stat)
+            : this(multiplier, new VariableAmount(stat)) {
 
         }
 

@@ -9,7 +9,7 @@ namespace PlayMore35.Effects {
         private readonly IAmount Basis;
         private readonly Dictionary<int, int> Lookup;
 
-        public LookupAmount(Statistic basis, Dictionary<int, int> lookup) {
+        public LookupAmount(string basis, Dictionary<int, int> lookup) {
             Basis = new VariableAmount(basis);
             Lookup = lookup;
         }

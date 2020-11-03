@@ -12,7 +12,7 @@ namespace PlayMore35.Effects {
             Amounts.AddRange(amounts);
         }
 
-        public GreaterAmount(params Statistic[] stats) {
+        public GreaterAmount(params string[] stats) {
             Amounts.AddRange(stats.Select(x => new VariableAmount(x)));
         }
 

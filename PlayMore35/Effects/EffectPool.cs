@@ -6,6 +6,7 @@ using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.Effects {
     public class EffectPool {
+        private readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
         private readonly List<Effect> Effects = new List<Effect>();
 
         // Weapons are not serialized or deserialized.  Serialization of the player's currently-equipped
@@ -15,6 +16,14 @@ namespace PlayMore35.Effects {
 
         public EffectPool() {
 
+        }
+
+        public void AddStat(Statistic stat) {
+            stats[stat.Name] = stat;
+        }
+
+        public Statistic GetStat(string name) {
+            return stats[name];
         }
 
         public void AddEffect(Effect effect) {

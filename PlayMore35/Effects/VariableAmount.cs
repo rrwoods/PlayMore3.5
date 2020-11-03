@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace PlayMore35.Effects {
     public class VariableAmount : IAmount {
-        public VariableAmount(Statistic stat) {
+        private readonly string stat;
+
+        public VariableAmount(string stat) {
             this.stat = stat;
         }
         
-        private readonly Statistic stat;
-
         public int Get(EffectPool pool) {
-            return stat.GetValue(pool).value;
+            return pool.GetStat(stat).GetValue(pool).value;
         }
     }
 }

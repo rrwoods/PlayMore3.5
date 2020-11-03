@@ -354,7 +354,7 @@ namespace PlayMore35.Effects.Tests {
 
             p.AddEffect(ModifyStat(+4, DEX_SCORE));
             p.AddEffect(new Effect("Hit-and-run fighter")
-                .AddDamageModifier(AttackClass.ALL, new Modifier(r.GetStat(DEX_MODIFIER), CIRCUMSTANCE))
+                .AddDamageModifier(AttackClass.ALL, new Modifier((DEX_MODIFIER), CIRCUMSTANCE))
             );
 
             p.TwoHandOneWeapon(Greatsword());
@@ -445,7 +445,7 @@ namespace PlayMore35.Effects.Tests {
 
             ControllableAmount powerAttackAmount = new ControllableAmount("Power attack penalty")
                 .Minimum(0)
-                .Maximum(r.GetStat(BASE_ATTACK_BONUS));
+                .Maximum((BASE_ATTACK_BONUS));
 
             p.AddEffect(new Effect("Power Attack")
                 .AddAttackModifier(

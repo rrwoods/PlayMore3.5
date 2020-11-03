@@ -20,8 +20,8 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public ControllableAmount Maximum(Statistic max) {
-            maximum = new VariableAmount(max);
+        public ControllableAmount Maximum(string maxStat) {
+            maximum = new VariableAmount(maxStat);
             return this;
         }
 
