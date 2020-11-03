@@ -14,11 +14,11 @@ namespace PlayMore35.Effects {
         public IToggle Toggle = AlwaysOn.Instance;
 
         private readonly List<(Modifier mod, StatisticClass affects)> Modifiers = new List<(Modifier, StatisticClass)>();
-        private readonly List<(Modifier mod, WeaponClass affects)> AttackModifiers = new List<(Modifier, WeaponClass)>();
-        private readonly List<(Modifier mod, WeaponClass affects)> DamageModifiers = new List<(Modifier, WeaponClass)>();
+        private readonly List<(Modifier mod, AttackClass affects)> AttackModifiers = new List<(Modifier, AttackClass)>();
+        private readonly List<(Modifier mod, AttackClass affects)> DamageModifiers = new List<(Modifier, AttackClass)>();
 
         private readonly List<(Multiplier mod, StatisticClass affects)> Multipliers = new List<(Multiplier, StatisticClass)>();
-        private readonly List<((int qty, int size) dice, WeaponClass affects)> ExtraDice = new List<((int, int), WeaponClass)>();
+        private readonly List<((int qty, int size) dice, AttackClass affects)> ExtraDice = new List<((int, int), AttackClass)>();
         private readonly List<string> Flags = new List<string>();
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
@@ -33,13 +33,13 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddAttackModifier(WeaponClass affects, Modifier mod) {
+        public Effect AddAttackModifier(AttackClass affects, Modifier mod) {
             AttackModifiers.Add((mod, affects));
             mod.Name = Name;
             return this;
         }
 
-        public Effect AddDamageModifier(WeaponClass affects, Modifier mod) {
+        public Effect AddDamageModifier(AttackClass affects, Modifier mod) {
             DamageModifiers.Add((mod, affects));
             mod.Name = Name;
             return this;
@@ -50,7 +50,7 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddExtraDice(WeaponClass affects, int qty, int size) {
+        public Effect AddExtraDice(AttackClass affects, int qty, int size) {
             ExtraDice.Add(((qty, size), affects));
             return this;
         }

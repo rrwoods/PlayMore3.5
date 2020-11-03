@@ -100,7 +100,7 @@
     <Compile Include="Effects\Relation.cs" />
     <Compile Include="Effects\Statistic.cs" />
     <Compile Include="Effects\VariableAmount.cs" />
-    <Compile Include="Effects\WeaponClass.cs" />
+    <Compile Include="Effects\AttackClass.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -271,7 +271,7 @@ namespace PlayMore35.GameRules {
                 ))
             );
             Rules.AddEffect(new Effect(SIZE_MODIFIER)
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(stats[SIZE_MODIFIER], SIZE))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(stats[SIZE_MODIFIER], SIZE))
                 .AddModifier(AC, new Modifier(stats[SIZE_MODIFIER], SIZE))
             );
 
@@ -307,7 +307,7 @@ namespace PlayMore35.GameRules {
             );
 
             Rules.AddEffect(new Effect(BASE_ATTACK_BONUS)
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(stats[BASE_ATTACK_BONUS], BASE))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(stats[BASE_ATTACK_BONUS], BASE))
                 .AddModifier(GRAPPLE, new Modifier(stats[BASE_ATTACK_BONUS], BASE))
             );
 
@@ -321,43 +321,43 @@ namespace PlayMore35.GameRules {
             );
 
             Rules.AddEffect(new Effect("DEX to ranged attacks")
-                .AddAttackModifier(new WeaponClass().Ranged(), new Modifier(stats[DEX_MODIFIER], BASE))
+                .AddAttackModifier(new AttackClass().Ranged(), new Modifier(stats[DEX_MODIFIER], BASE))
             );
             // Weapon Finesse will use ability-substitution technology
             Rules.AddEffect(new Effect("(STR) to melee attacks")
-                .AddAttackModifier(new WeaponClass().Melee(), new Modifier(stats[STR_MODIFIER], BASE))
+                .AddAttackModifier(new AttackClass().Melee(), new Modifier(stats[STR_MODIFIER], BASE))
             );
 
             Rules.AddEffect(new Effect("(STR ×1.5) to two-handed weapon damage")
                 .AddDamageModifier(
-                    new WeaponClass().Melee().TwoHandedAttack(),
+                    new AttackClass().Melee().TwoHandedAttack(),
                     new Modifier(1.5m, stats[STR_BONUS], BASE)
                 )
             );
             Rules.AddEffect(new Effect("(STR) to primary-hand weapon damage")
-                .AddDamageModifier(new WeaponClass().Melee().PrimaryHandAttack(), new Modifier(stats[STR_BONUS], BASE))
+                .AddDamageModifier(new AttackClass().Melee().PrimaryHandAttack(), new Modifier(stats[STR_BONUS], BASE))
             );
             Rules.AddEffect(new Effect("(STR ×0.5) to off-hand weapon damage")
                 .AddDamageModifier(
-                    new WeaponClass().Melee().OffHandAttack(),
+                    new AttackClass().Melee().OffHandAttack(),
                     new Modifier(0.5m, stats[STR_BONUS], BASE)
                 )
             );
 
             Rules.AddEffect(new Effect("STR penalty to bow damage")
-                .AddDamageModifier(new WeaponClass().Bow(), new Modifier(stats[STR_PENALTY], BASE))
+                .AddDamageModifier(new AttackClass().Bow(), new Modifier(stats[STR_PENALTY], BASE))
             );
             Rules.AddEffect(new Effect("STR to thrown weapon damage")
-                .AddDamageModifier(new WeaponClass().Thrown(), new Modifier(stats[STR_MODIFIER], BASE))
+                .AddDamageModifier(new AttackClass().Thrown(), new Modifier(stats[STR_MODIFIER], BASE))
             );
             Rules.AddEffect(new Effect("STR to sling damage")
-                .AddDamageModifier(new WeaponClass().Name("Sling"), new Modifier(stats[STR_MODIFIER], BASE))
+                .AddDamageModifier(new AttackClass().Name("Sling"), new Modifier(stats[STR_MODIFIER], BASE))
             );
 
             AddStat(new Statistic(FEAR_LEVEL).Minimum(0).Maximum(3));
             Rules.AddEffect(new Effect(SHAKEN)
                 .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.GREATER_THAN_OR_EQUAL, 1))
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(-2, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(-2, UNTYPED))
                 .AddModifier(ALL_SAVES, new Modifier(-2, UNTYPED))
                 .AddModifier(ALL_SKILLS, new Modifier(-2, UNTYPED))
                 .AddModifier(ABILITY_CHECKS, new Modifier(-2, UNTYPED))
@@ -387,7 +387,7 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect("charging")
                 .Controllable()
                 .AddModifier(AC, new Modifier(-2, UNTYPED))
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(+2, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(+2, UNTYPED))
                 .AddModifier(STR_CHECKS, new Modifier(+2, UNTYPED)) // technically this is only for a bull rush as part of this charge
             );
 
@@ -407,7 +407,7 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("dazzled")
                 .Controllable()
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(-1, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(-1, UNTYPED))
                 .AddModifier(SEARCH, new Modifier(-1, UNTYPED))
                 .AddModifier(SPOT, new Modifier(-1, UNTYPED))
             );
@@ -425,7 +425,7 @@ namespace PlayMore35.GameRules {
                 // A toggle isn't strictly necessary here since all the values will be zero if the character has no negative levels
                 // It's included anyway so that it's easier to exclude it from the effects list in the frontend
                 .SetToggle(new ConditionalToggle(stats[NEGATIVE_LEVELS], Relation.GREATER_THAN, 0))
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(negativeLevels, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ALL_SAVES, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ALL_SKILLS, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ABILITY_CHECKS, new Modifier(negativeLevels, UNTYPED))
@@ -442,7 +442,7 @@ namespace PlayMore35.GameRules {
                 .Controllable()
                 .AddMultiplier(ALL_SPEEDS, new Multiplier(0.5m))
                 .AddFlag(CANT_RUN_OR_CHARGE)
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(-2, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(-2, UNTYPED))
                 .AddModifier(DEX_SCORE, new Modifier(-4, UNTYPED))
                 .AddText(MISC_CASTING, "Spellcasting requires DC 15 concentration, or lose spell")
             );
@@ -478,7 +478,7 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("invisible")
                 .Controllable()
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(+2, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(+2, UNTYPED))
                 .AddText(ATK_OPTIONS, "Deny opponents' DEX to AC")
             );
 
@@ -492,15 +492,15 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("prone")
                 .Controllable()
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(-4, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(-4, UNTYPED))
                 .AddText(ATK_OPTIONS, "Can't ranged weapons other than crossbows")
                 .AddText(AC, "+4 vs ranged; -4 vs melee")
             );
 
             Rules.AddEffect(new Effect("sickened")
                 .Controllable()
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(-2, UNTYPED))
-                .AddDamageModifier(WeaponClass.ALL, new Modifier(-2, UNTYPED))
+                .AddAttackModifier(AttackClass.ALL, new Modifier(-2, UNTYPED))
+                .AddDamageModifier(AttackClass.ALL, new Modifier(-2, UNTYPED))
                 .AddModifier(ALL_SAVES, new Modifier(-2, UNTYPED))
                 .AddModifier(ALL_SKILLS, new Modifier(-2, UNTYPED))
                 .AddModifier(ABILITY_CHECKS, new Modifier(-2, UNTYPED))

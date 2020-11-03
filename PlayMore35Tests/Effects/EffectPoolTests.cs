@@ -184,7 +184,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d4 + 3", daggerAttacks[1].Damage.dice.ToString());
 
             p.AddEffect(new Effect("discipline focus")
-                .AddAttackModifier(new WeaponClass().Tag("shadow hand"), new Modifier(+1, UNTYPED))
+                .AddAttackModifier(new AttackClass().Tag("shadow hand"), new Modifier(+1, UNTYPED))
             );
             daggerAttacks = Items.Attack.Generate(r, 0);
             Assert.AreEqual(Items.Weapon.Range.MELEE, daggerAttacks[0].Range);
@@ -378,7 +378,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d4", normalDice.ToString());
 
             p.AddEffect(new Effect("Sneak attack")
-                .AddExtraDice(WeaponClass.ALL, 2, 6)
+                .AddExtraDice(AttackClass.ALL, 2, 6)
             );
             daggerMelee = Items.Attack.Generate(r, 0)[0];
             var (sneakDice, sneakExpl) = daggerMelee.Damage;
@@ -387,15 +387,15 @@ namespace PlayMore35.Effects.Tests {
             p.SetValue(18, STR_SCORE);
 
             p.AddEffect(new Effect("inspire courage")
-                .AddDamageModifier(WeaponClass.ALL, new Modifier(+1, MORALE))
+                .AddDamageModifier(AttackClass.ALL, new Modifier(+1, MORALE))
             );
             p.AddEffect(new Effect("prayer")
-                .AddDamageModifier(WeaponClass.ALL, new Modifier(+1, LUCK))
+                .AddDamageModifier(AttackClass.ALL, new Modifier(+1, LUCK))
             );
 
             p.SetValue(14, DEX_SCORE);
             p.AddEffect(new Effect("Hit-and-run fighter")
-                .AddDamageModifier(WeaponClass.ALL, new Modifier(r.GetStat(DEX_MODIFIER), CIRCUMSTANCE))
+                .AddDamageModifier(AttackClass.ALL, new Modifier(r.GetStat(DEX_MODIFIER), CIRCUMSTANCE))
             );
 
             p.TwoHandOneWeapon(Greatsword());
@@ -490,15 +490,15 @@ namespace PlayMore35.Effects.Tests {
 
             p.AddEffect(new Effect("Power Attack")
                 .AddAttackModifier(
-                    new WeaponClass().Melee(),
+                    new AttackClass().Melee(),
                     new Modifier(new MultiplyAmount(-1, powerAttackAmount), UNTYPED)
                 )
                 .AddDamageModifier(
-                    new WeaponClass().TwoHandedAttack(),
+                    new AttackClass().TwoHandedAttack(),
                     new Modifier(new MultiplyAmount(2, powerAttackAmount), UNTYPED)
                 )
                 .AddDamageModifier(
-                    new WeaponClass().OneHandedWeapon().OneHandedAttack(),
+                    new AttackClass().OneHandedWeapon().OneHandedAttack(),
                     new Modifier(powerAttackAmount, UNTYPED)
                 )
             );
