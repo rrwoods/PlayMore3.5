@@ -63,7 +63,7 @@ namespace PlayMore35.Items {
             // XXX : This is crappy but composite bows are crappy.  Oh well.
             int compositeStrToDamage = 0;
             if (Range == Weapon.Range.BOW && StrengthRating >= 0) {
-                int strModifier = rules.Stats[STR_MODIFIER].GetValue(rules.Rules).value;
+                int strModifier = rules.GetStat(STR_MODIFIER).GetValue(rules.Rules).value;
                 if (strModifier >= StrengthRating) {
                     compositeStrToDamage = StrengthRating;
                 } else {
@@ -263,8 +263,6 @@ namespace PlayMore35.Items {
             return adjusted;
         }
 
-        // TODO : weapon size feats... like Monkey Grip, Oversized TWF, and all that fucking bullshit (maybe)
-
         // This function uses _reference_ equality to check whether you're two-handing a weapon.
         // If they are reference-equal, you're two-handing it.  If not, you have a different weapon in each hand,
         // even if they look identical.  
@@ -279,7 +277,7 @@ namespace PlayMore35.Items {
                 return attacks;
             }
 
-            int playerSizeCategory = rules.Stats[SIZE_CATEGORY].GetValue(rules.Rules).value;
+            int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules.Rules).value;
             int priSizeCategory = AdjustSize(primaryHandWeapon.SizeCategory, sizeChange);
             int priSizeDiscrepancy = priSizeCategory - playerSizeCategory;
 

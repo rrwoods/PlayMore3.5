@@ -8,12 +8,15 @@ namespace PlayMore35.GameRules {
     public class GameRules {
         public EffectPool Rules { get; private set; } = new EffectPool();
 
-        // TODO : Stats should be private, with a GetStat(name) method, to ensure no one directly inserts into this dict
-        public Dictionary<string, Statistic> Stats { get; } = new Dictionary<string, Statistic>();
+        private readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
         private readonly Dictionary<string, Statistic> abilityModifiers = new Dictionary<string, Statistic>();
 
         public void AddStat(Statistic stat) {
-            Stats[stat.Name] = stat;
+            stats[stat.Name] = stat;
+        }
+
+        public Statistic GetStat(string name) {
+            return stats[name];
         }
 
         // The default constructor sets up 3.5's official rules.
@@ -24,18 +27,18 @@ namespace PlayMore35.GameRules {
             AbilityScore(INT);
             AbilityScore(WIS);
             AbilityScore(CHA);
-            AddStat(new Statistic(INITIATIVE, Stats[DEX_CHECKS]));
+            AddStat(new Statistic(INITIATIVE, stats[DEX_CHECKS]));
 
             AddStat(new Statistic(MAX_HP));
 
             AddStat(new Statistic(CURRENT_HP));
             Rules.AddEffect(new Effect("Normal hit point total")
-                .AddModifier(CURRENT_HP, new Modifier(Stats[MAX_HP], BASE))
+                .AddModifier(CURRENT_HP, new Modifier(stats[MAX_HP], BASE))
             );
 
             AddStat(new Statistic(LETHAL_DAMAGE));
             Rules.AddEffect(new Effect("Subtract damage from hit points")
-                .AddModifier(CURRENT_HP, new Modifier(-1, Stats[LETHAL_DAMAGE], BASE))
+                .AddModifier(CURRENT_HP, new Modifier(-1, stats[LETHAL_DAMAGE], BASE))
             );
 
             Rules.AddEffect(new Effect(CANT_ACT)
@@ -47,9 +50,9 @@ namespace PlayMore35.GameRules {
             ControllableToggle stable = new ControllableToggle("stable");
             Rules.AddEffect(new Effect("disabled")
                 .SetToggle(new AnyToggle(
-                    new ConditionalToggle(Stats[CURRENT_HP], Relation.EQUAL, 0),
+                    new ConditionalToggle(stats[CURRENT_HP], Relation.EQUAL, 0),
                     new AllToggle(
-                        new ConditionalToggle(Stats[CURRENT_HP], Relation.LESS_THAN, 0),
+                        new ConditionalToggle(stats[CURRENT_HP], Relation.LESS_THAN, 0),
                         stable
                     )
                 ))
@@ -60,7 +63,7 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("dying")
                 .SetToggle(new AllToggle(
-                    new ConditionalToggle(Stats[CURRENT_HP], Relation.LESS_THAN, 0),
+                    new ConditionalToggle(stats[CURRENT_HP], Relation.LESS_THAN, 0),
                     new UnToggle(stable)
                 ))
                 .AddFlag(CANT_ACT)
@@ -129,20 +132,20 @@ namespace PlayMore35.GameRules {
             SkillModifier(USE_MAGIC_DEVICE, CHA);
             SkillModifier(USE_PSIONIC_DEVICE, CHA);
             SkillModifier(USE_ROPE, DEX);
-            AddStat(new Statistic(CLIMB_ROPE,                     Stats[CLIMB]));
-            AddStat(new Statistic(DISGUISE_ACT_IN_CHARACTER,      Stats[DISGUISE]));
-            AddStat(new Statistic(ESCAPE_ARTIST_ROPE,             Stats[ESCAPE_ARTIST]));
-            AddStat(new Statistic(PSICRAFT_ADDRESS_POWER_STONE,   Stats[PSICRAFT]));
-            AddStat(new Statistic(SEARCH_SECRET_DOORS,            Stats[SEARCH]));
-            AddStat(new Statistic(SPELLCRAFT_DECIPHER_SCROLL,     Stats[SPELLCRAFT]));
-            AddStat(new Statistic(SURVIVAL_ABOVEGROUND,           Stats[SURVIVAL]));
-            AddStat(new Statistic(SURVIVAL_FOLLOW_TRACKS,         Stats[SURVIVAL]));
-            AddStat(new Statistic(SURVIVAL_LOST,                  Stats[SURVIVAL]));
-            AddStat(new Statistic(SURVIVAL_PLANAR,                Stats[SURVIVAL]));
-            AddStat(new Statistic(SURVIVAL_UNDERGROUND,           Stats[SURVIVAL]));
-            AddStat(new Statistic(USE_MAGIC_DEVICE_SCROLL,        Stats[USE_MAGIC_DEVICE]));
-            AddStat(new Statistic(USE_PSIONIC_DEVICE_POWER_STONE, Stats[USE_PSIONIC_DEVICE]));
-            AddStat(new Statistic(USE_ROPE_BINDINGS,              Stats[USE_ROPE]));
+            AddStat(new Statistic(CLIMB_ROPE,                     stats[CLIMB]));
+            AddStat(new Statistic(DISGUISE_ACT_IN_CHARACTER,      stats[DISGUISE]));
+            AddStat(new Statistic(ESCAPE_ARTIST_ROPE,             stats[ESCAPE_ARTIST]));
+            AddStat(new Statistic(PSICRAFT_ADDRESS_POWER_STONE,   stats[PSICRAFT]));
+            AddStat(new Statistic(SEARCH_SECRET_DOORS,            stats[SEARCH]));
+            AddStat(new Statistic(SPELLCRAFT_DECIPHER_SCROLL,     stats[SPELLCRAFT]));
+            AddStat(new Statistic(SURVIVAL_ABOVEGROUND,           stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_FOLLOW_TRACKS,         stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_LOST,                  stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_PLANAR,                stats[SURVIVAL]));
+            AddStat(new Statistic(SURVIVAL_UNDERGROUND,           stats[SURVIVAL]));
+            AddStat(new Statistic(USE_MAGIC_DEVICE_SCROLL,        stats[USE_MAGIC_DEVICE]));
+            AddStat(new Statistic(USE_PSIONIC_DEVICE_POWER_STONE, stats[USE_PSIONIC_DEVICE]));
+            AddStat(new Statistic(USE_ROPE_BINDINGS,              stats[USE_ROPE]));
 
             SkillSynergy(BLUFF, DIPLOMACY, DISGUISE_ACT_IN_CHARACTER, INTIMIDATE, SLEIGHT_OF_HAND);
             SkillSynergy(DECIPHER_SCRIPT, USE_MAGIC_DEVICE_SCROLL);
@@ -178,9 +181,9 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(ARMOR_CHECK_PENALTY));
             Effect acp = new Effect(ARMOR_CHECK_PENALTY);
             foreach (string skill in new string[] { BALANCE, CLIMB, ESCAPE_ARTIST, HIDE, JUMP, MOVE_SILENTLY, SLEIGHT_OF_HAND }) {
-                acp.AddModifier(skill, new Modifier(Stats[ARMOR_CHECK_PENALTY], UNTYPED));
+                acp.AddModifier(skill, new Modifier(stats[ARMOR_CHECK_PENALTY], UNTYPED));
             }
-            acp.AddModifier(SWIM, new Modifier(2, Stats[ARMOR_CHECK_PENALTY], UNTYPED));
+            acp.AddModifier(SWIM, new Modifier(2, stats[ARMOR_CHECK_PENALTY], UNTYPED));
             Rules.AddEffect(acp);
 
             Statistic ac = new Statistic(AC);
@@ -197,7 +200,7 @@ namespace PlayMore35.GameRules {
 
             AddStat(new Statistic(NATURAL_ARMOR)); // this is the same name as the bonus type. eh.
             Rules.AddEffect(new Effect(NATURAL_ARMOR)
-                .AddModifier(AC, new Modifier(Stats[NATURAL_ARMOR], NATURAL_ARMOR))
+                .AddModifier(AC, new Modifier(stats[NATURAL_ARMOR], NATURAL_ARMOR))
             );
 
 
@@ -209,7 +212,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(MANEUVERABILITY));
 
             Rules.AddEffect(new Effect("Encumbrance speed penalty")
-                .Controllable() // TODO : automatically determine based on armor/inventory ... ugh, armor.
+                .Controllable()
                 .AddMultiplier(ALL_SPEEDS, new Multiplier(0.666m))
             );
 
@@ -220,7 +223,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(excessSpeed));
             Rules.AddEffect(new Effect(excessSpeed)
                 .AddModifier(excessSpeed, new Modifier(UNTYPED)
-                    .AddAmount(0.1m, Stats[LAND_SPEED])
+                    .AddAmount(0.1m, stats[LAND_SPEED])
                     .AddAmount(-3)
                 )
             );
@@ -228,20 +231,20 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(lackingSpeed));
             Rules.AddEffect(new Effect(lackingSpeed)
                 .AddModifier(lackingSpeed, new Modifier(UNTYPED)
-                    .AddAmount(-0.1m, Stats[LAND_SPEED])
+                    .AddAmount(-0.1m, stats[LAND_SPEED])
                     .AddAmount(+3)
                 )
             );
 
             Rules.AddEffect(new Effect("Speed penalty")
                 // the rule says "less than 30", but it doesn't actually do anything unless you're at 20 or under.
-                .SetToggle(new ConditionalToggle(Stats[LAND_SPEED], Relation.LESS_THAN_OR_EQUAL, 20))
-                .AddModifier(JUMP, new Modifier(-6, Stats[lackingSpeed], UNTYPED))
+                .SetToggle(new ConditionalToggle(stats[LAND_SPEED], Relation.LESS_THAN_OR_EQUAL, 20))
+                .AddModifier(JUMP, new Modifier(-6, stats[lackingSpeed], UNTYPED))
             );
             Rules.AddEffect(new Effect("Speed bonus")
                 // the rule stays "more than 30", but it doesn't actually do anything unless you're at 40 or over.
-                .SetToggle(new ConditionalToggle(Stats[LAND_SPEED], Relation.GREATER_THAN_OR_EQUAL, 40))
-                .AddModifier(JUMP, new Modifier(+4, Stats[excessSpeed], UNTYPED))
+                .SetToggle(new ConditionalToggle(stats[LAND_SPEED], Relation.GREATER_THAN_OR_EQUAL, 40))
+                .AddModifier(JUMP, new Modifier(+4, stats[excessSpeed], UNTYPED))
             );
 
             // Medium at 0 makes a lot of calculations more smooth
@@ -251,7 +254,7 @@ namespace PlayMore35.GameRules {
             Rules.AddEffect(new Effect(SIZE_MODIFIER + " calculation")
                 .AddModifier(SIZE_MODIFIER, new Modifier(
                     new LookupAmount(
-                        Stats[SIZE_CATEGORY],
+                        stats[SIZE_CATEGORY],
                         new Dictionary<int, int> {
                             [-4] = +8,
                             [-3] = +4,
@@ -268,8 +271,8 @@ namespace PlayMore35.GameRules {
                 ))
             );
             Rules.AddEffect(new Effect(SIZE_MODIFIER)
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(Stats[SIZE_MODIFIER], SIZE))
-                .AddModifier(AC, new Modifier(Stats[SIZE_MODIFIER], SIZE))
+                .AddAttackModifier(WeaponClass.ALL, new Modifier(stats[SIZE_MODIFIER], SIZE))
+                .AddModifier(AC, new Modifier(stats[SIZE_MODIFIER], SIZE))
             );
 
             // for now (or maybe forever) i'm not dealing with the fact that there's a long/tall distinction, or the fact
@@ -277,11 +280,10 @@ namespace PlayMore35.GameRules {
             // space never changes, and i'm assuming that if reach changes it's via an effect not a base reach difference.
             // if this is not the case... i'll just let the player say what these values are and remove these effects.
 
-            // TODO : Space (it's a LookupText, basically)
             AddStat(new Statistic(REACH).Minimum(0));
             Rules.AddEffect(new Effect("Reach based on size")
                 .AddModifier(REACH, new Modifier(
-                    new LookupAmount(Stats[SIZE_CATEGORY],
+                    new LookupAmount(stats[SIZE_CATEGORY],
                         new Dictionary<int, int> {
                             [-4] = 0,
                             [-3] = 0,
@@ -301,71 +303,71 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(BASE_ATTACK_BONUS));
             AddStat(new Statistic(GRAPPLE));
             Rules.AddEffect(new Effect("STR to grapple")
-                .AddModifier(GRAPPLE, new Modifier(Stats[STR_MODIFIER], BASE))
+                .AddModifier(GRAPPLE, new Modifier(stats[STR_MODIFIER], BASE))
             );
 
             Rules.AddEffect(new Effect(BASE_ATTACK_BONUS)
-                .AddAttackModifier(WeaponClass.ALL, new Modifier(Stats[BASE_ATTACK_BONUS], BASE))
-                .AddModifier(GRAPPLE, new Modifier(Stats[BASE_ATTACK_BONUS], BASE))
+                .AddAttackModifier(WeaponClass.ALL, new Modifier(stats[BASE_ATTACK_BONUS], BASE))
+                .AddModifier(GRAPPLE, new Modifier(stats[BASE_ATTACK_BONUS], BASE))
             );
 
             AddStat(new Statistic(SPECIAL_SIZE_MODIFIER));
             Rules.AddEffect(new Effect(SPECIAL_SIZE_MODIFIER + " calculation")
-                .AddModifier(SPECIAL_SIZE_MODIFIER, new Modifier(4, Stats[SIZE_CATEGORY], BASE))
+                .AddModifier(SPECIAL_SIZE_MODIFIER, new Modifier(4, stats[SIZE_CATEGORY], BASE))
             );
             Rules.AddEffect(new Effect(SPECIAL_SIZE_MODIFIER)
-                .AddModifier(HIDE, new Modifier(-1, Stats[SPECIAL_SIZE_MODIFIER], SIZE))
-                .AddModifier(GRAPPLE, new Modifier(Stats[SPECIAL_SIZE_MODIFIER], SIZE))
+                .AddModifier(HIDE, new Modifier(-1, stats[SPECIAL_SIZE_MODIFIER], SIZE))
+                .AddModifier(GRAPPLE, new Modifier(stats[SPECIAL_SIZE_MODIFIER], SIZE))
             );
 
             Rules.AddEffect(new Effect("DEX to ranged attacks")
-                .AddAttackModifier(new WeaponClass().Ranged(), new Modifier(Stats[DEX_MODIFIER], BASE))
+                .AddAttackModifier(new WeaponClass().Ranged(), new Modifier(stats[DEX_MODIFIER], BASE))
             );
             // Weapon Finesse will use ability-substitution technology
             Rules.AddEffect(new Effect("(STR) to melee attacks")
-                .AddAttackModifier(new WeaponClass().Melee(), new Modifier(Stats[STR_MODIFIER], BASE))
+                .AddAttackModifier(new WeaponClass().Melee(), new Modifier(stats[STR_MODIFIER], BASE))
             );
 
             Rules.AddEffect(new Effect("(STR ×1.5) to two-handed weapon damage")
                 .AddDamageModifier(
                     new WeaponClass().Melee().TwoHandedAttack(),
-                    new Modifier(1.5m, Stats[STR_BONUS], BASE)
+                    new Modifier(1.5m, stats[STR_BONUS], BASE)
                 )
             );
             Rules.AddEffect(new Effect("(STR) to primary-hand weapon damage")
-                .AddDamageModifier(new WeaponClass().Melee().PrimaryHandAttack(), new Modifier(Stats[STR_BONUS], BASE))
+                .AddDamageModifier(new WeaponClass().Melee().PrimaryHandAttack(), new Modifier(stats[STR_BONUS], BASE))
             );
             Rules.AddEffect(new Effect("(STR ×0.5) to off-hand weapon damage")
                 .AddDamageModifier(
                     new WeaponClass().Melee().OffHandAttack(),
-                    new Modifier(0.5m, Stats[STR_BONUS], BASE)
+                    new Modifier(0.5m, stats[STR_BONUS], BASE)
                 )
             );
 
             Rules.AddEffect(new Effect("STR penalty to bow damage")
-                .AddDamageModifier(new WeaponClass().Bow(), new Modifier(Stats[STR_PENALTY], BASE))
+                .AddDamageModifier(new WeaponClass().Bow(), new Modifier(stats[STR_PENALTY], BASE))
             );
             Rules.AddEffect(new Effect("STR to thrown weapon damage")
-                .AddDamageModifier(new WeaponClass().Thrown(), new Modifier(Stats[STR_MODIFIER], BASE))
+                .AddDamageModifier(new WeaponClass().Thrown(), new Modifier(stats[STR_MODIFIER], BASE))
             );
             Rules.AddEffect(new Effect("STR to sling damage")
-                .AddDamageModifier(new WeaponClass().Name("Sling"), new Modifier(Stats[STR_MODIFIER], BASE))
+                .AddDamageModifier(new WeaponClass().Name("Sling"), new Modifier(stats[STR_MODIFIER], BASE))
             );
 
             AddStat(new Statistic(FEAR_LEVEL).Minimum(0).Maximum(3));
             Rules.AddEffect(new Effect(SHAKEN)
-                .SetToggle(new ConditionalToggle(Stats[FEAR_LEVEL], Relation.GREATER_THAN_OR_EQUAL, 1))
+                .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.GREATER_THAN_OR_EQUAL, 1))
                 .AddAttackModifier(WeaponClass.ALL, new Modifier(-2, UNTYPED))
                 .AddModifier(ALL_SAVES, new Modifier(-2, UNTYPED))
                 .AddModifier(ALL_SKILLS, new Modifier(-2, UNTYPED))
                 .AddModifier(ABILITY_CHECKS, new Modifier(-2, UNTYPED))
             );
             Rules.AddEffect(new Effect(FRIGHTENED)
-                .SetToggle(new ConditionalToggle(Stats[FEAR_LEVEL], Relation.EQUAL, 2))
+                .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.EQUAL, 2))
                 .AddText(ACTIONS, "Must flee from source of fear")
             );
             Rules.AddEffect(new Effect(PANICKED)
-                .SetToggle(new ConditionalToggle(Stats[FEAR_LEVEL], Relation.EQUAL, 3))
+                .SetToggle(new ConditionalToggle(stats[FEAR_LEVEL], Relation.EQUAL, 3))
                 .AddText(ACTIONS, "Must drop all held items and flee at top speed along a random path; cower if cornered")
             );
 
@@ -418,18 +420,17 @@ namespace PlayMore35.GameRules {
             );
 
             AddStat(new Statistic(NEGATIVE_LEVELS));
-            IAmount negativeLevels = new MultiplyAmount(-1, Stats[NEGATIVE_LEVELS]);
+            IAmount negativeLevels = new MultiplyAmount(-1, stats[NEGATIVE_LEVELS]);
             Rules.AddEffect(new Effect("energy drained")
                 // A toggle isn't strictly necessary here since all the values will be zero if the character has no negative levels
                 // It's included anyway so that it's easier to exclude it from the effects list in the frontend
-                .SetToggle(new ConditionalToggle(Stats[NEGATIVE_LEVELS], Relation.GREATER_THAN, 0))
+                .SetToggle(new ConditionalToggle(stats[NEGATIVE_LEVELS], Relation.GREATER_THAN, 0))
                 .AddAttackModifier(WeaponClass.ALL, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ALL_SAVES, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ALL_SKILLS, new Modifier(negativeLevels, UNTYPED))
                 .AddModifier(ABILITY_CHECKS, new Modifier(negativeLevels, UNTYPED))
-                .AddModifier(MAX_HP, new Modifier(-5, Stats[NEGATIVE_LEVELS], UNTYPED))
+                .AddModifier(MAX_HP, new Modifier(-5, stats[NEGATIVE_LEVELS], UNTYPED))
                 .AddText(MISC_CASTING, "-1 effective spellcasting level, lose a highest-level spell slot")
-                // TODO : handle spellcasting effects in spellcasting subsystem
             );
 
             Rules.AddEffect(new Effect(CANT_RUN_OR_CHARGE)
@@ -507,9 +508,9 @@ namespace PlayMore35.GameRules {
 
             Rules.AddEffect(new Effect("staggered")
                 .SetToggle(new ConditionalToggle(
-                    new VariableAmount(Stats[NONLETHAL_DAMAGE]),
+                    new VariableAmount(stats[NONLETHAL_DAMAGE]),
                     Relation.EQUAL,
-                    new VariableAmount(Stats[CURRENT_HP])
+                    new VariableAmount(stats[CURRENT_HP])
                 ))
                 .AddText(ACTIONS, "One move or standard each round (not both, no full-rounds)")
             );
@@ -518,16 +519,16 @@ namespace PlayMore35.GameRules {
                 .Controllable()
                 .AddModifier(AC, new Modifier(-2, UNTYPED))
                 .AddFlag(DENIED_DEX)
-                .AddFlag(CANT_ACT) // TODO : this doesn't work; needs to be AddFlag instead.
+                .AddFlag(CANT_ACT)
                 .AddText(ACTIONS, "Must drop all held items")
             );
 
             IToggle unconscious = new AnyToggle(
-                new ConditionalToggle(Stats[CURRENT_HP], Relation.LESS_THAN, 0),
+                new ConditionalToggle(stats[CURRENT_HP], Relation.LESS_THAN, 0),
                 new ConditionalToggle(
-                    new VariableAmount(Stats[NONLETHAL_DAMAGE]),
+                    new VariableAmount(stats[NONLETHAL_DAMAGE]),
                     Relation.GREATER_THAN,
-                    new VariableAmount(Stats[CURRENT_HP])
+                    new VariableAmount(stats[CURRENT_HP])
                 )
             );
             Rules.AddEffect(new Effect("unconscious").SetToggle(unconscious));
@@ -536,19 +537,19 @@ namespace PlayMore35.GameRules {
                 // we check STR and DEX causes an infinite stack overflow.
                 .SetToggle(new AnyToggle(
                     new ControllableToggle(HELPLESS_AND_PARALYZED),
-                    new ConditionalToggle(Stats[STR_SCORE], Relation.EQUAL, 0),
-                    new ConditionalToggle(Stats[DEX_SCORE], Relation.EQUAL, 0),
+                    new ConditionalToggle(stats[STR_SCORE], Relation.EQUAL, 0),
+                    new ConditionalToggle(stats[DEX_SCORE], Relation.EQUAL, 0),
                     unconscious
                 ))
                 .AddFlag(CANT_ACT)
-                .AddFlag(HELPLESS_AND_PARALYZED) // TODO : this doesn't work; needs to be AddFlag instead.
+                .AddFlag(HELPLESS_AND_PARALYZED)
             );
 
             Rules.AddEffect(new Effect("DEX to AC")
-                .AddModifier(AC, new Modifier(Stats[DEX_MODIFIER], DODGE))
+                .AddModifier(AC, new Modifier(stats[DEX_MODIFIER], DODGE))
                 .SetToggle(new AnyToggle(
                     // DEX always applies if it's negative
-                    new ConditionalToggle(Stats[DEX_MODIFIER], Relation.LESS_THAN, 0),
+                    new ConditionalToggle(stats[DEX_MODIFIER], Relation.LESS_THAN, 0),
                     // Otherwise check if we're denied our dex bonus -- flat-footed without uncanny, or hard denied
                     new UnToggle(new AnyToggle(
                         new FlagToggle(DENIED_DEX),
@@ -569,13 +570,13 @@ namespace PlayMore35.GameRules {
             AddStat(abilityDamage);
             Rules.AddEffect(
                 new Effect(ability + " damage")
-                    .AddModifier(ability + " score", new Modifier(-1, Stats[ability + " damage"], BASE))
+                    .AddModifier(ability + " score", new Modifier(-1, stats[ability + " damage"], BASE))
             );
             Statistic abilityDrain = new Statistic(ability + " drain");
             AddStat(abilityDrain);
             Rules.AddEffect(
                 new Effect(ability + " drain")
-                    .AddModifier(ability + " score", new Modifier(-1, Stats[ability + " drain"], BASE))
+                    .AddModifier(ability + " score", new Modifier(-1, stats[ability + " drain"], BASE))
             );
 
             string abilityModifierName = ability + " modifier";
@@ -627,8 +628,7 @@ namespace PlayMore35.GameRules {
             );
 
             Rules.AddEffect(
-                new Effect("Ranks in " + skill) // so-named so it doesn't collide with effects I make in testing.
-                // TODO : that's a bad reason to name things this way.
+                new Effect(skillRanksName)
                     .AddModifier(skill, new Modifier(skillRanks, BASE))
             );
             Rules.AddEffect(
@@ -654,7 +654,7 @@ namespace PlayMore35.GameRules {
         }
 
         private void SkillSynergy(string fiveRanksIn, params string[] givesPlusTwoOn) {
-            Statistic rankSkill = Stats[fiveRanksIn + RANKS];
+            Statistic rankSkill = stats[fiveRanksIn + RANKS];
             Effect synergy = new Effect(fiveRanksIn + " synergy")
                 .SetToggle(new ConditionalToggle(rankSkill, Relation.GREATER_THAN_OR_EQUAL, 5));
             foreach (string skill in givesPlusTwoOn) {

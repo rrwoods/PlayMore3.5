@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using PlayMore35.Items;
+
 namespace PlayMore35.Effects {
     public class Effect {
         public Effect(string name) {
@@ -92,11 +94,11 @@ namespace PlayMore35.Effects {
             return GetAlterers(pool, affecting, Modifiers);
         }
 
-        public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Items.Attack affecting) {
+        public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Attack affecting) {
             return GetAlterers(pool, affecting, AttackModifiers);
         }
 
-        public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Items.Attack affecting) {
+        public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Attack affecting) {
             return GetAlterers(pool, affecting, DamageModifiers);
         }
 
@@ -104,7 +106,7 @@ namespace PlayMore35.Effects {
             return GetAlterers(pool, affecting, Multipliers);
         }
 
-        public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Items.Attack affecting) {
+        public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Attack affecting) {
             return GetAlterers(pool, affecting, ExtraDice)
                 .Select(x => new DiceGroup(Name).AddDice(x.qty, x.size));
         }

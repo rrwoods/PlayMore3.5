@@ -34,7 +34,7 @@ namespace PlayMore35.Effects.Tests {
         }
 
         private void CheckStat(int expected, GameRules.GameRules r, string stat) {
-            (int value, List<string> explanation) = r.Stats[stat].GetValue(r.Rules);
+            (int value, List<string> explanation) = r.GetStat(stat).GetValue(r.Rules);
             Console.WriteLine("------ " + stat + " " + value);
             explanation.ForEach(x => Console.WriteLine(x));
             Assert.AreEqual(expected, value);
@@ -334,7 +334,7 @@ namespace PlayMore35.Effects.Tests {
                 p.SetValue(item.Key, LAND_SPEED);
                 CheckStat(item.Value, r, LAND_SPEED);
             }
-            r.Stats[LAND_SPEED].GetValue(p).explanation.ForEach(x => Console.WriteLine(x));
+            r.GetStat(LAND_SPEED).GetValue(p).explanation.ForEach(x => Console.WriteLine(x));
         }
 
         [TestMethod()]
@@ -395,7 +395,7 @@ namespace PlayMore35.Effects.Tests {
 
             p.SetValue(14, DEX_SCORE);
             p.AddEffect(new Effect("Hit-and-run fighter")
-                .AddDamageModifier(WeaponClass.ALL, new Modifier(r.Stats[DEX_MODIFIER], CIRCUMSTANCE))
+                .AddDamageModifier(WeaponClass.ALL, new Modifier(r.GetStat(DEX_MODIFIER), CIRCUMSTANCE))
             );
 
             p.TwoHandOneWeapon(Greatsword());
@@ -486,7 +486,7 @@ namespace PlayMore35.Effects.Tests {
 
             ControllableAmount powerAttackAmount = new ControllableAmount("Power attack penalty")
                 .Minimum(0)
-                .Maximum(r.Stats[BASE_ATTACK_BONUS]);
+                .Maximum(r.GetStat(BASE_ATTACK_BONUS));
 
             p.AddEffect(new Effect("Power Attack")
                 .AddAttackModifier(
