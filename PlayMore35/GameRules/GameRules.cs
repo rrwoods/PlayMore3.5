@@ -353,7 +353,7 @@ namespace PlayMore35.GameRules {
             );
             Rules.AddEffect(new Effect("STR to sling damage")
                 .AddDamageModifier(new AttackClass().Name("Sling"), new Modifier(stats[STR_MODIFIER], ABILITY_MODIFIER))
-            );
+            );     
 
             AddStat(new Statistic(FEAR_LEVEL).Minimum(0).Maximum(3));
             Rules.AddEffect(new Effect(SHAKEN)

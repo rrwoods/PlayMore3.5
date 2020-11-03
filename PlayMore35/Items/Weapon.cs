@@ -11,6 +11,7 @@ namespace PlayMore35.Items {
         public string Name;
         public List<string> Tags = new List<string>();
         public int SizeCategory;
+        public Effort EffortCategory;
 
         public (AttackMode atk, bool bow, int strengthRating)? Projectile = null;
         public AttackMode Thrown = null;
@@ -18,22 +19,20 @@ namespace PlayMore35.Items {
         public bool SecondIdenticalHead = false; // for double weapons like the quarterstaff
         public (AttackMode atk, bool reach)? SecondUniqueHead = null; // for double weapons like the hooked hammer
 
-        public Weapon(string name, int sizeCategory) {
+        public Weapon(string name, int sizeCategory, Effort effort) {
             Name = name;
             SizeCategory = sizeCategory;
+            EffortCategory = effort;
         }
 
-        public Effort? ThrownEffort() {
+        public bool CanBeThrown() {
             if (Thrown != null) {
-                return Thrown?.EffortCategory;
+                return true;
             }
             if (Melee == null) {
-                return null;
+                return false;
             }
-            if (Melee?.atk.RangeIncrement > 0) {
-                return Melee?.atk.EffortCategory;
-            }
-            return null;
+            return Melee?.atk.RangeIncrement > 0;
         }
 
         public IEnumerable<Effects.Modifier> GetGlobalModifiers(Effects.EffectPool pool, Effects.Statistic affecting) {

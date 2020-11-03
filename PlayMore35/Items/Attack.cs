@@ -50,7 +50,8 @@ namespace PlayMore35.Items {
             int sizeCategory,
             int criticalMultiplier,
             List<WeaponProperty> properties,
-            int sizeDiscrepancy
+            int sizeDiscrepancy,
+            int twfPenalty = 0
         ) {
             IEnumerable<Effects.Modifier> atkModsFromProps = properties
                 .Select(x => x.AttackModifier)
@@ -76,6 +77,11 @@ namespace PlayMore35.Items {
                 int attackPenalty = -2 * Math.Abs(sizeDiscrepancy);
                 AttackBonus.bonus += attackPenalty;
                 AttackBonus.explanation.Add("Inappropriately-sized weapon");
+            }
+
+            if (twfPenalty != 0) {
+                AttackBonus.bonus += twfPenalty;
+                AttackBonus.explanation.Add("" + twfPenalty + " Two-weapon fighting penalty");
             }
             
             Effects.DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);
@@ -126,7 +132,7 @@ namespace PlayMore35.Items {
             WeaponSizeCategory = wpnSizeCategory;
 
             Proficiency = atk.ProficencyCategory;
-            Effort = atk.EffortCategory + sizeDiscrepancy;
+            Effort = weapon.EffortCategory + sizeDiscrepancy;
             Hand = hand;
             DamageType = atk.DamageType;
             ThreatRange = atk.ThreatRange;
@@ -139,7 +145,8 @@ namespace PlayMore35.Items {
             int wpnSizeCategory,
             int sizeDiscrepancy,
             bool firstHead,
-            Weapon.Effort? effort = null // when unspecified, use the AttackMode's effort
+            int twfPenalty = 0,
+            Weapon.Effort? effort = null // override the weapon's effort when using a double weapon to twf
         ) {
             var melee = firstHead ? weapon.Melee : weapon.SecondUniqueHead;
             if (melee == null) {
@@ -158,7 +165,8 @@ namespace PlayMore35.Items {
                 attack.WeaponSizeCategory,
                 atk.CriticalMultiplier,
                 atk.Properties,
-                sizeDiscrepancy
+                sizeDiscrepancy,
+                twfPenalty
             );
             return attack;
         }
@@ -168,7 +176,8 @@ namespace PlayMore35.Items {
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
-            int sizeDiscrepancy
+            int sizeDiscrepancy,
+            int twfPenalty = 0
         ) {
             if (weapon.Projectile == null) {
                 return null;
@@ -196,7 +205,8 @@ namespace PlayMore35.Items {
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
-            int sizeDiscrepancy
+            int sizeDiscrepancy,
+            int twfPenalty = 0
         ) {
             AttackMode atk;
             if (weapon.Thrown != null) {
@@ -222,33 +232,27 @@ namespace PlayMore35.Items {
             return attack;
         }
 
-        private static void GenerateOneHandAttacks(
+        private static void GenerateOneHandAttack(
             List<Attack> attacks,
             GameRules.GameRules rules,
             Weapon weapon,
             int wpnSizeCategory,
             int sizeDiscrepancy,
-            Weapon.Hand[] hands
+            Weapon.Hand hand,
+            int twfPenalty = 0
         ) {
-            foreach (Weapon.Hand hand in hands) {
+            Weapon.Effort effort = weapon.EffortCategory + sizeDiscrepancy;
+            if (effort == Weapon.Effort.LIGHT || effort == Weapon.Effort.ONE_HANDED) {
                 if (weapon.Melee != null) {
-                    Weapon.Effort? effort = weapon.Melee?.atk.EffortCategory + sizeDiscrepancy;
-                    if (effort == Weapon.Effort.LIGHT || effort == Weapon.Effort.ONE_HANDED) {
-                        // Assuming that there are no one-handed double weapons...
-                        attacks.Add(Melee(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy, true));
-                    }
+                    attacks.Add(Melee(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy, true, twfPenalty));
                 }
 
-                if (weapon.Melee != null) {
-                    Weapon.Effort? effort = weapon.Projectile?.atk.EffortCategory + sizeDiscrepancy;
-                    if (effort == Weapon.Effort.LIGHT || effort == Weapon.Effort.ONE_HANDED) {
-                        attacks.Add(Projectile(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy));
-                    }
+                if (weapon.Projectile != null) {
+                    attacks.Add(Projectile(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty));
                 }
 
-                Weapon.Effort? thrownEffort = weapon.ThrownEffort() + sizeDiscrepancy;
-                if (thrownEffort == Weapon.Effort.LIGHT || thrownEffort == Weapon.Effort.ONE_HANDED) {
-                    attacks.Add(Thrown(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy));
+                if (weapon.CanBeThrown()) {
+                    attacks.Add(Thrown(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty));
                 }
             }
         }
@@ -280,48 +284,48 @@ namespace PlayMore35.Items {
             int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules.Rules).value;
             int priSizeCategory = AdjustSize(primaryHandWeapon.SizeCategory, sizeChange);
             int priSizeDiscrepancy = priSizeCategory - playerSizeCategory;
+            Weapon.Effort priEffort = primaryHandWeapon.EffortCategory + priSizeDiscrepancy;
 
-            bool twfAvailable = (offHandWeapon != null);
+            bool twfAvailable = offHandWeapon != null;
             int offSizeCategory = twfAvailable ? AdjustSize(offHandWeapon.SizeCategory, sizeChange) : 0;
             int offSizeDiscrepancy = twfAvailable ? offSizeCategory - playerSizeCategory : 0;
 
             // Exact same weapon in both hands.  Player is two-handing a single weapon.
             if (primaryHandWeapon == offHandWeapon) {
                 if (primaryHandWeapon.Melee != null) {
-                    Weapon.Effort effort = (Weapon.Effort)primaryHandWeapon.Melee?.atk.EffortCategory + priSizeDiscrepancy;
-                    if (effort >= Weapon.Effort.LIGHT && effort <= Weapon.Effort.TWO_HANDED) {
+                    if (priEffort >= Weapon.Effort.LIGHT && priEffort <= Weapon.Effort.TWO_HANDED) {
                         // You can't get a mechanical benefit for two-handing a light weapon.
-                        Weapon.Hand hand = effort == Weapon.Effort.LIGHT
+                        Weapon.Hand hand = priEffort == Weapon.Effort.LIGHT
                             ? Weapon.Hand.ONE_HANDED
                             : Weapon.Hand.TWO_HANDED;
                         attacks.Add(Melee(rules, primaryHandWeapon, hand, priSizeCategory, priSizeDiscrepancy, true));
 
                         // For double weapons with identical heads, generate an identical primary- and off-hand attack.
                         if (primaryHandWeapon.SecondIdenticalHead) {
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, Weapon.Effort.ONE_HANDED));
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, Weapon.Effort.LIGHT));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, -8, Weapon.Effort.LIGHT));
                         }
 
                         // For double weapons with different heads, generate a primary-hand/off-hand pairing for each ordering.
                         else if (primaryHandWeapon.SecondUniqueHead != null) {
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, Weapon.Effort.ONE_HANDED));
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, false, Weapon.Effort.LIGHT));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, false, -8, Weapon.Effort.LIGHT));
 
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, false, Weapon.Effort.ONE_HANDED));
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, Weapon.Effort.LIGHT));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, false, -4, Weapon.Effort.ONE_HANDED));
+                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, -8, Weapon.Effort.LIGHT));
                         }
                     }
                 }
 
                 if (primaryHandWeapon.Projectile != null) {
-                    Weapon.Effort effort = (Weapon.Effort)primaryHandWeapon.Projectile?.atk.EffortCategory + priSizeDiscrepancy;
+                    Weapon.Effort effort = primaryHandWeapon.EffortCategory + priSizeDiscrepancy;
                     if (effort >= Weapon.Effort.LIGHT && effort <= Weapon.Effort.TWO_HANDED) {
                         attacks.Add(Projectile(rules, primaryHandWeapon, Weapon.Hand.TWO_HANDED, priSizeCategory, priSizeDiscrepancy));
                     }
                 }
 
-                Weapon.Effort? thrownEffort = primaryHandWeapon.ThrownEffort() + priSizeDiscrepancy;
-                if (thrownEffort >= Weapon.Effort.LIGHT && thrownEffort <= Weapon.Effort.TWO_HANDED) {
+
+                if (primaryHandWeapon.CanBeThrown()) {
                     // I'm assuming all non-improvised weapons are thrown one-handed.  Either way, it doesn't
                     // affect anything mechanically (I think); STR to damage isn't multiplied or anything like that.
                     attacks.Add(Thrown(rules, primaryHandWeapon, Weapon.Hand.ONE_HANDED, priSizeCategory, priSizeDiscrepancy));
@@ -330,13 +334,27 @@ namespace PlayMore35.Items {
             
             // Contents of hands are different.
             else {
-                Weapon.Hand[] hands = twfAvailable
-                    ? new Weapon.Hand[] { Weapon.Hand.ONE_HANDED, Weapon.Hand.PRIMARY_HAND_TWF }
-                    : new Weapon.Hand[] { Weapon.Hand.ONE_HANDED };
-                GenerateOneHandAttacks(attacks, rules, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, hands);
-                
+                GenerateOneHandAttack(attacks, rules, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.ONE_HANDED);
                 if (twfAvailable) {
-                    GenerateOneHandAttacks(attacks, rules, offHandWeapon, offSizeCategory, offSizeDiscrepancy, new Weapon.Hand[] { Weapon.Hand.OFF_HAND_TWF });
+                    Weapon.Effort offEffort = offHandWeapon.EffortCategory + offSizeDiscrepancy;
+                    GenerateOneHandAttack(
+                        attacks,
+                        rules,
+                        primaryHandWeapon,
+                        priSizeCategory,
+                        priSizeDiscrepancy,
+                        Weapon.Hand.PRIMARY_HAND_TWF,
+                        offEffort == Weapon.Effort.LIGHT ? -4 : -6
+                    );
+                    GenerateOneHandAttack(
+                        attacks,
+                        rules,
+                        offHandWeapon,
+                        offSizeCategory,
+                        offSizeDiscrepancy,
+                        Weapon.Hand.OFF_HAND_TWF,
+                        offEffort == Weapon.Effort.LIGHT ? -8 : -10
+                    );
                 }
             }
 

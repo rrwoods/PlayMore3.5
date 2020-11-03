@@ -61,6 +61,13 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        public AttackClass PrimaryHandTwfAttack() {
+            matchers.Add(new HandMatcher()
+                .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
+            );
+            return this;
+        }
+
         public AttackClass OffHandAttack() {
             matchers.Add(new HandMatcher()
                 .AddHand(Weapon.Hand.OFF_HAND_TWF)

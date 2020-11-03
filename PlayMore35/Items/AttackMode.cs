@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace PlayMore35.Items {
     public class AttackMode {
         public Weapon.Proficiency ProficencyCategory;
-        public Weapon.Effort EffortCategory;
         public (int qty, int size) DamageDieMedium;
         public string DamageType;
         public int ThreatRange;
