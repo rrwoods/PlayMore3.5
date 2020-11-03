@@ -12,23 +12,27 @@ using static PlayMore35.GameRules.Constants;
 namespace PlayMore35.Effects.Tests {
     [TestClass()]
     public class EffectPoolTests {
+        private Effect ModifyStat(int value, string stat) {
+            return new Effect(stat).AddModifier(stat, new Modifier(value, UNTYPED));
+        }
+
         private GameRules.GameRules Rules() {
             GameRules.GameRules rules = new GameRules.GameRules();
             EffectPool p = rules.Rules;
 
             // make all the ability modifiers zero
-            p.SetValue(10, STR_SCORE);
-            p.SetValue(10, DEX_SCORE);
-            p.SetValue(10, CON_SCORE);
-            p.SetValue(10, INT_SCORE);
-            p.SetValue(10, WIS_SCORE);
-            p.SetValue(10, CHA_SCORE);
+            p.AddEffect(ModifyStat(10, STR_SCORE));
+            p.AddEffect(ModifyStat(10, DEX_SCORE));
+            p.AddEffect(ModifyStat(10, CON_SCORE));
+            p.AddEffect(ModifyStat(10, INT_SCORE));
+            p.AddEffect(ModifyStat(10, WIS_SCORE));
+            p.AddEffect(ModifyStat(10, CHA_SCORE));
 
             // speed 30 to make sure jump isn't affected
-            p.SetValue(30, LAND_SPEED);
+            p.AddEffect(ModifyStat(30, LAND_SPEED));
 
             // 0 HP causes some weirdness too
-            p.SetValue(1, MAX_HP);
+            p.AddEffect(ModifyStat(1, MAX_HP));
 
             return rules;
         }
@@ -43,7 +47,7 @@ namespace PlayMore35.Effects.Tests {
         [TestMethod()]
         public void TestComputeAbilityModifier() {
             GameRules.GameRules r = Rules();
-            r.Rules.SetValue(7, STR_SCORE);
+            r.Rules.AddEffect(ModifyStat(-3, STR_SCORE));
             CheckStat(-2, r, STR_MODIFIER);
             CheckStat(0, r, DEX_MODIFIER);
         }
@@ -51,7 +55,7 @@ namespace PlayMore35.Effects.Tests {
         [TestMethod()]
         public void TestConditionalEffects() {
             GameRules.GameRules r = Rules();
-            r.Rules.SetValue(5, TUMBLE + RANKS);
+            r.Rules.AddEffect(ModifyStat(5, TUMBLE + RANKS));
             CheckStat(+2, r, JUMP);
             CheckStat(+5, r, TUMBLE);
         }
@@ -59,7 +63,7 @@ namespace PlayMore35.Effects.Tests {
         [TestMethod()]
         public void TestInitiativeChaining() {
             GameRules.GameRules r = Rules();
-            r.Rules.AddEffect(new Effect("somethin").AddModifier(ABILITY_CHECKS, new Modifier(4, UNTYPED)));
+            r.Rules.AddEffect(new Effect("Improved 'initiative'").AddModifier(ABILITY_CHECKS, new Modifier(4, UNTYPED)));
             CheckStat(+4, r, INITIATIVE);
         }
 
@@ -68,7 +72,7 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.SetValue(12, DEX_SCORE);
+            p.AddEffect(ModifyStat(+2, DEX_SCORE));
             p.AddEffect(new Effect("ring").AddModifier(AC, new Modifier(2, DEFLECTION)));
             p.AddEffect(new Effect("dragon scales").AddModifier(NATURAL_ARMOR, new Modifier(4, RACIAL)));
 
@@ -81,7 +85,7 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.SetValue(12, DEX_SCORE);
+            p.AddEffect(ModifyStat(+2, DEX_SCORE));
             CheckStat(11, r, AC);
             p.AddEffect(new Effect("ff").AddFlag(FLAT_FOOTED));
             CheckStat(10, r, AC);
@@ -94,7 +98,7 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.SetValue(12, DEX_SCORE);
+            p.AddEffect(ModifyStat(+2, DEX_SCORE));
             CheckStat(11, r, AC);
             p.AddEffect(new Effect("deny").AddFlag(DENIED_DEX));
             CheckStat(10, r, AC);
@@ -107,7 +111,7 @@ namespace PlayMore35.Effects.Tests {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
 
-            p.SetValue(-5, ARMOR_CHECK_PENALTY);
+            p.AddEffect(ModifyStat(-5, ARMOR_CHECK_PENALTY));
             CheckStat(-5, r, BALANCE);
             CheckStat(-10, r, SWIM);
             CheckStat(0, r, DIPLOMACY);
@@ -168,8 +172,8 @@ namespace PlayMore35.Effects.Tests {
         public void TestMeleeWeapon() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            p.SetValue(16, STR_SCORE);
-            p.SetValue(20, DEX_SCORE);
+            p.AddEffect(ModifyStat(+6, STR_SCORE));
+            p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             Items.Weapon dagger = Dagger();
             dagger.Tags.Add("shadow hand");
@@ -212,8 +216,8 @@ namespace PlayMore35.Effects.Tests {
         public void TestCompositeBowStrong() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            p.SetValue(16, STR_SCORE);
-            p.SetValue(20, DEX_SCORE);
+            p.AddEffect(ModifyStat(+6, STR_SCORE));
+            p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             Items.Weapon bow = CompositeBow(+2);
             p.TwoHandOneWeapon(bow);
@@ -228,8 +232,8 @@ namespace PlayMore35.Effects.Tests {
         public void TestCompositeBowWeak() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            p.SetValue(16, STR_SCORE);
-            p.SetValue(20, DEX_SCORE);
+            p.AddEffect(ModifyStat(+6, STR_SCORE));
+            p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             Items.Weapon bow = CompositeBow(+4);
             p.TwoHandOneWeapon(bow);
@@ -244,10 +248,10 @@ namespace PlayMore35.Effects.Tests {
         public void TestFearStacking() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            p.SetValue(20, DEX_SCORE);
+            p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             CheckStat(+5, r, DEX_CHECKS);
-            p.SetValue(1, FEAR_LEVEL);
+            p.AddEffect(ModifyStat(1, FEAR_LEVEL));
             CheckStat(+3, r, DEX_CHECKS);
         }
 
@@ -255,14 +259,14 @@ namespace PlayMore35.Effects.Tests {
         public void TestSpecialSizeModifier() {
             GameRules.GameRules r = Rules();
             EffectPool p = r.Rules;
-            p.SetValue(20, DEX_SCORE);
+            p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             // no ranks in hide, +5 dex +0 str +0 bab, medium size:  +5 hide, +0 grapple
             CheckStat(+5, r, HIDE);
             CheckStat(+0, r, GRAPPLE);
 
             // colossal size, which gives -16 hide +16 grapple
-            p.SetValue(4, SIZE_CATEGORY);
+            p.AddEffect(ModifyStat(4, SIZE_CATEGORY));
 
             CheckStat(-11, r, HIDE);
             CheckStat(+16, r, GRAPPLE);
@@ -274,7 +278,7 @@ namespace PlayMore35.Effects.Tests {
             EffectPool p = r.Rules;
 
             CheckStat(5, r, REACH);
-            p.SetValue(4, SIZE_CATEGORY);
+            p.AddEffect(ModifyStat(4, SIZE_CATEGORY));
             CheckStat(30, r, REACH);
         }
 
@@ -286,55 +290,12 @@ namespace PlayMore35.Effects.Tests {
             // no ranks, +0 ability, no speed modifier.
             CheckStat(+0, r, JUMP);
 
-            p.SetValue(35, LAND_SPEED);
+            Effect speedModifier = ModifyStat(+5, LAND_SPEED);
+            p.AddEffect(speedModifier);
             CheckStat(+0, r, JUMP);
 
-            p.SetValue(40, LAND_SPEED);
+            p.AddEffect(speedModifier);
             CheckStat(+4, r, JUMP);
-
-            p.SetValue(45, LAND_SPEED);
-            CheckStat(+4, r, JUMP);
-
-            p.SetValue(50, LAND_SPEED);
-            CheckStat(+8, r, JUMP);
-
-            p.SetValue(25, LAND_SPEED);
-            CheckStat(+0, r, JUMP);
-
-            p.SetValue(20, LAND_SPEED);
-            CheckStat(-6, r, JUMP);
-
-            p.SetValue(15, LAND_SPEED);
-            CheckStat(-6, r, JUMP);
-
-            p.SetValue(10, LAND_SPEED);
-            CheckStat(-12, r, JUMP);
-        }
-
-        [TestMethod()]
-        public void TestEncumbrance() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
-
-            ControllableToggle encumbered = (ControllableToggle) p.GetEffect("Encumbrance speed penalty").Toggle;
-            encumbered.on = true;
-
-            Dictionary<int, int> encumbranceTable = new Dictionary<int, int> {
-                [20] = 15,
-                [30] = 20,
-                [40] = 30,
-                [50] = 35,
-                [60] = 40,
-                [70] = 50,
-                [80] = 55,
-                [90] = 60,
-                [100] = 70,
-            };
-            foreach (var item in encumbranceTable) {
-                p.SetValue(item.Key, LAND_SPEED);
-                CheckStat(item.Value, r, LAND_SPEED);
-            }
-            r.GetStat(LAND_SPEED).GetValue(p).explanation.ForEach(x => Console.WriteLine(x));
         }
 
         [TestMethod()]
@@ -359,11 +320,11 @@ namespace PlayMore35.Effects.Tests {
 
             p.OneHandOneWeapon(Dagger());
 
-            p.SetValue(+2, SIZE_CATEGORY);
+            p.AddEffect(ModifyStat(+2, SIZE_CATEGORY));
             Assert.AreEqual("1d8", Items.Attack.Generate(r, +2)[0].Damage.dice.ToString());
-            p.SetValue(+1000, SIZE_CATEGORY);
-            Assert.AreEqual("3d6", Items.Attack.Generate(r, +1000)[0].Damage.dice.ToString());
-            p.SetValue(-1000, SIZE_CATEGORY);
+            p.AddEffect(ModifyStat(+1000, SIZE_CATEGORY));
+            Assert.AreEqual("3d6", Items.Attack.Generate(r, +1002)[0].Damage.dice.ToString());
+            p.AddEffect(ModifyStat(-2002, SIZE_CATEGORY));
             Assert.AreEqual("—", Items.Attack.Generate(r, -1000)[0].Damage.dice.ToString());
         }
 
@@ -384,7 +345,7 @@ namespace PlayMore35.Effects.Tests {
             var (sneakDice, sneakExpl) = daggerMelee.Damage;
             Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
 
-            p.SetValue(18, STR_SCORE);
+            p.AddEffect(ModifyStat(+8, STR_SCORE));
 
             p.AddEffect(new Effect("inspire courage")
                 .AddDamageModifier(AttackClass.ALL, new Modifier(+1, MORALE))
@@ -393,7 +354,7 @@ namespace PlayMore35.Effects.Tests {
                 .AddDamageModifier(AttackClass.ALL, new Modifier(+1, LUCK))
             );
 
-            p.SetValue(14, DEX_SCORE);
+            p.AddEffect(ModifyStat(+4, DEX_SCORE));
             p.AddEffect(new Effect("Hit-and-run fighter")
                 .AddDamageModifier(AttackClass.ALL, new Modifier(r.GetStat(DEX_MODIFIER), CIRCUMSTANCE))
             );
@@ -503,7 +464,7 @@ namespace PlayMore35.Effects.Tests {
                 )
             );
 
-            p.SetValue(+2, BASE_ATTACK_BONUS);
+            p.AddEffect(ModifyStat(+2, BASE_ATTACK_BONUS));
             Items.Weapon dagger = Dagger(false);
             Items.Weapon longsword = Longsword();
 

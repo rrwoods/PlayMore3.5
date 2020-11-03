@@ -176,8 +176,9 @@ namespace PlayMore35.GameRules {
         public static readonly string SACRED = "sacred";
         public static readonly string SHIELD = "shield";
         public static readonly string SIZE = "size";
-        public static readonly string UNTYPED = "untyped";
-        public static readonly string BASE = "base"; // "bonus" type for the base number for a statistic.
+        public static readonly string UNTYPED = "untyped"; // no type listed in explainer
+        public static readonly string BASE = "base"; // "bonus" type for the base number for a statistic, no type listed
+        public static readonly string ABILITY_MODIFIER = "ability modifier"; // listed after base with no type
 
         public static readonly string MAX_HP = "Maximum hit points";
         public static readonly string CURRENT_HP = "Current hit points";

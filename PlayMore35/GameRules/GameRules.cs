@@ -38,7 +38,8 @@ namespace PlayMore35.GameRules {
 
             AddStat(new Statistic(LETHAL_DAMAGE));
             Rules.AddEffect(new Effect("Subtract damage from hit points")
-                .AddModifier(CURRENT_HP, new Modifier(-1, stats[LETHAL_DAMAGE], BASE))
+                // this is using ability modifier just to ensure it shows up after BASE.
+                .AddModifier(CURRENT_HP, new Modifier(-1, stats[LETHAL_DAMAGE], ABILITY_MODIFIER))
             );
 
             Rules.AddEffect(new Effect(CANT_ACT)
@@ -303,7 +304,7 @@ namespace PlayMore35.GameRules {
             AddStat(new Statistic(BASE_ATTACK_BONUS));
             AddStat(new Statistic(GRAPPLE));
             Rules.AddEffect(new Effect("STR to grapple")
-                .AddModifier(GRAPPLE, new Modifier(stats[STR_MODIFIER], BASE))
+                .AddModifier(GRAPPLE, new Modifier(stats[STR_MODIFIER], ABILITY_MODIFIER))
             );
 
             Rules.AddEffect(new Effect(BASE_ATTACK_BONUS)
@@ -321,37 +322,37 @@ namespace PlayMore35.GameRules {
             );
 
             Rules.AddEffect(new Effect("DEX to ranged attacks")
-                .AddAttackModifier(new AttackClass().Ranged(), new Modifier(stats[DEX_MODIFIER], BASE))
+                .AddAttackModifier(new AttackClass().Ranged(), new Modifier(stats[DEX_MODIFIER], ABILITY_MODIFIER))
             );
             // Weapon Finesse will use ability-substitution technology
-            Rules.AddEffect(new Effect("(STR) to melee attacks")
-                .AddAttackModifier(new AttackClass().Melee(), new Modifier(stats[STR_MODIFIER], BASE))
+            Rules.AddEffect(new Effect("STR to melee attacks")
+                .AddAttackModifier(new AttackClass().Melee(), new Modifier(stats[STR_MODIFIER], ABILITY_MODIFIER))
             );
 
-            Rules.AddEffect(new Effect("(STR ×1.5) to two-handed weapon damage")
+            Rules.AddEffect(new Effect("STR bonus ×1.5 to two-handed weapon damage")
                 .AddDamageModifier(
                     new AttackClass().Melee().TwoHandedAttack(),
-                    new Modifier(1.5m, stats[STR_BONUS], BASE)
+                    new Modifier(1.5m, stats[STR_BONUS], ABILITY_MODIFIER)
                 )
             );
-            Rules.AddEffect(new Effect("(STR) to primary-hand weapon damage")
-                .AddDamageModifier(new AttackClass().Melee().PrimaryHandAttack(), new Modifier(stats[STR_BONUS], BASE))
+            Rules.AddEffect(new Effect("STR bonus to primary-hand weapon damage")
+                .AddDamageModifier(new AttackClass().Melee().PrimaryHandAttack(), new Modifier(stats[STR_BONUS], ABILITY_MODIFIER))
             );
-            Rules.AddEffect(new Effect("(STR ×0.5) to off-hand weapon damage")
+            Rules.AddEffect(new Effect("STR bonus ×0.5 to off-hand weapon damage")
                 .AddDamageModifier(
                     new AttackClass().Melee().OffHandAttack(),
-                    new Modifier(0.5m, stats[STR_BONUS], BASE)
+                    new Modifier(0.5m, stats[STR_BONUS], ABILITY_MODIFIER)
                 )
             );
 
             Rules.AddEffect(new Effect("STR penalty to bow damage")
-                .AddDamageModifier(new AttackClass().Bow(), new Modifier(stats[STR_PENALTY], BASE))
+                .AddDamageModifier(new AttackClass().Bow(), new Modifier(stats[STR_PENALTY], ABILITY_MODIFIER))
             );
             Rules.AddEffect(new Effect("STR to thrown weapon damage")
-                .AddDamageModifier(new AttackClass().Thrown(), new Modifier(stats[STR_MODIFIER], BASE))
+                .AddDamageModifier(new AttackClass().Thrown(), new Modifier(stats[STR_MODIFIER], ABILITY_MODIFIER))
             );
             Rules.AddEffect(new Effect("STR to sling damage")
-                .AddDamageModifier(new AttackClass().Name("Sling"), new Modifier(stats[STR_MODIFIER], BASE))
+                .AddDamageModifier(new AttackClass().Name("Sling"), new Modifier(stats[STR_MODIFIER], ABILITY_MODIFIER))
             );
 
             AddStat(new Statistic(FEAR_LEVEL).Minimum(0).Maximum(3));
@@ -570,13 +571,13 @@ namespace PlayMore35.GameRules {
             AddStat(abilityDamage);
             Rules.AddEffect(
                 new Effect(ability + " damage")
-                    .AddModifier(ability + " score", new Modifier(-1, stats[ability + " damage"], BASE))
+                    .AddModifier(ability + " score", new Modifier(-1, stats[ability + " damage"], ABILITY_MODIFIER))
             );
             Statistic abilityDrain = new Statistic(ability + " drain");
             AddStat(abilityDrain);
             Rules.AddEffect(
                 new Effect(ability + " drain")
-                    .AddModifier(ability + " score", new Modifier(-1, stats[ability + " drain"], BASE))
+                    .AddModifier(ability + " score", new Modifier(-1, stats[ability + " drain"], ABILITY_MODIFIER))
             );
 
             string abilityModifierName = ability + " modifier";
@@ -633,7 +634,7 @@ namespace PlayMore35.GameRules {
             );
             Rules.AddEffect(
                 new Effect(ability + " to " + skill)
-                    .AddModifier(skill, new Modifier(abilityModifiers[ability], BASE))
+                    .AddModifier(skill, new Modifier(abilityModifiers[ability], ABILITY_MODIFIER))
             );
         }
 

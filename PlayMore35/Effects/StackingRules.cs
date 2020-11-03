@@ -7,9 +7,10 @@ using static System.Math;
 
 namespace PlayMore35.Effects {
     public static class StackingRules {
-        private static readonly string[] stackingTypes = { BASE, CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
+        private static readonly string[] stackingTypes = { BASE, ABILITY_MODIFIER, CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
         private static readonly string[] typeOrder = {
             //BASE,
+            //ABILITY_MODIFIER,
             SIZE,
             RACIAL,
             NATURAL_ARMOR,
@@ -56,11 +57,11 @@ namespace PlayMore35.Effects {
                 int amount = mod.ComputeAmount(pool);
                 string type = mod.Type;
                 if (amount == 0) {
-                    if (mod.Type == BASE) {
-                        if (!stackingExpl.ContainsKey(BASE)) {
-                            stackingExpl[BASE] = new List<(int mod, string name)>();
+                    if (mod.Type == BASE || mod.Type == ABILITY_MODIFIER) {
+                        if (!stackingExpl.ContainsKey(mod.Type)) {
+                            stackingExpl[mod.Type] = new List<(int mod, string name)>();
                         }
-                        stackingExpl[BASE].Add((amount, mod.Name));
+                        stackingExpl[mod.Type].Add((amount, mod.Name));
                     }
                     continue;
                 }
@@ -105,6 +106,11 @@ namespace PlayMore35.Effects {
             List<string> explanation = new List<string>();
             if (stackingExpl.ContainsKey(BASE)) {
                 foreach (var (mod, name) in stackingExpl[BASE]) {
+                    explanation.Add(ExplainBase(mod, name));
+                }
+            }
+            if (stackingExpl.ContainsKey(ABILITY_MODIFIER)) {
+                foreach (var (mod, name) in stackingExpl[ABILITY_MODIFIER]) {
                     explanation.Add(ExplainBase(mod, name));
                 }
             }

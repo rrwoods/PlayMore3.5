@@ -6,7 +6,7 @@ using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.Effects {
     public class EffectPool {
-        private readonly Dictionary<string, Effect> Effects = new Dictionary<string, Effect>();
+        private readonly List<Effect> Effects = new List<Effect>();
         public Items.Weapon PrimaryHandWeapon { get; private set; } = null;
         public Items.Weapon OffHandWeapon { get; private set; } = null;
 
@@ -15,11 +15,7 @@ namespace PlayMore35.Effects {
         }
 
         public void AddEffect(Effect effect) {
-            Effects[effect.Name] = effect;
-        }
-
-        public void SetValue(int value, string affects) {
-            AddEffect(new Effect("Test set value of " + affects).AddModifier(affects, new Modifier(value, BASE)));
+            Effects.Add(effect);
         }
 
         public void NoWeapons() {
@@ -42,12 +38,8 @@ namespace PlayMore35.Effects {
             OffHandWeapon = off;
         }
 
-        public Effect GetEffect(string name) {
-            return Effects[name];
-        }
-
         public IEnumerable<Modifier> GetModifiers(Statistic affecting) {
-            IEnumerable<Modifier> mods = Effects.Values
+            IEnumerable<Modifier> mods = Effects
                 .SelectMany(x => x.GetModifiers(this, affecting));
             if (PrimaryHandWeapon != null) {
                 mods = mods.Concat(PrimaryHandWeapon.GetGlobalModifiers(this, affecting));
@@ -59,29 +51,29 @@ namespace PlayMore35.Effects {
         }
 
         public IEnumerable<Modifier> GetAttackModifiers(Items.Attack affecting) {
-            return Effects.Values
+            return Effects
                 .SelectMany(x => x.GetAttackModifiers(this, affecting));
         }
 
         public IEnumerable<Modifier> GetDamageModifiers(Items.Attack affecting) {
-            return Effects.Values
+            return Effects
                 .SelectMany(x => x.GetDamageModifiers(this, affecting));
         }
 
         public IEnumerable<Multiplier> GetMultipliers(Statistic affecting) {
-            return Effects.Values
+            return Effects
                 .SelectMany(x => x.GetMultipliers(this, affecting));
         }
 
         public IEnumerable<DiceGroup> GetExtraDice(Items.Attack affecting) {
-            return Effects.Values
+            return Effects
                     .SelectMany(x => x.GetExtraDice(this, affecting));
         }
 
         public Dictionary<string, List<string>> GetTextEffects() {
             var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<string>());
 
-            foreach (Effect e in Effects.Values.Where(x => x.Toggle.On(this))) {
+            foreach (Effect e in Effects.Where(x => x.Toggle.On(this))) {
                 foreach ((string category, string text) in e.Text) {
                     if (allText.ContainsKey(category)) {
                         allText[category].Add(text);
@@ -95,7 +87,7 @@ namespace PlayMore35.Effects {
         }
 
         public bool HasFlag(string flag) {
-            return Effects.Values
+            return Effects
                 .Any(x => x.HasFlag(flag) && x.Toggle.On(this));
         }
     }
