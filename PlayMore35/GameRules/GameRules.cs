@@ -1,40 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using PlayMore35.Effects;
 
 using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.GameRules {
-    public class GameRules {
-        public EffectPool Rules { get; private set; } = new EffectPool();
+    // This entire file will go away once serialization is in a solidly usable state --
+    // it's only here to construct the core rules of 3.5, which should be the job
+    // of the JSON loading system once that's done.
+    public static class GameRules {
+        public static EffectPool MakeTheRules() {
+            EffectPool Rules = new EffectPool();
 
-        public void AddStat(Statistic stat) {
-            Rules.AddStat(stat);
-        }
+            AbilityScore(Rules, STR);
+            AbilityScore(Rules, DEX);
+            AbilityScore(Rules, CON);
+            AbilityScore(Rules, INT);
+            AbilityScore(Rules, WIS);
+            AbilityScore(Rules, CHA);
+            Rules.AddStat(new Statistic(INITIATIVE, Rules.GetStat(DEX_CHECKS)));
 
-        public Statistic GetStat(string name) {
-            return Rules.GetStat(name);
-        }
+            Rules.AddStat(new Statistic(MAX_HP));
 
-        // The default constructor sets up 3.5's official rules.
-        // This will go away entirely once (de)serialization is solid.
-        public GameRules() {
-            AbilityScore(STR);
-            AbilityScore(DEX);
-            AbilityScore(CON);
-            AbilityScore(INT);
-            AbilityScore(WIS);
-            AbilityScore(CHA);
-            AddStat(new Statistic(INITIATIVE, GetStat(DEX_CHECKS)));
-
-            AddStat(new Statistic(MAX_HP));
-
-            AddStat(new Statistic(CURRENT_HP));
+            Rules.AddStat(new Statistic(CURRENT_HP));
             Rules.AddEffect(new Effect("Normal hit point total")
                 .AddModifier(CURRENT_HP, new Modifier((MAX_HP), BASE))
             );
 
-            AddStat(new Statistic(LETHAL_DAMAGE));
+            Rules.AddStat(new Statistic(LETHAL_DAMAGE));
             Rules.AddEffect(new Effect("Subtract damage from hit points")
                 // this is using ability modifier just to ensure it shows up after BASE.
                 .AddModifier(CURRENT_HP, new Modifier(-1, (LETHAL_DAMAGE), ABILITY_MODIFIER))
@@ -69,115 +61,115 @@ namespace PlayMore35.GameRules {
                 .AddText(CONDITION, "You take 1 damage each round")
                 .AddText(CONDITION, "Any healing stabilizes you; 10% chance each round to self-stabilize")
             );
-                    
-            AddStat(new Statistic(NONLETHAL_DAMAGE));
 
-            SkillModifier(APPRAISE, INT);
-            SkillModifier(AUTOHYPNOSIS, WIS);
-            SkillModifier(BALANCE, DEX);
-            SkillModifier(BLUFF, CHA);
-            SkillModifier(CLIMB, STR);
-            SkillModifier(CONCENTRATION, CON);
-            SkillModifier(CRAFT, INT);
-            SkillModifier(DECIPHER_SCRIPT, INT);
-            SkillModifier(DIPLOMACY, CHA);
-            SkillModifier(DISABLE_DEVICE, INT);
-            SkillModifier(DISGUISE, CHA);
-            SkillModifier(ESCAPE_ARTIST, DEX);
-            SkillModifier(FORGERY, INT);
-            SkillModifier(GATHER_INFORMATION, CHA);
-            SkillModifier(HANDLE_ANIMAL, CHA);
-            SkillModifier(HEAL, WIS);
-            SkillModifier(HIDE, DEX);
-            SkillModifier(IAIJUTSU_FOCUS, CHA);
-            SkillModifier(INTIMIDATE, CHA);
-            SkillModifier(JUMP, STR);
-            SkillModifier(KNOWLEDGE_ARCANA, INT);
-            SkillModifier(KNOWLEDGE_ARCHITECTURE_AND_ENGINEERING, INT);
-            SkillModifier(KNOWLEDGE_DUNGEONEERING, INT);
-            SkillModifier(KNOWLEDGE_GEOGRAPHY, INT);
-            SkillModifier(KNOWLEDGE_HISTORY, INT);
-            SkillModifier(KNOWLEDGE_LOCAL, INT);
-            SkillModifier(KNOWLEDGE_NATURE, INT);
-            SkillModifier(KNOWLEDGE_NOBILITY_AND_ROYALTY, INT);
-            SkillModifier(KNOWLEDGE_PSIONICS, INT);
-            SkillModifier(KNOWLEDGE_RELIGION, INT);
-            SkillModifier(KNOWLEDGE_THE_PLANES, INT);
-            SkillModifier(MARTIAL_LORE, INT);
-            SkillModifier(LISTEN, WIS);
-            SkillModifier(MOVE_SILENTLY, DEX);
-            SkillModifier(OPEN_LOCK, DEX);
-            SkillModifier(PERFORM_ACT, CHA);
-            SkillModifier(PERFORM_COMEDY, CHA);
-            SkillModifier(PERFORM_DANCE, CHA);
-            SkillModifier(PERFORM_KEYBOARD_INSTRUMENTS, CHA);
-            SkillModifier(PERFORM_ORATORY, CHA);
-            SkillModifier(PERFORM_PERCUSSION_INSTRUMENTS, CHA);
-            SkillModifier(PERFORM_STRING_INSTRUMENTS, CHA);
-            SkillModifier(PERFORM_WIND_INSTRUMENTS, CHA);
-            SkillModifier(PERFORM_SING, CHA);
-            SkillModifier(PROFESSION, WIS);
-            SkillModifier(PSICRAFT, INT);
-            SkillModifier(RIDE, DEX);
-            SkillModifier(SEARCH, INT);
-            SkillModifier(SENSE_MOTIVE, WIS);
-            SkillModifier(SLEIGHT_OF_HAND, DEX);
-            SkillModifier(SPELLCRAFT, INT);
-            SkillModifier(SPOT, WIS);
-            SkillModifier(SURVIVAL, WIS);
-            SkillModifier(SWIM, STR);
-            SkillModifier(TRUESPEAK, INT);
-            SkillModifier(TUMBLE, DEX);
-            SkillModifier(USE_MAGIC_DEVICE, CHA);
-            SkillModifier(USE_PSIONIC_DEVICE, CHA);
-            SkillModifier(USE_ROPE, DEX);
-            AddStat(new Statistic(CLIMB_ROPE,                     GetStat(CLIMB)));
-            AddStat(new Statistic(DISGUISE_ACT_IN_CHARACTER,      GetStat(DISGUISE)));
-            AddStat(new Statistic(ESCAPE_ARTIST_ROPE,             GetStat(ESCAPE_ARTIST)));
-            AddStat(new Statistic(PSICRAFT_ADDRESS_POWER_STONE,   GetStat(PSICRAFT)));
-            AddStat(new Statistic(SEARCH_SECRET_DOORS,            GetStat(SEARCH)));
-            AddStat(new Statistic(SPELLCRAFT_DECIPHER_SCROLL,     GetStat(SPELLCRAFT)));
-            AddStat(new Statistic(SURVIVAL_ABOVEGROUND,           GetStat(SURVIVAL)));
-            AddStat(new Statistic(SURVIVAL_FOLLOW_TRACKS,         GetStat(SURVIVAL)));
-            AddStat(new Statistic(SURVIVAL_LOST,                  GetStat(SURVIVAL)));
-            AddStat(new Statistic(SURVIVAL_PLANAR,                GetStat(SURVIVAL)));
-            AddStat(new Statistic(SURVIVAL_UNDERGROUND,           GetStat(SURVIVAL)));
-            AddStat(new Statistic(USE_MAGIC_DEVICE_SCROLL,        GetStat(USE_MAGIC_DEVICE)));
-            AddStat(new Statistic(USE_PSIONIC_DEVICE_POWER_STONE, GetStat(USE_PSIONIC_DEVICE)));
-            AddStat(new Statistic(USE_ROPE_BINDINGS,              GetStat(USE_ROPE)));
+            Rules.AddStat(new Statistic(NONLETHAL_DAMAGE));
 
-            SkillSynergy(BLUFF, DIPLOMACY, DISGUISE_ACT_IN_CHARACTER, INTIMIDATE, SLEIGHT_OF_HAND);
-            SkillSynergy(DECIPHER_SCRIPT, USE_MAGIC_DEVICE_SCROLL);
-            SkillSynergy(ESCAPE_ARTIST, USE_ROPE_BINDINGS);
-            SkillSynergy(HANDLE_ANIMAL, RIDE);
-            SkillSynergy(JUMP, TUMBLE);
-            SkillSynergy(KNOWLEDGE_ARCANA, SPELLCRAFT);
-            SkillSynergy(KNOWLEDGE_ARCHITECTURE_AND_ENGINEERING, SEARCH_SECRET_DOORS);
-            SkillSynergy(KNOWLEDGE_DUNGEONEERING, SURVIVAL_UNDERGROUND);
-            SkillSynergy(KNOWLEDGE_GEOGRAPHY, SURVIVAL_LOST);
-            SkillSynergy(KNOWLEDGE_LOCAL, GATHER_INFORMATION);
-            SkillSynergy(KNOWLEDGE_NATURE, SURVIVAL_ABOVEGROUND);
-            SkillSynergy(KNOWLEDGE_NOBILITY_AND_ROYALTY, DIPLOMACY);
-            SkillSynergy(KNOWLEDGE_THE_PLANES, SURVIVAL_PLANAR);
-            SkillSynergy(SEARCH, SURVIVAL_FOLLOW_TRACKS);
-            SkillSynergy(SENSE_MOTIVE, DIPLOMACY);
-            SkillSynergy(SPELLCRAFT, USE_MAGIC_DEVICE_SCROLL);
-            SkillSynergy(SURVIVAL, KNOWLEDGE_NATURE);
-            SkillSynergy(TUMBLE, BALANCE, JUMP);
-            SkillSynergy(USE_MAGIC_DEVICE, SPELLCRAFT_DECIPHER_SCROLL);
-            SkillSynergy(USE_ROPE, CLIMB_ROPE, ESCAPE_ARTIST_ROPE);
+            SkillModifier(Rules, APPRAISE, INT);
+            SkillModifier(Rules, AUTOHYPNOSIS, WIS);
+            SkillModifier(Rules, BALANCE, DEX);
+            SkillModifier(Rules, BLUFF, CHA);
+            SkillModifier(Rules, CLIMB, STR);
+            SkillModifier(Rules, CONCENTRATION, CON);
+            SkillModifier(Rules, CRAFT, INT);
+            SkillModifier(Rules, DECIPHER_SCRIPT, INT);
+            SkillModifier(Rules, DIPLOMACY, CHA);
+            SkillModifier(Rules, DISABLE_DEVICE, INT);
+            SkillModifier(Rules, DISGUISE, CHA);
+            SkillModifier(Rules, ESCAPE_ARTIST, DEX);
+            SkillModifier(Rules, FORGERY, INT);
+            SkillModifier(Rules, GATHER_INFORMATION, CHA);
+            SkillModifier(Rules, HANDLE_ANIMAL, CHA);
+            SkillModifier(Rules, HEAL, WIS);
+            SkillModifier(Rules, HIDE, DEX);
+            SkillModifier(Rules, IAIJUTSU_FOCUS, CHA);
+            SkillModifier(Rules, INTIMIDATE, CHA);
+            SkillModifier(Rules, JUMP, STR);
+            SkillModifier(Rules, KNOWLEDGE_ARCANA, INT);
+            SkillModifier(Rules, KNOWLEDGE_ARCHITECTURE_AND_ENGINEERING, INT);
+            SkillModifier(Rules, KNOWLEDGE_DUNGEONEERING, INT);
+            SkillModifier(Rules, KNOWLEDGE_GEOGRAPHY, INT);
+            SkillModifier(Rules, KNOWLEDGE_HISTORY, INT);
+            SkillModifier(Rules, KNOWLEDGE_LOCAL, INT);
+            SkillModifier(Rules, KNOWLEDGE_NATURE, INT);
+            SkillModifier(Rules, KNOWLEDGE_NOBILITY_AND_ROYALTY, INT);
+            SkillModifier(Rules, KNOWLEDGE_PSIONICS, INT);
+            SkillModifier(Rules, KNOWLEDGE_RELIGION, INT);
+            SkillModifier(Rules, KNOWLEDGE_THE_PLANES, INT);
+            SkillModifier(Rules, MARTIAL_LORE, INT);
+            SkillModifier(Rules, LISTEN, WIS);
+            SkillModifier(Rules, MOVE_SILENTLY, DEX);
+            SkillModifier(Rules, OPEN_LOCK, DEX);
+            SkillModifier(Rules, PERFORM_ACT, CHA);
+            SkillModifier(Rules, PERFORM_COMEDY, CHA);
+            SkillModifier(Rules, PERFORM_DANCE, CHA);
+            SkillModifier(Rules, PERFORM_KEYBOARD_INSTRUMENTS, CHA);
+            SkillModifier(Rules, PERFORM_ORATORY, CHA);
+            SkillModifier(Rules, PERFORM_PERCUSSION_INSTRUMENTS, CHA);
+            SkillModifier(Rules, PERFORM_STRING_INSTRUMENTS, CHA);
+            SkillModifier(Rules, PERFORM_WIND_INSTRUMENTS, CHA);
+            SkillModifier(Rules, PERFORM_SING, CHA);
+            SkillModifier(Rules, PROFESSION, WIS);
+            SkillModifier(Rules, PSICRAFT, INT);
+            SkillModifier(Rules, RIDE, DEX);
+            SkillModifier(Rules, SEARCH, INT);
+            SkillModifier(Rules, SENSE_MOTIVE, WIS);
+            SkillModifier(Rules, SLEIGHT_OF_HAND, DEX);
+            SkillModifier(Rules, SPELLCRAFT, INT);
+            SkillModifier(Rules, SPOT, WIS);
+            SkillModifier(Rules, SURVIVAL, WIS);
+            SkillModifier(Rules, SWIM, STR);
+            SkillModifier(Rules, TRUESPEAK, INT);
+            SkillModifier(Rules, TUMBLE, DEX);
+            SkillModifier(Rules, USE_MAGIC_DEVICE, CHA);
+            SkillModifier(Rules, USE_PSIONIC_DEVICE, CHA);
+            SkillModifier(Rules, USE_ROPE, DEX);
+            Rules.AddStat(new Statistic(CLIMB_ROPE,                     Rules.GetStat(CLIMB)));
+            Rules.AddStat(new Statistic(DISGUISE_ACT_IN_CHARACTER,      Rules.GetStat(DISGUISE)));
+            Rules.AddStat(new Statistic(ESCAPE_ARTIST_ROPE,             Rules.GetStat(ESCAPE_ARTIST)));
+            Rules.AddStat(new Statistic(PSICRAFT_ADDRESS_POWER_STONE,   Rules.GetStat(PSICRAFT)));
+            Rules.AddStat(new Statistic(SEARCH_SECRET_DOORS,            Rules.GetStat(SEARCH)));
+            Rules.AddStat(new Statistic(SPELLCRAFT_DECIPHER_SCROLL,     Rules.GetStat(SPELLCRAFT)));
+            Rules.AddStat(new Statistic(SURVIVAL_ABOVEGROUND,           Rules.GetStat(SURVIVAL)));
+            Rules.AddStat(new Statistic(SURVIVAL_FOLLOW_TRACKS,         Rules.GetStat(SURVIVAL)));
+            Rules.AddStat(new Statistic(SURVIVAL_LOST,                  Rules.GetStat(SURVIVAL)));
+            Rules.AddStat(new Statistic(SURVIVAL_PLANAR,                Rules.GetStat(SURVIVAL)));
+            Rules.AddStat(new Statistic(SURVIVAL_UNDERGROUND,           Rules.GetStat(SURVIVAL)));
+            Rules.AddStat(new Statistic(USE_MAGIC_DEVICE_SCROLL,        Rules.GetStat(USE_MAGIC_DEVICE)));
+            Rules.AddStat(new Statistic(USE_PSIONIC_DEVICE_POWER_STONE, Rules.GetStat(USE_PSIONIC_DEVICE)));
+            Rules.AddStat(new Statistic(USE_ROPE_BINDINGS,              Rules.GetStat(USE_ROPE)));
 
-            SkillSynergy(AUTOHYPNOSIS, KNOWLEDGE_PSIONICS);
-            SkillSynergy(CONCENTRATION, AUTOHYPNOSIS);
-            SkillSynergy(KNOWLEDGE_PSIONICS, PSICRAFT);
-            SkillSynergy(PSICRAFT, USE_PSIONIC_DEVICE_POWER_STONE);
-            SkillSynergy(USE_PSIONIC_DEVICE, PSICRAFT_ADDRESS_POWER_STONE);
+            SkillSynergy(Rules, BLUFF, DIPLOMACY, DISGUISE_ACT_IN_CHARACTER, INTIMIDATE, SLEIGHT_OF_HAND);
+            SkillSynergy(Rules, DECIPHER_SCRIPT, USE_MAGIC_DEVICE_SCROLL);
+            SkillSynergy(Rules, ESCAPE_ARTIST, USE_ROPE_BINDINGS);
+            SkillSynergy(Rules, HANDLE_ANIMAL, RIDE);
+            SkillSynergy(Rules, JUMP, TUMBLE);
+            SkillSynergy(Rules, KNOWLEDGE_ARCANA, SPELLCRAFT);
+            SkillSynergy(Rules, KNOWLEDGE_ARCHITECTURE_AND_ENGINEERING, SEARCH_SECRET_DOORS);
+            SkillSynergy(Rules, KNOWLEDGE_DUNGEONEERING, SURVIVAL_UNDERGROUND);
+            SkillSynergy(Rules, KNOWLEDGE_GEOGRAPHY, SURVIVAL_LOST);
+            SkillSynergy(Rules, KNOWLEDGE_LOCAL, GATHER_INFORMATION);
+            SkillSynergy(Rules, KNOWLEDGE_NATURE, SURVIVAL_ABOVEGROUND);
+            SkillSynergy(Rules, KNOWLEDGE_NOBILITY_AND_ROYALTY, DIPLOMACY);
+            SkillSynergy(Rules, KNOWLEDGE_THE_PLANES, SURVIVAL_PLANAR);
+            SkillSynergy(Rules, SEARCH, SURVIVAL_FOLLOW_TRACKS);
+            SkillSynergy(Rules, SENSE_MOTIVE, DIPLOMACY);
+            SkillSynergy(Rules, SPELLCRAFT, USE_MAGIC_DEVICE_SCROLL);
+            SkillSynergy(Rules, SURVIVAL, KNOWLEDGE_NATURE);
+            SkillSynergy(Rules, TUMBLE, BALANCE, JUMP);
+            SkillSynergy(Rules, USE_MAGIC_DEVICE, SPELLCRAFT_DECIPHER_SCROLL);
+            SkillSynergy(Rules, USE_ROPE, CLIMB_ROPE, ESCAPE_ARTIST_ROPE);
+
+            SkillSynergy(Rules, AUTOHYPNOSIS, KNOWLEDGE_PSIONICS);
+            SkillSynergy(Rules, CONCENTRATION, AUTOHYPNOSIS);
+            SkillSynergy(Rules, KNOWLEDGE_PSIONICS, PSICRAFT);
+            SkillSynergy(Rules, PSICRAFT, USE_PSIONIC_DEVICE_POWER_STONE);
+            SkillSynergy(Rules, USE_PSIONIC_DEVICE, PSICRAFT_ADDRESS_POWER_STONE);
 
             // given how utterly insanely hard the truename research use of the knowledge skill is,
             // i'm assuming no one will ever do it, and therefore not including the intricate web of
             // synergies associated with it.
 
-            AddStat(new Statistic(ARMOR_CHECK_PENALTY));
+            Rules.AddStat(new Statistic(ARMOR_CHECK_PENALTY));
             Effect acp = new Effect(ARMOR_CHECK_PENALTY);
             foreach (string skill in new string[] { BALANCE, CLIMB, ESCAPE_ARTIST, HIDE, JUMP, MOVE_SILENTLY, SLEIGHT_OF_HAND }) {
                 acp.AddModifier(skill, new Modifier((ARMOR_CHECK_PENALTY), UNTYPED));
@@ -190,25 +182,25 @@ namespace PlayMore35.GameRules {
                 .IgnoreModifierType(ARMOR)
                 .IgnoreModifierType(SHIELD)
                 .IgnoreModifierType(NATURAL_ARMOR);
-            AddStat(ac);
-            AddStat(touchAC);
+            Rules.AddStat(ac);
+            Rules.AddStat(touchAC);
 
             Rules.AddEffect(new Effect("Base AC")
                 .AddModifier(AC, new Modifier(10, BASE))
             );
 
-            AddStat(new Statistic(NATURAL_ARMOR)); // this is the same name as the bonus type. eh.
+            Rules.AddStat(new Statistic(NATURAL_ARMOR)); // this is the same name as the bonus type. eh.
             Rules.AddEffect(new Effect(NATURAL_ARMOR)
                 .AddModifier(AC, new Modifier((NATURAL_ARMOR), NATURAL_ARMOR))
             );
 
 
-            AddStat(new Statistic(LAND_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
-            AddStat(new Statistic(BURROW_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
-            AddStat(new Statistic(CLIMB_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
-            AddStat(new Statistic(SWIM_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
-            AddStat(new Statistic(FLY_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
-            AddStat(new Statistic(MANEUVERABILITY));
+            Rules.AddStat(new Statistic(LAND_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            Rules.AddStat(new Statistic(BURROW_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            Rules.AddStat(new Statistic(CLIMB_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            Rules.AddStat(new Statistic(SWIM_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            Rules.AddStat(new Statistic(FLY_SPEED).AddTag(ALL_SPEEDS).RoundTo(5));
+            Rules.AddStat(new Statistic(MANEUVERABILITY));
 
             Rules.AddEffect(new Effect("Encumbrance speed penalty")
                 .Controllable()
@@ -219,7 +211,7 @@ namespace PlayMore35.GameRules {
             // (i'm purposefully abusing integer math to get rounding on these amounts, and doing amount stacking via
             // statistic chaining to do divide-subtract-multiply.  sue me :P )
             string excessSpeed = "speed over 30 ft, in units of 10 ft";
-            AddStat(new Statistic(excessSpeed));
+            Rules.AddStat(new Statistic(excessSpeed));
             Rules.AddEffect(new Effect(excessSpeed)
                 .AddModifier(excessSpeed, new Modifier(UNTYPED)
                     .AddAmount(0.1m, (LAND_SPEED))
@@ -227,7 +219,7 @@ namespace PlayMore35.GameRules {
                 )
             );
             string lackingSpeed = "speed under 30 ft, in units of 10 ft";
-            AddStat(new Statistic(lackingSpeed));
+            Rules.AddStat(new Statistic(lackingSpeed));
             Rules.AddEffect(new Effect(lackingSpeed)
                 .AddModifier(lackingSpeed, new Modifier(UNTYPED)
                     .AddAmount(-0.1m, (LAND_SPEED))
@@ -247,9 +239,9 @@ namespace PlayMore35.GameRules {
             );
 
             // Medium at 0 makes a lot of calculations more smooth
-            AddStat(new Statistic(SIZE_CATEGORY).Minimum(-4).Maximum(+4));
+            Rules.AddStat(new Statistic(SIZE_CATEGORY).Minimum(-4).Maximum(+4));
 
-            AddStat(new Statistic(SIZE_MODIFIER));
+            Rules.AddStat(new Statistic(SIZE_MODIFIER));
             Rules.AddEffect(new Effect(SIZE_MODIFIER + " calculation")
                 .AddModifier(SIZE_MODIFIER, new Modifier(
                     new LookupAmount(
@@ -279,7 +271,7 @@ namespace PlayMore35.GameRules {
             // space never changes, and i'm assuming that if reach changes it's via an effect not a base reach difference.
             // if this is not the case... i'll just let the player say what these values are and remove these effects.
 
-            AddStat(new Statistic(REACH).Minimum(0));
+            Rules.AddStat(new Statistic(REACH).Minimum(0));
             Rules.AddEffect(new Effect("Reach based on size")
                 .AddModifier(REACH, new Modifier(
                     new LookupAmount((SIZE_CATEGORY),
@@ -299,8 +291,8 @@ namespace PlayMore35.GameRules {
                 ))
             );
 
-            AddStat(new Statistic(BASE_ATTACK_BONUS));
-            AddStat(new Statistic(GRAPPLE));
+            Rules.AddStat(new Statistic(BASE_ATTACK_BONUS));
+            Rules.AddStat(new Statistic(GRAPPLE));
             Rules.AddEffect(new Effect("STR to grapple")
                 .AddModifier(GRAPPLE, new Modifier((STR_MODIFIER), ABILITY_MODIFIER))
             );
@@ -310,7 +302,7 @@ namespace PlayMore35.GameRules {
                 .AddModifier(GRAPPLE, new Modifier((BASE_ATTACK_BONUS), BASE))
             );
 
-            AddStat(new Statistic(SPECIAL_SIZE_MODIFIER));
+            Rules.AddStat(new Statistic(SPECIAL_SIZE_MODIFIER));
             Rules.AddEffect(new Effect(SPECIAL_SIZE_MODIFIER + " calculation")
                 .AddModifier(SPECIAL_SIZE_MODIFIER, new Modifier(4, (SIZE_CATEGORY), BASE))
             );
@@ -351,9 +343,9 @@ namespace PlayMore35.GameRules {
             );
             Rules.AddEffect(new Effect("STR to sling damage")
                 .AddDamageModifier(new AttackClass().Name("Sling"), new Modifier((STR_MODIFIER), ABILITY_MODIFIER))
-            );     
+            );
 
-            AddStat(new Statistic(FEAR_LEVEL).Minimum(0).Maximum(3));
+            Rules.AddStat(new Statistic(FEAR_LEVEL).Minimum(0).Maximum(3));
             Rules.AddEffect(new Effect(SHAKEN)
                 .SetToggle(new ConditionalToggle((FEAR_LEVEL), Relation.GREATER_THAN_OR_EQUAL, 1))
                 .AddAttackModifier(AttackClass.ALL, new Modifier(-2, UNTYPED))
@@ -418,7 +410,7 @@ namespace PlayMore35.GameRules {
                 .AddText(MISC_CASTING, "20% spell failure on spells with verbal components")
             );
 
-            AddStat(new Statistic(NEGATIVE_LEVELS));
+            Rules.AddStat(new Statistic(NEGATIVE_LEVELS));
             IAmount negativeLevels = new MultiplyAmount(-1, (NEGATIVE_LEVELS));
             Rules.AddEffect(new Effect("energy drained")
                 // A toggle isn't strictly necessary here since all the values will be zero if the character has no negative levels
@@ -559,20 +551,22 @@ namespace PlayMore35.GameRules {
                     ))
                 ))
             );
+
+            return Rules;
         }
 
-        private void AbilityScore(string ability) {
+        private static void AbilityScore(EffectPool Rules, string ability) {
             Statistic abilityScore = new Statistic(ability + " score").Minimum(0);
-            AddStat(abilityScore);
+            Rules.AddStat(abilityScore);
 
             Statistic abilityDamage = new Statistic(ability + " damage");
-            AddStat(abilityDamage);
+            Rules.AddStat(abilityDamage);
             Rules.AddEffect(
                 new Effect(ability + " damage")
                     .AddModifier(ability + " score", new Modifier(-1, (ability + " damage"), ABILITY_MODIFIER))
             );
             Statistic abilityDrain = new Statistic(ability + " drain");
-            AddStat(abilityDrain);
+            Rules.AddStat(abilityDrain);
             Rules.AddEffect(
                 new Effect(ability + " drain")
                     .AddModifier(ability + " score", new Modifier(-1, (ability + " drain"), ABILITY_MODIFIER))
@@ -588,13 +582,13 @@ namespace PlayMore35.GameRules {
             );
 
             Statistic abilityModifier = new Statistic(abilityModifierName);
-            AddStat(abilityModifier);
+            Rules.AddStat(abilityModifier);
             Statistic checks = new Statistic(ability + " checks", abilityModifier)
                 .AddTag(ABILITY_CHECKS);
-            AddStat(checks);
+            Rules.AddStat(checks);
 
             Statistic abilityBonus = new Statistic(ability + " bonus");
-            AddStat(abilityBonus);
+            Rules.AddStat(abilityBonus);
             Rules.AddEffect(
                 new Effect(ability + " bonus")
                     .AddModifier(abilityBonus.Name, new Modifier(
@@ -604,7 +598,7 @@ namespace PlayMore35.GameRules {
             );
 
             Statistic abilityPenalty = new Statistic(ability + " penalty");
-            AddStat(abilityPenalty);
+            Rules.AddStat(abilityPenalty);
             Rules.AddEffect(
                 new Effect(ability + " penalty")
                     .AddModifier(abilityPenalty.Name, new Modifier(
@@ -614,12 +608,12 @@ namespace PlayMore35.GameRules {
             );
         }
 
-        private void SkillModifier(string skill, string ability) {
+        private static void SkillModifier(EffectPool Rules, string skill, string ability) {
             string skillRanksName = skill + " ranks";
             Statistic skillRanks = new Statistic(skillRanksName);
-            AddStat(skillRanks);
+            Rules.AddStat(skillRanks);
 
-            AddStat(new Statistic(skill)
+            Rules.AddStat(new Statistic(skill)
                 .AddTag(ALL_SKILLS)
                 .AddTag(ability + " skills")
             );
@@ -634,13 +628,13 @@ namespace PlayMore35.GameRules {
             );
         }
 
-        private void SaveModifier(string save, string ability) {
+        private static void SaveModifier(EffectPool Rules, string save, string ability) {
             string saveName = save + " saves";
             string baseSaveName = "Base " + save;
             Statistic baseSave = new Statistic(baseSaveName);
-            AddStat(baseSave);
+            Rules.AddStat(baseSave);
 
-            AddStat(new Statistic(saveName));
+            Rules.AddStat(new Statistic(saveName));
             Rules.AddEffect(
                 new Effect("Total " + save + " modifier")
                     .AddModifier(saveName, new Modifier(UNTYPED)
@@ -650,8 +644,8 @@ namespace PlayMore35.GameRules {
             );
         }
 
-        private void SkillSynergy(string fiveRanksIn, params string[] givesPlusTwoOn) {
-            Statistic rankSkill = GetStat(fiveRanksIn + RANKS);
+        private static void SkillSynergy(EffectPool Rules, string fiveRanksIn, params string[] givesPlusTwoOn) {
+            Statistic rankSkill = Rules.GetStat(fiveRanksIn + RANKS);
             Effect synergy = new Effect(fiveRanksIn + " synergy")
                 .SetToggle(new ConditionalToggle(rankSkill.Name, Relation.GREATER_THAN_OR_EQUAL, 5));
             foreach (string skill in givesPlusTwoOn) {

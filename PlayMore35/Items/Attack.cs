@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using PlayMore35.Effects;
 using static PlayMore35.GameRules.Constants;
 using static PlayMore35.Effects.StackingRules;
 
@@ -45,7 +46,7 @@ namespace PlayMore35.Items {
         }
 
         private void ComputeAttackBonusAndDamage(
-            GameRules.GameRules rules,
+            EffectPool rules,
             (int qty, int type) damageDieMedium,
             int sizeCategory,
             int criticalMultiplier,
@@ -56,15 +57,15 @@ namespace PlayMore35.Items {
             IEnumerable<Effects.Modifier> atkModsFromProps = properties
                 .Select(x => x.AttackModifier)
                 .Where(x => x != null);
-            IEnumerable<Effects.Modifier> attackModifiers = rules.Rules.GetAttackModifiers(this)
+            IEnumerable<Effects.Modifier> attackModifiers = rules.GetAttackModifiers(this)
                 .Concat(atkModsFromProps);
                 
-            AttackBonus = StackModifiers(attackModifiers, rules.Rules);
+            AttackBonus = StackModifiers(attackModifiers, rules);
 
             // XXX : This is crappy but composite bows are crappy.  Oh well.
             int compositeStrToDamage = 0;
             if (Range == Weapon.Range.BOW && StrengthRating >= 0) {
-                int strModifier = rules.GetStat(STR_MODIFIER).GetValue(rules.Rules).value;
+                int strModifier = rules.GetStat(STR_MODIFIER).GetValue(rules).value;
                 if (strModifier >= StrengthRating) {
                     compositeStrToDamage = StrengthRating;
                 } else {
@@ -93,10 +94,10 @@ namespace PlayMore35.Items {
             IEnumerable<Effects.Modifier> dmgModsFromProps = properties
                 .Select(x => x.DamageModifier)
                 .Where(x => x != null);
-            IEnumerable<Effects.Modifier> damageModifiers = rules.Rules.GetDamageModifiers(this)
+            IEnumerable<Effects.Modifier> damageModifiers = rules.GetDamageModifiers(this)
                 .Concat(dmgModsFromProps);
             
-            (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules.Rules);
+            (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules);
             damage.AddDice(mod + compositeStrToDamage, 1);
             explanation.AddRange(modExpl);
             if (compositeStrToDamage > 0) {
@@ -113,7 +114,7 @@ namespace PlayMore35.Items {
             IEnumerable<Effects.DiceGroup> extraDiceFromProps = properties
                 .Where(x => x.ExtraDamage.qty != 0)
                 .Select(x => new Effects.DiceGroup(x.Name).AddDice(x.ExtraDamage.qty, x.ExtraDamage.size));
-            IEnumerable<Effects.DiceGroup> extraDice = rules.Rules.GetExtraDice(this)
+            IEnumerable<Effects.DiceGroup> extraDice = rules.GetExtraDice(this)
                 .Concat(extraDiceFromProps);
             foreach (Effects.DiceGroup extra in extraDice) {
                 damage.AddDice(extra);
@@ -139,7 +140,7 @@ namespace PlayMore35.Items {
         }
 
         public static Attack Melee(
-            GameRules.GameRules rules,
+            EffectPool rules,
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
@@ -172,7 +173,7 @@ namespace PlayMore35.Items {
         }
 
         public static Attack Projectile(
-            GameRules.GameRules rules,
+            EffectPool rules,
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
@@ -201,7 +202,7 @@ namespace PlayMore35.Items {
         }
 
         public static Attack Thrown(
-            GameRules.GameRules rules,
+            EffectPool rules,
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
@@ -234,7 +235,7 @@ namespace PlayMore35.Items {
 
         private static void GenerateOneHandAttack(
             List<Attack> attacks,
-            GameRules.GameRules rules,
+            EffectPool rules,
             Weapon weapon,
             int wpnSizeCategory,
             int sizeDiscrepancy,
@@ -272,16 +273,16 @@ namespace PlayMore35.Items {
         // even if they look identical.  
         // Either being null means that hand is empty.  If the primary hand is empty, this function will generate
         // an empty list of attacks, assuming that the player has no attacks available.
-        public static List<Attack> Generate(GameRules.GameRules rules, int sizeChange) {
-            Weapon primaryHandWeapon = rules.Rules.PrimaryHandWeapon;
-            Weapon offHandWeapon = rules.Rules.OffHandWeapon;
+        public static List<Attack> Generate(EffectPool rules, int sizeChange) {
+            Weapon primaryHandWeapon = rules.PrimaryHandWeapon;
+            Weapon offHandWeapon = rules.OffHandWeapon;
 
             List<Attack> attacks = new List<Attack>();
             if (primaryHandWeapon == null) {
                 return attacks;
             }
 
-            int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules.Rules).value;
+            int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules).value;
             int priSizeCategory = AdjustSize(primaryHandWeapon.SizeCategory, sizeChange);
             int priSizeDiscrepancy = priSizeCategory - playerSizeCategory;
             Weapon.Effort priEffort = primaryHandWeapon.EffortCategory + priSizeDiscrepancy;

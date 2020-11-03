@@ -18,9 +18,8 @@ namespace PlayMore35.Effects.Tests {
         // rules into a JSON object; then, this test-convenience function will create a new GameRules
         // object from that JSON object.  This will keep from needing to do the loading
         // separately for each test.
-        private GameRules.GameRules Rules() {
-            GameRules.GameRules rules = new GameRules.GameRules();
-            EffectPool p = rules.Rules;
+        private EffectPool Rules() {
+            EffectPool p = GameRules.GameRules.MakeTheRules();
 
             // make all the ability modifiers zero
             p.AddEffect(ModifyStat(10, STR_SCORE));
@@ -36,11 +35,11 @@ namespace PlayMore35.Effects.Tests {
             // 0 HP causes some weirdness too
             p.AddEffect(ModifyStat(1, MAX_HP));
 
-            return rules;
+            return p;
         }
 
-        private void CheckStat(int expected, GameRules.GameRules r, string stat) {
-            (int value, List<string> explanation) = r.GetStat(stat).GetValue(r.Rules);
+        private void CheckStat(int expected, EffectPool r, string stat) {
+            (int value, List<string> explanation) = r.GetStat(stat).GetValue(r);
             Console.WriteLine("------ " + stat + " " + value);
             explanation.ForEach(x => Console.WriteLine(x));
             Assert.AreEqual(expected, value);
@@ -48,75 +47,71 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestComputeAbilityModifier() {
-            GameRules.GameRules r = Rules();
-            r.Rules.AddEffect(ModifyStat(-3, STR_SCORE));
+            EffectPool r = Rules();
+            r.AddEffect(ModifyStat(-3, STR_SCORE));
             CheckStat(-2, r, STR_MODIFIER);
             CheckStat(0, r, DEX_MODIFIER);
         }
 
         [TestMethod()]
         public void TestConditionalEffects() {
-            GameRules.GameRules r = Rules();
-            r.Rules.AddEffect(ModifyStat(5, TUMBLE + RANKS));
+            EffectPool r = Rules();
+            r.AddEffect(ModifyStat(5, TUMBLE + RANKS));
             CheckStat(+2, r, JUMP);
             CheckStat(+5, r, TUMBLE);
         }
 
         [TestMethod()]
         public void TestInitiativeChaining() {
-            GameRules.GameRules r = Rules();
-            r.Rules.AddEffect(new Effect("Improved 'initiative'").AddModifier(ABILITY_CHECKS, new Modifier(4, UNTYPED)));
+            EffectPool r = Rules();
+            r.AddEffect(new Effect("Improved 'initiative'").AddModifier(ABILITY_CHECKS, new Modifier(4, UNTYPED)));
             CheckStat(+4, r, INITIATIVE);
         }
 
         [TestMethod()]
         public void TestAC() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             p.AddEffect(ModifyStat(+2, DEX_SCORE));
             p.AddEffect(new Effect("ring").AddModifier(AC, new Modifier(2, DEFLECTION)));
             p.AddEffect(new Effect("dragon scales").AddModifier(NATURAL_ARMOR, new Modifier(4, RACIAL)));
 
-            CheckStat(17, r, AC);
-            CheckStat(13, r, TOUCH_AC);
+            CheckStat(17, p, AC);
+            CheckStat(13, p, TOUCH_AC);
         }
 
         [TestMethod()]
         public void TestFlatFootedAC() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             p.AddEffect(ModifyStat(+2, DEX_SCORE));
-            CheckStat(11, r, AC);
+            CheckStat(11, p, AC);
             p.AddEffect(new Effect("ff").AddFlag(FLAT_FOOTED));
-            CheckStat(10, r, AC);
+            CheckStat(10, p, AC);
             p.AddEffect(new Effect("ud").AddFlag(UNCANNY_DODGE));
-            CheckStat(11, r, AC);
+            CheckStat(11, p, AC);
         }
 
         [TestMethod()]
         public void TestDeniedDex() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             p.AddEffect(ModifyStat(+2, DEX_SCORE));
-            CheckStat(11, r, AC);
+            CheckStat(11, p, AC);
             p.AddEffect(new Effect("deny").AddFlag(DENIED_DEX));
-            CheckStat(10, r, AC);
+            CheckStat(10, p, AC);
             p.AddEffect(new Effect("ud").AddFlag(UNCANNY_DODGE));
-            CheckStat(10, r, AC);
+            CheckStat(10, p, AC);
         }
 
         [TestMethod()]
         public void TestACP() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             p.AddEffect(ModifyStat(-5, ARMOR_CHECK_PENALTY));
-            CheckStat(-5, r, BALANCE);
-            CheckStat(-10, r, SWIM);
-            CheckStat(0, r, DIPLOMACY);
+            CheckStat(-5, p, BALANCE);
+            CheckStat(-10, p, SWIM);
+            CheckStat(0, p, DIPLOMACY);
         }
 
         private Weapon Dagger(bool throwable = true) {
@@ -169,8 +164,7 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestMeleeWeapon() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
             p.AddEffect(ModifyStat(+6, STR_SCORE));
             p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
@@ -178,7 +172,7 @@ namespace PlayMore35.Effects.Tests {
             dagger.Tags.Add("shadow hand");
             p.OneHandOneWeapon(dagger);
 
-            List<Attack> daggerAttacks = Attack.Generate(r, 0);
+            List<Attack> daggerAttacks = Attack.Generate(p, 0);
             Assert.AreEqual(Weapon.Range.MELEE, daggerAttacks[0].Range);
             Assert.AreEqual(+3, daggerAttacks[0].AttackBonus.bonus);
             Assert.AreEqual("1d4 + 3", daggerAttacks[0].Damage.dice.ToString());
@@ -189,7 +183,7 @@ namespace PlayMore35.Effects.Tests {
             p.AddEffect(new Effect("discipline focus")
                 .AddAttackModifier(new AttackClass().Tag("shadow hand"), new Modifier(+1, UNTYPED))
             );
-            daggerAttacks = Attack.Generate(r, 0);
+            daggerAttacks = Attack.Generate(p, 0);
             Assert.AreEqual(Weapon.Range.MELEE, daggerAttacks[0].Range);
             Assert.AreEqual(+4, daggerAttacks[0].AttackBonus.bonus);
         }
@@ -212,15 +206,14 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestCompositeBowStrong() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
             p.AddEffect(ModifyStat(+6, STR_SCORE));
             p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             Weapon bow = CompositeBow(+2);
             p.TwoHandOneWeapon(bow);
 
-            List<Attack> attack = Attack.Generate(r, 0);
+            List<Attack> attack = Attack.Generate(p, 0);
             Assert.AreEqual(1, attack.Count());
             Assert.AreEqual(+5, attack[0].AttackBonus.bonus);
             Assert.AreEqual("1d6 + 2", attack[0].Damage.dice.ToString());
@@ -228,15 +221,14 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestCompositeBowWeak() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
             p.AddEffect(ModifyStat(+6, STR_SCORE));
             p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             Weapon bow = CompositeBow(+4);
             p.TwoHandOneWeapon(bow);
 
-            List<Attack> attack = Attack.Generate(r, 0);
+            List<Attack> attack = Attack.Generate(p, 0);
             Assert.AreEqual(1, attack.Count());
             Assert.AreEqual(+3, attack[0].AttackBonus.bonus);
             Assert.AreEqual("1d6 + 3", attack[0].Damage.dice.ToString());
@@ -244,56 +236,52 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestFearStacking() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
             p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
-            CheckStat(+5, r, DEX_CHECKS);
+            CheckStat(+5, p, DEX_CHECKS);
             p.AddEffect(ModifyStat(1, FEAR_LEVEL));
-            CheckStat(+3, r, DEX_CHECKS);
+            CheckStat(+3, p, DEX_CHECKS);
         }
 
         [TestMethod()]
         public void TestSpecialSizeModifier() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
             p.AddEffect(ModifyStat(+10, DEX_SCORE));
 
             // no ranks in hide, +5 dex +0 str +0 bab, medium size:  +5 hide, +0 grapple
-            CheckStat(+5, r, HIDE);
-            CheckStat(+0, r, GRAPPLE);
+            CheckStat(+5, p, HIDE);
+            CheckStat(+0, p, GRAPPLE);
 
             // colossal size, which gives -16 hide +16 grapple
             p.AddEffect(ModifyStat(4, SIZE_CATEGORY));
 
-            CheckStat(-11, r, HIDE);
-            CheckStat(+16, r, GRAPPLE);
+            CheckStat(-11, p, HIDE);
+            CheckStat(+16, p, GRAPPLE);
         }
 
         [TestMethod()]
         public void TestReachLookup() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
-            CheckStat(5, r, REACH);
+            CheckStat(5, p, REACH);
             p.AddEffect(ModifyStat(4, SIZE_CATEGORY));
-            CheckStat(30, r, REACH);
+            CheckStat(30, p, REACH);
         }
 
         [TestMethod()]
         public void TestSpeedModifierToJump() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             // no ranks, +0 ability, no speed modifier.
-            CheckStat(+0, r, JUMP);
+            CheckStat(+0, p, JUMP);
 
             Effect speedModifier = ModifyStat(+5, LAND_SPEED);
             p.AddEffect(speedModifier);
-            CheckStat(+0, r, JUMP);
+            CheckStat(+0, p, JUMP);
 
             p.AddEffect(speedModifier);
-            CheckStat(+4, r, JUMP);
+            CheckStat(+4, p, JUMP);
         }
 
         [TestMethod()]
@@ -313,33 +301,31 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestWeaponDamageBySize() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             p.OneHandOneWeapon(Dagger());
 
             p.AddEffect(ModifyStat(+2, SIZE_CATEGORY));
-            Assert.AreEqual("1d8", Attack.Generate(r, +2)[0].Damage.dice.ToString());
+            Assert.AreEqual("1d8", Attack.Generate(p, +2)[0].Damage.dice.ToString());
             p.AddEffect(ModifyStat(+1000, SIZE_CATEGORY));
-            Assert.AreEqual("3d6", Attack.Generate(r, +1002)[0].Damage.dice.ToString());
+            Assert.AreEqual("3d6", Attack.Generate(p, +1002)[0].Damage.dice.ToString());
             p.AddEffect(ModifyStat(-2002, SIZE_CATEGORY));
-            Assert.AreEqual("—", Attack.Generate(r, -1000)[0].Damage.dice.ToString());
+            Assert.AreEqual("—", Attack.Generate(p, -1000)[0].Damage.dice.ToString());
         }
 
         [TestMethod()]
         public void TestExtraDamageEffects() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
             p.OneHandOneWeapon(Dagger());
 
-            Attack daggerMelee = Attack.Generate(r, 0)[0];
+            Attack daggerMelee = Attack.Generate(p, 0)[0];
             var (normalDice, normalExpl) = daggerMelee.Damage;
             Assert.AreEqual("1d4", normalDice.ToString());
 
             p.AddEffect(new Effect("Sneak attack")
                 .AddExtraDice(AttackClass.ALL, 2, 6)
             );
-            daggerMelee = Attack.Generate(r, 0)[0];
+            daggerMelee = Attack.Generate(p, 0)[0];
             var (sneakDice, sneakExpl) = daggerMelee.Damage;
             Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
 
@@ -358,7 +344,7 @@ namespace PlayMore35.Effects.Tests {
             );
 
             p.TwoHandOneWeapon(Greatsword());
-            List<Attack> greatswordAttacks = Attack.Generate(r, 0);
+            List<Attack> greatswordAttacks = Attack.Generate(p, 0);
             Assert.AreEqual(1, greatswordAttacks.Count());
             Attack greatswordAttack = greatswordAttacks[0];
             var (lotsaDice, bigExpl) = greatswordAttack.Damage;
@@ -374,12 +360,11 @@ namespace PlayMore35.Effects.Tests {
             Weapon dagger = Dagger();
             dagger.SizeCategory = +2;
 
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
             // it's big enough that we have to two-hand it
             p.TwoHandOneWeapon(dagger);
 
-            var daggerAttacks = Attack.Generate(r, 0);
+            var daggerAttacks = Attack.Generate(p, 0);
             Assert.AreEqual(2, daggerAttacks.Count());
             Attack melee = daggerAttacks[0];
             Assert.AreEqual(-4, melee.AttackBonus.bonus);
@@ -391,8 +376,7 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestTextEffects() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             p.AddEffect(new Effect("Darkvision")
                 .AddText(SENSES, "darkvision 60 ft.")
@@ -413,8 +397,8 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("[new category] something something", uncategorized[0]);
         }
 
-        private void CheckAttack(int[] expAtkBonus, string[] expDamage, GameRules.GameRules r, Weapon pri, Weapon off) {
-            r.Rules.TwoWeapons(pri, off); // this is really just a direct setter for pri and off.
+        private void CheckAttack(int[] expAtkBonus, string[] expDamage, EffectPool r, Weapon pri, Weapon off) {
+            r.TwoWeapons(pri, off); // this is really just a direct setter for pri and off.
 
             List<Attack> attacks = Attack.Generate(r, 0);
             Assert.AreEqual(expAtkBonus.Length, attacks.Count());
@@ -434,14 +418,13 @@ namespace PlayMore35.Effects.Tests {
             }
         }
 
-        private void CheckAttack(int expAtkBonus, string expDamage, GameRules.GameRules r, Weapon pri, Weapon off) {
+        private void CheckAttack(int expAtkBonus, string expDamage, EffectPool r, Weapon pri, Weapon off) {
             CheckAttack(new int[] { expAtkBonus }, new string[] { expDamage }, r, pri, off);
         }
 
         [TestMethod()]
         public void TestControllableAmount() {
-            GameRules.GameRules r = Rules();
-            EffectPool p = r.Rules;
+            EffectPool p = Rules();
 
             ControllableAmount powerAttackAmount = new ControllableAmount("Power attack penalty")
                 .Minimum(0)
@@ -467,27 +450,27 @@ namespace PlayMore35.Effects.Tests {
             Weapon longsword = Longsword();
 
             // Just BAB -- attack at +2, no damage bonus.
-            CheckAttack(+2, "1d4", r, dagger, null);
-            CheckAttack(+2, "1d8", r, longsword, null);
-            CheckAttack(+2, "1d8", r, longsword, longsword);
+            CheckAttack(+2, "1d4", p, dagger, null);
+            CheckAttack(+2, "1d8", p, longsword, null);
+            CheckAttack(+2, "1d8", p, longsword, longsword);
 
             // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
             powerAttackAmount.Amount = 1;
-            CheckAttack(+1, "1d4", r, dagger, null);
-            CheckAttack(+1, "1d8 + 1", r, longsword, null);
-            CheckAttack(+1, "1d8 + 2", r, longsword, longsword);
+            CheckAttack(+1, "1d4", p, dagger, null);
+            CheckAttack(+1, "1d8 + 1", p, longsword, null);
+            CheckAttack(+1, "1d8 + 2", p, longsword, longsword);
 
             // Power attack for "3", clamped to 2 -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
             powerAttackAmount.Amount = 3;
-            CheckAttack(+0, "1d4", r, dagger, null);
-            CheckAttack(+0, "1d8 + 2", r, longsword, null);
-            CheckAttack(+0, "1d8 + 4", r, longsword, longsword);
+            CheckAttack(+0, "1d4", p, dagger, null);
+            CheckAttack(+0, "1d8 + 2", p, longsword, null);
+            CheckAttack(+0, "1d8 + 4", p, longsword, longsword);
 
             // Power attack for "-1", clamped to 0, same as no power attack
             powerAttackAmount.Amount = -1;
-            CheckAttack(+2, "1d4", r, dagger, null);
-            CheckAttack(+2, "1d8", r, longsword, null);
-            CheckAttack(+2, "1d8", r, longsword, longsword);
+            CheckAttack(+2, "1d4", p, dagger, null);
+            CheckAttack(+2, "1d8", p, longsword, null);
+            CheckAttack(+2, "1d8", p, longsword, longsword);
         }
 
         [TestMethod()]
@@ -499,22 +482,21 @@ namespace PlayMore35.Effects.Tests {
 
         [TestMethod()]
         public void TestGlobalWeaponProperty() {
-            GameRules.GameRules r = Rules();
+            EffectPool p = Rules();
 
             Weapon dagger = Dagger(false);
             dagger.Melee?.atk.Properties.Add(new WeaponProperty("warning") {
                 GlobalEffect = new Effect("warning dagger")
                     .AddModifier(INITIATIVE, new Modifier(+5, INSIGHT))
             });
+            p.OneHandOneWeapon(dagger);
 
-            r.Rules.OneHandOneWeapon(dagger);
-
-            CheckStat(+5, r, INITIATIVE);
+            CheckStat(+5, p, INITIATIVE);
         }
 
         [TestMethod()]
         public void TestTwfPenalties() {
-            GameRules.GameRules r = Rules();
+            EffectPool p = Rules();
 
             Weapon priSword = Longsword();
             Weapon offSword = Longsword();
@@ -523,7 +505,7 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(
                 new int[] { +0, -6, -10 },
                 new string[] { "1d8", "1d8", "1d8" },
-                r,
+                p,
                 priSword,
                 offSword
             );
@@ -531,12 +513,11 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(
                 new int[] { +0, -4, -8 },
                 new string[] { "1d8", "1d8", "1d4" },
-                r,
+                p,
                 priSword,
                 offDagger
             );
-
-            r.Rules.AddEffect(new Effect("Two-Weapon Fighting")
+            p.AddEffect(new Effect("Two-Weapon Fighting")
                 .AddAttackModifier(new AttackClass().PrimaryHandTwfAttack(), new Modifier(+2, UNTYPED))
                 .AddAttackModifier(new AttackClass().OffHandAttack(), new Modifier(+6, UNTYPED))
             );
@@ -544,7 +525,7 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(
                 new int[] { +0, -4, -4 },
                 new string[] { "1d8", "1d8", "1d8" },
-                r,
+                p,
                 priSword,
                 offSword
             );
@@ -552,12 +533,11 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(
                 new int[] { +0, -2, -2 },
                 new string[] { "1d8", "1d8", "1d4" },
-                r,
+                p,
                 priSword,
                 offDagger
             );
-
-            r.Rules.AddEffect(ModifyStat(+4, STR_SCORE));
+            p.AddEffect(ModifyStat(+4, STR_SCORE));
             Weapon quarterstaff = new Weapon("longsword", 0, Weapon.Effort.ONE_HANDED) {
                 Melee = (
                     new AttackMode {
@@ -576,7 +556,7 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(
                 new int[] { +2, +0, +0 },
                 new string[] { "1d4 + 3", "1d4 + 2", "1d4 + 1" },
-                r,
+                p,
                 quarterstaff,
                 quarterstaff
             );
