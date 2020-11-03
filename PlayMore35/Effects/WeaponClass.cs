@@ -3,7 +3,7 @@ using System.Linq;
 using PlayMore35.Items;
 
 namespace PlayMore35.Effects {
-    public class WeaponClass {
+    public class WeaponClass : ISubjectClass<Attack> {
         public static readonly WeaponClass ALL = new WeaponClass();
 
         // Making a WeaponClass and adding no matchers to it will cause it to match all attacks.

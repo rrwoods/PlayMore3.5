@@ -11,12 +11,12 @@ namespace PlayMore35.Effects {
 
         public IToggle Toggle = AlwaysOn.Instance;
 
-        private readonly List<(Modifier mod, string affects)> Modifiers = new List<(Modifier, string)>();
+        private readonly List<(Modifier mod, StatisticClass affects)> Modifiers = new List<(Modifier, StatisticClass)>();
         private readonly List<(Modifier mod, WeaponClass affects)> AttackModifiers = new List<(Modifier, WeaponClass)>();
         private readonly List<(Modifier mod, WeaponClass affects)> DamageModifiers = new List<(Modifier, WeaponClass)>();
 
-        private readonly List<(Multiplier mult, string affects)> Multipliers = new List<(Multiplier, string)>();
-        private readonly List<(int qty, int size, WeaponClass affects)> ExtraDice = new List<(int, int, WeaponClass)>();
+        private readonly List<(Multiplier mod, StatisticClass affects)> Multipliers = new List<(Multiplier, StatisticClass)>();
+        private readonly List<((int qty, int size) dice, WeaponClass affects)> ExtraDice = new List<((int, int), WeaponClass)>();
         private readonly List<string> Flags = new List<string>();
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
@@ -26,7 +26,7 @@ namespace PlayMore35.Effects {
         }
 
         public Effect AddModifier(string affects, Modifier mod) {
-            Modifiers.Add((mod, affects));
+            Modifiers.Add((mod, new StatisticClass(affects)));
             mod.Name = Name;
             return this;
         }
@@ -44,12 +44,12 @@ namespace PlayMore35.Effects {
         }
 
         public Effect AddMultiplier(string affects, Multiplier multiplier) {
-            Multipliers.Add((multiplier, affects));
+            Multipliers.Add((multiplier, new StatisticClass(affects)));
             return this;
         }
 
         public Effect AddExtraDice(WeaponClass affects, int qty, int size) {
-            ExtraDice.Add((qty, size, affects));
+            ExtraDice.Add(((qty, size), affects));
             return this;
         }
 
@@ -68,14 +68,15 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        // TODO : these three functions are identical, except that they pull from different collections
-        // and use a different matching check.  Can they be combined, with some <T> cleverness maybe?
-
-        public IEnumerable<Modifier> GetModifiers(EffectPool pool, Statistic affecting) {
+        private IEnumerable<ModType> GetAlterers<ModType, SubjectType, SubjectSpecifier> (
+            EffectPool pool,
+            SubjectType affecting,
+            List<(ModType mod, SubjectSpecifier affects)> alterers
+        ) where SubjectSpecifier : ISubjectClass<SubjectType> {
             // In order to prevent infinite recursion, we have to check whether we care about what this effect
             // does before checking whether it applies.
-            IEnumerable<Modifier> potential = Modifiers
-                .Where(x => affecting.HasTag(x.affects))
+            IEnumerable<ModType> potential = alterers
+                .Where(x => x.affects.Matches(affecting))
                 .Select(x => x.mod);
             if (!potential.Any()) {
                 return potential;
@@ -83,59 +84,29 @@ namespace PlayMore35.Effects {
 
             return Toggle.On(pool)
                 ? potential
-                : Enumerable.Empty<Modifier>();
+                : Enumerable.Empty<ModType>();
+        }
+
+
+        public IEnumerable<Modifier> GetModifiers(EffectPool pool, Statistic affecting) {
+            return GetAlterers(pool, affecting, Modifiers);
         }
 
         public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Items.Attack affecting) {
-            IEnumerable<Modifier> potential = AttackModifiers
-                .Where(x => x.affects.Matches(affecting))
-                .Select(x => x.mod);
-            if (!potential.Any()) {
-                return potential;
-            }
-
-            return Toggle.On(pool)
-                ? potential
-                : Enumerable.Empty<Modifier>();
+            return GetAlterers(pool, affecting, AttackModifiers);
         }
 
         public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Items.Attack affecting) {
-            IEnumerable<Modifier> potential = DamageModifiers
-                .Where(x => x.affects.Matches(affecting))
-                .Select(x => x.mod);
-            if (!potential.Any()) {
-                return potential;
-            }
-
-            return Toggle.On(pool)
-                ? potential
-                : Enumerable.Empty<Modifier>();
+            return GetAlterers(pool, affecting, DamageModifiers);
         }
 
         public IEnumerable<Multiplier> GetMultipliers(EffectPool pool, Statistic affecting) {
-            IEnumerable<Multiplier> potential = Multipliers
-                .Where(x => affecting.HasTag(x.affects))
-                .Select(x => x.mult);
-            if (!potential.Any()) {
-                return potential;
-            }
-
-            return Toggle.On(pool)
-                ? potential
-                : Enumerable.Empty<Multiplier>();
+            return GetAlterers(pool, affecting, Multipliers);
         }
 
         public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Items.Attack affecting) {
-            IEnumerable<DiceGroup> potential = ExtraDice
-                .Where(x => x.affects.Matches(affecting))
+            return GetAlterers(pool, affecting, ExtraDice)
                 .Select(x => new DiceGroup(Name).AddDice(x.qty, x.size));
-            if (!potential.Any()) {
-                return potential;
-            }
-
-            return Toggle.On(pool)
-                ? potential
-                : Enumerable.Empty<DiceGroup>();
         }
 
         public bool HasFlag(string flag) {

@@ -78,6 +78,7 @@
     <Compile Include="Effects\AnyToggle.cs" />
     <Compile Include="Effects\AllToggle.cs" />
     <Compile Include="Effects\ControllableAmount.cs" />
+    <Compile Include="Effects\ISubjectClass.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />
     <Compile Include="Effects\StackingRules.cs" />
     <Compile Include="Effects\ControllableToggle.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Effects\FlagToggle.cs" />
     <Compile Include="Effects\LookupAmount.cs" />
     <Compile Include="Effects\Multiplier.cs" />
+    <Compile Include="Effects\StatisticClass.cs" />
     <Compile Include="Effects\UnToggle.cs" />
     <Compile Include="Effects\LesserAmount.cs" />
     <Compile Include="Effects\ConditionalToggle.cs" />
