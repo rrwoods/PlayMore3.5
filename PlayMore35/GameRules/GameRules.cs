@@ -6,10 +6,8 @@ using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.GameRules {
     public class GameRules {
-        public EffectPool Rules { get; private set; } = new EffectPool();
-
         private readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
-        private readonly Dictionary<string, Statistic> abilityModifiers = new Dictionary<string, Statistic>();
+        public EffectPool Rules { get; private set; } = new EffectPool();
 
         public void AddStat(Statistic stat) {
             stats[stat.Name] = stat;
@@ -20,6 +18,7 @@ namespace PlayMore35.GameRules {
         }
 
         // The default constructor sets up 3.5's official rules.
+        // This will go away entirely once (de)serialization is solid.
         public GameRules() {
             AbilityScore(STR);
             AbilityScore(DEX);
@@ -595,8 +594,6 @@ namespace PlayMore35.GameRules {
                 .AddTag(ABILITY_CHECKS);
             AddStat(checks);
 
-            abilityModifiers[ability] = abilityModifier;
-
             Statistic abilityBonus = new Statistic(ability + " bonus");
             AddStat(abilityBonus);
             Rules.AddEffect(
@@ -634,7 +631,7 @@ namespace PlayMore35.GameRules {
             );
             Rules.AddEffect(
                 new Effect(ability + " to " + skill)
-                    .AddModifier(skill, new Modifier(abilityModifiers[ability], ABILITY_MODIFIER))
+                    .AddModifier(skill, new Modifier(stats[ability + " modifier"], ABILITY_MODIFIER))
             );
         }
 
@@ -649,7 +646,7 @@ namespace PlayMore35.GameRules {
                 new Effect("Total " + save + " modifier")
                     .AddModifier(saveName, new Modifier(UNTYPED)
                         .AddAmount(new VariableAmount(baseSave))
-                        .AddAmount(new VariableAmount(abilityModifiers[ability]))
+                        .AddAmount(new VariableAmount(stats[ability + " modifier"]))
                     )
             );
         }

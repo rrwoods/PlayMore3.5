@@ -7,6 +7,9 @@ using static PlayMore35.GameRules.Constants;
 namespace PlayMore35.Effects {
     public class EffectPool {
         private readonly List<Effect> Effects = new List<Effect>();
+
+        // Weapons are not serialized or deserialized.  Serialization of the player's currently-equipped
+        // weapons are (or will be) handled separately by the system that handles inventory.
         public Items.Weapon PrimaryHandWeapon { get; private set; } = null;
         public Items.Weapon OffHandWeapon { get; private set; } = null;
 
@@ -39,8 +42,7 @@ namespace PlayMore35.Effects {
         }
 
         public IEnumerable<Modifier> GetModifiers(Statistic affecting) {
-            IEnumerable<Modifier> mods = Effects
-                .SelectMany(x => x.GetModifiers(this, affecting));
+            IEnumerable<Modifier> mods = Effects.SelectMany(x => x.GetModifiers(this, affecting));
             if (PrimaryHandWeapon != null) {
                 mods = mods.Concat(PrimaryHandWeapon.GetGlobalModifiers(this, affecting));
             }
@@ -51,23 +53,19 @@ namespace PlayMore35.Effects {
         }
 
         public IEnumerable<Modifier> GetAttackModifiers(Items.Attack affecting) {
-            return Effects
-                .SelectMany(x => x.GetAttackModifiers(this, affecting));
+            return Effects.SelectMany(x => x.GetAttackModifiers(this, affecting));
         }
 
         public IEnumerable<Modifier> GetDamageModifiers(Items.Attack affecting) {
-            return Effects
-                .SelectMany(x => x.GetDamageModifiers(this, affecting));
+            return Effects.SelectMany(x => x.GetDamageModifiers(this, affecting));
         }
 
         public IEnumerable<Multiplier> GetMultipliers(Statistic affecting) {
-            return Effects
-                .SelectMany(x => x.GetMultipliers(this, affecting));
+            return Effects.SelectMany(x => x.GetMultipliers(this, affecting));
         }
 
         public IEnumerable<DiceGroup> GetExtraDice(Items.Attack affecting) {
-            return Effects
-                    .SelectMany(x => x.GetExtraDice(this, affecting));
+            return Effects.SelectMany(x => x.GetExtraDice(this, affecting));
         }
 
         public Dictionary<string, List<string>> GetTextEffects() {

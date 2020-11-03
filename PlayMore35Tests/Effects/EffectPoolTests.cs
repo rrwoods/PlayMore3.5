@@ -13,6 +13,11 @@ namespace PlayMore35.Effects.Tests {
             return new Effect(stat).AddModifier(stat, new Modifier(value, UNTYPED));
         }
 
+        // Once serialization is in place, the GameRules default constructor will go away.
+        // We'll need to set up a @Before (or whatever C#'s equivalent is) that loads the core
+        // rules into a JSON object; then, this test-convenience function will create a new GameRules
+        // object from that JSON object.  This will keep from needing to do the loading
+        // separately for each test.
         private GameRules.GameRules Rules() {
             GameRules.GameRules rules = new GameRules.GameRules();
             EffectPool p = rules.Rules;
