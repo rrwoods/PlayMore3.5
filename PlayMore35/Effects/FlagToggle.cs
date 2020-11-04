@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class FlagToggle : IToggle {
         private readonly string flag;
+
+        public JToken ToJson() {
+            return new JObject(new JProperty("flag", flag));
+        }
 
         public FlagToggle(string flag) {
             this.flag = flag;

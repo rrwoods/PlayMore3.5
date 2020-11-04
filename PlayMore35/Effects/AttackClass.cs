@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Items;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class AttackClass : ISubjectClass<Attack> {
@@ -9,9 +11,53 @@ namespace PlayMore35.Effects {
         // Making a WeaponClass and adding no matchers to it will cause it to match all attacks.
         // Each matcher represents a requirement that must be met.  For example:
         // new WeaponClass().Martial().OneHandedAttack()
-        // will represent any attack with a martial weapon weilded in one hand.
+        // will match any attack with a martial weapon weilded in one hand.
 
         private List<IMatcher> matchers = new List<IMatcher>();
+
+        public JToken ToJson() {
+            return new JObject(matchers.Select(x => x.ToJson()));
+        }
+
+        public AttackClass(JObject json) {
+            foreach (JProperty prop in json.Properties()) {
+                if (prop.Name.Equals("name")) {
+                    matchers.Add(new NameMatcher((string)prop.Value));
+                } else if (prop.Name.Equals("tag")) {
+                    matchers.Add(new TagMatcher((string)prop.Value));
+                } else if (prop.Name.Equals("size")) {
+                    matchers.Add(new SizeMatcher((int)prop.Value));
+                } else if (prop.Name.Equals("proficiency")) {
+                    ProficiencyMatcher matcher = new ProficiencyMatcher();
+                    foreach (JValue value in prop["proficiency"]) {
+                        matcher.AddProficiency((Weapon.Proficiency)Enum.Parse(typeof(Weapon.Proficiency), (string)value, false));
+                    }
+                    matchers.Add(matcher);
+                } else if (prop.Name.Equals("effort")) {
+                    EffortMatcher matcher = new EffortMatcher();
+                    foreach (JValue value in prop.Value) {
+                        matcher.AddEffort((Weapon.Effort)Enum.Parse(typeof(Weapon.Effort), (string)value, false));
+                    }
+                    matchers.Add(matcher);
+                } else if (prop.Name.Equals("hand")) {
+                    HandMatcher matcher = new HandMatcher();
+                    foreach (JValue value in prop.Value) {
+                        matcher.AddHand((Weapon.Hand)Enum.Parse(typeof(Weapon.Hand), (string)value, false));
+                    }
+                    matchers.Add(matcher);
+                } else if (prop.Name.Equals("range")) {
+                    RangeMatcher matcher = new RangeMatcher();
+                    foreach (JValue value in prop.Value) {
+                        matcher.AddRange((Weapon.Range)Enum.Parse(typeof(Weapon.Range), (string)value, false));
+                    }
+                    matchers.Add(matcher);
+                }
+            }
+        }
+
+        public AttackClass() {
+
+        }
 
         public AttackClass Name(string name) {
             matchers.Add(new NameMatcher(name));
@@ -128,12 +174,16 @@ namespace PlayMore35.Effects {
         }
     }
 
-    interface IMatcher {
+    interface IMatcher : IJsonable {
         bool Matches(Attack attack);
     }
 
     class NameMatcher : IMatcher {
         private readonly string Name;
+
+        public JToken ToJson() {
+            return new JProperty("name", Name);
+        }
 
         public NameMatcher(string name) {
             Name = name;
@@ -146,7 +196,11 @@ namespace PlayMore35.Effects {
 
     class TagMatcher : IMatcher {
         private readonly string Tag;
-        
+
+        public JToken ToJson() {
+            return new JProperty("tag", Tag);
+        }
+
         public TagMatcher(string tag) {
             Tag = tag;
         }
@@ -159,6 +213,10 @@ namespace PlayMore35.Effects {
     class SizeMatcher : IMatcher {
         private readonly int SizeCategory;
 
+        public JToken ToJson() {
+            return new JProperty("size", SizeCategory);
+        }
+
         public SizeMatcher(int sizeCategory) {
             SizeCategory = sizeCategory;
         }
@@ -170,6 +228,10 @@ namespace PlayMore35.Effects {
 
     class ProficiencyMatcher : IMatcher {
         private readonly List<Weapon.Proficiency> Proficiencies = new List<Weapon.Proficiency>();
+
+        public JToken ToJson() {
+            return new JProperty("proficiency", new JArray(Proficiencies.Select(x => x.ToString())));
+        }
 
         public ProficiencyMatcher AddProficiency(Weapon.Proficiency proficiency) {
             Proficiencies.Add(proficiency);
@@ -184,6 +246,10 @@ namespace PlayMore35.Effects {
     class EffortMatcher : IMatcher {
         private readonly List<Weapon.Effort> Efforts = new List<Weapon.Effort>();
 
+        public JToken ToJson() {
+            return new JProperty("effort", new JArray(Efforts.Select(x => x.ToString())));
+        }
+
         public EffortMatcher AddEffort(Weapon.Effort effort) {
             Efforts.Add(effort);
             return this;
@@ -197,6 +263,10 @@ namespace PlayMore35.Effects {
     class HandMatcher : IMatcher {
         private readonly List<Weapon.Hand> Hands = new List<Weapon.Hand>();
 
+        public JToken ToJson() {
+            return new JProperty("hand", new JArray(Hands.Select(x => x.ToString())));
+        }
+
         public HandMatcher AddHand(Weapon.Hand hand) {
             Hands.Add(hand);
             return this;
@@ -209,6 +279,10 @@ namespace PlayMore35.Effects {
 
     class RangeMatcher : IMatcher {
         private readonly List<Weapon.Range> Ranges = new List<Weapon.Range>();
+
+        public JToken ToJson() {
+            return new JProperty("range", new JArray(Ranges.Select(x => x.ToString())));
+        }
 
         public RangeMatcher AddRange(Weapon.Range range) {
             Ranges.Add(range);

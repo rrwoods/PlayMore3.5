@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using static PlayMore35.GameRules.Constants;
+using static PlayMore35.Effects.Constants;
 using static System.Math;
 
 namespace PlayMore35.Effects {

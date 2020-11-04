@@ -1,14 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class ConditionalToggle : IToggle {
-        private IAmount Left = null;
-        private IAmount Right = null;
-        private readonly Relation Relationship = Relation.EQUAL;
+        private IAmount Left;
+        private readonly Relation Relationship;
+        private IAmount Right;
+
+        public JToken ToJson() {
+            return new JObject(new JProperty("conditional", new JObject(
+                new JProperty("left", Left.ToJson()),
+                new JProperty("relation", Relationship.ToString()),
+                new JProperty("right", Right.ToJson())
+            )));
+        }
+
+        public ConditionalToggle(JObject obj) {
+            Left = Amount.FromJson(obj["left"]);
+            Relationship = (Relation) Enum.Parse(typeof(Relation), (string)obj["relation"], false);
+            Right = Amount.FromJson(obj["right"]);
+        }
 
         public ConditionalToggle(IAmount left, Relation relationship, IAmount right) {
             Left = left;

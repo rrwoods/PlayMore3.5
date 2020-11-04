@@ -75,11 +75,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Effects\Alterer.cs" />
     <Compile Include="Effects\AnyToggle.cs" />
     <Compile Include="Effects\AllToggle.cs" />
     <Compile Include="Effects\ControllableAmount.cs" />
     <Compile Include="Effects\ISubjectClass.cs" />
+    <Compile Include="Effects\IJsonable.cs" />
+    <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />
+    <Compile Include="Effects\SmallestAmount.cs" />
     <Compile Include="Effects\StackingRules.cs" />
     <Compile Include="Effects\ControllableToggle.cs" />
     <Compile Include="Effects\DiceGroup.cs" />
@@ -88,10 +92,8 @@
     <Compile Include="Effects\Multiplier.cs" />
     <Compile Include="Effects\StatisticClass.cs" />
     <Compile Include="Effects\UnToggle.cs" />
-    <Compile Include="Effects\LesserAmount.cs" />
     <Compile Include="Effects\ConditionalToggle.cs" />
     <Compile Include="Effects\Effect.cs" />
-    <Compile Include="Effects\GreaterAmount.cs" />
     <Compile Include="Effects\IAmount.cs" />
     <Compile Include="Effects\IToggle.cs" />
     <Compile Include="Effects\Modifier.cs" />
@@ -107,8 +109,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="GameRules\Constants.cs" />
-    <Compile Include="GameRules\GameRules.cs" />
+    <Compile Include="Effects\Constants.cs" />
     <Compile Include="Items\Attack.cs" />
     <Compile Include="Items\AttackMode.cs" />
     <Compile Include="Items\Weapon.cs" />
@@ -137,6 +138,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GameRules\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

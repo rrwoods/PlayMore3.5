@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 using static System.Math;
-using static PlayMore35.GameRules.Constants;
 
 namespace PlayMore35.Effects {
     public class Statistic {
@@ -16,15 +13,58 @@ namespace PlayMore35.Effects {
         private int precision = 1;
         private readonly Dictionary<string, IToggle> ignoredModifierTypes = new Dictionary<string, IToggle>();
 
+        public JObject ToJson() {
+            JObject json = new JObject(new JProperty("name", Name));
+            if (tags.Any()) {
+                json.Add("tags", new JArray(tags));
+            }
+            if (minValue != null) {
+                json.Add("min", minValue);
+            }
+            if (maxValue != null) {
+                json.Add("max", maxValue);
+            }
+            if (precision != 1) {
+                json.Add("precision", precision);
+            }
+            if (ignoredModifierTypes.Any()) {
+                json.Add("ignore", new JObject(
+                    ignoredModifierTypes.Select(x => new JProperty(x.Key, x.Value.ToJson()))
+                ));
+            }
+            return json;
+        }
+
+        public Statistic(JObject token) {
+            Name = (string)token["name"];
+            if (token.ContainsKey("tags")) {
+                tags.AddRange(token["tags"].Select(x => (string)x));
+            }
+            if (token.ContainsKey("min")) {
+                minValue = (int)token["min"];
+            }
+            if (token.ContainsKey("max")) {
+                maxValue = (int)token["max"];
+            }
+            if (token.ContainsKey("precision")) {
+                precision = (int)token["precision"];
+            }
+            if (token.ContainsKey("ignore")) {
+                foreach (JProperty item in token["ignore"]) {
+                    ignoredModifierTypes[item.Name] = Toggle.FromJson(item.Value);
+                }
+            }
+        }
+
         public Statistic(string name) {
             Name = name;
-            AddTag(name);
         }
 
         // For things like "an Initiative check is a Dexterity check",
         // or setting up Dexterity checks themselves to be the Dexterity modifier plus some stuff.
         public Statistic(string name, Statistic basedOn) 
             : this(name) {
+            tags.Add(basedOn.Name);
             tags.AddRange(basedOn.tags);
             foreach (var ignore in basedOn.ignoredModifierTypes) {
                 ignoredModifierTypes.Add(ignore.Key, ignore.Value);
@@ -37,7 +77,7 @@ namespace PlayMore35.Effects {
         }
 
         public bool HasTag(string tag) {
-            return tags.Contains(tag);
+            return Name.Equals(tag) || tags.Contains(tag);
         }
 
         public Statistic Minimum(int minimum) {

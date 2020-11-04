@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using static PlayMore35.GameRules.Constants;
+﻿using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Items {
     public class WeaponProperty {

@@ -1,21 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
-using static PlayMore35.GameRules.Constants;
+using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Effects {
-    public class EffectPool {
+    public class EffectPool : IJsonable {
         private readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
-        private readonly List<Effect> Effects = new List<Effect>();
+        private readonly List<Effect> effects = new List<Effect>();
 
         // Weapons are not serialized or deserialized.  Serialization of the player's currently-equipped
         // weapons are (or will be) handled separately by the system that handles inventory.
         public Items.Weapon PrimaryHandWeapon { get; private set; } = null;
         public Items.Weapon OffHandWeapon { get; private set; } = null;
 
-        public EffectPool() {
+        public JToken ToJson() {
+            return new JObject(
+                new JProperty("stats", new JArray(stats.Values.Select(x => x.ToJson()))),
+                new JProperty("effects", new JArray(effects.Select(x => x.ToJson())))
+            );
+        }
 
+        public void ReadJson(JToken json) {
+            foreach(JObject token in json["stats"]) {
+                Statistic s = new Statistic(token);
+                stats[s.Name] = s;
+            }
+            foreach(JObject token in json["effects"]) {
+                effects.Add(new Effect(token));
+            }
         }
 
         public void AddStat(Statistic stat) {
@@ -27,7 +40,7 @@ namespace PlayMore35.Effects {
         }
 
         public void AddEffect(Effect effect) {
-            Effects.Add(effect);
+            effects.Add(effect);
         }
 
         public void NoWeapons() {
@@ -51,7 +64,7 @@ namespace PlayMore35.Effects {
         }
 
         public IEnumerable<Modifier> GetModifiers(Statistic affecting) {
-            IEnumerable<Modifier> mods = Effects.SelectMany(x => x.GetModifiers(this, affecting));
+            IEnumerable<Modifier> mods = effects.SelectMany(x => x.GetModifiers(this, affecting));
             if (PrimaryHandWeapon != null) {
                 mods = mods.Concat(PrimaryHandWeapon.GetGlobalModifiers(this, affecting));
             }
@@ -62,25 +75,25 @@ namespace PlayMore35.Effects {
         }
 
         public IEnumerable<Modifier> GetAttackModifiers(Items.Attack affecting) {
-            return Effects.SelectMany(x => x.GetAttackModifiers(this, affecting));
+            return effects.SelectMany(x => x.GetAttackModifiers(this, affecting));
         }
 
         public IEnumerable<Modifier> GetDamageModifiers(Items.Attack affecting) {
-            return Effects.SelectMany(x => x.GetDamageModifiers(this, affecting));
+            return effects.SelectMany(x => x.GetDamageModifiers(this, affecting));
         }
 
         public IEnumerable<Multiplier> GetMultipliers(Statistic affecting) {
-            return Effects.SelectMany(x => x.GetMultipliers(this, affecting));
+            return effects.SelectMany(x => x.GetMultipliers(this, affecting));
         }
 
         public IEnumerable<DiceGroup> GetExtraDice(Items.Attack affecting) {
-            return Effects.SelectMany(x => x.GetExtraDice(this, affecting));
+            return effects.SelectMany(x => x.GetExtraDice(this, affecting));
         }
 
         public Dictionary<string, List<string>> GetTextEffects() {
             var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<string>());
 
-            foreach (Effect e in Effects.Where(x => x.Toggle.On(this))) {
+            foreach (Effect e in effects.Where(x => x.Toggle.On(this))) {
                 foreach ((string category, string text) in e.Text) {
                     if (allText.ContainsKey(category)) {
                         allText[category].Add(text);
@@ -94,7 +107,7 @@ namespace PlayMore35.Effects {
         }
 
         public bool HasFlag(string flag) {
-            return Effects
+            return effects
                 .Any(x => x.HasFlag(flag) && x.Toggle.On(this));
         }
     }

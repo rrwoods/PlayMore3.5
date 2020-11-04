@@ -1,17 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class MultiplyAmount : IAmount {
-        private readonly IAmount Amount;
-        private readonly decimal Multiplier;
+        private readonly IAmount Variable;
+        private readonly decimal Scalar;
+
+        public JToken ToJson() {
+            return new JObject(new JProperty("multiply", new JObject(
+                new JProperty("variable", Variable.ToJson()),
+                new JProperty("scalar", Scalar)
+            )));
+        }
+
+        public MultiplyAmount(JObject json) {
+            Variable = Amount.FromJson(json["variable"]);
+            Scalar = (decimal)json["scalar"];
+        }
 
         public MultiplyAmount(decimal multiplier, IAmount amount) {
-            Multiplier = multiplier;
-            Amount = amount;
+            Scalar = multiplier;
+            Variable = amount;
         }
 
         public MultiplyAmount(decimal multiplier, string stat)
@@ -20,7 +29,7 @@ namespace PlayMore35.Effects {
         }
 
         public int Get(EffectPool pool) {
-            return (int) Math.Floor(Multiplier * Amount.Get(pool));
+            return (int) Math.Floor(Scalar * Variable.Get(pool));
         }
     }
 }

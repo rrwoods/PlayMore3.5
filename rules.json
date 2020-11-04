@@ -1,0 +1,6148 @@
+{
+  "stats": [
+    {
+      "name": "STR score",
+      "min": 0
+    },
+    {
+      "name": "STR damage"
+    },
+    {
+      "name": "STR drain"
+    },
+    {
+      "name": "STR modifier"
+    },
+    {
+      "name": "STR checks",
+      "tags": [
+        "STR modifier",
+        "Ability checks"
+      ]
+    },
+    {
+      "name": "STR bonus"
+    },
+    {
+      "name": "STR penalty"
+    },
+    {
+      "name": "DEX score",
+      "min": 0
+    },
+    {
+      "name": "DEX damage"
+    },
+    {
+      "name": "DEX drain"
+    },
+    {
+      "name": "DEX modifier"
+    },
+    {
+      "name": "DEX checks",
+      "tags": [
+        "DEX modifier",
+        "Ability checks"
+      ]
+    },
+    {
+      "name": "DEX bonus"
+    },
+    {
+      "name": "DEX penalty"
+    },
+    {
+      "name": "CON score",
+      "min": 0
+    },
+    {
+      "name": "CON damage"
+    },
+    {
+      "name": "CON drain"
+    },
+    {
+      "name": "CON modifier"
+    },
+    {
+      "name": "CON checks",
+      "tags": [
+        "CON modifier",
+        "Ability checks"
+      ]
+    },
+    {
+      "name": "CON bonus"
+    },
+    {
+      "name": "CON penalty"
+    },
+    {
+      "name": "INT score",
+      "min": 0
+    },
+    {
+      "name": "INT damage"
+    },
+    {
+      "name": "INT drain"
+    },
+    {
+      "name": "INT modifier"
+    },
+    {
+      "name": "INT checks",
+      "tags": [
+        "INT modifier",
+        "Ability checks"
+      ]
+    },
+    {
+      "name": "INT bonus"
+    },
+    {
+      "name": "INT penalty"
+    },
+    {
+      "name": "WIS score",
+      "min": 0
+    },
+    {
+      "name": "WIS damage"
+    },
+    {
+      "name": "WIS drain"
+    },
+    {
+      "name": "WIS modifier"
+    },
+    {
+      "name": "WIS checks",
+      "tags": [
+        "WIS modifier",
+        "Ability checks"
+      ]
+    },
+    {
+      "name": "WIS bonus"
+    },
+    {
+      "name": "WIS penalty"
+    },
+    {
+      "name": "CHA score",
+      "min": 0
+    },
+    {
+      "name": "CHA damage"
+    },
+    {
+      "name": "CHA drain"
+    },
+    {
+      "name": "CHA modifier"
+    },
+    {
+      "name": "CHA checks",
+      "tags": [
+        "CHA modifier",
+        "Ability checks"
+      ]
+    },
+    {
+      "name": "CHA bonus"
+    },
+    {
+      "name": "CHA penalty"
+    },
+    {
+      "name": "Initiative",
+      "tags": [
+        "DEX checks",
+        "DEX modifier",
+        "Ability checks"
+      ]
+    },
+    {
+      "name": "Maximum hit points"
+    },
+    {
+      "name": "Current hit points"
+    },
+    {
+      "name": "Lethal damage"
+    },
+    {
+      "name": "Nonlethal damage"
+    },
+    {
+      "name": "Appraise ranks"
+    },
+    {
+      "name": "Appraise",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Autohypnosis ranks"
+    },
+    {
+      "name": "Autohypnosis",
+      "tags": [
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Balance ranks"
+    },
+    {
+      "name": "Balance",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Bluff ranks"
+    },
+    {
+      "name": "Bluff",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Climb ranks"
+    },
+    {
+      "name": "Climb",
+      "tags": [
+        "All skills",
+        "STR skills"
+      ]
+    },
+    {
+      "name": "Concentration ranks"
+    },
+    {
+      "name": "Concentration",
+      "tags": [
+        "All skills",
+        "CON skills"
+      ]
+    },
+    {
+      "name": "Craft ranks"
+    },
+    {
+      "name": "Craft",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Decipher Script ranks"
+    },
+    {
+      "name": "Decipher Script",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Diplomacy ranks"
+    },
+    {
+      "name": "Diplomacy",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Disable Device ranks"
+    },
+    {
+      "name": "Disable Device",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Disguise ranks"
+    },
+    {
+      "name": "Disguise",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Escape Artist ranks"
+    },
+    {
+      "name": "Escape Artist",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Forgery ranks"
+    },
+    {
+      "name": "Forgery",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Gather Information ranks"
+    },
+    {
+      "name": "Gather Information",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Handle Animal ranks"
+    },
+    {
+      "name": "Handle Animal",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Heal ranks"
+    },
+    {
+      "name": "Heal",
+      "tags": [
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Hide ranks"
+    },
+    {
+      "name": "Hide",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Iaijutsu Focus ranks"
+    },
+    {
+      "name": "Iaijutsu Focus",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Intimidate ranks"
+    },
+    {
+      "name": "Intimidate",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Jump ranks"
+    },
+    {
+      "name": "Jump",
+      "tags": [
+        "All skills",
+        "STR skills"
+      ]
+    },
+    {
+      "name": "Knowledge (arcana) ranks"
+    },
+    {
+      "name": "Knowledge (arcana)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (architecture and engineering) ranks"
+    },
+    {
+      "name": "Knowledge (architecture and engineering)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (dungeoneering) ranks"
+    },
+    {
+      "name": "Knowledge (dungeoneering)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (geography) ranks"
+    },
+    {
+      "name": "Knowledge (geography)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (history) ranks"
+    },
+    {
+      "name": "Knowledge (history)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (local) ranks"
+    },
+    {
+      "name": "Knowledge (local)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (nature) ranks"
+    },
+    {
+      "name": "Knowledge (nature)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (nobility and royalty) ranks"
+    },
+    {
+      "name": "Knowledge (nobility and royalty)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (psionics) ranks"
+    },
+    {
+      "name": "Knowledge (psionics)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (religion) ranks"
+    },
+    {
+      "name": "Knowledge (religion)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Knowledge (the planes) ranks"
+    },
+    {
+      "name": "Knowledge (the planes)",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Martial Lore ranks"
+    },
+    {
+      "name": "Martial Lore",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Listen ranks"
+    },
+    {
+      "name": "Listen",
+      "tags": [
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Move Silently ranks"
+    },
+    {
+      "name": "Move Silently",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Open Lock ranks"
+    },
+    {
+      "name": "Open Lock",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Perform (act) ranks"
+    },
+    {
+      "name": "Perform (act)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (comedy) ranks"
+    },
+    {
+      "name": "Perform (comedy)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (dance) ranks"
+    },
+    {
+      "name": "Perform (dance)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (keyboard instruments) ranks"
+    },
+    {
+      "name": "Perform (keyboard instruments)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (oratory) ranks"
+    },
+    {
+      "name": "Perform (oratory)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (percussion instruments) ranks"
+    },
+    {
+      "name": "Perform (percussion instruments)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (string instruments) ranks"
+    },
+    {
+      "name": "Perform (string instruments)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (wind instruments) ranks"
+    },
+    {
+      "name": "Perform (wind instruments)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Perform (sing) ranks"
+    },
+    {
+      "name": "Perform (sing)",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Profession ranks"
+    },
+    {
+      "name": "Profession",
+      "tags": [
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Psicraft ranks"
+    },
+    {
+      "name": "Psicraft",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Ride ranks"
+    },
+    {
+      "name": "Ride",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Search ranks"
+    },
+    {
+      "name": "Search",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Sense Motive ranks"
+    },
+    {
+      "name": "Sense Motive",
+      "tags": [
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Sleight Of Hand ranks"
+    },
+    {
+      "name": "Sleight Of Hand",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Spellcraft ranks"
+    },
+    {
+      "name": "Spellcraft",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Spot ranks"
+    },
+    {
+      "name": "Spot",
+      "tags": [
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Survival ranks"
+    },
+    {
+      "name": "Survival",
+      "tags": [
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Swim ranks"
+    },
+    {
+      "name": "Swim",
+      "tags": [
+        "All skills",
+        "STR skills"
+      ]
+    },
+    {
+      "name": "Truespeak ranks"
+    },
+    {
+      "name": "Truespeak",
+      "tags": [
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Tumble ranks"
+    },
+    {
+      "name": "Tumble",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Use Magic Device ranks"
+    },
+    {
+      "name": "Use Magic Device",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Use Psionic Device ranks"
+    },
+    {
+      "name": "Use Psionic Device",
+      "tags": [
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Use Rope ranks"
+    },
+    {
+      "name": "Use Rope",
+      "tags": [
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Climb (rope)",
+      "tags": [
+        "Climb",
+        "All skills",
+        "STR skills"
+      ]
+    },
+    {
+      "name": "Disguise (act in character)",
+      "tags": [
+        "Disguise",
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Escape Artist (rope)",
+      "tags": [
+        "Escape Artist",
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Psicraft (address power stone)",
+      "tags": [
+        "Psicraft",
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Search (secret doors)",
+      "tags": [
+        "Search",
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Spellcraft (decipher scroll)",
+      "tags": [
+        "Spellcraft",
+        "All skills",
+        "INT skills"
+      ]
+    },
+    {
+      "name": "Survival (aboveground natural)",
+      "tags": [
+        "Survival",
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Survival (following tracks)",
+      "tags": [
+        "Survival",
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Survival (lost/avoid hazards)",
+      "tags": [
+        "Survival",
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Survival (on other planes)",
+      "tags": [
+        "Survival",
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Survival (underground)",
+      "tags": [
+        "Survival",
+        "All skills",
+        "WIS skills"
+      ]
+    },
+    {
+      "name": "Use Magic Device (scroll)",
+      "tags": [
+        "Use Magic Device",
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Use Psionic Device (power stone)",
+      "tags": [
+        "Use Psionic Device",
+        "All skills",
+        "CHA skills"
+      ]
+    },
+    {
+      "name": "Use Rope (bindings)",
+      "tags": [
+        "Use Rope",
+        "All skills",
+        "DEX skills"
+      ]
+    },
+    {
+      "name": "Armor check penalty"
+    },
+    {
+      "name": "AC"
+    },
+    {
+      "name": "Touch AC",
+      "tags": [
+        "AC"
+      ],
+      "ignore": {
+        "armor": "always",
+        "shield": "always",
+        "natural armor": "always"
+      }
+    },
+    {
+      "name": "natural armor"
+    },
+    {
+      "name": "Land speed",
+      "tags": [
+        "All speeds"
+      ],
+      "precision": 5
+    },
+    {
+      "name": "Burrow speed",
+      "tags": [
+        "All speeds"
+      ],
+      "precision": 5
+    },
+    {
+      "name": "Climb speed",
+      "tags": [
+        "All speeds"
+      ],
+      "precision": 5
+    },
+    {
+      "name": "Swim speed",
+      "tags": [
+        "All speeds"
+      ],
+      "precision": 5
+    },
+    {
+      "name": "Fly speed",
+      "tags": [
+        "All speeds"
+      ],
+      "precision": 5
+    },
+    {
+      "name": "Maneuverability"
+    },
+    {
+      "name": "speed over 30 ft, in units of 10 ft"
+    },
+    {
+      "name": "speed under 30 ft, in units of 10 ft"
+    },
+    {
+      "name": "Size category",
+      "min": -4,
+      "max": 4
+    },
+    {
+      "name": "Size modifier"
+    },
+    {
+      "name": "reach",
+      "min": 0
+    },
+    {
+      "name": "Base attack bonus"
+    },
+    {
+      "name": "Grapple"
+    },
+    {
+      "name": "Special size modifier"
+    },
+    {
+      "name": "Fear level",
+      "min": 0,
+      "max": 3
+    },
+    {
+      "name": "Negative levels"
+    }
+  ],
+  "effects": [
+    {
+      "name": "STR damage",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "STR damage"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "STR score"
+        }
+      ]
+    },
+    {
+      "name": "STR drain",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "STR drain"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "STR score"
+        }
+      ]
+    },
+    {
+      "name": "STR modifier",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "STR score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          },
+          "affects": "STR modifier"
+        }
+      ]
+    },
+    {
+      "name": "STR bonus",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "largest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "STR modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "STR bonus"
+        }
+      ]
+    },
+    {
+      "name": "STR penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "smallest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "STR modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "STR penalty"
+        }
+      ]
+    },
+    {
+      "name": "DEX damage",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "DEX damage"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "DEX score"
+        }
+      ]
+    },
+    {
+      "name": "DEX drain",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "DEX drain"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "DEX score"
+        }
+      ]
+    },
+    {
+      "name": "DEX modifier",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "DEX score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          },
+          "affects": "DEX modifier"
+        }
+      ]
+    },
+    {
+      "name": "DEX bonus",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "largest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "DEX modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "DEX bonus"
+        }
+      ]
+    },
+    {
+      "name": "DEX penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "smallest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "DEX modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "DEX penalty"
+        }
+      ]
+    },
+    {
+      "name": "CON damage",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "CON damage"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "CON score"
+        }
+      ]
+    },
+    {
+      "name": "CON drain",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "CON drain"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "CON score"
+        }
+      ]
+    },
+    {
+      "name": "CON modifier",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "CON score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          },
+          "affects": "CON modifier"
+        }
+      ]
+    },
+    {
+      "name": "CON bonus",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "largest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "CON modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "CON bonus"
+        }
+      ]
+    },
+    {
+      "name": "CON penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "smallest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "CON modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "CON penalty"
+        }
+      ]
+    },
+    {
+      "name": "INT damage",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "INT damage"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "INT score"
+        }
+      ]
+    },
+    {
+      "name": "INT drain",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "INT drain"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "INT score"
+        }
+      ]
+    },
+    {
+      "name": "INT modifier",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "INT score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          },
+          "affects": "INT modifier"
+        }
+      ]
+    },
+    {
+      "name": "INT bonus",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "largest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "INT modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "INT bonus"
+        }
+      ]
+    },
+    {
+      "name": "INT penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "smallest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "INT modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "INT penalty"
+        }
+      ]
+    },
+    {
+      "name": "WIS damage",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "WIS damage"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "WIS score"
+        }
+      ]
+    },
+    {
+      "name": "WIS drain",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "WIS drain"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "WIS score"
+        }
+      ]
+    },
+    {
+      "name": "WIS modifier",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "WIS score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          },
+          "affects": "WIS modifier"
+        }
+      ]
+    },
+    {
+      "name": "WIS bonus",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "largest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "WIS modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "WIS bonus"
+        }
+      ]
+    },
+    {
+      "name": "WIS penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "smallest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "WIS modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "WIS penalty"
+        }
+      ]
+    },
+    {
+      "name": "CHA damage",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "CHA damage"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "CHA score"
+        }
+      ]
+    },
+    {
+      "name": "CHA drain",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "CHA drain"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "CHA score"
+        }
+      ]
+    },
+    {
+      "name": "CHA modifier",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "CHA score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          },
+          "affects": "CHA modifier"
+        }
+      ]
+    },
+    {
+      "name": "CHA bonus",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "largest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "CHA modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "CHA bonus"
+        }
+      ]
+    },
+    {
+      "name": "CHA penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "smallest": [
+                  {
+                    "fixed": 0
+                  },
+                  {
+                    "statValue": "CHA modifier"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "CHA penalty"
+        }
+      ]
+    },
+    {
+      "name": "Normal hit point total",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Maximum hit points"
+              }
+            ]
+          },
+          "affects": "Current hit points"
+        }
+      ]
+    },
+    {
+      "name": "Subtract damage from hit points",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Lethal damage"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "Current hit points"
+        }
+      ]
+    },
+    {
+      "name": "Can't act",
+      "active": {
+        "flag": "Can't act"
+      },
+      "text": [
+        {
+          "category": "actions",
+          "text": "Can't act"
+        }
+      ]
+    },
+    {
+      "name": "disabled",
+      "active": {
+        "any": [
+          {
+            "conditional": {
+              "left": {
+                "statValue": "Current hit points"
+              },
+              "relation": "EQUAL",
+              "right": {
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "conditional": {
+                  "left": {
+                    "statValue": "Current hit points"
+                  },
+                  "relation": "LESS_THAN",
+                  "right": {
+                    "fixed": 0
+                  }
+                }
+              },
+              {
+                "controllable": "stable"
+              }
+            ]
+          }
+        ]
+      },
+      "multipliers": [
+        {
+          "mod": 0.5,
+          "affects": "All speeds"
+        }
+      ],
+      "text": [
+        {
+          "category": "actions",
+          "text": "One move or standard each round (not both, no full-rounds)"
+        },
+        {
+          "category": "actions",
+          "text": "Any standard or strenuous action deals 1 to you"
+        }
+      ]
+    },
+    {
+      "name": "dying",
+      "active": {
+        "all": [
+          {
+            "conditional": {
+              "left": {
+                "statValue": "Current hit points"
+              },
+              "relation": "LESS_THAN",
+              "right": {
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "not": {
+              "controllable": "stable"
+            }
+          }
+        ]
+      },
+      "flags": [
+        "Can't act"
+      ],
+      "text": [
+        {
+          "category": "condition",
+          "text": "You take 1 damage each round"
+        },
+        {
+          "category": "condition",
+          "text": "Any healing stabilizes you; 10% chance each round to self-stabilize"
+        }
+      ]
+    },
+    {
+      "name": "Appraise ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Appraise ranks"
+              }
+            ]
+          },
+          "affects": "Appraise"
+        }
+      ]
+    },
+    {
+      "name": "INT to Appraise",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Appraise"
+        }
+      ]
+    },
+    {
+      "name": "Autohypnosis ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Autohypnosis ranks"
+              }
+            ]
+          },
+          "affects": "Autohypnosis"
+        }
+      ]
+    },
+    {
+      "name": "WIS to Autohypnosis",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "Autohypnosis"
+        }
+      ]
+    },
+    {
+      "name": "Balance ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Balance ranks"
+              }
+            ]
+          },
+          "affects": "Balance"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Balance",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Balance"
+        }
+      ]
+    },
+    {
+      "name": "Bluff ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Bluff ranks"
+              }
+            ]
+          },
+          "affects": "Bluff"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Bluff",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Bluff"
+        }
+      ]
+    },
+    {
+      "name": "Climb ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Climb ranks"
+              }
+            ]
+          },
+          "affects": "Climb"
+        }
+      ]
+    },
+    {
+      "name": "STR to Climb",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": "Climb"
+        }
+      ]
+    },
+    {
+      "name": "Concentration ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Concentration ranks"
+              }
+            ]
+          },
+          "affects": "Concentration"
+        }
+      ]
+    },
+    {
+      "name": "CON to Concentration",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CON modifier"
+              }
+            ]
+          },
+          "affects": "Concentration"
+        }
+      ]
+    },
+    {
+      "name": "Craft ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Craft ranks"
+              }
+            ]
+          },
+          "affects": "Craft"
+        }
+      ]
+    },
+    {
+      "name": "INT to Craft",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Craft"
+        }
+      ]
+    },
+    {
+      "name": "Decipher Script ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Decipher Script ranks"
+              }
+            ]
+          },
+          "affects": "Decipher Script"
+        }
+      ]
+    },
+    {
+      "name": "INT to Decipher Script",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Decipher Script"
+        }
+      ]
+    },
+    {
+      "name": "Diplomacy ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Diplomacy ranks"
+              }
+            ]
+          },
+          "affects": "Diplomacy"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Diplomacy",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Diplomacy"
+        }
+      ]
+    },
+    {
+      "name": "Disable Device ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Disable Device ranks"
+              }
+            ]
+          },
+          "affects": "Disable Device"
+        }
+      ]
+    },
+    {
+      "name": "INT to Disable Device",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Disable Device"
+        }
+      ]
+    },
+    {
+      "name": "Disguise ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Disguise ranks"
+              }
+            ]
+          },
+          "affects": "Disguise"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Disguise",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Disguise"
+        }
+      ]
+    },
+    {
+      "name": "Escape Artist ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Escape Artist ranks"
+              }
+            ]
+          },
+          "affects": "Escape Artist"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Escape Artist",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Escape Artist"
+        }
+      ]
+    },
+    {
+      "name": "Forgery ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Forgery ranks"
+              }
+            ]
+          },
+          "affects": "Forgery"
+        }
+      ]
+    },
+    {
+      "name": "INT to Forgery",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Forgery"
+        }
+      ]
+    },
+    {
+      "name": "Gather Information ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Gather Information ranks"
+              }
+            ]
+          },
+          "affects": "Gather Information"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Gather Information",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Gather Information"
+        }
+      ]
+    },
+    {
+      "name": "Handle Animal ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Handle Animal ranks"
+              }
+            ]
+          },
+          "affects": "Handle Animal"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Handle Animal",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Handle Animal"
+        }
+      ]
+    },
+    {
+      "name": "Heal ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Heal ranks"
+              }
+            ]
+          },
+          "affects": "Heal"
+        }
+      ]
+    },
+    {
+      "name": "WIS to Heal",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "Heal"
+        }
+      ]
+    },
+    {
+      "name": "Hide ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Hide ranks"
+              }
+            ]
+          },
+          "affects": "Hide"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Hide",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Hide"
+        }
+      ]
+    },
+    {
+      "name": "Iaijutsu Focus ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Iaijutsu Focus ranks"
+              }
+            ]
+          },
+          "affects": "Iaijutsu Focus"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Iaijutsu Focus",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Iaijutsu Focus"
+        }
+      ]
+    },
+    {
+      "name": "Intimidate ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Intimidate ranks"
+              }
+            ]
+          },
+          "affects": "Intimidate"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Intimidate",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Intimidate"
+        }
+      ]
+    },
+    {
+      "name": "Jump ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Jump ranks"
+              }
+            ]
+          },
+          "affects": "Jump"
+        }
+      ]
+    },
+    {
+      "name": "STR to Jump",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": "Jump"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (arcana) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (arcana) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (arcana)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (arcana)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (arcana)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (architecture and engineering) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (architecture and engineering) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (architecture and engineering)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (architecture and engineering)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (architecture and engineering)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (dungeoneering) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (dungeoneering) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (dungeoneering)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (dungeoneering)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (dungeoneering)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (geography) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (geography) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (geography)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (geography)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (geography)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (history) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (history) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (history)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (history)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (history)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (local) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (local) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (local)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (local)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (local)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (nature) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (nature) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (nature)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (nature)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (nature)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (nobility and royalty) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (nobility and royalty) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (nobility and royalty)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (nobility and royalty)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (nobility and royalty)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (psionics) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (psionics) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (psionics)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (psionics)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (psionics)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (religion) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (religion) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (religion)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (religion)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (religion)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (the planes) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Knowledge (the planes) ranks"
+              }
+            ]
+          },
+          "affects": "Knowledge (the planes)"
+        }
+      ]
+    },
+    {
+      "name": "INT to Knowledge (the planes)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Knowledge (the planes)"
+        }
+      ]
+    },
+    {
+      "name": "Martial Lore ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Martial Lore ranks"
+              }
+            ]
+          },
+          "affects": "Martial Lore"
+        }
+      ]
+    },
+    {
+      "name": "INT to Martial Lore",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Martial Lore"
+        }
+      ]
+    },
+    {
+      "name": "Listen ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Listen ranks"
+              }
+            ]
+          },
+          "affects": "Listen"
+        }
+      ]
+    },
+    {
+      "name": "WIS to Listen",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "Listen"
+        }
+      ]
+    },
+    {
+      "name": "Move Silently ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Move Silently ranks"
+              }
+            ]
+          },
+          "affects": "Move Silently"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Move Silently",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Move Silently"
+        }
+      ]
+    },
+    {
+      "name": "Open Lock ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Open Lock ranks"
+              }
+            ]
+          },
+          "affects": "Open Lock"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Open Lock",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Open Lock"
+        }
+      ]
+    },
+    {
+      "name": "Perform (act) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (act) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (act)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (act)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (act)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (comedy) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (comedy) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (comedy)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (comedy)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (comedy)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (dance) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (dance) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (dance)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (dance)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (dance)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (keyboard instruments) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (keyboard instruments) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (keyboard instruments)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (keyboard instruments)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (keyboard instruments)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (oratory) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (oratory) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (oratory)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (oratory)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (oratory)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (percussion instruments) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (percussion instruments) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (percussion instruments)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (percussion instruments)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (percussion instruments)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (string instruments) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (string instruments) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (string instruments)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (string instruments)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (string instruments)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (wind instruments) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (wind instruments) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (wind instruments)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (wind instruments)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (wind instruments)"
+        }
+      ]
+    },
+    {
+      "name": "Perform (sing) ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Perform (sing) ranks"
+              }
+            ]
+          },
+          "affects": "Perform (sing)"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Perform (sing)",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Perform (sing)"
+        }
+      ]
+    },
+    {
+      "name": "Profession ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Profession ranks"
+              }
+            ]
+          },
+          "affects": "Profession"
+        }
+      ]
+    },
+    {
+      "name": "WIS to Profession",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "Profession"
+        }
+      ]
+    },
+    {
+      "name": "Psicraft ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Psicraft ranks"
+              }
+            ]
+          },
+          "affects": "Psicraft"
+        }
+      ]
+    },
+    {
+      "name": "INT to Psicraft",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Psicraft"
+        }
+      ]
+    },
+    {
+      "name": "Ride ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Ride ranks"
+              }
+            ]
+          },
+          "affects": "Ride"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Ride",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Ride"
+        }
+      ]
+    },
+    {
+      "name": "Search ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Search ranks"
+              }
+            ]
+          },
+          "affects": "Search"
+        }
+      ]
+    },
+    {
+      "name": "INT to Search",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Search"
+        }
+      ]
+    },
+    {
+      "name": "Sense Motive ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Sense Motive ranks"
+              }
+            ]
+          },
+          "affects": "Sense Motive"
+        }
+      ]
+    },
+    {
+      "name": "WIS to Sense Motive",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "Sense Motive"
+        }
+      ]
+    },
+    {
+      "name": "Sleight Of Hand ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Sleight Of Hand ranks"
+              }
+            ]
+          },
+          "affects": "Sleight Of Hand"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Sleight Of Hand",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Sleight Of Hand"
+        }
+      ]
+    },
+    {
+      "name": "Spellcraft ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Spellcraft ranks"
+              }
+            ]
+          },
+          "affects": "Spellcraft"
+        }
+      ]
+    },
+    {
+      "name": "INT to Spellcraft",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Spellcraft"
+        }
+      ]
+    },
+    {
+      "name": "Spot ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Spot ranks"
+              }
+            ]
+          },
+          "affects": "Spot"
+        }
+      ]
+    },
+    {
+      "name": "WIS to Spot",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "Spot"
+        }
+      ]
+    },
+    {
+      "name": "Survival ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Survival ranks"
+              }
+            ]
+          },
+          "affects": "Survival"
+        }
+      ]
+    },
+    {
+      "name": "WIS to Survival",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "Survival"
+        }
+      ]
+    },
+    {
+      "name": "Swim ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Swim ranks"
+              }
+            ]
+          },
+          "affects": "Swim"
+        }
+      ]
+    },
+    {
+      "name": "STR to Swim",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": "Swim"
+        }
+      ]
+    },
+    {
+      "name": "Truespeak ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Truespeak ranks"
+              }
+            ]
+          },
+          "affects": "Truespeak"
+        }
+      ]
+    },
+    {
+      "name": "INT to Truespeak",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "Truespeak"
+        }
+      ]
+    },
+    {
+      "name": "Tumble ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Tumble ranks"
+              }
+            ]
+          },
+          "affects": "Tumble"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Tumble",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Tumble"
+        }
+      ]
+    },
+    {
+      "name": "Use Magic Device ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Use Magic Device ranks"
+              }
+            ]
+          },
+          "affects": "Use Magic Device"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Use Magic Device",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Use Magic Device"
+        }
+      ]
+    },
+    {
+      "name": "Use Psionic Device ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Use Psionic Device ranks"
+              }
+            ]
+          },
+          "affects": "Use Psionic Device"
+        }
+      ]
+    },
+    {
+      "name": "CHA to Use Psionic Device",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "Use Psionic Device"
+        }
+      ]
+    },
+    {
+      "name": "Use Rope ranks",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Use Rope ranks"
+              }
+            ]
+          },
+          "affects": "Use Rope"
+        }
+      ]
+    },
+    {
+      "name": "DEX to Use Rope",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "Use Rope"
+        }
+      ]
+    },
+    {
+      "name": "Bluff synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Bluff ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Diplomacy"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Disguise (act in character)"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Intimidate"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Sleight Of Hand"
+        }
+      ]
+    },
+    {
+      "name": "Decipher Script synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Decipher Script ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Use Magic Device (scroll)"
+        }
+      ]
+    },
+    {
+      "name": "Escape Artist synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Escape Artist ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Use Rope (bindings)"
+        }
+      ]
+    },
+    {
+      "name": "Handle Animal synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Handle Animal ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Ride"
+        }
+      ]
+    },
+    {
+      "name": "Jump synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Jump ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Tumble"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (arcana) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (arcana) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Spellcraft"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (architecture and engineering) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (architecture and engineering) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Search (secret doors)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (dungeoneering) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (dungeoneering) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Survival (underground)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (geography) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (geography) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Survival (lost/avoid hazards)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (local) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (local) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Gather Information"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (nature) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (nature) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Survival (aboveground natural)"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (nobility and royalty) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (nobility and royalty) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Diplomacy"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (the planes) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (the planes) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Survival (on other planes)"
+        }
+      ]
+    },
+    {
+      "name": "Search synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Search ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Survival (following tracks)"
+        }
+      ]
+    },
+    {
+      "name": "Sense Motive synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Sense Motive ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Diplomacy"
+        }
+      ]
+    },
+    {
+      "name": "Spellcraft synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Spellcraft ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Use Magic Device (scroll)"
+        }
+      ]
+    },
+    {
+      "name": "Survival synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Survival ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Knowledge (nature)"
+        }
+      ]
+    },
+    {
+      "name": "Tumble synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Tumble ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Balance"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Jump"
+        }
+      ]
+    },
+    {
+      "name": "Use Magic Device synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Use Magic Device ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Spellcraft (decipher scroll)"
+        }
+      ]
+    },
+    {
+      "name": "Use Rope synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Use Rope ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Climb (rope)"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Escape Artist (rope)"
+        }
+      ]
+    },
+    {
+      "name": "Autohypnosis synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Autohypnosis ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Knowledge (psionics)"
+        }
+      ]
+    },
+    {
+      "name": "Concentration synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Concentration ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Autohypnosis"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge (psionics) synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Knowledge (psionics) ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Psicraft"
+        }
+      ]
+    },
+    {
+      "name": "Psicraft synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Psicraft ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Use Psionic Device (power stone)"
+        }
+      ]
+    },
+    {
+      "name": "Use Psionic Device synergy",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Use Psionic Device ranks"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 5
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "Psicraft (address power stone)"
+        }
+      ]
+    },
+    {
+      "name": "Armor check penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "Armor check penalty"
+              }
+            ]
+          },
+          "affects": "Balance"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "Armor check penalty"
+              }
+            ]
+          },
+          "affects": "Climb"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "Armor check penalty"
+              }
+            ]
+          },
+          "affects": "Escape Artist"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "Armor check penalty"
+              }
+            ]
+          },
+          "affects": "Hide"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "Armor check penalty"
+              }
+            ]
+          },
+          "affects": "Jump"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "Armor check penalty"
+              }
+            ]
+          },
+          "affects": "Move Silently"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "Armor check penalty"
+              }
+            ]
+          },
+          "affects": "Sleight Of Hand"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Armor check penalty"
+                  },
+                  "scalar": 2.0
+                }
+              }
+            ]
+          },
+          "affects": "Swim"
+        }
+      ]
+    },
+    {
+      "name": "Base AC",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": 10
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ]
+    },
+    {
+      "name": "natural armor",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "natural armor",
+            "amounts": [
+              {
+                "statValue": "natural armor"
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ]
+    },
+    {
+      "name": "Encumbrance speed penalty",
+      "active": {
+        "controllable": "Encumbrance speed penalty"
+      },
+      "multipliers": [
+        {
+          "mod": 0.666,
+          "affects": "All speeds"
+        }
+      ]
+    },
+    {
+      "name": "speed over 30 ft, in units of 10 ft",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Land speed"
+                  },
+                  "scalar": 0.1
+                }
+              },
+              {
+                "fixed": -3
+              }
+            ]
+          },
+          "affects": "speed over 30 ft, in units of 10 ft"
+        }
+      ]
+    },
+    {
+      "name": "speed under 30 ft, in units of 10 ft",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Land speed"
+                  },
+                  "scalar": -0.1
+                }
+              },
+              {
+                "fixed": 3
+              }
+            ]
+          },
+          "affects": "speed under 30 ft, in units of 10 ft"
+        }
+      ]
+    },
+    {
+      "name": "Speed penalty",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Land speed"
+          },
+          "relation": "LESS_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 20
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "speed under 30 ft, in units of 10 ft"
+                  },
+                  "scalar": -6.0
+                }
+              }
+            ]
+          },
+          "affects": "Jump"
+        }
+      ]
+    },
+    {
+      "name": "Speed bonus",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Land speed"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 40
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "speed over 30 ft, in units of 10 ft"
+                  },
+                  "scalar": 4.0
+                }
+              }
+            ]
+          },
+          "affects": "Jump"
+        }
+      ]
+    },
+    {
+      "name": "Size modifier calculation",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "lookup": {
+                  "value": {
+                    "statValue": "Size category"
+                  },
+                  "table": {
+                    "-4": 8,
+                    "-3": 4,
+                    "-2": 2,
+                    "-1": 1,
+                    "0": 0,
+                    "1": -1,
+                    "2": -2,
+                    "3": -4,
+                    "4": -8
+                  }
+                }
+              }
+            ]
+          },
+          "affects": "Size modifier"
+        }
+      ]
+    },
+    {
+      "name": "Size modifier",
+      "active": "always",
+      "attack": [
+        {
+          "mod": {
+            "type": "size",
+            "amounts": [
+              {
+                "statValue": "Size modifier"
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "size",
+            "amounts": [
+              {
+                "statValue": "Size modifier"
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ]
+    },
+    {
+      "name": "Reach based on size",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "lookup": {
+                  "value": {
+                    "statValue": "Size category"
+                  },
+                  "table": {
+                    "-4": 0,
+                    "-3": 0,
+                    "-2": 0,
+                    "-1": 5,
+                    "0": 5,
+                    "1": 10,
+                    "2": 15,
+                    "3": 20,
+                    "4": 30
+                  }
+                }
+              }
+            ]
+          },
+          "affects": "reach"
+        }
+      ]
+    },
+    {
+      "name": "STR to grapple",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": "Grapple"
+        }
+      ]
+    },
+    {
+      "name": "Base attack bonus",
+      "active": "always",
+      "attack": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Base attack bonus"
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Base attack bonus"
+              }
+            ]
+          },
+          "affects": "Grapple"
+        }
+      ]
+    },
+    {
+      "name": "Special size modifier calculation",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Size category"
+                  },
+                  "scalar": 4.0
+                }
+              }
+            ]
+          },
+          "affects": "Special size modifier"
+        }
+      ]
+    },
+    {
+      "name": "Special size modifier",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "size",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Special size modifier"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "Hide"
+        },
+        {
+          "mod": {
+            "type": "size",
+            "amounts": [
+              {
+                "statValue": "Special size modifier"
+              }
+            ]
+          },
+          "affects": "Grapple"
+        }
+      ]
+    },
+    {
+      "name": "DEX to ranged attacks",
+      "active": "always",
+      "attack": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": {
+            "range": [
+              "THROWN",
+              "BOW",
+              "OTHER_PROJECTILE"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "STR to melee attacks",
+      "active": "always",
+      "attack": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "STR bonus ×1.5 to two-handed weapon damage",
+      "active": "always",
+      "damage": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "STR bonus"
+                  },
+                  "scalar": 1.5
+                }
+              }
+            ]
+          },
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ],
+            "hand": [
+              "TWO_HANDED"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "STR bonus to primary-hand weapon damage",
+      "active": "always",
+      "damage": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR bonus"
+              }
+            ]
+          },
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ],
+            "hand": [
+              "PRIMARY_HAND_TWF",
+              "ONE_HANDED"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "STR bonus ×0.5 to off-hand weapon damage",
+      "active": "always",
+      "damage": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "STR bonus"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          },
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ],
+            "hand": [
+              "OFF_HAND_TWF"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "STR penalty to bow damage",
+      "active": "always",
+      "damage": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR penalty"
+              }
+            ]
+          },
+          "affects": {
+            "range": [
+              "BOW"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "STR to thrown weapon damage",
+      "active": "always",
+      "damage": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": {
+            "range": [
+              "THROWN"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "STR to sling damage",
+      "active": "always",
+      "damage": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": {
+            "name": "Sling"
+          }
+        }
+      ]
+    },
+    {
+      "name": "shaken",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Fear level"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 1
+          }
+        }
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "All saves"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "All skills"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "Ability checks"
+        }
+      ]
+    },
+    {
+      "name": "frightened",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Fear level"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 2
+          }
+        }
+      },
+      "text": [
+        {
+          "category": "actions",
+          "text": "Must flee from source of fear"
+        }
+      ]
+    },
+    {
+      "name": "panicked",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Fear level"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 3
+          }
+        }
+      },
+      "text": [
+        {
+          "category": "actions",
+          "text": "Must drop all held items and flee at top speed along a random path; cower if cornered"
+        }
+      ]
+    },
+    {
+      "name": "blinded",
+      "active": {
+        "controllable": "blinded"
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "AC"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": "Search"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": "STR skills"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": "DEX skills"
+        }
+      ],
+      "multipliers": [
+        {
+          "mod": 0.5,
+          "affects": "All speeds"
+        }
+      ],
+      "flags": [
+        "Denied DEX to AC"
+      ],
+      "text": [
+        {
+          "category": "skills",
+          "text": "All vision activities and checks (like Spot) auto-fail"
+        },
+        {
+          "category": "atk options",
+          "text": "Opponents have total concealment"
+        }
+      ]
+    },
+    {
+      "name": "charging",
+      "active": {
+        "controllable": "charging"
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "AC"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": "STR checks"
+        }
+      ]
+    },
+    {
+      "name": "cowering",
+      "active": {
+        "controllable": "cowering"
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ],
+      "flags": [
+        "Can't act",
+        "Denied DEX to AC"
+      ]
+    },
+    {
+      "name": "dazed",
+      "active": {
+        "controllable": "dazed"
+      },
+      "flags": [
+        "Can't act"
+      ]
+    },
+    {
+      "name": "dazzled",
+      "active": {
+        "controllable": "dazzled"
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -1
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -1
+              }
+            ]
+          },
+          "affects": "Search"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -1
+              }
+            ]
+          },
+          "affects": "Spot"
+        }
+      ]
+    },
+    {
+      "name": "deafened",
+      "active": {
+        "controllable": "deafened"
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": "Initiative"
+        }
+      ],
+      "text": [
+        {
+          "category": "skills",
+          "text": "Auto-fail Listen checks"
+        },
+        {
+          "category": "misc casting",
+          "text": "20% spell failure on spells with verbal components"
+        }
+      ]
+    },
+    {
+      "name": "energy drained",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Negative levels"
+          },
+          "relation": "GREATER_THAN",
+          "right": {
+            "fixed": 0
+          }
+        }
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Negative levels"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Negative levels"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "All saves"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Negative levels"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "All skills"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Negative levels"
+                  },
+                  "scalar": -1.0
+                }
+              }
+            ]
+          },
+          "affects": "Ability checks"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "statValue": "Negative levels"
+                  },
+                  "scalar": -5.0
+                }
+              }
+            ]
+          },
+          "affects": "Maximum hit points"
+        }
+      ],
+      "text": [
+        {
+          "category": "misc casting",
+          "text": "-1 effective spellcasting level, lose a highest-level spell slot"
+        }
+      ]
+    },
+    {
+      "name": "Can't run or charge",
+      "active": {
+        "flag": "Can't run or charge"
+      },
+      "text": [
+        {
+          "category": "movement",
+          "text": "Can't run or charge"
+        }
+      ]
+    },
+    {
+      "name": "entangled",
+      "active": {
+        "controllable": "entangled"
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": "DEX score"
+        }
+      ],
+      "multipliers": [
+        {
+          "mod": 0.5,
+          "affects": "All speeds"
+        }
+      ],
+      "flags": [
+        "Can't run or charge"
+      ],
+      "text": [
+        {
+          "category": "misc casting",
+          "text": "Spellcasting requires DC 15 concentration, or lose spell"
+        }
+      ]
+    },
+    {
+      "name": "exhausted",
+      "active": {
+        "controllable": "exhausted"
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -6
+              }
+            ]
+          },
+          "affects": "STR score"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -6
+              }
+            ]
+          },
+          "affects": "DEX score"
+        }
+      ],
+      "multipliers": [
+        {
+          "mod": 0.5,
+          "affects": "All speeds"
+        }
+      ],
+      "flags": [
+        "Can't run or charge"
+      ],
+      "text": [
+        {
+          "category": "condition",
+          "text": "Rest one hour to be fatigued instead of exhausted"
+        }
+      ]
+    },
+    {
+      "name": "fascinated",
+      "active": {
+        "controllable": "fascinated"
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": "Listen"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": "Spot"
+        }
+      ],
+      "flags": [
+        "Can't act"
+      ]
+    },
+    {
+      "name": "fatigued",
+      "active": {
+        "controllable": "fatigued"
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "STR score"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "DEX score"
+        }
+      ],
+      "flags": [
+        "Can't run or charge"
+      ]
+    },
+    {
+      "name": "flat-footed",
+      "active": {
+        "controllable": "flat-footed"
+      },
+      "flags": [
+        "Flat-footed"
+      ],
+      "text": [
+        {
+          "category": "actions",
+          "text": "Can't take immediate actions or attacks of opportunity"
+        }
+      ]
+    },
+    {
+      "name": "invisible",
+      "active": {
+        "controllable": "invisible"
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "text": [
+        {
+          "category": "atk options",
+          "text": "Deny opponents' DEX to AC"
+        }
+      ]
+    },
+    {
+      "name": "nauseated",
+      "active": {
+        "controllable": "nauseated"
+      },
+      "text": [
+        {
+          "category": "atk options",
+          "text": "Can't attack"
+        },
+        {
+          "category": "misc casting",
+          "text": "Can't cast or concentrate on spells"
+        },
+        {
+          "category": "actions",
+          "text": "Can't do anything requiring attention"
+        },
+        {
+          "category": "actions",
+          "text": "Only one move action each turn"
+        }
+      ]
+    },
+    {
+      "name": "prone",
+      "active": {
+        "controllable": "prone"
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -4
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "text": [
+        {
+          "category": "atk options",
+          "text": "Can't ranged weapons other than crossbows"
+        },
+        {
+          "category": "AC",
+          "text": "+4 vs ranged; -4 vs melee"
+        }
+      ]
+    },
+    {
+      "name": "sickened",
+      "active": {
+        "controllable": "sickened"
+      },
+      "attack": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "damage": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": {}
+        }
+      ],
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "All saves"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "All skills"
+        },
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "Ability checks"
+        }
+      ]
+    },
+    {
+      "name": "staggered",
+      "active": {
+        "conditional": {
+          "left": {
+            "statValue": "Nonlethal damage"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "statValue": "Current hit points"
+          }
+        }
+      },
+      "text": [
+        {
+          "category": "actions",
+          "text": "One move or standard each round (not both, no full-rounds)"
+        }
+      ]
+    },
+    {
+      "name": "stunned",
+      "active": {
+        "controllable": "stunned"
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ],
+      "flags": [
+        "Denied DEX to AC",
+        "Can't act"
+      ],
+      "text": [
+        {
+          "category": "actions",
+          "text": "Must drop all held items"
+        }
+      ]
+    },
+    {
+      "name": "unconscious",
+      "active": {
+        "any": [
+          {
+            "conditional": {
+              "left": {
+                "statValue": "Current hit points"
+              },
+              "relation": "LESS_THAN",
+              "right": {
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "conditional": {
+              "left": {
+                "statValue": "Nonlethal damage"
+              },
+              "relation": "GREATER_THAN",
+              "right": {
+                "statValue": "Current hit points"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "helpless and paralyzed",
+      "active": {
+        "any": [
+          {
+            "controllable": "helpless and paralyzed"
+          },
+          {
+            "conditional": {
+              "left": {
+                "statValue": "STR score"
+              },
+              "relation": "EQUAL",
+              "right": {
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "conditional": {
+              "left": {
+                "statValue": "DEX score"
+              },
+              "relation": "EQUAL",
+              "right": {
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "any": [
+              {
+                "conditional": {
+                  "left": {
+                    "statValue": "Current hit points"
+                  },
+                  "relation": "LESS_THAN",
+                  "right": {
+                    "fixed": 0
+                  }
+                }
+              },
+              {
+                "conditional": {
+                  "left": {
+                    "statValue": "Nonlethal damage"
+                  },
+                  "relation": "GREATER_THAN",
+                  "right": {
+                    "statValue": "Current hit points"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "flags": [
+        "Can't act",
+        "helpless and paralyzed"
+      ]
+    },
+    {
+      "name": "DEX to AC",
+      "active": {
+        "any": [
+          {
+            "conditional": {
+              "left": {
+                "statValue": "DEX modifier"
+              },
+              "relation": "LESS_THAN",
+              "right": {
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "flag": "Denied DEX to AC"
+                },
+                {
+                  "all": [
+                    {
+                      "flag": "Flat-footed"
+                    },
+                    {
+                      "not": {
+                        "flag": "Uncanny dodge"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "modifiers": [
+        {
+          "mod": {
+            "type": "dodge",
+            "amounts": [
+              {
+                "statValue": "DEX modifier"
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ]
+    }
+  ]
+}
+

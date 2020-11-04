@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     class UnToggle : IToggle {
         private readonly IToggle basis;
+
+        public JToken ToJson() {
+            return new JObject(new JProperty("not", basis.ToJson()));
+        }
 
         public UnToggle(IToggle basis) {
             this.basis = basis;

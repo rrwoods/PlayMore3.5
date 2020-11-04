@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class ControllableToggle : IToggle {
         public string Name { get; }
         public bool on = false;
+
+        public JToken ToJson() {
+            return new JObject(new JProperty("controllable", Name));
+        }
 
         public ControllableToggle(string name) {
             Name = name;

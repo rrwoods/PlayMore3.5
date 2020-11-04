@@ -1,15 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
-    public class DiceGroup {
+    public class DiceGroup : IJsonable {
         // {size => quantity}, except that die size of 1 represents a flat amount
         private Dictionary<int, int> dice = new Dictionary<int, int>();
 
         public string Name = "";
 
-        public DiceGroup() {
+        public JToken ToJson() {
+            return new JObject(dice.Select(x => new JProperty(x.Key.ToString(), x.Value)));
+        }
 
+        public DiceGroup(JObject json) {
+            foreach (JProperty die in json.Properties()) {
+                dice[int.Parse(die.Name)] = (int)die.Value;
+            }
         }
 
         public DiceGroup(string name) {

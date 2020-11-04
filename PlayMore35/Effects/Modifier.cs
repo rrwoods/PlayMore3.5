@@ -1,11 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
-    public class Modifier {
+    public class Modifier : IJsonable {
         public string Name = "";
-        private readonly List<IAmount> Amounts = new List<IAmount>();
         public string Type { get; private set; }
+        private readonly List<IAmount> Amounts = new List<IAmount>();
+
+        public JToken ToJson() {
+            return new JObject(
+                new JProperty("type", Type),
+                new JProperty("amounts", new JArray(Amounts.Select(x => x.ToJson())))
+            );
+        }
+
+        public Modifier(JObject json) {
+            Type = (string)json["type"];
+            Amounts.AddRange(json["amounts"].Select(x => Amount.FromJson(x)));
+        }
 
         public Modifier(string type) {
             Type = type;

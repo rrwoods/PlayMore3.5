@@ -1,17 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
-    public interface IToggle {
+    public interface IToggle : IJsonable {
         bool On(EffectPool pool);
+    }
+
+    public static class Toggle {
+        public static IToggle FromJson(JToken json) {
+            if (json.ToString().Equals("always")) {
+                return AlwaysOn.Instance;
+            }
+            if (json["all"] != null) {
+                return new AllToggle((JArray)json["all"]);
+            }
+            if (json["any"] != null) {
+                return new AnyToggle((JArray)json["any"]);
+            }
+            if (json["conditional"] != null) {
+                return new ConditionalToggle((JObject)json["conditional"]);
+            }
+            if (json["controllable"] != null) {
+                return new ControllableToggle((string)json["controllable"]);
+            }
+            if (json["flag"] != null) {
+                return new FlagToggle((string)json["flag"]);
+            }
+            if (json["not"] != null) {
+                return new UnToggle(FromJson(json["not"]));
+            }
+            return null;
+        }
     }
 
     public sealed class AlwaysOn : IToggle {
         private AlwaysOn() { }
         static AlwaysOn() { }
+
+        public JToken ToJson() {
+            return new JValue("always");
+        }
 
         public bool On(EffectPool pool) {
             return true;

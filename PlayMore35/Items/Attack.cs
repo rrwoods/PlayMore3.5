@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using PlayMore35.Effects;
-using static PlayMore35.GameRules.Constants;
+using static PlayMore35.Effects.Constants;
 using static PlayMore35.Effects.StackingRules;
 
 namespace PlayMore35.Items {

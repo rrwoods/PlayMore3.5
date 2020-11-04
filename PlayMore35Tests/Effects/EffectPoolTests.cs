@@ -1,25 +1,32 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
+using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
-using static PlayMore35.GameRules.Constants;
+using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Effects.Tests {
-    [TestClass()]
+    static class Dependencies {
+        public static JObject rulesJson;
+    }
+
+    [TestClass]
     public class EffectPoolTests {
+        [ClassInitialize]
+        public static void JsonLoad(TestContext context) {
+            Dependencies.rulesJson = JObject.Parse(File.ReadAllText(@"C:\Users\rrwoods\Documents\D&D notes\PlayMore3.5\PlayMore35\rules.json"));
+        }
+
         private Effect ModifyStat(int value, string stat) {
             return new Effect(stat).AddModifier(stat, new Modifier(value, UNTYPED));
         }
 
-        // Once serialization is in place, the GameRules default constructor will go away.
-        // We'll need to set up a @Before (or whatever C#'s equivalent is) that loads the core
-        // rules into a JSON object; then, this test-convenience function will create a new GameRules
-        // object from that JSON object.  This will keep from needing to do the loading
-        // separately for each test.
         private EffectPool Rules() {
-            EffectPool p = GameRules.GameRules.MakeTheRules();
+            EffectPool p = new EffectPool();
+            p.ReadJson(Dependencies.rulesJson);
 
             // make all the ability modifiers zero
             p.AddEffect(ModifyStat(10, STR_SCORE));
@@ -45,7 +52,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual(expected, value);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestComputeAbilityModifier() {
             EffectPool r = Rules();
             r.AddEffect(ModifyStat(-3, STR_SCORE));
@@ -53,7 +60,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(0, r, DEX_MODIFIER);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestConditionalEffects() {
             EffectPool r = Rules();
             r.AddEffect(ModifyStat(5, TUMBLE + RANKS));
@@ -61,14 +68,14 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(+5, r, TUMBLE);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestInitiativeChaining() {
             EffectPool r = Rules();
             r.AddEffect(new Effect("Improved 'initiative'").AddModifier(ABILITY_CHECKS, new Modifier(4, UNTYPED)));
             CheckStat(+4, r, INITIATIVE);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestAC() {
             EffectPool p = Rules();
 
@@ -80,7 +87,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(13, p, TOUCH_AC);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestFlatFootedAC() {
             EffectPool p = Rules();
 
@@ -92,7 +99,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(11, p, AC);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestDeniedDex() {
             EffectPool p = Rules();
 
@@ -104,7 +111,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(10, p, AC);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestACP() {
             EffectPool p = Rules();
 
@@ -162,7 +169,7 @@ namespace PlayMore35.Effects.Tests {
             };
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMeleeWeapon() {
             EffectPool p = Rules();
             p.AddEffect(ModifyStat(+6, STR_SCORE));
@@ -204,7 +211,7 @@ namespace PlayMore35.Effects.Tests {
             };
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestCompositeBowStrong() {
             EffectPool p = Rules();
             p.AddEffect(ModifyStat(+6, STR_SCORE));
@@ -219,7 +226,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d6 + 2", attack[0].Damage.dice.ToString());
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestCompositeBowWeak() {
             EffectPool p = Rules();
             p.AddEffect(ModifyStat(+6, STR_SCORE));
@@ -234,7 +241,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d6 + 3", attack[0].Damage.dice.ToString());
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestFearStacking() {
             EffectPool p = Rules();
             p.AddEffect(ModifyStat(+10, DEX_SCORE));
@@ -244,7 +251,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(+3, p, DEX_CHECKS);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestSpecialSizeModifier() {
             EffectPool p = Rules();
             p.AddEffect(ModifyStat(+10, DEX_SCORE));
@@ -260,7 +267,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(+16, p, GRAPPLE);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestReachLookup() {
             EffectPool p = Rules();
 
@@ -269,7 +276,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(30, p, REACH);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestSpeedModifierToJump() {
             EffectPool p = Rules();
 
@@ -284,7 +291,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(+4, p, JUMP);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestDiceBasic() {
             DiceGroup dice = new DiceGroup(1, 4);
             Assert.AreEqual("1d4", dice.ToString());
@@ -299,7 +306,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("5d6 + 3d4 + 4", dice.ToString());
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestWeaponDamageBySize() {
             EffectPool p = Rules();
 
@@ -313,7 +320,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("—", Attack.Generate(p, -1000)[0].Damage.dice.ToString());
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestExtraDamageEffects() {
             EffectPool p = Rules();
             p.OneHandOneWeapon(Dagger());
@@ -355,7 +362,7 @@ namespace PlayMore35.Effects.Tests {
             critExpl.ForEach(x => Console.WriteLine(x));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestWrongSizeWeapon() {
             Weapon dagger = Dagger();
             dagger.SizeCategory = +2;
@@ -374,7 +381,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual(Weapon.Effort.TWO_HANDED, thrown.Effort);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestTextEffects() {
             EffectPool p = Rules();
 
@@ -422,7 +429,7 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(new int[] { expAtkBonus }, new string[] { expDamage }, r, pri, off);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestControllableAmount() {
             EffectPool p = Rules();
 
@@ -455,32 +462,32 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(+2, "1d8", p, longsword, longsword);
 
             // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
-            powerAttackAmount.Amount = 1;
+            powerAttackAmount.Amt = 1;
             CheckAttack(+1, "1d4", p, dagger, null);
             CheckAttack(+1, "1d8 + 1", p, longsword, null);
             CheckAttack(+1, "1d8 + 2", p, longsword, longsword);
 
             // Power attack for "3", clamped to 2 -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
-            powerAttackAmount.Amount = 3;
+            powerAttackAmount.Amt = 3;
             CheckAttack(+0, "1d4", p, dagger, null);
             CheckAttack(+0, "1d8 + 2", p, longsword, null);
             CheckAttack(+0, "1d8 + 4", p, longsword, longsword);
 
             // Power attack for "-1", clamped to 0, same as no power attack
-            powerAttackAmount.Amount = -1;
+            powerAttackAmount.Amt = -1;
             CheckAttack(+2, "1d4", p, dagger, null);
             CheckAttack(+2, "1d8", p, longsword, null);
             CheckAttack(+2, "1d8", p, longsword, longsword);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestLocalWeaponProperty() {
             Weapon dagger = Dagger(false);
             dagger.Melee?.atk.Properties.Add(WeaponProperty.PLUS[2]);
             CheckAttack(+2, "1d4 + 2", Rules(), dagger, null);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestGlobalWeaponProperty() {
             EffectPool p = Rules();
 
@@ -494,7 +501,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(+5, p, INITIATIVE);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestTwfPenalties() {
             EffectPool p = Rules();
 

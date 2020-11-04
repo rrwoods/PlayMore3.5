@@ -1,15 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class ControllableAmount : IAmount {
         public readonly string Name;
         private IAmount minimum = null;
         private IAmount maximum = null;
-        public int Amount;
+        public int Amt;
+
+        public JToken ToJson() {
+            JObject json = new JObject(new JProperty("name", Name));
+            if (minimum != null) {
+                json.Add("min", minimum.ToJson());
+            }
+            if (maximum != null) {
+                json.Add("max", maximum.ToJson());
+            }
+            return new JObject(new JProperty("controllable", json));
+        }
+
+        public ControllableAmount(JObject json) {
+            Name = (string)json["name"];
+            if (json["min"] != null) {
+                minimum = Amount.FromJson(json["min"]);
+            }
+            if (json["max"] != null) {
+                maximum = Amount.FromJson(json["max"]);
+            }
+        }
 
         public ControllableAmount(string name) {
             Name = name;
@@ -30,17 +47,17 @@ namespace PlayMore35.Effects {
         public int Get(EffectPool pool) {
             if (minimum != null) {
                 int min = minimum.Get(pool);
-                if (Amount < min) {
-                    Amount = min;
+                if (Amt < min) {
+                    Amt = min;
                 }
             }
             if (maximum != null) {
                 int max = maximum.Get(pool);
-                if (Amount > max) {
-                    Amount = max;
+                if (Amt > max) {
+                    Amt = max;
                 }
             }
-            return Amount;
+            return Amt;
         }
     }
 }
