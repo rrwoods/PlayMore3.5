@@ -882,7 +882,28 @@
       "name": "Armor check penalty"
     },
     {
-      "name": "AC"
+      "name": "AC",
+      "ignore": {
+        "dodge": {
+          "any": [
+            {
+              "flag": "Denied DEX to AC"
+            },
+            {
+              "all": [
+                {
+                  "flag": "Flat-footed"
+                },
+                {
+                  "not": {
+                    "flag": "Uncanny dodge"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
     },
     {
       "name": "Touch AC",
@@ -6092,50 +6113,32 @@
       ]
     },
     {
-      "name": "DEX to AC",
-      "active": {
-        "any": [
-          {
-            "conditional": {
-              "left": {
-                "statValue": "DEX modifier"
-              },
-              "relation": "LESS_THAN",
-              "right": {
-                "fixed": 0
+      "name": "DEX penalty to AC",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "statValue": "DEX penalty"
               }
-            }
+            ]
           },
-          {
-            "not": {
-              "any": [
-                {
-                  "flag": "Denied DEX to AC"
-                },
-                {
-                  "all": [
-                    {
-                      "flag": "Flat-footed"
-                    },
-                    {
-                      "not": {
-                        "flag": "Uncanny dodge"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        ]
-      },
+          "affects": "AC"
+        }
+      ]
+    },
+    {
+      "name": "DEX bonus to AC",
+      "active": "always",
       "modifiers": [
         {
           "mod": {
             "type": "dodge",
             "amounts": [
               {
-                "statValue": "DEX modifier"
+                "statValue": "DEX bonus"
               }
             ]
           },
