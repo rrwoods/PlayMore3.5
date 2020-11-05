@@ -37,7 +37,7 @@ namespace PlayMore35.Effects.Tests {
             p.AddEffect(ModifyStat(10, CHA_SCORE));
 
             // speed 30 to make sure jump isn't affected
-            p.AddEffect(ModifyStat(30, LAND_SPEED));
+            p.AddEffect(ModifyStat(30, BASE_SPEED));
 
             // 0 HP causes some weirdness too
             p.AddEffect(ModifyStat(1, MAX_HP));

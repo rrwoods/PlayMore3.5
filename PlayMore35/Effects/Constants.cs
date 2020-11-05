@@ -189,6 +189,7 @@
         public static readonly string REACH = "reach";
 
         public static readonly string ALL_SPEEDS = "All speeds";
+        public static readonly string BASE_SPEED = "Base speed";
         public static readonly string LAND_SPEED = "Land speed";
         public static readonly string BURROW_SPEED = "Burrow speed";
         public static readonly string CLIMB_SPEED = "Climb speed";

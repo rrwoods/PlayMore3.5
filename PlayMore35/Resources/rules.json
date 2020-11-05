@@ -920,6 +920,10 @@
       "name": "natural armor"
     },
     {
+      "name": "Base speed",
+      "precision": 5
+    },
+    {
       "name": "Land speed",
       "tags": [
         "All speeds"
@@ -3800,6 +3804,23 @@
             ]
           },
           "affects": "AC"
+        }
+      ]
+    },
+    {
+      "name": "Base speed",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "statValue": "Base speed"
+              }
+            ]
+          },
+          "affects": "Land speed"
         }
       ]
     },
