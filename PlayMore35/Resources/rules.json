@@ -4192,7 +4192,7 @@
       ]
     },
     {
-      "name": "STR bonus ×1.5 to two-handed weapon damage",
+      "name": "STR bonus ×1.5 to two-handed melee damage",
       "active": "always",
       "damage": [
         {
@@ -4222,7 +4222,7 @@
       ]
     },
     {
-      "name": "STR bonus to primary-hand weapon damage",
+      "name": "STR bonus to primary-hand melee damage",
       "active": "always",
       "damage": [
         {
@@ -4248,7 +4248,7 @@
       ]
     },
     {
-      "name": "STR bonus ×0.5 to off-hand weapon damage",
+      "name": "STR bonus ×0.5 to off-hand melee damage",
       "active": "always",
       "damage": [
         {
