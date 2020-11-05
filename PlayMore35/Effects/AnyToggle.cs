@@ -19,8 +19,8 @@ namespace PlayMore35.Effects {
             this.toggles.AddRange(toggles);
         }
 
-        public bool On(EffectPool pool) {
-            return toggles.Any(x => x.On(pool));
+        public bool On(EffectPool pool, Items.Equipped items) {
+            return toggles.Any(x => x.On(pool, items));
         }
     }
 }

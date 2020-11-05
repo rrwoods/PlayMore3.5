@@ -105,14 +105,14 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public (int value, List<string> explanation) GetValue(EffectPool pool) {
-            IEnumerable<Modifier> mods = pool.GetModifiers(this)
-                .Where(x => !ignoredModifierTypes.ContainsKey(x.Type) || !ignoredModifierTypes[x.Type].On(pool));
+        public (int value, List<string> explanation) GetValue(EffectPool pool, Items.Equipped items) {
+            IEnumerable<Modifier> mods = pool.GetModifiers(items, this)
+                .Where(x => !ignoredModifierTypes.ContainsKey(x.Type) || !ignoredModifierTypes[x.Type].On(pool, items));
 
-            (decimal total, List<string> explanation) = StackingRules.StackModifiers(mods, pool);
+            (decimal total, List<string> explanation) = StackingRules.StackModifiers(mods, pool, items);
 
             List<string> multiplierExpl = new List<string>();
-            foreach (Multiplier multiplier in pool.GetMultipliers(this)) {
+            foreach (Multiplier multiplier in pool.GetMultipliers(items, this)) {
                 total *= multiplier.Factor;
                 multiplierExpl.Add("×" + multiplier.Factor + " " + multiplier.Name);
             }

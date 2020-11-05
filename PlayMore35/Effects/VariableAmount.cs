@@ -12,8 +12,8 @@ namespace PlayMore35.Effects {
             return new JObject(new JProperty("statValue", Stat));
         }
 
-        public int Get(EffectPool pool) {
-            return pool.GetStat(Stat).GetValue(pool).value;
+        public int Get(EffectPool pool, Items.Equipped items) {
+            return pool.GetStat(Stat).GetValue(pool, items).value;
         }
     }
 }

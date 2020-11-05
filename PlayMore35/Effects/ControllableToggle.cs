@@ -13,7 +13,7 @@ namespace PlayMore35.Effects {
             Name = name;
         }
 
-        public bool On(EffectPool pool) {
+        public bool On(EffectPool pool, Items.Equipped items) {
             return on;
         }
     }

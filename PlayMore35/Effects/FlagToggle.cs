@@ -12,8 +12,8 @@ namespace PlayMore35.Effects {
             this.flag = flag;
         }
 
-        public bool On(EffectPool pool) {
-            return pool.HasFlag(flag);
+        public bool On(EffectPool pool, Items.Equipped items) {
+            return pool.HasFlag(flag, items);
         }
     }
 }

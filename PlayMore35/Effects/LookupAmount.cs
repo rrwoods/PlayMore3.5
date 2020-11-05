@@ -28,8 +28,8 @@ namespace PlayMore35.Effects {
             Table = lookup;
         }
 
-        public int Get(EffectPool pool) {
-            return Table[Value.Get(pool)];
+        public int Get(EffectPool pool, Items.Equipped items) {
+            return Table[Value.Get(pool, items)];
         }
     }
 }

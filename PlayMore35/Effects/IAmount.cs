@@ -2,7 +2,7 @@
 
 namespace PlayMore35.Effects {
     public interface IAmount : IJsonable {
-        int Get(EffectPool pool);
+        int Get(EffectPool pool, Items.Equipped items);
     }
 
     public static class Amount {

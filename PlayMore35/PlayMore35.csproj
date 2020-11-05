@@ -113,6 +113,7 @@
     <Compile Include="Effects\Constants.cs" />
     <Compile Include="Items\Attack.cs" />
     <Compile Include="Items\AttackMode.cs" />
+    <Compile Include="Items\Equipped.cs" />
     <Compile Include="Items\Weapon.cs" />
     <Compile Include="Items\WeaponProperty.cs" />
     <Compile Include="Program.cs" />

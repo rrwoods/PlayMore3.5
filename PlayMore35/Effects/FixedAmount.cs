@@ -12,7 +12,7 @@ namespace PlayMore35.Effects {
             Amt = amount;
         }
 
-        public int Get(EffectPool pool) {
+        public int Get(EffectPool pool, Items.Equipped items) {
             return Amt;
         }
     }

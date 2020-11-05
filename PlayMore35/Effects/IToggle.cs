@@ -2,7 +2,7 @@
 
 namespace PlayMore35.Effects {
     public interface IToggle : IJsonable {
-        bool On(EffectPool pool);
+        bool On(EffectPool pool, Items.Equipped items);
     }
 
     public static class Toggle {
@@ -40,7 +40,7 @@ namespace PlayMore35.Effects {
             return new JValue("always");
         }
 
-        public bool On(EffectPool pool) {
+        public bool On(EffectPool pool, Items.Equipped items) {
             return true;
         }
 

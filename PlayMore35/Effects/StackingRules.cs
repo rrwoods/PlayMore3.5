@@ -43,7 +43,11 @@ namespace PlayMore35.Effects {
             return baseText + " (" + type + ")";
         }
 
-        public static (int mod, List<string> explanation) StackModifiers(IEnumerable<Modifier> mods, EffectPool pool) {
+        public static (int mod, List<string> explanation) StackModifiers(
+            IEnumerable<Modifier> mods,
+            EffectPool pool,
+            Items.Equipped items
+        ) {
             int total = 0;
 
             Dictionary<string, int> penalties = new Dictionary<string, int>();
@@ -54,7 +58,7 @@ namespace PlayMore35.Effects {
             var penaltyExpl = new Dictionary<string, (int mod, string name, List<string> overlaps)>();
 
             foreach (Modifier mod in mods) {
-                int amount = mod.ComputeAmount(pool);
+                int amount = mod.ComputeAmount(pool, items);
                 string type = mod.Type;
                 if (amount == 0) {
                     if (mod.Type == BASE || mod.Type == ABILITY_MODIFIER) {

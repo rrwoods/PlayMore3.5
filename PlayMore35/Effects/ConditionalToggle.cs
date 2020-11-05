@@ -36,9 +36,9 @@ namespace PlayMore35.Effects {
             : this(new VariableAmount(left), relationship, new FixedAmount(right)) {
         }
 
-        public bool On(EffectPool pool) {
-            int left = Left.Get(pool);
-            int right = Right.Get(pool);
+        public bool On(EffectPool pool, Items.Equipped items) {
+            int left = Left.Get(pool, items);
+            int right = Right.Get(pool, items);
 
             switch (Relationship) {
                 case Relation.LESS_THAN:

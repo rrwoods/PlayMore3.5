@@ -12,8 +12,8 @@ namespace PlayMore35.Effects {
             this.basis = basis;
         }
 
-        public bool On(EffectPool pool) {
-            return !basis.On(pool);
+        public bool On(EffectPool pool, Items.Equipped items) {
+            return !basis.On(pool, items);
         }
     }
 }

@@ -164,6 +164,7 @@ namespace PlayMore35.Effects {
 
         private IEnumerable<AlterType> GetAlterers<AlterType, SubjectType> (
             EffectPool pool,
+            Equipped items,
             SubjectType affecting,
             List<Alterer<AlterType, SubjectType>> alterers
         ) where AlterType : IJsonable {
@@ -176,30 +177,30 @@ namespace PlayMore35.Effects {
                 return potential;
             }
 
-            return Toggle.On(pool)
+            return Toggle.On(pool, items)
                 ? potential
                 : Enumerable.Empty<AlterType>();
         }
 
 
-        public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Attack affecting) {
-            return GetAlterers(pool, affecting, AttackModifiers);
+        public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Items.Equipped items, Attack affecting) {
+            return GetAlterers(pool, items, affecting, AttackModifiers);
         }
 
-        public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Attack affecting) {
-            return GetAlterers(pool, affecting, DamageModifiers);
+        public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Items.Equipped items, Attack affecting) {
+            return GetAlterers(pool, items, affecting, DamageModifiers);
         }
 
-        public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Attack affecting) {
-            return GetAlterers(pool, affecting, ExtraDice);
+        public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Items.Equipped items, Attack affecting) {
+            return GetAlterers(pool, items, affecting, ExtraDice);
         }
 
-        public IEnumerable<Modifier> GetModifiers(EffectPool pool, Statistic affecting) {
-            return GetAlterers(pool, affecting, Modifiers);
+        public IEnumerable<Modifier> GetModifiers(EffectPool pool, Items.Equipped items, Statistic affecting) {
+            return GetAlterers(pool, items, affecting, Modifiers);
         }
 
-        public IEnumerable<Multiplier> GetMultipliers(EffectPool pool, Statistic affecting) {
-            return GetAlterers(pool, affecting, Multipliers);
+        public IEnumerable<Multiplier> GetMultipliers(EffectPool pool, Items.Equipped items, Statistic affecting) {
+            return GetAlterers(pool, items, affecting, Multipliers);
         }
 
         public bool HasFlag(string flag) {

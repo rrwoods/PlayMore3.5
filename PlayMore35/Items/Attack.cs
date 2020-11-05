@@ -16,8 +16,8 @@ namespace PlayMore35.Items {
         public Weapon.Hand Hand { get; private set; }
         public Weapon.Range Range { get; private set; }
         public (int bonus, List<string> explanation) AttackBonus; // XXX : {get private set} is missing because i modify the bonus directly.
-        public (Effects.DiceGroup dice, List<string> explanation) Damage { get; private set; }
-        public (Effects.DiceGroup dice, List<string> explanation) CriticalDamage { get; private set; }
+        public (DiceGroup dice, List<string> explanation) Damage { get; private set; }
+        public (DiceGroup dice, List<string> explanation) CriticalDamage { get; private set; }
         public string DamageType { get; private set; }
         public int ThreatRange { get; private set; }
         public int RangeIncrement { get; private set; }
@@ -38,8 +38,8 @@ namespace PlayMore35.Items {
                 [(2, 6)] = new List<(int, int)>  { (1, 4), (1, 6), (1, 8), (1, 10), (2, 6),  (3, 6), (4, 6), (6, 6), (8, 6) },
             };
 
-        private Effects.DiceGroup BaseDamageDice(int sizeCategory, (int, int) damageDieMedium) {
-            Effects.DiceGroup dice = new Effects.DiceGroup(damageSteps[damageDieMedium][sizeCategory + 4]) {
+        private DiceGroup BaseDamageDice(int sizeCategory, (int, int) damageDieMedium) {
+            DiceGroup dice = new DiceGroup(damageSteps[damageDieMedium][sizeCategory + 4]) {
                 Name = "Base " + SIZE_CATEGORIES[sizeCategory + 4] + " " + WeaponName + " damage"
             };
             return dice;
@@ -47,6 +47,7 @@ namespace PlayMore35.Items {
 
         private void ComputeAttackBonusAndDamage(
             EffectPool rules,
+            Equipped items,
             (int qty, int type) damageDieMedium,
             int sizeCategory,
             int criticalMultiplier,
@@ -54,18 +55,18 @@ namespace PlayMore35.Items {
             int sizeDiscrepancy,
             int twfPenalty = 0
         ) {
-            IEnumerable<Effects.Modifier> atkModsFromProps = properties
+            IEnumerable<Modifier> atkModsFromProps = properties
                 .Select(x => x.AttackModifier)
                 .Where(x => x != null);
-            IEnumerable<Effects.Modifier> attackModifiers = rules.GetAttackModifiers(this)
+            IEnumerable<Modifier> attackModifiers = rules.GetAttackModifiers(items, this)
                 .Concat(atkModsFromProps);
                 
-            AttackBonus = StackModifiers(attackModifiers, rules);
+            AttackBonus = StackModifiers(attackModifiers, rules, items);
 
             // XXX : This is crappy but composite bows are crappy.  Oh well.
             int compositeStrToDamage = 0;
             if (Range == Weapon.Range.BOW && StrengthRating >= 0) {
-                int strModifier = rules.GetStat(STR_MODIFIER).GetValue(rules).value;
+                int strModifier = rules.GetStat(STR_MODIFIER).GetValue(rules, items).value;
                 if (strModifier >= StrengthRating) {
                     compositeStrToDamage = StrengthRating;
                 } else {
@@ -85,38 +86,38 @@ namespace PlayMore35.Items {
                 AttackBonus.explanation.Add("" + twfPenalty + " Two-weapon fighting penalty");
             }
             
-            Effects.DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);
+            DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);
             string baseExpl = damage.ToString() + " " + damage.Name;
             List<string> explanation = new List<string>() {
                 baseExpl
             };
 
-            IEnumerable<Effects.Modifier> dmgModsFromProps = properties
+            IEnumerable<Modifier> dmgModsFromProps = properties
                 .Select(x => x.DamageModifier)
                 .Where(x => x != null);
-            IEnumerable<Effects.Modifier> damageModifiers = rules.GetDamageModifiers(this)
+            IEnumerable<Modifier> damageModifiers = rules.GetDamageModifiers(items, this)
                 .Concat(dmgModsFromProps);
             
-            (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules);
+            (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules, items);
             damage.AddDice(mod + compositeStrToDamage, 1);
             explanation.AddRange(modExpl);
             if (compositeStrToDamage > 0) {
                 explanation.Add("+" + compositeStrToDamage + " STR to composite bow damage");
             }
 
-            Effects.DiceGroup critDamage = new Effects.DiceGroup(WeaponName + " critical hit damage").AddDice(damage);
+            DiceGroup critDamage = new DiceGroup(WeaponName + " critical hit damage").AddDice(damage);
             List<string> critExplanation = new List<string>();
             critExplanation.AddRange(explanation);
 
             critDamage.Multiply(criticalMultiplier);
             critExplanation.Add("Critical hit ×" + criticalMultiplier);
 
-            IEnumerable<Effects.DiceGroup> extraDiceFromProps = properties
+            IEnumerable<DiceGroup> extraDiceFromProps = properties
                 .Where(x => x.ExtraDamage.qty != 0)
-                .Select(x => new Effects.DiceGroup(x.Name).AddDice(x.ExtraDamage.qty, x.ExtraDamage.size));
-            IEnumerable<Effects.DiceGroup> extraDice = rules.GetExtraDice(this)
+                .Select(x => new DiceGroup(x.Name).AddDice(x.ExtraDamage.qty, x.ExtraDamage.size));
+            IEnumerable<DiceGroup> extraDice = rules.GetExtraDice(items, this)
                 .Concat(extraDiceFromProps);
-            foreach (Effects.DiceGroup extra in extraDice) {
+            foreach (DiceGroup extra in extraDice) {
                 damage.AddDice(extra);
                 critDamage.AddDice(extra);
                 explanation.Add(extra.ToString() + " " + extra.Name);
@@ -141,6 +142,7 @@ namespace PlayMore35.Items {
 
         public static Attack Melee(
             EffectPool rules,
+            Equipped items,
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
@@ -162,6 +164,7 @@ namespace PlayMore35.Items {
             attack.Effort = (effort + sizeDiscrepancy) ?? attack.Effort;
             attack.ComputeAttackBonusAndDamage(
                 rules,
+                items,
                 atk.DamageDieMedium,
                 attack.WeaponSizeCategory,
                 atk.CriticalMultiplier,
@@ -174,6 +177,7 @@ namespace PlayMore35.Items {
 
         public static Attack Projectile(
             EffectPool rules,
+            Equipped items,
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
@@ -192,6 +196,7 @@ namespace PlayMore35.Items {
             };
             attack.ComputeAttackBonusAndDamage(
                 rules, 
+                items,
                 atk.DamageDieMedium,
                 attack.WeaponSizeCategory,
                 atk.CriticalMultiplier,
@@ -203,6 +208,7 @@ namespace PlayMore35.Items {
 
         public static Attack Thrown(
             EffectPool rules,
+            Equipped items,
             Weapon weapon,
             Weapon.Hand hand,
             int wpnSizeCategory,
@@ -224,6 +230,7 @@ namespace PlayMore35.Items {
             };
             attack.ComputeAttackBonusAndDamage(
                 rules,
+                items,
                 atk.DamageDieMedium, 
                 attack.WeaponSizeCategory,
                 atk.CriticalMultiplier, 
@@ -236,6 +243,7 @@ namespace PlayMore35.Items {
         private static void GenerateOneHandAttack(
             List<Attack> attacks,
             EffectPool rules,
+            Equipped items,
             Weapon weapon,
             int wpnSizeCategory,
             int sizeDiscrepancy,
@@ -245,15 +253,15 @@ namespace PlayMore35.Items {
             Weapon.Effort effort = weapon.EffortCategory + sizeDiscrepancy;
             if (effort == Weapon.Effort.LIGHT || effort == Weapon.Effort.ONE_HANDED) {
                 if (weapon.Melee != null) {
-                    attacks.Add(Melee(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy, true, twfPenalty));
+                    attacks.Add(Melee(rules, items, weapon, hand, wpnSizeCategory, sizeDiscrepancy, true, twfPenalty));
                 }
 
                 if (weapon.Projectile != null) {
-                    attacks.Add(Projectile(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty));
+                    attacks.Add(Projectile(rules, items, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty));
                 }
 
                 if (weapon.CanBeThrown()) {
-                    attacks.Add(Thrown(rules, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty));
+                    attacks.Add(Thrown(rules, items, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty));
                 }
             }
         }
@@ -273,16 +281,16 @@ namespace PlayMore35.Items {
         // even if they look identical.  
         // Either being null means that hand is empty.  If the primary hand is empty, this function will generate
         // an empty list of attacks, assuming that the player has no attacks available.
-        public static List<Attack> Generate(EffectPool rules, int sizeChange) {
-            Weapon primaryHandWeapon = rules.PrimaryHandWeapon;
-            Weapon offHandWeapon = rules.OffHandWeapon;
+        public static List<Attack> Generate(EffectPool rules, int sizeChange, Equipped items) {
+            Weapon primaryHandWeapon = items.PrimaryHandWeapon;
+            Weapon offHandWeapon = items.OffHandWeapon;
 
             List<Attack> attacks = new List<Attack>();
             if (primaryHandWeapon == null) {
                 return attacks;
             }
 
-            int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules).value;
+            int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules, items).value;
             int priSizeCategory = AdjustSize(primaryHandWeapon.SizeCategory, sizeChange);
             int priSizeDiscrepancy = priSizeCategory - playerSizeCategory;
             Weapon.Effort priEffort = primaryHandWeapon.EffortCategory + priSizeDiscrepancy;
@@ -299,21 +307,21 @@ namespace PlayMore35.Items {
                         Weapon.Hand hand = priEffort == Weapon.Effort.LIGHT
                             ? Weapon.Hand.ONE_HANDED
                             : Weapon.Hand.TWO_HANDED;
-                        attacks.Add(Melee(rules, primaryHandWeapon, hand, priSizeCategory, priSizeDiscrepancy, true));
+                        attacks.Add(Melee(rules, items, primaryHandWeapon, hand, priSizeCategory, priSizeDiscrepancy, true));
 
                         // For double weapons with identical heads, generate an identical primary- and off-hand attack.
                         if (primaryHandWeapon.SecondIdenticalHead) {
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, -8, Weapon.Effort.LIGHT));
+                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
+                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, -8, Weapon.Effort.LIGHT));
                         }
 
                         // For double weapons with different heads, generate a primary-hand/off-hand pairing for each ordering.
                         else if (primaryHandWeapon.SecondUniqueHead != null) {
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, false, -8, Weapon.Effort.LIGHT));
+                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
+                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, false, -8, Weapon.Effort.LIGHT));
 
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, false, -4, Weapon.Effort.ONE_HANDED));
-                            attacks.Add(Melee(rules, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, -8, Weapon.Effort.LIGHT));
+                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, false, -4, Weapon.Effort.ONE_HANDED));
+                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, -8, Weapon.Effort.LIGHT));
                         }
                     }
                 }
@@ -321,7 +329,7 @@ namespace PlayMore35.Items {
                 if (primaryHandWeapon.Projectile != null) {
                     Weapon.Effort effort = primaryHandWeapon.EffortCategory + priSizeDiscrepancy;
                     if (effort >= Weapon.Effort.LIGHT && effort <= Weapon.Effort.TWO_HANDED) {
-                        attacks.Add(Projectile(rules, primaryHandWeapon, Weapon.Hand.TWO_HANDED, priSizeCategory, priSizeDiscrepancy));
+                        attacks.Add(Projectile(rules, items, primaryHandWeapon, Weapon.Hand.TWO_HANDED, priSizeCategory, priSizeDiscrepancy));
                     }
                 }
 
@@ -329,33 +337,17 @@ namespace PlayMore35.Items {
                 if (primaryHandWeapon.CanBeThrown()) {
                     // I'm assuming all non-improvised weapons are thrown one-handed.  Either way, it doesn't
                     // affect anything mechanically (I think); STR to damage isn't multiplied or anything like that.
-                    attacks.Add(Thrown(rules, primaryHandWeapon, Weapon.Hand.ONE_HANDED, priSizeCategory, priSizeDiscrepancy));
+                    attacks.Add(Thrown(rules, items, primaryHandWeapon, Weapon.Hand.ONE_HANDED, priSizeCategory, priSizeDiscrepancy));
                 }
             }
             
             // Contents of hands are different.
             else {
-                GenerateOneHandAttack(attacks, rules, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.ONE_HANDED);
+                GenerateOneHandAttack(attacks, rules, items, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.ONE_HANDED);
                 if (twfAvailable) {
                     Weapon.Effort offEffort = offHandWeapon.EffortCategory + offSizeDiscrepancy;
-                    GenerateOneHandAttack(
-                        attacks,
-                        rules,
-                        primaryHandWeapon,
-                        priSizeCategory,
-                        priSizeDiscrepancy,
-                        Weapon.Hand.PRIMARY_HAND_TWF,
-                        offEffort == Weapon.Effort.LIGHT ? -4 : -6
-                    );
-                    GenerateOneHandAttack(
-                        attacks,
-                        rules,
-                        offHandWeapon,
-                        offSizeCategory,
-                        offSizeDiscrepancy,
-                        Weapon.Hand.OFF_HAND_TWF,
-                        offEffort == Weapon.Effort.LIGHT ? -8 : -10
-                    );
+                    GenerateOneHandAttack(attacks, rules, items, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.PRIMARY_HAND_TWF, offEffort == Weapon.Effort.LIGHT ? -4 : -6);
+                    GenerateOneHandAttack(attacks, rules, items, offHandWeapon, offSizeCategory, offSizeDiscrepancy, Weapon.Hand.OFF_HAND_TWF, offEffort == Weapon.Effort.LIGHT ? -8 : -10);
                 }
             }
 

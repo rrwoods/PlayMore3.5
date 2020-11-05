@@ -44,15 +44,15 @@ namespace PlayMore35.Effects {
 
         // This is a getter with a side effect of changing the property.
         // XXX : This might be a bad idea.
-        public int Get(EffectPool pool) {
+        public int Get(EffectPool pool, Items.Equipped items) {
             if (minimum != null) {
-                int min = minimum.Get(pool);
+                int min = minimum.Get(pool, items);
                 if (Amt < min) {
                     Amt = min;
                 }
             }
             if (maximum != null) {
-                int max = maximum.Get(pool);
+                int max = maximum.Get(pool, items);
                 if (Amt > max) {
                     Amt = max;
                 }

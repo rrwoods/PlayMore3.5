@@ -35,19 +35,19 @@ namespace PlayMore35.Items {
             return Melee?.atk.RangeIncrement > 0;
         }
 
-        public IEnumerable<Effects.Modifier> GetGlobalModifiers(Effects.EffectPool pool, Effects.Statistic affecting) {
+        public IEnumerable<Effects.Modifier> GetGlobalModifiers(Effects.EffectPool pool, Equipped items, Effects.Statistic affecting) {
             IEnumerable<Effects.Modifier> mods = Enumerable.Empty<Effects.Modifier>();
             if (Projectile != null) {
-                mods = mods.Concat(Projectile?.atk.GetGlobalModifiers(pool, affecting));
+                mods = mods.Concat(Projectile?.atk.GetGlobalModifiers(pool, items, affecting));
             }
             if (Thrown != null) {
-                mods = mods.Concat(Thrown.GetGlobalModifiers(pool, affecting));
+                mods = mods.Concat(Thrown.GetGlobalModifiers(pool, items, affecting));
             }
             if (Melee != null) {
-                mods = mods.Concat(Melee?.atk.GetGlobalModifiers(pool, affecting));
+                mods = mods.Concat(Melee?.atk.GetGlobalModifiers(pool, items, affecting));
             }
             if (SecondUniqueHead != null) {
-                mods = mods.Concat(SecondUniqueHead?.atk.GetGlobalModifiers(pool, affecting));
+                mods = mods.Concat(SecondUniqueHead?.atk.GetGlobalModifiers(pool, items, affecting));
             }
             return mods;
         }

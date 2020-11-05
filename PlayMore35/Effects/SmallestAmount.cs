@@ -22,8 +22,8 @@ namespace PlayMore35.Effects {
             Amounts.AddRange(stats.Select(x => new VariableAmount(x)));
         }
 
-        public int Get(EffectPool pool) {
-            return Amounts.Select(x => x.Get(pool)).Min();
+        public int Get(EffectPool pool, Items.Equipped items) {
+            return Amounts.Select(x => x.Get(pool, items)).Min();
         }
     }
 }

@@ -57,8 +57,8 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public int ComputeAmount(EffectPool pool) {
-            return Amounts.Select(x => x.Get(pool)).Sum();
+        public int ComputeAmount(EffectPool pool, Items.Equipped items) {
+            return Amounts.Select(x => x.Get(pool, items)).Sum();
         }
     }
 }

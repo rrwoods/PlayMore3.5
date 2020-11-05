@@ -28,8 +28,8 @@ namespace PlayMore35.Effects {
 
         }
 
-        public int Get(EffectPool pool) {
-            return (int) Math.Floor(Scalar * Variable.Get(pool));
+        public int Get(EffectPool pool, Items.Equipped items) {
+            return (int) Math.Floor(Scalar * Variable.Get(pool, items));
         }
     }
 }
