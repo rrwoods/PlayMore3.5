@@ -1853,23 +1853,6 @@
       ]
     },
     {
-      "name": "INT to Appraise",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Appraise"
-        }
-      ]
-    },
-    {
       "name": "Autohypnosis ranks",
       "active": "always",
       "modifiers": [
@@ -1879,23 +1862,6 @@
             "amounts": [
               {
                 "statValue": "Autohypnosis ranks"
-              }
-            ]
-          },
-          "affects": "Autohypnosis"
-        }
-      ]
-    },
-    {
-      "name": "WIS to Autohypnosis",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "WIS modifier"
               }
             ]
           },
@@ -1921,23 +1887,6 @@
       ]
     },
     {
-      "name": "DEX to Balance",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
-              }
-            ]
-          },
-          "affects": "Balance"
-        }
-      ]
-    },
-    {
       "name": "Bluff ranks",
       "active": "always",
       "modifiers": [
@@ -1947,23 +1896,6 @@
             "amounts": [
               {
                 "statValue": "Bluff ranks"
-              }
-            ]
-          },
-          "affects": "Bluff"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Bluff",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -1989,23 +1921,6 @@
       ]
     },
     {
-      "name": "STR to Climb",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "STR modifier"
-              }
-            ]
-          },
-          "affects": "Climb"
-        }
-      ]
-    },
-    {
       "name": "Concentration ranks",
       "active": "always",
       "modifiers": [
@@ -2015,23 +1930,6 @@
             "amounts": [
               {
                 "statValue": "Concentration ranks"
-              }
-            ]
-          },
-          "affects": "Concentration"
-        }
-      ]
-    },
-    {
-      "name": "CON to Concentration",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CON modifier"
               }
             ]
           },
@@ -2057,23 +1955,6 @@
       ]
     },
     {
-      "name": "INT to Craft",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Craft"
-        }
-      ]
-    },
-    {
       "name": "Decipher Script ranks",
       "active": "always",
       "modifiers": [
@@ -2083,23 +1964,6 @@
             "amounts": [
               {
                 "statValue": "Decipher Script ranks"
-              }
-            ]
-          },
-          "affects": "Decipher Script"
-        }
-      ]
-    },
-    {
-      "name": "INT to Decipher Script",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2125,23 +1989,6 @@
       ]
     },
     {
-      "name": "CHA to Diplomacy",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Diplomacy"
-        }
-      ]
-    },
-    {
       "name": "Disable Device ranks",
       "active": "always",
       "modifiers": [
@@ -2151,23 +1998,6 @@
             "amounts": [
               {
                 "statValue": "Disable Device ranks"
-              }
-            ]
-          },
-          "affects": "Disable Device"
-        }
-      ]
-    },
-    {
-      "name": "INT to Disable Device",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2193,23 +2023,6 @@
       ]
     },
     {
-      "name": "CHA to Disguise",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Disguise"
-        }
-      ]
-    },
-    {
       "name": "Escape Artist ranks",
       "active": "always",
       "modifiers": [
@@ -2219,23 +2032,6 @@
             "amounts": [
               {
                 "statValue": "Escape Artist ranks"
-              }
-            ]
-          },
-          "affects": "Escape Artist"
-        }
-      ]
-    },
-    {
-      "name": "DEX to Escape Artist",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
               }
             ]
           },
@@ -2261,23 +2057,6 @@
       ]
     },
     {
-      "name": "INT to Forgery",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Forgery"
-        }
-      ]
-    },
-    {
       "name": "Gather Information ranks",
       "active": "always",
       "modifiers": [
@@ -2287,23 +2066,6 @@
             "amounts": [
               {
                 "statValue": "Gather Information ranks"
-              }
-            ]
-          },
-          "affects": "Gather Information"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Gather Information",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -2329,23 +2091,6 @@
       ]
     },
     {
-      "name": "CHA to Handle Animal",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Handle Animal"
-        }
-      ]
-    },
-    {
       "name": "Heal ranks",
       "active": "always",
       "modifiers": [
@@ -2355,23 +2100,6 @@
             "amounts": [
               {
                 "statValue": "Heal ranks"
-              }
-            ]
-          },
-          "affects": "Heal"
-        }
-      ]
-    },
-    {
-      "name": "WIS to Heal",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "WIS modifier"
               }
             ]
           },
@@ -2397,23 +2125,6 @@
       ]
     },
     {
-      "name": "DEX to Hide",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
-              }
-            ]
-          },
-          "affects": "Hide"
-        }
-      ]
-    },
-    {
       "name": "Iaijutsu Focus ranks",
       "active": "always",
       "modifiers": [
@@ -2423,23 +2134,6 @@
             "amounts": [
               {
                 "statValue": "Iaijutsu Focus ranks"
-              }
-            ]
-          },
-          "affects": "Iaijutsu Focus"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Iaijutsu Focus",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -2465,23 +2159,6 @@
       ]
     },
     {
-      "name": "CHA to Intimidate",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Intimidate"
-        }
-      ]
-    },
-    {
       "name": "Jump ranks",
       "active": "always",
       "modifiers": [
@@ -2491,23 +2168,6 @@
             "amounts": [
               {
                 "statValue": "Jump ranks"
-              }
-            ]
-          },
-          "affects": "Jump"
-        }
-      ]
-    },
-    {
-      "name": "STR to Jump",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "STR modifier"
               }
             ]
           },
@@ -2533,23 +2193,6 @@
       ]
     },
     {
-      "name": "INT to Knowledge (arcana)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Knowledge (arcana)"
-        }
-      ]
-    },
-    {
       "name": "Knowledge (architecture and engineering) ranks",
       "active": "always",
       "modifiers": [
@@ -2559,23 +2202,6 @@
             "amounts": [
               {
                 "statValue": "Knowledge (architecture and engineering) ranks"
-              }
-            ]
-          },
-          "affects": "Knowledge (architecture and engineering)"
-        }
-      ]
-    },
-    {
-      "name": "INT to Knowledge (architecture and engineering)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2601,23 +2227,6 @@
       ]
     },
     {
-      "name": "INT to Knowledge (dungeoneering)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Knowledge (dungeoneering)"
-        }
-      ]
-    },
-    {
       "name": "Knowledge (geography) ranks",
       "active": "always",
       "modifiers": [
@@ -2627,23 +2236,6 @@
             "amounts": [
               {
                 "statValue": "Knowledge (geography) ranks"
-              }
-            ]
-          },
-          "affects": "Knowledge (geography)"
-        }
-      ]
-    },
-    {
-      "name": "INT to Knowledge (geography)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2669,23 +2261,6 @@
       ]
     },
     {
-      "name": "INT to Knowledge (history)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Knowledge (history)"
-        }
-      ]
-    },
-    {
       "name": "Knowledge (local) ranks",
       "active": "always",
       "modifiers": [
@@ -2695,23 +2270,6 @@
             "amounts": [
               {
                 "statValue": "Knowledge (local) ranks"
-              }
-            ]
-          },
-          "affects": "Knowledge (local)"
-        }
-      ]
-    },
-    {
-      "name": "INT to Knowledge (local)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2737,23 +2295,6 @@
       ]
     },
     {
-      "name": "INT to Knowledge (nature)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Knowledge (nature)"
-        }
-      ]
-    },
-    {
       "name": "Knowledge (nobility and royalty) ranks",
       "active": "always",
       "modifiers": [
@@ -2763,23 +2304,6 @@
             "amounts": [
               {
                 "statValue": "Knowledge (nobility and royalty) ranks"
-              }
-            ]
-          },
-          "affects": "Knowledge (nobility and royalty)"
-        }
-      ]
-    },
-    {
-      "name": "INT to Knowledge (nobility and royalty)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2805,23 +2329,6 @@
       ]
     },
     {
-      "name": "INT to Knowledge (psionics)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Knowledge (psionics)"
-        }
-      ]
-    },
-    {
       "name": "Knowledge (religion) ranks",
       "active": "always",
       "modifiers": [
@@ -2831,23 +2338,6 @@
             "amounts": [
               {
                 "statValue": "Knowledge (religion) ranks"
-              }
-            ]
-          },
-          "affects": "Knowledge (religion)"
-        }
-      ]
-    },
-    {
-      "name": "INT to Knowledge (religion)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2873,23 +2363,6 @@
       ]
     },
     {
-      "name": "INT to Knowledge (the planes)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Knowledge (the planes)"
-        }
-      ]
-    },
-    {
       "name": "Martial Lore ranks",
       "active": "always",
       "modifiers": [
@@ -2899,23 +2372,6 @@
             "amounts": [
               {
                 "statValue": "Martial Lore ranks"
-              }
-            ]
-          },
-          "affects": "Martial Lore"
-        }
-      ]
-    },
-    {
-      "name": "INT to Martial Lore",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -2941,23 +2397,6 @@
       ]
     },
     {
-      "name": "WIS to Listen",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "WIS modifier"
-              }
-            ]
-          },
-          "affects": "Listen"
-        }
-      ]
-    },
-    {
       "name": "Move Silently ranks",
       "active": "always",
       "modifiers": [
@@ -2967,23 +2406,6 @@
             "amounts": [
               {
                 "statValue": "Move Silently ranks"
-              }
-            ]
-          },
-          "affects": "Move Silently"
-        }
-      ]
-    },
-    {
-      "name": "DEX to Move Silently",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
               }
             ]
           },
@@ -3009,23 +2431,6 @@
       ]
     },
     {
-      "name": "DEX to Open Lock",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
-              }
-            ]
-          },
-          "affects": "Open Lock"
-        }
-      ]
-    },
-    {
       "name": "Perform (act) ranks",
       "active": "always",
       "modifiers": [
@@ -3035,23 +2440,6 @@
             "amounts": [
               {
                 "statValue": "Perform (act) ranks"
-              }
-            ]
-          },
-          "affects": "Perform (act)"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Perform (act)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -3077,23 +2465,6 @@
       ]
     },
     {
-      "name": "CHA to Perform (comedy)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Perform (comedy)"
-        }
-      ]
-    },
-    {
       "name": "Perform (dance) ranks",
       "active": "always",
       "modifiers": [
@@ -3103,23 +2474,6 @@
             "amounts": [
               {
                 "statValue": "Perform (dance) ranks"
-              }
-            ]
-          },
-          "affects": "Perform (dance)"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Perform (dance)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -3145,23 +2499,6 @@
       ]
     },
     {
-      "name": "CHA to Perform (keyboard instruments)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Perform (keyboard instruments)"
-        }
-      ]
-    },
-    {
       "name": "Perform (oratory) ranks",
       "active": "always",
       "modifiers": [
@@ -3171,23 +2508,6 @@
             "amounts": [
               {
                 "statValue": "Perform (oratory) ranks"
-              }
-            ]
-          },
-          "affects": "Perform (oratory)"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Perform (oratory)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -3213,23 +2533,6 @@
       ]
     },
     {
-      "name": "CHA to Perform (percussion instruments)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Perform (percussion instruments)"
-        }
-      ]
-    },
-    {
       "name": "Perform (string instruments) ranks",
       "active": "always",
       "modifiers": [
@@ -3239,23 +2542,6 @@
             "amounts": [
               {
                 "statValue": "Perform (string instruments) ranks"
-              }
-            ]
-          },
-          "affects": "Perform (string instruments)"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Perform (string instruments)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -3281,23 +2567,6 @@
       ]
     },
     {
-      "name": "CHA to Perform (wind instruments)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Perform (wind instruments)"
-        }
-      ]
-    },
-    {
       "name": "Perform (sing) ranks",
       "active": "always",
       "modifiers": [
@@ -3307,23 +2576,6 @@
             "amounts": [
               {
                 "statValue": "Perform (sing) ranks"
-              }
-            ]
-          },
-          "affects": "Perform (sing)"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Perform (sing)",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -3349,23 +2601,6 @@
       ]
     },
     {
-      "name": "WIS to Profession",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "WIS modifier"
-              }
-            ]
-          },
-          "affects": "Profession"
-        }
-      ]
-    },
-    {
       "name": "Psicraft ranks",
       "active": "always",
       "modifiers": [
@@ -3375,23 +2610,6 @@
             "amounts": [
               {
                 "statValue": "Psicraft ranks"
-              }
-            ]
-          },
-          "affects": "Psicraft"
-        }
-      ]
-    },
-    {
-      "name": "INT to Psicraft",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -3417,23 +2635,6 @@
       ]
     },
     {
-      "name": "DEX to Ride",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
-              }
-            ]
-          },
-          "affects": "Ride"
-        }
-      ]
-    },
-    {
       "name": "Search ranks",
       "active": "always",
       "modifiers": [
@@ -3443,23 +2644,6 @@
             "amounts": [
               {
                 "statValue": "Search ranks"
-              }
-            ]
-          },
-          "affects": "Search"
-        }
-      ]
-    },
-    {
-      "name": "INT to Search",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
               }
             ]
           },
@@ -3485,23 +2669,6 @@
       ]
     },
     {
-      "name": "WIS to Sense Motive",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "WIS modifier"
-              }
-            ]
-          },
-          "affects": "Sense Motive"
-        }
-      ]
-    },
-    {
       "name": "Sleight Of Hand ranks",
       "active": "always",
       "modifiers": [
@@ -3511,23 +2678,6 @@
             "amounts": [
               {
                 "statValue": "Sleight Of Hand ranks"
-              }
-            ]
-          },
-          "affects": "Sleight Of Hand"
-        }
-      ]
-    },
-    {
-      "name": "DEX to Sleight Of Hand",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
               }
             ]
           },
@@ -3553,23 +2703,6 @@
       ]
     },
     {
-      "name": "INT to Spellcraft",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Spellcraft"
-        }
-      ]
-    },
-    {
       "name": "Spot ranks",
       "active": "always",
       "modifiers": [
@@ -3579,23 +2712,6 @@
             "amounts": [
               {
                 "statValue": "Spot ranks"
-              }
-            ]
-          },
-          "affects": "Spot"
-        }
-      ]
-    },
-    {
-      "name": "WIS to Spot",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "WIS modifier"
               }
             ]
           },
@@ -3621,23 +2737,6 @@
       ]
     },
     {
-      "name": "WIS to Survival",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "WIS modifier"
-              }
-            ]
-          },
-          "affects": "Survival"
-        }
-      ]
-    },
-    {
       "name": "Swim ranks",
       "active": "always",
       "modifiers": [
@@ -3647,23 +2746,6 @@
             "amounts": [
               {
                 "statValue": "Swim ranks"
-              }
-            ]
-          },
-          "affects": "Swim"
-        }
-      ]
-    },
-    {
-      "name": "STR to Swim",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "STR modifier"
               }
             ]
           },
@@ -3689,23 +2771,6 @@
       ]
     },
     {
-      "name": "INT to Truespeak",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "INT modifier"
-              }
-            ]
-          },
-          "affects": "Truespeak"
-        }
-      ]
-    },
-    {
       "name": "Tumble ranks",
       "active": "always",
       "modifiers": [
@@ -3715,23 +2780,6 @@
             "amounts": [
               {
                 "statValue": "Tumble ranks"
-              }
-            ]
-          },
-          "affects": "Tumble"
-        }
-      ]
-    },
-    {
-      "name": "DEX to Tumble",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
               }
             ]
           },
@@ -3757,23 +2805,6 @@
       ]
     },
     {
-      "name": "CHA to Use Magic Device",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
-              }
-            ]
-          },
-          "affects": "Use Magic Device"
-        }
-      ]
-    },
-    {
       "name": "Use Psionic Device ranks",
       "active": "always",
       "modifiers": [
@@ -3783,23 +2814,6 @@
             "amounts": [
               {
                 "statValue": "Use Psionic Device ranks"
-              }
-            ]
-          },
-          "affects": "Use Psionic Device"
-        }
-      ]
-    },
-    {
-      "name": "CHA to Use Psionic Device",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "CHA modifier"
               }
             ]
           },
@@ -3825,7 +2839,24 @@
       ]
     },
     {
-      "name": "DEX to Use Rope",
+      "name": "STR modifier to skills",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "STR modifier"
+              }
+            ]
+          },
+          "affects": "STR skills"
+        }
+      ]
+    },
+    {
+      "name": "DEX modifier to skills",
       "active": "always",
       "modifiers": [
         {
@@ -3837,7 +2868,75 @@
               }
             ]
           },
-          "affects": "Use Rope"
+          "affects": "DEX skills"
+        }
+      ]
+    },
+    {
+      "name": "CON modifier to skills",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CON modifier"
+              }
+            ]
+          },
+          "affects": "CON skills"
+        }
+      ]
+    },
+    {
+      "name": "INT modifier to skills",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "INT modifier"
+              }
+            ]
+          },
+          "affects": "INT skills"
+        }
+      ]
+    },
+    {
+      "name": "WIS modifier to skills",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "WIS modifier"
+              }
+            ]
+          },
+          "affects": "WIS skills"
+        }
+      ]
+    },
+    {
+      "name": "CHA modifier to skills",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "statValue": "CHA modifier"
+              }
+            ]
+          },
+          "affects": "CHA skills"
         }
       ]
     },
@@ -6148,4 +5247,3 @@
     }
   ]
 }
-
