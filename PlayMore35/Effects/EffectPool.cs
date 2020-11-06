@@ -39,31 +39,28 @@ namespace PlayMore35.Effects {
             effects.Add(effect);
         }
 
-        public IEnumerable<Modifier> GetModifiers(Equipped items, Statistic affecting) {
-            IEnumerable<Modifier> mods = effects.SelectMany(x => x.GetModifiers(this, items, affecting));
-            if (items.PrimaryHandWeapon != null) {
-                mods = mods.Concat(items.PrimaryHandWeapon.GetGlobalModifiers(this, items, affecting));
-            }
-            if (items.OffHandWeapon != null && items.OffHandWeapon != items.PrimaryHandWeapon) {
-                mods = mods.Concat(items.OffHandWeapon.GetGlobalModifiers(this, items, affecting));
-            }
-            return mods;
+        private IEnumerable<Effect> AllEffects(Equipped items) {
+            return effects.Concat(items.GetGlobalEffects());
         }
 
-        public IEnumerable<Modifier> GetAttackModifiers(Equipped items, Attack affecting) {
-            return effects.SelectMany(x => x.GetAttackModifiers(this, items, affecting));
+        public IEnumerable<Modifier> GetModifiers(Statistic affecting, Equipped items) {
+            return AllEffects(items).SelectMany(x => x.GetModifiers(this, items, affecting));
         }
 
-        public IEnumerable<Modifier> GetDamageModifiers(Equipped items, Attack affecting) {
-            return effects.SelectMany(x => x.GetDamageModifiers(this, items, affecting));
+        public IEnumerable<Modifier> GetAttackModifiers(Attack affecting, Equipped items) {
+            return AllEffects(items).SelectMany(x => x.GetAttackModifiers(this, items, affecting));
         }
 
-        public IEnumerable<Multiplier> GetMultipliers(Equipped items, Statistic affecting) {
-            return effects.SelectMany(x => x.GetMultipliers(this, items, affecting));
+        public IEnumerable<Modifier> GetDamageModifiers(Attack affecting, Equipped items) {
+            return AllEffects(items).SelectMany(x => x.GetDamageModifiers(this, items, affecting));
         }
 
-        public IEnumerable<DiceGroup> GetExtraDice(Equipped items, Attack affecting) {
-            return effects.SelectMany(x => x.GetExtraDice(this, items, affecting));
+        public IEnumerable<Multiplier> GetMultipliers(Statistic affecting, Equipped items) {
+            return AllEffects(items).SelectMany(x => x.GetMultipliers(this, items, affecting));
+        }
+
+        public IEnumerable<DiceGroup> GetExtraDice(Attack affecting, Equipped items) {
+            return AllEffects(items).SelectMany(x => x.GetExtraDice(this, items, affecting));
         }
 
         public Dictionary<string, List<string>> GetTextEffects(Equipped items) {

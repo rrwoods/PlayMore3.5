@@ -58,7 +58,7 @@ namespace PlayMore35.Items {
             IEnumerable<Modifier> atkModsFromProps = properties
                 .Select(x => x.AttackModifier)
                 .Where(x => x != null);
-            IEnumerable<Modifier> attackModifiers = rules.GetAttackModifiers(items, this)
+            IEnumerable<Modifier> attackModifiers = rules.GetAttackModifiers(this, items)
                 .Concat(atkModsFromProps);
                 
             AttackBonus = StackModifiers(attackModifiers, rules, items);
@@ -95,7 +95,7 @@ namespace PlayMore35.Items {
             IEnumerable<Modifier> dmgModsFromProps = properties
                 .Select(x => x.DamageModifier)
                 .Where(x => x != null);
-            IEnumerable<Modifier> damageModifiers = rules.GetDamageModifiers(items, this)
+            IEnumerable<Modifier> damageModifiers = rules.GetDamageModifiers(this, items)
                 .Concat(dmgModsFromProps);
             
             (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules, items);
@@ -115,7 +115,7 @@ namespace PlayMore35.Items {
             IEnumerable<DiceGroup> extraDiceFromProps = properties
                 .Where(x => x.ExtraDamage.qty != 0)
                 .Select(x => new DiceGroup(x.Name).AddDice(x.ExtraDamage.qty, x.ExtraDamage.size));
-            IEnumerable<DiceGroup> extraDice = rules.GetExtraDice(items, this)
+            IEnumerable<DiceGroup> extraDice = rules.GetExtraDice(this, items)
                 .Concat(extraDiceFromProps);
             foreach (DiceGroup extra in extraDice) {
                 damage.AddDice(extra);

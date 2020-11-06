@@ -183,23 +183,23 @@ namespace PlayMore35.Effects {
         }
 
 
-        public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Items.Equipped items, Attack affecting) {
+        public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Equipped items, Attack affecting) {
             return GetAlterers(pool, items, affecting, AttackModifiers);
         }
 
-        public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Items.Equipped items, Attack affecting) {
+        public IEnumerable<Modifier> GetDamageModifiers(EffectPool pool, Equipped items, Attack affecting) {
             return GetAlterers(pool, items, affecting, DamageModifiers);
         }
 
-        public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Items.Equipped items, Attack affecting) {
+        public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Equipped items, Attack affecting) {
             return GetAlterers(pool, items, affecting, ExtraDice);
         }
 
-        public IEnumerable<Modifier> GetModifiers(EffectPool pool, Items.Equipped items, Statistic affecting) {
+        public IEnumerable<Modifier> GetModifiers(EffectPool pool, Equipped items, Statistic affecting) {
             return GetAlterers(pool, items, affecting, Modifiers);
         }
 
-        public IEnumerable<Multiplier> GetMultipliers(EffectPool pool, Items.Equipped items, Statistic affecting) {
+        public IEnumerable<Multiplier> GetMultipliers(EffectPool pool, Equipped items, Statistic affecting) {
             return GetAlterers(pool, items, affecting, Multipliers);
         }
 

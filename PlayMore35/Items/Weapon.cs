@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using PlayMore35.Effects;
 
 namespace PlayMore35.Items {
     public class Weapon {
@@ -35,21 +36,21 @@ namespace PlayMore35.Items {
             return Melee?.atk.RangeIncrement > 0;
         }
 
-        public IEnumerable<Effects.Modifier> GetGlobalModifiers(Effects.EffectPool pool, Equipped items, Effects.Statistic affecting) {
-            IEnumerable<Effects.Modifier> mods = Enumerable.Empty<Effects.Modifier>();
+        public IEnumerable<Effect> GetGlobalEffects() {
+            IEnumerable<Effect> effects = Enumerable.Empty<Effect>();
             if (Projectile != null) {
-                mods = mods.Concat(Projectile?.atk.GetGlobalModifiers(pool, items, affecting));
+                effects = effects.Concat(Projectile?.atk.GetGlobalEffects());
             }
             if (Thrown != null) {
-                mods = mods.Concat(Thrown.GetGlobalModifiers(pool, items, affecting));
+                effects = effects.Concat(Thrown.GetGlobalEffects());
             }
             if (Melee != null) {
-                mods = mods.Concat(Melee?.atk.GetGlobalModifiers(pool, items, affecting));
+                effects = effects.Concat(Melee?.atk.GetGlobalEffects());
             }
             if (SecondUniqueHead != null) {
-                mods = mods.Concat(SecondUniqueHead?.atk.GetGlobalModifiers(pool, items, affecting));
+                effects = effects.Concat(SecondUniqueHead?.atk.GetGlobalEffects());
             }
-            return mods;
+            return effects;
         }
     }
 }

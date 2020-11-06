@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
-    class Alterer<AlterType, SubjectType> : IJsonable where AlterType : IJsonable {
+    public class Alterer<AlterType, SubjectType> : IJsonable where AlterType : IJsonable {
         public AlterType mod;
         public ISubjectClass<SubjectType> affects;
 

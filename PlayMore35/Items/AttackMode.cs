@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using PlayMore35.Effects;
 
 namespace PlayMore35.Items {
     public class AttackMode {
@@ -11,14 +13,8 @@ namespace PlayMore35.Items {
 
         public List<WeaponProperty> Properties = new List<WeaponProperty>();
 
-        public IEnumerable<Effects.Modifier> GetGlobalModifiers(Effects.EffectPool pool, Equipped items, Effects.Statistic affecting) {
-            List<Effects.Modifier> ret = new List<Effects.Modifier>();
-            foreach (WeaponProperty prop in Properties) {
-                if (prop.GlobalEffect != null) {
-                    ret.AddRange(prop.GlobalEffect.GetModifiers(pool, items, affecting));
-                }
-            }
-            return ret;
+        public IEnumerable<Effect> GetGlobalEffects() {
+            return Properties.Select(x => x.GlobalEffect).Where(x => x != null);
         }
     }
 }
