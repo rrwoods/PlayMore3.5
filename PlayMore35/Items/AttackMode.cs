@@ -7,8 +7,8 @@ namespace PlayMore35.Items {
         public Weapon.Proficiency ProficencyCategory;
         public (int qty, int size) DamageDieMedium;
         public string DamageType;
-        public int ThreatRange;
-        public int CriticalMultiplier;
+        public int ThreatRange = 20;
+        public int CriticalMultiplier = 2;
         public int RangeIncrement = 0;
 
         public List<WeaponProperty> Properties = new List<WeaponProperty>();

@@ -38,6 +38,48 @@ namespace PlayMore35.Items {
                 [(2, 6)] = new List<(int, int)>  { (1, 4), (1, 6), (1, 8), (1, 10), (2, 6),  (3, 6), (4, 6), (6, 6), (8, 6) },
             };
 
+        private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand) {
+            WeaponName = weapon.Name;
+            WeaponTags = weapon.Tags;
+            WeaponSizeCategory = wpnSizeCategory;
+
+            Proficiency = atk.ProficencyCategory;
+            Effort = weapon.EffortCategory + sizeDiscrepancy;
+            Hand = hand;
+            DamageType = atk.DamageType;
+            ThreatRange = atk.ThreatRange;
+        }
+
+        private Attack(Armor armor, int wpnSizeCategory, Weapon.Hand hand) {
+            WeaponName = "armor spikes";
+            WeaponTags = new List<string>(); // TODO : ... see shield todo
+            WeaponSizeCategory = wpnSizeCategory;
+
+            Proficiency = armor.ArmorSpikes.ProficencyCategory;
+            Effort = Weapon.Effort.LIGHT;
+            Hand = hand;
+            DamageType = armor.ArmorSpikes.DamageType;
+            ThreatRange = armor.ArmorSpikes.ThreatRange;
+
+            Range = Weapon.Range.MELEE;
+            RangeIncrement = 0;
+        }
+
+        private Attack(Shield shield, int wpnSizeCategory, int sizeDiscrepancy, Weapon.Hand hand) {
+            WeaponName = "shield bash";
+            WeaponTags = new List<string>(); // TODO : ... can shields have weapon tags?
+            WeaponSizeCategory = wpnSizeCategory;
+
+            Proficiency = shield.ShieldBash.ProficencyCategory;
+            Effort = (Weapon.Effort) shield.ShieldBashEffort + sizeDiscrepancy;
+            Hand = hand;
+            DamageType = shield.ShieldBash.DamageType;
+            ThreatRange = shield.ShieldBash.ThreatRange;
+
+            Range = Weapon.Range.MELEE;
+            RangeIncrement = 0;
+        }
+
         private DiceGroup BaseDamageDice(int sizeCategory, (int, int) damageDieMedium) {
             DiceGroup dice = new DiceGroup(damageSteps[damageDieMedium][sizeCategory + 4]) {
                 Name = "Base " + SIZE_CATEGORIES[sizeCategory + 4] + " " + WeaponName + " damage"
@@ -53,7 +95,7 @@ namespace PlayMore35.Items {
             int criticalMultiplier,
             List<WeaponProperty> properties,
             int sizeDiscrepancy,
-            int twfPenalty = 0
+            int twfPenalty
         ) {
             IEnumerable<Modifier> atkModsFromProps = properties
                 .Select(x => x.AttackModifier)
@@ -128,18 +170,6 @@ namespace PlayMore35.Items {
             CriticalDamage = (critDamage, critExplanation);
         }
 
-        private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand) {
-            WeaponName = weapon.Name;
-            WeaponTags = weapon.Tags;
-            WeaponSizeCategory = wpnSizeCategory;
-
-            Proficiency = atk.ProficencyCategory;
-            Effort = weapon.EffortCategory + sizeDiscrepancy;
-            Hand = hand;
-            DamageType = atk.DamageType;
-            ThreatRange = atk.ThreatRange;
-        }
-
         public static Attack Melee(
             EffectPool rules,
             Equipped items,
@@ -201,7 +231,8 @@ namespace PlayMore35.Items {
                 attack.WeaponSizeCategory,
                 atk.CriticalMultiplier,
                 atk.Properties,
-                sizeDiscrepancy
+                sizeDiscrepancy,
+                twfPenalty
             );
             return attack;
         }
@@ -235,9 +266,55 @@ namespace PlayMore35.Items {
                 attack.WeaponSizeCategory,
                 atk.CriticalMultiplier, 
                 atk.Properties,
-                sizeDiscrepancy
+                sizeDiscrepancy,
+                twfPenalty
             );
             return attack;
+        }
+
+        public static Attack ArmorSpikes(
+            EffectPool rules,
+            Equipped items,
+            Weapon.Hand hand,
+            int armSizeCategory,
+            int twfPenalty = 0
+        ) {
+            Armor armor = items.DonnedArmor;
+            Attack spikes = new Attack(armor, armSizeCategory, hand);
+            spikes.ComputeAttackBonusAndDamage(
+                rules,
+                items,
+                armor.ArmorSpikes.DamageDieMedium,
+                armSizeCategory,
+                armor.ArmorSpikes.CriticalMultiplier,
+                armor.ArmorSpikes.Properties,
+                0,
+                twfPenalty
+            );
+            return spikes;
+        }
+
+        public static Attack ShieldBash(
+            EffectPool rules,
+            Equipped items,
+            Weapon.Hand hand,
+            int shSizeCategory,
+            int sizeDiscrepancy,
+            int twfPenalty = 0
+        ) {
+            Shield shield = items.OffHandShield;
+            Attack shieldBash = new Attack(shield, shSizeCategory, sizeDiscrepancy, hand);
+            shieldBash.ComputeAttackBonusAndDamage(
+                rules,
+                items,
+                shield.ShieldBash.DamageDieMedium,
+                shield.SizeCategory,
+                shield.ShieldBash.CriticalMultiplier,
+                shield.ShieldBash.Properties,
+                sizeDiscrepancy,
+                twfPenalty
+            );
+            return shieldBash;
         }
 
         private static void GenerateOneHandAttack(
@@ -282,22 +359,48 @@ namespace PlayMore35.Items {
         // Either being null means that hand is empty.  If the primary hand is empty, this function will generate
         // an empty list of attacks, assuming that the player has no attacks available.
         public static List<Attack> Generate(EffectPool rules, int sizeChange, Equipped items) {
+            Armor armor = items.DonnedArmor;
+            Shield shield = items.OffHandShield;
             Weapon primaryHandWeapon = items.PrimaryHandWeapon;
             Weapon offHandWeapon = items.OffHandWeapon;
+            bool shieldPresent = shield != null;
+            if (shieldPresent && shield.AttackRollPenalty == null) {
+                // Not allowed to use off-hand weapon.  If we're trying to two-hand a weapon, we're not allowed
+                // to use our weapon at all.
+                if (primaryHandWeapon == offHandWeapon) {
+                    primaryHandWeapon = offHandWeapon = null;
+                } else {
+                    offHandWeapon = null;
+                }
+            }
+
+            int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules, items).value;
 
             List<Attack> attacks = new List<Attack>();
+            int shSizeCategory = shieldPresent ? AdjustSize(shield.SizeCategory, sizeChange) : 0;
+            int shSizeDiscrepancy = shieldPresent ? shSizeCategory - playerSizeCategory : 0;
+            bool shieldBashAvailable = shield?.ShieldBash != null;
+            if (shieldBashAvailable) {
+                attacks.Add(ShieldBash(rules, items, Weapon.Hand.ONE_HANDED, shSizeCategory, shSizeDiscrepancy));
+            }
+
+            bool spikesAvailable = armor?.ArmorSpikes != null;
+            int armSizeCategory = spikesAvailable ? AdjustSize(armor.sizeCategory, sizeChange) : 0;
+            if (spikesAvailable) {
+                attacks.Add(ArmorSpikes(rules, items, Weapon.Hand.ONE_HANDED, armSizeCategory));
+            }
+
             if (primaryHandWeapon == null) {
                 return attacks;
             }
 
-            int playerSizeCategory = rules.GetStat(SIZE_CATEGORY).GetValue(rules, items).value;
             int priSizeCategory = AdjustSize(primaryHandWeapon.SizeCategory, sizeChange);
             int priSizeDiscrepancy = priSizeCategory - playerSizeCategory;
             Weapon.Effort priEffort = primaryHandWeapon.EffortCategory + priSizeDiscrepancy;
 
-            bool twfAvailable = offHandWeapon != null;
-            int offSizeCategory = twfAvailable ? AdjustSize(offHandWeapon.SizeCategory, sizeChange) : 0;
-            int offSizeDiscrepancy = twfAvailable ? offSizeCategory - playerSizeCategory : 0;
+            bool offWpnPresent = offHandWeapon != null;
+            int offSizeCategory = offWpnPresent ? AdjustSize(offHandWeapon.SizeCategory, sizeChange) : 0;
+            int offSizeDiscrepancy = offWpnPresent ? offSizeCategory - playerSizeCategory : 0;
 
             // Exact same weapon in both hands.  Player is two-handing a single weapon.
             if (primaryHandWeapon == offHandWeapon) {
@@ -344,10 +447,19 @@ namespace PlayMore35.Items {
             // Contents of hands are different.
             else {
                 GenerateOneHandAttack(attacks, rules, items, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.ONE_HANDED);
-                if (twfAvailable) {
+                if (offWpnPresent) {
                     Weapon.Effort offEffort = offHandWeapon.EffortCategory + offSizeDiscrepancy;
                     GenerateOneHandAttack(attacks, rules, items, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.PRIMARY_HAND_TWF, offEffort == Weapon.Effort.LIGHT ? -4 : -6);
                     GenerateOneHandAttack(attacks, rules, items, offHandWeapon, offSizeCategory, offSizeDiscrepancy, Weapon.Hand.OFF_HAND_TWF, offEffort == Weapon.Effort.LIGHT ? -8 : -10);
+                }
+                if (spikesAvailable) {
+                    GenerateOneHandAttack(attacks, rules, items, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.PRIMARY_HAND_TWF, -4);
+                    attacks.Add(ArmorSpikes(rules, items, Weapon.Hand.OFF_HAND_TWF, armSizeCategory, -8));
+                }
+                if (shieldBashAvailable) {
+                    Weapon.Effort offEffort = (Weapon.Effort)shield.ShieldBashEffort + shSizeDiscrepancy;
+                    GenerateOneHandAttack(attacks, rules, items, primaryHandWeapon, priSizeCategory, priSizeDiscrepancy, Weapon.Hand.PRIMARY_HAND_TWF, offEffort == Weapon.Effort.LIGHT ? -4 : -6);
+                    attacks.Add(ShieldBash(rules, items, Weapon.Hand.OFF_HAND_TWF, shSizeCategory, shSizeDiscrepancy, offEffort == Weapon.Effort.LIGHT ? -8 : -10));
                 }
             }
 

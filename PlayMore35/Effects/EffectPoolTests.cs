@@ -104,6 +104,76 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(11, p, items, AC);
         }
 
+        private Shield HeavyShield() {
+            return new Shield {
+                Name = "heavy steel shield",
+                ShieldBonus = 2,
+                ArmorCheckPenalty = -2,
+                ArcaneSpellFailure = 15,
+                ShieldBashEffort = Weapon.Effort.ONE_HANDED,
+                ShieldBash = new AttackMode {
+                    ProficencyCategory = Weapon.Proficiency.MARTIAL,
+                    DamageDieMedium = (1, 4),
+                    DamageType = BLUDGEONING
+                }
+            };
+        }
+
+        [TestMethod]
+        public void TestShield() {
+            EffectPool p = Rules();
+
+            Equipped items = new Equipped {
+                OffHandShield = HeavyShield()
+            };
+            CheckStat(12, p, items, AC);
+            CheckAttack(+0, "1d4", p, items);
+
+            items.PrimaryHandWeapon = Longsword();
+            CheckAttack(
+                new int[] { +0, +0, -6, -10 },
+                new string[] { "1d4", "1d8", "1d8", "1d4" },
+                p,
+                items
+            );
+        }
+
+        public Armor Breastplate() {
+            return new Armor {
+                Name = "breastplate",
+                ArmorBonus = 5,
+                MaxDexBonus = 3,
+                ArmorCheckPenalty = -4,
+                ArcaneSpellFailure = 25
+            };
+        }
+
+        [TestMethod]
+        public void TestArmor() {
+            EffectPool p = Rules();
+            Armor breastplate = Breastplate();
+            Equipped items = new Equipped {
+                DonnedArmor = breastplate
+            };
+            p.AddEffect(ModifyStat(+30, DEX_SCORE)); // 40 dex, but for AC we can only use +3
+            CheckStat(18, p, items, AC);
+
+            breastplate.ArmorSpikes = new AttackMode {
+                ProficencyCategory = Weapon.Proficiency.MARTIAL,
+                DamageDieMedium = (1, 6),
+                DamageType = PIERCING
+            };
+            CheckAttack(+0, "1d6", p, items);
+
+            items.PrimaryHandWeapon = Longsword();
+            CheckAttack(
+                new int[] { +0, +0, -4, -8 },
+                new string[] { "1d6", "1d8", "1d8", "1d6" },
+                p,
+                items
+            );
+        }
+
         [TestMethod]
         public void TestDeniedDex() {
             EffectPool p = Rules();
@@ -427,12 +497,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("[new category] something something", uncategorized[0]);
         }
 
-        private void CheckAttack(int[] expAtkBonus, string[] expDamage, EffectPool r, Weapon pri, Weapon off) {
-            Equipped items = new Equipped() {
-                PrimaryHandWeapon = pri,
-                OffHandWeapon = off
-            };
-            
+        private void CheckAttack(int[] expAtkBonus, string[] expDamage, EffectPool r, Equipped items) {
             List<Attack> attacks = Attack.Generate(r, 0, items);
             Assert.AreEqual(expAtkBonus.Length, attacks.Count());
             for (int i = 0; i < expAtkBonus.Length; i++) {
@@ -451,8 +516,8 @@ namespace PlayMore35.Effects.Tests {
             }
         }
 
-        private void CheckAttack(int expAtkBonus, string expDamage, EffectPool r, Weapon pri, Weapon off) {
-            CheckAttack(new int[] { expAtkBonus }, new string[] { expDamage }, r, pri, off);
+        private void CheckAttack(int expAtkBonus, string expDamage, EffectPool r, Equipped items) {
+            CheckAttack(new int[] { expAtkBonus }, new string[] { expDamage }, r, items);
         }
 
         [TestMethod]
@@ -482,35 +547,46 @@ namespace PlayMore35.Effects.Tests {
             Weapon dagger = Dagger(false);
             Weapon longsword = Longsword();
 
+            Equipped daggerPri = new Equipped {
+                PrimaryHandWeapon = dagger
+            };
+            Equipped longswordPri = new Equipped {
+                PrimaryHandWeapon = longsword
+            };
+            Equipped longswordTwo = new Equipped {
+                PrimaryHandWeapon = longsword,
+                OffHandWeapon = longsword
+            };
+
             // Just BAB -- attack at +2, no damage bonus.
-            CheckAttack(+2, "1d4", p, dagger, null);
-            CheckAttack(+2, "1d8", p, longsword, null);
-            CheckAttack(+2, "1d8", p, longsword, longsword);
+            CheckAttack(+2, "1d4", p, daggerPri);
+            CheckAttack(+2, "1d8", p, longswordPri);
+            CheckAttack(+2, "1d8", p, longswordTwo);
 
             // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
             powerAttackAmount.Amt = 1;
-            CheckAttack(+1, "1d4", p, dagger, null);
-            CheckAttack(+1, "1d8 + 1", p, longsword, null);
-            CheckAttack(+1, "1d8 + 2", p, longsword, longsword);
+            CheckAttack(+1, "1d4", p, daggerPri);
+            CheckAttack(+1, "1d8 + 1", p, longswordPri);
+            CheckAttack(+1, "1d8 + 2", p, longswordTwo);
 
             // Power attack for "3", clamped to 2 -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
             powerAttackAmount.Amt = 3;
-            CheckAttack(+0, "1d4", p, dagger, null);
-            CheckAttack(+0, "1d8 + 2", p, longsword, null);
-            CheckAttack(+0, "1d8 + 4", p, longsword, longsword);
+            CheckAttack(+0, "1d4", p, daggerPri);
+            CheckAttack(+0, "1d8 + 2", p, longswordPri);
+            CheckAttack(+0, "1d8 + 4", p, longswordTwo);
 
             // Power attack for "-1", clamped to 0, same as no power attack
             powerAttackAmount.Amt = -1;
-            CheckAttack(+2, "1d4", p, dagger, null);
-            CheckAttack(+2, "1d8", p, longsword, null);
-            CheckAttack(+2, "1d8", p, longsword, longsword);
+            CheckAttack(+2, "1d4", p, daggerPri);
+            CheckAttack(+2, "1d8", p, longswordPri);
+            CheckAttack(+2, "1d8", p, longswordTwo);
         }
 
         [TestMethod]
         public void TestLocalWeaponProperty() {
             Weapon dagger = Dagger(false);
             dagger.Melee?.atk.Properties.Add(WeaponProperty.PLUS[2]);
-            CheckAttack(+2, "1d4 + 2", Rules(), dagger, null);
+            CheckAttack(+2, "1d4 + 2", Rules(), new Equipped { PrimaryHandWeapon = dagger });
         }
 
         [TestMethod]
@@ -537,20 +613,27 @@ namespace PlayMore35.Effects.Tests {
             Weapon offSword = Longsword();
             Weapon offDagger = Dagger(false);
 
+            Equipped twoSwords = new Equipped {
+                PrimaryHandWeapon = priSword,
+                OffHandWeapon = offSword
+            };
+            Equipped swordDagger = new Equipped {
+                PrimaryHandWeapon = priSword,
+                OffHandWeapon = offDagger
+            };
+
             CheckAttack(
                 new int[] { +0, -6, -10 },
                 new string[] { "1d8", "1d8", "1d8" },
                 p,
-                priSword,
-                offSword
+                twoSwords
             );
 
             CheckAttack(
                 new int[] { +0, -4, -8 },
                 new string[] { "1d8", "1d8", "1d4" },
                 p,
-                priSword,
-                offDagger
+                swordDagger
             );
             p.AddEffect(new Effect("Two-Weapon Fighting")
                 .AddAttackModifier(new AttackClass().PrimaryHandTwfAttack(), new Modifier(+2, UNTYPED))
@@ -561,16 +644,14 @@ namespace PlayMore35.Effects.Tests {
                 new int[] { +0, -4, -4 },
                 new string[] { "1d8", "1d8", "1d8" },
                 p,
-                priSword,
-                offSword
+                twoSwords
             );
 
             CheckAttack(
                 new int[] { +0, -2, -2 },
                 new string[] { "1d8", "1d8", "1d4" },
                 p,
-                priSword,
-                offDagger
+                swordDagger
             );
             p.AddEffect(ModifyStat(+4, STR_SCORE));
             Weapon quarterstaff = new Weapon("longsword", 0, Weapon.Effort.ONE_HANDED) {
@@ -592,8 +673,10 @@ namespace PlayMore35.Effects.Tests {
                 new int[] { +2, +0, +0 },
                 new string[] { "1d4 + 3", "1d4 + 2", "1d4 + 1" },
                 p,
-                quarterstaff,
-                quarterstaff
+                new Equipped {
+                    PrimaryHandWeapon = quarterstaff,
+                    OffHandWeapon = quarterstaff
+                }
             );
         }
     }

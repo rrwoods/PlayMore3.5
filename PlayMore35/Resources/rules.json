@@ -5258,7 +5258,48 @@
             "type": "dodge",
             "amounts": [
               {
-                "statValue": "DEX bonus"
+                "smallest": [
+                  {
+                    "item value": "max DEX bonus"
+                  },
+                  {
+                    "statValue": "DEX bonus"
+                  }
+                ]
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ]
+    },
+    {
+      "name": "Donned armor",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "armor",
+            "amounts": [
+              {
+                "item value": "armor bonus"
+              }
+            ]
+          },
+          "affects": "AC"
+        }
+      ]
+    },
+    {
+      "name": "Current shield",
+      "active": "always",
+      "modifiers": [
+        {
+          "mod": {
+            "type": "shield",
+            "amounts": [
+              {
+                "item value": "shield bonus"
               }
             ]
           },

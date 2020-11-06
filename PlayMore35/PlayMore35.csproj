@@ -84,6 +84,7 @@
     <Compile Include="Effects\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />
+    <Compile Include="Effects\ItemAmount.cs" />
     <Compile Include="Effects\SmallestAmount.cs" />
     <Compile Include="Effects\StackingRules.cs" />
     <Compile Include="Effects\ControllableToggle.cs" />
@@ -111,9 +112,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Effects\Constants.cs" />
+    <Compile Include="Items\Armor.cs" />
+    <Compile Include="Items\ArmorProperty.cs" />
     <Compile Include="Items\Attack.cs" />
     <Compile Include="Items\AttackMode.cs" />
     <Compile Include="Items\Equipped.cs" />
+    <Compile Include="Items\Shield.cs" />
     <Compile Include="Items\Weapon.cs" />
     <Compile Include="Items\WeaponProperty.cs" />
     <Compile Include="Program.cs" />

@@ -7,6 +7,9 @@ namespace PlayMore35.Items {
         public Weapon PrimaryHandWeapon = null;
         public Weapon OffHandWeapon = null;
 
+        public Armor DonnedArmor = null;
+        public Shield OffHandShield = null;
+
         public IEnumerable<Effect> GetGlobalEffects() {
             IEnumerable<Effect> all = Enumerable.Empty<Effect>();
             if (PrimaryHandWeapon != null) {
@@ -14,6 +17,12 @@ namespace PlayMore35.Items {
             }
             if (OffHandWeapon != null) {
                 all = all.Concat(OffHandWeapon.GetGlobalEffects());
+            }
+            if (DonnedArmor != null) {
+                all = all.Concat(DonnedArmor.GetGlobalEffects());
+            }
+            if (OffHandShield != null) {
+                all = all.Concat(OffHandShield.GetGlobalEffects());
             }
             return all;
         }

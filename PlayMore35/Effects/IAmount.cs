@@ -13,6 +13,9 @@ namespace PlayMore35.Effects {
             if (json["fixed"] != null) {
                 return new FixedAmount((int)json["fixed"]);
             }
+            if (json["item value"] != null) {
+                return new ItemAmount((string)json["item value"]);
+            }
             if (json["largest"] != null) {
                 return new LargestAmount((JArray)json["largest"]);
             }

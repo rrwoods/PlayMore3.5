@@ -221,6 +221,10 @@
         public static readonly string AND = " and ";
         public static readonly string OR = " or ";
 
+        public static readonly string ARMOR_BONUS = "armor bonus";
+        public static readonly string SHIELD_BONUS = "shield bonus";
+        public static readonly string MAX_DEX_BONUS = "max DEX bonus";
+
         public static readonly string SENSES = "senses";
         public static readonly string EVADE = "evade";
         // AC -- already exists
