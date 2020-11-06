@@ -9,7 +9,7 @@ namespace PlayMore35.Effects {
         }
 
         public JToken ToJson() {
-            return new JObject(new JProperty("statValue", Stat));
+            return new JObject(new JProperty("stat value", Stat));
         }
 
         public int Get(EffectPool pool, Items.Equipped items) {

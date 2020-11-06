@@ -28,8 +28,8 @@ namespace PlayMore35.Effects {
             if (json["smallest"] != null) {
                 return new SmallestAmount((JArray)json["smallest"]);
             }
-            if (json["statValue"] != null) {
-                return new VariableAmount((string)json["statValue"]);
+            if (json["stat value"] != null) {
+                return new VariableAmount((string)json["stat value"]);
             }
             return null;
         }

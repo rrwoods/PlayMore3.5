@@ -185,8 +185,8 @@
         public static readonly string SIZE_CATEGORY = "Size category";
         public static readonly string SIZE_MODIFIER = "Size modifier";
         public static readonly string SPECIAL_SIZE_MODIFIER = "Special size modifier"; // negate for Hide
-        public static readonly string SPACE = "space";
-        public static readonly string REACH = "reach";
+        public static readonly string SPACE = "Space";
+        public static readonly string REACH = "Reach";
 
         public static readonly string ALL_SPEEDS = "All speeds";
         public static readonly string BASE_SPEED = "Base speed";

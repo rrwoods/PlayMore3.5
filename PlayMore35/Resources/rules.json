@@ -976,7 +976,7 @@
       "name": "Size modifier"
     },
     {
-      "name": "reach",
+      "name": "Reach",
       "min": 0
     },
     {
@@ -1003,20 +1003,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "STR score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "STR damage"
+                    "stat value": "STR damage"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "STR score"
+          }
         }
       ]
     },
@@ -1025,20 +1025,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "STR score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "STR drain"
+                    "stat value": "STR drain"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "STR score"
+          }
         }
       ]
     },
@@ -1047,6 +1047,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "STR modifier",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1056,14 +1057,13 @@
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "STR score"
+                    "stat value": "STR score"
                   },
                   "scalar": 0.5
                 }
               }
             ]
-          },
-          "affects": "STR modifier"
+          }
         }
       ]
     },
@@ -1072,6 +1072,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "STR bonus",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1081,13 +1082,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "STR modifier"
+                    "stat value": "STR modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "STR bonus"
+          }
         }
       ]
     },
@@ -1096,6 +1096,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "STR penalty",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1105,13 +1106,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "STR modifier"
+                    "stat value": "STR modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "STR penalty"
+          }
         }
       ]
     },
@@ -1120,20 +1120,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "DEX score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "DEX damage"
+                    "stat value": "DEX damage"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "DEX score"
+          }
         }
       ]
     },
@@ -1142,20 +1142,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "DEX score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "DEX drain"
+                    "stat value": "DEX drain"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "DEX score"
+          }
         }
       ]
     },
@@ -1164,6 +1164,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "DEX modifier",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1173,14 +1174,13 @@
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "DEX score"
+                    "stat value": "DEX score"
                   },
                   "scalar": 0.5
                 }
               }
             ]
-          },
-          "affects": "DEX modifier"
+          }
         }
       ]
     },
@@ -1189,6 +1189,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "DEX bonus",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1198,13 +1199,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "DEX modifier"
+                    "stat value": "DEX modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "DEX bonus"
+          }
         }
       ]
     },
@@ -1213,6 +1213,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "DEX penalty",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1222,13 +1223,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "DEX modifier"
+                    "stat value": "DEX modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "DEX penalty"
+          }
         }
       ]
     },
@@ -1237,20 +1237,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CON score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "CON damage"
+                    "stat value": "CON damage"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "CON score"
+          }
         }
       ]
     },
@@ -1259,20 +1259,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CON score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "CON drain"
+                    "stat value": "CON drain"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "CON score"
+          }
         }
       ]
     },
@@ -1281,6 +1281,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CON modifier",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1290,14 +1291,13 @@
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "CON score"
+                    "stat value": "CON score"
                   },
                   "scalar": 0.5
                 }
               }
             ]
-          },
-          "affects": "CON modifier"
+          }
         }
       ]
     },
@@ -1306,6 +1306,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CON bonus",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1315,13 +1316,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "CON modifier"
+                    "stat value": "CON modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "CON bonus"
+          }
         }
       ]
     },
@@ -1330,6 +1330,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CON penalty",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1339,13 +1340,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "CON modifier"
+                    "stat value": "CON modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "CON penalty"
+          }
         }
       ]
     },
@@ -1354,20 +1354,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "INT score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "INT damage"
+                    "stat value": "INT damage"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "INT score"
+          }
         }
       ]
     },
@@ -1376,20 +1376,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "INT score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "INT drain"
+                    "stat value": "INT drain"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "INT score"
+          }
         }
       ]
     },
@@ -1398,6 +1398,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "INT modifier",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1407,14 +1408,13 @@
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "INT score"
+                    "stat value": "INT score"
                   },
                   "scalar": 0.5
                 }
               }
             ]
-          },
-          "affects": "INT modifier"
+          }
         }
       ]
     },
@@ -1423,6 +1423,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "INT bonus",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1432,13 +1433,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "INT modifier"
+                    "stat value": "INT modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "INT bonus"
+          }
         }
       ]
     },
@@ -1447,6 +1447,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "INT penalty",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1456,13 +1457,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "INT modifier"
+                    "stat value": "INT modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "INT penalty"
+          }
         }
       ]
     },
@@ -1471,20 +1471,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "WIS score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "WIS damage"
+                    "stat value": "WIS damage"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "WIS score"
+          }
         }
       ]
     },
@@ -1493,20 +1493,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "WIS score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "WIS drain"
+                    "stat value": "WIS drain"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "WIS score"
+          }
         }
       ]
     },
@@ -1515,6 +1515,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "WIS modifier",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1524,14 +1525,13 @@
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "WIS score"
+                    "stat value": "WIS score"
                   },
                   "scalar": 0.5
                 }
               }
             ]
-          },
-          "affects": "WIS modifier"
+          }
         }
       ]
     },
@@ -1540,6 +1540,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "WIS bonus",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1549,13 +1550,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "WIS modifier"
+                    "stat value": "WIS modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "WIS bonus"
+          }
         }
       ]
     },
@@ -1564,6 +1564,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "WIS penalty",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1573,13 +1574,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "WIS modifier"
+                    "stat value": "WIS modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "WIS penalty"
+          }
         }
       ]
     },
@@ -1588,20 +1588,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CHA score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "CHA damage"
+                    "stat value": "CHA damage"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "CHA score"
+          }
         }
       ]
     },
@@ -1610,20 +1610,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CHA score",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "CHA drain"
+                    "stat value": "CHA drain"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "CHA score"
+          }
         }
       ]
     },
@@ -1632,6 +1632,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CHA modifier",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1641,14 +1642,13 @@
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "CHA score"
+                    "stat value": "CHA score"
                   },
                   "scalar": 0.5
                 }
               }
             ]
-          },
-          "affects": "CHA modifier"
+          }
         }
       ]
     },
@@ -1657,6 +1657,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CHA bonus",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1666,13 +1667,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "CHA modifier"
+                    "stat value": "CHA modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "CHA bonus"
+          }
         }
       ]
     },
@@ -1681,6 +1681,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CHA penalty",
           "mod": {
             "type": "base",
             "amounts": [
@@ -1690,13 +1691,12 @@
                     "fixed": 0
                   },
                   {
-                    "statValue": "CHA modifier"
+                    "stat value": "CHA modifier"
                   }
                 ]
               }
             ]
-          },
-          "affects": "CHA penalty"
+          }
         }
       ]
     },
@@ -1705,15 +1705,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Current hit points",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Maximum hit points"
+                "stat value": "Maximum hit points"
               }
             ]
-          },
-          "affects": "Current hit points"
+          }
         }
       ]
     },
@@ -1722,20 +1722,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Current hit points",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Lethal damage"
+                    "stat value": "Lethal damage"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "Current hit points"
+          }
         }
       ]
     },
@@ -1758,7 +1758,7 @@
           {
             "conditional": {
               "left": {
-                "statValue": "Current hit points"
+                "stat value": "Current hit points"
               },
               "relation": "EQUAL",
               "right": {
@@ -1771,7 +1771,7 @@
               {
                 "conditional": {
                   "left": {
-                    "statValue": "Current hit points"
+                    "stat value": "Current hit points"
                   },
                   "relation": "LESS_THAN",
                   "right": {
@@ -1788,8 +1788,8 @@
       },
       "multipliers": [
         {
-          "mod": 0.5,
-          "affects": "All speeds"
+          "affects": "All speeds",
+          "mod": 0.5
         }
       ],
       "text": [
@@ -1810,7 +1810,7 @@
           {
             "conditional": {
               "left": {
-                "statValue": "Current hit points"
+                "stat value": "Current hit points"
               },
               "relation": "LESS_THAN",
               "right": {
@@ -1844,15 +1844,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Appraise",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Appraise ranks"
+                "stat value": "Appraise ranks"
               }
             ]
-          },
-          "affects": "Appraise"
+          }
         }
       ]
     },
@@ -1861,15 +1861,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Autohypnosis",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Autohypnosis ranks"
+                "stat value": "Autohypnosis ranks"
               }
             ]
-          },
-          "affects": "Autohypnosis"
+          }
         }
       ]
     },
@@ -1878,15 +1878,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Balance",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Balance ranks"
+                "stat value": "Balance ranks"
               }
             ]
-          },
-          "affects": "Balance"
+          }
         }
       ]
     },
@@ -1895,15 +1895,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Bluff",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Bluff ranks"
+                "stat value": "Bluff ranks"
               }
             ]
-          },
-          "affects": "Bluff"
+          }
         }
       ]
     },
@@ -1912,15 +1912,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Climb",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Climb ranks"
+                "stat value": "Climb ranks"
               }
             ]
-          },
-          "affects": "Climb"
+          }
         }
       ]
     },
@@ -1929,15 +1929,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Concentration",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Concentration ranks"
+                "stat value": "Concentration ranks"
               }
             ]
-          },
-          "affects": "Concentration"
+          }
         }
       ]
     },
@@ -1946,15 +1946,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Craft",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Craft ranks"
+                "stat value": "Craft ranks"
               }
             ]
-          },
-          "affects": "Craft"
+          }
         }
       ]
     },
@@ -1963,15 +1963,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Decipher Script",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Decipher Script ranks"
+                "stat value": "Decipher Script ranks"
               }
             ]
-          },
-          "affects": "Decipher Script"
+          }
         }
       ]
     },
@@ -1980,15 +1980,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Diplomacy",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Diplomacy ranks"
+                "stat value": "Diplomacy ranks"
               }
             ]
-          },
-          "affects": "Diplomacy"
+          }
         }
       ]
     },
@@ -1997,15 +1997,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Disable Device",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Disable Device ranks"
+                "stat value": "Disable Device ranks"
               }
             ]
-          },
-          "affects": "Disable Device"
+          }
         }
       ]
     },
@@ -2014,15 +2014,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Disguise",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Disguise ranks"
+                "stat value": "Disguise ranks"
               }
             ]
-          },
-          "affects": "Disguise"
+          }
         }
       ]
     },
@@ -2031,15 +2031,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Escape Artist",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Escape Artist ranks"
+                "stat value": "Escape Artist ranks"
               }
             ]
-          },
-          "affects": "Escape Artist"
+          }
         }
       ]
     },
@@ -2048,15 +2048,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Forgery",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Forgery ranks"
+                "stat value": "Forgery ranks"
               }
             ]
-          },
-          "affects": "Forgery"
+          }
         }
       ]
     },
@@ -2065,15 +2065,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Gather Information",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Gather Information ranks"
+                "stat value": "Gather Information ranks"
               }
             ]
-          },
-          "affects": "Gather Information"
+          }
         }
       ]
     },
@@ -2082,15 +2082,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Handle Animal",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Handle Animal ranks"
+                "stat value": "Handle Animal ranks"
               }
             ]
-          },
-          "affects": "Handle Animal"
+          }
         }
       ]
     },
@@ -2099,15 +2099,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Heal",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Heal ranks"
+                "stat value": "Heal ranks"
               }
             ]
-          },
-          "affects": "Heal"
+          }
         }
       ]
     },
@@ -2116,15 +2116,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Hide",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Hide ranks"
+                "stat value": "Hide ranks"
               }
             ]
-          },
-          "affects": "Hide"
+          }
         }
       ]
     },
@@ -2133,15 +2133,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Iaijutsu Focus",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Iaijutsu Focus ranks"
+                "stat value": "Iaijutsu Focus ranks"
               }
             ]
-          },
-          "affects": "Iaijutsu Focus"
+          }
         }
       ]
     },
@@ -2150,15 +2150,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Intimidate",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Intimidate ranks"
+                "stat value": "Intimidate ranks"
               }
             ]
-          },
-          "affects": "Intimidate"
+          }
         }
       ]
     },
@@ -2167,15 +2167,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Jump",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Jump ranks"
+                "stat value": "Jump ranks"
               }
             ]
-          },
-          "affects": "Jump"
+          }
         }
       ]
     },
@@ -2184,15 +2184,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (arcana)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (arcana) ranks"
+                "stat value": "Knowledge (arcana) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (arcana)"
+          }
         }
       ]
     },
@@ -2201,15 +2201,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (architecture and engineering)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (architecture and engineering) ranks"
+                "stat value": "Knowledge (architecture and engineering) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (architecture and engineering)"
+          }
         }
       ]
     },
@@ -2218,15 +2218,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (dungeoneering)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (dungeoneering) ranks"
+                "stat value": "Knowledge (dungeoneering) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (dungeoneering)"
+          }
         }
       ]
     },
@@ -2235,15 +2235,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (geography)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (geography) ranks"
+                "stat value": "Knowledge (geography) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (geography)"
+          }
         }
       ]
     },
@@ -2252,15 +2252,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (history)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (history) ranks"
+                "stat value": "Knowledge (history) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (history)"
+          }
         }
       ]
     },
@@ -2269,15 +2269,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (local)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (local) ranks"
+                "stat value": "Knowledge (local) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (local)"
+          }
         }
       ]
     },
@@ -2286,15 +2286,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (nature)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (nature) ranks"
+                "stat value": "Knowledge (nature) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (nature)"
+          }
         }
       ]
     },
@@ -2303,15 +2303,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (nobility and royalty)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (nobility and royalty) ranks"
+                "stat value": "Knowledge (nobility and royalty) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (nobility and royalty)"
+          }
         }
       ]
     },
@@ -2320,15 +2320,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (psionics)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (psionics) ranks"
+                "stat value": "Knowledge (psionics) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (psionics)"
+          }
         }
       ]
     },
@@ -2337,15 +2337,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (religion)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (religion) ranks"
+                "stat value": "Knowledge (religion) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (religion)"
+          }
         }
       ]
     },
@@ -2354,15 +2354,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Knowledge (the planes)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Knowledge (the planes) ranks"
+                "stat value": "Knowledge (the planes) ranks"
               }
             ]
-          },
-          "affects": "Knowledge (the planes)"
+          }
         }
       ]
     },
@@ -2371,15 +2371,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Martial Lore",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Martial Lore ranks"
+                "stat value": "Martial Lore ranks"
               }
             ]
-          },
-          "affects": "Martial Lore"
+          }
         }
       ]
     },
@@ -2388,15 +2388,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Listen",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Listen ranks"
+                "stat value": "Listen ranks"
               }
             ]
-          },
-          "affects": "Listen"
+          }
         }
       ]
     },
@@ -2405,15 +2405,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Move Silently",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Move Silently ranks"
+                "stat value": "Move Silently ranks"
               }
             ]
-          },
-          "affects": "Move Silently"
+          }
         }
       ]
     },
@@ -2422,15 +2422,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Open Lock",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Open Lock ranks"
+                "stat value": "Open Lock ranks"
               }
             ]
-          },
-          "affects": "Open Lock"
+          }
         }
       ]
     },
@@ -2439,15 +2439,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (act)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (act) ranks"
+                "stat value": "Perform (act) ranks"
               }
             ]
-          },
-          "affects": "Perform (act)"
+          }
         }
       ]
     },
@@ -2456,15 +2456,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (comedy)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (comedy) ranks"
+                "stat value": "Perform (comedy) ranks"
               }
             ]
-          },
-          "affects": "Perform (comedy)"
+          }
         }
       ]
     },
@@ -2473,15 +2473,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (dance)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (dance) ranks"
+                "stat value": "Perform (dance) ranks"
               }
             ]
-          },
-          "affects": "Perform (dance)"
+          }
         }
       ]
     },
@@ -2490,15 +2490,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (keyboard instruments)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (keyboard instruments) ranks"
+                "stat value": "Perform (keyboard instruments) ranks"
               }
             ]
-          },
-          "affects": "Perform (keyboard instruments)"
+          }
         }
       ]
     },
@@ -2507,15 +2507,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (oratory)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (oratory) ranks"
+                "stat value": "Perform (oratory) ranks"
               }
             ]
-          },
-          "affects": "Perform (oratory)"
+          }
         }
       ]
     },
@@ -2524,15 +2524,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (percussion instruments)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (percussion instruments) ranks"
+                "stat value": "Perform (percussion instruments) ranks"
               }
             ]
-          },
-          "affects": "Perform (percussion instruments)"
+          }
         }
       ]
     },
@@ -2541,15 +2541,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (string instruments)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (string instruments) ranks"
+                "stat value": "Perform (string instruments) ranks"
               }
             ]
-          },
-          "affects": "Perform (string instruments)"
+          }
         }
       ]
     },
@@ -2558,15 +2558,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (wind instruments)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (wind instruments) ranks"
+                "stat value": "Perform (wind instruments) ranks"
               }
             ]
-          },
-          "affects": "Perform (wind instruments)"
+          }
         }
       ]
     },
@@ -2575,15 +2575,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Perform (sing)",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Perform (sing) ranks"
+                "stat value": "Perform (sing) ranks"
               }
             ]
-          },
-          "affects": "Perform (sing)"
+          }
         }
       ]
     },
@@ -2592,15 +2592,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Profession",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Profession ranks"
+                "stat value": "Profession ranks"
               }
             ]
-          },
-          "affects": "Profession"
+          }
         }
       ]
     },
@@ -2609,15 +2609,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Psicraft",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Psicraft ranks"
+                "stat value": "Psicraft ranks"
               }
             ]
-          },
-          "affects": "Psicraft"
+          }
         }
       ]
     },
@@ -2626,15 +2626,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Ride",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Ride ranks"
+                "stat value": "Ride ranks"
               }
             ]
-          },
-          "affects": "Ride"
+          }
         }
       ]
     },
@@ -2643,15 +2643,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Search",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Search ranks"
+                "stat value": "Search ranks"
               }
             ]
-          },
-          "affects": "Search"
+          }
         }
       ]
     },
@@ -2660,15 +2660,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Sense Motive",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Sense Motive ranks"
+                "stat value": "Sense Motive ranks"
               }
             ]
-          },
-          "affects": "Sense Motive"
+          }
         }
       ]
     },
@@ -2677,15 +2677,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Sleight Of Hand",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Sleight Of Hand ranks"
+                "stat value": "Sleight Of Hand ranks"
               }
             ]
-          },
-          "affects": "Sleight Of Hand"
+          }
         }
       ]
     },
@@ -2694,15 +2694,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Spellcraft",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Spellcraft ranks"
+                "stat value": "Spellcraft ranks"
               }
             ]
-          },
-          "affects": "Spellcraft"
+          }
         }
       ]
     },
@@ -2711,15 +2711,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Spot",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Spot ranks"
+                "stat value": "Spot ranks"
               }
             ]
-          },
-          "affects": "Spot"
+          }
         }
       ]
     },
@@ -2728,15 +2728,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Survival",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Survival ranks"
+                "stat value": "Survival ranks"
               }
             ]
-          },
-          "affects": "Survival"
+          }
         }
       ]
     },
@@ -2745,15 +2745,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Swim",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Swim ranks"
+                "stat value": "Swim ranks"
               }
             ]
-          },
-          "affects": "Swim"
+          }
         }
       ]
     },
@@ -2762,15 +2762,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Truespeak",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Truespeak ranks"
+                "stat value": "Truespeak ranks"
               }
             ]
-          },
-          "affects": "Truespeak"
+          }
         }
       ]
     },
@@ -2779,15 +2779,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Tumble",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Tumble ranks"
+                "stat value": "Tumble ranks"
               }
             ]
-          },
-          "affects": "Tumble"
+          }
         }
       ]
     },
@@ -2796,15 +2796,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Use Magic Device",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Use Magic Device ranks"
+                "stat value": "Use Magic Device ranks"
               }
             ]
-          },
-          "affects": "Use Magic Device"
+          }
         }
       ]
     },
@@ -2813,15 +2813,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Use Psionic Device",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Use Psionic Device ranks"
+                "stat value": "Use Psionic Device ranks"
               }
             ]
-          },
-          "affects": "Use Psionic Device"
+          }
         }
       ]
     },
@@ -2830,15 +2830,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Use Rope",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Use Rope ranks"
+                "stat value": "Use Rope ranks"
               }
             ]
-          },
-          "affects": "Use Rope"
+          }
         }
       ]
     },
@@ -2847,15 +2847,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "STR skills",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "STR modifier"
+                "stat value": "STR modifier"
               }
             ]
-          },
-          "affects": "STR skills"
+          }
         }
       ]
     },
@@ -2864,15 +2864,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "DEX skills",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "DEX modifier"
+                "stat value": "DEX modifier"
               }
             ]
-          },
-          "affects": "DEX skills"
+          }
         }
       ]
     },
@@ -2881,15 +2881,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CON skills",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "CON modifier"
+                "stat value": "CON modifier"
               }
             ]
-          },
-          "affects": "CON skills"
+          }
         }
       ]
     },
@@ -2898,15 +2898,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "INT skills",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "INT modifier"
+                "stat value": "INT modifier"
               }
             ]
-          },
-          "affects": "INT skills"
+          }
         }
       ]
     },
@@ -2915,15 +2915,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "WIS skills",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "WIS modifier"
+                "stat value": "WIS modifier"
               }
             ]
-          },
-          "affects": "WIS skills"
+          }
         }
       ]
     },
@@ -2932,15 +2932,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "CHA skills",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "CHA modifier"
+                "stat value": "CHA modifier"
               }
             ]
-          },
-          "affects": "CHA skills"
+          }
         }
       ]
     },
@@ -2949,7 +2949,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Bluff ranks"
+            "stat value": "Bluff ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -2959,6 +2959,7 @@
       },
       "modifiers": [
         {
+          "affects": "Diplomacy",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -2966,10 +2967,10 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Diplomacy"
+          }
         },
         {
+          "affects": "Disguise (act in character)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -2977,10 +2978,10 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Disguise (act in character)"
+          }
         },
         {
+          "affects": "Intimidate",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -2988,10 +2989,10 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Intimidate"
+          }
         },
         {
+          "affects": "Sleight Of Hand",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -2999,8 +3000,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Sleight Of Hand"
+          }
         }
       ]
     },
@@ -3009,7 +3009,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Decipher Script ranks"
+            "stat value": "Decipher Script ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3019,6 +3019,7 @@
       },
       "modifiers": [
         {
+          "affects": "Use Magic Device (scroll)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3026,8 +3027,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Use Magic Device (scroll)"
+          }
         }
       ]
     },
@@ -3036,7 +3036,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Escape Artist ranks"
+            "stat value": "Escape Artist ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3046,6 +3046,7 @@
       },
       "modifiers": [
         {
+          "affects": "Use Rope (bindings)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3053,8 +3054,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Use Rope (bindings)"
+          }
         }
       ]
     },
@@ -3063,7 +3063,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Handle Animal ranks"
+            "stat value": "Handle Animal ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3073,6 +3073,7 @@
       },
       "modifiers": [
         {
+          "affects": "Ride",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3080,8 +3081,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Ride"
+          }
         }
       ]
     },
@@ -3090,7 +3090,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Jump ranks"
+            "stat value": "Jump ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3100,6 +3100,7 @@
       },
       "modifiers": [
         {
+          "affects": "Tumble",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3107,8 +3108,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Tumble"
+          }
         }
       ]
     },
@@ -3117,7 +3117,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (arcana) ranks"
+            "stat value": "Knowledge (arcana) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3127,6 +3127,7 @@
       },
       "modifiers": [
         {
+          "affects": "Spellcraft",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3134,8 +3135,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Spellcraft"
+          }
         }
       ]
     },
@@ -3144,7 +3144,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (architecture and engineering) ranks"
+            "stat value": "Knowledge (architecture and engineering) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3154,6 +3154,7 @@
       },
       "modifiers": [
         {
+          "affects": "Search (secret doors)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3161,8 +3162,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Search (secret doors)"
+          }
         }
       ]
     },
@@ -3171,7 +3171,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (dungeoneering) ranks"
+            "stat value": "Knowledge (dungeoneering) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3181,6 +3181,7 @@
       },
       "modifiers": [
         {
+          "affects": "Survival (underground)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3188,8 +3189,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Survival (underground)"
+          }
         }
       ]
     },
@@ -3198,7 +3198,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (geography) ranks"
+            "stat value": "Knowledge (geography) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3208,6 +3208,7 @@
       },
       "modifiers": [
         {
+          "affects": "Survival (lost/avoid hazards)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3215,8 +3216,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Survival (lost/avoid hazards)"
+          }
         }
       ]
     },
@@ -3225,7 +3225,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (local) ranks"
+            "stat value": "Knowledge (local) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3235,6 +3235,7 @@
       },
       "modifiers": [
         {
+          "affects": "Gather Information",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3242,8 +3243,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Gather Information"
+          }
         }
       ]
     },
@@ -3252,7 +3252,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (nature) ranks"
+            "stat value": "Knowledge (nature) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3262,6 +3262,7 @@
       },
       "modifiers": [
         {
+          "affects": "Survival (aboveground natural)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3269,8 +3270,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Survival (aboveground natural)"
+          }
         }
       ]
     },
@@ -3279,7 +3279,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (nobility and royalty) ranks"
+            "stat value": "Knowledge (nobility and royalty) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3289,6 +3289,7 @@
       },
       "modifiers": [
         {
+          "affects": "Diplomacy",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3296,8 +3297,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Diplomacy"
+          }
         }
       ]
     },
@@ -3306,7 +3306,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (the planes) ranks"
+            "stat value": "Knowledge (the planes) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3316,6 +3316,7 @@
       },
       "modifiers": [
         {
+          "affects": "Survival (on other planes)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3323,8 +3324,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Survival (on other planes)"
+          }
         }
       ]
     },
@@ -3333,7 +3333,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Search ranks"
+            "stat value": "Search ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3343,6 +3343,7 @@
       },
       "modifiers": [
         {
+          "affects": "Survival (following tracks)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3350,8 +3351,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Survival (following tracks)"
+          }
         }
       ]
     },
@@ -3360,7 +3360,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Sense Motive ranks"
+            "stat value": "Sense Motive ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3370,6 +3370,7 @@
       },
       "modifiers": [
         {
+          "affects": "Diplomacy",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3377,8 +3378,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Diplomacy"
+          }
         }
       ]
     },
@@ -3387,7 +3387,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Spellcraft ranks"
+            "stat value": "Spellcraft ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3397,6 +3397,7 @@
       },
       "modifiers": [
         {
+          "affects": "Use Magic Device (scroll)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3404,8 +3405,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Use Magic Device (scroll)"
+          }
         }
       ]
     },
@@ -3414,7 +3414,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Survival ranks"
+            "stat value": "Survival ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3424,6 +3424,7 @@
       },
       "modifiers": [
         {
+          "affects": "Knowledge (nature)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3431,8 +3432,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Knowledge (nature)"
+          }
         }
       ]
     },
@@ -3441,7 +3441,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Tumble ranks"
+            "stat value": "Tumble ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3451,6 +3451,7 @@
       },
       "modifiers": [
         {
+          "affects": "Balance",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3458,10 +3459,10 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Balance"
+          }
         },
         {
+          "affects": "Jump",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3469,8 +3470,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Jump"
+          }
         }
       ]
     },
@@ -3479,7 +3479,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Use Magic Device ranks"
+            "stat value": "Use Magic Device ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3489,6 +3489,7 @@
       },
       "modifiers": [
         {
+          "affects": "Spellcraft (decipher scroll)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3496,8 +3497,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Spellcraft (decipher scroll)"
+          }
         }
       ]
     },
@@ -3506,7 +3506,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Use Rope ranks"
+            "stat value": "Use Rope ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3516,6 +3516,7 @@
       },
       "modifiers": [
         {
+          "affects": "Climb (rope)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3523,10 +3524,10 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Climb (rope)"
+          }
         },
         {
+          "affects": "Escape Artist (rope)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3534,8 +3535,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Escape Artist (rope)"
+          }
         }
       ]
     },
@@ -3544,7 +3544,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Autohypnosis ranks"
+            "stat value": "Autohypnosis ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3554,6 +3554,7 @@
       },
       "modifiers": [
         {
+          "affects": "Knowledge (psionics)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3561,8 +3562,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Knowledge (psionics)"
+          }
         }
       ]
     },
@@ -3571,7 +3571,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Concentration ranks"
+            "stat value": "Concentration ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3581,6 +3581,7 @@
       },
       "modifiers": [
         {
+          "affects": "Autohypnosis",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3588,8 +3589,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Autohypnosis"
+          }
         }
       ]
     },
@@ -3598,7 +3598,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Knowledge (psionics) ranks"
+            "stat value": "Knowledge (psionics) ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3608,6 +3608,7 @@
       },
       "modifiers": [
         {
+          "affects": "Psicraft",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3615,8 +3616,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Psicraft"
+          }
         }
       ]
     },
@@ -3625,7 +3625,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Psicraft ranks"
+            "stat value": "Psicraft ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3635,6 +3635,7 @@
       },
       "modifiers": [
         {
+          "affects": "Use Psionic Device (power stone)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3642,8 +3643,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Use Psionic Device (power stone)"
+          }
         }
       ]
     },
@@ -3652,7 +3652,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Use Psionic Device ranks"
+            "stat value": "Use Psionic Device ranks"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3662,6 +3662,7 @@
       },
       "modifiers": [
         {
+          "affects": "Psicraft (address power stone)",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3669,8 +3670,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "Psicraft (address power stone)"
+          }
         }
       ]
     },
@@ -3679,131 +3679,97 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Balance",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "Armor check penalty"
+                "stat value": "Armor check penalty"
               }
             ]
-          },
-          "affects": "Balance"
+          }
         },
         {
+          "affects": "Climb",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "Armor check penalty"
+                "stat value": "Armor check penalty"
               }
             ]
-          },
-          "affects": "Climb"
+          }
         },
         {
+          "affects": "Escape Artist",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "Armor check penalty"
+                "stat value": "Armor check penalty"
               }
             ]
-          },
-          "affects": "Escape Artist"
+          }
         },
         {
+          "affects": "Hide",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "Armor check penalty"
+                "stat value": "Armor check penalty"
               }
             ]
-          },
-          "affects": "Hide"
+          }
         },
         {
+          "affects": "Jump",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "Armor check penalty"
+                "stat value": "Armor check penalty"
               }
             ]
-          },
-          "affects": "Jump"
+          }
         },
         {
+          "affects": "Move Silently",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "Armor check penalty"
+                "stat value": "Armor check penalty"
               }
             ]
-          },
-          "affects": "Move Silently"
+          }
         },
         {
+          "affects": "Sleight Of Hand",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "Armor check penalty"
+                "stat value": "Armor check penalty"
               }
             ]
-          },
-          "affects": "Sleight Of Hand"
+          }
         },
         {
+          "affects": "Swim",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Armor check penalty"
+                    "stat value": "Armor check penalty"
                   },
                   "scalar": 2.0
                 }
               }
             ]
-          },
-          "affects": "Swim"
-        }
-      ]
-    },
-    {
-      "name": "Base AC",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "fixed": 10
-              }
-            ]
-          },
-          "affects": "AC"
-        }
-      ]
-    },
-    {
-      "name": "natural armor",
-      "active": "always",
-      "modifiers": [
-        {
-          "mod": {
-            "type": "natural armor",
-            "amounts": [
-              {
-                "statValue": "natural armor"
-              }
-            ]
-          },
-          "affects": "AC"
+          }
         }
       ]
     },
@@ -3812,15 +3778,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Land speed",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Base speed"
+                "stat value": "Base speed"
               }
             ]
-          },
-          "affects": "Land speed"
+          }
         }
       ]
     },
@@ -3831,8 +3797,8 @@
       },
       "multipliers": [
         {
-          "mod": 0.666,
-          "affects": "All speeds"
+          "affects": "All speeds",
+          "mod": 0.666
         }
       ]
     },
@@ -3841,13 +3807,14 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "speed over 30 ft, in units of 10 ft",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Land speed"
+                    "stat value": "Land speed"
                   },
                   "scalar": 0.1
                 }
@@ -3856,8 +3823,7 @@
                 "fixed": -3
               }
             ]
-          },
-          "affects": "speed over 30 ft, in units of 10 ft"
+          }
         }
       ]
     },
@@ -3866,13 +3832,14 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "speed under 30 ft, in units of 10 ft",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Land speed"
+                    "stat value": "Land speed"
                   },
                   "scalar": -0.1
                 }
@@ -3881,8 +3848,7 @@
                 "fixed": 3
               }
             ]
-          },
-          "affects": "speed under 30 ft, in units of 10 ft"
+          }
         }
       ]
     },
@@ -3891,7 +3857,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Land speed"
+            "stat value": "Land speed"
           },
           "relation": "LESS_THAN_OR_EQUAL",
           "right": {
@@ -3901,20 +3867,20 @@
       },
       "modifiers": [
         {
+          "affects": "Jump",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "speed under 30 ft, in units of 10 ft"
+                    "stat value": "speed under 30 ft, in units of 10 ft"
                   },
                   "scalar": -6.0
                 }
               }
             ]
-          },
-          "affects": "Jump"
+          }
         }
       ]
     },
@@ -3923,7 +3889,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Land speed"
+            "stat value": "Land speed"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -3933,20 +3899,20 @@
       },
       "modifiers": [
         {
+          "affects": "Jump",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "speed over 30 ft, in units of 10 ft"
+                    "stat value": "speed over 30 ft, in units of 10 ft"
                   },
                   "scalar": 4.0
                 }
               }
             ]
-          },
-          "affects": "Jump"
+          }
         }
       ]
     },
@@ -3955,13 +3921,14 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Size modifier",
           "mod": {
             "type": "base",
             "amounts": [
               {
                 "lookup": {
                   "value": {
-                    "statValue": "Size category"
+                    "stat value": "Size category"
                   },
                   "table": {
                     "-4": 8,
@@ -3977,8 +3944,7 @@
                 }
               }
             ]
-          },
-          "affects": "Size modifier"
+          }
         }
       ]
     },
@@ -3987,28 +3953,28 @@
       "active": "always",
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "size",
             "amounts": [
               {
-                "statValue": "Size modifier"
+                "stat value": "Size modifier"
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "size",
             "amounts": [
               {
-                "statValue": "Size modifier"
+                "stat value": "Size modifier"
               }
             ]
-          },
-          "affects": "AC"
+          }
         }
       ]
     },
@@ -4017,13 +3983,14 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Reach",
           "mod": {
             "type": "base",
             "amounts": [
               {
                 "lookup": {
                   "value": {
-                    "statValue": "Size category"
+                    "stat value": "Size category"
                   },
                   "table": {
                     "-4": 0,
@@ -4039,8 +4006,7 @@
                 }
               }
             ]
-          },
-          "affects": "reach"
+          }
         }
       ]
     },
@@ -4049,15 +4015,15 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Grapple",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "STR modifier"
+                "stat value": "STR modifier"
               }
             ]
-          },
-          "affects": "Grapple"
+          }
         }
       ]
     },
@@ -4066,28 +4032,28 @@
       "active": "always",
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Base attack bonus"
+                "stat value": "Base attack bonus"
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "Grapple",
           "mod": {
             "type": "base",
             "amounts": [
               {
-                "statValue": "Base attack bonus"
+                "stat value": "Base attack bonus"
               }
             ]
-          },
-          "affects": "Grapple"
+          }
         }
       ]
     },
@@ -4096,20 +4062,20 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Special size modifier",
           "mod": {
             "type": "base",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Size category"
+                    "stat value": "Size category"
                   },
                   "scalar": 4.0
                 }
               }
             ]
-          },
-          "affects": "Special size modifier"
+          }
         }
       ]
     },
@@ -4118,31 +4084,31 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "Hide",
           "mod": {
             "type": "size",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Special size modifier"
+                    "stat value": "Special size modifier"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "Hide"
+          }
         },
         {
+          "affects": "Grapple",
           "mod": {
             "type": "size",
             "amounts": [
               {
-                "statValue": "Special size modifier"
+                "stat value": "Special size modifier"
               }
             ]
-          },
-          "affects": "Grapple"
+          }
         }
       ]
     },
@@ -4151,19 +4117,19 @@
       "active": "always",
       "attack": [
         {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "DEX modifier"
-              }
-            ]
-          },
           "affects": {
             "range": [
               "THROWN",
               "BOW",
               "OTHER_PROJECTILE"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "DEX modifier"
+              }
             ]
           }
         }
@@ -4174,18 +4140,18 @@
       "active": "always",
       "attack": [
         {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "STR modifier"
-              }
-            ]
-          },
           "affects": {
             "range": [
               "MELEE",
               "REACH_MELEE"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR modifier"
+              }
             ]
           }
         }
@@ -4196,19 +4162,6 @@
       "active": "always",
       "damage": [
         {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "multiply": {
-                  "variable": {
-                    "statValue": "STR bonus"
-                  },
-                  "scalar": 1.5
-                }
-              }
-            ]
-          },
           "affects": {
             "range": [
               "MELEE",
@@ -4216,6 +4169,19 @@
             ],
             "hand": [
               "TWO_HANDED"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "STR bonus"
+                  },
+                  "scalar": 1.5
+                }
+              }
             ]
           }
         }
@@ -4226,14 +4192,6 @@
       "active": "always",
       "damage": [
         {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "statValue": "STR bonus"
-              }
-            ]
-          },
           "affects": {
             "range": [
               "MELEE",
@@ -4242,6 +4200,14 @@
             "hand": [
               "PRIMARY_HAND_TWF",
               "ONE_HANDED"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR bonus"
+              }
             ]
           }
         }
@@ -4252,19 +4218,6 @@
       "active": "always",
       "damage": [
         {
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "multiply": {
-                  "variable": {
-                    "statValue": "STR bonus"
-                  },
-                  "scalar": 0.5
-                }
-              }
-            ]
-          },
           "affects": {
             "range": [
               "MELEE",
@@ -4272,6 +4225,19 @@
             ],
             "hand": [
               "OFF_HAND_TWF"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "STR bonus"
+                  },
+                  "scalar": 0.5
+                }
+              }
             ]
           }
         }
@@ -4282,17 +4248,17 @@
       "active": "always",
       "damage": [
         {
+          "affects": {
+            "range": [
+              "BOW"
+            ]
+          },
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "STR penalty"
+                "stat value": "STR penalty"
               }
-            ]
-          },
-          "affects": {
-            "range": [
-              "BOW"
             ]
           }
         }
@@ -4303,17 +4269,17 @@
       "active": "always",
       "damage": [
         {
+          "affects": {
+            "range": [
+              "THROWN"
+            ]
+          },
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "STR modifier"
+                "stat value": "STR modifier"
               }
-            ]
-          },
-          "affects": {
-            "range": [
-              "THROWN"
             ]
           }
         }
@@ -4324,16 +4290,16 @@
       "active": "always",
       "damage": [
         {
+          "affects": {
+            "name": "sling"
+          },
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "statValue": "STR modifier"
+                "stat value": "STR modifier"
               }
             ]
-          },
-          "affects": {
-            "name": "Sling"
           }
         }
       ]
@@ -4343,7 +4309,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Fear level"
+            "stat value": "Fear level"
           },
           "relation": "GREATER_THAN_OR_EQUAL",
           "right": {
@@ -4353,6 +4319,7 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4360,12 +4327,12 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "All saves",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4373,10 +4340,10 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "All saves"
+          }
         },
         {
+          "affects": "All skills",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4384,10 +4351,10 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "All skills"
+          }
         },
         {
+          "affects": "Ability checks",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4395,8 +4362,7 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "Ability checks"
+          }
         }
       ]
     },
@@ -4405,7 +4371,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Fear level"
+            "stat value": "Fear level"
           },
           "relation": "EQUAL",
           "right": {
@@ -4425,7 +4391,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Fear level"
+            "stat value": "Fear level"
           },
           "relation": "EQUAL",
           "right": {
@@ -4447,6 +4413,7 @@
       },
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4454,10 +4421,10 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "AC"
+          }
         },
         {
+          "affects": "Search",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4465,10 +4432,10 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": "Search"
+          }
         },
         {
+          "affects": "STR skills",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4476,10 +4443,10 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": "STR skills"
+          }
         },
         {
+          "affects": "DEX skills",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4487,14 +4454,13 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": "DEX skills"
+          }
         }
       ],
       "multipliers": [
         {
-          "mod": 0.5,
-          "affects": "All speeds"
+          "affects": "All speeds",
+          "mod": 0.5
         }
       ],
       "flags": [
@@ -4518,6 +4484,7 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4525,12 +4492,12 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4538,10 +4505,10 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "AC"
+          }
         },
         {
+          "affects": "STR checks",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4549,8 +4516,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": "STR checks"
+          }
         }
       ]
     },
@@ -4561,6 +4527,7 @@
       },
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4568,8 +4535,7 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "AC"
+          }
         }
       ],
       "flags": [
@@ -4593,6 +4559,7 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4600,12 +4567,12 @@
                 "fixed": -1
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "Search",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4613,10 +4580,10 @@
                 "fixed": -1
               }
             ]
-          },
-          "affects": "Search"
+          }
         },
         {
+          "affects": "Spot",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4624,8 +4591,7 @@
                 "fixed": -1
               }
             ]
-          },
-          "affects": "Spot"
+          }
         }
       ]
     },
@@ -4636,6 +4602,7 @@
       },
       "modifiers": [
         {
+          "affects": "Initiative",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4643,8 +4610,7 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": "Initiative"
+          }
         }
       ],
       "text": [
@@ -4663,7 +4629,7 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Negative levels"
+            "stat value": "Negative levels"
           },
           "relation": "GREATER_THAN",
           "right": {
@@ -4673,86 +4639,86 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Negative levels"
+                    "stat value": "Negative levels"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "All saves",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Negative levels"
+                    "stat value": "Negative levels"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "All saves"
+          }
         },
         {
+          "affects": "All skills",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Negative levels"
+                    "stat value": "Negative levels"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "All skills"
+          }
         },
         {
+          "affects": "Ability checks",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Negative levels"
+                    "stat value": "Negative levels"
                   },
                   "scalar": -1.0
                 }
               }
             ]
-          },
-          "affects": "Ability checks"
+          }
         },
         {
+          "affects": "Maximum hit points",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
                 "multiply": {
                   "variable": {
-                    "statValue": "Negative levels"
+                    "stat value": "Negative levels"
                   },
                   "scalar": -5.0
                 }
               }
             ]
-          },
-          "affects": "Maximum hit points"
+          }
         }
       ],
       "text": [
@@ -4781,6 +4747,7 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4788,12 +4755,12 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "DEX score",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4801,8 +4768,7 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": "DEX score"
+          }
         }
       ],
       "multipliers": [
@@ -4828,6 +4794,7 @@
       },
       "modifiers": [
         {
+          "affects": "STR score",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4835,10 +4802,10 @@
                 "fixed": -6
               }
             ]
-          },
-          "affects": "STR score"
+          }
         },
         {
+          "affects": "DEX score",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4846,14 +4813,13 @@
                 "fixed": -6
               }
             ]
-          },
-          "affects": "DEX score"
+          }
         }
       ],
       "multipliers": [
         {
-          "mod": 0.5,
-          "affects": "All speeds"
+          "affects": "All speeds",
+          "mod": 0.5
         }
       ],
       "flags": [
@@ -4873,6 +4839,7 @@
       },
       "modifiers": [
         {
+          "affects": "Listen",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4880,10 +4847,10 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": "Listen"
+          }
         },
         {
+          "affects": "Spot",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4891,8 +4858,7 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": "Spot"
+          }
         }
       ],
       "flags": [
@@ -4906,6 +4872,7 @@
       },
       "modifiers": [
         {
+          "affects": "STR score",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4913,10 +4880,10 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "STR score"
+          }
         },
         {
+          "affects": "DEX score",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4924,8 +4891,7 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "DEX score"
+          }
         }
       ],
       "flags": [
@@ -4954,6 +4920,7 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -4961,8 +4928,7 @@
                 "fixed": 2
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "text": [
@@ -5003,6 +4969,7 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -5010,8 +4977,7 @@
                 "fixed": -4
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "text": [
@@ -5032,6 +4998,7 @@
       },
       "attack": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -5039,12 +5006,12 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "damage": [
         {
+          "affects": {},
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -5052,12 +5019,12 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": {}
+          }
         }
       ],
       "modifiers": [
         {
+          "affects": "All saves",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -5065,10 +5032,10 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "All saves"
+          }
         },
         {
+          "affects": "All skills",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -5076,10 +5043,10 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "All skills"
+          }
         },
         {
+          "affects": "Ability checks",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -5087,8 +5054,7 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "Ability checks"
+          }
         }
       ]
     },
@@ -5097,11 +5063,11 @@
       "active": {
         "conditional": {
           "left": {
-            "statValue": "Nonlethal damage"
+            "stat value": "Nonlethal damage"
           },
           "relation": "EQUAL",
           "right": {
-            "statValue": "Current hit points"
+            "stat value": "Current hit points"
           }
         }
       },
@@ -5119,6 +5085,7 @@
       },
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -5126,8 +5093,7 @@
                 "fixed": -2
               }
             ]
-          },
-          "affects": "AC"
+          }
         }
       ],
       "flags": [
@@ -5148,7 +5114,7 @@
           {
             "conditional": {
               "left": {
-                "statValue": "Current hit points"
+                "stat value": "Current hit points"
               },
               "relation": "LESS_THAN",
               "right": {
@@ -5159,16 +5125,19 @@
           {
             "conditional": {
               "left": {
-                "statValue": "Nonlethal damage"
+                "stat value": "Nonlethal damage"
               },
               "relation": "GREATER_THAN",
               "right": {
-                "statValue": "Current hit points"
+                "stat value": "Current hit points"
               }
             }
           }
         ]
-      }
+      },
+      "flags": [
+        "Can't act"
+      ]
     },
     {
       "name": "helpless and paralyzed",
@@ -5180,7 +5149,7 @@
           {
             "conditional": {
               "left": {
-                "statValue": "STR score"
+                "stat value": "STR score"
               },
               "relation": "EQUAL",
               "right": {
@@ -5191,7 +5160,7 @@
           {
             "conditional": {
               "left": {
-                "statValue": "DEX score"
+                "stat value": "DEX score"
               },
               "relation": "EQUAL",
               "right": {
@@ -5204,7 +5173,7 @@
               {
                 "conditional": {
                   "left": {
-                    "statValue": "Current hit points"
+                    "stat value": "Current hit points"
                   },
                   "relation": "LESS_THAN",
                   "right": {
@@ -5215,11 +5184,11 @@
               {
                 "conditional": {
                   "left": {
-                    "statValue": "Nonlethal damage"
+                    "stat value": "Nonlethal damage"
                   },
                   "relation": "GREATER_THAN",
                   "right": {
-                    "statValue": "Current hit points"
+                    "stat value": "Current hit points"
                   }
                 }
               }
@@ -5237,15 +5206,49 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "untyped",
             "amounts": [
               {
-                "statValue": "DEX penalty"
+                "stat value": "DEX penalty"
               }
             ]
-          },
-          "affects": "AC"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Base AC",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": 10
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "natural armor",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "natural armor",
+            "amounts": [
+              {
+                "stat value": "natural armor"
+              }
+            ]
+          }
         }
       ]
     },
@@ -5254,6 +5257,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "dodge",
             "amounts": [
@@ -5263,13 +5267,12 @@
                     "item value": "max DEX bonus"
                   },
                   {
-                    "statValue": "DEX bonus"
+                    "stat value": "DEX bonus"
                   }
                 ]
               }
             ]
-          },
-          "affects": "AC"
+          }
         }
       ]
     },
@@ -5278,6 +5281,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "armor",
             "amounts": [
@@ -5285,8 +5289,7 @@
                 "item value": "armor bonus"
               }
             ]
-          },
-          "affects": "AC"
+          }
         }
       ]
     },
@@ -5295,6 +5298,7 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "AC",
           "mod": {
             "type": "shield",
             "amounts": [
@@ -5302,8 +5306,7 @@
                 "item value": "shield bonus"
               }
             ]
-          },
-          "affects": "AC"
+          }
         }
       ]
     }
