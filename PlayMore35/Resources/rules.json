@@ -5309,6 +5309,23 @@
           }
         }
       ]
+    },
+    {
+      "name": "Armor check penalty",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Armor check penalty",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "item value": "Armor check penalty"
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

@@ -29,6 +29,11 @@ namespace PlayMore35.Effects {
                     items.OffHandShield?.MaxDexBonus ?? int.MaxValue
                 );
             }
+            if (Key == ARMOR_CHECK_PENALTY) {
+                return
+                    (items.DonnedArmor?.ArmorCheckPenalty ?? 0) +
+                    (items.OffHandShield?.ArmorCheckPenalty ?? 0);
+            }
             return 0;
         }
 

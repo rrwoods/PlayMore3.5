@@ -187,12 +187,23 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(10, p, items, AC);
         }
 
+        private Armor Chainmail() {
+            return new Armor {
+                Name = "chainmail",
+                ArmorBonus = +5,
+                MaxDexBonus = +2,
+                ArmorCheckPenalty = -5,
+                ArcaneSpellFailure = 30
+            };
+        }
+
         [TestMethod]
         public void TestACP() {
             EffectPool p = Rules();
-            Equipped items = new Equipped();
+            Equipped items = new Equipped {
+                DonnedArmor = Chainmail()
+            };
 
-            p.AddEffect(ModifyStat(-5, ARMOR_CHECK_PENALTY));
             CheckStat(-5, p, items, BALANCE);
             CheckStat(-10, p, items, SWIM);
             CheckStat(0, p, items, DIPLOMACY);
