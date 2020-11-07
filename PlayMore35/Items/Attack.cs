@@ -100,10 +100,14 @@ namespace PlayMore35.Items {
             IEnumerable<Modifier> atkModsFromProps = properties
                 .Select(x => x.AttackModifier)
                 .Where(x => x != null);
-            IEnumerable<Modifier> attackModifiers = rules.GetAttackModifiers(this, items)
+            IEnumerable<Modifier> attackModifiers = rules.GetAttackModifiers(items, this)
                 .Concat(atkModsFromProps);
                 
             AttackBonus = StackModifiers(attackModifiers, rules, items);
+            if (!rules.Proficient(items, this)) {
+                AttackBonus.bonus -= 4;
+                AttackBonus.explanation.Add("-4 not proficient");
+            }
 
             // XXX : This is crappy but composite bows are crappy.  Oh well.
             int compositeStrToDamage = 0;
@@ -113,19 +117,19 @@ namespace PlayMore35.Items {
                     compositeStrToDamage = StrengthRating;
                 } else {
                     AttackBonus.bonus -= 2;
-                    AttackBonus.explanation.Add("-2 Insufficient STR for +" + StrengthRating + " composite bow");
+                    AttackBonus.explanation.Add("-2 insufficient STR for +" + StrengthRating + " composite bow");
                     compositeStrToDamage = Math.Max(strModifier, 0); // penalty would already be applied by game rules.
                 }
             }
             if (sizeDiscrepancy != 0) {
                 int attackPenalty = -2 * Math.Abs(sizeDiscrepancy);
                 AttackBonus.bonus += attackPenalty;
-                AttackBonus.explanation.Add("Inappropriately-sized weapon");
+                AttackBonus.explanation.Add("" + attackPenalty + " inappropriately-sized weapon");
             }
 
             if (twfPenalty != 0) {
                 AttackBonus.bonus += twfPenalty;
-                AttackBonus.explanation.Add("" + twfPenalty + " Two-weapon fighting penalty");
+                AttackBonus.explanation.Add("" + twfPenalty + " two-weapon fighting penalty");
             }
             
             DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);
@@ -137,7 +141,7 @@ namespace PlayMore35.Items {
             IEnumerable<Modifier> dmgModsFromProps = properties
                 .Select(x => x.DamageModifier)
                 .Where(x => x != null);
-            IEnumerable<Modifier> damageModifiers = rules.GetDamageModifiers(this, items)
+            IEnumerable<Modifier> damageModifiers = rules.GetDamageModifiers(items, this)
                 .Concat(dmgModsFromProps);
             
             (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules, items);
@@ -157,7 +161,7 @@ namespace PlayMore35.Items {
             IEnumerable<DiceGroup> extraDiceFromProps = properties
                 .Where(x => x.ExtraDamage.qty != 0)
                 .Select(x => new DiceGroup(x.Name).AddDice(x.ExtraDamage.qty, x.ExtraDamage.size));
-            IEnumerable<DiceGroup> extraDice = rules.GetExtraDice(this, items)
+            IEnumerable<DiceGroup> extraDice = rules.GetExtraDice(items, this)
                 .Concat(extraDiceFromProps);
             foreach (DiceGroup extra in extraDice) {
                 damage.AddDice(extra);

@@ -1,5 +1,5 @@
 ﻿namespace PlayMore35.Effects {
-    public interface ISubjectClass<MatchType> : IJsonable {
+    public interface ISubjectMatcher<MatchType> : IJsonable {
         bool Matches(MatchType thing);
     }
 }

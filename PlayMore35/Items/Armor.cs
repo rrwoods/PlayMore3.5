@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PlayMore35.Effects;
 
 namespace PlayMore35.Items {
     public class Armor {
+        public enum Weight { LIGHT, MEDIUM, HEAVY };
+
         public string Name;
         public int sizeCategory;
+        public Weight ArmorWeight;
 
         // All of these fields should EXCLUDE modifiers from properties.  E.g., the ACP
         // reduction from masterwork and the armor bonus increase from enhancement

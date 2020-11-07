@@ -20,6 +20,10 @@ namespace PlayMore35.Effects {
         private readonly List<Alterer<Modifier, Statistic>> Modifiers = new List<Alterer<Modifier, Statistic>>();
         private readonly List<Alterer<Multiplier, Statistic>> Multipliers = new List<Alterer<Multiplier, Statistic>>();
 
+        private readonly List<AttackMatcher> WeaponProficiencies = new List<AttackMatcher>();
+        private readonly List<Armor.Weight> ArmorProficiencies = new List<Armor.Weight>();
+        private readonly List<bool> ShieldProficiencies = new List<bool>(); // false = shield prof, true = shield+tower prof
+
         private readonly List<string> Flags = new List<string>();
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
@@ -63,7 +67,7 @@ namespace PlayMore35.Effects {
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
                     },
-                    affects = new AttackClass((JObject)x["affects"])
+                    affects = new AttackMatcher((JObject)x["affects"])
                 }));
             }
             if (json["damage"] != null) {
@@ -71,7 +75,7 @@ namespace PlayMore35.Effects {
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
                     },
-                    affects = new AttackClass((JObject)x["affects"])
+                    affects = new AttackMatcher((JObject)x["affects"])
                 }));
             }
             if (json["dice"] != null) {
@@ -79,7 +83,7 @@ namespace PlayMore35.Effects {
                     mod = new DiceGroup((JObject)x["mod"]) {
                         Name = Name
                     },
-                    affects = new AttackClass((JObject)x["affects"])
+                    affects = new AttackMatcher((JObject)x["affects"])
                 }));
             }
             if (json["modifiers"] != null) {
@@ -87,7 +91,7 @@ namespace PlayMore35.Effects {
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
                     },
-                    affects = new StatisticClass((string)x["affects"])
+                    affects = new StatisticMatcher((string)x["affects"])
                 }));
             }
             if (json["multipliers"] != null) {
@@ -95,7 +99,7 @@ namespace PlayMore35.Effects {
                     mod = new Multiplier((decimal)x["mod"]) {
                         Name = Name
                     },
-                    affects = new StatisticClass((string)x["affects"])
+                    affects = new StatisticMatcher((string)x["affects"])
                 }));
             }
             if (json["flags"] != null) {
@@ -113,7 +117,7 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddAttackModifier(AttackClass affects, Modifier mod) {
+        public Effect AddAttackModifier(AttackMatcher affects, Modifier mod) {
             mod.Name = Name;
             AttackModifiers.Add(new Alterer<Modifier, Attack> {
                 mod = mod,
@@ -122,7 +126,7 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddDamageModifier(AttackClass affects, Modifier mod) {
+        public Effect AddDamageModifier(AttackMatcher affects, Modifier mod) {
             mod.Name = Name;
             DamageModifiers.Add(new Alterer<Modifier, Attack> {
                 mod = mod,
@@ -131,7 +135,7 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddExtraDice(AttackClass affects, int qty, int size) {
+        public Effect AddExtraDice(AttackMatcher affects, int qty, int size) {
             ExtraDice.Add(new Alterer<DiceGroup, Attack> {
                 mod = new DiceGroup(Name).AddDice(qty, size),
                 affects = affects
@@ -143,7 +147,7 @@ namespace PlayMore35.Effects {
             mod.Name = Name;
             Modifiers.Add(new Alterer<Modifier, Statistic> {
                 mod = mod,
-                affects = new StatisticClass(affects)
+                affects = new StatisticMatcher(affects)
             });
             return this;
         }
@@ -152,8 +156,23 @@ namespace PlayMore35.Effects {
             multiplier.Name = Name;
             Multipliers.Add(new Alterer<Multiplier, Statistic> {
                 mod = multiplier,
-                affects = new StatisticClass(affects)
+                affects = new StatisticMatcher(affects)
             });
+            return this;
+        }
+
+        public Effect AddProficiency(AttackMatcher proficiency) {
+            WeaponProficiencies.Add(proficiency);
+            return this;
+        }
+
+        public Effect AddProficiency(Armor.Weight proficiency) {
+            ArmorProficiencies.Add(proficiency);
+            return this;
+        }
+
+        public Effect AddShieldProficiency(bool tower) {
+            ShieldProficiencies.Add(tower);
             return this;
         }
 
@@ -211,6 +230,32 @@ namespace PlayMore35.Effects {
 
         public IEnumerable<Multiplier> GetMultipliers(EffectPool pool, Equipped items, Statistic affecting) {
             return GetAlterers(pool, items, affecting, Multipliers);
+        }
+
+        public bool Proficient(EffectPool pool, Equipped items, Attack attack) {
+            return Toggle.On(pool, items)
+                ? WeaponProficiencies.Any(x => x.Matches(attack))
+                : false;
+        }
+
+        public bool ProficienctWithArmor(EffectPool pool, Equipped items) {
+            if (items.DonnedArmor == null) {
+                return true; // if you're not wearing any armor, don't take nonproficiency penalties
+            }
+            if (!ArmorProficiencies.Contains(items.DonnedArmor.ArmorWeight)) {
+                return false;
+            }
+            return Toggle.On(pool, items);
+        }
+
+        public bool ProficienctWithShield(EffectPool pool, Equipped items) {
+            if (items.OffHandShield == null) {
+                return true;
+            }
+            bool potential =
+                (items.OffHandShield.Tower && ShieldProficiencies.Contains(true)) ||
+                (!items.OffHandShield.Tower && ShieldProficiencies.Any());
+            return potential && Toggle.On(pool, items);
         }
 
         public bool HasFlag(string flag) {

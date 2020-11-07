@@ -5,8 +5,8 @@ using PlayMore35.Items;
 using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
-    public class AttackClass : ISubjectClass<Attack> {
-        public static readonly AttackClass ALL = new AttackClass();
+    public class AttackMatcher : ISubjectMatcher<Attack> {
+        public static readonly AttackMatcher ALL = new AttackMatcher();
 
         // Making a WeaponClass and adding no matchers to it will cause it to match all attacks.
         // Each matcher represents a requirement that must be met.  For example:
@@ -19,7 +19,7 @@ namespace PlayMore35.Effects {
             return new JObject(matchers.Select(x => x.ToJson()));
         }
 
-        public AttackClass(JObject json) {
+        public AttackMatcher(JObject json) {
             foreach (JProperty prop in json.Properties()) {
                 if (prop.Name.Equals("name")) {
                     matchers.Add(new NameMatcher((string)prop.Value));
@@ -55,51 +55,59 @@ namespace PlayMore35.Effects {
             }
         }
 
-        public AttackClass() {
+        public AttackMatcher() {
 
         }
 
-        public AttackClass Name(string name) {
+        public AttackMatcher Name(string name) {
             matchers.Add(new NameMatcher(name));
             return this;
         }
 
-        public AttackClass Tag(string tag) {
+        public AttackMatcher Tag(string tag) {
             matchers.Add(new TagMatcher(tag));
             return this;
         }
 
-        public AttackClass SizeCategory(int sizeCategory) {
+        public AttackMatcher SizeCategory(int sizeCategory) {
             matchers.Add(new SizeMatcher(sizeCategory));
             return this;
         }
 
-        public AttackClass Simple() {
+        public AttackMatcher Simple() {
             matchers.Add(new ProficiencyMatcher().AddProficiency(Weapon.Proficiency.SIMPLE));
             return this;
         }
 
-        public AttackClass Martial() {
+        public AttackMatcher Martial() {
             matchers.Add(new ProficiencyMatcher().AddProficiency(Weapon.Proficiency.MARTIAL));
             return this;
         }
 
-        public AttackClass Exotic() {
+        public AttackMatcher SimpleOrMartial() {
+            matchers.Add(new ProficiencyMatcher()
+                .AddProficiency(Weapon.Proficiency.SIMPLE)
+                .AddProficiency(Weapon.Proficiency.MARTIAL)
+            );
+            return this;
+        }
+
+        public AttackMatcher Exotic() {
             matchers.Add(new ProficiencyMatcher().AddProficiency(Weapon.Proficiency.EXOTIC));
             return this;
         }
 
-        public AttackClass Light() {
+        public AttackMatcher Light() {
             matchers.Add(new EffortMatcher().AddEffort(Weapon.Effort.LIGHT));
             return this;
         }
 
-        public AttackClass OneHandedWeapon() {
+        public AttackMatcher OneHandedWeapon() {
             matchers.Add(new EffortMatcher().AddEffort(Weapon.Effort.ONE_HANDED));
             return this;
         }
 
-        public AttackClass PrimaryHandAttack() {
+        public AttackMatcher PrimaryHandAttack() {
             matchers.Add(new HandMatcher()
                 .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
                 .AddHand(Weapon.Hand.ONE_HANDED)
@@ -107,21 +115,21 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public AttackClass PrimaryHandTwfAttack() {
+        public AttackMatcher PrimaryHandTwfAttack() {
             matchers.Add(new HandMatcher()
                 .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
             );
             return this;
         }
 
-        public AttackClass OffHandAttack() {
+        public AttackMatcher OffHandAttack() {
             matchers.Add(new HandMatcher()
                 .AddHand(Weapon.Hand.OFF_HAND_TWF)
             );
             return this;
         }
 
-        public AttackClass OneHandedAttack() {
+        public AttackMatcher OneHandedAttack() {
             matchers.Add(new HandMatcher()
                 .AddHand(Weapon.Hand.ONE_HANDED)
                 .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
@@ -133,12 +141,12 @@ namespace PlayMore35.Effects {
         // I don't have a TwoHandedWeapon matcher function here.  You probably don't want it.
         // If you think you want it because of Power Attack, you should read Power Attack ;)
 
-        public AttackClass TwoHandedAttack() {
+        public AttackMatcher TwoHandedAttack() {
             matchers.Add(new HandMatcher().AddHand(Weapon.Hand.TWO_HANDED));
             return this;
         }
 
-        public AttackClass Melee() {
+        public AttackMatcher Melee() {
             matchers.Add(new RangeMatcher()
                 .AddRange(Weapon.Range.MELEE)
                 .AddRange(Weapon.Range.REACH_MELEE)
@@ -146,7 +154,7 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public AttackClass Ranged() {
+        public AttackMatcher Ranged() {
             matchers.Add(new RangeMatcher()
                 .AddRange(Weapon.Range.THROWN)
                 .AddRange(Weapon.Range.BOW)
@@ -155,14 +163,14 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public AttackClass Thrown() {
+        public AttackMatcher Thrown() {
             matchers.Add(new RangeMatcher()
                 .AddRange(Weapon.Range.THROWN)
             );
             return this;
         }
 
-        public AttackClass Bow() {
+        public AttackMatcher Bow() {
             matchers.Add(new RangeMatcher()
                 .AddRange(Weapon.Range.BOW)
             );

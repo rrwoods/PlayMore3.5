@@ -42,6 +42,10 @@ namespace PlayMore35.Effects.Tests {
             // 0 HP causes some weirdness too
             p.AddEffect(ModifyStat(1, MAX_HP));
 
+            p.AddEffect(new Effect("Simple weapon proficiency")
+                .AddProficiency(new AttackMatcher().SimpleOrMartial())
+            );
+
             return p;
         }
 
@@ -140,6 +144,7 @@ namespace PlayMore35.Effects.Tests {
 
         public Armor Breastplate() {
             return new Armor {
+                ArmorWeight = Armor.Weight.MEDIUM,
                 Name = "breastplate",
                 ArmorBonus = 5,
                 MaxDexBonus = 3,
@@ -189,6 +194,7 @@ namespace PlayMore35.Effects.Tests {
 
         private Armor Chainmail() {
             return new Armor {
+                ArmorWeight = Armor.Weight.MEDIUM,
                 Name = "chainmail",
                 ArmorBonus = +5,
                 MaxDexBonus = +2,
@@ -205,7 +211,30 @@ namespace PlayMore35.Effects.Tests {
             };
 
             CheckStat(-5, p, items, BALANCE);
+            CheckStat(-5, p, items, RIDE);
             CheckStat(-10, p, items, SWIM);
+            CheckStat(0, p, items, DIPLOMACY);
+
+            items.OffHandShield = HeavyShield();
+            CheckStat(-7, p, items, BALANCE);
+            CheckStat(-7, p, items, RIDE);
+            CheckStat(-14, p, items, SWIM);
+            CheckStat(0, p, items, DIPLOMACY);
+
+            p.AddEffect(new Effect("Medium armor proficiency")
+                .AddProficiency(Armor.Weight.MEDIUM)
+            );
+            CheckStat(-7, p, items, BALANCE);
+            CheckStat(-2, p, items, RIDE);
+            CheckStat(-14, p, items, SWIM);
+            CheckStat(0, p, items, DIPLOMACY);
+
+            p.AddEffect(new Effect("Shield proficiency")
+                .AddShieldProficiency(false)
+            );
+            CheckStat(-7, p, items, BALANCE);
+            CheckStat(0, p, items, RIDE);
+            CheckStat(-14, p, items, SWIM);
             CheckStat(0, p, items, DIPLOMACY);
         }
 
@@ -277,7 +306,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d4 + 3", daggerAttacks[1].Damage.dice.ToString());
 
             p.AddEffect(new Effect("discipline focus")
-                .AddAttackModifier(new AttackClass().Tag("shadow hand"), new Modifier(+1, UNTYPED))
+                .AddAttackModifier(new AttackMatcher().Tag("shadow hand"), new Modifier(+1, UNTYPED))
             );
             daggerAttacks = Attack.Generate(p, 0, items);
             Assert.AreEqual(Weapon.Range.MELEE, daggerAttacks[0].Range);
@@ -432,7 +461,7 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("1d4", normalDice.ToString());
 
             p.AddEffect(new Effect("Sneak attack")
-                .AddExtraDice(AttackClass.ALL, 2, 6)
+                .AddExtraDice(AttackMatcher.ALL, 2, 6)
             );
             daggerMelee = Attack.Generate(p, 0, items)[0];
             var (sneakDice, sneakExpl) = daggerMelee.Damage;
@@ -441,15 +470,15 @@ namespace PlayMore35.Effects.Tests {
             p.AddEffect(ModifyStat(+8, STR_SCORE));
 
             p.AddEffect(new Effect("inspire courage")
-                .AddDamageModifier(AttackClass.ALL, new Modifier(+1, MORALE))
+                .AddDamageModifier(AttackMatcher.ALL, new Modifier(+1, MORALE))
             );
             p.AddEffect(new Effect("prayer")
-                .AddDamageModifier(AttackClass.ALL, new Modifier(+1, LUCK))
+                .AddDamageModifier(AttackMatcher.ALL, new Modifier(+1, LUCK))
             );
 
             p.AddEffect(ModifyStat(+4, DEX_SCORE));
             p.AddEffect(new Effect("Hit-and-run fighter")
-                .AddDamageModifier(AttackClass.ALL, new Modifier((DEX_MODIFIER), CIRCUMSTANCE))
+                .AddDamageModifier(AttackMatcher.ALL, new Modifier((DEX_MODIFIER), CIRCUMSTANCE))
             );
 
             items.PrimaryHandWeapon = items.OffHandWeapon = Greatsword();
@@ -541,15 +570,15 @@ namespace PlayMore35.Effects.Tests {
 
             p.AddEffect(new Effect("Power Attack")
                 .AddAttackModifier(
-                    new AttackClass().Melee(),
+                    new AttackMatcher().Melee(),
                     new Modifier(new MultiplyAmount(-1, powerAttackAmount), UNTYPED)
                 )
                 .AddDamageModifier(
-                    new AttackClass().TwoHandedAttack(),
+                    new AttackMatcher().TwoHandedAttack(),
                     new Modifier(new MultiplyAmount(2, powerAttackAmount), UNTYPED)
                 )
                 .AddDamageModifier(
-                    new AttackClass().OneHandedWeapon().OneHandedAttack(),
+                    new AttackMatcher().OneHandedWeapon().OneHandedAttack(),
                     new Modifier(powerAttackAmount, UNTYPED)
                 )
             );
@@ -647,8 +676,8 @@ namespace PlayMore35.Effects.Tests {
                 swordDagger
             );
             p.AddEffect(new Effect("Two-Weapon Fighting")
-                .AddAttackModifier(new AttackClass().PrimaryHandTwfAttack(), new Modifier(+2, UNTYPED))
-                .AddAttackModifier(new AttackClass().OffHandAttack(), new Modifier(+6, UNTYPED))
+                .AddAttackModifier(new AttackMatcher().PrimaryHandTwfAttack(), new Modifier(+2, UNTYPED))
+                .AddAttackModifier(new AttackMatcher().OffHandAttack(), new Modifier(+6, UNTYPED))
             );
 
             CheckAttack(
@@ -689,6 +718,36 @@ namespace PlayMore35.Effects.Tests {
                     OffHandWeapon = quarterstaff
                 }
             );
+        }
+
+        private Weapon Waraxe() {
+            return new Weapon("dwarven waraxe", 0, Weapon.Effort.ONE_HANDED) {
+                Melee = (
+                    new AttackMode {
+                        ProficencyCategory = Weapon.Proficiency.EXOTIC,
+                        DamageDieMedium = (1, 10),
+                        DamageType = SLASHING,
+                        ThreatRange = 3
+                    },
+                    false
+                )
+            };
+        }
+
+        [TestMethod]
+        public void TestNonProficientWeapon() {
+            EffectPool p = Rules();
+
+            Weapon axe = Waraxe();
+            Equipped items = new Equipped {
+                PrimaryHandWeapon = axe
+            };
+            CheckAttack(-4, "1d10", p, items);
+
+            p.AddEffect(new Effect("Exotic weapon proficiency")
+                .AddProficiency(new AttackMatcher().Name(axe.Name))
+            );
+            CheckAttack(+0, "1d10", p, items);
         }
     }
 }

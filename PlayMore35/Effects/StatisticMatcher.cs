@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
-    public class StatisticClass : ISubjectClass<Statistic> {
+    public class StatisticMatcher : ISubjectMatcher<Statistic> {
         private readonly string Tag;
 
-        public StatisticClass(string tag) {
+        public StatisticMatcher(string tag) {
             Tag = tag;
         }
 

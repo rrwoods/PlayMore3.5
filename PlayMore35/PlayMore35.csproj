@@ -78,9 +78,10 @@
     <Compile Include="Effects\Alterer.cs" />
     <Compile Include="Effects\AnyToggle.cs" />
     <Compile Include="Effects\AllToggle.cs" />
+    <Compile Include="Effects\ArmorProficiencyToggle.cs" />
     <Compile Include="Effects\ControllableAmount.cs" />
     <Compile Include="Effects\EffectPoolTests.cs" />
-    <Compile Include="Effects\ISubjectClass.cs" />
+    <Compile Include="Effects\ISubjectMatcher.cs" />
     <Compile Include="Effects\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="Effects\FlagToggle.cs" />
     <Compile Include="Effects\LookupAmount.cs" />
     <Compile Include="Effects\Multiplier.cs" />
-    <Compile Include="Effects\StatisticClass.cs" />
+    <Compile Include="Effects\StatisticMatcher.cs" />
     <Compile Include="Effects\UnToggle.cs" />
     <Compile Include="Effects\ConditionalToggle.cs" />
     <Compile Include="Effects\Effect.cs" />
@@ -104,7 +105,7 @@
     <Compile Include="Effects\Relation.cs" />
     <Compile Include="Effects\Statistic.cs" />
     <Compile Include="Effects\VariableAmount.cs" />
-    <Compile Include="Effects\AttackClass.cs" />
+    <Compile Include="Effects\AttackMatcher.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

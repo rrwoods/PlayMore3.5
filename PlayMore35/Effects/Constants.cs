@@ -146,6 +146,7 @@
         public static readonly string RANKS = " ranks";
 
         public static readonly string ARMOR_CHECK_PENALTY = "Armor check penalty";
+        public static readonly string SHIELD_ARMOR_CHECK_PENALTY = "Shield armor check penalty";
 
         public static readonly string AC = "AC";
         public static readonly string TOUCH_AC = "Touch AC";

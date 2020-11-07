@@ -16,6 +16,9 @@ namespace PlayMore35.Effects {
             if (json["any"] != null) {
                 return new AnyToggle((JArray)json["any"]);
             }
+            if (json["proficient"] != null) {
+                return new ArmorProficiencyToggle((string)json["proficient"]);
+            }
             if (json["conditional"] != null) {
                 return new ConditionalToggle((JObject)json["conditional"]);
             }

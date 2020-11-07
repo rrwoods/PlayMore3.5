@@ -43,24 +43,41 @@ namespace PlayMore35.Effects {
             return effects.Concat(items.GetGlobalEffects());
         }
 
-        public IEnumerable<Modifier> GetModifiers(Statistic affecting, Equipped items) {
+        public IEnumerable<Modifier> GetModifiers(Equipped items, Statistic affecting) {
             return AllEffects(items).SelectMany(x => x.GetModifiers(this, items, affecting));
         }
 
-        public IEnumerable<Modifier> GetAttackModifiers(Attack affecting, Equipped items) {
+        public IEnumerable<Modifier> GetAttackModifiers(Equipped items, Attack affecting) {
             return AllEffects(items).SelectMany(x => x.GetAttackModifiers(this, items, affecting));
         }
 
-        public IEnumerable<Modifier> GetDamageModifiers(Attack affecting, Equipped items) {
+        public IEnumerable<Modifier> GetDamageModifiers(Equipped items, Attack affecting) {
             return AllEffects(items).SelectMany(x => x.GetDamageModifiers(this, items, affecting));
         }
 
-        public IEnumerable<Multiplier> GetMultipliers(Statistic affecting, Equipped items) {
+        public IEnumerable<Multiplier> GetMultipliers(Equipped items, Statistic affecting) {
             return AllEffects(items).SelectMany(x => x.GetMultipliers(this, items, affecting));
         }
 
-        public IEnumerable<DiceGroup> GetExtraDice(Attack affecting, Equipped items) {
+        public IEnumerable<DiceGroup> GetExtraDice(Equipped items, Attack affecting) {
             return AllEffects(items).SelectMany(x => x.GetExtraDice(this, items, affecting));
+        }
+
+        public bool Proficient(Equipped items, Attack attack) {
+            return AllEffects(items).Select(x => x.Proficient(this, items, attack)).Contains(true);
+        }
+
+        public bool ProficientWithArmor(Equipped items) {
+            return AllEffects(items).Select(x => x.ProficienctWithArmor(this, items)).Contains(true);
+        }
+
+        public bool ProficientWithShield(Equipped items) {
+            return AllEffects(items).Select(x => x.ProficienctWithShield(this, items)).Contains(true);
+        }
+
+        public bool HasFlag(string flag, Equipped items) {
+            return effects
+                .Any(x => x.HasFlag(flag) && x.Toggle.On(this, items));
         }
 
         public Dictionary<string, List<string>> GetTextEffects(Equipped items) {
@@ -77,11 +94,6 @@ namespace PlayMore35.Effects {
             }
 
             return allText;
-        }
-
-        public bool HasFlag(string flag, Equipped items) {
-            return effects
-                .Any(x => x.HasFlag(flag) && x.Toggle.On(this, items));
         }
     }
 }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
 
@@ -30,9 +26,10 @@ namespace PlayMore35.Effects {
                 );
             }
             if (Key == ARMOR_CHECK_PENALTY) {
-                return
-                    (items.DonnedArmor?.ArmorCheckPenalty ?? 0) +
-                    (items.OffHandShield?.ArmorCheckPenalty ?? 0);
+                return items.DonnedArmor?.ArmorCheckPenalty ?? 0;
+            }
+            if (Key == SHIELD_ARMOR_CHECK_PENALTY) {
+                return items.OffHandShield?.ArmorCheckPenalty ?? 0;
             }
             return 0;
         }

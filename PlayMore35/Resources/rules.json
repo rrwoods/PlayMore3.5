@@ -879,9 +879,6 @@
       ]
     },
     {
-      "name": "Armor check penalty"
-    },
-    {
       "name": "AC",
       "ignore": {
         "dodge": {
@@ -3675,8 +3672,10 @@
       ]
     },
     {
-      "name": "Armor check penalty",
-      "active": "always",
+      "name": "Armor check penalty (armor)",
+      "active": {
+        "proficient": "armor"
+      },
       "modifiers": [
         {
           "affects": "Balance",
@@ -3684,7 +3683,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Armor check penalty"
+                "item value": "Armor check penalty"
               }
             ]
           }
@@ -3695,7 +3694,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Armor check penalty"
+                "item value": "Armor check penalty"
               }
             ]
           }
@@ -3706,7 +3705,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Armor check penalty"
+                "item value": "Armor check penalty"
               }
             ]
           }
@@ -3717,7 +3716,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Armor check penalty"
+                "item value": "Armor check penalty"
               }
             ]
           }
@@ -3728,7 +3727,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Armor check penalty"
+                "item value": "Armor check penalty"
               }
             ]
           }
@@ -3739,7 +3738,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Armor check penalty"
+                "item value": "Armor check penalty"
               }
             ]
           }
@@ -3750,7 +3749,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Armor check penalty"
+                "item value": "Armor check penalty"
               }
             ]
           }
@@ -3763,10 +3762,197 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "Armor check penalty"
+                    "item value": "Armor check penalty"
                   },
                   "scalar": 2.0
                 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Armor check penalty (armor, not proficient)",
+      "active": {
+        "not": {
+          "proficient": "armor"
+        }
+      },
+      "modifiers": [
+        {
+          "affects": "STR skills",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "DEX skills",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Swim",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Armor check penalty"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Armor check penalty (shield)",
+      "active": {
+        "proficient": "shield"
+      },
+      "modifiers": [
+        {
+          "affects": "Balance",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Climb",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Escape Artist",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Hide",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Jump",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Move Silently",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Sleight Of Hand",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Swim",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "item value": "Shield armor check penalty"
+                  },
+                  "scalar": 2.0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Armor check penalty (shield, not proficient)",
+      "active": {
+        "not": {
+          "proficient": "shield"
+        }
+      },
+      "modifiers": [
+        {
+          "affects": "STR skills",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "DEX skills",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Swim",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "item value": "Shield armor check penalty"
               }
             ]
           }
@@ -5304,23 +5490,6 @@
             "amounts": [
               {
                 "item value": "shield bonus"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "Armor check penalty",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "Armor check penalty",
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
               }
             ]
           }

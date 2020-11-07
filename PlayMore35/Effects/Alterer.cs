@@ -3,7 +3,7 @@
 namespace PlayMore35.Effects {
     public class Alterer<AlterType, SubjectType> : IJsonable where AlterType : IJsonable {
         public AlterType mod;
-        public ISubjectClass<SubjectType> affects;
+        public ISubjectMatcher<SubjectType> affects;
 
         public JToken ToJson() {
             JObject json = new JObject(
