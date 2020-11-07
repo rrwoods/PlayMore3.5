@@ -60,31 +60,41 @@ namespace PlayMore35.Effects {
             Toggle = Effects.Toggle.FromJson(json["active"]);
             if (json["attack"] != null) {
                 AttackModifiers.AddRange(json["attack"].Select(x => new Alterer<Modifier, Attack> {
-                    mod = new Modifier((JObject)x["mod"]),
+                    mod = new Modifier((JObject)x["mod"]) {
+                        Name = Name
+                    },
                     affects = new AttackClass((JObject)x["affects"])
                 }));
             }
             if (json["damage"] != null) {
                 DamageModifiers.AddRange(json["damage"].Select(x => new Alterer<Modifier, Attack> {
-                    mod = new Modifier((JObject)x["mod"]),
+                    mod = new Modifier((JObject)x["mod"]) {
+                        Name = Name
+                    },
                     affects = new AttackClass((JObject)x["affects"])
                 }));
             }
             if (json["dice"] != null) {
                 ExtraDice.AddRange(json["dice"].Select(x => new Alterer<DiceGroup, Attack> {
-                    mod = new DiceGroup((JObject)x["mod"]),
+                    mod = new DiceGroup((JObject)x["mod"]) {
+                        Name = Name
+                    },
                     affects = new AttackClass((JObject)x["affects"])
                 }));
             }
             if (json["modifiers"] != null) {
                 Modifiers.AddRange(json["modifiers"].Select(x => new Alterer<Modifier, Statistic> {
-                    mod = new Modifier((JObject)x["mod"]),
+                    mod = new Modifier((JObject)x["mod"]) {
+                        Name = Name
+                    },
                     affects = new StatisticClass((string)x["affects"])
                 }));
             }
             if (json["multipliers"] != null) {
                 Multipliers.AddRange(json["multipliers"].Select(x => new Alterer<Multiplier, Statistic> {
-                    mod = new Multiplier((decimal)x["mod"]),
+                    mod = new Multiplier((decimal)x["mod"]) {
+                        Name = Name
+                    },
                     affects = new StatisticClass((string)x["affects"])
                 }));
             }
