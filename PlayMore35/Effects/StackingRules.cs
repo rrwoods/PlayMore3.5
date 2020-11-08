@@ -7,7 +7,7 @@ using static System.Math;
 
 namespace PlayMore35.Effects {
     public static class StackingRules {
-        private static readonly string[] stackingTypes = { BASE, ABILITY_MODIFIER, CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
+        public static readonly string[] stackingTypes = { BASE, ABILITY_MODIFIER, CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
         private static readonly string[] typeOrder = {
             //BASE,
             //ABILITY_MODIFIER,
@@ -151,6 +151,26 @@ namespace PlayMore35.Effects {
             }
 
             return (total, explanation);
+        }
+
+        public static List<int> StackExtraAttacks(IEnumerable<ExtraAttack> extraAttacks) {
+            List<int> extras = new List<int>();
+            Dictionary<string, int> overlappingExtras = new Dictionary<string, int>();
+
+            foreach (ExtraAttack extra in extraAttacks) {
+                if (stackingTypes.Contains(extra.BonusType)) {
+                    extras.Add(extra.AttackPenalty);
+                    continue;
+                }
+
+                if (overlappingExtras.ContainsKey(extra.BonusType)) {
+                    overlappingExtras[extra.BonusType] = Max(extra.AttackPenalty, overlappingExtras[extra.BonusType]);
+                } else {
+                    overlappingExtras[extra.BonusType] = extra.AttackPenalty;
+                }
+            }
+            extras.AddRange(overlappingExtras.Values);
+            return extras;
         }
     }
 }

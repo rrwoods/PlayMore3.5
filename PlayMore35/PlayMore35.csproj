@@ -81,6 +81,7 @@
     <Compile Include="Effects\ArmorProficiencyToggle.cs" />
     <Compile Include="Effects\ControllableAmount.cs" />
     <Compile Include="Effects\EffectPoolTests.cs" />
+    <Compile Include="Effects\ExtraAttack.cs" />
     <Compile Include="Effects\ISubjectMatcher.cs" />
     <Compile Include="Effects\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />

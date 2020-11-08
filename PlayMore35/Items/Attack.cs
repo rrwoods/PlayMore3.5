@@ -16,6 +16,7 @@ namespace PlayMore35.Items {
         public Weapon.Hand Hand { get; private set; }
         public Weapon.Range Range { get; private set; }
         public (int bonus, List<string> explanation) AttackBonus; // XXX : {get private set} is missing because i modify the bonus directly.
+        public List<int> ExtraAttacks { get; private set; }
         public (DiceGroup dice, List<string> explanation) Damage { get; private set; }
         public (DiceGroup dice, List<string> explanation) CriticalDamage { get; private set; }
         public string DamageType { get; private set; }
@@ -108,6 +109,14 @@ namespace PlayMore35.Items {
                 AttackBonus.bonus -= 4;
                 AttackBonus.explanation.Add("-4 not proficient");
             }
+
+            IEnumerable<ExtraAttack> extrasFromProps = properties
+                .Select(x => x.ExtraAttack)
+                .Where(x => x != null);
+            IEnumerable<ExtraAttack> extras = rules.GetExtraAttacks(items, this)
+                .Concat(extrasFromProps);
+            ExtraAttacks = StackExtraAttacks(extras);
+            ExtraAttacks.Sort((a, b) => b.CompareTo(a));
 
             // XXX : This is crappy but composite bows are crappy.  Oh well.
             int compositeStrToDamage = 0;

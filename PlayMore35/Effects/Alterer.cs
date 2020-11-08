@@ -7,8 +7,8 @@ namespace PlayMore35.Effects {
 
         public JToken ToJson() {
             JObject json = new JObject(
-                new JProperty("mod", mod.ToJson()),
-                new JProperty("affects", affects.ToJson())
+                new JProperty("affects", affects.ToJson()),
+                new JProperty("mod", mod.ToJson())
             );
             return json;
         }

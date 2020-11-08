@@ -4244,6 +4244,93 @@
       ]
     },
     {
+      "name": "Second iterative attack",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Base attack bonus"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 6
+          }
+        }
+      },
+      "extra attacks": [
+        {
+          "affects": {
+            "hand": [
+              "TWO_HANDED",
+              "ONE_HANDED",
+              "PRIMARY_HAND_TWF"
+            ]
+          },
+          "mod": {
+            "attack penalty": -5,
+            "bonus type": "base"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Third iterative attack",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Base attack bonus"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 11
+          }
+        }
+      },
+      "extra attacks": [
+        {
+          "affects": {
+            "hand": [
+              "TWO_HANDED",
+              "ONE_HANDED",
+              "PRIMARY_HAND_TWF"
+            ]
+          },
+          "mod": {
+            "attack penalty": -10,
+            "bonus type": "base"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fourth iterative attack",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Base attack bonus"
+          },
+          "relation": "GREATER_THAN_OR_EQUAL",
+          "right": {
+            "fixed": 16
+          }
+        }
+      },
+      "extra attacks": [
+        {
+          "affects": {
+            "hand": [
+              "TWO_HANDED",
+              "ONE_HANDED",
+              "PRIMARY_HAND_TWF"
+            ]
+          },
+          "mod": {
+            "attack penalty": -15,
+            "bonus type": "base"
+          }
+        }
+      ]
+    },
+    {
       "name": "Special size modifier calculation",
       "active": "always",
       "modifiers": [

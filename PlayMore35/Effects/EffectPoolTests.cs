@@ -749,5 +749,48 @@ namespace PlayMore35.Effects.Tests {
             );
             CheckAttack(+0, "1d10", p, items);
         }
+
+        [TestMethod]
+        public void TestExtraAttacks() {
+            EffectPool p = Rules();
+            p.AddEffect(new Effect("haste")
+                .AddExtraAttack(AttackMatcher.ALL_EXCEPT_OFF_HAND, new ExtraAttack(-0, ENHANCEMENT))
+                .AddAttackModifier(AttackMatcher.ALL, new Modifier(+1, UNTYPED))
+                .AddModifier(AC, new Modifier(+1, DODGE))
+                .AddModifier(REF_SAVES, new Modifier(+1, DODGE))
+                .AddModifier(ALL_SPEEDS, new Modifier(+30, ENHANCEMENT)) // not bothering with the max here
+            );
+
+            Weapon sword = Longsword();
+            sword.Melee?.atk.Properties.Add(new WeaponProperty("speed") {
+                ExtraAttack = new ExtraAttack(-0, ENHANCEMENT)
+            });
+            Equipped items = new Equipped {
+                PrimaryHandWeapon = sword
+            };
+
+            List<Attack> attacks = Attack.Generate(p, 0, items);
+            Assert.AreEqual(1, attacks.Count());
+            Assert.AreEqual(+1, attacks[0].AttackBonus.bonus);
+            Assert.AreEqual(1, attacks[0].ExtraAttacks.Count());
+            Assert.AreEqual(-0, attacks[0].ExtraAttacks[0]);
+        }
+
+        [TestMethod]
+        public void TestIteratives() {
+            EffectPool p = Rules();
+            p.AddEffect(ModifyStat(+16, BASE_ATTACK_BONUS));
+            Equipped items = new Equipped {
+                PrimaryHandWeapon = Longsword()
+            };
+
+            List<Attack> attacks = Attack.Generate(p, 0, items);
+            Assert.AreEqual(1, attacks.Count());
+            Assert.AreEqual(+16, attacks[0].AttackBonus.bonus);
+            Assert.AreEqual(3, attacks[0].ExtraAttacks.Count());
+            Assert.AreEqual(-5, attacks[0].ExtraAttacks[0]);
+            Assert.AreEqual(-10, attacks[0].ExtraAttacks[1]);
+            Assert.AreEqual(-15, attacks[0].ExtraAttacks[2]);
+        }
     }
 }

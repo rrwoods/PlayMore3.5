@@ -13,6 +13,7 @@ namespace PlayMore35.Effects {
         public string Name { get; private set; }
         public IToggle Toggle = AlwaysOn.Instance;
 
+        private readonly List<Alterer<ExtraAttack, Attack>> ExtraAttacks = new List<Alterer<ExtraAttack, Attack>>();
         private readonly List<Alterer<Modifier, Attack>> AttackModifiers = new List<Alterer<Modifier, Attack>>();
         private readonly List<Alterer<Modifier, Attack>> DamageModifiers = new List<Alterer<Modifier, Attack>>();
         private readonly List<Alterer<DiceGroup, Attack>> ExtraDice = new List<Alterer<DiceGroup, Attack>>();
@@ -32,6 +33,9 @@ namespace PlayMore35.Effects {
                 new JProperty("name", Name),
                 new JProperty("active", Toggle.ToJson())
             );
+            if (ExtraAttacks.Any()) {
+                json.Add("extra attacks", new JArray(ExtraAttacks.Select(x => x.ToJson())));
+            }
             if (AttackModifiers.Any()) {
                 json.Add("attack", new JArray(AttackModifiers.Select(x => x.ToJson())));
             }
@@ -62,44 +66,50 @@ namespace PlayMore35.Effects {
         public Effect(JObject json) {
             Name = (string)json["name"];
             Toggle = Effects.Toggle.FromJson(json["active"]);
+            if (json["extra attacks"] != null) {
+                ExtraAttacks.AddRange(json["extra attacks"].Select(x => new Alterer<ExtraAttack, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]),
+                    mod = new ExtraAttack((JObject)x["mod"])
+                }));
+            }
             if (json["attack"] != null) {
                 AttackModifiers.AddRange(json["attack"].Select(x => new Alterer<Modifier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
-                    },
-                    affects = new AttackMatcher((JObject)x["affects"])
+                    }
                 }));
             }
             if (json["damage"] != null) {
                 DamageModifiers.AddRange(json["damage"].Select(x => new Alterer<Modifier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
-                    },
-                    affects = new AttackMatcher((JObject)x["affects"])
+                    }
                 }));
             }
             if (json["dice"] != null) {
                 ExtraDice.AddRange(json["dice"].Select(x => new Alterer<DiceGroup, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new DiceGroup((JObject)x["mod"]) {
                         Name = Name
-                    },
-                    affects = new AttackMatcher((JObject)x["affects"])
+                    }
                 }));
             }
             if (json["modifiers"] != null) {
                 Modifiers.AddRange(json["modifiers"].Select(x => new Alterer<Modifier, Statistic> {
+                    affects = new StatisticMatcher((string)x["affects"]),
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
-                    },
-                    affects = new StatisticMatcher((string)x["affects"])
+                    }
                 }));
             }
             if (json["multipliers"] != null) {
                 Multipliers.AddRange(json["multipliers"].Select(x => new Alterer<Multiplier, Statistic> {
+                    affects = new StatisticMatcher((string)x["affects"]),
                     mod = new Multiplier((decimal)x["mod"]) {
                         Name = Name
-                    },
-                    affects = new StatisticMatcher((string)x["affects"])
+                    }
                 }));
             }
             if (json["flags"] != null) {
@@ -117,11 +127,19 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        public Effect AddExtraAttack(AttackMatcher affects, ExtraAttack extraAttack) {
+            ExtraAttacks.Add(new Alterer<ExtraAttack, Attack> {
+                affects = affects,
+                mod = extraAttack
+            });
+            return this;
+        }
+
         public Effect AddAttackModifier(AttackMatcher affects, Modifier mod) {
             mod.Name = Name;
             AttackModifiers.Add(new Alterer<Modifier, Attack> {
-                mod = mod,
-                affects = affects
+                affects = affects,
+                mod = mod
             });
             return this;
         }
@@ -129,16 +147,16 @@ namespace PlayMore35.Effects {
         public Effect AddDamageModifier(AttackMatcher affects, Modifier mod) {
             mod.Name = Name;
             DamageModifiers.Add(new Alterer<Modifier, Attack> {
-                mod = mod,
-                affects = affects
+                affects = affects,
+                mod = mod
             });
             return this;
         }
 
         public Effect AddExtraDice(AttackMatcher affects, int qty, int size) {
             ExtraDice.Add(new Alterer<DiceGroup, Attack> {
-                mod = new DiceGroup(Name).AddDice(qty, size),
-                affects = affects
+                affects = affects,
+                mod = new DiceGroup(Name).AddDice(qty, size)
             });
             return this;
         }
@@ -146,8 +164,8 @@ namespace PlayMore35.Effects {
         public Effect AddModifier(string affects, Modifier mod) {
             mod.Name = Name;
             Modifiers.Add(new Alterer<Modifier, Statistic> {
-                mod = mod,
-                affects = new StatisticMatcher(affects)
+                affects = new StatisticMatcher(affects),
+                mod = mod
             });
             return this;
         }
@@ -155,8 +173,8 @@ namespace PlayMore35.Effects {
         public Effect AddMultiplier(string affects, Multiplier multiplier) {
             multiplier.Name = Name;
             Multipliers.Add(new Alterer<Multiplier, Statistic> {
-                mod = multiplier,
-                affects = new StatisticMatcher(affects)
+                affects = new StatisticMatcher(affects),
+                mod = multiplier
             });
             return this;
         }
@@ -211,6 +229,9 @@ namespace PlayMore35.Effects {
                 : Enumerable.Empty<AlterType>();
         }
 
+        public IEnumerable<ExtraAttack> GetExtraAttacks(EffectPool pool, Equipped items, Attack affecting) {
+            return GetAlterers(pool, items, affecting, ExtraAttacks);
+        }
 
         public IEnumerable<Modifier> GetAttackModifiers(EffectPool pool, Equipped items, Attack affecting) {
             return GetAlterers(pool, items, affecting, AttackModifiers);

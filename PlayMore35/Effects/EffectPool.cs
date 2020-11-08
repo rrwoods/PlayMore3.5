@@ -43,8 +43,8 @@ namespace PlayMore35.Effects {
             return effects.Concat(items.GetGlobalEffects());
         }
 
-        public IEnumerable<Modifier> GetModifiers(Equipped items, Statistic affecting) {
-            return AllEffects(items).SelectMany(x => x.GetModifiers(this, items, affecting));
+        public IEnumerable<ExtraAttack> GetExtraAttacks(Equipped items, Attack affecting) {
+            return AllEffects(items).SelectMany(x => x.GetExtraAttacks(this, items, affecting));
         }
 
         public IEnumerable<Modifier> GetAttackModifiers(Equipped items, Attack affecting) {
@@ -53,6 +53,10 @@ namespace PlayMore35.Effects {
 
         public IEnumerable<Modifier> GetDamageModifiers(Equipped items, Attack affecting) {
             return AllEffects(items).SelectMany(x => x.GetDamageModifiers(this, items, affecting));
+        }
+
+        public IEnumerable<Modifier> GetModifiers(Equipped items, Statistic affecting) {
+            return AllEffects(items).SelectMany(x => x.GetModifiers(this, items, affecting));
         }
 
         public IEnumerable<Multiplier> GetMultipliers(Equipped items, Statistic affecting) {

@@ -13,6 +13,7 @@ namespace PlayMore35.Items {
         // For effects that modify something other than the weapon, like the initiative bonus from the warning property
         public Effect GlobalEffect = null;
 
+        public ExtraAttack ExtraAttack = null;
         public Modifier AttackModifier = null;
         public Modifier DamageModifier = null;
         public (int qty, int size) ExtraDamage = (0, 0);

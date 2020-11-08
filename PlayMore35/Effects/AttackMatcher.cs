@@ -6,12 +6,13 @@ using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class AttackMatcher : ISubjectMatcher<Attack> {
-        public static readonly AttackMatcher ALL = new AttackMatcher();
+        // If an effect grants an "extra attack", this is the matcher you want -- it does not grant
+        // extra off-hand attacks unless it explicitly says it does.
+        public static readonly AttackMatcher ALL_EXCEPT_OFF_HAND = new AttackMatcher().NonOffHandAttack();
 
-        // Making a WeaponClass and adding no matchers to it will cause it to match all attacks.
-        // Each matcher represents a requirement that must be met.  For example:
-        // new WeaponClass().Martial().OneHandedAttack()
-        // will match any attack with a martial weapon weilded in one hand.
+        // If something modifies "attack rolls" or "damage rolls" in general with no qualifiers,
+        // Use this one.
+        public static readonly AttackMatcher ALL = new AttackMatcher();
 
         private List<IMatcher> matchers = new List<IMatcher>();
 
@@ -134,6 +135,15 @@ namespace PlayMore35.Effects {
                 .AddHand(Weapon.Hand.ONE_HANDED)
                 .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
                 .AddHand(Weapon.Hand.OFF_HAND_TWF)
+            );
+            return this;
+        }
+
+        public AttackMatcher NonOffHandAttack() {
+            matchers.Add(new HandMatcher()
+                .AddHand(Weapon.Hand.ONE_HANDED)
+                .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
+                .AddHand(Weapon.Hand.TWO_HANDED)
             );
             return this;
         }
