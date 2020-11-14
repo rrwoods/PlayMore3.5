@@ -5,32 +5,63 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
-using PlayMore35.CharacterChoices;
+using PlayMore35.Character;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 
+
 namespace PlayMore35.Global {
     public class Controller {
-        private EffectPool effects;
+        public CharacterChoices Choices;
 
-        public Controller(JToken rules) {
-            ReloadRules(rules);
+        public EffectPool Effects;
+        public Dictionary<string, Weapon> WeaponDefinitions;
+
+        public Controller(CharacterChoices choices) {
+            Choices = choices;
+            Reload();
         }
 
-        // Completely toss out every effect we have, and refresh the rules of the game.  Any supplemental or house rules,
-        // or character choices, or item effects are gone after calling this function.
-        public void ReloadRules(JToken rules) {
-            effects = new EffectPool();
-            effects.ReadJson(rules);
+        private JToken GetJsonResource(byte[] resource) {
+            return JToken.Parse(Encoding.UTF8.GetString(resource));
         }
 
-        /*
-         * ... this is probably a really pointless-looking class right now.
-         * 
-         * This is going to be the coordinator of all the different kinds of information that come together to
-         * figure out what the player needs in order to play the game.  Once we have item definition files, and
-         * class features, and feats, this class will be responsible for turning a *choice* about one of those
-         * things into the effects that thing represents in the game.
-         */
+        // Completely toss out every effect we have, and refresh the rules of the game.
+        public void Reload() {
+            Effects = new EffectPool();
+
+            Effects.ReadJson(GetJsonResource(Properties.Resources.rules));
+            Effects.GenerateCharacterEffects(Choices);
+
+            WeaponDefinitions = GetJsonResource(Properties.Resources.weapons)
+                .Select(x => new Weapon((JObject)x))
+                .ToDictionary(x => x.Name, x => x);
+        }
+
+
+
+        // This rebuilds each weapon on each call.  Only re-call this method when something
+        // has changed about the available weapons (be it a property, or a definition, whatever)
+        public List<Weapon> AvailableWeapons() {
+            List<Weapon> available = new List<Weapon>();
+            foreach (WeaponChoice choice in Choices.weapons) {
+                Weapon w = new Weapon(WeaponDefinitions[choice.Name]);
+                // TODO : weapon property definitions
+                foreach (string property in choice.MeleeProperties) {
+                    w.Melee?.atk.Properties.Add(new WeaponProperty(property));
+                }
+                foreach (string property in choice.SecondHeadProperties) {
+                    w.SecondHead?.atk.Properties.Add(new WeaponProperty(property));
+                }
+                foreach (string property in choice.ThrownProperties) {
+                    w.Thrown.Properties.Add(new WeaponProperty(property));
+                }
+                foreach (string property in choice.ProjectileProperties) {
+                    w.Projectile?.atk.Properties.Add(new WeaponProperty(property));
+                }
+                available.Add(w);
+            }
+            return available;
+        }
     }
 }

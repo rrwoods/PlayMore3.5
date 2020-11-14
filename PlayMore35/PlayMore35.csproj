@@ -150,6 +150,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="Resources\rules.json" />
+    <None Include="Resources\weapons.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

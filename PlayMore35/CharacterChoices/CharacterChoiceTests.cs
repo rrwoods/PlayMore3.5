@@ -1,15 +1,25 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+using System.Text;
 
-namespace PlayMore35.CharacterChoices {
+using Newtonsoft.Json.Linq;
+using PlayMore35.Effects;
+using PlayMore35.Global;
+using PlayMore35.Items;
+using static PlayMore35.Effects.Constants;
+
+namespace PlayMore35.Character {
     [TestClass]
     public class CharacterChoiceTests {
-        [TestMethod]
-        public void TestSerialization() {
-            CharacterChoices choices = new CharacterChoices {
+        private CharacterChoices SampleCharacter() {
+            return new CharacterChoices {
                 assignedAbilityScores = new Dictionary<string, int> {
-                    ["STR"] = 14, ["DEX"] = 8, ["CON"] = 17, ["INT"] = 14, ["WIS"] = 13, ["CHA"] = 10
+                    ["STR"] = 14,
+                    ["DEX"] = 8,
+                    ["CON"] = 17,
+                    ["INT"] = 14,
+                    ["WIS"] = 13,
+                    ["CHA"] = 10
                 },
                 classLevels = new List<string> {
                     "Binder", "Barbarian", "Fighter", "Fighter", "Crusader", "Crusader", "Pious Templar"
@@ -52,6 +62,30 @@ namespace PlayMore35.CharacterChoices {
                     }
                 }
             };
+        }
+
+        [TestMethod]
+        public void TestCharacterGeneration() {
+            Controller controller = new Controller(SampleCharacter());
+
+            // no racial bonuses working right now, so shoehorn it in:
+            controller.Effects.AddEffect(new Effect("dream dwarf CON bonus")
+                .AddModifier(CON_SCORE, new Modifier(+2, RACIAL))
+            );
+
+            Equipped noItems = new Equipped();
+            Assert.AreEqual(14, controller.Effects.GetStat(STR_SCORE).GetValue(controller.Effects, noItems).value);
+            Assert.AreEqual(77, controller.Effects.GetStat(MAX_HP).GetValue(controller.Effects, noItems).value);
+
+            List<Weapon> weapons = controller.AvailableWeapons();
+            Assert.AreEqual(1, weapons.Count);
+            Assert.AreEqual("dwarven waraxe", weapons[0].Name);
+            Assert.AreEqual((1, 10), weapons[0].Melee?.atk.DamageDieMedium);
+        }
+
+        [TestMethod]
+        public void TestSerialization() {
+            CharacterChoices choices = SampleCharacter();
 
             CharacterChoices fromJson = new CharacterChoices((JObject)choices.ToJson());
 

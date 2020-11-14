@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PlayMore35.CharacterChoices {
+namespace PlayMore35.Character {
     public class WeaponChoice : IJsonable {
         public string Name;
+        public int SizeCategory;
         public List<string> MeleeProperties;
         public List<string> SecondHeadProperties;
         public List<string> ProjectileProperties;
@@ -13,6 +14,7 @@ namespace PlayMore35.CharacterChoices {
         public JToken ToJson() {
             return new JObject(
                 new JProperty("name", Name),
+                new JProperty("size", SizeCategory),
                 new JProperty("melee properties", new JArray(MeleeProperties)),
                 new JProperty("second head properties", new JArray(SecondHeadProperties)),
                 new JProperty("projectile properties", new JArray(ProjectileProperties)),
@@ -22,6 +24,7 @@ namespace PlayMore35.CharacterChoices {
 
         public WeaponChoice(JObject json) {
             Name = (string)json["name"];
+            SizeCategory = (int)json["size"];
             MeleeProperties = ((JArray)json["melee properties"]).Select(x => (string)x).ToList();
             SecondHeadProperties = ((JArray)json["second head properties"]).Select(x => (string)x).ToList();
             ProjectileProperties = ((JArray)json["projectile properties"]).Select(x => (string)x).ToList();
@@ -30,6 +33,7 @@ namespace PlayMore35.CharacterChoices {
 
         public WeaponChoice() {
             Name = "";
+            SizeCategory = 0;
             MeleeProperties = new List<string>();
             SecondHeadProperties = new List<string>();
             ProjectileProperties = new List<string>();

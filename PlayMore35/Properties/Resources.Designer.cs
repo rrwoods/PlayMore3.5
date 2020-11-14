@@ -69,5 +69,15 @@ namespace PlayMore35.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] weapons {
+            get {
+                object obj = ResourceManager.GetObject("weapons", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

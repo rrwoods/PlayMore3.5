@@ -2,7 +2,7 @@
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace PlayMore35.CharacterChoices {
+namespace PlayMore35.Character {
     public class CharacterChoices : IJsonable {
         public Dictionary<string, int> assignedAbilityScores;
         public List<string> classLevels;

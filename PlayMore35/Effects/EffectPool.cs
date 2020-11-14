@@ -99,5 +99,44 @@ namespace PlayMore35.Effects {
 
             return allText;
         }
+
+        // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
+        public void GenerateCharacterEffects(Character.CharacterChoices choices) {
+            foreach (var ability in choices.assignedAbilityScores) {
+                string name = ability.Key;
+                int score = ability.Value;
+                AddEffect(new Effect("Assigned " + name)
+                    .AddModifier(name + " score", new Modifier(score, BASE))
+                );
+            }
+            foreach (string ability in choices.abilityScoreIncrements) {
+                AddEffect(new Effect("Level")
+                    .AddModifier(ability + " score", new Modifier(+1, ABILITY_MODIFIER))
+                );
+            }
+            int numHd = choices.rolledHitDice.Count();
+            AddEffect(new Effect("Hit dice")
+                .AddModifier(TOTAL_HD, new Modifier(numHd, BASE))
+            );
+            for (int i = 0; i < numHd; i++) {
+                // This might seem roundabout, compared to the alternative, which is to
+                // sum all the rolled hit dice and add HD*CON.  However, *each* individual
+                // hit die is minimum 1.
+                string hdName = "Level " + (i + 1) + " hit die";
+                AddStat(new Statistic(hdName, stats[CON_MODIFIER]).Minimum(1));
+                AddEffect(new Effect(hdName)
+                    .AddModifier(hdName, new Modifier(choices.rolledHitDice[i], BASE))
+                );
+                AddEffect(new Effect(hdName)
+                    .AddModifier(MAX_HP, new Modifier(hdName, BASE))
+                );
+            }
+            foreach (var skill in choices.skillRanks) {
+                AddEffect(new Effect(skill.Key + RANKS)
+                    .AddModifier(skill.Key + RANKS, new Modifier(skill.Value.Sum(), BASE))
+                );
+            }
+            // feat effects go here!
+        }
     }
 }

@@ -175,6 +175,7 @@
         public static readonly string BASE = "base"; // "bonus" type for the base number for a statistic, no type listed
         public static readonly string ABILITY_MODIFIER = "ability modifier"; // listed after base with no type
 
+        public static readonly string TOTAL_HD = "Total hit dice";
         public static readonly string MAX_HP = "Maximum hit points";
         public static readonly string CURRENT_HP = "Current hit points";
         public static readonly string LETHAL_DAMAGE = "Lethal damage";
@@ -211,10 +212,6 @@
 
         public static readonly string BASE_ATTACK_BONUS = "Base attack bonus";
         public static readonly string GRAPPLE = "Grapple";
-
-        // Usage: Weapon.Name + STRENGTH_RATING.  Forming a Statistic out of a composite bow's strength rating lets us use it in
-        // ConditionalToggles, which lets us do the appropriate attack penalty and damage bonus.
-        public static readonly string STRENGTH_RATING = " strength rating";
 
         public static readonly string BLUDGEONING = "Bludgeoning";
         public static readonly string PIERCING = "Piercing";

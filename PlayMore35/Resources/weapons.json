@@ -1,0 +1,25 @@
+[
+  {
+    "name": "dagger",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d4",
+      "type": "piercing or slashing",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 10
+    }
+  },
+  {
+    "name": "dwarven waraxe",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d10",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3
+    }
+  }
+]
