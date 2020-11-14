@@ -53,7 +53,7 @@ namespace PlayMore35.Items {
 
         private Attack(Armor armor, int wpnSizeCategory, Weapon.Hand hand) {
             WeaponName = "armor spikes";
-            WeaponTags = new List<string>(); // TODO : ... see shield todo
+            WeaponTags = new List<string>(); // can armor have weapon tags?
             WeaponSizeCategory = wpnSizeCategory;
 
             Proficiency = armor.ArmorSpikes.ProficencyCategory;
@@ -68,7 +68,7 @@ namespace PlayMore35.Items {
 
         private Attack(Shield shield, int wpnSizeCategory, int sizeDiscrepancy, Weapon.Hand hand) {
             WeaponName = "shield bash";
-            WeaponTags = new List<string>(); // TODO : ... can shields have weapon tags?
+            WeaponTags = new List<string>(); // can shields have weapon tags?
             WeaponSizeCategory = wpnSizeCategory;
 
             Proficiency = shield.ShieldBash.ProficencyCategory;

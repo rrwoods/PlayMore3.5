@@ -75,6 +75,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharacterChoices\ArmorChoice.cs" />
+    <Compile Include="CharacterChoices\CharacterChoices.cs" />
+    <Compile Include="CharacterChoices\CharacterChoiceTests.cs" />
+    <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="Effects\Alterer.cs" />
     <Compile Include="Effects\AnyToggle.cs" />
     <Compile Include="Effects\AllToggle.cs" />
@@ -83,7 +87,8 @@
     <Compile Include="Effects\EffectPoolTests.cs" />
     <Compile Include="Effects\ExtraAttack.cs" />
     <Compile Include="Effects\ISubjectMatcher.cs" />
-    <Compile Include="Effects\IJsonable.cs" />
+    <Compile Include="Global\Controller.cs" />
+    <Compile Include="Global\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />
     <Compile Include="Effects\ItemAmount.cs" />
@@ -114,14 +119,14 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Effects\Constants.cs" />
-    <Compile Include="Items\Armor.cs" />
-    <Compile Include="Items\ArmorProperty.cs" />
-    <Compile Include="Items\Attack.cs" />
-    <Compile Include="Items\AttackMode.cs" />
-    <Compile Include="Items\Equipped.cs" />
-    <Compile Include="Items\Shield.cs" />
-    <Compile Include="Items\Weapon.cs" />
-    <Compile Include="Items\WeaponProperty.cs" />
+    <Compile Include="CharacterChoices\Armor.cs" />
+    <Compile Include="CharacterChoices\ArmorProperty.cs" />
+    <Compile Include="CharacterChoices\Attack.cs" />
+    <Compile Include="CharacterChoices\AttackMode.cs" />
+    <Compile Include="CharacterChoices\Equipped.cs" />
+    <Compile Include="CharacterChoices\Shield.cs" />
+    <Compile Include="CharacterChoices\Weapon.cs" />
+    <Compile Include="CharacterChoices\WeaponProperty.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
