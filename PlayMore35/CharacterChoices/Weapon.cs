@@ -17,8 +17,7 @@ namespace PlayMore35.Items {
         public (AttackMode atk, bool bow, int strengthRating)? Projectile = null;
         public AttackMode Thrown = null;
         public (AttackMode atk, bool reach)? Melee = null;
-        public bool SecondIdenticalHead = false; // for double weapons like the quarterstaff
-        public (AttackMode atk, bool reach)? SecondUniqueHead = null; // for double weapons like the hooked hammer
+        public (AttackMode atk, bool reach)? SecondHead = null;
 
         public Weapon(string name, int sizeCategory, Effort effort) {
             Name = name;
@@ -47,8 +46,8 @@ namespace PlayMore35.Items {
             if (Melee != null) {
                 effects = effects.Concat(Melee?.atk.GetGlobalEffects());
             }
-            if (SecondUniqueHead != null) {
-                effects = effects.Concat(SecondUniqueHead?.atk.GetGlobalEffects());
+            if (SecondHead != null) {
+                effects = effects.Concat(SecondHead?.atk.GetGlobalEffects());
             }
             return effects;
         }

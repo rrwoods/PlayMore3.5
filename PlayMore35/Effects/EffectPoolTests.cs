@@ -706,12 +706,22 @@ namespace PlayMore35.Effects.Tests {
                     },
                     false
                 ),
-                SecondIdenticalHead = true
+                SecondHead = (
+                    new AttackMode {
+                        ProficencyCategory = Weapon.Proficiency.SIMPLE,
+                        DamageDieMedium = (1, 4),
+                        DamageType = BLUDGEONING,
+                        ThreatRange = 20,
+                        CriticalMultiplier = 2,
+                        RangeIncrement = 0
+                    },
+                    false
+                )
             };
 
             CheckAttack(
-                new int[] { +2, +0, +0 },
-                new string[] { "1d4 + 3", "1d4 + 2", "1d4 + 1" },
+                new int[] { +2, +0, +0, +0, +0 },
+                new string[] { "1d4 + 3", "1d4 + 2", "1d4 + 1", "1d4 + 2", "1d4 + 1" },
                 p,
                 new Equipped {
                     PrimaryHandWeapon = quarterstaff,

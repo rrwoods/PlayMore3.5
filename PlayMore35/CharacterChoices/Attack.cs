@@ -194,7 +194,7 @@ namespace PlayMore35.Items {
             int twfPenalty = 0,
             Weapon.Effort? effort = null // override the weapon's effort when using a double weapon to twf
         ) {
-            var melee = firstHead ? weapon.Melee : weapon.SecondUniqueHead;
+            var melee = firstHead ? weapon.Melee : weapon.SecondHead;
             if (melee == null) {
                 return null;
             }
@@ -366,11 +366,6 @@ namespace PlayMore35.Items {
             return adjusted;
         }
 
-        // This function uses _reference_ equality to check whether you're two-handing a weapon.
-        // If they are reference-equal, you're two-handing it.  If not, you have a different weapon in each hand,
-        // even if they look identical.  
-        // Either being null means that hand is empty.  If the primary hand is empty, this function will generate
-        // an empty list of attacks, assuming that the player has no attacks available.
         public static List<Attack> Generate(EffectPool rules, int sizeChange, Equipped items) {
             Armor armor = items.DonnedArmor;
             Shield shield = items.OffHandShield;
@@ -425,14 +420,7 @@ namespace PlayMore35.Items {
                             : Weapon.Hand.TWO_HANDED;
                         attacks.Add(Melee(rules, items, primaryHandWeapon, hand, priSizeCategory, priSizeDiscrepancy, true));
 
-                        // For double weapons with identical heads, generate an identical primary- and off-hand attack.
-                        if (primaryHandWeapon.SecondIdenticalHead) {
-                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
-                            attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, true, -8, Weapon.Effort.LIGHT));
-                        }
-
-                        // For double weapons with different heads, generate a primary-hand/off-hand pairing for each ordering.
-                        else if (primaryHandWeapon.SecondUniqueHead != null) {
+                        if (primaryHandWeapon.SecondHead != null) {
                             attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, true, -4, Weapon.Effort.ONE_HANDED));
                             attacks.Add(Melee(rules, items, primaryHandWeapon, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, false, -8, Weapon.Effort.LIGHT));
 
