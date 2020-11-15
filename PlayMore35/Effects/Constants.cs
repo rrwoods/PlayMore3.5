@@ -213,11 +213,12 @@
         public static readonly string BASE_ATTACK_BONUS = "Base attack bonus";
         public static readonly string GRAPPLE = "Grapple";
 
-        public static readonly string BLUDGEONING = "Bludgeoning";
-        public static readonly string PIERCING = "Piercing";
-        public static readonly string SLASHING = "Slashing";
+        public static readonly string BLUDGEONING = "bludgeoning";
+        public static readonly string PIERCING = "piercing";
+        public static readonly string SLASHING = "slashing";
         public static readonly string AND = " and ";
         public static readonly string OR = " or ";
+        public static readonly string NONLETHAL = " (nonlethal)";
 
         public static readonly string ARMOR_BONUS = "armor bonus";
         public static readonly string SHIELD_BONUS = "shield bonus";

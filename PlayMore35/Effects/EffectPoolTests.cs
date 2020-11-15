@@ -755,7 +755,7 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(-4, "1d10", p, items);
 
             p.AddEffect(new Effect("Exotic weapon proficiency")
-                .AddProficiency(new AttackMatcher().Name(axe.Name))
+                .AddProficiency(new AttackMatcher().Names(axe.Name))
             );
             CheckAttack(+0, "1d10", p, items);
         }

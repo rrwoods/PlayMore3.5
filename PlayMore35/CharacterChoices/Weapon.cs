@@ -50,13 +50,14 @@ namespace PlayMore35.Items {
             Name = (string)json["name"];
             SizeCategory = 0;
             EffortCategory = (Effort)Enum.Parse(typeof(Effort), (string)json["effort"], false);
-            bool reach = (json["reach"] == null) ? false : (bool)json["reach"];
             if (json["melee"] != null) {
                 AttackMode atk = new AttackMode((JObject)json["melee"]);
+                bool reach = (json["melee"]["reach"] == null) ? false : (bool)json["melee"]["reach"];
                 Melee = (atk, reach);
             }
             if (json["second head"] != null) {
                 AttackMode atk = new AttackMode((JObject)json["second head"]);
+                bool reach = (json["second head"]["reach"] == null) ? false : (bool)json["second head"]["reach"];
                 SecondHead = (atk, reach);
             }
             if (json["thrown"] != null) {
@@ -64,8 +65,8 @@ namespace PlayMore35.Items {
             }
             if (json["projectile"] != null) {
                 AttackMode atk = new AttackMode((JObject)json["projectile"]);
-                int strengthRating = (json["strength rating"] == null) ? -1 : (int)json["strength rating"];
-                bool bow = (json["bow"] == null) ? true : (bool)json["bow"];
+                int strengthRating = (json["projectile"]["strength rating"] == null) ? -1 : (int)json["projectile"]["strength rating"];
+                bool bow = (json["projectile"]["bow"] == null) ? true : (bool)json["projectile"]["bow"];
                 Projectile = (atk, bow, strengthRating);
             }
         }

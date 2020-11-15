@@ -1,14 +1,624 @@
 [
   {
+    "name": "unarmed strike",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d3",
+      "type": "bludgeoning (nonlethal)",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
     "name": "dagger",
     "effort": "LIGHT",
     "melee": {
       "proficiency": "SIMPLE",
       "damage": "1d4",
       "type": "piercing or slashing",
+      "threat": 19,
+      "crit": 2,
+      "range increment": 10
+    }
+  },
+  {
+    "name": "punching dagger",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d4",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "spiked gauntlet",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d4",
+      "type": "piercing",
+      "threat": 19,
+      "crit": 2
+    }
+  },
+  {
+    "name": "light mace",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d6",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "sickle",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d6",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "club",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d6",
+      "type": "bludgeoning",
       "threat": 20,
       "crit": 2,
       "range increment": 10
+    }
+  },
+  {
+    "name": "heavy mace",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d8",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "morningstar",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d8",
+      "type": "bludgeoning and piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "shortspear",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 20
+    }
+  },
+  {
+    "name": "longspear",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3,
+      "reach": true
+    }
+  },
+  {
+    "name": "quarterstaff",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d6",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    },
+    "second head": {
+      "proficiency": "SIMPLE",
+      "damage": "1d6",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "spear",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3,
+      "range increment": 20
+    }
+  },
+  {
+    "name": "heavy crossbow",
+    "effort": "ONE_HANDED",
+    "projectile": {
+      "bow": false,
+      "proficiency": "SIMPLE",
+      "damage": "1d10",
+      "type": "piercing",
+      "threat": 19,
+      "crit": 2,
+      "range increment": 120
+    }
+  },
+  {
+    "name": "light crossbow",
+    "effort": "LIGHT",
+    "projectile": {
+      "bow": false,
+      "proficiency": "SIMPLE",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 19,
+      "crit": 2,
+      "range increment": 80
+    }
+  },
+  {
+    "name": "dart",
+    "effort": "ONE_HANDED",
+    "thrown": {
+      "proficiency": "SIMPLE",
+      "damage": "1d4",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 20
+    }
+  },
+  {
+    "name": "javelin",
+    "effort": "ONE_HANDED",
+    "thrown": {
+      "proficiency": "SIMPLE",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 30
+    },
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "sling",
+    "effort": "ONE_HANDED",
+    "projectile": {
+      "bow": false,
+      "proficiency": "SIMPLE",
+      "damage": "1d4",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 50
+    }
+  },
+  {
+    "name": "throwing axe",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 10
+    }
+  },
+  {
+    "name": "light hammer",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d4",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 20
+    }
+  },
+  {
+    "name": "handaxe",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "kukri",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d4",
+      "type": "slashing",
+      "threat": 18,
+      "crit": 2
+    }
+  },
+  {
+    "name": "light pick",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d4",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 4
+    }
+  },
+  {
+    "name": "sap",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "bludgeoning (nonlethal)",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "short sword",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 19,
+      "crit": 2
+    }
+  },
+  {
+    "name": "battleaxe",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "flail",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "longsword",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "slashing",
+      "threat": 19,
+      "crit": 2
+    }
+  },
+  {
+    "name": "heavy pick",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 4
+    }
+  },
+  {
+    "name": "rapier",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 18,
+      "crit": 2
+    }
+  },
+  {
+    "name": "scimitar",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "slashing",
+      "threat": 18,
+      "crit": 2
+    }
+  },
+  {
+    "name": "trident",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 10
+    }
+  },
+  {
+    "name": "warhammer",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "falchion",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "2d4",
+      "type": "slashing",
+      "threat": 18,
+      "crit": 2
+    }
+  },
+  {
+    "name": "glaive",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d10",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3,
+      "reach": true
+    }
+  },
+  {
+    "name": "greataxe",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d12",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "greatclub",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d10",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "heavy flail",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d10",
+      "type": "bludgeoning",
+      "threat": 19,
+      "crit": 2
+    }
+  },
+  {
+    "name": "greatsword",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "2d6",
+      "type": "slashing",
+      "threat": 19,
+      "crit": 2
+    }
+  },
+  {
+    "name": "guisarme",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "2d4",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3,
+      "reach": true
+    }
+  },
+  {
+    "name": "halberd",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d10",
+      "type": "piercing or slashing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "lance",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "ranseur",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "2d4",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "scythe",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "2d4",
+      "type": "piercing or slashing",
+      "threat": 20,
+      "crit": 4
+    }
+  },
+  {
+    "name": "longbow",
+    "effort": "TWO_HANDED",
+    "projectile": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3,
+      "range increment": 100
+    }
+  },
+  {
+    "name": "composite longbow",
+    "effort": "TWO_HANDED",
+    "projectile": {
+      "proficiency": "MARTIAL",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3,
+      "range increment": 110,
+      "strength rating": 0
+    }
+  },
+  {
+    "name": "shortbow",
+    "effort": "TWO_HANDED",
+    "projectile": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3,
+      "range increment": 60
+    }
+  },
+  {
+    "name": "composite shortbow",
+    "effort": "TWO_HANDED",
+    "projectile": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 3,
+      "strength rating": 0,
+      "range increment": 70
+    }
+  },
+  {
+    "name": "kama",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d6",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "nunchaku",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d6",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "sai",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d4",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 10
+    }
+  },
+  {
+    "name": "siangham",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "bastard sword",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d10",
+      "type": "slashing",
+      "threat": 19,
+      "crit": 2
     }
   },
   {
@@ -20,6 +630,193 @@
       "type": "slashing",
       "threat": 20,
       "crit": 3
+    }
+  },
+  {
+    "name": "whip",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d3",
+      "type": "slashing (nonlethal)",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "orc double axe",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3
+    },
+    "second head": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "slashing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "spiked chain",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "dire flail",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    },
+    "second head": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "gnome hooked hammer",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 3
+    },
+    "second head": {
+      "proficiency": "EXOTIC",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 4
+    }
+  },
+  {
+    "name": "two-bladed sword",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "slashing",
+      "threat": 19,
+      "crit": 2
+    },
+    "second head": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "slashing",
+      "threat": 19,
+      "crit": 2
+    }
+  },
+  {
+    "name": "dwarven urgosh",
+    "effort": "TWO_HANDED",
+    "melee": {
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "slashing or piercing",
+      "threat": 20,
+      "crit": 3
+    },
+    "second head": {
+      "proficiency": "EXOTIC",
+      "damage": "1d6",
+      "type": "slashing or piercing",
+      "threat": 20,
+      "crit": 3
+    }
+  },
+  {
+    "name": "bolas",
+    "effort": "ONE_HANDED",
+    "thrown": {
+      "proficiency": "EXOTIC",
+      "damage": "1d4",
+      "type": "bludgeoning (nonlethal)",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 10
+    }
+  },
+  {
+    "name": "hand crossbow",
+    "effort": "LIGHT",
+    "projectile": {
+      "bow": false,
+      "proficiency": "EXOTIC",
+      "damage": "1d4",
+      "type": "piercing",
+      "threat": 19,
+      "crit": 2,
+      "range increment": 30
+    }
+  },
+  {
+    "name": "repeating heavy crossbow",
+    "effort": "ONE_HANDED",
+    "projectile": {
+      "bow": false,
+      "proficiency": "EXOTIC",
+      "damage": "1d10",
+      "type": "piercing",
+      "threat": 19,
+      "crit": 2,
+      "range increment": 120
+    }
+  },
+  {
+    "name": "repeating light crossbow",
+    "effort": "LIGHT",
+    "projectile": {
+      "bow": false,
+      "proficiency": "EXOTIC",
+      "damage": "1d8",
+      "type": "piercing",
+      "threat": 19,
+      "crit": 2,
+      "range increment": 80
+    }
+  },
+  {
+    "name": "net",
+    "effort": "ONE_HANDED",
+    "thrown": {
+      "proficiency": "EXOTIC",
+      "damage": "0d1",
+      "type": "entangles",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 10
+    }
+  },
+  {
+    "name": "shuriken",
+    "effort": "ONE_HANDED",
+    "thrown": {
+      "proficiency": "EXOTIC",
+      "damage": "1d2",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2,
+      "range increment": 10
     }
   }
 ]

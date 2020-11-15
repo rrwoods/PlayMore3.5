@@ -11,7 +11,7 @@ namespace PlayMore35.Effects {
         public static readonly AttackMatcher ALL_EXCEPT_OFF_HAND = new AttackMatcher().NonOffHandAttack();
 
         // If something modifies "attack rolls" or "damage rolls" in general with no qualifiers,
-        // Use this one.
+        // use this one.
         public static readonly AttackMatcher ALL = new AttackMatcher();
 
         private List<IMatcher> matchers = new List<IMatcher>();
@@ -23,7 +23,7 @@ namespace PlayMore35.Effects {
         public AttackMatcher(JObject json) {
             foreach (JProperty prop in json.Properties()) {
                 if (prop.Name.Equals("name")) {
-                    matchers.Add(new NameMatcher((string)prop.Value));
+                    matchers.Add(new NameMatcher(((JArray)prop.Value).Select(x => (string)x).ToList()));
                 } else if (prop.Name.Equals("tag")) {
                     matchers.Add(new TagMatcher((string)prop.Value));
                 } else if (prop.Name.Equals("size")) {
@@ -60,8 +60,8 @@ namespace PlayMore35.Effects {
 
         }
 
-        public AttackMatcher Name(string name) {
-            matchers.Add(new NameMatcher(name));
+        public AttackMatcher Names(params string[] names) {
+            matchers.Add(new NameMatcher(names.ToList()));
             return this;
         }
 
@@ -197,18 +197,18 @@ namespace PlayMore35.Effects {
     }
 
     class NameMatcher : IMatcher {
-        private readonly string Name;
+        private readonly List<string> Names;
 
         public JToken ToJson() {
-            return new JProperty("name", Name);
+            return new JProperty("name", new JArray(Names));
         }
 
-        public NameMatcher(string name) {
-            Name = name;
+        public NameMatcher(List<string> names) {
+            Names = names.ToList();
         }
 
         public bool Matches(Attack attack) {
-            return attack.WeaponName.Equals(Name);
+            return Names.Contains(attack.WeaponName);
         }
     }
 
