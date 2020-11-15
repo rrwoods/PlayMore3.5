@@ -73,6 +73,16 @@ namespace PlayMore35.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] armorProperties {
+            get {
+                object obj = ResourceManager.GetObject("armorProperties", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] rules {
             get {
                 object obj = ResourceManager.GetObject("rules", resourceCulture);
@@ -86,6 +96,16 @@ namespace PlayMore35.Properties {
         internal static byte[] shields {
             get {
                 object obj = ResourceManager.GetObject("shields", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] weaponProperties {
+            get {
+                object obj = ResourceManager.GetObject("weaponProperties", resourceCulture);
                 return ((byte[])(obj));
             }
         }

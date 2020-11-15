@@ -18,6 +18,8 @@ namespace PlayMore35.Global {
         public Dictionary<string, Weapon> WeaponDefinitions;
         public Dictionary<string, Armor> ArmorDefinitions;
         public Dictionary<string, Shield> ShieldDefinitions;
+        public Dictionary<string, WeaponProperty> WeaponPropertyDefinitions;
+        public Dictionary<string, ArmorProperty> ArmorPropertyDefinitions;
 
         public Controller(CharacterChoices choices) {
             Choices = choices;
@@ -55,9 +57,15 @@ namespace PlayMore35.Global {
             foreach (Shield shield in ShieldDefinitions.Values.Where(x => x.ShieldBashEffort != null)) {
                 shield.ShieldBash = new AttackMode(WeaponDefinitions[shield.Name + " bash"].Melee?.atk);
             }
+
+            WeaponPropertyDefinitions = GetJsonResource(Properties.Resources.weaponProperties)
+                .Select(x => new WeaponProperty((JObject)x))
+                .ToDictionary(x => x.Name, x => x);
+
+            ArmorPropertyDefinitions = GetJsonResource(Properties.Resources.armorProperties)
+                .Select(x => new ArmorProperty((JObject)x))
+                .ToDictionary(x => x.Name, x => x);
         }
-
-
 
         // This rebuilds each weapon on each call.  Only re-call this method when something
         // has changed about the available weapons (be it a property, or a definition, whatever)
@@ -69,16 +77,16 @@ namespace PlayMore35.Global {
                 };
                 // TODO : weapon property definitions
                 foreach (string property in choice.MeleeProperties) {
-                    weapon.Melee?.atk.Properties.Add(new WeaponProperty(property));
+                    weapon.Melee?.atk.Properties.Add(WeaponPropertyDefinitions[property]);
                 }
                 foreach (string property in choice.SecondHeadProperties) {
-                    weapon.SecondHead?.atk.Properties.Add(new WeaponProperty(property));
+                    weapon.SecondHead?.atk.Properties.Add(WeaponPropertyDefinitions[property]);
                 }
                 foreach (string property in choice.ThrownProperties) {
-                    weapon.Thrown.Properties.Add(new WeaponProperty(property));
+                    weapon.Thrown.Properties.Add(WeaponPropertyDefinitions[property]);
                 }
                 foreach (string property in choice.ProjectileProperties) {
-                    weapon.Projectile?.atk.Properties.Add(new WeaponProperty(property));
+                    weapon.Projectile?.atk.Properties.Add(WeaponPropertyDefinitions[property]);
                 }
                 available.Add(weapon);
             }
@@ -93,12 +101,12 @@ namespace PlayMore35.Global {
                 };
                 // TODO : armor property definitions
                 foreach (string property in choice.ArmorProperties) {
-                    armor.Properties.Add(new ArmorProperty(property));
+                    armor.Properties.Add(ArmorPropertyDefinitions[property]);
                 }
                 if (choice.Spiked) {
                     armor.ArmorSpikes = new AttackMode(WeaponDefinitions["armor spikes"].Melee?.atk);
                     foreach (string property in choice.MeleeProperties) {
-                        armor.ArmorSpikes.Properties.Add(new WeaponProperty(property));
+                        armor.ArmorSpikes.Properties.Add(WeaponPropertyDefinitions[property]);
                     }
                 }
                 available.Add(armor);
@@ -113,10 +121,10 @@ namespace PlayMore35.Global {
                     SizeCategory = choice.SizeCategory
                 };
                 foreach (string property in choice.ArmorProperties) {
-                    shield.Properties.Add(new ArmorProperty(property));
+                    shield.Properties.Add(ArmorPropertyDefinitions[property]);
                 }
                 foreach (string property in choice.MeleeProperties) {
-                    shield.ShieldBash.Properties.Add(new WeaponProperty(property));
+                    shield.ShieldBash.Properties.Add(WeaponPropertyDefinitions[property]);
                 }
                 available.Add(shield);
             }

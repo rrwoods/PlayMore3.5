@@ -151,8 +151,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="Resources\armor.json" />
+    <None Include="Resources\armorProperties.json" />
     <None Include="Resources\shields.json" />
     <None Include="Resources\rules.json" />
+    <None Include="Resources\weaponProperties.json" />
     <None Include="Resources\weapons.json" />
   </ItemGroup>
   <ItemGroup>

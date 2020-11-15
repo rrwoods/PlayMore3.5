@@ -19,7 +19,7 @@ namespace PlayMore35.Items {
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("proficiency", ProficencyCategory),
-                new JProperty("damage", "" + DamageDieMedium.qty + "d" + DamageDieMedium.size),
+                new JProperty("damage", DiceGroup.ToDNotation(DamageDieMedium)),
                 new JProperty("type", DamageType),
                 new JProperty("threat", ThreatRange),
                 new JProperty("crit", CriticalMultiplier)
@@ -32,8 +32,7 @@ namespace PlayMore35.Items {
 
         public AttackMode(JObject json) {
             ProficencyCategory = (Weapon.Proficiency) Enum.Parse(typeof(Weapon.Proficiency), (string)json["proficiency"], false);
-            string[] damageComponents = ((string)json["damage"]).Split('d');
-            DamageDieMedium = (int.Parse(damageComponents[0]), int.Parse(damageComponents[1]));
+            DamageDieMedium = DiceGroup.FromDNotation((string)json["damage"]);
             DamageType = (string)json["type"];
             ThreatRange = (int)json["threat"];
             CriticalMultiplier = (int)json["crit"];

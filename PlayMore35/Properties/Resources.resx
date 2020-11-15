@@ -121,11 +121,17 @@
   <data name="armor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\armor.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="armorProperties" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\armorproperties.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="rules" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\rules.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="shields" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\shields.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="weaponProperties" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\weaponproperties.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="weapons" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\weapons.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

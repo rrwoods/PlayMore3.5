@@ -1,0 +1,108 @@
+[
+  {
+    "name": "mwk",
+    "armor check penalty modifier": {
+      "type": "untyped",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "+1",
+    "armor check penalty modifier": {
+      "type": "untyped",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    },
+    "AC modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "+2",
+    "armor check penalty modifier": {
+      "type": "untyped",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    },
+    "AC modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 2
+        }
+      ]
+    }
+  },
+  {
+    "name": "+3",
+    "armor check penalty modifier": {
+      "type": "untyped",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    },
+    "AC modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 3
+        }
+      ]
+    }
+  },
+  {
+    "name": "+4",
+    "armor check penalty modifier": {
+      "type": "untyped",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    },
+    "AC modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 4
+        }
+      ]
+    }
+  },
+  {
+    "name": "+5",
+    "armor check penalty modifier": {
+      "type": "untyped",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    },
+    "AC modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 5
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,108 @@
+[
+  {
+    "name": "mwk",
+    "attack modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "+1",
+    "attack modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    },
+    "damage modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "+2",
+    "attack modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 2
+        }
+      ]
+    },
+    "damage modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 2
+        }
+      ]
+    }
+  },
+  {
+    "name": "+3",
+    "attack modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 3
+        }
+      ]
+    },
+    "damage modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 3
+        }
+      ]
+    }
+  },
+  {
+    "name": "+4",
+    "attack modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 4
+        }
+      ]
+    },
+    "damage modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 4
+        }
+      ]
+    }
+  },
+  {
+    "name": "+5",
+    "attack modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 5
+        }
+      ]
+    },
+    "damage modifier": {
+      "type": "enhancement",
+      "amounts": [
+        {
+          "fixed": 5
+        }
+      ]
+    }
+  }
+]

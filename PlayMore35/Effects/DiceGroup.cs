@@ -9,6 +9,15 @@ namespace PlayMore35.Effects {
 
         public string Name = "";
 
+        public static (int qty, int size) FromDNotation(string dice) {
+            string[] damageComponents = dice.Split('d');
+            return (int.Parse(damageComponents[0]), int.Parse(damageComponents[1]));
+        }
+
+        public static string ToDNotation((int qty, int size) dice) {
+            return "" + dice.qty + "d" + dice.size;
+        }
+
         public JToken ToJson() {
             return new JObject(dice.Select(x => new JProperty(x.Key.ToString(), x.Value)));
         }
