@@ -16,6 +16,8 @@ namespace PlayMore35.Global {
 
         public EffectPool Effects;
         public Dictionary<string, Weapon> WeaponDefinitions;
+        public Dictionary<string, Armor> ArmorDefinitions;
+        public Dictionary<string, Shield> ShieldDefinitions;
 
         public Controller(CharacterChoices choices) {
             Choices = choices;
@@ -26,16 +28,33 @@ namespace PlayMore35.Global {
             return JToken.Parse(Encoding.UTF8.GetString(resource));
         }
 
-        // Completely toss out every effect we have, and refresh the rules of the game.
+        // Completely toss out every effect and item definition we have, and refresh the rules of the game.
         public void Reload() {
             Effects = new EffectPool();
-
             Effects.ReadJson(GetJsonResource(Properties.Resources.rules));
             Effects.GenerateCharacterEffects(Choices);
 
             WeaponDefinitions = GetJsonResource(Properties.Resources.weapons)
                 .Select(x => new Weapon((JObject)x))
                 .ToDictionary(x => x.Name, x => x);
+
+            ArmorDefinitions = GetJsonResource(Properties.Resources.armor)
+                .Select(x => new Armor((JObject)x))
+                .ToDictionary(x => x.Name, x => x);
+
+            ShieldDefinitions = GetJsonResource(Properties.Resources.shields)
+                .Select(x => new Shield((JObject)x))
+                .ToDictionary(x => x.Name, x => x);
+            List<Shield> spiked = ShieldDefinitions.Values
+                .Where(x => x.ShieldBashEffort != null)
+                .Select(x => new Shield(x) {
+                    Name = "spiked " + x.Name
+                })
+                .ToList(); // Finalize the iteration before modifying the dictionary it's based on
+            spiked.ForEach(x => ShieldDefinitions[x.Name] = x);
+            foreach (Shield shield in ShieldDefinitions.Values.Where(x => x.ShieldBashEffort != null)) {
+                shield.ShieldBash = new AttackMode(WeaponDefinitions[shield.Name + " bash"].Melee?.atk);
+            }
         }
 
 
@@ -45,21 +64,61 @@ namespace PlayMore35.Global {
         public List<Weapon> AvailableWeapons() {
             List<Weapon> available = new List<Weapon>();
             foreach (WeaponChoice choice in Choices.weapons) {
-                Weapon w = new Weapon(WeaponDefinitions[choice.Name]);
+                Weapon weapon = new Weapon(WeaponDefinitions[choice.Name]) {
+                    SizeCategory = choice.SizeCategory
+                };
                 // TODO : weapon property definitions
                 foreach (string property in choice.MeleeProperties) {
-                    w.Melee?.atk.Properties.Add(new WeaponProperty(property));
+                    weapon.Melee?.atk.Properties.Add(new WeaponProperty(property));
                 }
                 foreach (string property in choice.SecondHeadProperties) {
-                    w.SecondHead?.atk.Properties.Add(new WeaponProperty(property));
+                    weapon.SecondHead?.atk.Properties.Add(new WeaponProperty(property));
                 }
                 foreach (string property in choice.ThrownProperties) {
-                    w.Thrown.Properties.Add(new WeaponProperty(property));
+                    weapon.Thrown.Properties.Add(new WeaponProperty(property));
                 }
                 foreach (string property in choice.ProjectileProperties) {
-                    w.Projectile?.atk.Properties.Add(new WeaponProperty(property));
+                    weapon.Projectile?.atk.Properties.Add(new WeaponProperty(property));
                 }
-                available.Add(w);
+                available.Add(weapon);
+            }
+            return available;
+        }
+
+        public List<Armor> AvailableArmor() {
+            List<Armor> available = new List<Armor>();
+            foreach (ArmorChoice choice in Choices.armor) {
+                Armor armor = new Armor(ArmorDefinitions[choice.Name]) {
+                    SizeCategory = choice.SizeCategory
+                };
+                // TODO : armor property definitions
+                foreach (string property in choice.ArmorProperties) {
+                    armor.Properties.Add(new ArmorProperty(property));
+                }
+                if (choice.Spiked) {
+                    armor.ArmorSpikes = new AttackMode(WeaponDefinitions["armor spikes"].Melee?.atk);
+                    foreach (string property in choice.MeleeProperties) {
+                        armor.ArmorSpikes.Properties.Add(new WeaponProperty(property));
+                    }
+                }
+                available.Add(armor);
+            }
+            return available;
+        }
+
+        public List<Shield> AvailableShields() {
+            List<Shield> available = new List<Shield>();
+            foreach (ShieldChoice choice in Choices.shields) {
+                Shield shield = new Shield(ShieldDefinitions[choice.Name]) {
+                    SizeCategory = choice.SizeCategory
+                };
+                foreach (string property in choice.ArmorProperties) {
+                    shield.Properties.Add(new ArmorProperty(property));
+                }
+                foreach (string property in choice.MeleeProperties) {
+                    shield.ShieldBash.Properties.Add(new WeaponProperty(property));
+                }
+                available.Add(shield);
             }
             return available;
         }

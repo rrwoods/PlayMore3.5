@@ -144,7 +144,7 @@ namespace PlayMore35.Effects.Tests {
 
         public Armor Breastplate() {
             return new Armor {
-                ArmorWeight = Armor.Weight.MEDIUM,
+                Weight = Armor.WeightCategory.MEDIUM,
                 Name = "breastplate",
                 ArmorBonus = 5,
                 MaxDexBonus = 3,
@@ -194,7 +194,7 @@ namespace PlayMore35.Effects.Tests {
 
         private Armor Chainmail() {
             return new Armor {
-                ArmorWeight = Armor.Weight.MEDIUM,
+                Weight = Armor.WeightCategory.MEDIUM,
                 Name = "chainmail",
                 ArmorBonus = +5,
                 MaxDexBonus = +2,
@@ -222,7 +222,7 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(0, p, items, DIPLOMACY);
 
             p.AddEffect(new Effect("Medium armor proficiency")
-                .AddProficiency(Armor.Weight.MEDIUM)
+                .AddProficiency(Armor.WeightCategory.MEDIUM)
             );
             CheckStat(-7, p, items, BALANCE);
             CheckStat(-2, p, items, RIDE);

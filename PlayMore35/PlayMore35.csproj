@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharacterChoices\ShieldChoice.cs" />
     <Compile Include="CharacterChoices\ArmorChoice.cs" />
     <Compile Include="CharacterChoices\CharacterChoices.cs" />
     <Compile Include="CharacterChoices\CharacterChoiceTests.cs" />
@@ -149,6 +150,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\armor.json" />
+    <None Include="Resources\shields.json" />
     <None Include="Resources\rules.json" />
     <None Include="Resources\weapons.json" />
   </ItemGroup>

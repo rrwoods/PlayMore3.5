@@ -293,6 +293,39 @@
     }
   },
   {
+    "name": "light shield bash",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d3",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "armor spikes",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "spiked light shield bash",
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d4",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
     "name": "short sword",
     "effort": "LIGHT",
     "melee": {
@@ -366,6 +399,28 @@
       "damage": "1d6",
       "type": "slashing",
       "threat": 18,
+      "crit": 2
+    }
+  },
+  {
+    "name": "heavy shield bash",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d4",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "spiked heavy shield bash",
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
       "crit": 2
     }
   },

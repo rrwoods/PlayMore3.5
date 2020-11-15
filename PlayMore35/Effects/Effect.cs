@@ -22,7 +22,7 @@ namespace PlayMore35.Effects {
         private readonly List<Alterer<Multiplier, Statistic>> Multipliers = new List<Alterer<Multiplier, Statistic>>();
 
         private readonly List<AttackMatcher> WeaponProficiencies = new List<AttackMatcher>();
-        private readonly List<Armor.Weight> ArmorProficiencies = new List<Armor.Weight>();
+        private readonly List<Armor.WeightCategory> ArmorProficiencies = new List<Armor.WeightCategory>();
         private readonly List<bool> ShieldProficiencies = new List<bool>(); // false = shield prof, true = shield+tower prof
 
         private readonly List<string> Flags = new List<string>();
@@ -184,7 +184,7 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddProficiency(Armor.Weight proficiency) {
+        public Effect AddProficiency(Armor.WeightCategory proficiency) {
             ArmorProficiencies.Add(proficiency);
             return this;
         }
@@ -263,7 +263,7 @@ namespace PlayMore35.Effects {
             if (items.DonnedArmor == null) {
                 return true; // if you're not wearing any armor, don't take nonproficiency penalties
             }
-            if (!ArmorProficiencies.Contains(items.DonnedArmor.ArmorWeight)) {
+            if (!ArmorProficiencies.Contains(items.DonnedArmor.Weight)) {
                 return false;
             }
             return Toggle.On(pool, items);

@@ -2,13 +2,15 @@
 using System.Linq;
 using PlayMore35.Effects;
 
+using Newtonsoft.Json.Linq;
+
 namespace PlayMore35.Items {
-    public class Armor {
-        public enum Weight { LIGHT, MEDIUM, HEAVY };
+    public class Armor : IJsonable {
+        public enum WeightCategory { LIGHT, MEDIUM, HEAVY };
 
         public string Name;
-        public int sizeCategory;
-        public Weight ArmorWeight;
+        public int SizeCategory;
+        public WeightCategory Weight;
 
         // All of these fields should EXCLUDE modifiers from properties.  E.g., the ACP
         // reduction from masterwork and the armor bonus increase from enhancement
@@ -21,6 +23,37 @@ namespace PlayMore35.Items {
         public AttackMode ArmorSpikes = null;
 
         public List<ArmorProperty> Properties = new List<ArmorProperty>();
+
+        public JToken ToJson() {
+            return new JObject(
+                new JProperty("name", Name),
+                new JProperty("type", Weight), // the word "weight" is going to mean something more specific later.
+                new JProperty("armor bonus", ArmorBonus),
+                new JProperty("max dex", MaxDexBonus),
+                new JProperty("armor check penalty", ArmorCheckPenalty),
+                new JProperty("spell failure", ArcaneSpellFailure)
+            );
+        }
+
+        public Armor(JObject json) {
+            Name = (string)json["name"];
+            SizeCategory = 0;
+            ArmorBonus = (int)json["armor bonus"];
+            MaxDexBonus = (int)json["max dex"];
+            ArmorCheckPenalty = (int)json["armor check penalty"];
+            ArcaneSpellFailure = (int)json["spell failure"];
+        }
+
+        public Armor(Armor definition) {
+            Name = definition.Name;
+            SizeCategory = definition.SizeCategory;
+            ArmorBonus = definition.ArmorBonus;
+            MaxDexBonus = definition.MaxDexBonus;
+            ArmorCheckPenalty = definition.ArmorCheckPenalty;
+            ArcaneSpellFailure = definition.ArcaneSpellFailure;
+        }
+
+        public Armor() { }
 
         public IEnumerable<Effect> GetGlobalEffects() {
             return Properties.Select(x => x.GlobalEffect).Where(x => x != null);

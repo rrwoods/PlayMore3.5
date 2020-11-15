@@ -14,7 +14,7 @@ namespace PlayMore35.Character {
         // All weapons, armor, and shields available to the character (not necessarily weilded)
         public List<WeaponChoice> weapons;
         public List<ArmorChoice> armor;
-        public List<ArmorChoice> shields;
+        public List<ShieldChoice> shields;
         // other items coming soon(tm)
 
         public JToken ToJson() {
@@ -48,7 +48,7 @@ namespace PlayMore35.Character {
 
             weapons = ((JArray)json["weapons"]).Select(x => new WeaponChoice((JObject)x)).ToList();
             armor = ((JArray)json["armor"]).Select(x => new ArmorChoice((JObject)x)).ToList();
-            shields = ((JArray)json["shields"]).Select(x => new ArmorChoice((JObject)x)).ToList();
+            shields = ((JArray)json["shields"]).Select(x => new ShieldChoice((JObject)x)).ToList();
         }
 
         public CharacterChoices() {
@@ -61,7 +61,7 @@ namespace PlayMore35.Character {
 
             weapons = new List<WeaponChoice>();
             armor = new List<ArmorChoice>();
-            shields = new List<ArmorChoice>();
+            shields = new List<ShieldChoice>();
         }
     }
 }

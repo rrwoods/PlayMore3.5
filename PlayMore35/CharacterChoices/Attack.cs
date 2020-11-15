@@ -395,7 +395,7 @@ namespace PlayMore35.Items {
             }
 
             bool spikesAvailable = armor?.ArmorSpikes != null;
-            int armSizeCategory = spikesAvailable ? AdjustSize(armor.sizeCategory, sizeChange) : 0;
+            int armSizeCategory = spikesAvailable ? AdjustSize(armor.SizeCategory, sizeChange) : 0;
             if (spikesAvailable) {
                 attacks.Add(ArmorSpikes(rules, items, Weapon.Hand.ONE_HANDED, armSizeCategory));
             }

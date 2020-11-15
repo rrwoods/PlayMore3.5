@@ -1,0 +1,33 @@
+[
+  {
+    "name": "buckler",
+    "shield bonus": 1,
+    "tower": false,
+    "armor check penalty": -1,
+    "spell failure": 5,
+    "attack": -1
+  },
+  {
+    "name": "light shield",
+    "shield bonus": 1,
+    "tower": false,
+    "armor check penalty": -1,
+    "spell failure": 5,
+    "effort": "LIGHT"
+  },
+  {
+    "name": "heavy shield",
+    "shield bonus": 2,
+    "tower": false,
+    "armor check penalty": -2,
+    "spell failure": 15,
+    "effort": "ONE_HANDED"
+  },
+  {
+    "name": "tower shield",
+    "shield bonus": 4,
+    "tower": true,
+    "armor check penalty": -10,
+    "spell failure": 50
+  }
+]

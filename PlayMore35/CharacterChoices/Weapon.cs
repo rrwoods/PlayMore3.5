@@ -73,22 +73,22 @@ namespace PlayMore35.Items {
 
         // When moving a weapon from the definitions list to the available list, we copy it, so that
         // we don't add properties to the base definition.
-        public Weapon(Weapon copy) {
-            Name = copy.Name;
-            SizeCategory = copy.SizeCategory;
-            EffortCategory = copy.EffortCategory;
+        public Weapon(Weapon definition) {
+            Name = definition.Name;
+            SizeCategory = definition.SizeCategory;
+            EffortCategory = definition.EffortCategory;
 
-            if (copy.Melee != null) {
-                Melee = (new AttackMode(copy.Melee?.atk), (bool) copy.Melee?.reach);
+            if (definition.Melee != null) {
+                Melee = (new AttackMode(definition.Melee?.atk), (bool) definition.Melee?.reach);
             }
-            if (copy.SecondHead != null) {
-                SecondHead = (new AttackMode(copy.SecondHead?.atk), (bool) copy.SecondHead?.reach);
+            if (definition.SecondHead != null) {
+                SecondHead = (new AttackMode(definition.SecondHead?.atk), (bool) definition.SecondHead?.reach);
             }
-            if (copy.Thrown != null) {
-                Thrown = new AttackMode(copy.Thrown);
+            if (definition.Thrown != null) {
+                Thrown = new AttackMode(definition.Thrown);
             }
-            if (copy.Projectile != null) {
-                Projectile = (new AttackMode(copy.Projectile?.atk), (bool) copy.Projectile?.bow, (int) copy.Projectile?.strengthRating);
+            if (definition.Projectile != null) {
+                Projectile = (new AttackMode(definition.Projectile?.atk), (bool) definition.Projectile?.bow, (int) definition.Projectile?.strengthRating);
             }
         }
 

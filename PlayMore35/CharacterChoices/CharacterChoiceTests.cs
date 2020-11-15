@@ -56,9 +56,9 @@ namespace PlayMore35.Character {
                         ArmorProperties = new List<string> { "mwk" }
                     }
                 },
-                shields = new List<ArmorChoice> {
-                    new ArmorChoice {
-                        Name = "extreme heavy shield"
+                shields = new List<ShieldChoice> {
+                    new ShieldChoice {
+                        Name = "heavy shield"
                     }
                 }
             };
@@ -81,6 +81,18 @@ namespace PlayMore35.Character {
             Assert.AreEqual(1, weapons.Count);
             Assert.AreEqual("dwarven waraxe", weapons[0].Name);
             Assert.AreEqual((1, 10), weapons[0].Melee?.atk.DamageDieMedium);
+
+            List<Armor> armor = controller.AvailableArmor();
+            Assert.AreEqual(1, armor.Count);
+            Assert.AreEqual("full plate", armor[0].Name);
+            Assert.AreEqual(1, armor[0].Properties.Count);
+            Assert.AreEqual("mwk", armor[0].Properties[0].Name);
+
+            List<Shield> shields = controller.AvailableShields();
+            Assert.AreEqual(1, shields.Count);
+            Assert.AreEqual("heavy shield", shields[0].Name);
+            Assert.AreEqual(Weapon.Effort.ONE_HANDED, shields[0].ShieldBashEffort);
+            Assert.AreEqual((1, 4), shields[0].ShieldBash.DamageDieMedium);
         }
 
         [TestMethod]

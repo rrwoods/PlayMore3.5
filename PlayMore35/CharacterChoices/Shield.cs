@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
 
+using Newtonsoft.Json.Linq;
+
 namespace PlayMore35.Items {
-    public class Shield {
+    public class Shield : IJsonable {
         public string Name;
         public int SizeCategory;
 
@@ -28,6 +31,59 @@ namespace PlayMore35.Items {
         public AttackMode ShieldBash = null;
 
         public List<ArmorProperty> Properties = new List<ArmorProperty>();
+
+        public JToken ToJson() {
+            JObject json = new JObject(
+                new JProperty("name", Name),
+                new JProperty("shield bonus", ShieldBonus),
+                new JProperty("tower", Tower),
+                new JProperty("armor check penalty", ArmorCheckPenalty),
+                new JProperty("spell failure", ArcaneSpellFailure)
+            );
+            if (MaxDexBonus != null) {
+                json.Add("max dex", MaxDexBonus);
+            }
+            if (AttackRollPenalty != null) {
+                json.Add("attack", AttackRollPenalty);
+            }
+            if (ShieldBashEffort != null) {
+                json.Add("effort", ShieldBashEffort.ToString());
+            }
+            return json;
+        }
+
+        public Shield(JObject json) {
+            Name = (string)json["name"];
+            ShieldBonus = (int)json["shield bonus"];
+            Tower = (bool)json["tower"];
+            ArmorCheckPenalty = (int)json["armor check penalty"];
+            ArcaneSpellFailure = (int)json["spell failure"];
+            if (json["max dex"] != null) {
+                MaxDexBonus = (int)json["max dex"];
+            }
+            if (json["attack"] != null) {
+                AttackRollPenalty = (int)json["attack"];
+            }
+            if (json["effort"] != null) {
+                ShieldBashEffort = (Weapon.Effort) Enum.Parse(typeof(Weapon.Effort), (string)json["effort"], false);
+            }
+        }
+
+        public Shield(Shield definition) {
+            Name = definition.Name;
+            ShieldBonus = definition.ShieldBonus;
+            Tower = definition.Tower;
+            ArmorCheckPenalty = definition.ArmorCheckPenalty;
+            ArcaneSpellFailure = definition.ArcaneSpellFailure;
+            MaxDexBonus = definition.MaxDexBonus;
+            AttackRollPenalty = definition.AttackRollPenalty;
+            ShieldBashEffort = definition.ShieldBashEffort;
+            if (definition.ShieldBash != null) {
+                ShieldBash = new AttackMode(definition.ShieldBash);
+            }
+        }
+
+        public Shield() { }
 
         public IEnumerable<Effect> GetGlobalEffects() {
             IEnumerable<Effect> all = Properties.Select(x => x.GlobalEffect).Where(x => x != null);

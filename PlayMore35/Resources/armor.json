@@ -1,0 +1,98 @@
+[
+  {
+    "name": "padded armor",
+    "type": "LIGHT",
+    "armor bonus": 1,
+    "max dex": 8,
+    "armor check penalty": -0,
+    "spell failure": 5
+  },
+  {
+    "name": "leather armor",
+    "type": "LIGHT",
+    "armor bonus": 2,
+    "max dex": 6,
+    "armor check penalty": -0,
+    "spell failure": 10
+  },
+  {
+    "name": "studded leather armor",
+    "type": "LIGHT",
+    "armor bonus": 3,
+    "max dex": 5,
+    "armor check penalty": -1,
+    "spell failure": 15
+  },
+  {
+    "name": "chain shirt",
+    "type": "LIGHT",
+    "armor bonus": 4,
+    "max dex": 4,
+    "armor check penalty": -2,
+    "spell failure": 20
+  },
+  {
+    "name": "hide armor",
+    "type": "MEDIUM",
+    "armor bonus": 3,
+    "max dex": 4,
+    "armor check penalty": -3,
+    "spell failure": 20
+  },
+  {
+    "name": "scale mail",
+    "type": "MEDIUM",
+    "armor bonus": 4,
+    "max dex": 3,
+    "armor check penalty": -4,
+    "spell failure": 25
+  },
+  {
+    "name": "chainmail",
+    "type": "MEDIUM",
+    "armor bonus": 5,
+    "max dex": 2,
+    "armor check penalty": -5,
+    "spell failure": 30
+  },
+  {
+    "name": "breastplate",
+    "type": "MEDIUM",
+    "armor bonus": 5,
+    "max dex": 3,
+    "armor check penalty": -4,
+    "spell failure": 25
+  },
+  {
+    "name": "splint mail",
+    "type": "HEAVY",
+    "armor bonus": 6,
+    "max dex": 0,
+    "armor check penalty": -7,
+    "spell failure": 40
+  },
+  {
+    "name": "banded mail",
+    "type": "HEAVY",
+    "armor bonus": 6,
+    "max dex": 1,
+    "armor check penalty": -6,
+    "spell failure": 35
+  },
+  {
+    "name": "half-plate",
+    "type": "HEAVY",
+    "armor bonus": 7,
+    "max dex": 0,
+    "armor check penalty": -7,
+    "spell failure": 40
+  },
+  {
+    "name": "full plate",
+    "type": "HEAVY",
+    "armor bonus": 8,
+    "max dex": 1,
+    "armor check penalty": -6,
+    "spell failure": 35
+  }
+]
