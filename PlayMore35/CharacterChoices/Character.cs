@@ -11,11 +11,12 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
         public List<List<string>> feats; // each element of the outer list is a level, inner is the feats taken at that level
 
-        // All weapons, armor, and shields available to the character (not necessarily weilded)
-        public List<WeaponChoice> weapons;
-        public List<ArmorChoice> armor;
-        public List<ShieldChoice> shields;
-        // other items coming soon(tm)
+        // Slots go here.  Probably like:
+        // public WondrousItem headSlot = null;
+        // public WondrousItem ring1 = null; // I know rings aren't "Wondrous". it doesn't affect this in any meaningful way.
+
+        // All other items available to the character (not necessarily weilded)
+        public Dictionary<string, InventoryLocation> inventory;
 
         public JToken ToJson() {
             return new JObject(
@@ -25,10 +26,9 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("hit die rolls", new JArray(rolledHitDice)),
                 new JProperty("skill ranks", new JObject(skillRanks.Select(x => new JProperty(x.Key, new JArray(x.Value))))),
                 new JProperty("feats", new JArray(feats.Select(x => new JArray(x)))),
-
-                new JProperty("weapons", new JArray(weapons.Select(x => x.ToJson()))),
-                new JProperty("armor", new JArray(armor.Select(x => x.ToJson()))),
-                new JProperty("shields", new JArray(shields.Select(x => x.ToJson())))
+                new JProperty("inventory", new JObject(
+                    inventory.Select(x => new JProperty(x.Key, x.Value.ToJson()))
+                ))
             );
         }
 
@@ -46,9 +46,8 @@ namespace PlayMore35.CharacterChoices {
                     .Select(feat => (string)feat).ToList())
                 .ToList();
 
-            weapons = ((JArray)json["weapons"]).Select(x => new WeaponChoice((JObject)x)).ToList();
-            armor = ((JArray)json["armor"]).Select(x => new ArmorChoice((JObject)x)).ToList();
-            shields = ((JArray)json["shields"]).Select(x => new ShieldChoice((JObject)x)).ToList();
+            inventory = ((JObject)json["inventory"]).Properties()
+                .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
         }
 
         public Character() {
@@ -59,9 +58,25 @@ namespace PlayMore35.CharacterChoices {
             skillRanks = new Dictionary<string, List<int>>();
             feats = new List<List<string>>();
 
-            weapons = new List<WeaponChoice>();
-            armor = new List<ArmorChoice>();
-            shields = new List<ShieldChoice>();
+            inventory = new Dictionary<string, InventoryLocation>();
+        }
+
+        public IEnumerable<WeaponChoice> Weapons {
+            get {
+                return inventory.SelectMany(x => x.Value.weapons);
+            }
+        }
+
+        public IEnumerable<ArmorChoice> Armor {
+            get {
+                return inventory.SelectMany(x => x.Value.armor);
+            }
+        }
+
+        public IEnumerable<ShieldChoice> Shields {
+            get {
+                return inventory.SelectMany(x => x.Value.shields);
+            }
         }
     }
 }

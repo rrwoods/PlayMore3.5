@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
@@ -45,20 +45,24 @@ namespace PlayMore35.CharacterChoices {
                     new List<string> { "True Believer" },
                     new List<string>()
                 },
-                weapons = new List<WeaponChoice> {
-                    new WeaponChoice {
-                        Name = "dwarven waraxe"
-                    }
-                },
-                armor = new List<ArmorChoice> {
-                    new ArmorChoice {
-                        Name = "full plate",
-                        ArmorProperties = new List<string> { "mwk" }
-                    }
-                },
-                shields = new List<ShieldChoice> {
-                    new ShieldChoice {
-                        Name = "heavy shield"
+                inventory = new Dictionary<string, InventoryLocation> {
+                    ["on person"] = new InventoryLocation {
+                        weapons = new List<WeaponChoice> {
+                            new WeaponChoice {
+                                Name = "dwarven waraxe"
+                            }
+                        },
+                        armor = new List<ArmorChoice> {
+                            new ArmorChoice {
+                                Name = "full plate",
+                                ArmorProperties = new List<string> { "mwk" }
+                            }
+                        },
+                        shields = new List<ShieldChoice> {
+                            new ShieldChoice {
+                                Name = "heavy shield"
+                            }
+                        }
                     }
                 }
             };
@@ -115,10 +119,12 @@ namespace PlayMore35.CharacterChoices {
                 CollectionAssert.AreEqual(choices.feats[i], fromJson.feats[i]);
             }
 
-            Assert.AreEqual(choices.weapons[0].Name, fromJson.weapons[0].Name);
-            Assert.AreEqual(choices.armor[0].Name, fromJson.armor[0].Name);
-            Assert.AreEqual(choices.armor[0].ArmorProperties[0], fromJson.armor[0].ArmorProperties[0]);
-            Assert.AreEqual(choices.shields[0].Name, fromJson.shields[0].Name);
+            Assert.AreEqual(choices.Weapons.First().Name, fromJson.Weapons.First().Name);
+            ArmorChoice armor = choices.Armor.First();
+            ArmorChoice jsonArmor = fromJson.Armor.First();
+            Assert.AreEqual(armor.Name, jsonArmor.Name);
+            Assert.AreEqual(armor.ArmorProperties[0], jsonArmor.ArmorProperties[0]);
+            Assert.AreEqual(choices.Shields.First().Name, fromJson.Shields.First().Name);
         }
     }
 }

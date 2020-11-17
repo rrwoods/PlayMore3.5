@@ -71,7 +71,7 @@ namespace PlayMore35.Global {
         // has changed about the available weapons (be it a property, or a definition, whatever)
         public List<Weapon> AvailableWeapons() {
             List<Weapon> available = new List<Weapon>();
-            foreach (WeaponChoice choice in Choices.weapons) {
+            foreach (WeaponChoice choice in Choices.Weapons) {
                 Weapon weapon = new Weapon(WeaponDefinitions[choice.Name]) {
                     SizeCategory = choice.SizeCategory
                 };
@@ -95,7 +95,7 @@ namespace PlayMore35.Global {
 
         public List<Armor> AvailableArmor() {
             List<Armor> available = new List<Armor>();
-            foreach (ArmorChoice choice in Choices.armor) {
+            foreach (ArmorChoice choice in Choices.Armor) {
                 Armor armor = new Armor(ArmorDefinitions[choice.Name]) {
                     SizeCategory = choice.SizeCategory
                 };
@@ -116,7 +116,7 @@ namespace PlayMore35.Global {
 
         public List<Shield> AvailableShields() {
             List<Shield> available = new List<Shield>();
-            foreach (ShieldChoice choice in Choices.shields) {
+            foreach (ShieldChoice choice in Choices.Shields) {
                 Shield shield = new Shield(ShieldDefinitions[choice.Name]) {
                     SizeCategory = choice.SizeCategory
                 };

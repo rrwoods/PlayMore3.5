@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharacterChoices\InventoryLocation.cs" />
     <Compile Include="CharacterChoices\ShieldChoice.cs" />
     <Compile Include="CharacterChoices\ArmorChoice.cs" />
     <Compile Include="CharacterChoices\Character.cs" />
