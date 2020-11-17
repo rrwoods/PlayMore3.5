@@ -77,7 +77,7 @@
   <ItemGroup>
     <Compile Include="CharacterChoices\ShieldChoice.cs" />
     <Compile Include="CharacterChoices\ArmorChoice.cs" />
-    <Compile Include="CharacterChoices\CharacterChoices.cs" />
+    <Compile Include="CharacterChoices\Character.cs" />
     <Compile Include="CharacterChoices\CharacterChoiceTests.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="Effects\Alterer.cs" />

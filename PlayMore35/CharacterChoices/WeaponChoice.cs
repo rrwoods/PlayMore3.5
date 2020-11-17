@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PlayMore35.Character {
+namespace PlayMore35.CharacterChoices {
     public class WeaponChoice : IJsonable {
         public string Name;
         public int SizeCategory;

@@ -2,8 +2,8 @@
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace PlayMore35.Character {
-    public class CharacterChoices : IJsonable {
+namespace PlayMore35.CharacterChoices {
+    public class Character : IJsonable {
         public Dictionary<string, int> assignedAbilityScores;
         public List<string> classLevels;
         public List<string> abilityScoreIncrements;
@@ -32,7 +32,7 @@ namespace PlayMore35.Character {
             );
         }
 
-        public CharacterChoices(JObject json) {
+        public Character(JObject json) {
             assignedAbilityScores = ((JObject)json["assigned"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
             classLevels = ((JArray)json["classes"]).Select(x => (string)x).ToList();
             abilityScoreIncrements = ((JArray)json["incremented"]).Select(x => (string)x).ToList();
@@ -51,7 +51,7 @@ namespace PlayMore35.Character {
             shields = ((JArray)json["shields"]).Select(x => new ShieldChoice((JObject)x)).ToList();
         }
 
-        public CharacterChoices() {
+        public Character() {
             assignedAbilityScores = new Dictionary<string, int>();
             classLevels = new List<string>();
             abilityScoreIncrements = new List<string>();

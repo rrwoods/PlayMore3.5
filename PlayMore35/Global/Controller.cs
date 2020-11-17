@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
-using PlayMore35.Character;
+using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 
 
 namespace PlayMore35.Global {
     public class Controller {
-        public CharacterChoices Choices;
+        public CharacterChoices.Character Choices;
 
         public EffectPool Effects;
         public Dictionary<string, Weapon> WeaponDefinitions;
@@ -21,7 +21,7 @@ namespace PlayMore35.Global {
         public Dictionary<string, WeaponProperty> WeaponPropertyDefinitions;
         public Dictionary<string, ArmorProperty> ArmorPropertyDefinitions;
 
-        public Controller(CharacterChoices choices) {
+        public Controller(CharacterChoices.Character choices) {
             Choices = choices;
             Reload();
         }

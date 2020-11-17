@@ -8,11 +8,11 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using static PlayMore35.Effects.Constants;
 
-namespace PlayMore35.Character {
+namespace PlayMore35.CharacterChoices {
     [TestClass]
     public class CharacterChoiceTests {
-        private CharacterChoices SampleCharacter() {
-            return new CharacterChoices {
+        private Character SampleCharacter() {
+            return new Character {
                 assignedAbilityScores = new Dictionary<string, int> {
                     ["STR"] = 14,
                     ["DEX"] = 8,
@@ -97,9 +97,9 @@ namespace PlayMore35.Character {
 
         [TestMethod]
         public void TestSerialization() {
-            CharacterChoices choices = SampleCharacter();
+            Character choices = SampleCharacter();
 
-            CharacterChoices fromJson = new CharacterChoices((JObject)choices.ToJson());
+            Character fromJson = new Character((JObject)choices.ToJson());
 
             Assert.AreEqual(choices.assignedAbilityScores["STR"], fromJson.assignedAbilityScores["STR"]);
             Assert.AreEqual(choices.assignedAbilityScores["DEX"], fromJson.assignedAbilityScores["DEX"]);

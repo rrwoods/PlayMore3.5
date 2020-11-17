@@ -101,7 +101,7 @@ namespace PlayMore35.Effects {
         }
 
         // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
-        public void GenerateCharacterEffects(Character.CharacterChoices choices) {
+        public void GenerateCharacterEffects(CharacterChoices.Character choices) {
             foreach (var ability in choices.assignedAbilityScores) {
                 string name = ability.Key;
                 int score = ability.Value;
