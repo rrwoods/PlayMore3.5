@@ -124,6 +124,9 @@
   <data name="armorProperties" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\armorproperties.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="items" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\items.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="rules" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\rules.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

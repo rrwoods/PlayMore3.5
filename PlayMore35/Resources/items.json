@@ -1,0 +1,22 @@
+[
+  {
+    "slot": "NECK",
+    "effect": {
+      "name": "amulet of health +2",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "CON score",
+          "mod": {
+            "type": "enhancement",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]

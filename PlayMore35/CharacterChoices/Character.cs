@@ -5,22 +5,22 @@ using Newtonsoft.Json.Linq;
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
         public Dictionary<string, int> assignedAbilityScores;
+        public string race; // templates later
         public List<string> classLevels;
         public List<string> abilityScoreIncrements;
         public List<int> rolledHitDice;
         public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
         public List<List<string>> feats; // each element of the outer list is a level, inner is the feats taken at that level
 
-        // Slots go here.  Probably like:
-        // public WondrousItem headSlot = null;
-        // public WondrousItem ring1 = null; // I know rings aren't "Wondrous". it doesn't affect this in any meaningful way.
-
         // All other items available to the character (not necessarily weilded)
         public Dictionary<string, InventoryLocation> inventory;
+
+        public EquippedChoices equipped;
 
         public JToken ToJson() {
             return new JObject(
                 new JProperty("assigned", new JObject(assignedAbilityScores.Select(x => new JProperty(x.Key, x.Value)))),
+                new JProperty("race", race),
                 new JProperty("classes", new JArray(classLevels)),
                 new JProperty("incremented", new JArray(abilityScoreIncrements)),
                 new JProperty("hit die rolls", new JArray(rolledHitDice)),
@@ -28,12 +28,14 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("feats", new JArray(feats.Select(x => new JArray(x)))),
                 new JProperty("inventory", new JObject(
                     inventory.Select(x => new JProperty(x.Key, x.Value.ToJson()))
-                ))
+                )),
+                new JProperty("equipped", equipped.ToJson())
             );
         }
 
         public Character(JObject json) {
             assignedAbilityScores = ((JObject)json["assigned"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
+            race = (string)json["race"];
             classLevels = ((JArray)json["classes"]).Select(x => (string)x).ToList();
             abilityScoreIncrements = ((JArray)json["incremented"]).Select(x => (string)x).ToList();
             rolledHitDice = ((JArray)json["hit die rolls"]).Select(x => (int)x).ToList();
@@ -48,10 +50,13 @@ namespace PlayMore35.CharacterChoices {
 
             inventory = ((JObject)json["inventory"]).Properties()
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
+
+            equipped = new EquippedChoices((JObject)json["equipped"]);
         }
 
         public Character() {
             assignedAbilityScores = new Dictionary<string, int>();
+            race = "";
             classLevels = new List<string>();
             abilityScoreIncrements = new List<string>();
             rolledHitDice = new List<int>();
@@ -59,6 +64,7 @@ namespace PlayMore35.CharacterChoices {
             feats = new List<List<string>>();
 
             inventory = new Dictionary<string, InventoryLocation>();
+            equipped = new EquippedChoices();
         }
 
         public IEnumerable<WeaponChoice> Weapons {

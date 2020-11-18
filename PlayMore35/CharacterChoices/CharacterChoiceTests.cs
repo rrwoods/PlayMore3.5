@@ -64,67 +64,98 @@ namespace PlayMore35.CharacterChoices {
                             }
                         }
                     }
+                },
+                equipped = new EquippedChoices {
+                    PrimaryHandWeapon = new WeaponChoice {
+                        Name = "dwarven waraxe"
+                    },
+                    DonnedArmor = new ArmorChoice {
+                        Name = "full plate",
+                        ArmorProperties = new List<string> { "mwk" }
+                    },
+                    OffHandShield = new ShieldChoice {
+                        Name = "heavy shield"
+                    }
                 }
             };
+        }
+
+        private void CheckAttacks(Controller controller, int[] expAtkBonus, string[] expDamage) {
+            List<Attack> attacks = controller.GetAttacks();
+            Assert.AreEqual(expAtkBonus.Length, attacks.Count());
+            for (int i = 0; i < expAtkBonus.Length; i++) {
+                Assert.AreEqual(expAtkBonus[i], attacks[i].AttackBonus.bonus);
+                Assert.AreEqual(expDamage[i], attacks[i].Damage.dice.ToString());
+            }
+        }
+
+        private void CheckStat(Controller controller, string stat, int expectedValue) {
+            Assert.AreEqual(expectedValue, controller.GetStatistic(stat).value);
         }
 
         [TestMethod]
         public void TestCharacterGeneration() {
             Controller controller = new Controller(SampleCharacter());
 
-            // no racial bonuses working right now, so shoehorn it in:
-            controller.Effects.AddEffect(new Effect("dream dwarf CON bonus")
+            // some shoehorning of effects that would normally come from
+            // race/class/feat definitions, that i don't have yet:
+            controller.Effects.AddEffect(new Effect("character effects...")
+                .AddModifier(DEX_SCORE, new Modifier(-2, RACIAL))
                 .AddModifier(CON_SCORE, new Modifier(+2, RACIAL))
+                .AddProficiency(AttackMatcher.ALL)
+                .AddProficiency(Armor.WeightCategory.HEAVY)
+                .AddShieldProficiency(false)
+                .AddModifier(BASE_SPEED, new Modifier(20, BASE))
             );
 
             Equipped noItems = new Equipped();
             Assert.AreEqual(14, controller.Effects.GetStat(STR_SCORE).GetValue(controller.Effects, noItems).value);
             Assert.AreEqual(77, controller.Effects.GetStat(MAX_HP).GetValue(controller.Effects, noItems).value);
 
-            List<Weapon> weapons = controller.AvailableWeapons();
-            Assert.AreEqual(1, weapons.Count);
-            Assert.AreEqual("dwarven waraxe", weapons[0].Name);
-            Assert.AreEqual((1, 10), weapons[0].Melee?.atk.DamageDieMedium);
+            // Check weapons/attacks:
+            CheckAttacks(
+                controller,
+                //             axe alone, shld alone,    axe twf,  shld twf
+                new int[]    {        +2,         +2,         -4,        -8 },
+                new string[] { "1d4 + 2", "1d10 + 2", "1d10 + 2", "1d4 + 1" }
+            );
 
-            List<Armor> armor = controller.AvailableArmor();
-            Assert.AreEqual(1, armor.Count);
-            Assert.AreEqual("full plate", armor[0].Name);
-            Assert.AreEqual(1, armor[0].Properties.Count);
-            Assert.AreEqual("mwk", armor[0].Properties[0].Name);
+            // Check basic armor/shields:
+            CheckStat(controller, AC, 18);
 
-            List<Shield> shields = controller.AvailableShields();
-            Assert.AreEqual(1, shields.Count);
-            Assert.AreEqual("heavy shield", shields[0].Name);
-            Assert.AreEqual(Weapon.Effort.ONE_HANDED, shields[0].ShieldBashEffort);
-            Assert.AreEqual((1, 4), shields[0].ShieldBash.DamageDieMedium);
+            // Check armor check penalty (total -8 from armor + shield):
+            // Jump = 5 ranks + 2 STR - 8 ACP - 6 speed = -7 total
+            CheckStat(controller, JUMP, -7);
+            // Intimidate = 4 ranks + 0 CHA (no ACP) = +4 total
+            CheckStat(controller, INTIMIDATE, +4);
         }
 
         [TestMethod]
         public void TestSerialization() {
-            Character choices = SampleCharacter();
+            Character character = SampleCharacter();
 
-            Character fromJson = new Character((JObject)choices.ToJson());
+            Character fromJson = new Character((JObject)character.ToJson());
 
-            Assert.AreEqual(choices.assignedAbilityScores["STR"], fromJson.assignedAbilityScores["STR"]);
-            Assert.AreEqual(choices.assignedAbilityScores["DEX"], fromJson.assignedAbilityScores["DEX"]);
-            Assert.AreEqual(choices.assignedAbilityScores["CON"], fromJson.assignedAbilityScores["CON"]);
-            Assert.AreEqual(choices.assignedAbilityScores["INT"], fromJson.assignedAbilityScores["INT"]);
-            Assert.AreEqual(choices.assignedAbilityScores["WIS"], fromJson.assignedAbilityScores["WIS"]);
-            Assert.AreEqual(choices.assignedAbilityScores["CHA"], fromJson.assignedAbilityScores["CHA"]);
-            CollectionAssert.AreEqual(choices.classLevels, fromJson.classLevels);
-            CollectionAssert.AreEqual(choices.abilityScoreIncrements, fromJson.abilityScoreIncrements);
-            CollectionAssert.AreEqual(choices.rolledHitDice, fromJson.rolledHitDice);
-            CollectionAssert.AreEqual(choices.skillRanks["Jump"], fromJson.skillRanks["Jump"]);
+            Assert.AreEqual(character.assignedAbilityScores["STR"], fromJson.assignedAbilityScores["STR"]);
+            Assert.AreEqual(character.assignedAbilityScores["DEX"], fromJson.assignedAbilityScores["DEX"]);
+            Assert.AreEqual(character.assignedAbilityScores["CON"], fromJson.assignedAbilityScores["CON"]);
+            Assert.AreEqual(character.assignedAbilityScores["INT"], fromJson.assignedAbilityScores["INT"]);
+            Assert.AreEqual(character.assignedAbilityScores["WIS"], fromJson.assignedAbilityScores["WIS"]);
+            Assert.AreEqual(character.assignedAbilityScores["CHA"], fromJson.assignedAbilityScores["CHA"]);
+            CollectionAssert.AreEqual(character.classLevels, fromJson.classLevels);
+            CollectionAssert.AreEqual(character.abilityScoreIncrements, fromJson.abilityScoreIncrements);
+            CollectionAssert.AreEqual(character.rolledHitDice, fromJson.rolledHitDice);
+            CollectionAssert.AreEqual(character.skillRanks["Jump"], fromJson.skillRanks["Jump"]);
             for (int i = 0; i < 7; i++) {
-                CollectionAssert.AreEqual(choices.feats[i], fromJson.feats[i]);
+                CollectionAssert.AreEqual(character.feats[i], fromJson.feats[i]);
             }
 
-            Assert.AreEqual(choices.Weapons.First().Name, fromJson.Weapons.First().Name);
-            ArmorChoice armor = choices.Armor.First();
+            Assert.AreEqual(character.Weapons.First().Name, fromJson.Weapons.First().Name);
+            ArmorChoice armor = character.Armor.First();
             ArmorChoice jsonArmor = fromJson.Armor.First();
             Assert.AreEqual(armor.Name, jsonArmor.Name);
             Assert.AreEqual(armor.ArmorProperties[0], jsonArmor.ArmorProperties[0]);
-            Assert.AreEqual(choices.Shields.First().Name, fromJson.Shields.First().Name);
+            Assert.AreEqual(character.Shields.First().Name, fromJson.Shields.First().Name);
         }
     }
 }
