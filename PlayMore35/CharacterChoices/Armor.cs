@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
 
@@ -10,7 +11,8 @@ namespace PlayMore35.Items {
 
         public string Name;
         public int SizeCategory;
-        public WeightCategory Weight;
+        public WeightCategory Type;
+        public decimal Weight;
 
         // All of these fields should EXCLUDE modifiers from properties.  E.g., the ACP
         // reduction from masterwork and the armor bonus increase from enhancement
@@ -27,7 +29,8 @@ namespace PlayMore35.Items {
         public JToken ToJson() {
             return new JObject(
                 new JProperty("name", Name),
-                new JProperty("type", Weight), // the word "weight" is going to mean something more specific later.
+                new JProperty("type", Type),
+                new JProperty("weight", Weight),
                 new JProperty("armor bonus", ArmorBonus),
                 new JProperty("max dex", MaxDexBonus),
                 new JProperty("armor check penalty", ArmorCheckPenalty),
@@ -38,6 +41,8 @@ namespace PlayMore35.Items {
         public Armor(JObject json) {
             Name = (string)json["name"];
             SizeCategory = 0;
+            Type = (WeightCategory) Enum.Parse(typeof(WeightCategory), (string)json["type"], false);
+            Weight = (decimal)json["weight"];
             ArmorBonus = (int)json["armor bonus"];
             MaxDexBonus = (int)json["max dex"];
             ArmorCheckPenalty = (int)json["armor check penalty"];
@@ -47,6 +52,8 @@ namespace PlayMore35.Items {
         public Armor(Armor definition) {
             Name = definition.Name;
             SizeCategory = definition.SizeCategory;
+            Type = definition.Type;
+            Weight = definition.Weight;
             ArmorBonus = definition.ArmorBonus;
             MaxDexBonus = definition.MaxDexBonus;
             ArmorCheckPenalty = definition.ArmorCheckPenalty;

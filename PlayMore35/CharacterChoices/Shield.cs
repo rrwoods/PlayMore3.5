@@ -9,6 +9,7 @@ namespace PlayMore35.Items {
     public class Shield : IJsonable {
         public string Name;
         public int SizeCategory;
+        public decimal Weight;
 
         // All of these fields should EXCLUDE modifiers from properties.  E.g., the ACP
         // reduction from masterwork and the shield bonus increase from enhancement
@@ -35,6 +36,7 @@ namespace PlayMore35.Items {
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("name", Name),
+                new JProperty("weight", Weight),
                 new JProperty("shield bonus", ShieldBonus),
                 new JProperty("tower", Tower),
                 new JProperty("armor check penalty", ArmorCheckPenalty),
@@ -54,6 +56,7 @@ namespace PlayMore35.Items {
 
         public Shield(JObject json) {
             Name = (string)json["name"];
+            Weight = (decimal)json["weight"];
             ShieldBonus = (int)json["shield bonus"];
             Tower = (bool)json["tower"];
             ArmorCheckPenalty = (int)json["armor check penalty"];
@@ -71,6 +74,7 @@ namespace PlayMore35.Items {
 
         public Shield(Shield definition) {
             Name = definition.Name;
+            Weight = definition.Weight;
             ShieldBonus = definition.ShieldBonus;
             Tower = definition.Tower;
             ArmorCheckPenalty = definition.ArmorCheckPenalty;

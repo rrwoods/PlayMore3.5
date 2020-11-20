@@ -920,6 +920,17 @@
       "name": "natural armor"
     },
     {
+      "name": "Light load",
+      "round down": true
+    },
+    {
+      "name": "Medium load",
+      "round down": true
+    },
+    {
+      "name": "Heavy load"
+    },
+    {
       "name": "Base speed",
       "precision": 5
     },
@@ -3980,9 +3991,303 @@
       ]
     },
     {
+      "name": "Heavy load by STR",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Heavy load",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "lookup": {
+                  "value": {
+                    "stat value": "STR score"
+                  },
+                  "table": {
+                    "0": 0,
+                    "1": 10,
+                    "2": 20,
+                    "3": 30,
+                    "4": 40,
+                    "5": 50,
+                    "6": 60,
+                    "7": 70,
+                    "8": 80,
+                    "9": 90,
+                    "10": 100,
+                    "11": 115,
+                    "12": 130,
+                    "13": 150,
+                    "14": 175,
+                    "15": 200,
+                    "16": 230,
+                    "17": 260,
+                    "18": 300,
+                    "19": 350,
+                    "20": 400,
+                    "21": 460,
+                    "22": 520,
+                    "23": 600,
+                    "24": 700,
+                    "25": 800,
+                    "26": 920,
+                    "27": 1040,
+                    "28": 1200,
+                    "29": 1400
+                  },
+                  "miss adjust": -10,
+                  "miss factor": 4
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": -4
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 0.125
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": -3
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 0.25
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": -2
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 0.5
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": -1
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 0.75
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 1
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 2
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 2
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 4
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 3
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 8
+        }
+      ]
+    },
+    {
+      "name": "Heavy load size modifier",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Size category"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 4
+          }
+        }
+      },
+      "multipliers": [
+        {
+          "affects": "Heavy load",
+          "mod": 16
+        }
+      ]
+    },
+    {
+      "name": "Light and medium load calculation",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Light load",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "stat value": "Heavy load"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Medium load",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "stat value": "Heavy load"
+              }
+            ]
+          }
+        }
+      ],
+      "multipliers": [
+        {
+          "affects": "Light load",
+          "mod": 0.3333
+        },
+        {
+          "affects": "Medium load",
+          "mod": 0.6666
+        }
+      ]
+    },
+    {
+      "name": "Encumbered",
+      "active": {
+        "any": [
+          {
+            "conditional": {
+              "left": {
+                "item value": "Total weight"
+              },
+              "relation": "GREATER_THAN",
+              "right": {
+                "stat value": "Light load"
+              }
+            }
+          },
+          {
+            "conditional": {
+              "left": {
+                "item value": "Armor weight"
+              },
+              "relation": "GREATER_THAN",
+              "right": {
+                "fixed": 0
+              }
+            }
+          }
+        ]
+      },
+      "flags": [
+        "Encumbered"
+      ]
+    },
+    {
       "name": "Encumbrance speed penalty",
       "active": {
-        "controllable": "Encumbrance speed penalty"
+        "all": [
+          {
+            "flag": "Encumbered"
+          },
+          {
+            "not": {
+              "flag": "Can't be encumbered"
+            }
+          }
+        ]
       },
       "multipliers": [
         {

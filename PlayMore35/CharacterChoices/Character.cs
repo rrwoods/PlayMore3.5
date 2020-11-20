@@ -12,7 +12,7 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
         public List<List<string>> feats; // each element of the outer list is a level, inner is the feats taken at that level
 
-        // All other items available to the character (not necessarily weilded)
+        // All items available to the character that are not currently equipped
         public Dictionary<string, InventoryLocation> inventory;
 
         public EquippedChoices equipped;

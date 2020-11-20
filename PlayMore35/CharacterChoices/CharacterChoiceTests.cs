@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,26 +46,6 @@ namespace PlayMore35.CharacterChoices {
                     new List<string> { "True Believer" },
                     new List<string>()
                 },
-                inventory = new Dictionary<string, InventoryLocation> {
-                    ["on person"] = new InventoryLocation {
-                        weapons = new List<WeaponChoice> {
-                            new WeaponChoice {
-                                Name = "dwarven waraxe"
-                            }
-                        },
-                        armor = new List<ArmorChoice> {
-                            new ArmorChoice {
-                                Name = "full plate",
-                                ArmorProperties = new List<string> { "mwk" }
-                            }
-                        },
-                        shields = new List<ShieldChoice> {
-                            new ShieldChoice {
-                                Name = "heavy shield"
-                            }
-                        }
-                    }
-                },
                 equipped = new EquippedChoices {
                     PrimaryHandWeapon = new WeaponChoice {
                         Name = "dwarven waraxe"
@@ -74,7 +55,7 @@ namespace PlayMore35.CharacterChoices {
                         ArmorProperties = new List<string> { "mwk" }
                     },
                     OffHandShield = new ShieldChoice {
-                        Name = "heavy shield"
+                        Name = "heavy wooden shield"
                     }
                 }
             };
@@ -106,6 +87,7 @@ namespace PlayMore35.CharacterChoices {
                 .AddProficiency(Armor.WeightCategory.HEAVY)
                 .AddShieldProficiency(false)
                 .AddModifier(BASE_SPEED, new Modifier(20, BASE))
+                .AddFlag(CANT_BE_ENCUMBERED)
             );
 
             Equipped noItems = new Equipped();
@@ -128,6 +110,10 @@ namespace PlayMore35.CharacterChoices {
             CheckStat(controller, JUMP, -7);
             // Intimidate = 4 ranks + 0 CHA (no ACP) = +4 total
             CheckStat(controller, INTIMIDATE, +4);
+
+            CheckStat(controller, LAND_SPEED, 20);
+
+            Assert.AreEqual(68, new ItemAmount(TOTAL_WEIGHT).Get(controller.Effects, controller.EquippedItems));
         }
 
         [TestMethod]
@@ -150,12 +136,12 @@ namespace PlayMore35.CharacterChoices {
                 CollectionAssert.AreEqual(character.feats[i], fromJson.feats[i]);
             }
 
-            Assert.AreEqual(character.Weapons.First().Name, fromJson.Weapons.First().Name);
-            ArmorChoice armor = character.Armor.First();
-            ArmorChoice jsonArmor = fromJson.Armor.First();
+            Assert.AreEqual(character.equipped.PrimaryHandWeapon.Name, fromJson.equipped.PrimaryHandWeapon.Name);
+            ArmorChoice armor = character.equipped.DonnedArmor;
+            ArmorChoice jsonArmor = fromJson.equipped.DonnedArmor;
             Assert.AreEqual(armor.Name, jsonArmor.Name);
             Assert.AreEqual(armor.ArmorProperties[0], jsonArmor.ArmorProperties[0]);
-            Assert.AreEqual(character.Shields.First().Name, fromJson.Shields.First().Name);
+            Assert.AreEqual(character.equipped.OffHandShield.Name, fromJson.equipped.OffHandShield.Name);
         }
     }
 }

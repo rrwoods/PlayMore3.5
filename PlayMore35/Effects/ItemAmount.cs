@@ -31,6 +31,17 @@ namespace PlayMore35.Effects {
             if (Key == SHIELD_ARMOR_CHECK_PENALTY) {
                 return items.OffHandShield?.ArmorCheckPenalty ?? 0;
             }
+            if (Key == ARMOR_WEIGHT) {
+                return (int?)items.DonnedArmor?.Type ?? 0;
+            }
+            if (Key == TOTAL_WEIGHT) {
+                return (int) Math.Ceiling(items.UnequippedWeight +
+                    (items.PrimaryHandWeapon?.Weight ?? 0) +
+                    (items.PrimaryHandWeapon == items.OffHandWeapon ? 0 : items.OffHandWeapon?.Weight ?? 0) +
+                    (items.DonnedArmor?.Weight ?? 0) +
+                    (items.OffHandShield?.Weight ?? 0)
+                );
+            }
             return 0;
         }
 

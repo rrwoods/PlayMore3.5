@@ -1,6 +1,7 @@
 [
   {
     "name": "buckler",
+    "weight": 5,
     "shield bonus": 1,
     "tower": false,
     "armor check penalty": -1,
@@ -8,7 +9,8 @@
     "attack": -1
   },
   {
-    "name": "light shield",
+    "name": "light wooden shield",
+    "weight": 5,
     "shield bonus": 1,
     "tower": false,
     "armor check penalty": -1,
@@ -16,7 +18,26 @@
     "effort": "LIGHT"
   },
   {
-    "name": "heavy shield",
+    "name": "light steel shield",
+    "weight": 6,
+    "shield bonus": 1,
+    "tower": false,
+    "armor check penalty": -1,
+    "spell failure": 5,
+    "effort": "LIGHT"
+  },
+  {
+    "name": "heavy wooden shield",
+    "weight": 10,
+    "shield bonus": 2,
+    "tower": false,
+    "armor check penalty": -2,
+    "spell failure": 15,
+    "effort": "ONE_HANDED"
+  },
+  {
+    "name": "heavy steel shield",
+    "weight": 15,
     "shield bonus": 2,
     "tower": false,
     "armor check penalty": -2,
@@ -25,8 +46,10 @@
   },
   {
     "name": "tower shield",
+    "weight": 45,
     "shield bonus": 4,
     "tower": true,
+    "max dex": 2,
     "armor check penalty": -10,
     "spell failure": 50
   }

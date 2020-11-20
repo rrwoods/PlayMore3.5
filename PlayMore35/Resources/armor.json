@@ -2,6 +2,7 @@
   {
     "name": "padded armor",
     "type": "LIGHT",
+    "weight": 10,
     "armor bonus": 1,
     "max dex": 8,
     "armor check penalty": -0,
@@ -10,6 +11,7 @@
   {
     "name": "leather armor",
     "type": "LIGHT",
+    "weight": 15,
     "armor bonus": 2,
     "max dex": 6,
     "armor check penalty": -0,
@@ -18,6 +20,7 @@
   {
     "name": "studded leather armor",
     "type": "LIGHT",
+    "weight": 20,
     "armor bonus": 3,
     "max dex": 5,
     "armor check penalty": -1,
@@ -26,6 +29,7 @@
   {
     "name": "chain shirt",
     "type": "LIGHT",
+    "weight": 25,
     "armor bonus": 4,
     "max dex": 4,
     "armor check penalty": -2,
@@ -34,6 +38,7 @@
   {
     "name": "hide armor",
     "type": "MEDIUM",
+    "weight": 25,
     "armor bonus": 3,
     "max dex": 4,
     "armor check penalty": -3,
@@ -42,6 +47,7 @@
   {
     "name": "scale mail",
     "type": "MEDIUM",
+    "weight": 30,
     "armor bonus": 4,
     "max dex": 3,
     "armor check penalty": -4,
@@ -50,6 +56,7 @@
   {
     "name": "chainmail",
     "type": "MEDIUM",
+    "weight": 40,
     "armor bonus": 5,
     "max dex": 2,
     "armor check penalty": -5,
@@ -58,6 +65,7 @@
   {
     "name": "breastplate",
     "type": "MEDIUM",
+    "weight": 30,
     "armor bonus": 5,
     "max dex": 3,
     "armor check penalty": -4,
@@ -66,6 +74,7 @@
   {
     "name": "splint mail",
     "type": "HEAVY",
+    "weight": 45,
     "armor bonus": 6,
     "max dex": 0,
     "armor check penalty": -7,
@@ -74,6 +83,7 @@
   {
     "name": "banded mail",
     "type": "HEAVY",
+    "weight": 35,
     "armor bonus": 6,
     "max dex": 1,
     "armor check penalty": -6,
@@ -82,6 +92,7 @@
   {
     "name": "half-plate",
     "type": "HEAVY",
+    "weight": 50,
     "armor bonus": 7,
     "max dex": 0,
     "armor check penalty": -7,
@@ -90,6 +101,7 @@
   {
     "name": "full plate",
     "type": "HEAVY",
+    "weight": 50,
     "armor bonus": 8,
     "max dex": 1,
     "armor check penalty": -6,

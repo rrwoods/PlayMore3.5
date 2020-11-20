@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -11,6 +12,7 @@ namespace PlayMore35.Effects {
         private int? minValue = null;
         private int? maxValue = null;
         private int precision = 1;
+        private readonly bool roundUp = true;
         private readonly Dictionary<string, IToggle> ignoredModifierTypes = new Dictionary<string, IToggle>();
 
         public JObject ToJson() {
@@ -26,6 +28,9 @@ namespace PlayMore35.Effects {
             }
             if (precision != 1) {
                 json.Add("precision", precision);
+            }
+            if (!roundUp) {
+                json.Add("round down", true);
             }
             if (ignoredModifierTypes.Any()) {
                 json.Add("ignore", new JObject(
@@ -49,6 +54,7 @@ namespace PlayMore35.Effects {
             if (token.ContainsKey("precision")) {
                 precision = (int)token["precision"];
             }
+            roundUp = (token["round down"] == null);
             if (token.ContainsKey("ignore")) {
                 foreach (JProperty item in token["ignore"]) {
                     ignoredModifierTypes[item.Name] = Toggle.FromJson(item.Value);
@@ -117,9 +123,9 @@ namespace PlayMore35.Effects {
                 multiplierExpl.Add("×" + multiplier.Factor + " " + multiplier.Name);
             }
 
-            // As of this writing the only thing we use this precision value on is speed, which always rounds *up* to
-            // the nearest 5 feet.
-            int roundedTotal = (int) (Ceiling(decimal.Divide(total, precision)) * precision);
+            int roundedTotal = roundUp
+                ? (int) (Ceiling(decimal.Divide(total, precision)) * precision)
+                : (int)   (Floor(decimal.Divide(total, precision)) * precision);
 
             if (minValue != null && roundedTotal < minValue) {
                 roundedTotal = (int)minValue;

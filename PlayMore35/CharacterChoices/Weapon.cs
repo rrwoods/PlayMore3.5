@@ -12,6 +12,7 @@ namespace PlayMore35.Items {
         public enum Range { MELEE, REACH_MELEE, THROWN, BOW, OTHER_PROJECTILE };
 
         public string Name;
+        public decimal Weight;
         public List<string> Tags = new List<string>(); // not serialized -- applied after loading
         public int SizeCategory; // not serialized -- applied after loading
         public Effort EffortCategory;
@@ -24,6 +25,7 @@ namespace PlayMore35.Items {
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("name", Name),
+                new JProperty("weight", Weight),
                 new JProperty("effort", EffortCategory)
             );
             if (Melee != null) {
@@ -48,6 +50,7 @@ namespace PlayMore35.Items {
 
         public Weapon(JObject json) {
             Name = (string)json["name"];
+            Weight = (decimal)json["weight"];
             SizeCategory = 0;
             EffortCategory = (Effort)Enum.Parse(typeof(Effort), (string)json["effort"], false);
             if (json["melee"] != null) {
@@ -75,6 +78,7 @@ namespace PlayMore35.Items {
         // we don't add properties to the base definition.
         public Weapon(Weapon definition) {
             Name = definition.Name;
+            Weight = definition.Weight;
             SizeCategory = definition.SizeCategory;
             EffortCategory = definition.EffortCategory;
 

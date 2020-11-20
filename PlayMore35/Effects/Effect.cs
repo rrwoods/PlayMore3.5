@@ -263,7 +263,7 @@ namespace PlayMore35.Effects {
             if (items.DonnedArmor == null) {
                 return true; // if you're not wearing any armor, don't take nonproficiency penalties
             }
-            if (!ArmorProficiencies.Contains(items.DonnedArmor.Weight)) {
+            if (!ArmorProficiencies.Contains(items.DonnedArmor.Type)) {
                 return false;
             }
             return Toggle.On(pool, items);

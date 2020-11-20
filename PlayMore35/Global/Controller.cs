@@ -35,10 +35,20 @@ namespace PlayMore35.Global {
             return JToken.Parse(Encoding.UTF8.GetString(resource));
         }
 
+        // The SRD is surprisingly unhelpful when it comes to computing the weights of non-medium
+        // weapons.  We're using the same rules as armor, since the two values it does give are
+        // consistent with that.  For other items, I'm assuming that a version that fits a differently
+        // sized creature weighs the same as a medium one.
+        private static readonly Dictionary<int, decimal> weightFactors = new Dictionary<int, decimal> {
+            [-4] = 0.1m, [-3] = 0.1m, [-2] = 0.1m, [-1] = 0.5m, [0] = 1, [1] = 2, [2] = 5, [3] = 8, [4] = 12
+        };
+        
         private Weapon WeaponFromChoice(WeaponChoice choice) {
             Weapon weapon = new Weapon(WeaponDefinitions[choice.Name]) {
-                SizeCategory = choice.SizeCategory
+                SizeCategory = choice.SizeCategory,
             };
+            weapon.Weight *= weightFactors[weapon.SizeCategory];
+
             foreach (string property in choice.MeleeProperties) {
                 weapon.Melee?.atk.Properties.Add(WeaponPropertyDefinitions[property]);
             }
@@ -58,6 +68,8 @@ namespace PlayMore35.Global {
             Armor armor = new Armor(ArmorDefinitions[choice.Name]) {
                 SizeCategory = choice.SizeCategory
             };
+            armor.Weight *= weightFactors[armor.SizeCategory];
+
             foreach (string property in choice.ArmorProperties) {
                 armor.Properties.Add(ArmorPropertyDefinitions[property]);
             }
@@ -74,6 +86,8 @@ namespace PlayMore35.Global {
             Shield shield = new Shield(ShieldDefinitions[choice.Name]) {
                 SizeCategory = choice.SizeCategory
             };
+            shield.Weight *= weightFactors[shield.SizeCategory];
+
             foreach (string property in choice.ArmorProperties) {
                 shield.Properties.Add(ArmorPropertyDefinitions[property]);
             }
@@ -81,6 +95,14 @@ namespace PlayMore35.Global {
                 shield.ShieldBash.Properties.Add(WeaponPropertyDefinitions[property]);
             }
             return shield;
+        }
+
+        private decimal WeightAtLocation(InventoryLocation location) {
+            return
+                location.weapons.Select(x => WeaponFromChoice(x).Weight).Sum() +
+                location.armor.Select(x => ArmorFromChoice(x).Weight).Sum() +
+                location.shields.Select(x => ShieldFromChoice(x).Weight).Sum() +
+                location.items.Select(x => ItemDefinitions[x].Weight).Sum();
         }
 
         // Completely toss out every effect and item definition we have, and refresh the rules of the game.
@@ -149,36 +171,17 @@ namespace PlayMore35.Global {
             foreach (string item in Character.equipped.SlotlessItems) {
                 EquippedItems.SlotlessItems.Add(ItemDefinitions[item]);
             }
+
+            EquippedItems.UnequippedWeight = Character.inventory.Values
+                .Where(x => x.weighs)
+                .Select(x => WeightAtLocation(x))
+                .Sum();
         }
 
         // **** MUTATORS ****
 
-        // Item equip functions take the name and look up the item
-        public void EquipItem(string itemName) {
-            if (!ItemDefinitions.ContainsKey(itemName)) {
-                return;
-            }
-
-            Item item = ItemDefinitions[itemName];
-            Equipped.Slot slot = item.ItemSlot;
-            if (slot == Equipped.Slot.SLOTLESS) {
-                EquippedItems.SlotlessItems.Add(item);
-                Character.equipped.SlotlessItems.Add(itemName);
-            } else {
-                EquippedItems.SlottedItems[item.ItemSlot] = item;
-                Character.equipped.SlottedItems[slot] = itemName;
-            }
-        }
-
-        public void UnequipItem(Equipped.Slot from) {
-            EquippedItems.SlottedItems.Remove(from);
-            Character.equipped.SlottedItems.Remove(from);
-        }
-
-        public void UnequipItem(string slotlessItemName) {
-            EquippedItems.SlotlessItems.RemoveAll(x => x.ItemEffect.Name.Equals(slotlessItemName));
-            Character.equipped.SlotlessItems.RemoveAll(x => x.Equals(slotlessItemName));
-        }
+        // still to come:  functions that move items around on the character,
+        // accounting for how that affects weight and such.
 
         // **** ACCESSORS ****
 

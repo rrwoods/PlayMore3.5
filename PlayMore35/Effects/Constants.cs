@@ -190,6 +190,14 @@
         public static readonly string SPACE = "Space";
         public static readonly string REACH = "Reach";
 
+        public static readonly string ARMOR_WEIGHT = "Armor weight";
+        public static readonly string TOTAL_WEIGHT = "Total weight";
+        public static readonly string LIGHT_LOAD = "Light load";
+        public static readonly string MEDIUM_LOAD = "Medium load";
+        public static readonly string HEAVY_LOAD = "Heavy load";
+        public static readonly string ENCUMBERED = "Encumbered";
+        public static readonly string CANT_BE_ENCUMBERED = "Can't be encumbered";
+
         public static readonly string ALL_SPEEDS = "All speeds";
         public static readonly string BASE_SPEED = "Base speed";
         public static readonly string LAND_SPEED = "Land speed";

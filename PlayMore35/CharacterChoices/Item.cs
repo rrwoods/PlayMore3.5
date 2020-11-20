@@ -7,17 +7,20 @@ namespace PlayMore35.Items {
     public class Item : IJsonable {
         public Equipped.Slot ItemSlot;
         public Effect ItemEffect;
+        public decimal Weight;
 
         public JToken ToJson() {
             return new JObject(
                 new JProperty("slot", ItemSlot),
-                new JProperty("effect", ItemEffect.ToJson())
+                new JProperty("effect", ItemEffect.ToJson()),
+                new JProperty("weight", Weight)
             );
         }
 
         public Item(JObject json) {
             ItemSlot = (Equipped.Slot) Enum.Parse(typeof(Equipped.Slot), (string)json["slot"], false);
             ItemEffect = new Effect((JObject)json["effect"]);
+            Weight = (decimal)json["weight"];
         }
 
         public Item() { }

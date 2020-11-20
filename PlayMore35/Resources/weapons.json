@@ -1,6 +1,19 @@
 [
   {
+    "name": "gauntlet",
+    "weight": 1,
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "SIMPLE",
+      "damage": "1d3",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
     "name": "unarmed strike",
+    "weight": 0,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "SIMPLE",
@@ -12,6 +25,7 @@
   },
   {
     "name": "dagger",
+    "weight": 1,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "SIMPLE",
@@ -24,6 +38,7 @@
   },
   {
     "name": "punching dagger",
+    "weight": 1,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "SIMPLE",
@@ -35,6 +50,7 @@
   },
   {
     "name": "spiked gauntlet",
+    "weight": 1,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "SIMPLE",
@@ -46,6 +62,7 @@
   },
   {
     "name": "light mace",
+    "weight": 4,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "SIMPLE",
@@ -57,6 +74,7 @@
   },
   {
     "name": "sickle",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "SIMPLE",
@@ -68,6 +86,7 @@
   },
   {
     "name": "club",
+    "weight": 3,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "SIMPLE",
@@ -80,6 +99,7 @@
   },
   {
     "name": "heavy mace",
+    "weight": 8,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "SIMPLE",
@@ -91,6 +111,7 @@
   },
   {
     "name": "morningstar",
+    "weight": 6,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "SIMPLE",
@@ -102,6 +123,7 @@
   },
   {
     "name": "shortspear",
+    "weight": 3,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "SIMPLE",
@@ -114,6 +136,7 @@
   },
   {
     "name": "longspear",
+    "weight": 9,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "SIMPLE",
@@ -126,6 +149,7 @@
   },
   {
     "name": "quarterstaff",
+    "weight": 4,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "SIMPLE",
@@ -144,6 +168,7 @@
   },
   {
     "name": "spear",
+    "weight": 6,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "SIMPLE",
@@ -156,6 +181,7 @@
   },
   {
     "name": "heavy crossbow",
+    "weight": 8,
     "effort": "ONE_HANDED",
     "projectile": {
       "bow": false,
@@ -169,6 +195,7 @@
   },
   {
     "name": "light crossbow",
+    "weight": 4,
     "effort": "LIGHT",
     "projectile": {
       "bow": false,
@@ -182,6 +209,7 @@
   },
   {
     "name": "dart",
+    "weight": 0.5,
     "effort": "ONE_HANDED",
     "thrown": {
       "proficiency": "SIMPLE",
@@ -194,6 +222,7 @@
   },
   {
     "name": "javelin",
+    "weight": 2,
     "effort": "ONE_HANDED",
     "thrown": {
       "proficiency": "SIMPLE",
@@ -213,6 +242,7 @@
   },
   {
     "name": "sling",
+    "weight": 0,
     "effort": "ONE_HANDED",
     "projectile": {
       "bow": false,
@@ -226,6 +256,7 @@
   },
   {
     "name": "throwing axe",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -238,6 +269,7 @@
   },
   {
     "name": "light hammer",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -250,6 +282,7 @@
   },
   {
     "name": "handaxe",
+    "weight": 3,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -261,6 +294,7 @@
   },
   {
     "name": "kukri",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -272,6 +306,7 @@
   },
   {
     "name": "light pick",
+    "weight": 3,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -283,6 +318,7 @@
   },
   {
     "name": "sap",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -293,7 +329,20 @@
     }
   },
   {
-    "name": "light shield bash",
+    "name": "light wooden shield bash",
+    "weight": 0,
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d3",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "light steel shield bash",
+    "weight": 0,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -305,6 +354,7 @@
   },
   {
     "name": "armor spikes",
+    "weight": 0,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -315,7 +365,20 @@
     }
   },
   {
-    "name": "spiked light shield bash",
+    "name": "spiked light wooden shield bash",
+    "weight": 0,
+    "effort": "LIGHT",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d4",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "spiked light steel shield bash",
+    "weight": 0,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -327,6 +390,7 @@
   },
   {
     "name": "short sword",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
@@ -338,6 +402,7 @@
   },
   {
     "name": "battleaxe",
+    "weight": 6,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -349,6 +414,7 @@
   },
   {
     "name": "flail",
+    "weight": 5,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -360,6 +426,7 @@
   },
   {
     "name": "longsword",
+    "weight": 4,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -371,6 +438,7 @@
   },
   {
     "name": "heavy pick",
+    "weight": 6,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -382,6 +450,7 @@
   },
   {
     "name": "rapier",
+    "weight": 2,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -393,6 +462,7 @@
   },
   {
     "name": "scimitar",
+    "weight": 4,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -403,7 +473,8 @@
     }
   },
   {
-    "name": "heavy shield bash",
+    "name": "heavy wooden shield bash",
+    "weight": 0,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -414,7 +485,32 @@
     }
   },
   {
-    "name": "spiked heavy shield bash",
+    "name": "heavy steel shield bash",
+    "weight": 0,
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d4",
+      "type": "bludgeoning",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "spiked heavy wooden shield bash",
+    "weight": 0,
+    "effort": "ONE_HANDED",
+    "melee": {
+      "proficiency": "MARTIAL",
+      "damage": "1d6",
+      "type": "piercing",
+      "threat": 20,
+      "crit": 2
+    }
+  },
+  {
+    "name": "spiked heavy steel shield bash",
+    "weight": 0,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -426,6 +522,7 @@
   },
   {
     "name": "trident",
+    "weight": 4,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -438,6 +535,7 @@
   },
   {
     "name": "warhammer",
+    "weight": 5,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -449,6 +547,7 @@
   },
   {
     "name": "falchion",
+    "weight": 8,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -460,6 +559,7 @@
   },
   {
     "name": "glaive",
+    "weight": 10,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -472,6 +572,7 @@
   },
   {
     "name": "greataxe",
+    "weight": 12,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -483,6 +584,7 @@
   },
   {
     "name": "greatclub",
+    "weight": 8,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -494,6 +596,7 @@
   },
   {
     "name": "heavy flail",
+    "weight": 10,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -505,6 +608,7 @@
   },
   {
     "name": "greatsword",
+    "weight": 8,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -516,6 +620,7 @@
   },
   {
     "name": "guisarme",
+    "weight": 12,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -528,6 +633,7 @@
   },
   {
     "name": "halberd",
+    "weight": 12,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -539,6 +645,7 @@
   },
   {
     "name": "lance",
+    "weight": 10,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -550,6 +657,7 @@
   },
   {
     "name": "ranseur",
+    "weight": 12,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -561,6 +669,7 @@
   },
   {
     "name": "scythe",
+    "weight": 10,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "MARTIAL",
@@ -572,6 +681,7 @@
   },
   {
     "name": "longbow",
+    "weight": 3,
     "effort": "TWO_HANDED",
     "projectile": {
       "proficiency": "MARTIAL",
@@ -584,6 +694,7 @@
   },
   {
     "name": "composite longbow",
+    "weight": 3,
     "effort": "TWO_HANDED",
     "projectile": {
       "proficiency": "MARTIAL",
@@ -597,6 +708,7 @@
   },
   {
     "name": "shortbow",
+    "weight": 2,
     "effort": "TWO_HANDED",
     "projectile": {
       "proficiency": "MARTIAL",
@@ -609,6 +721,7 @@
   },
   {
     "name": "composite shortbow",
+    "weight": 2,
     "effort": "TWO_HANDED",
     "projectile": {
       "proficiency": "MARTIAL",
@@ -622,6 +735,7 @@
   },
   {
     "name": "kama",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "EXOTIC",
@@ -633,6 +747,7 @@
   },
   {
     "name": "nunchaku",
+    "weight": 2,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "EXOTIC",
@@ -644,6 +759,7 @@
   },
   {
     "name": "sai",
+    "weight": 1,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "EXOTIC",
@@ -656,6 +772,7 @@
   },
   {
     "name": "siangham",
+    "weight": 1,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "EXOTIC",
@@ -667,6 +784,7 @@
   },
   {
     "name": "bastard sword",
+    "weight": 6,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -678,6 +796,7 @@
   },
   {
     "name": "dwarven waraxe",
+    "weight": 8,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -689,6 +808,7 @@
   },
   {
     "name": "whip",
+    "weight": 2,
     "effort": "ONE_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -700,6 +820,7 @@
   },
   {
     "name": "orc double axe",
+    "weight": 15,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -718,6 +839,7 @@
   },
   {
     "name": "spiked chain",
+    "weight": 10,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -729,6 +851,7 @@
   },
   {
     "name": "dire flail",
+    "weight": 10,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -747,6 +870,7 @@
   },
   {
     "name": "gnome hooked hammer",
+    "weight": 6,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -765,6 +889,7 @@
   },
   {
     "name": "two-bladed sword",
+    "weight": 10,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -783,6 +908,7 @@
   },
   {
     "name": "dwarven urgosh",
+    "weight": 12,
     "effort": "TWO_HANDED",
     "melee": {
       "proficiency": "EXOTIC",
@@ -801,6 +927,7 @@
   },
   {
     "name": "bolas",
+    "weight": 2,
     "effort": "ONE_HANDED",
     "thrown": {
       "proficiency": "EXOTIC",
@@ -813,6 +940,7 @@
   },
   {
     "name": "hand crossbow",
+    "weight": 2,
     "effort": "LIGHT",
     "projectile": {
       "bow": false,
@@ -826,6 +954,7 @@
   },
   {
     "name": "repeating heavy crossbow",
+    "weight": 12,
     "effort": "ONE_HANDED",
     "projectile": {
       "bow": false,
@@ -839,6 +968,7 @@
   },
   {
     "name": "repeating light crossbow",
+    "weight": 6,
     "effort": "LIGHT",
     "projectile": {
       "bow": false,
@@ -852,6 +982,7 @@
   },
   {
     "name": "net",
+    "weight": 6,
     "effort": "ONE_HANDED",
     "thrown": {
       "proficiency": "EXOTIC",
@@ -864,6 +995,7 @@
   },
   {
     "name": "shuriken",
+    "weight": 0.5,
     "effort": "ONE_HANDED",
     "thrown": {
       "proficiency": "EXOTIC",

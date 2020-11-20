@@ -144,7 +144,7 @@ namespace PlayMore35.Effects.Tests {
 
         public Armor Breastplate() {
             return new Armor {
-                Weight = Armor.WeightCategory.MEDIUM,
+                Type = Armor.WeightCategory.MEDIUM,
                 Name = "breastplate",
                 ArmorBonus = 5,
                 MaxDexBonus = 3,
@@ -194,7 +194,7 @@ namespace PlayMore35.Effects.Tests {
 
         private Armor Chainmail() {
             return new Armor {
-                Weight = Armor.WeightCategory.MEDIUM,
+                Type = Armor.WeightCategory.MEDIUM,
                 Name = "chainmail",
                 ArmorBonus = +5,
                 MaxDexBonus = +2,
@@ -417,6 +417,20 @@ namespace PlayMore35.Effects.Tests {
 
             p.AddEffect(speedModifier);
             CheckStat(+4, p, items, JUMP);
+        }
+
+        [TestMethod]
+        public void TestLoadAmounts() {
+            EffectPool p = Rules();
+            Equipped noItems = new Equipped();
+            CheckStat(33, p, noItems, LIGHT_LOAD);
+            CheckStat(66, p, noItems, MEDIUM_LOAD);
+            CheckStat(100, p, noItems, HEAVY_LOAD);
+
+            p.AddEffect(ModifyStat(+30, STR_SCORE));
+            CheckStat(2133, p, noItems, LIGHT_LOAD);
+            CheckStat(4266, p, noItems, MEDIUM_LOAD);
+            CheckStat(6400, p, noItems, HEAVY_LOAD);
         }
 
         [TestMethod]

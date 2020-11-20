@@ -17,6 +17,10 @@ namespace PlayMore35.Items {
 
         public Dictionary<Slot, Item> SlottedItems = new Dictionary<Slot, Item>();
         public List<Item> SlotlessItems = new List<Item>();
+        
+        // the total weight of all items NOT accounted for above that still contribute
+        // to the player's total weight carried.
+        public decimal UnequippedWeight;
 
         public IEnumerable<Effect> GetGlobalEffects() {
             IEnumerable<Effect> all = Enumerable.Empty<Effect>();

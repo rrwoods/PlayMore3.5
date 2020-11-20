@@ -1,6 +1,7 @@
 [
   {
     "slot": "NECK",
+    "weight": 0,
     "effect": {
       "name": "amulet of health +2",
       "active": "always",
