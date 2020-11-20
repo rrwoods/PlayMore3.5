@@ -83,6 +83,22 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod]
+        public void TestSaves() {
+            EffectPool r = Rules();
+            Equipped items = new Equipped();
+
+            r.AddEffect(new Effect("stuff")
+                .AddModifier(CON_SCORE, new Modifier(4, UNTYPED)) // +2 fort
+                .AddModifier(DEX_SCORE, new Modifier(8, UNTYPED)) // +4 reflex
+                .AddModifier(WIS_SCORE, new Modifier(12, UNTYPED)) // +6 will
+            );
+
+            CheckStat(+2, r, items, FORT_SAVES);
+            CheckStat(+4, r, items, REF_SAVES);
+            CheckStat(+6, r, items, WILL_SAVES);
+        }
+
+        [TestMethod]
         public void TestAC() {
             EffectPool p = Rules();
 

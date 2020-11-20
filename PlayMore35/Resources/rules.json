@@ -165,6 +165,24 @@
       ]
     },
     {
+      "name": "Fort saves",
+      "tags": [
+        "All saves"
+      ]
+    },
+    {
+      "name": "Ref saves",
+      "tags": [
+        "All saves"
+      ]
+    },
+    {
+      "name": "Will saves",
+      "tags": [
+        "All saves"
+      ]
+    },
+    {
       "name": "Total hit dice"
     },
     {
@@ -987,6 +1005,10 @@
       "name": "Size modifier"
     },
     {
+      "name": "Space",
+      "min": 0
+    },
+    {
       "name": "Reach",
       "min": 0
     },
@@ -1016,7 +1038,7 @@
         {
           "affects": "STR score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1038,7 +1060,7 @@
         {
           "affects": "STR score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1133,7 +1155,7 @@
         {
           "affects": "DEX score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1155,7 +1177,7 @@
         {
           "affects": "DEX score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1250,7 +1272,7 @@
         {
           "affects": "CON score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1272,7 +1294,7 @@
         {
           "affects": "CON score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1367,7 +1389,7 @@
         {
           "affects": "INT score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1389,7 +1411,7 @@
         {
           "affects": "INT score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1484,7 +1506,7 @@
         {
           "affects": "WIS score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1506,7 +1528,7 @@
         {
           "affects": "WIS score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1601,7 +1623,7 @@
         {
           "affects": "CHA score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1623,7 +1645,7 @@
         {
           "affects": "CHA score",
           "mod": {
-            "type": "ability modifier",
+            "type": "untyped",
             "amounts": [
               {
                 "multiply": {
@@ -1705,6 +1727,23 @@
                     "stat value": "CHA modifier"
                   }
                 ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "This is here temporarily.",
+      "active": "always",
+      "modifier": [
+        {
+          "affects": "Space",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": 5
               }
             ]
           }
@@ -5941,6 +5980,57 @@
             "amounts": [
               {
                 "item value": "shield bonus"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CON",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Fort saves",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "CON modifier"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DEX",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Ref saves",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "DEX modifier"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "WIS",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Will saves",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "WIS modifier"
               }
             ]
           }

@@ -28,6 +28,10 @@ namespace PlayMore35.Effects {
         private readonly List<string> Flags = new List<string>();
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
+        public override string ToString() {
+            return Name;
+        }
+
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("name", Name),

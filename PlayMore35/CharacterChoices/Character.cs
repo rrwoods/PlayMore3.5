@@ -4,6 +4,10 @@ using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
+        public string name;
+        public string gender;
+        public string alignment;
+
         public Dictionary<string, int> assignedAbilityScores;
         public string race; // templates later
         public List<string> classLevels;
@@ -19,6 +23,9 @@ namespace PlayMore35.CharacterChoices {
 
         public JToken ToJson() {
             return new JObject(
+                new JProperty("name", name),
+                new JProperty("gender", gender),
+                new JProperty("alignment", alignment),
                 new JProperty("assigned", new JObject(assignedAbilityScores.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("race", race),
                 new JProperty("classes", new JArray(classLevels)),
@@ -34,6 +41,9 @@ namespace PlayMore35.CharacterChoices {
         }
 
         public Character(JObject json) {
+            name = (string)json["name"];
+            gender = (string)json["gender"];
+            alignment = (string)json["alignment"];
             assignedAbilityScores = ((JObject)json["assigned"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
             race = (string)json["race"];
             classLevels = ((JArray)json["classes"]).Select(x => (string)x).ToList();
@@ -55,6 +65,9 @@ namespace PlayMore35.CharacterChoices {
         }
 
         public Character() {
+            name = "";
+            gender = "";
+            alignment = "";
             assignedAbilityScores = new Dictionary<string, int>();
             race = "";
             classLevels = new List<string>();

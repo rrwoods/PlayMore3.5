@@ -7,7 +7,7 @@ using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Effects {
     public class EffectPool : IJsonable {
-        private readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
+        public readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
         private readonly List<Effect> effects = new List<Effect>();
 
         public JToken ToJson() {
