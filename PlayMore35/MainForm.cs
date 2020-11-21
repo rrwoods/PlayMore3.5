@@ -2,22 +2,29 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
+using static PlayMore35.Properties.Resources;
 using Newtonsoft.Json.Linq;
 
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35 {
     public partial class MainForm : Form {
+        [DllImport("gdi32.dll")]
+        private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
+        private PrivateFontCollection fonts = new PrivateFontCollection();
+        Font scala;
+
         private int leftBuffer;
         private int topBuffer;
-        private int verticalBufferSmall;
         private int verticalBufferLarge;
         private int columnWidth;
         private bool loaded = false;
@@ -53,6 +60,14 @@ namespace PlayMore35 {
 
         public MainForm() {
             InitializeComponent();
+
+            IntPtr fontPtr = Marshal.AllocCoTaskMem(Scala_SansRegular_LF.Length);
+            Marshal.Copy(Scala_SansRegular_LF, 0, fontPtr, Scala_SansRegular_LF.Length);
+            fonts.AddMemoryFont(fontPtr, Scala_SansRegular_LF.Length);
+            uint dummy = 0;
+            AddFontMemResourceEx(fontPtr, (uint)Scala_SansRegular_LF.Length, IntPtr.Zero, ref dummy);
+            Marshal.FreeCoTaskMem(fontPtr);
+            scala = new Font(fonts.Families[0], 9.75F);
         }
 
         private (int value, List<string> explanation) GetStatValue(string stat) {
@@ -234,11 +249,11 @@ namespace PlayMore35 {
                         label.Left = columnLeft;
                         label.Top = top;
                         label.MaximumSize = new Size(columnWidth - 2 * leftBuffer, 1000);
-                        top = label.Bottom + verticalBufferSmall;
+                        top = label.Bottom;
                     }
                 }
                 if (anyText) {
-                    top += (verticalBufferLarge - verticalBufferSmall);
+                    top += verticalBufferLarge;
                 }
             }
         }
@@ -298,10 +313,11 @@ namespace PlayMore35 {
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
+            Font = scala;
+
             leftBuffer = lblTopLeft.Left;
             topBuffer = lblTopLeft.Top + 5; // eh.
-            verticalBufferSmall = lblSecondLine.Height - (2 * lblTopLeft.Height);
-            verticalBufferLarge = lblSecondLine.Top - lblTopLeft.Bottom;
+            verticalBufferLarge = 5;
 
             using (OpenFileDialog dialog = new OpenFileDialog()) {
                 dialog.InitialDirectory = "c:\\";

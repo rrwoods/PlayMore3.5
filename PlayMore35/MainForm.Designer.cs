@@ -25,7 +25,6 @@
         /// </summary>
         private void InitializeComponent() {
             this.lblTopLeft = new System.Windows.Forms.Label();
-            this.lblSecondLine = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.mnuCondition = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
@@ -36,20 +35,10 @@
             this.lblTopLeft.AutoSize = true;
             this.lblTopLeft.Location = new System.Drawing.Point(12, 24);
             this.lblTopLeft.Name = "lblTopLeft";
-            this.lblTopLeft.Size = new System.Drawing.Size(70, 16);
+            this.lblTopLeft.Size = new System.Drawing.Size(76, 17);
             this.lblTopLeft.TabIndex = 0;
             this.lblTopLeft.Text = "Sample text";
             this.lblTopLeft.Visible = false;
-            // 
-            // lblSecondLine
-            // 
-            this.lblSecondLine.AutoSize = true;
-            this.lblSecondLine.Location = new System.Drawing.Point(12, 47);
-            this.lblSecondLine.Name = "lblSecondLine";
-            this.lblSecondLine.Size = new System.Drawing.Size(93, 32);
-            this.lblSecondLine.TabIndex = 1;
-            this.lblSecondLine.Text = "more stuff here!\r\nsecond line";
-            this.lblSecondLine.Visible = false;
             // 
             // menuStrip1
             // 
@@ -69,13 +58,12 @@
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(913, 557);
-            this.Controls.Add(this.lblSecondLine);
+            this.ClientSize = new System.Drawing.Size(913, 592);
             this.Controls.Add(this.lblTopLeft);
             this.Controls.Add(this.menuStrip1);
-            this.Font = new System.Drawing.Font("Scala Sans", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "PlayMore3.5";
@@ -91,7 +79,6 @@
         #endregion
 
         private System.Windows.Forms.Label lblTopLeft;
-        private System.Windows.Forms.Label lblSecondLine;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem mnuCondition;
     }

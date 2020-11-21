@@ -103,6 +103,16 @@ namespace PlayMore35.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] Scala_SansRegular_LF {
+            get {
+                object obj = ResourceManager.GetObject("Scala_SansRegular_LF", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] shields {
             get {
                 object obj = ResourceManager.GetObject("shields", resourceCulture);
