@@ -4441,7 +4441,7 @@
       ],
       "text": [
         {
-          "category": "skills",
+          "category": "Senses",
           "text": "All vision activities and checks (like Spot) auto-fail"
         },
         {
@@ -4588,7 +4588,7 @@
       ],
       "text": [
         {
-          "category": "skills",
+          "category": "Senses",
           "text": "Auto-fail Listen checks"
         },
         {

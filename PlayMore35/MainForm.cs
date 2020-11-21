@@ -101,7 +101,7 @@ namespace PlayMore35 {
             if (abilityCheck.value == abilityModifier.value) {
                 check.Hide();
             } else {
-                check.Text = "(check at " + (abilityCheck.value >= 0 ? "+" : "") + abilityCheck.value + ")";
+                check.Text = "(check at " + ValueText(abilityCheck.value, true) + ")";
                 ToolTipLabel(check, abilityCheck.explanation);
                 check.Show();
             }
@@ -149,7 +149,7 @@ namespace PlayMore35 {
             desc2.Text = character.alignment + " " + sizeCategory; // + creature type
 
             LabelStat(init, "Initiative", INITIATIVE);
-            OneLineText(senses, textEffects, SENSES, ";");
+            MultilineText(senses, textEffects, SENSES);
             LabelStat(listen, "Listen", LISTEN, ","); // ok navi calm down.
             LabelStat(spot, "Spot", SPOT);
             OneLineText(evade, textEffects, EVADE);

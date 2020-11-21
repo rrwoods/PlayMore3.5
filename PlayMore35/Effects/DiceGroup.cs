@@ -94,14 +94,14 @@ namespace PlayMore35.Effects {
                 return "" + dice[1];
             }
 
-            string ret = string.Join(" + ", components);
+            string ret = string.Join("+", components);
             if (!dice.ContainsKey(1)) {
                 return ret;
             }
             int modifier = dice[1];
             return modifier > 0
-                ? ret + " + " + modifier
-                : ret + " - " + (-modifier); // a lot of work to put a space before it, but it keeps things consistent
+                ? ret + "+" + modifier
+                : ret + modifier;
         }
     }
 }

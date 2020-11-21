@@ -330,10 +330,10 @@ namespace PlayMore35.Effects.Tests {
             List<Attack> daggerAttacks = Attack.Generate(p, 0, items);
             Assert.AreEqual(Weapon.Range.MELEE, daggerAttacks[0].Range);
             Assert.AreEqual(+3, daggerAttacks[0].AttackBonus.bonus);
-            Assert.AreEqual("1d4 + 3", daggerAttacks[0].Damage.dice.ToString());
+            Assert.AreEqual("1d4+3", daggerAttacks[0].Damage.dice.ToString());
             Assert.AreEqual(Weapon.Range.THROWN, daggerAttacks[1].Range);
             Assert.AreEqual(+5, daggerAttacks[1].AttackBonus.bonus);
-            Assert.AreEqual("1d4 + 3", daggerAttacks[1].Damage.dice.ToString());
+            Assert.AreEqual("1d4+3", daggerAttacks[1].Damage.dice.ToString());
 
             p.AddEffect(new Effect("discipline focus")
                 .AddAttackModifier(new AttackMatcher().Tag("shadow hand"), new Modifier(+1, UNTYPED))
@@ -374,7 +374,7 @@ namespace PlayMore35.Effects.Tests {
             List<Attack> attack = Attack.Generate(p, 0, items);
             Assert.AreEqual(1, attack.Count());
             Assert.AreEqual(+5, attack[0].AttackBonus.bonus);
-            Assert.AreEqual("1d6 + 2", attack[0].Damage.dice.ToString());
+            Assert.AreEqual("1d6+2", attack[0].Damage.dice.ToString());
         }
 
         [TestMethod]
@@ -392,7 +392,7 @@ namespace PlayMore35.Effects.Tests {
             List<Attack> attack = Attack.Generate(p, 0, items);
             Assert.AreEqual(1, attack.Count());
             Assert.AreEqual(+3, attack[0].AttackBonus.bonus);
-            Assert.AreEqual("1d6 + 3", attack[0].Damage.dice.ToString());
+            Assert.AreEqual("1d6+3", attack[0].Damage.dice.ToString());
         }
 
         [TestMethod]
@@ -472,10 +472,10 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("3d4", dice.ToString());
 
             dice.AddDice(5, 6);
-            Assert.AreEqual("5d6 + 3d4", dice.ToString());
+            Assert.AreEqual("5d6+3d4", dice.ToString());
 
             dice.AddDice(4, 1);
-            Assert.AreEqual("5d6 + 3d4 + 4", dice.ToString());
+            Assert.AreEqual("5d6+3d4+4", dice.ToString());
         }
 
         [TestMethod]
@@ -509,7 +509,7 @@ namespace PlayMore35.Effects.Tests {
             );
             daggerMelee = Attack.Generate(p, 0, items)[0];
             var (sneakDice, sneakExpl) = daggerMelee.Damage;
-            Assert.AreEqual("2d6 + 1d4", sneakDice.ToString());
+            Assert.AreEqual("2d6+1d4", sneakDice.ToString());
 
             p.AddEffect(ModifyStat(+8, STR_SCORE));
 
@@ -531,10 +531,10 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual(1, greatswordAttacks.Count());
             Attack greatswordAttack = greatswordAttacks[0];
             var (lotsaDice, bigExpl) = greatswordAttack.Damage;
-            Assert.AreEqual("4d6 + 10", lotsaDice.ToString());
+            Assert.AreEqual("4d6+10", lotsaDice.ToString());
 
             var (critDice, critExpl) = greatswordAttack.CriticalDamage;
-            Assert.AreEqual("6d6 + 20", critDice.ToString());
+            Assert.AreEqual("6d6+20", critDice.ToString());
             critExpl.ForEach(x => Console.WriteLine(x));
         }
 
@@ -650,14 +650,14 @@ namespace PlayMore35.Effects.Tests {
             // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
             powerAttackAmount.Amt = 1;
             CheckAttack(+1, "1d4", p, daggerPri);
-            CheckAttack(+1, "1d8 + 1", p, longswordPri);
-            CheckAttack(+1, "1d8 + 2", p, longswordTwo);
+            CheckAttack(+1, "1d8+1", p, longswordPri);
+            CheckAttack(+1, "1d8+2", p, longswordTwo);
 
             // Power attack for "3", clamped to 2 -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
             powerAttackAmount.Amt = 3;
             CheckAttack(+0, "1d4", p, daggerPri);
-            CheckAttack(+0, "1d8 + 2", p, longswordPri);
-            CheckAttack(+0, "1d8 + 4", p, longswordTwo);
+            CheckAttack(+0, "1d8+2", p, longswordPri);
+            CheckAttack(+0, "1d8+4", p, longswordTwo);
 
             // Power attack for "-1", clamped to 0, same as no power attack
             powerAttackAmount.Amt = -1;
@@ -670,7 +670,7 @@ namespace PlayMore35.Effects.Tests {
         public void TestLocalWeaponProperty() {
             Weapon dagger = Dagger(false);
             dagger.Melee?.atk.Properties.Add(WeaponProperty.PLUS[2]);
-            CheckAttack(+2, "1d4 + 2", Rules(), new Equipped { PrimaryHandWeapon = dagger });
+            CheckAttack(+2, "1d4+2", Rules(), new Equipped { PrimaryHandWeapon = dagger });
         }
 
         [TestMethod]
@@ -765,7 +765,7 @@ namespace PlayMore35.Effects.Tests {
 
             CheckAttack(
                 new int[] { +2, +0, +0, +0, +0 },
-                new string[] { "1d4 + 3", "1d4 + 2", "1d4 + 1", "1d4 + 2", "1d4 + 1" },
+                new string[] { "1d4+3", "1d4+2", "1d4+1", "1d4+2", "1d4+1" },
                 p,
                 new Equipped {
                     PrimaryHandWeapon = quarterstaff,

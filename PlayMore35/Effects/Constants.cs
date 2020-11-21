@@ -233,8 +233,8 @@
         public static readonly string SHIELD_BONUS = "shield bonus";
         public static readonly string MAX_DEX_BONUS = "max DEX bonus";
 
-        public static readonly string SENSES = "senses";
-        public static readonly string EVADE = "evade";
+        public static readonly string SENSES = "Senses";
+        public static readonly string EVADE = "Evade";
         // AC -- already exists
         public static readonly string DR = "DR";
         public static readonly string REACT = "React";
