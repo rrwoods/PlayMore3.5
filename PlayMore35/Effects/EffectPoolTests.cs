@@ -42,8 +42,11 @@ namespace PlayMore35.Effects.Tests {
             // 0 HP causes some weirdness too
             p.AddEffect(ModifyStat(1, MAX_HP));
 
-            p.AddEffect(new Effect("Simple weapon proficiency")
+            p.AddEffect(new Effect("Proficiencies")
                 .AddProficiency(new AttackMatcher().SimpleOrMartial())
+                .AddProficiency(Armor.WeightCategory.LIGHT)
+                .AddProficiency(Armor.WeightCategory.MEDIUM)
+                .AddShieldProficiency(false)
             );
 
             return p;
@@ -208,14 +211,25 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(10, p, items, AC);
         }
 
-        private Armor Chainmail() {
+        private Armor FullPlate() {
             return new Armor {
-                Type = Armor.WeightCategory.MEDIUM,
-                Name = "chainmail",
-                ArmorBonus = +5,
+                Type = Armor.WeightCategory.HEAVY,
+                Name = "full plate",
+                ArmorBonus = +8,
+                MaxDexBonus = +1,
+                ArmorCheckPenalty = -6,
+                ArcaneSpellFailure = 35
+            };
+        }
+
+        private Shield TowerShield() {
+            return new Shield {
+                Name = "tower shield",
+                ShieldBonus = +4,
+                Tower = true,
                 MaxDexBonus = +2,
-                ArmorCheckPenalty = -5,
-                ArcaneSpellFailure = 30
+                ArmorCheckPenalty = -10,
+                ArcaneSpellFailure = 50
             };
         }
 
@@ -223,34 +237,34 @@ namespace PlayMore35.Effects.Tests {
         public void TestACP() {
             EffectPool p = Rules();
             Equipped items = new Equipped {
-                DonnedArmor = Chainmail()
+                DonnedArmor = FullPlate()
             };
 
-            CheckStat(-5, p, items, BALANCE);
-            CheckStat(-5, p, items, RIDE);
-            CheckStat(-10, p, items, SWIM);
+            CheckStat(-6, p, items, BALANCE);
+            CheckStat(-6, p, items, RIDE);
+            CheckStat(-12, p, items, SWIM);
             CheckStat(0, p, items, DIPLOMACY);
 
-            items.OffHandShield = HeavyShield();
-            CheckStat(-7, p, items, BALANCE);
-            CheckStat(-7, p, items, RIDE);
-            CheckStat(-14, p, items, SWIM);
+            items.OffHandShield = TowerShield();
+            CheckStat(-16, p, items, BALANCE);
+            CheckStat(-16, p, items, RIDE);
+            CheckStat(-32, p, items, SWIM);
             CheckStat(0, p, items, DIPLOMACY);
 
-            p.AddEffect(new Effect("Medium armor proficiency")
-                .AddProficiency(Armor.WeightCategory.MEDIUM)
+            p.AddEffect(new Effect("Heavy armor proficiency")
+                .AddProficiency(Armor.WeightCategory.HEAVY)
             );
-            CheckStat(-7, p, items, BALANCE);
-            CheckStat(-2, p, items, RIDE);
-            CheckStat(-14, p, items, SWIM);
+            CheckStat(-16, p, items, BALANCE);
+            CheckStat(-10, p, items, RIDE);
+            CheckStat(-32, p, items, SWIM);
             CheckStat(0, p, items, DIPLOMACY);
 
             p.AddEffect(new Effect("Shield proficiency")
-                .AddShieldProficiency(false)
+                .AddShieldProficiency(true)
             );
-            CheckStat(-7, p, items, BALANCE);
+            CheckStat(-16, p, items, BALANCE);
             CheckStat(0, p, items, RIDE);
-            CheckStat(-14, p, items, SWIM);
+            CheckStat(-32, p, items, SWIM);
             CheckStat(0, p, items, DIPLOMACY);
         }
 
