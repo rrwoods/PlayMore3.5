@@ -85,7 +85,7 @@ namespace PlayMore35.Items {
 
         private DiceGroup BaseDamageDice(int sizeCategory, (int, int) damageDieMedium) {
             DiceGroup dice = new DiceGroup(damageSteps[damageDieMedium][sizeCategory + 4]) {
-                Name = "Base " + SIZE_CATEGORIES[sizeCategory + 4] + " " + WeaponName + " damage"
+                Name = "Base damage"
             };
             return dice;
         }

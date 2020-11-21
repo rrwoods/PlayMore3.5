@@ -153,7 +153,6 @@
 
         public static readonly string AC = "AC";
         public static readonly string TOUCH_AC = "Touch AC";
-        public static readonly string FLAT_FOOTED = "Flat-footed";
         public static readonly string UNCANNY_DODGE = "Uncanny dodge";
         public static readonly string DENIED_DEX = "Denied DEX to AC";
 
@@ -184,7 +183,6 @@
         public static readonly string LETHAL_DAMAGE = "Lethal damage";
         public static readonly string NONLETHAL_DAMAGE = "Nonlethal damage";
         public static readonly string NEGATIVE_LEVELS = "Negative levels";
-        public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
 
         public static readonly string[] SIZE_CATEGORIES = { "fine", "diminutive", "tiny", "small", "medium", "large", "huge", "gargantuan", "colossal" };
         public static readonly string SIZE_CATEGORY = "Size category";
@@ -239,16 +237,16 @@
         public static readonly string EVADE = "evade";
         // AC -- already exists
         public static readonly string DR = "DR";
-        public static readonly string REACT = "react";
-        public static readonly string RESIST = "resist";
-        public static readonly string IMMUNE = "immune";
+        public static readonly string REACT = "React";
+        public static readonly string RESIST = "Resist";
+        public static readonly string IMMUNE = "Immune";
         public static readonly string SR = "SR";
-        public static readonly string MOVEMENT = "movement";
-        public static readonly string ACTIONS = "actions"; // for "can't act", or "no standard actions", or the like
-        public static readonly string ATK_OPTIONS = "atk options"; // stat blocks spell it this way and i like it.
+        public static readonly string MOVEMENT = "Movement";
+        public static readonly string ACTIONS = "Actions"; // for "can't act", or "no standard actions", or the like
+        public static readonly string ATK_OPTIONS = "Atk Options"; // stat blocks spell it this way and i like it.
         public static readonly string SQ = "SQ";
-        public static readonly string SKILLS = "skills";
-        public static readonly string CONDITION = "condition"; // try really, really hard not to use this -- it's not at any point of performance.
+        public static readonly string SKILLS = "Skills";
+        public static readonly string CONDITION = "Condition"; // try really, really hard not to use this -- it's not at any point of performance.
         public static readonly string UNCATEGORIZED = "uncategorized";
         // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
         public static readonly string[] TEXT_CATEGORIES = {
@@ -260,5 +258,27 @@
 
         public static readonly string CANT_ACT = "Can't act";
         public static readonly string CANT_RUN_OR_CHARGE = "Can't run or charge";
+
+        public static readonly string FLAT_FOOTED = "flat-footed";
+        public static readonly string STABLE = "stable";
+        public static readonly string BLINDED = "blinded";
+        public static readonly string CHARGING = "charging";
+        public static readonly string COWERING = "cowering";
+        public static readonly string DAZED = "dazed";
+        public static readonly string DAZZLED = "dazzled";
+        public static readonly string DEAFENED = "deafened";
+        public static readonly string ENTANGLED = "entangled";
+        public static readonly string EXHAUSTED = "exhausted";
+        public static readonly string FASCINATED = "fascinated";
+        public static readonly string FATIGUED = "fatigued";
+        public static readonly string INVISIBLE = "invisible";
+        public static readonly string NAUSEATED = "nauseated";
+        public static readonly string PRONE = "prone";
+        public static readonly string SICKENED = "sickened";
+        public static readonly string STUNNED = "stunned";
+        public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
+        public static readonly string[] ALL_TOGGLEABLE_CONDITIONS = new string[] {
+            BLINDED, CHARGING, COWERING, DAZED, DAZZLED, DEAFENED, ENTANGLED, EXHAUSTED, FASCINATED, FATIGUED, FLAT_FOOTED, HELPLESS_AND_PARALYZED, INVISIBLE, NAUSEATED, PRONE, SICKENED, STABLE, STUNNED
+        };
     }
 }

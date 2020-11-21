@@ -22,9 +22,6 @@ namespace PlayMore35.Effects {
             if (json["conditional"] != null) {
                 return new ConditionalToggle((JObject)json["conditional"]);
             }
-            if (json["controllable"] != null) {
-                return new ControllableToggle((string)json["controllable"]);
-            }
             if (json["flag"] != null) {
                 return new FlagToggle((string)json["flag"]);
             }

@@ -7,11 +7,13 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 
+using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Global {
     public class Controller {
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
+        public Dictionary<string, ControllableToggle> Toggles;
 
         public Character Character;
 
@@ -105,12 +107,26 @@ namespace PlayMore35.Global {
                 location.items.Select(x => ItemDefinitions[x].Weight).Sum();
         }
 
+        public void AddToggle(string flag) {
+            ControllableToggle toggle = new ControllableToggle(flag);
+            Effects.AddEffect(new Effect(flag)
+                .SetToggle(toggle)
+                .AddFlag(flag)
+            );
+            Toggles[flag] = toggle;
+        }
+
         // Completely toss out every effect and item definition we have, and refresh the rules of the game.
         // Also, re-determine the character's equipped items.
         public void Reload() {
             Effects = new EffectPool();
             Effects.ReadJson(GetJsonResource(Properties.Resources.rules));
             Effects.GenerateCharacterEffects(Character);
+
+            Toggles = new Dictionary<string, ControllableToggle>();
+            foreach (string flag in ALL_TOGGLEABLE_CONDITIONS) {
+                AddToggle(flag);
+            }
 
             WeaponDefinitions = GetJsonResource(Properties.Resources.weapons)
                 .Select(x => new Weapon((JObject)x))

@@ -5,7 +5,7 @@ using PlayMore35.Effects;
 namespace PlayMore35.Items {
     public class Equipped {
         public enum Slot {
-            HEAD, EYES, NECK, TORSO, BODY, WAIST, SHOULDERS, ARMS, HANDS, RING1, RING2, FEET, SLOTLESS
+            HEAD, FACE, NECK, TORSO, BODY, WAIST, SHOULDERS, ARMS, HANDS, RING1, RING2, FEET, SLOTLESS
         }
 
         public Weapon PrimaryHandWeapon = null;
