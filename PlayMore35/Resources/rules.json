@@ -1076,31 +1076,6 @@
       ]
     },
     {
-      "name": "STR modifier",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "STR modifier",
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "fixed": -5
-              },
-              {
-                "multiply": {
-                  "variable": {
-                    "stat value": "STR score"
-                  },
-                  "scalar": 0.5
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
       "name": "STR bonus",
       "active": "always",
       "modifiers": [
@@ -1185,31 +1160,6 @@
                     "stat value": "DEX drain"
                   },
                   "scalar": -1.0
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "DEX modifier",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "DEX modifier",
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "fixed": -5
-              },
-              {
-                "multiply": {
-                  "variable": {
-                    "stat value": "DEX score"
-                  },
-                  "scalar": 0.5
                 }
               }
             ]
@@ -1310,31 +1260,6 @@
       ]
     },
     {
-      "name": "CON modifier",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "CON modifier",
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "fixed": -5
-              },
-              {
-                "multiply": {
-                  "variable": {
-                    "stat value": "CON score"
-                  },
-                  "scalar": 0.5
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
       "name": "CON bonus",
       "active": "always",
       "modifiers": [
@@ -1419,31 +1344,6 @@
                     "stat value": "INT drain"
                   },
                   "scalar": -1.0
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "INT modifier",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "INT modifier",
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "fixed": -5
-              },
-              {
-                "multiply": {
-                  "variable": {
-                    "stat value": "INT score"
-                  },
-                  "scalar": 0.5
                 }
               }
             ]
@@ -1544,31 +1444,6 @@
       ]
     },
     {
-      "name": "WIS modifier",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "WIS modifier",
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "fixed": -5
-              },
-              {
-                "multiply": {
-                  "variable": {
-                    "stat value": "WIS score"
-                  },
-                  "scalar": 0.5
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
       "name": "WIS bonus",
       "active": "always",
       "modifiers": [
@@ -1653,31 +1528,6 @@
                     "stat value": "CHA drain"
                   },
                   "scalar": -1.0
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "CHA modifier",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "CHA modifier",
-          "mod": {
-            "type": "base",
-            "amounts": [
-              {
-                "fixed": -5
-              },
-              {
-                "multiply": {
-                  "variable": {
-                    "stat value": "CHA score"
-                  },
-                  "scalar": 0.5
                 }
               }
             ]
@@ -1890,7 +1740,7 @@
       ]
     },
     {
-      "name": "Appraise ranks",
+      "name": "ranks",
       "active": "always",
       "modifiers": [
         {
@@ -1903,13 +1753,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Autohypnosis ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Autohypnosis",
           "mod": {
@@ -1920,13 +1764,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Balance ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Balance",
           "mod": {
@@ -1937,13 +1775,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Bluff ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Bluff",
           "mod": {
@@ -1954,13 +1786,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Climb ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Climb",
           "mod": {
@@ -1971,13 +1797,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Concentration ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Concentration",
           "mod": {
@@ -1988,13 +1808,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Craft ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Craft",
           "mod": {
@@ -2005,13 +1819,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Decipher Script ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Decipher Script",
           "mod": {
@@ -2022,13 +1830,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Diplomacy ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Diplomacy",
           "mod": {
@@ -2039,13 +1841,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Disable Device ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Disable Device",
           "mod": {
@@ -2056,13 +1852,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Disguise ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Disguise",
           "mod": {
@@ -2073,13 +1863,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Escape Artist ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Escape Artist",
           "mod": {
@@ -2090,13 +1874,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Forgery ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Forgery",
           "mod": {
@@ -2107,13 +1885,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Gather Information ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Gather Information",
           "mod": {
@@ -2124,13 +1896,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Handle Animal ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Handle Animal",
           "mod": {
@@ -2141,13 +1907,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Heal ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Heal",
           "mod": {
@@ -2158,13 +1918,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Hide ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Hide",
           "mod": {
@@ -2175,13 +1929,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Iaijutsu Focus ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Iaijutsu Focus",
           "mod": {
@@ -2192,13 +1940,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Intimidate ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Intimidate",
           "mod": {
@@ -2209,13 +1951,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Jump ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Jump",
           "mod": {
@@ -2226,13 +1962,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (arcana) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (arcana)",
           "mod": {
@@ -2243,13 +1973,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (architecture and engineering) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (architecture and engineering)",
           "mod": {
@@ -2260,13 +1984,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (dungeoneering) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (dungeoneering)",
           "mod": {
@@ -2277,13 +1995,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (geography) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (geography)",
           "mod": {
@@ -2294,13 +2006,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (history) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (history)",
           "mod": {
@@ -2311,13 +2017,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (local) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (local)",
           "mod": {
@@ -2328,13 +2028,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (nature) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (nature)",
           "mod": {
@@ -2345,13 +2039,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (nobility and royalty) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (nobility and royalty)",
           "mod": {
@@ -2362,13 +2050,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (psionics) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (psionics)",
           "mod": {
@@ -2379,13 +2061,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (religion) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (religion)",
           "mod": {
@@ -2396,13 +2072,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Knowledge (the planes) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Knowledge (the planes)",
           "mod": {
@@ -2413,13 +2083,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Martial Lore ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Martial Lore",
           "mod": {
@@ -2430,13 +2094,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Listen ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Listen",
           "mod": {
@@ -2447,13 +2105,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Move Silently ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Move Silently",
           "mod": {
@@ -2464,13 +2116,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Open Lock ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Open Lock",
           "mod": {
@@ -2481,13 +2127,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (act) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (act)",
           "mod": {
@@ -2498,13 +2138,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (comedy) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (comedy)",
           "mod": {
@@ -2515,13 +2149,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (dance) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (dance)",
           "mod": {
@@ -2532,13 +2160,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (keyboard instruments) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (keyboard instruments)",
           "mod": {
@@ -2549,13 +2171,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (oratory) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (oratory)",
           "mod": {
@@ -2566,13 +2182,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (percussion instruments) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (percussion instruments)",
           "mod": {
@@ -2583,13 +2193,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (string instruments) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (string instruments)",
           "mod": {
@@ -2600,13 +2204,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (wind instruments) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (wind instruments)",
           "mod": {
@@ -2617,13 +2215,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Perform (sing) ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Perform (sing)",
           "mod": {
@@ -2634,13 +2226,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Profession ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Profession",
           "mod": {
@@ -2651,13 +2237,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Psicraft ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Psicraft",
           "mod": {
@@ -2668,13 +2248,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Ride ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Ride",
           "mod": {
@@ -2685,13 +2259,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Search ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Search",
           "mod": {
@@ -2702,13 +2270,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Sense Motive ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Sense Motive",
           "mod": {
@@ -2719,13 +2281,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Sleight Of Hand ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Sleight Of Hand",
           "mod": {
@@ -2736,13 +2292,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Spellcraft ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Spellcraft",
           "mod": {
@@ -2753,13 +2303,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Spot ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Spot",
           "mod": {
@@ -2770,13 +2314,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Survival ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Survival",
           "mod": {
@@ -2787,13 +2325,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Swim ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Swim",
           "mod": {
@@ -2804,13 +2336,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Truespeak ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Truespeak",
           "mod": {
@@ -2821,13 +2347,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Tumble ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Tumble",
           "mod": {
@@ -2838,13 +2358,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Use Magic Device ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Use Magic Device",
           "mod": {
@@ -2855,13 +2369,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Use Psionic Device ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Use Psionic Device",
           "mod": {
@@ -2872,13 +2380,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Use Rope ranks",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "Use Rope",
           "mod": {
@@ -2886,108 +2388,6 @@
             "amounts": [
               {
                 "stat value": "Use Rope ranks"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "STR modifier to skills",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "STR skills",
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "STR modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "DEX modifier to skills",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "DEX skills",
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "DEX modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "CON modifier to skills",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "CON skills",
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "CON modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "INT modifier to skills",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "INT skills",
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "INT modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "WIS modifier to skills",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "WIS skills",
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "WIS modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "CHA modifier to skills",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "CHA skills",
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "CHA modifier"
               }
             ]
           }
@@ -3826,7 +3226,7 @@
       ]
     },
     {
-      "name": "Armor check penalty (armor, not proficient)",
+      "name": "Armor check penalty",
       "active": {
         "not": {
           "proficient": "armor"
@@ -3869,7 +3269,7 @@
       ]
     },
     {
-      "name": "Armor check penalty (shield)",
+      "name": "Shield armor check penalty",
       "active": {
         "proficient": "shield"
       },
@@ -3970,7 +3370,7 @@
       ]
     },
     {
-      "name": "Armor check penalty (shield, not proficient)",
+      "name": "Shield armor check penalty",
       "active": {
         "not": {
           "proficient": "shield"
@@ -4544,23 +3944,6 @@
       ]
     },
     {
-      "name": "STR to grapple",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "Grapple",
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "STR modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
       "name": "Base attack bonus",
       "active": "always",
       "attack": [
@@ -4733,52 +4116,7 @@
       ]
     },
     {
-      "name": "DEX to ranged attacks",
-      "active": "always",
-      "attack": [
-        {
-          "affects": {
-            "range": [
-              "THROWN",
-              "BOW",
-              "OTHER_PROJECTILE"
-            ]
-          },
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "DEX modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "STR to melee attacks",
-      "active": "always",
-      "attack": [
-        {
-          "affects": {
-            "range": [
-              "MELEE",
-              "REACH_MELEE"
-            ]
-          },
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "STR modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "STR bonus ×1.5 to two-handed melee damage",
+      "name": "STR ×1.5",
       "active": "always",
       "damage": [
         {
@@ -4801,32 +4139,6 @@
                   },
                   "scalar": 1.5
                 }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "STR bonus to primary-hand melee damage",
-      "active": "always",
-      "damage": [
-        {
-          "affects": {
-            "range": [
-              "MELEE",
-              "REACH_MELEE"
-            ],
-            "hand": [
-              "PRIMARY_HAND_TWF",
-              "ONE_HANDED"
-            ]
-          },
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "STR bonus"
               }
             ]
           }
@@ -4888,7 +4200,7 @@
       ]
     },
     {
-      "name": "STR bonus ×0.5 to off-hand melee damage",
+      "name": "STR ×0.5",
       "active": "always",
       "damage": [
         {
@@ -4911,69 +4223,6 @@
                   },
                   "scalar": 0.5
                 }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "STR penalty to bow damage",
-      "active": "always",
-      "damage": [
-        {
-          "affects": {
-            "range": [
-              "BOW"
-            ]
-          },
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "STR penalty"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "STR to thrown weapon damage",
-      "active": "always",
-      "damage": [
-        {
-          "affects": {
-            "range": [
-              "THROWN"
-            ]
-          },
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "STR modifier"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "STR to sling damage",
-      "active": "always",
-      "damage": [
-        {
-          "affects": {
-            "name": [
-              "sling"
-            ]
-          },
-          "mod": {
-            "type": "ability modifier",
-            "amounts": [
-              {
-                "stat value": "STR modifier"
               }
             ]
           }
@@ -5878,23 +5127,6 @@
       ]
     },
     {
-      "name": "DEX penalty to AC",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "AC",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "stat value": "DEX penalty"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
       "name": "Base AC",
       "active": "always",
       "modifiers": [
@@ -5922,30 +5154,6 @@
             "amounts": [
               {
                 "stat value": "natural armor"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "DEX bonus to AC",
-      "active": "always",
-      "modifiers": [
-        {
-          "affects": "AC",
-          "mod": {
-            "type": "dodge",
-            "amounts": [
-              {
-                "smallest": [
-                  {
-                    "item value": "max DEX bonus"
-                  },
-                  {
-                    "stat value": "DEX bonus"
-                  }
-                ]
               }
             ]
           }
@@ -5981,9 +5189,266 @@
       ]
     },
     {
+      "name": "STR",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "STR modifier",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "STR score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "STR skills",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR modifier"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Grapple",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR modifier"
+              }
+            ]
+          }
+        }
+      ],
+      "attack": [
+        {
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR modifier"
+              }
+            ]
+          }
+        }
+      ],
+      "damage": [
+        {
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ],
+            "hand": [
+              "PRIMARY_HAND_TWF",
+              "ONE_HANDED"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR bonus"
+              }
+            ]
+          }
+        },
+        {
+          "affects": {
+            "range": [
+              "THROWN"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR modifier"
+              }
+            ]
+          }
+        },
+        {
+          "affects": {
+            "name": [
+              "sling"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR modifier"
+              }
+            ]
+          }
+        },
+        {
+          "affects": {
+            "range": [
+              "BOW"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "STR penalty"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DEX",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "DEX modifier",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "DEX score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "DEX skills",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "DEX modifier"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Ref saves",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "DEX modifier"
+              }
+            ]
+          }
+        },
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "dodge",
+            "amounts": [
+              {
+                "smallest": [
+                  {
+                    "item value": "max DEX bonus"
+                  },
+                  {
+                    "stat value": "DEX bonus"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "stat value": "DEX penalty"
+              }
+            ]
+          }
+        }
+      ],
+      "attack": [
+        {
+          "affects": {
+            "range": [
+              "THROWN",
+              "BOW",
+              "OTHER_PROJECTILE"
+            ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "DEX modifier"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "CON",
       "active": "always",
       "modifiers": [
+        {
+          "affects": "CON modifier",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "CON score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "CON skills",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "CON modifier"
+              }
+            ]
+          }
+        },
         {
           "affects": "Fort saves",
           "mod": {
@@ -5998,16 +5463,35 @@
       ]
     },
     {
-      "name": "DEX",
+      "name": "INT",
       "active": "always",
       "modifiers": [
         {
-          "affects": "Ref saves",
+          "affects": "INT modifier",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "INT score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "INT skills",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
-                "stat value": "DEX modifier"
+                "stat value": "INT modifier"
               }
             ]
           }
@@ -6019,12 +5503,78 @@
       "active": "always",
       "modifiers": [
         {
+          "affects": "WIS modifier",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "WIS score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "WIS skills",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "WIS modifier"
+              }
+            ]
+          }
+        },
+        {
           "affects": "Will saves",
           "mod": {
             "type": "ability modifier",
             "amounts": [
               {
                 "stat value": "WIS modifier"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CHA",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "CHA modifier",
+          "mod": {
+            "type": "base",
+            "amounts": [
+              {
+                "fixed": -5
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "CHA score"
+                  },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "CHA skills",
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "CHA modifier"
               }
             ]
           }
