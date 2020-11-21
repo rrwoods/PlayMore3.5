@@ -111,6 +111,16 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        // Used to check whether a skill has any non-ability-modifier effects on it,
+        // to determine whether to display it.
+        public bool Relevant(EffectPool pool, Items.Equipped items) {
+            return pool.GetModifiers(items, this)
+                .Where(x => !ignoredModifierTypes.ContainsKey(x.Type) || !ignoredModifierTypes[x.Type].On(pool, items))
+                .Where(x => x.ComputeAmount(pool, items) != 0)
+                .Where(x => x.Type != Constants.ABILITY_MODIFIER)
+                .Any();
+        }
+
         public (int value, List<string> explanation) GetValue(EffectPool pool, Items.Equipped items) {
             IEnumerable<Modifier> mods = pool.GetModifiers(items, this)
                 .Where(x => !ignoredModifierTypes.ContainsKey(x.Type) || !ignoredModifierTypes[x.Type].On(pool, items));

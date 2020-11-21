@@ -5953,7 +5953,7 @@
       ]
     },
     {
-      "name": "Donned armor",
+      "name": "equipment",
       "active": "always",
       "modifiers": [
         {
@@ -5966,13 +5966,7 @@
               }
             ]
           }
-        }
-      ]
-    },
-    {
-      "name": "Current shield",
-      "active": "always",
-      "modifiers": [
+        },
         {
           "affects": "AC",
           "mod": {

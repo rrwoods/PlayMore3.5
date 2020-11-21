@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using PlayMore35.CharacterChoices;
@@ -17,20 +15,25 @@ using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35 {
     public partial class MainForm : Form {
-        private Controller controller = null;
-
         private int leftBuffer;
         private int topBuffer;
-        private int verticalBuffer;
+        private int verticalBufferSmall;
+        private int verticalBufferLarge;
         private int columnWidth;
+        private bool loaded = false;
 
         private Label name, desc1, desc2, init, senses, listen, spot, evade, languages;
+        private List<List<Label>> beforeCombat; // can't initialize right away apparently.
 
         private Label ac, touch, hp, dr, react, resist, immune, sr, fort, reflex, will;
+        private List<List<Label>> enemyTurn;
 
         private Label speed;
-        private List<Label> attacks;
+        private List<Label> attacks = new List<Label>();
+        private List<Label> damage = new List<Label>();
+        private List<Label> criticals = new List<Label>();
         private Label space, reach, bab, grapple, atkOptions;
+        private List<List<Label>> myTurn;
 
         private Label str_score, str_mod, str_check;
         private Label dex_score, dex_mod, dex_check;
@@ -39,7 +42,10 @@ namespace PlayMore35 {
         private Label wis_score, wis_mod, wis_check;
         private Label cha_score, cha_mod, cha_check;
         private Label sq;
-        private List<Label> skills;
+        private List<Label> skills = new List<Label>();
+        private List<List<Label>> misc;
+
+        private Controller controller = null;
 
         public MainForm() {
             InitializeComponent();
@@ -49,27 +55,31 @@ namespace PlayMore35 {
             return controller.Effects.GetStat(stat).GetValue(controller.Effects, controller.EquippedItems);
         }
 
+        private string ValueText(int value, bool plus) {
+            return ((plus && value >= 0 ? "+" : "") + value).Replace("-", "–");
+        }
+
         private void LabelStat(Label label, string prefix, string stat, string postfix = "", bool plus = true) {
             (int value, List<string> explanation) = GetStatValue(stat);
-            string statValue = (plus && value >= 0 ? "+" : "") + value;
+            string statValue = ValueText(value, plus);
             label.Text = prefix + " " + statValue + postfix;
-            new ToolTip().SetToolTip(label, string.Join("\n", explanation));
+            label.ToolTip(explanation);
         }
 
         private void AbilityScore(Label score, Label mod, Label check, string ability) {
             LabelStat(score, ability, ability + " score", "", false);
 
             var abilityModifier = GetStatValue(ability + " modifier");
-            string value = (abilityModifier.value >= 0 ? "+" : "") + abilityModifier.value;
+            string value = ValueText(abilityModifier.value, true);
             mod.Text = "(" + value + ")";
-            new ToolTip().SetToolTip(mod, string.Join("\n", abilityModifier.explanation));
+            mod.ToolTip(abilityModifier.explanation);
 
             var abilityCheck = GetStatValue(ability + " checks");
             if (abilityCheck.value == abilityModifier.value) {
                 check.Hide();
             } else {
                 check.Text = "(check at " + (abilityCheck.value >= 0 ? "+" : "") + abilityCheck.value + ")";
-                new ToolTip().SetToolTip(check, string.Join("\n", abilityCheck.explanation));
+                check.ToolTip(abilityCheck.explanation);
                 check.Show();
             }
             
@@ -87,14 +97,21 @@ namespace PlayMore35 {
             }
         }
 
-        private void RepositionColumn(int columnLeft, params Label[] labels) {
+        private void RepositionColumn(int columnLeft, List<List<Label>> column) {
             int top = topBuffer;
-            foreach (Label label in labels) {
-                if (label.Text.Any()) {
-                    label.Left = columnLeft;
-                    label.Top = top;
-                    label.MaximumSize = new Size(columnWidth - 2 * leftBuffer, 1000);
-                    top = label.Bottom + verticalBuffer;
+            foreach (List<Label> labels in column) {
+                bool anyText = false;
+                foreach (Label label in labels) {
+                    if (label.Text.Any()) {
+                        anyText = true;
+                        label.Left = columnLeft;
+                        label.Top = top;
+                        label.MaximumSize = new Size(columnWidth - 2 * leftBuffer, 1000);
+                        top = label.Bottom + verticalBufferSmall;
+                    }
+                }
+                if (anyText) {
+                    top += (verticalBufferLarge - verticalBufferSmall);
                 }
             }
         }
@@ -111,21 +128,27 @@ namespace PlayMore35 {
         }
 
         private void RepositionLabels() {
+            if (!loaded) {
+                return;
+            }
             columnWidth = ClientSize.Width / 4;
 
-            RepositionColumn(leftBuffer, name, desc1, desc2, init, evade, languages);
+            RepositionColumn(leftBuffer, beforeCombat);
             RepositionRow(init, senses, listen, spot);
 
-            RepositionColumn(leftBuffer + columnWidth, ac, hp, react, resist, immune, sr, fort);
+            RepositionColumn(leftBuffer + columnWidth, enemyTurn);
             RepositionRow(ac, touch);
             RepositionRow(hp, dr);
             RepositionRow(fort, reflex, will);
 
-            RepositionColumn(leftBuffer + columnWidth * 2, speed, space, bab, atkOptions);
+            RepositionColumn(leftBuffer + columnWidth * 2, myTurn);
             RepositionRow(space, reach);
+            for (int i=0; i<attacks.Count(); i++) {
+                RepositionRow(attacks[i], damage[i], criticals[i]);
+            }
             RepositionRow(bab, grapple);
 
-            RepositionColumn(leftBuffer + columnWidth * 3, str_score, dex_score, con_score, int_score, wis_score, cha_score, sq);
+            RepositionColumn(leftBuffer + columnWidth * 3, misc);
             RepositionRow(str_score, str_mod, str_check);
             RepositionRow(dex_score, dex_mod, dex_check);
             RepositionRow(con_score, con_mod, con_check);
@@ -141,7 +164,8 @@ namespace PlayMore35 {
         private void MainForm_Load(object sender, EventArgs e) {
             leftBuffer = lblTopLeft.Left;
             topBuffer = lblTopLeft.Top;
-            verticalBuffer = lblSecondLine.Top - lblTopLeft.Bottom;
+            verticalBufferSmall = lblSecondLine.Height - (2 * lblTopLeft.Height);
+            verticalBufferLarge = lblSecondLine.Top - lblTopLeft.Bottom;
 
             Character character;
             using (OpenFileDialog dialog = new OpenFileDialog()) {
@@ -167,6 +191,14 @@ namespace PlayMore35 {
             spot = new Label().Initialize(this);
             evade = new Label().Initialize(this);
             languages = new Label().Initialize(this);
+            beforeCombat = new List<List<Label>> {
+                new List<Label> { name },
+                new List<Label> { desc1 },
+                new List<Label> { desc2 },
+                new List<Label> { init },
+                new List<Label> { evade },
+                new List<Label> { languages }
+            };
 
             ac = new Label().Initialize(this);
             touch = new Label().Initialize(this);
@@ -179,6 +211,12 @@ namespace PlayMore35 {
             fort = new Label().Initialize(this);
             reflex = new Label().Initialize(this);
             will = new Label().Initialize(this);
+            enemyTurn = new List<List<Label>> {
+                new List<Label> { ac, hp },
+                new List<Label> { react, resist, immune },
+                new List<Label> { sr },
+                new List<Label> { fort }
+            };
 
             speed = new Label().Initialize(this);
             space = new Label().Initialize(this);
@@ -186,6 +224,13 @@ namespace PlayMore35 {
             bab = new Label().Initialize(this);
             grapple = new Label().Initialize(this);
             atkOptions = new Label().Initialize(this);
+            myTurn = new List<List<Label>> {
+                new List<Label> { speed },
+                attacks,
+                new List<Label> { space },
+                new List<Label> { bab },
+                new List<Label> { atkOptions }
+            };
 
             str_score = new Label().Initialize(this);
             str_mod = new Label().Initialize(this);
@@ -206,6 +251,11 @@ namespace PlayMore35 {
             cha_mod = new Label().Initialize(this);
             cha_check = new Label().Initialize(this);
             sq = new Label().Initialize(this);
+            misc = new List<List<Label>> {
+                new List<Label> { str_score, dex_score, con_score, int_score, wis_score, cha_score },
+                new List<Label> { sq },
+                skills
+            };
 
             Dictionary<string, List<string>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
@@ -255,7 +305,30 @@ namespace PlayMore35 {
             LabelStat(will, "Will", WILL_SAVES);
 
             LabelStat(speed, "Speed", LAND_SPEED, " ft.", false);
-            // attacks later...
+            attacks.Clear();
+            damage.Clear();
+            criticals.Clear();
+            foreach (Items.Attack attack in controller.GetAttacks()) {
+                StringBuilder text = new StringBuilder();
+                text.Append(attack.RangeIncrement > 0 ? "Ranged " : "Melee ");
+                text.Append(attack.WeaponName + " " + attack.AttackBonus.bonus);
+                foreach (int extra in attack.ExtraAttacks) {
+                    text.Append("/" + (attack.AttackBonus.bonus - extra));
+                }
+                Label attackLabel = new Label().Initialize(this);
+                attackLabel.Text = text.ToString();
+                attackLabel.ToolTip(attack.AttackBonus.explanation);
+                attacks.Add(attackLabel);
+                Label damageLabel = new Label().Initialize(this);
+                damageLabel.Text = "(" + attack.Damage.dice.ToString() + ")";
+                damageLabel.ToolTip(attack.Damage.explanation);
+                damage.Add(damageLabel);
+                Label critLabel = new Label().Initialize(this);
+                critLabel.Text = "(" + attack.ThreatRange + (attack.ThreatRange == 20 ? "" : "–20") + "/"
+                    + attack.CriticalDamage.dice.ToString() + ")";
+                critLabel.ToolTip(attack.CriticalDamage.explanation);
+                criticals.Add(critLabel);
+            }
             LabelStat(space, "Space", SPACE, " ft.;", false);
             LabelStat(reach, "Reach", REACH, " ft.", false);
             LabelStat(bab, "Base Atk", BASE_ATTACK_BONUS, ";");
@@ -269,8 +342,16 @@ namespace PlayMore35 {
             AbilityScore(wis_score, wis_mod, wis_check, "WIS");
             AbilityScore(cha_score, cha_mod, cha_check, "CHA");
             MultilineText(sq, textEffects, SQ);
-            // skills later...
+            skills.Clear();
+            foreach (string skill in SKILLS_LIST) {
+                if (controller.Effects.GetStat(skill).Relevant(controller.Effects, controller.EquippedItems)) {
+                    Label label = new Label().Initialize(this);
+                    LabelStat(label, skill, skill);
+                    skills.Add(label);
+                }
+            }
 
+            loaded = true;
             RepositionLabels();
         }
     }
@@ -280,6 +361,10 @@ namespace PlayMore35 {
             form.Controls.Add(label);
             label.AutoSize = true;
             return label;
+        }
+
+        public static void ToolTip(this Label label, List<string> explanation) {
+            new ToolTip().SetToolTip(label, string.Join("\n", explanation));
         }
     }
 }

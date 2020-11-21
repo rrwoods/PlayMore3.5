@@ -43,9 +43,9 @@
             this.lblSecondLine.AutoSize = true;
             this.lblSecondLine.Location = new System.Drawing.Point(15, 35);
             this.lblSecondLine.Name = "lblSecondLine";
-            this.lblSecondLine.Size = new System.Drawing.Size(42, 15);
+            this.lblSecondLine.Size = new System.Drawing.Size(70, 30);
             this.lblSecondLine.TabIndex = 1;
-            this.lblSecondLine.Text = "label1";
+            this.lblSecondLine.Text = "label1\r\nsecond line";
             this.lblSecondLine.Visible = false;
             // 
             // MainForm
