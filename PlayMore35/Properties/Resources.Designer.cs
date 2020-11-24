@@ -93,6 +93,16 @@ namespace PlayMore35.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] races {
+            get {
+                object obj = ResourceManager.GetObject("races", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] rules {
             get {
                 object obj = ResourceManager.GetObject("rules", resourceCulture);

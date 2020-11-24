@@ -22,6 +22,7 @@ namespace PlayMore35.CharacterChoices {
                     ["WIS"] = 13,
                     ["CHA"] = 10
                 },
+                race = "dwarf",
                 classLevels = new List<string> {
                     "Binder", "Barbarian", "Fighter", "Fighter", "Crusader", "Crusader", "Pious Templar"
                 },
@@ -81,13 +82,9 @@ namespace PlayMore35.CharacterChoices {
             // some shoehorning of effects that would normally come from
             // race/class/feat definitions, that i don't have yet:
             controller.Effects.AddEffect(new Effect("character effects...")
-                .AddModifier(DEX_SCORE, new Modifier(-2, RACIAL))
-                .AddModifier(CON_SCORE, new Modifier(+2, RACIAL))
                 .AddProficiency(AttackMatcher.ALL)
                 .AddProficiency(Armor.WeightCategory.HEAVY)
                 .AddShieldProficiency(false)
-                .AddModifier(BASE_SPEED, new Modifier(20, BASE))
-                .AddFlag(CANT_BE_ENCUMBERED)
             );
 
             Equipped noItems = new Equipped();
@@ -97,19 +94,19 @@ namespace PlayMore35.CharacterChoices {
             // Check weapons/attacks:
             CheckAttacks(
                 controller,
-                //             axe alone, shld alone,    axe twf,  shld twf
-                new int[]    {        +2,         +2,         -4,        -8 },
-                new string[] { "1d4 + 2", "1d10 + 2", "1d10 + 2", "1d4 + 1" }
+                //           axe alone, shld alone, axe twf, shld twf
+                new int[]    {     +2,       +2,       -4,      -8 },
+                new string[] { "1d4+2", "1d10+2", "1d10+2", "1d4+1" }
             );
 
             // Check basic armor/shields:
-            CheckStat(controller, AC, 18);
+            CheckStat(controller, AC, 19);
 
             // Check armor check penalty (total -8 from armor + shield):
             // Jump = 5 ranks + 2 STR - 8 ACP - 6 speed = -7 total
             CheckStat(controller, JUMP, -7);
-            // Intimidate = 4 ranks + 0 CHA (no ACP) = +4 total
-            CheckStat(controller, INTIMIDATE, +4);
+            // Intimidate = 4 ranks - 1 CHA (no ACP) = +3 total
+            CheckStat(controller, INTIMIDATE, +3);
 
             CheckStat(controller, LAND_SPEED, 20);
 

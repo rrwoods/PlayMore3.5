@@ -233,6 +233,7 @@
         public static readonly string SHIELD_BONUS = "shield bonus";
         public static readonly string MAX_DEX_BONUS = "max DEX bonus";
 
+        public static readonly string LANGUAGES = "Languages";
         public static readonly string SENSES = "Senses";
         public static readonly string EVADE = "Evade";
         // AC -- already exists
@@ -244,13 +245,14 @@
         public static readonly string MOVEMENT = "Movement";
         public static readonly string ACTIONS = "Actions"; // for "can't act", or "no standard actions", or the like
         public static readonly string ATK_OPTIONS = "Atk Options"; // stat blocks spell it this way and i like it.
+        public static readonly string SPECIAL_ACTIONS = "Special Actions";
         public static readonly string SQ = "SQ";
         public static readonly string SKILLS = "Skills";
         public static readonly string CONDITION = "Condition"; // try really, really hard not to use this -- it's not at any point of performance.
         public static readonly string UNCATEGORIZED = "uncategorized";
         // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
         public static readonly string[] TEXT_CATEGORIES = {
-            SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
+            LANGUAGES, SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
         };
         // future supported categories
         public static readonly string METAMAGIC = "metamagic";

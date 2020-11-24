@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using PlayMore35.CharacterChoices;
 using PlayMore35.Items;
 
 using static PlayMore35.Effects.Constants;
@@ -9,6 +10,9 @@ namespace PlayMore35.Effects {
     public class EffectPool : IJsonable {
         public readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
         private readonly List<Effect> effects = new List<Effect>();
+
+        public string CreatureType { get; private set; } = "";
+        public List<string> SubTypes { get; private set; } = new List<string>();
 
         public JToken ToJson() {
             return new JObject(
@@ -101,7 +105,7 @@ namespace PlayMore35.Effects {
         }
 
         // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
-        public void GenerateCharacterEffects(CharacterChoices.Character choices) {
+        public void GenerateCharacterEffects(Character choices) {
             foreach (var ability in choices.assignedAbilityScores) {
                 string name = ability.Key;
                 int score = ability.Value;
@@ -136,7 +140,25 @@ namespace PlayMore35.Effects {
                     .AddModifier(skill.Key + RANKS, new Modifier(skill.Value.Sum(), BASE))
                 );
             }
-            // feat effects go here!
+        }
+
+        public void GenerateRaceEffects(Race race) {
+            CreatureType = race.CreatureType;
+            SubTypes.AddRange(race.SubTypes);
+            Effect effect = new Effect(race.Name + " racial traits")
+                .AddModifier(SIZE_CATEGORY, new Modifier(race.SizeCategory, BASE))
+                .AddModifier(BASE_SPEED, new Modifier(race.BaseSpeed, BASE))
+                .AddModifier(STR_SCORE, new Modifier(race.Str, RACIAL))
+                .AddModifier(DEX_SCORE, new Modifier(race.Dex, RACIAL))
+                .AddModifier(CON_SCORE, new Modifier(race.Con, RACIAL))
+                .AddModifier(INT_SCORE, new Modifier(race.Int, RACIAL))
+                .AddModifier(WIS_SCORE, new Modifier(race.Wis, RACIAL))
+                .AddModifier(CHA_SCORE, new Modifier(race.Cha, RACIAL));
+            foreach (string language in race.AutomaticLanguages) {
+                effect.AddText(LANGUAGES, language);
+            }
+            AddEffect(effect);
+            effects.AddRange(race.Effects);
         }
     }
 }

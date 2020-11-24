@@ -1,0 +1,480 @@
+[
+  {
+    "name": "Human",
+    "type": "humanoid",
+    "subtypes": [ "human" ],
+    "automatic languages": [ "Common" ],
+    "bonus languages": [ "Abyssal", "Aquan", "Auran", "Celestial", "Draconic", "Dwarven", "Elven", "Giant", "Gnome", "Goblin", "Gnoll", "Halfling", "Ignan", "Infernal", "Orc", "Sylvan", "Terran", "Undercommon" ],
+    "effects": [
+      {
+        "name": "human racial traits",
+        "active": "always",
+        "feats": [
+          {
+            "level": 1,
+            "select from": "Any"
+          }
+        ],
+        "skill points": 1
+      }
+    ]
+  },
+  {
+    "name": "dwarf",
+    "type": "humanoid",
+    "subtypes": [ "dwarf" ],
+    "con": 2,
+    "cha": -2,
+    "speed": 20,
+    "automatic languages": [ "Common", "Dwarven" ],
+    "bonus languages": [ "Giant", "Gnome", "Goblin", "Orc", "Terran", "Undercommon" ],
+    "effects": [
+      {
+        "name": "dwarf racial traits",
+        "active": "always",
+        "flags": [
+          "Can't be encumbered"
+        ],
+        "text": [
+          {
+            "category": "Senses",
+            "text": "darkvision 60 ft."
+          },
+          {
+            "category": "Senses",
+            "text": "Auto-search stonework within 10 ft."
+          },
+          {
+            "category": "Skills",
+            "text": "Trapfinding (stone only)"
+          },
+          {
+            "category": "Resist",
+            "text": "+4 vs bull rushes and trips while standing on the ground"
+          },
+          {
+            "category": "Atk Options",
+            "text": "+1 attack vs orcs and goblinoids"
+          },
+          {
+            "category": "AC",
+            "text": "+4 dodge vs giants"
+          },
+          {
+            "category": "Skills",
+            "text": "+2 racial to stone- or metal-related Appraise and Craft"
+          }
+        ],
+        "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
+        "modifiers": [
+          {
+            "affects": "Search (secret doors)",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Saves vs poison",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Saves vs spells",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "elf",
+    "type": "humanoid",
+    "subtypes": [ "elf" ],
+    "dex": 2,
+    "con": -2,
+    "automatic languages": [ "Common", "Elven" ],
+    "bonus languages": [ "Draconic", "Gnoll", "Gnome", "Orc", "Sylvan" ],
+    "effects": [
+      {
+        "name": "elf racial traits",
+        "active": "always",
+        "modifiers": [
+          {
+            "affects": "Saves vs enchantments",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Listen",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Search",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Spot",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          }
+        ],
+        "text": [
+          {
+            "category": "Immune",
+            "text": "sleep"
+          },
+          {
+            "category": "Senses",
+            "text": "low-light vision"
+          },
+          {
+            "category": "Senses",
+            "text": "Auto-search secret doors within 5 ft."
+          }
+        ],
+        "specific feats": [
+          "Martial Weapon Proficiency (longsword)",
+          "Martial Weapon Proficiency (rapier)",
+          "Martial Weapon Proficiency (longbow)",
+          "Martial Weapon Proficiency (composite longbow)",
+          "Martial Weapon Proficiency (shortbow)",
+          "Martial Weapon Proficiency (composite shortbow)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "gnome",
+    "type": "humanoid",
+    "subtypes": [ "gnome" ],
+    "con": 2,
+    "str": -2,
+    "size": -1,
+    "speed": 20,
+    "automatic languages": [ "Common", "Gnome" ],
+    "bonus languages": [ "Draconic", "Dwarven", "Elven", "Giant", "Goblin", "Orc" ],
+    "effects": [
+      {
+        "name": "gnome racial traits",
+        "active": "always",
+        "modifiers": [
+          {
+            "affects": "Saves vs illusions",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Listen",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Craft (alchemy)",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          }
+        ],
+        "text": [
+          {
+            "category": "Senses",
+            "text": "low-light vision"
+          },
+          {
+            "category": "misc casting",
+            "text": "Your illusions have +1 save DC"
+          },
+          {
+            "category": "Atk Options",
+            "text": "+1 racial to attack vs kobolds and goblinoids"
+          },
+          {
+            "category": "AC",
+            "text": "+4 dodge vs giants"
+          },
+          {
+            "category": "Special Actions",
+            "text": "1/day\u2014speak with animals (burrowing mammal only, duration 1 minute)"
+          }
+        ],
+        "weapon familiarity": [ "gnome hooked hammer" ]
+      },
+      {
+        "name": "gnome racial traits",
+        "active": {
+          "conditional": {
+            "left": {
+              "stat value": "CHA score"
+            },
+            "relation": "GREATER_THAN_OR_EQUAL",
+            "right": {
+              "fixed": 10
+            }
+          }
+        },
+        "text": [
+          {
+            "category": "Special Actions",
+            "text": "1/day\u2014dancing lights, ghost sound, prestidigitation"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "half-elf",
+    "type": "humanoid",
+    "subtypes": [ "elf" ],
+    "automatic languages": [ "Common", "Elven" ],
+    "bonus languages": [ "Abyssal", "Aquan", "Auran", "Celestial", "Draconic", "Dwarven", "Giant", "Gnome", "Goblin", "Gnoll", "Halfling", "Ignan", "Infernal", "Orc", "Sylvan", "Terran", "Undercommon" ],
+    "effects": [
+      {
+        "name": "half-elf racial traits",
+        "active": "always",
+        "modifiers": [
+          {
+            "affects": "Listen",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 1
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Search",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 1
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Spot",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 1
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Diplomacy",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Gather Information",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          }
+        ],
+        "text": [
+          {
+            "category": "Immune",
+            "text": "sleep"
+          },
+          {
+            "category": "Senses",
+            "text": "low-light vision"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "half-orc",
+    "type": "humanoid",
+    "subtypes": [ "orc" ],
+    "automatic languages": [ "Common", "Orc" ],
+    "bonus languages": [ "Draconic", "Giant", "Gnoll", "Goblin", "Abyssal" ],
+    "str": 2,
+    "int": -2,
+    "cha": -2,
+    "effects": [
+      {
+        "name": "half-orc racial traits",
+        "active": "always",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "darkvision 60 ft."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "halfling",
+    "type": "humanoid",
+    "subtypes": [ "halfling" ],
+    "automatic languages": [ "Common", "Halfling" ],
+    "bonus languages": [ "Dwarven", "Elven", "Gnome", "Goblin", "Orc" ],
+    "dex": 2,
+    "str": -2,
+    "effects": [
+      {
+        "name": "halfling racial traits",
+        "active": "always",
+        "modifiers": [
+          {
+            "affects": "Climb",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Jump",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Listen",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Move Silently",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          }
+        ],
+        "attack": [
+          {
+            "affects": {
+              "name": [
+                "sling"
+              ]
+            },
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 1
+                }
+              ]
+            }
+          },
+          {
+            "affects": {
+              "range": [
+                "THROWN"
+              ]
+            },
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

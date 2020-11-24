@@ -25,6 +25,12 @@ namespace PlayMore35.Effects {
         private readonly List<Armor.WeightCategory> ArmorProficiencies = new List<Armor.WeightCategory>();
         private readonly List<bool> ShieldProficiencies = new List<bool>(); // false = shield prof, true = shield+tower prof
 
+        private readonly List<(int level, string selectFrom)> Feats = new List<(int, string)>();
+        private readonly List<string> SpecificFeats = new List<string>();
+        private readonly int SkillPointsEachLevel = 0; // x4 at first is assumed
+        // TODO : rethink this; effects that grant skill points take many forms
+        // human / that feat that grants 5 skill points once / nymph's kiss -- all are different
+
         private readonly List<string> Flags = new List<string>();
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
 
@@ -54,6 +60,18 @@ namespace PlayMore35.Effects {
             }
             if (Multipliers.Any()) {
                 json.Add("multipliers", new JArray(Multipliers.Select(x => x.ToJson())));
+            }
+            if (Feats.Any()) {
+                json.Add("feats", new JArray(Feats.Select(x => new JObject(
+                    new JProperty("level", x.level),
+                    new JProperty("select from", x.selectFrom)
+                ))));
+            }
+            if (SpecificFeats.Any()) {
+                json.Add("specific feats", new JArray(SpecificFeats));
+            }
+            if (SkillPointsEachLevel != 0) {
+                json.Add("skill points", SkillPointsEachLevel);
             }
             if (Flags.Any()) {
                 json.Add("flags", new JArray(Flags));
@@ -115,6 +133,15 @@ namespace PlayMore35.Effects {
                         Name = Name
                     }
                 }));
+            }
+            if (json["feats"] != null) {
+                Feats.AddRange(json["feats"].Select(x => ((int)x["level"], (string)x["select from"])));
+            }
+            if (json["specific feats"] != null) {
+                SpecificFeats.AddRange(json["specific feats"].Select(x => (string)x));
+            }
+            if (json["skill points"] != null) {
+                SkillPointsEachLevel = (int)json["skill points"];
             }
             if (json["flags"] != null) {
                 Flags.AddRange(json["flags"].Select(x => (string)x));

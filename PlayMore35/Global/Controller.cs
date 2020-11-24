@@ -16,6 +16,7 @@ namespace PlayMore35.Global {
         public Dictionary<string, ControllableToggle> Toggles;
 
         public Character Character;
+        public Dictionary<string, Race> RaceDefinitions;
 
         public Equipped EquippedItems;
 
@@ -123,10 +124,10 @@ namespace PlayMore35.Global {
             Effects.ReadJson(GetJsonResource(Properties.Resources.rules));
             Effects.GenerateCharacterEffects(Character);
 
-            Toggles = new Dictionary<string, ControllableToggle>();
-            foreach (string flag in ALL_TOGGLEABLE_CONDITIONS) {
-                AddToggle(flag);
-            }
+            RaceDefinitions = GetJsonResource(Properties.Resources.races)
+                .Select(x => new Race((JObject)x))
+                .ToDictionary(x => x.Name);
+            Effects.GenerateRaceEffects(RaceDefinitions[Character.race]);
 
             WeaponDefinitions = GetJsonResource(Properties.Resources.weapons)
                 .Select(x => new Weapon((JObject)x))
@@ -159,6 +160,11 @@ namespace PlayMore35.Global {
             ItemDefinitions = GetJsonResource(Properties.Resources.items)
                 .Select(x => new Item((JObject)x))
                 .ToDictionary(x => x.ItemEffect.Name);
+
+            Toggles = new Dictionary<string, ControllableToggle>();
+            foreach (string flag in ALL_TOGGLEABLE_CONDITIONS) {
+                AddToggle(flag);
+            }
 
             EquippedItems = new Equipped();
 

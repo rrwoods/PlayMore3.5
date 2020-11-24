@@ -32,14 +32,14 @@ namespace PlayMore35 {
         private Label name, desc1, desc2, init, senses, listen, spot, evade, languages, condition;
         private List<List<Label>> beforeCombat; // can't initialize right away apparently.
 
-        private Label ac, touch, currentHp, maxHp, dr, react, resist, immune, sr, fort, reflex, will;
+        private Label ac, touch, acEffects, currentHp, maxHp, dr, react, resist, immune, sr, fort, reflex, will;
         private List<List<Label>> enemyTurn;
 
         private Label speed, movement;
         private List<Label> attacks = new List<Label>();
         private List<Label> damage = new List<Label>();
         private List<Label> criticals = new List<Label>();
-        private Label space, reach, bab, grapple, atkOptions, actions;
+        private Label space, reach, bab, grapple, atkOptions, actions, specialActions;
         private List<List<Label>> myTurn;
 
         private Label str_score, str_mod, str_check;
@@ -144,10 +144,11 @@ namespace PlayMore35 {
             // but I also wanted wrapping line breaks to only appear between classes.  Unfortunately,
             // the zero-width space isn't respected by the wrapping routine for some reason.  So I
             // decided to use a character that looks okay when I put a space after it instead.
-
             string sizeCategory = SIZE_CATEGORIES[GetStatValue(SIZE_CATEGORY).value + 4];
-            desc2.Text = character.alignment + " " + sizeCategory; // + creature type
-
+            desc2.Text = character.alignment + " " + sizeCategory + " " +
+                controller.Effects.CreatureType +
+                (controller.Effects.SubTypes.Any() ? " (" + string.Join(", ", controller.Effects.SubTypes) + ")" : "");
+            MultilineText(languages, textEffects, LANGUAGES);
             LabelStat(init, "Initiative", INITIATIVE);
             MultilineText(senses, textEffects, SENSES);
             LabelStat(listen, "Listen", LISTEN, ","); // ok navi calm down.
@@ -158,6 +159,7 @@ namespace PlayMore35 {
 
             LabelStat(ac, "AC", AC, ",", false);
             LabelStat(touch, "touch", TOUCH_AC, "", false);
+            MultilineText(acEffects, textEffects, AC, false);
             LabelStat(currentHp, "hp", CURRENT_HP, ";", false);
             LabelStat(maxHp, "max", MAX_HP, "", false);
             maxHp.Text += " (" + character.classLevels.Count() + " HD)";
@@ -213,6 +215,7 @@ namespace PlayMore35 {
             LabelStat(bab, "Base Atk", BASE_ATTACK_BONUS, ";");
             LabelStat(grapple, "Grp", GRAPPLE);
             MultilineText(atkOptions, textEffects, ATK_OPTIONS);
+            MultilineText(specialActions, textEffects, SPECIAL_ACTIONS);
             MultilineText(actions, textEffects, ACTIONS);
 
             AbilityScore(str_score, str_mod, str_check, "STR");
@@ -347,14 +350,15 @@ namespace PlayMore35 {
                 new List<Label> { name },
                 new List<Label> { desc1 },
                 new List<Label> { desc2 },
+                new List<Label> { languages },
                 new List<Label> { listen, senses, init },
                 new List<Label> { evade },
-                new List<Label> { languages },
                 new List<Label> { condition },
             };
 
             ac = new Label().Initialize(this);
             touch = new Label().Initialize(this);
+            acEffects = new Label().Initialize(this);
             currentHp = new Label().Initialize(this);
             maxHp = new Label().Initialize(this);
             dr = new Label().Initialize(this);
@@ -366,7 +370,7 @@ namespace PlayMore35 {
             reflex = new Label().Initialize(this);
             will = new Label().Initialize(this);
             enemyTurn = new List<List<Label>> {
-                new List<Label> { ac, currentHp },
+                new List<Label> { ac, acEffects, currentHp },
                 new List<Label> { react, resist, immune },
                 new List<Label> { sr },
                 new List<Label> { fort }
@@ -379,6 +383,7 @@ namespace PlayMore35 {
             bab = new Label().Initialize(this);
             grapple = new Label().Initialize(this);
             atkOptions = new Label().Initialize(this);
+            specialActions = new Label().Initialize(this);
             actions = new Label().Initialize(this);
             myTurn = new List<List<Label>> {
                 new List<Label> { speed, movement },
@@ -386,6 +391,7 @@ namespace PlayMore35 {
                 new List<Label> { space },
                 new List<Label> { bab },
                 new List<Label> { atkOptions },
+                new List<Label> { specialActions },
                 new List<Label> { actions },
             };
 
