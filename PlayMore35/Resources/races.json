@@ -1,6 +1,6 @@
 [
   {
-    "name": "Human",
+    "name": "human",
     "type": "humanoid",
     "subtypes": [ "human" ],
     "automatic languages": [ "Common" ],
@@ -23,11 +23,12 @@
     "name": "dwarf",
     "type": "humanoid",
     "subtypes": [ "dwarf" ],
+    "automatic languages": [ "Common", "Dwarven" ],
+    "bonus languages": [ "Giant", "Gnome", "Goblin", "Orc", "Terran", "Undercommon" ],
     "con": 2,
     "cha": -2,
     "speed": 20,
-    "automatic languages": [ "Common", "Dwarven" ],
-    "bonus languages": [ "Giant", "Gnome", "Goblin", "Orc", "Terran", "Undercommon" ],
+    "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
     "effects": [
       {
         "name": "dwarf racial traits",
@@ -65,7 +66,6 @@
             "text": "+2 racial to stone- or metal-related Appraise and Craft"
           }
         ],
-        "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
         "modifiers": [
           {
             "affects": "Search (secret doors)",
@@ -108,10 +108,10 @@
     "name": "elf",
     "type": "humanoid",
     "subtypes": [ "elf" ],
-    "dex": 2,
-    "con": -2,
     "automatic languages": [ "Common", "Elven" ],
     "bonus languages": [ "Draconic", "Gnoll", "Gnome", "Orc", "Sylvan" ],
+    "dex": 2,
+    "con": -2,
     "effects": [
       {
         "name": "elf racial traits",
@@ -191,12 +191,13 @@
     "name": "gnome",
     "type": "humanoid",
     "subtypes": [ "gnome" ],
+    "automatic languages": [ "Common", "Gnome" ],
+    "bonus languages": [ "Draconic", "Dwarven", "Elven", "Giant", "Goblin", "Orc" ],
     "con": 2,
     "str": -2,
     "size": -1,
     "speed": 20,
-    "automatic languages": [ "Common", "Gnome" ],
-    "bonus languages": [ "Draconic", "Dwarven", "Elven", "Giant", "Goblin", "Orc" ],
+    "weapon familiarity": [ "gnome hooked hammer" ],
     "effects": [
       {
         "name": "gnome racial traits",
@@ -257,8 +258,7 @@
             "category": "Special Actions",
             "text": "1/day\u2014speak with animals (burrowing mammal only, duration 1 minute)"
           }
-        ],
-        "weapon familiarity": [ "gnome hooked hammer" ]
+        ]
       },
       {
         "name": "gnome racial traits",

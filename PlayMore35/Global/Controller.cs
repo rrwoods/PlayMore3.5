@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -11,6 +13,8 @@ using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Global {
     public class Controller {
+        private string saveDir;
+
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
         public Dictionary<string, ControllableToggle> Toggles;
@@ -34,8 +38,16 @@ namespace PlayMore35.Global {
             Reload();
         }
 
-        private static JToken GetJsonResource(byte[] resource) {
-            return JToken.Parse(Encoding.UTF8.GetString(resource));
+        private JToken GetResource(byte[] resource, string altFilename) {
+            string json;
+            string savePath = $@"{saveDir}\{altFilename}";
+            if (File.Exists(savePath)) {
+                json = File.ReadAllText(savePath);
+            } else {
+                json = Encoding.UTF8.GetString(resource);
+                File.WriteAllText(savePath, json);
+            }
+            return JToken.Parse(json);
         }
 
         // The SRD is surprisingly unhelpful when it comes to computing the weights of non-medium
@@ -120,24 +132,33 @@ namespace PlayMore35.Global {
         // Completely toss out every effect and item definition we have, and refresh the rules of the game.
         // Also, re-determine the character's equipped items.
         public void Reload() {
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            saveDir = $@"{documentsPath}\PlayMore3.5";
+            if (!Directory.Exists(saveDir)) {
+                DirectoryInfo saveDirectory = Directory.CreateDirectory(saveDir);
+            }
+
             Effects = new EffectPool();
-            Effects.ReadJson(GetJsonResource(Properties.Resources.rules));
+            Effects.ReadJson(GetResource(Properties.Resources.rules, "rules.json"));
+            // TODO : we eventually need a way for someone to add a rule and save it off, without the effects
+            // we're about to add that are specific to their character making it out to the houserules file.
+
             Effects.GenerateCharacterEffects(Character);
 
-            RaceDefinitions = GetJsonResource(Properties.Resources.races)
+            RaceDefinitions = GetResource(Properties.Resources.races, "races.json")
                 .Select(x => new Race((JObject)x))
                 .ToDictionary(x => x.Name);
             Effects.GenerateRaceEffects(RaceDefinitions[Character.race]);
 
-            WeaponDefinitions = GetJsonResource(Properties.Resources.weapons)
+            WeaponDefinitions = GetResource(Properties.Resources.weapons, "weapons.json")
                 .Select(x => new Weapon((JObject)x))
                 .ToDictionary(x => x.Name);
 
-            ArmorDefinitions = GetJsonResource(Properties.Resources.armor)
+            ArmorDefinitions = GetResource(Properties.Resources.armor, "armor.json")
                 .Select(x => new Armor((JObject)x))
                 .ToDictionary(x => x.Name);
 
-            ShieldDefinitions = GetJsonResource(Properties.Resources.shields)
+            ShieldDefinitions = GetResource(Properties.Resources.shields, "shields.json")
                 .Select(x => new Shield((JObject)x))
                 .ToDictionary(x => x.Name);
             List<Shield> spiked = ShieldDefinitions.Values
@@ -151,13 +172,13 @@ namespace PlayMore35.Global {
                 shield.ShieldBash = new AttackMode(WeaponDefinitions[shield.Name + " bash"].Melee?.atk);
             }
 
-            WeaponPropertyDefinitions = GetJsonResource(Properties.Resources.weaponProperties)
+            WeaponPropertyDefinitions = GetResource(Properties.Resources.weaponProperties, "weaponProperties.json")
                 .Select(x => new WeaponProperty((JObject)x))
                 .ToDictionary(x => x.Name);
-            ArmorPropertyDefinitions = GetJsonResource(Properties.Resources.armorProperties)
+            ArmorPropertyDefinitions = GetResource(Properties.Resources.armorProperties, "armorProperties.json")
                 .Select(x => new ArmorProperty((JObject)x))
                 .ToDictionary(x => x.Name);
-            ItemDefinitions = GetJsonResource(Properties.Resources.items)
+            ItemDefinitions = GetResource(Properties.Resources.items, "items.json")
                 .Select(x => new Item((JObject)x))
                 .ToDictionary(x => x.ItemEffect.Name);
 
@@ -212,7 +233,7 @@ namespace PlayMore35.Global {
         }
         
         public List<Attack> GetAttacks() {
-            // calculate size change -- difference between the current value of the size category
+            // TODO : calculate size change -- difference between the current value of the size category
             // and that of the player's race
             return Attack.Generate(Effects, 0, EquippedItems);
         }
