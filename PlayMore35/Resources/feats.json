@@ -1,0 +1,2031 @@
+[
+  {
+    "benefit": {
+      "name": "Acrobatic",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Jump",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Tumble",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Agile",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Balance",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Escape Artist",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Alertness",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Listen",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Spot",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Animal Affinity",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Handle Animal",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Ride",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Light and medium armor proficiency",
+    "benefit": {
+      "name": "Armor Proficiency (Heavy)",
+      "active": "always",
+      "armor proficiencies": [ "HEAVY" ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Armor Proficiency (Light)",
+      "active": "always",
+      "armor proficiencies": [ "LIGHT" ]
+    }
+  },
+  {
+    "prerequisites": "Light armor proficiency",
+    "benefit": {
+      "name": "Armor Proficiency (Medium)",
+      "active": "always",
+      "armor proficiencies": [ "MEDIUM" ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Athletic",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Climb",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Swim",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Spell Focus (conjuration)",
+    "benefit": {
+      "name": "Augment Summoning",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc casting",
+          "text": "your summoned creatures have +4 enhancement to STR and CON"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Blind-Fight",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "roll vs concealment miss chance twice"
+        },
+        {
+          "category": "Resist",
+          "text": "invisible melee attacks vs you don't deny DEX and don't get +2 attack"
+        },
+        {
+          "category": "Movement",
+          "text": "poor visibility reduces your speed to 3/4 instead of 1/2"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Caster level 3rd",
+    "descriptors": [ "Item Creation" ],
+    "benefit": {
+      "name": "Brew Potion",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item creation",
+          "text": "you can make potions"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "STR 13, Power Attack",
+    "benefit": {
+      "name": "Cleave",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "free 1/round—after dropping a foe in melee, make another melee attack with the same weapon against another foe in reach"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "INT 13",
+    "benefit": {
+      "name": "Combat Expertise",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "when attacking or full attacking, take up to -5 (but not more than BAB) on attack rolls this round to get an equal dodge bonus to AC"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Combat Reflexes",
+      "active": "always",
+      "text": [
+        {
+          "category": "React",
+          "text": "{{DEX bonus}} additional attacks of opportunity"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Caster level 5th",
+    "descriptors": [ "Item Creation" ],
+    "benefit": {
+      "name": "Craft Magic Arms And Armor",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item creation",
+          "text": "you can make magic weapons, armor, and shields"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Caster level 9th",
+    "descriptors": [ "Item Creation" ],
+    "benefit": {
+      "name": "Craft Rod",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item creation",
+          "text": "you can make rods"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Caster level 12th",
+    "descriptors": [ "Item Creation" ],
+    "benefit": {
+      "name": "Craft Staff",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item creation",
+          "text": "you can make staves"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Caster level 5th",
+    "descriptors": [ "Item Creation" ],
+    "benefit": {
+      "name": "Craft Wand",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item creation",
+          "text": "you can make wands"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Caster level 3rd",
+    "descriptors": [ "Item Creation" ],
+    "benefit": {
+      "name": "Craft Wondrous Item",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item creation",
+          "text": "you can make wondrous items"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Deceitful",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Disguise",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Forgery",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, Improved Unarmed Strike",
+    "benefit": {
+      "name": "Deflect Arrows",
+      "active": "always",
+      "text": [
+        {
+          "category": "React",
+          "text": "no action 1/round—if hit with a ranged weapon while you have at least one hand free and aren't flat-footed, deflect it and take no damage from it"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Deft Hands",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Sleight of Hand",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Use Rope",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Endurance",
+    "benefit": {
+      "name": "Diehard",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Current hit points"
+          },
+          "relation": "LESS_THAN",
+          "right": {
+            "fixed": 0
+          }
+        }
+      },
+      "flags": [ "stable", "Diehard" ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Diligent",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Appraise",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Decipher Script",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13",
+    "benefit": {
+      "name": "Dodge",
+      "active": "always",
+      "text": [
+        {
+          "category": "AC",
+          "text": "+1 dodge vs one foe you choose"
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Empower Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+2 levels; all variable numeric effects increased by half"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Endurance",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Fort saves vs hot/cold",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Fort saves vs suffocation",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        }
+      ],
+      "text": [
+        {
+          "category": "Skills",
+          "text": "+4 Swim vs nonlethal damage"
+        },
+        {
+          "category": "Skills",
+          "text": "+4 CON checks to continue running"
+        },
+        {
+          "category": "Skills",
+          "text": "+4 CON checks vs forced march"
+        },
+        {
+          "category": "Skills",
+          "text": "+4 CON checks to hold breath"
+        },
+        {
+          "category": "Skills",
+          "text": "+4 CON checks vs starvation or thirst"
+        },
+        {
+          "category": "Condition",
+          "text": "Sleep in light or medium armor w/o fatigue"
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Enlarge Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+1 level; close, medium, or long range spell has its range doubled"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Eschew Materials",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc casting",
+          "text": "ignore material components that cost 1 gp or less"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Base attack bonus +1",
+    "choice": "Weapon",
+    "benefit": {
+      "name": "Exotic Weapon Proficiency",
+      "active": "always",
+      "weapon proficiencies": [
+        {
+          "name": [ "$" ]
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Extend Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+1 level; lasts twice as long as normal"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Extra Turning",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Turn attempts",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Far Shot",
+      "active": "always",
+      "range": [
+        {
+          "affects": {
+            "range": [
+              "BOW",
+              "OTHER_PROJECTILE"
+            ]
+          },
+          "mod": 1.5
+        },
+        {
+          "affects": {
+            "range": [
+              "THROWN"
+            ]
+          },
+          "mod": 2
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Caster level 12th",
+    "descriptors": [ "Item Creation" ],
+    "benefit": {
+      "name": "Forge Ring",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item creation",
+          "text": "you can make rings"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "STR 13, Cleave, Power Attack, base attack bonus +4",
+    "benefit": {
+      "name": "Great Cleave",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "Cleave any number of times per round"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Great Fortitude",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Fort saves",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "choice": "School of magic",
+    "prerequisites": "Spell Focus in selected school",
+    "benefit": {
+      "name": "Greater Spell Focus",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc casting",
+          "text": "+1 save DC on $ spells"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Spell Penetration",
+    "benefit": {
+      "name": "Greater Spell Penetration",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc casting",
+          "text": "+2 on CL checks to overcome SR"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 19, Improved Two-Weapon Fighting, Two-Weapon Fighting, base attack bonus +11",
+    "benefit": {
+      "name": "Greater Two-Weapon Fighting",
+      "active": "always",
+      "extra attacks": [
+        {
+          "affects": {
+            "hand": [
+              "OFF_HAND_TWF"
+            ]
+          },
+          "mod": {
+            "attack penalty": -10,
+            "bonus type": "base"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Proficiency with selected weapon, Weapon Focus with selected weapon, fighter level 8th",
+    "choice": "Weapon",
+    "benefit": {
+      "name": "Greater Weapon Focus",
+      "active": "always",
+      "attack": [
+        {
+          "affects": {
+            "name": [ "$" ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Proficiency with selected weapon, Greater Weapon Focus with selected weapon, Weapon Focus with selected weapon, Weapon Specialization with selected weapon, fighter level 12th",
+    "choice": "Weapon",
+    "benefit": {
+      "name": "Greater Weapon Specialization",
+      "active": "always",
+      "damage": [
+        {
+          "affects": {
+            "name": [ "$" ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": "Metamagic",
+    "benefit": {
+      "name": "Heighten Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+X levels; increase effective level by X"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "STR 13, Power Attack",
+    "benefit": {
+      "name": "Improved Bull Rush",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your bull rushes don't provoke, and you get +4 on the opposed check"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Improved Counterspell",
+      "active": "always",
+      "text": [
+        {
+          "category": "React",
+          "text": "counterspell with any spell of the same school"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Proficiency with selected weapon, base attack bonus +8",
+    "choice": "Weapon",
+    "benefit": {
+      "name": "Improved Critical",
+      "active": "always",
+      "threat": [
+        {
+          "affects": {
+            "name": [ "$" ]
+          },
+          "mod": {
+            "type": "keen",
+            "amounts": [
+              {
+                "fixed": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "INT 13, Combat Expertise",
+    "benefit": {
+      "name": "Improved Disarm",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your disarms don't provoke or allow a counter-disarm, and you get +4 on the opposed attack"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Ability to acquire a new familiar, compatible alignment, sufficiently high level",
+    "benefit": {
+      "name": "Improved Familiar",
+      "active": "always",
+      "text": [
+        {
+          "category": "Downtime",
+          "text": "better familiars are available to you"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "INT 13, Combat Expertise",
+    "benefit": {
+      "name": "Improved Feint",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "you can feint as a move action"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, Improved Unarmed Strike",
+    "benefit": {
+      "name": "Improved Grapple",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your grapples don't provoke"
+        }
+      ],
+      "modifiers": [
+        {
+          "affects": "Grapple",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Improved Initiative",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Initiative",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "STR 13, Power Attack",
+    "benefit": {
+      "name": "Improved Overrun",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your overruns can't be avoided, and you get +4 on the knock down check"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 19, Point Blank Shot, Precise Shot, base attack bonus +11",
+    "benefit": {
+      "name": "Improved Precise Shot",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your ranged attacks ignore partial cover and partial concealment"
+        },
+        {
+          "category": "Atk Options",
+          "text": "your shots into a grapple automatically strike at your intended target"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Shield Proficiency",
+    "benefit": {
+      "name": "Improved Shield Bash",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "you don't lose your shield's AC bonus when bashing"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "STR 13, Power Attack",
+    "benefit": {
+      "name": "Improved Sunder",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your sunders don't provoke, and you get +4 on attack rolls against held objects"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "INT 13, Combat Expertise",
+    "benefit": {
+      "name": "Improved Trip",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your trips don't provoke, you get +4 on the opposed check, and if you succeed you get a free attack"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 17, Two-Weapon Fighting, base attack bonus +6",
+    "benefit": {
+      "name": "Improved Two-Weapon Fighting",
+      "active": "always",
+      "extra attacks": [
+        {
+          "affects": {
+            "hand": [
+              "OFF_HAND_TWF"
+            ]
+          },
+          "mod": {
+            "attack penalty": -5,
+            "bonus type": "base"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Improved Unarmed Strike",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your unarmed strikes don't provoke, and can deal lethal or nonlethal damage"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Investigator",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Gather Information",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Search",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Iron Will",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Will saves",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Character level 6th",
+    "benefit": {
+      "name": "Leadership",
+      "active": "always",
+      "text": [
+        {
+          "category": "Downtime",
+          "text": "Attract cohorts and followers"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Lightning Reflexes",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Ref saves",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Magical Aptitude",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Spellcraft",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Use Magic Device",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 17, Point Blank Shot, Rapid Shot, base attack bonus +6",
+    "benefit": {
+      "name": "Manyshot",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "std at-will—make two ranged attacks at –4, or three at –6 (if BAB +11), or four at –8 (if BAB +16)"
+        }
+      ]
+    }
+  },
+  {
+    "choice": "Weapon",
+    "benefit": {
+      "name": "Martial Weapon Proficiency",
+      "active": "always",
+      "weapon proficiencies": [
+        {
+          "name": [ "$" ]
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Maximize Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+3 levels; maximize value of all die rolls"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, Dodge",
+    "benefit": {
+      "name": "Mobility",
+      "active": "always",
+      "text": [
+        {
+          "category": "AC",
+          "text": "+4 dodge vs attacks of opportunity for movement"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Ride 1 rank, Mounted Combat",
+    "benefit": {
+      "name": "Mounted Archery",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "halve mounted penalties for ranged weapons"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Ride 1 rank",
+    "benefit": {
+      "name": "Mounted Combat",
+      "active": "always",
+      "text": [
+        {
+          "category": "React",
+          "text": "1/round—if your mount would be hit, replace its AC with a Ride check result"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "WIS 13, wild shape ability",
+    "benefit": {
+      "name": "Natural Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc casting",
+          "text": "you can use V, S, and M components of spells while wild shaped"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Negotiator",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Diplomacy",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Sense Motive",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Nimble Fingers",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Disable Device",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Open Lock",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Persuasive",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Bluff",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Intimidate",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Point Blank Shot",
+      "active": {
+        "controllable": "within 30 ft."
+      },
+      "attack": [
+        {
+          "affects": {},
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "STR 13",
+    "parameter": {
+      "name": "Power Attack",
+      "min": 0
+    },
+    "benefit": {
+      "name": "Power Attack",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Power Attack"
+          },
+          "relation": "GREATER_THAN",
+          "right": {
+            "fixed": 0
+          }
+        }
+      },
+      "attack": [
+        {
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "Power Attack"
+                  },
+                  "scalar": -1
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "damage": [
+        {
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ],
+            "hand": [
+              "ONE_HANDED",
+              "PRIMARY_HAND_TWF",
+              "OFF_HAND_TWF"
+            ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "stat value": "Power Attack"
+              }
+            ]
+          }
+        },
+        {
+          "affects": {
+            "range": [
+              "MELEE",
+              "REACH_MELEE"
+            ],
+            "hand": [
+              "TWO_HANDED"
+            ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "Power Attack"
+                  },
+                  "scalar": 2
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Point Blank Shot",
+    "benefit": {
+      "name": "Precise Shot",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your ranged attacks vs foes in melee ignore the –4 penalty"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Base attack bonus +1",
+    "benefit": {
+      "name": "Quick Draw",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "draw a weapon as a free action, or a hidden weapon as a move action"
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Quicken Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+4 levels; cast time of full-round action or less is swift action instead"
+        }
+      ]
+    }
+  },
+  {
+    "choice": "Hand crossbow or light crossbow",
+    "prerequisites": "Proficiency with chosen crossbow",
+    "benefit": {
+      "name": "Rapid Reload",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "reload $s as a free action; can full attack with $s"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Proficiency with heavy crossbow",
+    "benefit": {
+      "name": "Rapid Reload (heavy crossbow)",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "reload heavy crossbows as a move action"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, Point Blank Shot",
+    "benefit": {
+      "name": "Rapid Shot",
+      "active": {
+        "controllable": "Rapid Shot"
+      },
+      "extra attacks": [
+        {
+          "affects": {
+            "range": [
+              "BOW",
+              "THROWN",
+              "OTHER_PROJECTILE"
+            ]
+          },
+          "mod": {
+            "attack penalty": 0,
+            "bonus type": "base"
+          }
+        }
+      ],
+      "attack": [
+        {
+          "affects": {
+            "range": [
+              "BOW",
+              "THROWN",
+              "OTHER_PROJECTILE"
+            ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Ride 1 rank, Mounted Combat",
+    "benefit": {
+      "name": "Ride-By Attack",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "while mounted and charging, you can make your attack mid-charge, and you don't provoke from the foe you attack"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Run",
+      "active": "always",
+      "text": [
+        {
+          "category": "Movement",
+          "text": "your run distance is 4x your speed w/heavy load or armor, and 5x otherwise"
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": "Item Creation",
+    "prerequisites": "Caster level 1st",
+    "benefit": {
+      "name": "Scribe Scroll",
+      "active": "always",
+      "text": [
+        {
+          "category": "Item Creation",
+          "text": "you can make scrolls of spells you know"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Self-Sufficient",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Heal",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Survival",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Shield Proficiency",
+      "active": "always",
+      "shield proficiencies": [ "normal" ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, Dodge, Mobility, Point Blank Shot, base attack bonus +4",
+    "benefit": {
+      "name": "Shot On The Run",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "you can take the attack action with a ranged weapon in the middle of your move action"
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Silent Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+1 level; ignore verbal components"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Simple Weapon Proficiency",
+      "active": "always",
+      "weapon proficiencies": [
+        {
+          "proficiency": [ "SIMPLE" ]
+        }
+      ]
+    }
+  },
+  {
+    "choice": "skill",
+    "benefit": {
+      "name": "Skill Focus",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "$",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 15, Deflect Arrows, Improved Unarmed Strike",
+    "benefit": {
+      "name": "Snatch Arrows",
+      "active": "always",
+      "text": [
+        {
+          "category": "React",
+          "text": "you may catch deflected projectiles; if it's a thrown weapon, you may immediately throw it back for free"
+        }
+      ]
+    }
+  },
+  {
+    "choice": "school of magic",
+    "benefit": {
+      "name": "Spell Focus",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc Casting",
+          "text": "+1 save DC for your $ spells"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Wizard level 1st",
+    "choice": "{{INT bonus}} spells you know",
+    "benefit": {
+      "name": "Spell Mastery",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc Casting",
+          "text": "you can prepare $ without a spellbook"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Spell Penetration",
+      "active": "always",
+      "text": [
+        {
+          "category": "Misc Casting",
+          "text": "+2 on CL checks to overcome SR"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Ride 1 rank, Mounted Combat, Ride-By Attack",
+    "benefit": {
+      "name": "Spirited Charge",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your mounted charges deal double damage, or triple with a lance"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, Dodge, Mobility, base attack bonus +4",
+    "benefit": {
+      "name": "Spring Attack",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "you can take the attack action with a melee weapon in the middle of your move action"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Stealthy",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Hide",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Move Silently",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Still Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+1 level; ignore somatic components"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, WIS 13, Improved Unarmed Strike, base attack bonus +8",
+    "benefit": {
+      "name": "Stunning Fist",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "free X/day—your next unarmed attack stuns for 1 round if it hits; Fort DC 10 + 1/2 level + WIS negates; X = monk level + 1 per four non-monk levels"
+        }
+      ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Toughness",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Maximum hit points",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Shield proficiency",
+    "benefit": {
+      "name": "Tower Shield Proficiency",
+      "active": "always",
+      "shield proficiencies": [ "tower" ]
+    }
+  },
+  {
+    "benefit": {
+      "name": "Track",
+      "active": "always",
+      "text": [
+        {
+          "category": "Exploration",
+          "text": "you can find and follow tracks; see Track feat"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Ride 1 rank, Mounted Combat",
+    "benefit": {
+      "name": "Trample",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "your overruns can't be avoided, and your mount gets a free hoof attack against knocked down foes"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 15, Two-Weapon Fighting",
+    "benefit": {
+      "name": "Two-Weapon Defense",
+      "active": "always",
+      "text": [
+        {
+          "category": "AC",
+          "text": "+1 shield when weilding two weapons, or +2 if also fighting defensively"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 15",
+    "benefit": {
+      "name": "Two-Weapon Fighting",
+      "active": "always",
+      "attack": [
+        {
+          "affects": {
+            "hand": [ "PRIMARY_HAND_TWF" ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        },
+        {
+          "affects": {
+            "hand": [ "OFF_HAND_TWF" ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 6
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Base attack bonus +1",
+    "benefit": {
+      "name": "Weapon Finesse",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "DEX modifier"
+          },
+          "relation": "GREATER_THAN",
+          "right": {
+            "stat value": "STR modifier"
+          }
+        }
+      },
+      "attack": [
+        {
+          "affects": {
+            "name": [ "rapier", "whip", "spiked chain" ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "DEX modifier"
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "STR modifier"
+                  },
+                  "scalar": -1
+                }
+              },
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        },
+        {
+          "affects": {
+            "effort": [ "LIGHT" ]
+          },
+          "mod": {
+            "type": "ability modifier",
+            "amounts": [
+              {
+                "stat value": "DEX modifier"
+              },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "STR modifier"
+                  },
+                  "scalar": -1
+                }
+              },
+              {
+                "item value": "Shield armor check penalty"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "choice": "weapon",
+    "prerequisites": "Proficiency with weapon, base attack bonus +1",
+    "benefit": {
+      "name": "Weapon Focus",
+      "active": "always",
+      "attack": [
+        {
+          "affects": {
+            "name": [ "$" ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "choice": "weapon",
+    "prerequisites": "Proficiency with selected weapon, Weapon focus with selected weapon, fighter level 4th",
+    "benefit": {
+      "name": "Weapon Specialization",
+      "active": "always",
+      "damage": [
+        {
+          "affects": {
+            "name": [ "$" ]
+          },
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "DEX 13, INT 13, Combat Experties, Dodge, Mobility, Spring Attack, base attack bonus +4",
+    "benefit": {
+      "name": "Whirlwind Attack",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "in place of full attack, make one melee attack at full BAB vs each foe in reach"
+        }
+      ]
+    }
+  },
+  {
+    "descriptors": [ "Metamagic" ],
+    "benefit": {
+      "name": "Widen Spell",
+      "active": "always",
+      "text": [
+        {
+          "category": "Metamagic",
+          "text": "+3 levels; burst, emanation, line, or spread has its stated measure increased by 100%"
+        }
+      ]
+    }
+  }
+]

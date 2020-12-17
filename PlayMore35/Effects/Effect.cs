@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -17,6 +18,8 @@ namespace PlayMore35.Effects {
         private readonly List<Alterer<Modifier, Attack>> AttackModifiers = new List<Alterer<Modifier, Attack>>();
         private readonly List<Alterer<Modifier, Attack>> DamageModifiers = new List<Alterer<Modifier, Attack>>();
         private readonly List<Alterer<DiceGroup, Attack>> ExtraDice = new List<Alterer<DiceGroup, Attack>>();
+        private readonly List<Alterer<Modifier, Attack>> ThreatModifiers = new List<Alterer<Modifier, Attack>>();
+        private readonly List<Alterer<Multiplier, Attack>> RangeMultipliers = new List<Alterer<Multiplier, Attack>>();
 
         private readonly List<Alterer<Modifier, Statistic>> Modifiers = new List<Alterer<Modifier, Statistic>>();
         private readonly List<Alterer<Multiplier, Statistic>> Multipliers = new List<Alterer<Multiplier, Statistic>>();
@@ -55,11 +58,26 @@ namespace PlayMore35.Effects {
             if (ExtraDice.Any()) {
                 json.Add("dice", new JArray(ExtraDice.Select(x => x.ToJson())));
             }
+            if (ThreatModifiers.Any()) {
+                json.Add("threat", new JArray(ThreatModifiers.Select(x => x.ToJson())));
+            }
+            if (RangeMultipliers.Any()) {
+                json.Add("range", new JArray(RangeMultipliers.Select(x => x.ToJson())));
+            }
             if (Modifiers.Any()) {
                 json.Add("modifiers", new JArray(Modifiers.Select(x => x.ToJson())));
             }
             if (Multipliers.Any()) {
                 json.Add("multipliers", new JArray(Multipliers.Select(x => x.ToJson())));
+            }
+            if (WeaponProficiencies.Any()) {
+                json.Add("weapon proficiencies", new JArray(WeaponProficiencies.Select(x => x.ToJson())));
+            }
+            if (ArmorProficiencies.Any()) {
+                json.Add("armor proficiencies", new JArray(ArmorProficiencies));
+            }
+            if (ShieldProficiencies.Any()) {
+                json.Add("shield proficiencies", new JArray(ShieldProficiencies.Select(x => x ? "tower" : "normal")));
             }
             if (Feats.Any()) {
                 json.Add("feats", new JArray(Feats.Select(x => new JObject(
@@ -118,6 +136,22 @@ namespace PlayMore35.Effects {
                     }
                 }));
             }
+            if (json["threat"] != null) {
+                ThreatModifiers.AddRange(json["threat"].Select(x => new Alterer<Modifier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]),
+                    mod = new Modifier((JObject)x["mod"]) {
+                        Name = Name
+                    }
+                }));
+            }
+            if (json["range"] != null) {
+                RangeMultipliers.AddRange(json["range"].Select(x => new Alterer<Multiplier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]),
+                    mod = new Multiplier((decimal)x["mod"]) {
+                        Name = Name
+                    }
+                }));
+            }
             if (json["modifiers"] != null) {
                 Modifiers.AddRange(json["modifiers"].Select(x => new Alterer<Modifier, Statistic> {
                     affects = new StatisticMatcher((string)x["affects"]),
@@ -133,6 +167,17 @@ namespace PlayMore35.Effects {
                         Name = Name
                     }
                 }));
+            }
+            if (json["weapon proficiencies"] != null) {
+                WeaponProficiencies.AddRange(json["weapon proficiencies"].Select(x => new AttackMatcher((JObject)x)));
+            }
+            if (json["armor proficiencies"] != null) {
+                ArmorProficiencies.AddRange(json["armor proficiencies"].Select(x =>
+                    (Armor.WeightCategory) Enum.Parse(typeof(Armor.WeightCategory), (string)x, false)
+                ));
+            }
+            if (json["shield proficiencies"] != null) {
+                ShieldProficiencies.AddRange(json["shield proficiencies"].Select(x => x.Equals("tower")));
             }
             if (json["feats"] != null) {
                 Feats.AddRange(json["feats"].Select(x => ((int)x["level"], (string)x["select from"])));
@@ -274,6 +319,14 @@ namespace PlayMore35.Effects {
 
         public IEnumerable<DiceGroup> GetExtraDice(EffectPool pool, Equipped items, Attack affecting) {
             return GetAlterers(pool, items, affecting, ExtraDice);
+        }
+
+        public IEnumerable<Modifier> GetThreatModifiers(EffectPool pool, Equipped items, Attack affecting) {
+            return GetAlterers(pool, items, affecting, ThreatModifiers);
+        }
+
+        public IEnumerable<Multiplier> GetRangeMultipliers(EffectPool pool, Equipped items, Attack affecting) {
+            return GetAlterers(pool, items, affecting, RangeMultipliers);
         }
 
         public IEnumerable<Modifier> GetModifiers(EffectPool pool, Equipped items, Statistic affecting) {

@@ -30,7 +30,7 @@ namespace PlayMore35.Effects {
                     matchers.Add(new SizeMatcher((int)prop.Value));
                 } else if (prop.Name.Equals("proficiency")) {
                     ProficiencyMatcher matcher = new ProficiencyMatcher();
-                    foreach (JValue value in prop["proficiency"]) {
+                    foreach (JValue value in prop.Value) {
                         matcher.AddProficiency((Weapon.Proficiency)Enum.Parse(typeof(Weapon.Proficiency), (string)value, false));
                     }
                     matchers.Add(matcher);

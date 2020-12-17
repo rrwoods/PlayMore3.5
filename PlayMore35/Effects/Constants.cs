@@ -255,8 +255,9 @@
             LANGUAGES, SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
         };
         // future supported categories
-        public static readonly string METAMAGIC = "metamagic";
-        public static readonly string MISC_CASTING = "misc casting";
+        public static readonly string METAMAGIC = "Metamagic";
+        public static readonly string MISC_CASTING = "Misc casting";
+        public static readonly string ITEM_CREATION = "Item creation";
 
         public static readonly string CANT_ACT = "Can't act";
         public static readonly string CANT_RUN_OR_CHARGE = "Can't run or charge";

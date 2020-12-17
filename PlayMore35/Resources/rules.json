@@ -4592,7 +4592,7 @@
           "text": "Auto-fail Listen checks"
         },
         {
-          "category": "misc casting",
+          "category": "Misc casting",
           "text": "20% spell failure on spells with verbal components"
         }
       ]
@@ -4696,7 +4696,7 @@
       ],
       "text": [
         {
-          "category": "misc casting",
+          "category": "Misc casting",
           "text": "-1 effective spellcasting level, lose a highest-level spell slot"
         }
       ]
@@ -4755,7 +4755,7 @@
       ],
       "text": [
         {
-          "category": "misc casting",
+          "category": "Misc casting",
           "text": "Spellcasting requires DC 15 concentration, or lose spell"
         }
       ]
@@ -4922,7 +4922,7 @@
           "text": "Can't attack"
         },
         {
-          "category": "Misc Casting",
+          "category": "Misc casting",
           "text": "Can't cast or concentrate on spells"
         },
         {
@@ -5085,15 +5085,24 @@
       "active": {
         "any": [
           {
-            "conditional": {
-              "left": {
-                "stat value": "Current hit points"
+            "all": [
+              {
+                "conditional": {
+                  "left": {
+                    "stat value": "Current hit points"
+                  },
+                  "relation": "LESS_THAN",
+                  "right": {
+                    "fixed": 0
+                  }
+                }
               },
-              "relation": "LESS_THAN",
-              "right": {
-                "fixed": 0
+              {
+                "not": {
+                  "flag": "Diehard"
+                }
               }
-            }
+            ]
           },
           {
             "conditional": {

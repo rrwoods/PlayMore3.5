@@ -21,6 +21,7 @@ namespace PlayMore35.Global {
 
         public Character Character;
         public Dictionary<string, Race> RaceDefinitions;
+        public Dictionary<string, Feat> FeatDefinitions;
 
         public Equipped EquippedItems;
 
@@ -149,6 +150,9 @@ namespace PlayMore35.Global {
                 .Select(x => new Race((JObject)x))
                 .ToDictionary(x => x.Name);
             Effects.GenerateRaceEffects(RaceDefinitions[Character.race]);
+            FeatDefinitions = GetResource(Properties.Resources.feats, "feats.json")
+                .Select(x => new Feat((JObject)x))
+                .ToDictionary(x => x.Benefit.Name);
 
             WeaponDefinitions = GetResource(Properties.Resources.weapons, "weapons.json")
                 .Select(x => new Weapon((JObject)x))

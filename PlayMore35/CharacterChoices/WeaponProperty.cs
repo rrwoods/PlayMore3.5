@@ -13,6 +13,7 @@ namespace PlayMore35.Items {
         public ExtraAttack ExtraAttack = null;
         public Modifier AttackModifier = null;
         public Modifier DamageModifier = null;
+        public Modifier ThreatModifier = null;
         public (int qty, int size) ExtraDamage = (0, 0);
 
         public JToken ToJson() {
@@ -28,6 +29,9 @@ namespace PlayMore35.Items {
             }
             if (DamageModifier != null) {
                 json["damage modifier"] = DamageModifier.ToJson();
+            }
+            if (ThreatModifier != null) {
+                json["threat modifier"] = ThreatModifier.ToJson();
             }
             if (ExtraDamage.qty != 0) {
                 json["extra damage"] = DiceGroup.ToDNotation(ExtraDamage);
@@ -48,6 +52,9 @@ namespace PlayMore35.Items {
             }
             if (json["damage modifier"] != null) {
                 DamageModifier = new Modifier((JObject)json["damage modifier"]);
+            }
+            if (json["threat modifier"] != null) {
+                ThreatModifier = new Modifier((JObject)json["threat modifier"]);
             }
             if (json["extra damage"] != null) {
                 ExtraDamage = DiceGroup.FromDNotation((string)json["extra damage"]);

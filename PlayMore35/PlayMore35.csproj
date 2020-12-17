@@ -77,6 +77,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharacterChoices\Feat.cs" />
     <Compile Include="CharacterChoices\Race.cs" />
     <Compile Include="CharacterChoices\EquippedChoices.cs" />
     <Compile Include="CharacterChoices\InventoryLocation.cs" />
@@ -166,6 +167,7 @@
     <None Include="Resources\races.json" />
     <None Include="Resources\shields.json" />
     <None Include="Resources\rules.json" />
+    <None Include="Resources\feats.json" />
     <None Include="Resources\weaponProperties.json" />
     <None Include="Resources\weapons.json" />
   </ItemGroup>

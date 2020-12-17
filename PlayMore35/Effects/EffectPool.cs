@@ -71,6 +71,14 @@ namespace PlayMore35.Effects {
             return AllEffects(items).SelectMany(x => x.GetExtraDice(this, items, affecting));
         }
 
+        public IEnumerable<Modifier> GetThreatModifiers(Equipped items, Attack affecting) {
+            return AllEffects(items).SelectMany(x => x.GetThreatModifiers(this, items, affecting));
+        }
+
+        public IEnumerable<Multiplier> GetRangeMultipliers(Equipped items, Attack affecting) {
+            return AllEffects(items).SelectMany(x => x.GetRangeMultipliers(this, items, affecting));
+        }
+
         public bool Proficient(Equipped items, Attack attack) {
             return AllEffects(items).Select(x => x.Proficient(this, items, attack)).Contains(true);
         }

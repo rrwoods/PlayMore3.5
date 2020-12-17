@@ -183,6 +183,28 @@ namespace PlayMore35.Items {
 
             Damage = (damage, explanation);
             CriticalDamage = (critDamage, critExplanation);
+
+            IEnumerable<Modifier> threatModsFromProps = properties
+                .Select(x => x.ThreatModifier)
+                .Where(x => x != null);
+            IEnumerable<Modifier> threatModifiers = rules.GetThreatModifiers(items, this)
+                .Concat(threatModsFromProps);
+            (int threatIncrease, List<string> _) = StackModifiers(threatModifiers, rules, items);
+            if (threatIncrease > 0) {
+                int threatMultiplier = threatIncrease + 1;
+                int threatCount = 21 - ThreatRange;
+                int newThreatCount = threatCount * threatMultiplier;
+                ThreatRange = 21 - newThreatCount;
+            }
+
+            IEnumerable<Multiplier> rangeMultipliers = rules.GetRangeMultipliers(items, this);
+            if (rangeMultipliers.Any()) {
+                decimal rangeIncrement = RangeIncrement;
+                foreach (Multiplier m in rangeMultipliers) {
+                    rangeIncrement *= m.Factor;
+                }
+                RangeIncrement = (int)(Math.Floor(rangeIncrement / 5) * 5);
+            }
         }
 
         public static Attack Melee(
