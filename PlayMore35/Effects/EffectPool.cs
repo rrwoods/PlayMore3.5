@@ -99,7 +99,7 @@ namespace PlayMore35.Effects {
         public Dictionary<string, List<string>> GetTextEffects(Equipped items) {
             var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<string>());
 
-            foreach (Effect e in effects.Where(x => x.Toggle.On(this, items))) {
+            foreach (Effect e in AllEffects(items).Where(x => x.Toggle.On(this, items))) {
                 foreach ((string category, string text) in e.Text) {
                     if (allText.ContainsKey(category)) {
                         allText[category].Add(text);
@@ -131,7 +131,7 @@ namespace PlayMore35.Effects {
                 .AddModifier(TOTAL_HD, new Modifier(numHd, BASE))
             );
             for (int i = 0; i < numHd; i++) {
-                // This might seem roundabout, compared to the alternative, which is to
+                // This might seem roundabout compared to the alternative, which is to
                 // sum all the rolled hit dice and add HD*CON.  However, *each* individual
                 // hit die is minimum 1.
                 string hdName = "Level " + (i + 1) + " hit die";
@@ -167,6 +167,61 @@ namespace PlayMore35.Effects {
             }
             AddEffect(effect);
             effects.AddRange(race.Effects);
+        }
+
+        private int BaseSaveBonus(CharacterClass.BonusProgression prog, int level) {
+            switch (prog) {
+                case CharacterClass.BonusProgression.FAST:
+                    return (int)(level/2.0 + 2);
+                case CharacterClass.BonusProgression.SLOW:
+                    return (int)(level/3.0 + 0.01); // (int) rounds down, so +0.34 properly accounts for rounding error
+                default:
+                    return 0;
+            }
+        }
+
+        // NOT class features.  Just base attack and saves, and proficiencies.
+        public void GenerateClassEffects(CharacterClass @class, int level) {
+            int baseAttackBonus = 0;
+            switch (@class.BaseAttackBonus) {
+                case CharacterClass.BonusProgression.NONE:
+                    baseAttackBonus = 0;
+                    break;
+                case CharacterClass.BonusProgression.SLOW:
+                    baseAttackBonus = level / 2;
+                    break;
+                case CharacterClass.BonusProgression.MEDIUM:
+                    baseAttackBonus = (int)(level * 0.75);
+                    break;
+                case CharacterClass.BonusProgression.FAST:
+                    baseAttackBonus = level;
+                    break;
+            }
+            AddEffect(new Effect(@class.Name + " base attack bonus")
+                .AddModifier(BASE_ATTACK_BONUS, new Modifier(baseAttackBonus, BASE))
+            );
+
+            AddEffect(new Effect(@class.Name + " base Fort save")
+                .AddModifier(FORT_SAVES, new Modifier(BaseSaveBonus(@class.BaseFortSave, level), BASE))
+            );
+            AddEffect(new Effect(@class.Name + " base Ref save")
+                .AddModifier(REF_SAVES, new Modifier(BaseSaveBonus(@class.BaseRefSave, level), BASE))
+            );
+            AddEffect(new Effect(@class.Name + " base Will save")
+                .AddModifier(WILL_SAVES, new Modifier(BaseSaveBonus(@class.BaseWillSave, level), BASE))
+            );
+
+            Effect proficiencies = new Effect(@class.Name + " proficiencies");
+            foreach (AttackMatcher proficiency in @class.WeaponProficiencies) {
+                proficiencies.AddProficiency(proficiency);
+            }
+            foreach (Armor.WeightCategory proficiency in @class.ArmorProficiencies) {
+                proficiencies.AddProficiency(proficiency);
+            }
+            foreach (bool proficiency in @class.ShieldProficiencies) {
+                proficiencies.AddShieldProficiency(proficiency);
+            }
+            AddEffect(proficiencies);
         }
     }
 }

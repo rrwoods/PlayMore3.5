@@ -75,7 +75,6 @@ namespace PlayMore35.CharacterChoices {
             Assert.AreEqual(expectedValue, controller.GetStatistic(stat).value);
         }
 
-        [TestMethod]
         public void TestCharacterGeneration() {
             Controller controller = new Controller(SampleCharacter());
 

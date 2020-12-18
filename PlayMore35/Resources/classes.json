@@ -1,0 +1,55 @@
+[
+  {
+    "name": "binder",
+    "prerequisites": "",
+    "hit die": 8,
+    "class skills": [
+      "Bluff",
+      "Concentration",
+      "Craft",
+      "Decipher Script",
+      "Diplomacy",
+      "Gather Information",
+      "Intimidate",
+      "Knowledge (arcana)",
+      "Knowledge (history)",
+      "Knowledge (religion)",
+      "Knowledge (the planes)",
+      "Profession",
+      "Sense Motive"
+    ],
+    "skill points": 2,
+    "base attack bonus": "SLOW",
+    "base fort save": "FAST",
+    "base ref save": "SLOW",
+    "base will save": "FAST",
+    "weapon proficiencies": [ { "proficiency": [ "SIMPLE" ] } ],
+    "armor proficiencies": [ "LIGHT" ],
+    "shield proficiencies": [],
+    "class features": [
+      [
+        {
+          "name": "soul binding",
+          "active": "always",
+          "text": [
+            {
+              "category": "Downtime",
+              "text": "binding check: 1d20 + EBL + CHA"
+            }
+          ]
+        },
+        {
+          "name": "Savnok",
+          "active": "always",
+          "armor proficiencies": [ "HEAVY" ],
+          "text": [
+            {
+              "category": "Movement",
+              "text": "std 1/5 rounds—swap positions with adjacent ally"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+]

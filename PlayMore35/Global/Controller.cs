@@ -21,6 +21,7 @@ namespace PlayMore35.Global {
 
         public Character Character;
         public Dictionary<string, Race> RaceDefinitions;
+        public Dictionary<string, CharacterClass> ClassDefinitions;
         public Dictionary<string, Feat> FeatDefinitions;
 
         public Equipped EquippedItems;
@@ -149,7 +150,9 @@ namespace PlayMore35.Global {
             RaceDefinitions = GetResource(Properties.Resources.races, "races.json")
                 .Select(x => new Race((JObject)x))
                 .ToDictionary(x => x.Name);
-            Effects.GenerateRaceEffects(RaceDefinitions[Character.race]);
+            ClassDefinitions = GetResource(Properties.Resources.classes, "classes.json")
+                .Select(x => new CharacterClass((JObject)x))
+                .ToDictionary(x => x.Name);
             FeatDefinitions = GetResource(Properties.Resources.feats, "feats.json")
                 .Select(x => new Feat((JObject)x))
                 .ToDictionary(x => x.Benefit.Name);
@@ -189,6 +192,27 @@ namespace PlayMore35.Global {
             Toggles = new Dictionary<string, ControllableToggle>();
             foreach (string flag in ALL_TOGGLEABLE_CONDITIONS) {
                 AddToggle(flag);
+            }
+
+            Effects.GenerateRaceEffects(RaceDefinitions[Character.race]);
+
+            Dictionary<string, int> classLevels = new Dictionary<string, int>();
+            foreach (var @class in Character.classLevels) {
+                if (!classLevels.ContainsKey(@class)) {
+                    classLevels[@class] = 1;
+                } else {
+                    classLevels[@class]++;
+                }
+            }
+            foreach (var classAndLevel in classLevels) {
+                CharacterClass @class = ClassDefinitions[classAndLevel.Key];
+                System.Diagnostics.Debug.WriteLine("Generating " + classAndLevel + " effects");
+                Effects.GenerateClassEffects(@class, classAndLevel.Value);
+                for (int level = 0; level < classAndLevel.Value; level++) {
+                    foreach (Effect feature in @class.ClassFeatures[level]) {
+                        Effects.AddEffect(feature);
+                    }
+                }
             }
 
             EquippedItems = new Equipped();

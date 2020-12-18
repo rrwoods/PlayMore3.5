@@ -126,7 +126,7 @@ namespace PlayMore35 {
         private void RefreshEffects() {
             Dictionary<string, List<string>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
-            name.Text = character.name;
+            name.Text = character.name.ToUpper();
 
             Dictionary<string, int> classLevels = new Dictionary<string, int>();
             foreach (var @class in character.classLevels) {
@@ -155,14 +155,12 @@ namespace PlayMore35 {
             LabelStat(spot, "Spot", SPOT);
             OneLineText(evade, textEffects, EVADE);
             MultilineText(condition, textEffects, CONDITION);
-            // languages go here
 
             LabelStat(ac, "AC", AC, ",", false);
             LabelStat(touch, "touch", TOUCH_AC, "", false);
             MultilineText(acEffects, textEffects, AC, false);
             LabelStat(currentHp, "hp", CURRENT_HP, ";", false);
-            LabelStat(maxHp, "max", MAX_HP, "", false);
-            maxHp.Text += " (" + character.classLevels.Count() + " HD)";
+            LabelStat(maxHp, "max", MAX_HP, " (" + character.classLevels.Count() + " HD)", false);
             OneLineText(dr, textEffects, DR);
             if (dr.Text.Any()) {
                 maxHp.Text += ";";

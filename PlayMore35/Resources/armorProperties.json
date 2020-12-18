@@ -104,5 +104,18 @@
         }
       ]
     }
+  },
+  {
+    "name": "Savnok's",
+    "effect": {
+      "name": "Savnok's armor",
+      "active": "always",
+      "text": [
+        {
+          "category": "DR",
+          "text": "1/piercing"
+        }
+      ]
+    }
   }
 ]
