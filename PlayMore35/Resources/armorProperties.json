@@ -117,5 +117,16 @@
         }
       ]
     }
+  },
+  {
+    "name": "fur-lined",
+    "armor check penalty modifier": {
+      "type": "untyped",
+      "amounts": [
+        {
+          "fixed": -2
+        }
+      ]
+    }
   }
 ]

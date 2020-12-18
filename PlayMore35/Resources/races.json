@@ -243,7 +243,7 @@
             "text": "low-light vision"
           },
           {
-            "category": "Misc casting",
+            "category": "misc casting",
             "text": "Your illusions have +1 save DC"
           },
           {
@@ -469,6 +469,65 @@
               "amounts": [
                 {
                   "fixed": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dream dwarf",
+    "type": "humanoid",
+    "subtypes": [ "dwarf" ],
+    "automatic languages": [ "Common", "Dwarven" ],
+    "bonus languages": [ "Draconic", "Elven", "Gnome", "Terran", "Undercommon" ],
+    "con": 2,
+    "dex": -2,
+    "speed": 20,
+    "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
+    "effects": [
+      {
+        "name": "dream dwarf racial traits",
+        "active": "always",
+        "flags": [
+          "Can't be encumbered"
+        ],
+        "text": [
+          {
+            "category": "Senses",
+            "text": "darkvision 90 ft."
+          },
+          {
+            "category": "Senses",
+            "text": "auto-search stonework within 10 ft."
+          },
+          {
+            "category": "Resist",
+            "text": "+4 vs bull rushes and trips while standing on the ground"
+          },
+          {
+            "category": "Skills",
+            "text": "+2 racial to Diplomacy w/(earth) creatures"
+          },
+          {
+            "category": "Senses",
+            "text": "easily distinguish between ethereal and material creatures"
+          },
+          {
+            "category": "misc casting",
+            "text": "+1 caster level on divinations while standing on the ground"
+          }
+        ],
+        "modifiers": [
+          {
+            "affects": "Search (secret doors)",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
                 }
               ]
             }

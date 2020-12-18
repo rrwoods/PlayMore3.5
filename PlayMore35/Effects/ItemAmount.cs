@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
 
@@ -26,10 +27,24 @@ namespace PlayMore35.Effects {
                 );
             }
             if (Key == ARMOR_CHECK_PENALTY) {
-                return items.DonnedArmor?.ArmorCheckPenalty ?? 0;
+                if (items.DonnedArmor == null) {
+                    return 0;
+                }
+                return items.DonnedArmor.ArmorCheckPenalty + StackingRules.StackModifiers(
+                    items.DonnedArmor.Properties.Select(x => x.AcpModifier).Where(x => x != null),
+                    pool,
+                    items
+                ).mod;
             }
             if (Key == SHIELD_ARMOR_CHECK_PENALTY) {
-                return items.OffHandShield?.ArmorCheckPenalty ?? 0;
+                if (items.OffHandShield == null) {
+                    return 0;
+                }
+                return items.OffHandShield.ArmorCheckPenalty + StackingRules.StackModifiers(
+                    items.OffHandShield.Properties.Select(x => x.AcpModifier).Where(x => x != null),
+                    pool,
+                    items
+                ).mod;
             }
             if (Key == ARMOR_WEIGHT) {
                 return (int?)items.DonnedArmor?.Type ?? 0;

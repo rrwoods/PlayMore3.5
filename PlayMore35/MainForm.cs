@@ -318,7 +318,7 @@ namespace PlayMore35 {
 
             leftBuffer = lblTopLeft.Left;
             topBuffer = lblTopLeft.Top + 5; // eh.
-            verticalBufferLarge = 5;
+            verticalBufferLarge = 8;
 
             using (OpenFileDialog dialog = new OpenFileDialog()) {
                 dialog.InitialDirectory = "c:\\";
@@ -349,7 +349,9 @@ namespace PlayMore35 {
                 new List<Label> { desc1 },
                 new List<Label> { desc2 },
                 new List<Label> { languages },
-                new List<Label> { listen, senses, init },
+                new List<Label> { init },
+                new List<Label> { senses },
+                new List<Label> { listen },
                 new List<Label> { evade },
                 new List<Label> { condition },
             };

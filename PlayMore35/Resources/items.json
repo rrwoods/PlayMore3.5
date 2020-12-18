@@ -10,14 +10,223 @@
           "affects": "CON score",
           "mod": {
             "type": "enhancement",
-            "amounts": [
-              {
-                "fixed": 2
-              }
-            ]
+            "amounts": [ { "fixed": 2 } ]
           }
         }
       ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 2,
+    "effect": {
+      "name": "marbles",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "std\u2014throw marbles into adjacent square, forcing DC 15 Balance"
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 1,
+    "effect": {
+      "name": "defoliator",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "attack\u2014throw defoliator; 2d4 splash 1 to plant creatures; auto-kill noncreature plants"
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 10,
+    "effect": {
+      "name": "fur clothing",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Fort saves vs cold weather",
+          "mod": {
+            "type": "circumstance",
+            "amounts": [ { "fixed": 5 } ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0,
+    "effect": {
+      "name": "flour pouch",
+      "active": "always",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "attack\u2014throw flour as splash weapon; reduce miss chance vs invisible to 20%"
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 7,
+    "effect": {
+      "name": "cold weather outfit",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Fort saves vs cold weather",
+          "mod": {
+            "type": "circumstance",
+            "amounts": [ { "fixed": 5 } ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0,
+    "effect": {
+      "name": "flint and steel",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 1.5,
+    "effect": {
+      "name": "empty flask",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 1.5,
+    "effect": {
+      "name": "potion of cure light wounds",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0,
+    "effect": {
+      "name": "insectbane candle",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0,
+    "effect": {
+      "name": "clearwater tablet",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 8,
+    "effect": {
+      "name": "collapsible pole",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 5,
+    "effect": {
+      "name": "silk rope",
+      "active": "always",
+      "modifiers": [
+        {
+          "affects": "Use Rope",
+          "mod": {
+            "type": "circumstance",
+            "amounts": [ { "fixed": 2 } ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 20,
+    "effect": {
+      "name": "tent",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 5,
+    "effect": {
+      "name": "bedroll",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 8,
+    "effect": {
+      "name": "saddlebags",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0,
+    "effect": {
+      "name": "mule",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 15,
+    "effect": {
+      "name": "pack saddle",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0.5,
+    "effect": {
+      "name": "piton",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 2,
+    "effect": {
+      "name": "hammer",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 1,
+    "effect": {
+      "name": "sunrod",
+      "active": "always"
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0.5,
+    "effect": {
+      "name": "fast torch",
+      "active": "always"
     }
   }
 ]

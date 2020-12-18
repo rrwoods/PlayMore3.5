@@ -227,7 +227,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "free 1/round—after dropping a foe in melee, make another melee attack with the same weapon against another foe in reach"
+          "text": "free 1/round\u2014after dropping a foe in melee, make another melee attack with the same weapon against another foe in reach"
         }
       ]
     }
@@ -365,7 +365,7 @@
       "text": [
         {
           "category": "React",
-          "text": "no action 1/round—if hit with a ranged weapon while you have at least one hand free and aren't flat-footed, deflect it and take no damage from it"
+          "text": "no action 1/round\u2014if hit with a ranged weapon while you have at least one hand free and aren't flat-footed, deflect it and take no damage from it"
         }
       ]
     }
@@ -1129,7 +1129,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "std at-will—make two ranged attacks at –4, or three at –6 (if BAB +11), or four at –8 (if BAB +16)"
+          "text": "std at-will\u2014make two ranged attacks at –4, or three at –6 (if BAB +11), or four at –8 (if BAB +16)"
         }
       ]
     }
@@ -1193,7 +1193,7 @@
       "text": [
         {
           "category": "React",
-          "text": "1/round—if your mount would be hit, replace its AC with a Ride check result"
+          "text": "1/round\u2014if your mount would be hit, replace its AC with a Ride check result"
         }
       ]
     }
@@ -1784,7 +1784,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "free X/day—your next unarmed attack stuns for 1 round if it hits; Fort DC 10 + 1/2 level + WIS negates; X = monk level + 1 per four non-monk levels"
+          "text": "free X/day\u2014your next unarmed attack stuns for 1 round if it hits; Fort DC 10 + 1/2 level + WIS negates; X = monk level + 1 per four non-monk levels"
         }
       ]
     }
