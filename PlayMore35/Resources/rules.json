@@ -224,7 +224,8 @@
       "name": "Balance",
       "tags": [
         "All skills",
-        "DEX skills"
+        "DEX skills",
+        "ACP skills"
       ]
     },
     {
@@ -244,7 +245,8 @@
       "name": "Climb",
       "tags": [
         "All skills",
-        "STR skills"
+        "STR skills",
+        "ACP skills"
       ]
     },
     {
@@ -314,7 +316,8 @@
       "name": "Escape Artist",
       "tags": [
         "All skills",
-        "DEX skills"
+        "DEX skills",
+        "ACP skills"
       ]
     },
     {
@@ -364,7 +367,8 @@
       "name": "Hide",
       "tags": [
         "All skills",
-        "DEX skills"
+        "DEX skills",
+        "ACP skills"
       ]
     },
     {
@@ -394,7 +398,8 @@
       "name": "Jump",
       "tags": [
         "All skills",
-        "STR skills"
+        "STR skills",
+        "ACP skills"
       ]
     },
     {
@@ -534,7 +539,8 @@
       "name": "Move Silently",
       "tags": [
         "All skills",
-        "DEX skills"
+        "DEX skills",
+        "ACP skills"
       ]
     },
     {
@@ -694,7 +700,8 @@
       "name": "Sleight Of Hand",
       "tags": [
         "All skills",
-        "DEX skills"
+        "DEX skills",
+        "ACP skills"
       ]
     },
     {
@@ -734,7 +741,8 @@
       "name": "Swim",
       "tags": [
         "All skills",
-        "STR skills"
+        "STR skills",
+        "ACP skills"
       ]
     },
     {
@@ -3141,84 +3149,7 @@
       },
       "modifiers": [
         {
-          "affects": "Balance",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Climb",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Escape Artist",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Hide",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Jump",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Move Silently",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Sleight Of Hand",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Swim",
+          "affects": "ACP skills",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3304,84 +3235,7 @@
       },
       "modifiers": [
         {
-          "affects": "Balance",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Shield armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Climb",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Shield armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Escape Artist",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Shield armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Hide",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Shield armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Jump",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Shield armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Move Silently",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Shield armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Sleight Of Hand",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "item value": "Shield armor check penalty"
-              }
-            ]
-          }
-        },
-        {
-          "affects": "Swim",
+          "affects": "ACP skills",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -3780,6 +3634,97 @@
         {
           "affects": "All speeds",
           "mod": 0.666
+        }
+      ]
+    },
+    {
+      "name": "Medium load armor check penalty",
+      "active": {
+        "all": [
+          {
+            "conditional": {
+              "left": {
+                "item value": "Total weight"
+              },
+              "relation": "GREATER_THAN",
+              "right": {
+                "stat value": "Light load"
+              }
+            }
+          },
+          {
+            "conditional": {
+              "left": {
+                "item value": "Total weight"
+              },
+              "relation": "LESS_THAN_OR_EQUAL",
+              "right": {
+                "stat value": "Medium load"
+              }
+            }
+          }
+        ]
+      },
+      "modifiers": [
+        {
+          "affects": "ACP skills",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -3
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Swim",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Heavy load armor check penalty",
+      "active": {
+        "conditional": {
+          "left": {
+            "item value": "Total weight"
+          },
+          "relation": "GREATER_THAN",
+          "right": {
+            "stat value": "Medium load"
+          }
+        }
+      },
+      "modifiers": [
+        {
+          "affects": "ACP skills",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -6
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Swim",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": -6
+              }
+            ]
+          }
         }
       ]
     },
