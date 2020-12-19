@@ -20,6 +20,7 @@ namespace PlayMore35.Global {
         public Dictionary<string, ControllableToggle> Toggles;
 
         public Character Character;
+        private int NormalSizeCategory;
         public Dictionary<string, Race> RaceDefinitions;
         public Dictionary<string, CharacterClass> ClassDefinitions;
         public Dictionary<string, Feat> FeatDefinitions;
@@ -194,7 +195,9 @@ namespace PlayMore35.Global {
                 AddToggle(flag);
             }
 
-            Effects.GenerateRaceEffects(RaceDefinitions[Character.race]);
+            Race race = RaceDefinitions[Character.race];
+            Effects.GenerateRaceEffects(race);
+            NormalSizeCategory = race.SizeCategory;
 
             Dictionary<string, int> classLevels = new Dictionary<string, int>();
             foreach (var @class in Character.classLevels) {
@@ -260,9 +263,8 @@ namespace PlayMore35.Global {
         }
         
         public List<Attack> GetAttacks() {
-            // TODO : calculate size change -- difference between the current value of the size category
-            // and that of the player's race
-            return Attack.Generate(Effects, 0, EquippedItems);
+            int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;
+            return Attack.Generate(Effects, sizeChange, EquippedItems);
         }
     }
 }

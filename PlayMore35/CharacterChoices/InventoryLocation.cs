@@ -19,7 +19,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("weapons", new JArray(weapons.Select(x => x.ToJson()))),
                 new JProperty("armor", new JArray(armor.Select(x => x.ToJson()))),
                 new JProperty("shields", new JArray(shields.Select(x => x.ToJson()))),
-                new JProperty("items", new JObject(items))
+                new JProperty("items", new JObject(items.Select(x => new JProperty(x.Key, x.Value))))
             );
         }
 

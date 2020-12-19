@@ -43,6 +43,11 @@ namespace PlayMore35 {
         private List<List<Label>> myTurn;
 
         private Label str_score, str_mod, str_check;
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e) {
+
+        }
+
         private Label dex_score, dex_mod, dex_check;
         private Label con_score, con_mod, con_check;
         private Label int_score, int_mod, int_check;
@@ -429,6 +434,16 @@ namespace PlayMore35 {
             }
 
             RefreshEffects();
+        }
+
+        private void SaveCharacter_Click(object sender, EventArgs e) {
+            SaveFileDialog saveCharacter = new SaveFileDialog {
+                Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                FilterIndex = 1
+            };
+            if (saveCharacter.ShowDialog() == DialogResult.OK) {
+                File.WriteAllText(saveCharacter.FileName, controller.Character.ToJson().ToString());
+            }
         }
     }
 

@@ -26,6 +26,8 @@
         private void InitializeComponent() {
             this.lblTopLeft = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveCharacterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuCondition = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -43,6 +45,7 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
             this.mnuCondition});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -50,11 +53,27 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveCharacterToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
+            // 
+            // saveCharacterToolStripMenuItem
+            // 
+            this.saveCharacterToolStripMenuItem.Name = "saveCharacterToolStripMenuItem";
+            this.saveCharacterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveCharacterToolStripMenuItem.Text = "&Save character...";
+            this.saveCharacterToolStripMenuItem.Click += new System.EventHandler(this.SaveCharacter_Click);
+            // 
             // mnuCondition
             // 
             this.mnuCondition.Name = "mnuCondition";
             this.mnuCondition.Size = new System.Drawing.Size(77, 20);
-            this.mnuCondition.Text = "Conditions";
+            this.mnuCondition.Text = "&Conditions";
             // 
             // MainForm
             // 
@@ -81,6 +100,8 @@
         private System.Windows.Forms.Label lblTopLeft;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem mnuCondition;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveCharacterToolStripMenuItem;
     }
 }
 
