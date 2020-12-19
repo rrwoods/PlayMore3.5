@@ -128,19 +128,19 @@ namespace PlayMore35.Items {
                     compositeStrToDamage = StrengthRating;
                 } else {
                     AttackBonus.bonus -= 2;
-                    AttackBonus.explanation.Add("-2 insufficient STR for +" + StrengthRating + " composite bow");
+                    AttackBonus.explanation.Add($"-2 insufficient STR for +{StrengthRating} composite bow");
                     compositeStrToDamage = Math.Max(strModifier, 0); // penalty would already be applied by game rules.
                 }
             }
             if (sizeDiscrepancy != 0) {
                 int attackPenalty = -2 * Math.Abs(sizeDiscrepancy);
                 AttackBonus.bonus += attackPenalty;
-                AttackBonus.explanation.Add("" + attackPenalty + " inappropriately-sized weapon");
+                AttackBonus.explanation.Add($"{attackPenalty} inappropriately-sized weapon");
             }
 
             if (twfPenalty != 0) {
                 AttackBonus.bonus += twfPenalty;
-                AttackBonus.explanation.Add("" + twfPenalty + " two-weapon fighting penalty");
+                AttackBonus.explanation.Add($"{twfPenalty} two-weapon fighting penalty");
             }
             
             DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);
@@ -159,7 +159,7 @@ namespace PlayMore35.Items {
             damage.AddDice(mod + compositeStrToDamage, 1);
             explanation.AddRange(modExpl);
             if (compositeStrToDamage > 0) {
-                explanation.Add("+" + compositeStrToDamage + " STR to composite bow damage");
+                explanation.Add($"+{compositeStrToDamage} STR to composite bow damage");
             }
 
             DiceGroup critDamage = new DiceGroup(WeaponName + " critical hit damage").AddDice(damage);
@@ -167,7 +167,7 @@ namespace PlayMore35.Items {
             critExplanation.AddRange(explanation);
 
             critDamage.Multiply(criticalMultiplier);
-            critExplanation.Add("Critical hit ×" + criticalMultiplier);
+            critExplanation.Add($"Critical hit ×{criticalMultiplier}");
 
             IEnumerable<DiceGroup> extraDiceFromProps = properties
                 .Where(x => x.ExtraDamage.qty != 0)

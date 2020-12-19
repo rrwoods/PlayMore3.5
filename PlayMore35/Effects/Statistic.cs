@@ -130,7 +130,7 @@ namespace PlayMore35.Effects {
             List<string> multiplierExpl = new List<string>();
             foreach (Multiplier multiplier in pool.GetMultipliers(items, this)) {
                 total *= multiplier.Factor;
-                multiplierExpl.Add("×" + multiplier.Factor + " " + multiplier.Name);
+                multiplierExpl.Add($"×{multiplier.Factor} {multiplier.Name}");
             }
 
             int roundedTotal = roundUp

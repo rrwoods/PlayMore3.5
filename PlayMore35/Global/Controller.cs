@@ -171,7 +171,7 @@ namespace PlayMore35.Global {
             List<Shield> spiked = ShieldDefinitions.Values
                 .Where(x => x.ShieldBashEffort != null)
                 .Select(x => new Shield(x) {
-                    Name = "spiked " + x.Name
+                    Name = $"spiked {x.Name}"
                 })
                 .ToList(); // Finalize the iteration before modifying the dictionary it's based on
             spiked.ForEach(x => ShieldDefinitions[x.Name] = x);
@@ -206,7 +206,6 @@ namespace PlayMore35.Global {
             }
             foreach (var classAndLevel in classLevels) {
                 CharacterClass @class = ClassDefinitions[classAndLevel.Key];
-                System.Diagnostics.Debug.WriteLine("Generating " + classAndLevel + " effects");
                 Effects.GenerateClassEffects(@class, classAndLevel.Value);
                 for (int level = 0; level < classAndLevel.Value; level++) {
                     foreach (Effect feature in @class.ClassFeatures[level]) {

@@ -52,7 +52,7 @@ namespace PlayMore35.CharacterChoices {
             }
 
             SlottedItems = ((JObject)json["slots"]).Properties().ToDictionary(
-                x => (Items.Equipped.Slot)Enum.Parse(typeof(Items.Equipped.Slot), (string)x.Name, false),
+                x => (Items.Equipped.Slot)Enum.Parse(typeof(Items.Equipped.Slot), x.Name, false),
                 x => (string)x.Value
             );
             SlotlessItems = ((JArray)json["slotless"]).Select(x => (string)x).ToList();

@@ -104,7 +104,7 @@ namespace PlayMore35.Effects {
                     if (allText.ContainsKey(category)) {
                         allText[category].Add(text);
                     } else {
-                        allText[UNCATEGORIZED].Add("[" + category + "] " + text);
+                        allText[UNCATEGORIZED].Add($"[{category}] {text}");
                     }
                 }
             }
@@ -117,7 +117,7 @@ namespace PlayMore35.Effects {
             foreach (var ability in choices.assignedAbilityScores) {
                 string name = ability.Key;
                 int score = ability.Value;
-                AddEffect(new Effect("Assigned " + name)
+                AddEffect(new Effect($"Assigned {name}")
                     .AddModifier(name + " score", new Modifier(score, BASE))
                 );
             }
@@ -134,7 +134,7 @@ namespace PlayMore35.Effects {
                 // This might seem roundabout compared to the alternative, which is to
                 // sum all the rolled hit dice and add HD*CON.  However, *each* individual
                 // hit die is minimum 1.
-                string hdName = "Level " + (i + 1) + " hit die";
+                string hdName = $"Level {i+1} hit die";
                 AddStat(new Statistic(hdName, stats[CON_MODIFIER]).Minimum(1));
                 AddEffect(new Effect(hdName)
                     .AddModifier(hdName, new Modifier(choices.rolledHitDice[i], BASE))

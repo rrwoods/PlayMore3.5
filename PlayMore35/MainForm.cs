@@ -85,7 +85,7 @@ namespace PlayMore35 {
         private void LabelStat(Label label, string prefix, string stat, string postfix = "", bool plus = true) {
             (int value, List<string> explanation) = GetStatValue(stat);
             string statValue = ValueText(value, plus);
-            label.Text = prefix + " " + statValue + postfix;
+            label.Text = $"{prefix} {statValue}{postfix}";
             ToolTipLabel(label, explanation);
         }
 
@@ -94,14 +94,14 @@ namespace PlayMore35 {
 
             var abilityModifier = GetStatValue(ability + " modifier");
             string value = ValueText(abilityModifier.value, true);
-            mod.Text = "(" + value + ")";
+            mod.Text = $"({value})";
             ToolTipLabel(mod, abilityModifier.explanation);
 
             var abilityCheck = GetStatValue(ability + " checks");
             if (abilityCheck.value == abilityModifier.value) {
                 check.Hide();
             } else {
-                check.Text = "(check at " + ValueText(abilityCheck.value, true) + ")";
+                check.Text = $"(check at {ValueText(abilityCheck.value, true)})";
                 ToolTipLabel(check, abilityCheck.explanation);
                 check.Show();
             }
@@ -109,7 +109,7 @@ namespace PlayMore35 {
 
         private void OneLineText(Label label, Dictionary<string, List<string>> textEffects, string key, string postfix = "") {
             if (textEffects[key].Any()) {
-                label.Text = key + " " + string.Join(", ", textEffects[key]) + postfix;
+                label.Text = $"{key} {string.Join(", ", textEffects[key])}{postfix}";
             } else {
                 label.Text = "";
             }

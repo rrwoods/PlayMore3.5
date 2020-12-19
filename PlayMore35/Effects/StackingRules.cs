@@ -38,9 +38,9 @@ namespace PlayMore35.Effects {
         private static string Explain(int mod, string name, string type, IEnumerable<string> overlaps) {
             string baseText = ExplainBase(mod, name);
             if (overlaps.Any()) {
-                return baseText + " (" + type + "; overlaps with " + String.Join(", ", overlaps) + ")";
+                return $"{baseText} ({type}; overlaps with {string.Join(", ", overlaps)})";
             }
-            return baseText + " (" + type + ")";
+            return $"{baseText} ({type})";
         }
 
         public static (int mod, List<string> explanation) StackModifiers(

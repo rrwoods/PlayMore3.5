@@ -15,7 +15,7 @@ namespace PlayMore35.Effects {
         }
 
         public static string ToDNotation((int qty, int size) dice) {
-            return "" + dice.qty + "d" + dice.size;
+            return $"{dice.qty}d{dice.size}";
         }
 
         public JToken ToJson() {
@@ -84,7 +84,7 @@ namespace PlayMore35.Effects {
                 if (die.Key == 1) {
                     continue;
                 } else {
-                    components.Add("" + die.Value + "d" + die.Key);
+                    components.Add($"{die.Value}d{die.Key}");
                 }
             }
 
