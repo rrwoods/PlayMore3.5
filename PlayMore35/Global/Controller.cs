@@ -119,7 +119,7 @@ namespace PlayMore35.Global {
                 location.weapons.Select(x => WeaponFromChoice(x).Weight).Sum() +
                 location.armor.Select(x => ArmorFromChoice(x).Weight).Sum() +
                 location.shields.Select(x => ShieldFromChoice(x).Weight).Sum() +
-                location.items.Select(x => ItemDefinitions[x].Weight).Sum();
+                location.items.Select(x => ItemDefinitions[x.Key].Weight * x.Value).Sum();
         }
 
         public void AddToggle(string flag) {

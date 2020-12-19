@@ -23,10 +23,11 @@ namespace PlayMore35.Effects {
         }
 
         private int MaxDexFromItems(EffectPool pool, Equipped items) {
-            if (TotalWeight(items) > pool.stats[MEDIUM_LOAD].GetValue(pool, items).value) {
+            int totalWeight = TotalWeight(items);
+            if (totalWeight > pool.stats[MEDIUM_LOAD].GetValue(pool, items).value) {
                 return +1;
             }
-            if (TotalWeight(items) > pool.stats[LIGHT_LOAD].GetValue(pool, items).value) {
+            if (totalWeight > pool.stats[LIGHT_LOAD].GetValue(pool, items).value) {
                 return +3;
             }
             return int.MaxValue;

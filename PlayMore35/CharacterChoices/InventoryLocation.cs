@@ -11,7 +11,7 @@ namespace PlayMore35.CharacterChoices {
         public List<ArmorChoice> armor;
         public List<ShieldChoice> shields;
 
-        public List<string> items;
+        public Dictionary<string, int> items;
 
         public JToken ToJson() {
             return new JObject(
@@ -19,7 +19,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("weapons", new JArray(weapons.Select(x => x.ToJson()))),
                 new JProperty("armor", new JArray(armor.Select(x => x.ToJson()))),
                 new JProperty("shields", new JArray(shields.Select(x => x.ToJson()))),
-                new JProperty("items", new JArray(items))
+                new JProperty("items", new JObject(items))
             );
         }
 
@@ -28,7 +28,7 @@ namespace PlayMore35.CharacterChoices {
             weapons = ((JArray)json["weapons"]).Select(x => new WeaponChoice((JObject)x)).ToList();
             armor = ((JArray)json["armor"]).Select(x => new ArmorChoice((JObject)x)).ToList();
             shields = ((JArray)json["shields"]).Select(x => new ShieldChoice((JObject)x)).ToList();
-            items = ((JArray)json["items"]).Select(x => (string)x).ToList();
+            items = ((JObject)json["items"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
         }
 
         public InventoryLocation() { }
