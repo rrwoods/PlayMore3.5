@@ -13,6 +13,25 @@ namespace PlayMore35.Effects {
             Key = key;
         }
 
+        private int TotalWeight(Equipped items) {
+            return (int)Math.Ceiling(items.UnequippedWeight +
+                (items.PrimaryHandWeapon?.Weight ?? 0) +
+                (items.PrimaryHandWeapon == items.OffHandWeapon ? 0 : items.OffHandWeapon?.Weight ?? 0) +
+                (items.DonnedArmor?.Weight ?? 0) +
+                (items.OffHandShield?.Weight ?? 0)
+            );
+        }
+
+        private int MaxDexFromItems(EffectPool pool, Equipped items) {
+            if (TotalWeight(items) > pool.stats[MEDIUM_LOAD].GetValue(pool, items).value) {
+                return +1;
+            }
+            if (TotalWeight(items) > pool.stats[LIGHT_LOAD].GetValue(pool, items).value) {
+                return +3;
+            }
+            return int.MaxValue;
+        }
+
         public int Get(EffectPool pool, Equipped items) {
             if (Key == ARMOR_BONUS) {
                 return items.DonnedArmor?.ArmorBonus ?? +0;
@@ -21,9 +40,13 @@ namespace PlayMore35.Effects {
                 return items.OffHandShield?.ShieldBonus ?? +0;
             }
             if (Key == MAX_DEX_BONUS) {
+                // c#'s min doesn't have a 3-number overload.  i'll write one myself if this happens a lot.
                 return Math.Min(
-                    items.DonnedArmor?.MaxDexBonus ?? int.MaxValue,
-                    items.OffHandShield?.MaxDexBonus ?? int.MaxValue
+                    Math.Min(
+                        items.DonnedArmor?.MaxDexBonus ?? int.MaxValue,
+                        items.OffHandShield?.MaxDexBonus ?? int.MaxValue
+                    ),
+                    MaxDexFromItems(pool, items)
                 );
             }
             if (Key == ARMOR_CHECK_PENALTY) {
@@ -50,12 +73,7 @@ namespace PlayMore35.Effects {
                 return (int?)items.DonnedArmor?.Type ?? 0;
             }
             if (Key == TOTAL_WEIGHT) {
-                return (int) Math.Ceiling(items.UnequippedWeight +
-                    (items.PrimaryHandWeapon?.Weight ?? 0) +
-                    (items.PrimaryHandWeapon == items.OffHandWeapon ? 0 : items.OffHandWeapon?.Weight ?? 0) +
-                    (items.DonnedArmor?.Weight ?? 0) +
-                    (items.OffHandShield?.Weight ?? 0)
-                );
+                return TotalWeight(items);
             }
             return 0;
         }
