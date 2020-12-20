@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PlayMore35.CharacterChoices {
     public class WeaponChoice : IJsonable {
@@ -38,6 +39,19 @@ namespace PlayMore35.CharacterChoices {
             SecondHeadProperties = new List<string>();
             ProjectileProperties = new List<string>();
             ThrownProperties = new List<string>();
+        }
+
+        public string FullName() {
+            return
+                string.Join("", MeleeProperties.Select(x => x + " ")) +
+                string.Join("", SecondHeadProperties.Select(x => x + " ")) +
+                string.Join("", ProjectileProperties.Select(x => x + " ")) +
+                string.Join("", ThrownProperties.Select(x => x + " ")) +
+                Name;
+        }
+
+        public override string ToString() {
+            return FullName();
         }
     }
 }

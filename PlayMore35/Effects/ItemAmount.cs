@@ -13,17 +13,8 @@ namespace PlayMore35.Effects {
             Key = key;
         }
 
-        private int TotalWeight(Equipped items) {
-            return (int)Math.Ceiling(items.UnequippedWeight +
-                (items.PrimaryHandWeapon?.Weight ?? 0) +
-                (items.PrimaryHandWeapon == items.OffHandWeapon ? 0 : items.OffHandWeapon?.Weight ?? 0) +
-                (items.DonnedArmor?.Weight ?? 0) +
-                (items.OffHandShield?.Weight ?? 0)
-            );
-        }
-
         private int MaxDexFromItems(EffectPool pool, Equipped items) {
-            int totalWeight = TotalWeight(items);
+            int totalWeight = items.TotalWeight();
             if (totalWeight > pool.stats[MEDIUM_LOAD].GetValue(pool, items).value) {
                 return +1;
             }
@@ -74,7 +65,7 @@ namespace PlayMore35.Effects {
                 return (int?)items.DonnedArmor?.Type ?? 0;
             }
             if (Key == TOTAL_WEIGHT) {
-                return TotalWeight(items);
+                return items.TotalWeight();
             }
             return 0;
         }

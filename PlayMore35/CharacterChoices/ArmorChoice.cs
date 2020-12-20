@@ -35,5 +35,17 @@ namespace PlayMore35.CharacterChoices {
             ArmorProperties = new List<string>();
             MeleeProperties = new List<string>();
         }
+
+        public string FullName() {
+            return
+                string.Join("", MeleeProperties.Select(x => x + " ")) +
+                (Spiked ? "spiked " : "") +
+                string.Join("", ArmorProperties.Select(x => x + " ")) +
+                Name;
+        }
+
+        public override string ToString() {
+            return FullName();
+        }
     }
 }

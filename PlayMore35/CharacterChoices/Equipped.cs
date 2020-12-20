@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
 
@@ -21,6 +22,17 @@ namespace PlayMore35.Items {
         // the total weight of all items NOT accounted for above that still contribute
         // to the player's total weight carried.
         public decimal UnequippedWeight;
+
+        public int TotalWeight() {
+            return (int)Math.Ceiling(UnequippedWeight +
+                (PrimaryHandWeapon?.Weight ?? 0) +
+                (PrimaryHandWeapon == OffHandWeapon ? 0 : OffHandWeapon?.Weight ?? 0) +
+                (DonnedArmor?.Weight ?? 0) +
+                (OffHandShield?.Weight ?? 0) +
+                (SlotlessItems.Select(x => x.Weight).Sum()) +
+                (SlottedItems.Values.Select(x => x.Weight).Sum())
+            );
+        }
 
         public IEnumerable<Effect> GetGlobalEffects() {
             IEnumerable<Effect> all = Enumerable.Empty<Effect>();

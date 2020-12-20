@@ -245,6 +245,10 @@ namespace PlayMore35.Global {
                 EquippedItems.SlotlessItems.Add(ItemDefinitions[item]);
             }
 
+            ComputeWeight();
+        }
+
+        private void ComputeWeight() {
             EquippedItems.UnequippedWeight = Character.inventory.Values
                 .Where(x => x.weighs)
                 .Select(x => WeightAtLocation(x))
@@ -253,6 +257,52 @@ namespace PlayMore35.Global {
 
         // **** MUTATORS ****
 
+        public void CountWeight(string locationName, bool weighs) {
+            Character.inventory[locationName].weighs = weighs;
+            ComputeWeight();
+        }
+
+        public void MoveItem(string from, string to, object item, int quantity) {
+            if (
+                !Character.inventory.ContainsKey(from) ||
+                !Character.inventory.ContainsKey(to)
+            ) {
+                return;
+            }
+
+            if (item is string itemName) {
+                if (Character.inventory[from].items.ContainsKey(itemName)) {
+                    int maxQuantity = Character.inventory[from].items[itemName];
+                    if (quantity >= maxQuantity) {
+                        quantity = maxQuantity;
+                        Character.inventory[from].items.Remove(itemName);
+                    } else {
+                        Character.inventory[from].items[itemName] -= quantity;
+                    }
+
+                    if (Character.inventory[to].items.ContainsKey(itemName)) {
+                        Character.inventory[to].items[itemName] += quantity;
+                    } else {
+                        Character.inventory[to].items[itemName] = quantity;
+                    }
+                }
+            } else if (item is WeaponChoice weapon) {
+                if (Character.inventory[from].weapons.Remove(weapon)) {
+                    Character.inventory[to].weapons.Add(weapon);
+                }
+            } else if (item is ArmorChoice armor) {
+                if (Character.inventory[from].armor.Remove(armor)) {
+                    Character.inventory[to].armor.Add(armor);
+                }
+            } else if (item is ShieldChoice shield) {
+                if (Character.inventory[from].shields.Remove(shield)) {
+                    Character.inventory[to].shields.Add(shield);
+                }
+            }
+
+            ComputeWeight();
+        }
+        
         // still to come:  functions that move items around on the character,
         // accounting for how that affects weight and such.
 

@@ -27,6 +27,8 @@ namespace PlayMore35 {
         private int topBuffer;
         private int verticalBufferLarge;
         private int columnWidth;
+        private int locationWidthBuffer;
+
         private bool loaded = false;
 
         private Label name, desc1, desc2, init, senses, listen, spot, evade, languages, condition;
@@ -43,23 +45,26 @@ namespace PlayMore35 {
         private List<List<Label>> myTurn;
 
         private Label str_score, str_mod, str_check;
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e) {
-
-        }
-
         private Label dex_score, dex_mod, dex_check;
         private Label con_score, con_mod, con_check;
         private Label int_score, int_mod, int_check;
         private Label wis_score, wis_mod, wis_check;
         private Label cha_score, cha_mod, cha_check;
         private Label sq;
+
         private List<Label> skills = new List<Label>();
+
         private Label miscSkills;
         private List<List<Label>> misc;
 
+        private Control dragging = null;
+        private Size draggingFrom;
         public Dictionary<Label, ToolTip> toolTips = new Dictionary<Label, ToolTip>();
 
+        private Dictionary<string, ListBox> locationLists = new Dictionary<string, ListBox>();
+        private string draggingItemFrom = null;
+        private int numberDragging = 0;
+        
         private Controller controller = null;
         private Character character = null;
 
@@ -73,6 +78,10 @@ namespace PlayMore35 {
             AddFontMemResourceEx(fontPtr, (uint)Scala_SansRegular_LF.Length, IntPtr.Zero, ref dummy);
             Marshal.FreeCoTaskMem(fontPtr);
             scala = new Font(fonts.Families[0], 9.75F);
+        }
+
+        public TabPage StatsTab() {
+            return statsTab;
         }
 
         private (int value, List<string> explanation) GetStatValue(string stat) {
@@ -181,15 +190,15 @@ namespace PlayMore35 {
             LabelStat(speed, "Speed", LAND_SPEED, " ft.", false);
             MultilineText(movement, textEffects, MOVEMENT, false);
             foreach (Label label in attacks) {
-                Controls.Remove(label);
+                statsTab.Controls.Remove(label);
             }
             attacks.Clear();
             foreach (Label label in damage) {
-                Controls.Remove(label);
+                statsTab.Controls.Remove(label);
             }
             damage.Clear();
             foreach (Label label in criticals) {
-                Controls.Remove(label);
+                statsTab.Controls.Remove(label);
             }
             criticals.Clear();
             foreach (Items.Attack attack in controller.GetAttacks()) {
@@ -229,7 +238,7 @@ namespace PlayMore35 {
             AbilityScore(cha_score, cha_mod, cha_check, "CHA");
             MultilineText(sq, textEffects, SQ);
             foreach (Label label in skills) {
-                Controls.Remove(label);
+                statsTab.Controls.Remove(label);
             }
             skills.Clear();
             foreach (string skill in SKILLS_LIST) {
@@ -243,6 +252,12 @@ namespace PlayMore35 {
 
             loaded = true;
             RepositionLabels();
+            RefreshWeight();
+        }
+
+        private void RefreshWeight() {
+            int weight = controller.EquippedItems.TotalWeight();
+            lblTotalWeight.Text = $"Total weight carried: {weight} lbs.";
         }
 
         private void RepositionColumn(int columnLeft, List<List<Label>> column) {
@@ -291,7 +306,7 @@ namespace PlayMore35 {
 
             RepositionColumn(leftBuffer + columnWidth * 2, myTurn);
             RepositionRow(space, reach);
-            for (int i=0; i<attacks.Count(); i++) {
+            for (int i = 0; i < attacks.Count(); i++) {
                 RepositionRow(attacks[i], damage[i], criticals[i]);
             }
             RepositionRow(bab, grapple);
@@ -303,6 +318,134 @@ namespace PlayMore35 {
             RepositionRow(int_score, int_mod, int_check);
             RepositionRow(wis_score, wis_mod, wis_check);
             RepositionRow(cha_score, cha_mod, cha_check);
+        }
+
+
+        private void InventoryTab_Paint(object sender, PaintEventArgs e) {
+            InitializeInventory();
+            inventoryTab.Paint -= InventoryTab_Paint;
+        }
+
+        private EventHandler CountWeight_CheckedChanged(string location) {
+            return (object sender, EventArgs e) => {
+                controller.CountWeight(location, ((CheckBox)sender).Checked);
+                RefreshEffects();
+            };
+        }
+
+        private void Location_MouseDown(object sender, MouseEventArgs e) {
+            draggingFrom = new Size(e.Location);
+            dragging = (Control)sender;
+            ((Control)sender).BringToFront();
+        }
+
+        private void Location_MouseUp(object sender, MouseEventArgs e) {
+            dragging = null;
+        }
+
+        private void Location_MouseMove(object sender, MouseEventArgs e) {
+            if (dragging == sender) {
+                Point offset = e.Location - draggingFrom;
+                ((Control)sender).Left += offset.X;
+                ((Control)sender).Top += offset.Y;
+            }
+        }
+
+        private void Item_MouseDown(object sender, MouseEventArgs e) {
+            ListBox list = (ListBox)sender;
+            int index = list.IndexFromPoint(e.Location);
+            if (index < 0) {
+                return;
+            }
+
+            draggingItemFrom = list.Parent.Text;
+            numberDragging = (e.Button == MouseButtons.Right) ? 10 : 1;
+            list.DoDragDrop(list.Items[index], DragDropEffects.Move);
+        }
+
+        private void Item_DragEnter(object sender, DragEventArgs e) {
+            e.Effect = DragDropEffects.Move;
+        }
+
+        private void Item_DragDrop(object sender, DragEventArgs e) {
+            ListBox targetList = (ListBox)sender;
+            ItemAndQty item = (ItemAndQty) e.Data.GetData(typeof(ItemAndQty));
+            controller.MoveItem(draggingItemFrom, targetList.Parent.Text, item.item, numberDragging);
+            draggingItemFrom = null;
+
+            foreach (var location in controller.Character.inventory) {
+                ListLocation(location.Value, locationLists[location.Key]);
+            }
+            RefreshWeight();
+        }
+
+        private void ListItems<T>(List<T> items, ListBox locationBox) {
+            foreach (object item in items) {
+                locationBox.Items.Add(new ItemAndQty { item = item, qty = 1 });
+            }
+        }
+
+        private void ListItems(Dictionary<string, int> itemQuantities, ListBox locationBox) {
+            foreach (var item in itemQuantities) {
+                if (item.Value == 0) {
+                    continue;
+                }
+                locationBox.Items.Add(new ItemAndQty { item = item.Key, qty = item.Value });
+            }
+        }
+
+        private void ListLocation(InventoryLocation location, ListBox locationBox) {
+            locationBox.Items.Clear();
+            ListItems(location.weapons, locationBox);
+            ListItems(location.armor, locationBox);
+            ListItems(location.shields, locationBox);
+            ListItems(location.items, locationBox);
+        }
+
+        private void InitializeInventory() {
+            int locationTop = grpSampleLocation.Top;
+            int locationLeft = grpSampleLocation.Left;
+            int locationBuffer = grpSampleLocation2.Left - grpSampleLocation.Right;
+            locationWidthBuffer = grpSampleLocation.Width - lstSampleItems.Width;
+            foreach (var location in controller.Character.inventory) {
+                GroupBox locationBox = new GroupBox {
+                    Text = location.Key,
+                    Top = locationTop,
+                    Left = locationLeft,
+                    Width = 100,
+                    Height = 0,
+                    AutoSize = true
+                };
+                locationBox.MouseDown += new MouseEventHandler(Location_MouseDown);
+                locationBox.MouseUp += new MouseEventHandler(Location_MouseUp);
+                locationBox.MouseMove += new MouseEventHandler(Location_MouseMove);
+
+                CheckBox countWeight = new CheckBox() {
+                    Text = chkWeightCounts.Text,
+                    Left = chkWeightCounts.Left,
+                    Top = chkWeightCounts.Top,
+                    Checked = location.Value.weighs
+                };
+                countWeight.CheckedChanged += CountWeight_CheckedChanged(location.Key);
+                locationBox.Controls.Add(countWeight);
+
+                ListBox locationList = new ListBox() {
+                    AllowDrop = true,
+                    AutoSize = true,
+                    Top = lstSampleItems.Top,
+                    Left = lstSampleItems.Left,
+                    Height = 1
+                };
+                locationList.MouseDown += new MouseEventHandler(Item_MouseDown);
+                locationList.DragEnter += new DragEventHandler(Item_DragEnter);
+                locationList.DragDrop += new DragEventHandler(Item_DragDrop);
+                locationLists[location.Key] = locationList;
+                locationBox.Controls.Add(locationList);
+
+                ListLocation(location.Value, locationList);
+                inventoryTab.Controls.Add(locationBox);
+                locationLeft += locationBox.Width + locationBuffer;
+            }
         }
 
         private void MainForm_Resize(object sender, EventArgs e) {
@@ -328,6 +471,7 @@ namespace PlayMore35 {
             using (OpenFileDialog dialog = new OpenFileDialog()) {
                 dialog.InitialDirectory = "c:\\";
                 if (dialog.ShowDialog() != DialogResult.OK) {
+                    Application.Exit();
                     return;
                 }
                 var fileStream = dialog.OpenFile();
@@ -445,11 +589,20 @@ namespace PlayMore35 {
                 File.WriteAllText(saveCharacter.FileName, controller.Character.ToJson().ToString());
             }
         }
+
+        class ItemAndQty {
+            public object item;
+            public int qty;
+
+            public override string ToString() {
+                return qty == 1 ? item.ToString() : $"{item} x {qty}";
+            }
+        }
     }
 
     static class LabelExtensions {
         public static Label Initialize(this Label label, MainForm form) {
-            form.Controls.Add(label);
+            form.StatsTab().Controls.Add(label);
             label.AutoSize = true;
             form.toolTips[label] = new ToolTip {
                 AutoPopDelay = 32767 // maximum value.
