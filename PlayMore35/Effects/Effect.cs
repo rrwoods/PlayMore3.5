@@ -42,10 +42,10 @@ namespace PlayMore35.Effects {
         }
 
         public JToken ToJson() {
-            JObject json = new JObject(
-                new JProperty("name", Name),
-                new JProperty("active", Toggle.ToJson())
-            );
+            JObject json = new JObject(new JProperty("name", Name));
+            if (Toggle != AlwaysOn.Instance) {
+                json.Add("active", Toggle.ToJson());
+            }
             if (ExtraAttacks.Any()) {
                 json.Add("extra attacks", new JArray(ExtraAttacks.Select(x => x.ToJson())));
             }
@@ -105,7 +105,9 @@ namespace PlayMore35.Effects {
 
         public Effect(JObject json) {
             Name = (string)json["name"];
-            Toggle = Effects.Toggle.FromJson(json["active"]);
+            if (json["active"] != null) {
+                Toggle = Effects.Toggle.FromJson(json["active"]);
+            }
             if (json["extra attacks"] != null) {
                 ExtraAttacks.AddRange(json["extra attacks"].Select(x => new Alterer<ExtraAttack, Attack> {
                     affects = new AttackMatcher((JObject)x["affects"]),

@@ -4,7 +4,6 @@
     "weight": 2,
     "effect": {
       "name": "marbles",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -18,7 +17,6 @@
     "weight": 1,
     "effect": {
       "name": "defoliator",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -32,7 +30,6 @@
     "weight": 10,
     "effect": {
       "name": "fur clothing",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Fort saves vs cold weather",
@@ -49,7 +46,6 @@
     "weight": 0,
     "effect": {
       "name": "flour pouch",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -63,7 +59,6 @@
     "weight": 7,
     "effect": {
       "name": "cold weather outfit",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Fort saves vs cold weather",
@@ -79,48 +74,42 @@
     "slot": "SLOTLESS",
     "weight": 0,
     "effect": {
-      "name": "flint and steel",
-      "active": "always"
+      "name": "flint and steel"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 1.5,
     "effect": {
-      "name": "empty flask",
-      "active": "always"
+      "name": "empty flask"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 1.5,
     "effect": {
-      "name": "potion of cure light wounds",
-      "active": "always"
+      "name": "potion of cure light wounds"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 0,
     "effect": {
-      "name": "insectbane candle",
-      "active": "always"
+      "name": "insectbane candle"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 0,
     "effect": {
-      "name": "clearwater tablet",
-      "active": "always"
+      "name": "clearwater tablet"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 8,
     "effect": {
-      "name": "collapsible pole",
-      "active": "always"
+      "name": "collapsible pole"
     }
   },
   {
@@ -128,7 +117,6 @@
     "weight": 5,
     "effect": {
       "name": "silk rope",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Use Rope",
@@ -144,72 +132,63 @@
     "slot": "SLOTLESS",
     "weight": 20,
     "effect": {
-      "name": "tent",
-      "active": "always"
+      "name": "tent"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 5,
     "effect": {
-      "name": "bedroll",
-      "active": "always"
+      "name": "bedroll"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 8,
     "effect": {
-      "name": "saddlebags",
-      "active": "always"
+      "name": "saddlebags"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 0,
     "effect": {
-      "name": "mule",
-      "active": "always"
+      "name": "mule"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 15,
     "effect": {
-      "name": "pack saddle",
-      "active": "always"
+      "name": "pack saddle"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 0.5,
     "effect": {
-      "name": "piton",
-      "active": "always"
+      "name": "piton"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 2,
     "effect": {
-      "name": "hammer",
-      "active": "always"
+      "name": "hammer"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 1,
     "effect": {
-      "name": "sunrod",
-      "active": "always"
+      "name": "sunrod"
     }
   },
   {
     "slot": "SLOTLESS",
     "weight": 0.5,
     "effect": {
-      "name": "fast torch",
-      "active": "always"
+      "name": "fast torch"
     }
   }
 ]

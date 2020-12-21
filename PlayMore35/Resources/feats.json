@@ -2,7 +2,6 @@
   {
     "benefit": {
       "name": "Acrobatic",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Jump",
@@ -32,7 +31,6 @@
   {
     "benefit": {
       "name": "Agile",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Balance",
@@ -62,7 +60,6 @@
   {
     "benefit": {
       "name": "Alertness",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Listen",
@@ -92,7 +89,6 @@
   {
     "benefit": {
       "name": "Animal Affinity",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Handle Animal",
@@ -123,14 +119,12 @@
     "prerequisites": "Light and medium armor proficiency",
     "benefit": {
       "name": "Armor Proficiency (Heavy)",
-      "active": "always",
       "armor proficiencies": [ "HEAVY" ]
     }
   },
   {
     "benefit": {
       "name": "Armor Proficiency (Light)",
-      "active": "always",
       "armor proficiencies": [ "LIGHT" ]
     }
   },
@@ -138,14 +132,12 @@
     "prerequisites": "Light armor proficiency",
     "benefit": {
       "name": "Armor Proficiency (Medium)",
-      "active": "always",
       "armor proficiencies": [ "MEDIUM" ]
     }
   },
   {
     "benefit": {
       "name": "Athletic",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Climb",
@@ -176,7 +168,6 @@
     "prerequisites": "Spell Focus (conjuration)",
     "benefit": {
       "name": "Augment Summoning",
-      "active": "always",
       "text": [
         {
           "category": "Misc casting",
@@ -188,7 +179,6 @@
   {
     "benefit": {
       "name": "Blind-Fight",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -210,7 +200,6 @@
     "descriptors": [ "Item Creation" ],
     "benefit": {
       "name": "Brew Potion",
-      "active": "always",
       "text": [
         {
           "category": "Item creation",
@@ -223,7 +212,6 @@
     "prerequisites": "STR 13, Power Attack",
     "benefit": {
       "name": "Cleave",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -236,7 +224,6 @@
     "prerequisites": "INT 13",
     "benefit": {
       "name": "Combat Expertise",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -248,7 +235,6 @@
   {
     "benefit": {
       "name": "Combat Reflexes",
-      "active": "always",
       "text": [
         {
           "category": "React",
@@ -262,7 +248,6 @@
     "descriptors": [ "Item Creation" ],
     "benefit": {
       "name": "Craft Magic Arms And Armor",
-      "active": "always",
       "text": [
         {
           "category": "Item creation",
@@ -276,7 +261,6 @@
     "descriptors": [ "Item Creation" ],
     "benefit": {
       "name": "Craft Rod",
-      "active": "always",
       "text": [
         {
           "category": "Item creation",
@@ -290,7 +274,6 @@
     "descriptors": [ "Item Creation" ],
     "benefit": {
       "name": "Craft Staff",
-      "active": "always",
       "text": [
         {
           "category": "Item creation",
@@ -304,7 +287,6 @@
     "descriptors": [ "Item Creation" ],
     "benefit": {
       "name": "Craft Wand",
-      "active": "always",
       "text": [
         {
           "category": "Item creation",
@@ -318,7 +300,6 @@
     "descriptors": [ "Item Creation" ],
     "benefit": {
       "name": "Craft Wondrous Item",
-      "active": "always",
       "text": [
         {
           "category": "Item creation",
@@ -330,7 +311,6 @@
   {
     "benefit": {
       "name": "Deceitful",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Disguise",
@@ -361,7 +341,6 @@
     "prerequisites": "DEX 13, Improved Unarmed Strike",
     "benefit": {
       "name": "Deflect Arrows",
-      "active": "always",
       "text": [
         {
           "category": "React",
@@ -373,7 +352,6 @@
   {
     "benefit": {
       "name": "Deft Hands",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Sleight of Hand",
@@ -421,7 +399,6 @@
   {
     "benefit": {
       "name": "Diligent",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Appraise",
@@ -452,7 +429,6 @@
     "prerequisites": "DEX 13",
     "benefit": {
       "name": "Dodge",
-      "active": "always",
       "text": [
         {
           "category": "AC",
@@ -465,7 +441,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Empower Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -477,7 +452,6 @@
   {
     "benefit": {
       "name": "Endurance",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Fort saves vs hot/cold",
@@ -534,7 +508,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Enlarge Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -546,7 +519,6 @@
   {
     "benefit": {
       "name": "Eschew Materials",
-      "active": "always",
       "text": [
         {
           "category": "Misc casting",
@@ -560,7 +532,6 @@
     "choice": "Weapon",
     "benefit": {
       "name": "Exotic Weapon Proficiency",
-      "active": "always",
       "weapon proficiencies": [
         {
           "name": [ "$" ]
@@ -572,7 +543,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Extend Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -584,7 +554,6 @@
   {
     "benefit": {
       "name": "Extra Turning",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Turn attempts",
@@ -603,7 +572,6 @@
   {
     "benefit": {
       "name": "Far Shot",
-      "active": "always",
       "range": [
         {
           "affects": {
@@ -630,7 +598,6 @@
     "descriptors": [ "Item Creation" ],
     "benefit": {
       "name": "Forge Ring",
-      "active": "always",
       "text": [
         {
           "category": "Item creation",
@@ -643,7 +610,6 @@
     "prerequisites": "STR 13, Cleave, Power Attack, base attack bonus +4",
     "benefit": {
       "name": "Great Cleave",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -655,7 +621,6 @@
   {
     "benefit": {
       "name": "Great Fortitude",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Fort saves",
@@ -676,7 +641,6 @@
     "prerequisites": "Spell Focus in selected school",
     "benefit": {
       "name": "Greater Spell Focus",
-      "active": "always",
       "text": [
         {
           "category": "Misc casting",
@@ -689,7 +653,6 @@
     "prerequisites": "Spell Penetration",
     "benefit": {
       "name": "Greater Spell Penetration",
-      "active": "always",
       "text": [
         {
           "category": "Misc casting",
@@ -702,7 +665,6 @@
     "prerequisites": "DEX 19, Improved Two-Weapon Fighting, Two-Weapon Fighting, base attack bonus +11",
     "benefit": {
       "name": "Greater Two-Weapon Fighting",
-      "active": "always",
       "extra attacks": [
         {
           "affects": {
@@ -723,7 +685,6 @@
     "choice": "Weapon",
     "benefit": {
       "name": "Greater Weapon Focus",
-      "active": "always",
       "attack": [
         {
           "affects": {
@@ -746,7 +707,6 @@
     "choice": "Weapon",
     "benefit": {
       "name": "Greater Weapon Specialization",
-      "active": "always",
       "damage": [
         {
           "affects": {
@@ -768,7 +728,6 @@
     "descriptors": "Metamagic",
     "benefit": {
       "name": "Heighten Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -781,7 +740,6 @@
     "prerequisites": "STR 13, Power Attack",
     "benefit": {
       "name": "Improved Bull Rush",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -793,7 +751,6 @@
   {
     "benefit": {
       "name": "Improved Counterspell",
-      "active": "always",
       "text": [
         {
           "category": "React",
@@ -807,7 +764,6 @@
     "choice": "Weapon",
     "benefit": {
       "name": "Improved Critical",
-      "active": "always",
       "threat": [
         {
           "affects": {
@@ -829,7 +785,6 @@
     "prerequisites": "INT 13, Combat Expertise",
     "benefit": {
       "name": "Improved Disarm",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -842,7 +797,6 @@
     "prerequisites": "Ability to acquire a new familiar, compatible alignment, sufficiently high level",
     "benefit": {
       "name": "Improved Familiar",
-      "active": "always",
       "text": [
         {
           "category": "Downtime",
@@ -855,7 +809,6 @@
     "prerequisites": "INT 13, Combat Expertise",
     "benefit": {
       "name": "Improved Feint",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -868,7 +821,6 @@
     "prerequisites": "DEX 13, Improved Unarmed Strike",
     "benefit": {
       "name": "Improved Grapple",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -893,7 +845,6 @@
   {
     "benefit": {
       "name": "Improved Initiative",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Initiative",
@@ -913,7 +864,6 @@
     "prerequisites": "STR 13, Power Attack",
     "benefit": {
       "name": "Improved Overrun",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -926,7 +876,6 @@
     "prerequisites": "DEX 19, Point Blank Shot, Precise Shot, base attack bonus +11",
     "benefit": {
       "name": "Improved Precise Shot",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -943,7 +892,6 @@
     "prerequisites": "Shield Proficiency",
     "benefit": {
       "name": "Improved Shield Bash",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -956,7 +904,6 @@
     "prerequisites": "STR 13, Power Attack",
     "benefit": {
       "name": "Improved Sunder",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -969,7 +916,6 @@
     "prerequisites": "INT 13, Combat Expertise",
     "benefit": {
       "name": "Improved Trip",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -982,7 +928,6 @@
     "prerequisites": "DEX 17, Two-Weapon Fighting, base attack bonus +6",
     "benefit": {
       "name": "Improved Two-Weapon Fighting",
-      "active": "always",
       "extra attacks": [
         {
           "affects": {
@@ -1001,7 +946,6 @@
   {
     "benefit": {
       "name": "Improved Unarmed Strike",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1013,7 +957,6 @@
   {
     "benefit": {
       "name": "Investigator",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Gather Information",
@@ -1043,7 +986,6 @@
   {
     "benefit": {
       "name": "Iron Will",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Will saves",
@@ -1063,7 +1005,6 @@
     "prerequisites": "Character level 6th",
     "benefit": {
       "name": "Leadership",
-      "active": "always",
       "text": [
         {
           "category": "Downtime",
@@ -1075,7 +1016,6 @@
   {
     "benefit": {
       "name": "Lightning Reflexes",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Ref saves",
@@ -1094,7 +1034,6 @@
   {
     "benefit": {
       "name": "Magical Aptitude",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Spellcraft",
@@ -1125,7 +1064,6 @@
     "prerequisites": "DEX 17, Point Blank Shot, Rapid Shot, base attack bonus +6",
     "benefit": {
       "name": "Manyshot",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1138,7 +1076,6 @@
     "choice": "Weapon",
     "benefit": {
       "name": "Martial Weapon Proficiency",
-      "active": "always",
       "weapon proficiencies": [
         {
           "name": [ "$" ]
@@ -1150,7 +1087,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Maximize Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -1163,7 +1099,6 @@
     "prerequisites": "DEX 13, Dodge",
     "benefit": {
       "name": "Mobility",
-      "active": "always",
       "text": [
         {
           "category": "AC",
@@ -1176,7 +1111,6 @@
     "prerequisites": "Ride 1 rank, Mounted Combat",
     "benefit": {
       "name": "Mounted Archery",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1189,7 +1123,6 @@
     "prerequisites": "Ride 1 rank",
     "benefit": {
       "name": "Mounted Combat",
-      "active": "always",
       "text": [
         {
           "category": "React",
@@ -1202,7 +1135,6 @@
     "prerequisites": "WIS 13, wild shape ability",
     "benefit": {
       "name": "Natural Spell",
-      "active": "always",
       "text": [
         {
           "category": "Misc casting",
@@ -1214,7 +1146,6 @@
   {
     "benefit": {
       "name": "Negotiator",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Diplomacy",
@@ -1244,7 +1175,6 @@
   {
     "benefit": {
       "name": "Nimble Fingers",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Disable Device",
@@ -1274,7 +1204,6 @@
   {
     "benefit": {
       "name": "Persuasive",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Bluff",
@@ -1417,7 +1346,6 @@
     "prerequisites": "Point Blank Shot",
     "benefit": {
       "name": "Precise Shot",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1430,7 +1358,6 @@
     "prerequisites": "Base attack bonus +1",
     "benefit": {
       "name": "Quick Draw",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1443,7 +1370,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Quicken Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -1457,7 +1383,6 @@
     "prerequisites": "Proficiency with chosen crossbow",
     "benefit": {
       "name": "Rapid Reload",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1470,7 +1395,6 @@
     "prerequisites": "Proficiency with heavy crossbow",
     "benefit": {
       "name": "Rapid Reload (heavy crossbow)",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1526,7 +1450,6 @@
     "prerequisites": "Ride 1 rank, Mounted Combat",
     "benefit": {
       "name": "Ride-By Attack",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1538,7 +1461,6 @@
   {
     "benefit": {
       "name": "Run",
-      "active": "always",
       "text": [
         {
           "category": "Movement",
@@ -1552,7 +1474,6 @@
     "prerequisites": "Caster level 1st",
     "benefit": {
       "name": "Scribe Scroll",
-      "active": "always",
       "text": [
         {
           "category": "Item Creation",
@@ -1564,7 +1485,6 @@
   {
     "benefit": {
       "name": "Self-Sufficient",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Heal",
@@ -1594,7 +1514,6 @@
   {
     "benefit": {
       "name": "Shield Proficiency",
-      "active": "always",
       "shield proficiencies": [ "normal" ]
     }
   },
@@ -1602,7 +1521,6 @@
     "prerequisites": "DEX 13, Dodge, Mobility, Point Blank Shot, base attack bonus +4",
     "benefit": {
       "name": "Shot On The Run",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1615,7 +1533,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Silent Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -1627,7 +1544,6 @@
   {
     "benefit": {
       "name": "Simple Weapon Proficiency",
-      "active": "always",
       "weapon proficiencies": [
         {
           "proficiency": [ "SIMPLE" ]
@@ -1639,7 +1555,6 @@
     "choice": "skill",
     "benefit": {
       "name": "Skill Focus",
-      "active": "always",
       "modifiers": [
         {
           "affects": "$",
@@ -1659,7 +1574,6 @@
     "prerequisites": "DEX 15, Deflect Arrows, Improved Unarmed Strike",
     "benefit": {
       "name": "Snatch Arrows",
-      "active": "always",
       "text": [
         {
           "category": "React",
@@ -1672,7 +1586,6 @@
     "choice": "school of magic",
     "benefit": {
       "name": "Spell Focus",
-      "active": "always",
       "text": [
         {
           "category": "Misc Casting",
@@ -1686,7 +1599,6 @@
     "choice": "{{INT bonus}} spells you know",
     "benefit": {
       "name": "Spell Mastery",
-      "active": "always",
       "text": [
         {
           "category": "Misc Casting",
@@ -1698,7 +1610,6 @@
   {
     "benefit": {
       "name": "Spell Penetration",
-      "active": "always",
       "text": [
         {
           "category": "Misc Casting",
@@ -1711,7 +1622,6 @@
     "prerequisites": "Ride 1 rank, Mounted Combat, Ride-By Attack",
     "benefit": {
       "name": "Spirited Charge",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1724,7 +1634,6 @@
     "prerequisites": "DEX 13, Dodge, Mobility, base attack bonus +4",
     "benefit": {
       "name": "Spring Attack",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1736,7 +1645,6 @@
   {
     "benefit": {
       "name": "Stealthy",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Hide",
@@ -1767,7 +1675,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Still Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",
@@ -1780,7 +1687,6 @@
     "prerequisites": "DEX 13, WIS 13, Improved Unarmed Strike, base attack bonus +8",
     "benefit": {
       "name": "Stunning Fist",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1792,7 +1698,6 @@
   {
     "benefit": {
       "name": "Toughness",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Maximum hit points",
@@ -1812,14 +1717,12 @@
     "prerequisites": "Shield proficiency",
     "benefit": {
       "name": "Tower Shield Proficiency",
-      "active": "always",
       "shield proficiencies": [ "tower" ]
     }
   },
   {
     "benefit": {
       "name": "Track",
-      "active": "always",
       "text": [
         {
           "category": "Exploration",
@@ -1832,7 +1735,6 @@
     "prerequisites": "Ride 1 rank, Mounted Combat",
     "benefit": {
       "name": "Trample",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -1845,7 +1747,6 @@
     "prerequisites": "DEX 15, Two-Weapon Fighting",
     "benefit": {
       "name": "Two-Weapon Defense",
-      "active": "always",
       "text": [
         {
           "category": "AC",
@@ -1858,7 +1759,6 @@
     "prerequisites": "DEX 15",
     "benefit": {
       "name": "Two-Weapon Fighting",
-      "active": "always",
       "attack": [
         {
           "affects": {
@@ -1961,7 +1861,6 @@
     "prerequisites": "Proficiency with weapon, base attack bonus +1",
     "benefit": {
       "name": "Weapon Focus",
-      "active": "always",
       "attack": [
         {
           "affects": {
@@ -1984,7 +1883,6 @@
     "prerequisites": "Proficiency with selected weapon, Weapon focus with selected weapon, fighter level 4th",
     "benefit": {
       "name": "Weapon Specialization",
-      "active": "always",
       "damage": [
         {
           "affects": {
@@ -2006,7 +1904,6 @@
     "prerequisites": "DEX 13, INT 13, Combat Experties, Dodge, Mobility, Spring Attack, base attack bonus +4",
     "benefit": {
       "name": "Whirlwind Attack",
-      "active": "always",
       "text": [
         {
           "category": "Atk Options",
@@ -2019,7 +1916,6 @@
     "descriptors": [ "Metamagic" ],
     "benefit": {
       "name": "Widen Spell",
-      "active": "always",
       "text": [
         {
           "category": "Metamagic",

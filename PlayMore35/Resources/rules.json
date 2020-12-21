@@ -1041,7 +1041,6 @@
   "effects": [
     {
       "name": "STR damage",
-      "active": "always",
       "modifiers": [
         {
           "affects": "STR score",
@@ -1063,7 +1062,6 @@
     },
     {
       "name": "STR drain",
-      "active": "always",
       "modifiers": [
         {
           "affects": "STR score",
@@ -1085,7 +1083,6 @@
     },
     {
       "name": "STR bonus",
-      "active": "always",
       "modifiers": [
         {
           "affects": "STR bonus",
@@ -1109,7 +1106,6 @@
     },
     {
       "name": "STR penalty",
-      "active": "always",
       "modifiers": [
         {
           "affects": "STR penalty",
@@ -1133,7 +1129,6 @@
     },
     {
       "name": "DEX damage",
-      "active": "always",
       "modifiers": [
         {
           "affects": "DEX score",
@@ -1155,7 +1150,6 @@
     },
     {
       "name": "DEX drain",
-      "active": "always",
       "modifiers": [
         {
           "affects": "DEX score",
@@ -1177,7 +1171,6 @@
     },
     {
       "name": "DEX bonus",
-      "active": "always",
       "modifiers": [
         {
           "affects": "DEX bonus",
@@ -1201,7 +1194,6 @@
     },
     {
       "name": "DEX penalty",
-      "active": "always",
       "modifiers": [
         {
           "affects": "DEX penalty",
@@ -1225,7 +1217,6 @@
     },
     {
       "name": "CON damage",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CON score",
@@ -1247,7 +1238,6 @@
     },
     {
       "name": "CON drain",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CON score",
@@ -1269,7 +1259,6 @@
     },
     {
       "name": "CON bonus",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CON bonus",
@@ -1293,7 +1282,6 @@
     },
     {
       "name": "CON penalty",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CON penalty",
@@ -1317,7 +1305,6 @@
     },
     {
       "name": "INT damage",
-      "active": "always",
       "modifiers": [
         {
           "affects": "INT score",
@@ -1339,7 +1326,6 @@
     },
     {
       "name": "INT drain",
-      "active": "always",
       "modifiers": [
         {
           "affects": "INT score",
@@ -1361,7 +1347,6 @@
     },
     {
       "name": "INT bonus",
-      "active": "always",
       "modifiers": [
         {
           "affects": "INT bonus",
@@ -1385,7 +1370,6 @@
     },
     {
       "name": "INT penalty",
-      "active": "always",
       "modifiers": [
         {
           "affects": "INT penalty",
@@ -1409,7 +1393,6 @@
     },
     {
       "name": "WIS damage",
-      "active": "always",
       "modifiers": [
         {
           "affects": "WIS score",
@@ -1431,7 +1414,6 @@
     },
     {
       "name": "WIS drain",
-      "active": "always",
       "modifiers": [
         {
           "affects": "WIS score",
@@ -1453,7 +1435,6 @@
     },
     {
       "name": "WIS bonus",
-      "active": "always",
       "modifiers": [
         {
           "affects": "WIS bonus",
@@ -1477,7 +1458,6 @@
     },
     {
       "name": "WIS penalty",
-      "active": "always",
       "modifiers": [
         {
           "affects": "WIS penalty",
@@ -1501,7 +1481,6 @@
     },
     {
       "name": "CHA damage",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CHA score",
@@ -1523,7 +1502,6 @@
     },
     {
       "name": "CHA drain",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CHA score",
@@ -1545,7 +1523,6 @@
     },
     {
       "name": "CHA bonus",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CHA bonus",
@@ -1569,7 +1546,6 @@
     },
     {
       "name": "CHA penalty",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CHA penalty",
@@ -1593,7 +1569,6 @@
     },
     {
       "name": "This is here temporarily.",
-      "active": "always",
       "modifier": [
         {
           "affects": "Space",
@@ -1610,7 +1585,6 @@
     },
     {
       "name": "Maximum hit points",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Current hit points",
@@ -1759,7 +1733,6 @@
     },
     {
       "name": "ranks",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Appraise",
@@ -3316,7 +3289,6 @@
     },
     {
       "name": "Base speed",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Land speed",
@@ -3333,7 +3305,6 @@
     },
     {
       "name": "Heavy load by STR",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Heavy load",
@@ -3548,7 +3519,6 @@
     },
     {
       "name": "Light and medium load calculation",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Light load",
@@ -3730,7 +3700,6 @@
     },
     {
       "name": "speed over 30 ft, in units of 10 ft",
-      "active": "always",
       "modifiers": [
         {
           "affects": "speed over 30 ft, in units of 10 ft",
@@ -3755,7 +3724,6 @@
     },
     {
       "name": "speed under 30 ft, in units of 10 ft",
-      "active": "always",
       "modifiers": [
         {
           "affects": "speed under 30 ft, in units of 10 ft",
@@ -3844,7 +3812,6 @@
     },
     {
       "name": "Size modifier calculation",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Size modifier",
@@ -3876,7 +3843,6 @@
     },
     {
       "name": "Size modifier",
-      "active": "always",
       "attack": [
         {
           "affects": {},
@@ -3906,7 +3872,6 @@
     },
     {
       "name": "Reach based on size",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Reach",
@@ -3938,7 +3903,6 @@
     },
     {
       "name": "Base attack bonus",
-      "active": "always",
       "attack": [
         {
           "affects": {},
@@ -4055,7 +4019,6 @@
     },
     {
       "name": "Special size modifier calculation",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Special size modifier",
@@ -4077,7 +4040,6 @@
     },
     {
       "name": "Special size modifier",
-      "active": "always",
       "modifiers": [
         {
           "affects": "Hide",
@@ -4110,7 +4072,6 @@
     },
     {
       "name": "STR ×1.5",
-      "active": "always",
       "damage": [
         {
           "affects": {
@@ -4140,7 +4101,6 @@
     },
     {
       "name": "Heavy crossbow one-handed penalty",
-      "active": "always",
       "attack": [
         {
           "affects": {
@@ -4167,7 +4127,6 @@
     },
     {
       "name": "Light crossbow one-handed penalty",
-      "active": "always",
       "attack": [
         {
           "affects": {
@@ -4194,7 +4153,6 @@
     },
     {
       "name": "STR ×0.5",
-      "active": "always",
       "damage": [
         {
           "affects": {
@@ -5129,7 +5087,6 @@
     },
     {
       "name": "Base AC",
-      "active": "always",
       "modifiers": [
         {
           "affects": "AC",
@@ -5146,7 +5103,6 @@
     },
     {
       "name": "natural armor",
-      "active": "always",
       "modifiers": [
         {
           "affects": "AC",
@@ -5163,7 +5119,6 @@
     },
     {
       "name": "equipment",
-      "active": "always",
       "modifiers": [
         {
           "affects": "AC",
@@ -5191,7 +5146,6 @@
     },
     {
       "name": "STR",
-      "active": "always",
       "modifiers": [
         {
           "affects": "STR modifier",
@@ -5323,7 +5277,6 @@
     },
     {
       "name": "DEX",
-      "active": "always",
       "modifiers": [
         {
           "affects": "DEX modifier",
@@ -5418,7 +5371,6 @@
     },
     {
       "name": "CON",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CON modifier",
@@ -5465,7 +5417,6 @@
     },
     {
       "name": "INT",
-      "active": "always",
       "modifiers": [
         {
           "affects": "INT modifier",
@@ -5501,7 +5452,6 @@
     },
     {
       "name": "WIS",
-      "active": "always",
       "modifiers": [
         {
           "affects": "WIS modifier",
@@ -5548,7 +5498,6 @@
     },
     {
       "name": "CHA",
-      "active": "always",
       "modifiers": [
         {
           "affects": "CHA modifier",

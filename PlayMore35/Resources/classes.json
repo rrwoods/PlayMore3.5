@@ -30,7 +30,6 @@
       [
         {
           "name": "soul binding",
-          "active": "always",
           "text": [
             {
               "category": "Downtime",
@@ -40,7 +39,6 @@
         },
         {
           "name": "Savnok",
-          "active": "always",
           "armor proficiencies": [ "HEAVY" ],
           "text": [
             {

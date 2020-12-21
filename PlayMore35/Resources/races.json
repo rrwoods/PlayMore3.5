@@ -8,7 +8,6 @@
     "effects": [
       {
         "name": "human racial traits",
-        "active": "always",
         "feats": [
           {
             "level": 1,
@@ -32,7 +31,6 @@
     "effects": [
       {
         "name": "dwarf racial traits",
-        "active": "always",
         "flags": [
           "Can't be encumbered"
         ],
@@ -115,7 +113,6 @@
     "effects": [
       {
         "name": "elf racial traits",
-        "active": "always",
         "modifiers": [
           {
             "affects": "Saves vs enchantments",
@@ -201,7 +198,6 @@
     "effects": [
       {
         "name": "gnome racial traits",
-        "active": "always",
         "modifiers": [
           {
             "affects": "Saves vs illusions",
@@ -291,7 +287,6 @@
     "effects": [
       {
         "name": "half-elf racial traits",
-        "active": "always",
         "modifiers": [
           {
             "affects": "Listen",
@@ -374,7 +369,6 @@
     "effects": [
       {
         "name": "half-orc racial traits",
-        "active": "always",
         "text": [
           {
             "category": "Senses",
@@ -395,7 +389,6 @@
     "effects": [
       {
         "name": "halfling racial traits",
-        "active": "always",
         "modifiers": [
           {
             "affects": "Climb",
@@ -490,7 +483,6 @@
     "effects": [
       {
         "name": "dream dwarf racial traits",
-        "active": "always",
         "flags": [
           "Can't be encumbered"
         ],
