@@ -14,7 +14,7 @@ namespace PlayMore35.Effects {
         }
 
         private int MaxDexFromItems(EffectPool pool, Equipped items) {
-            int totalWeight = items.TotalWeight();
+            decimal totalWeight = items.TotalWeight();
             if (totalWeight > pool.stats[MEDIUM_LOAD].GetValue(pool, items).value) {
                 return +1;
             }
@@ -65,7 +65,7 @@ namespace PlayMore35.Effects {
                 return (int?)items.DonnedArmor?.Type ?? 0;
             }
             if (Key == TOTAL_WEIGHT) {
-                return items.TotalWeight();
+                return (int)Math.Ceiling(items.TotalWeight());
             }
             return 0;
         }

@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
+using PlayMore35.Items;
 using static PlayMore35.Properties.Resources;
 using Newtonsoft.Json.Linq;
 
@@ -51,18 +52,19 @@ namespace PlayMore35 {
         private Label wis_score, wis_mod, wis_check;
         private Label cha_score, cha_mod, cha_check;
         private Label sq;
-
         private List<Label> skills = new List<Label>();
-
         private Label miscSkills;
         private List<List<Label>> misc;
+
+        private List<Label> slotBoxes;
 
         private Control dragging = null;
         private Size draggingFrom;
         public Dictionary<Label, ToolTip> toolTips = new Dictionary<Label, ToolTip>();
 
         private Dictionary<string, ListBox> locationLists = new Dictionary<string, ListBox>();
-        private string draggingItemFrom = null;
+        private Dictionary<string, CheckBox> locationWeights = new Dictionary<string, CheckBox>();
+        private Control draggingItemFrom = null;
         private int numberDragging = 0;
         
         private Controller controller = null;
@@ -256,8 +258,12 @@ namespace PlayMore35 {
         }
 
         private void RefreshWeight() {
-            int weight = controller.EquippedItems.TotalWeight();
-            lblTotalWeight.Text = $"Total weight carried: {weight} lbs.";
+            foreach (var weight in locationWeights) {
+                weight.Value.Text = $"Count weight ({controller.WeightAtLocation(weight.Key)} lbs.)";
+            }
+
+            lblEquippedWeight.Text = $"Equipped weight: {controller.EquippedItems.EquippedWeight()} lbs.";
+            lblTotalWeight.Text = $"Total load: {controller.EquippedItems.TotalWeight()} lbs.";
         }
 
         private void RepositionColumn(int columnLeft, List<List<Label>> column) {
@@ -333,16 +339,21 @@ namespace PlayMore35 {
             };
         }
 
+        private bool DraggingFromLocation() {
+            if (!(draggingItemFrom is ListBox)) {
+                return false;
+            }
+            return draggingItemFrom != lstSlotless;
+        }
+
+        // Begin dragging a location
         private void Location_MouseDown(object sender, MouseEventArgs e) {
             draggingFrom = new Size(e.Location);
             dragging = (Control)sender;
             ((Control)sender).BringToFront();
         }
 
-        private void Location_MouseUp(object sender, MouseEventArgs e) {
-            dragging = null;
-        }
-
+        // Drag a location
         private void Location_MouseMove(object sender, MouseEventArgs e) {
             if (dragging == sender) {
                 Point offset = e.Location - draggingFrom;
@@ -351,37 +362,228 @@ namespace PlayMore35 {
             }
         }
 
-        private void Item_MouseDown(object sender, MouseEventArgs e) {
+        // Drop a location
+        private void Location_MouseUp(object sender, MouseEventArgs e) {
+            dragging = null;
+        }
+
+        // Begin dragging an item from a location
+        private void LocationItem_MouseDown(object sender, MouseEventArgs e) {
             ListBox list = (ListBox)sender;
             int index = list.IndexFromPoint(e.Location);
             if (index < 0) {
                 return;
             }
 
-            draggingItemFrom = list.Parent.Text;
+            draggingItemFrom = list;
             numberDragging = (e.Button == MouseButtons.Right) ? 10 : 1;
             list.DoDragDrop(list.Items[index], DragDropEffects.Move);
         }
 
-        private void Item_DragEnter(object sender, DragEventArgs e) {
+        // Drag an item into a location
+        private void Location_DragEnter(object sender, DragEventArgs e) {
             e.Effect = DragDropEffects.Move;
         }
 
-        private void Item_DragDrop(object sender, DragEventArgs e) {
+        // Drop an item into a location
+        private void Location_DragDrop(object sender, DragEventArgs e) {
             ListBox targetList = (ListBox)sender;
-            ItemAndQty item = (ItemAndQty) e.Data.GetData(typeof(ItemAndQty));
-            controller.MoveItem(draggingItemFrom, targetList.Parent.Text, item.item, numberDragging);
-            draggingItemFrom = null;
+            ItemDrag item = (ItemDrag) e.Data.GetData(typeof(ItemDrag));
+            string to = targetList.Parent.Text;
 
+            if (draggingItemFrom is ListBox fromList) {
+                if (fromList == lstSlotless) {
+                    controller.UnequipSlotlessItem(targetList.Parent.Text, (string)item.item);
+                } else {
+                    controller.MoveItem(fromList.Parent.Text, to, item.item, numberDragging);
+                }
+            } else if (draggingItemFrom is Label fromSlot) {
+                if (fromSlot == txtPrimaryWeapon) {
+                    controller.UnequipWeapon(to, true);
+                } else if (fromSlot == txtOffHandWeapon) {
+                    controller.UnequipWeapon(to, false);
+                } else if (fromSlot == txtArmor) {
+                    controller.UndonArmor(to);
+                } else if (fromSlot == txtShield) {
+                    controller.UnequipShield(to);
+                } else {
+                    controller.UnequipItem(item.slot, to);
+                }
+            }
+
+            draggingItemFrom = null;
+            RefreshInventory();
+        }
+
+        // Begin dragging an equipped weapon
+        private void Weapon_MouseDown(object sender, MouseEventArgs e) {
+            draggingItemFrom = (Control)sender;
+            draggingItemFrom.DoDragDrop(new ItemDrag {
+                item = (sender == txtPrimaryWeapon)
+                    ? controller.Character.equipped.PrimaryHandWeapon
+                    : controller.Character.equipped.OffHandWeapon
+            }, DragDropEffects.Move);
+        }
+
+        // Drag a weapon into a hand
+        private void Weapon_DragEnter(object sender, DragEventArgs e) {
+            ItemDrag item = (ItemDrag) e.Data.GetData(typeof(ItemDrag));
+            e.Effect = (item.item is WeaponChoice) ? DragDropEffects.Move : DragDropEffects.None;
+        }
+
+        // Drop a weapon into a hand
+        private void Weapon_DragDrop(object sender, DragEventArgs e) {
+            ItemDrag item = (ItemDrag) e.Data.GetData(typeof(ItemDrag));
+            if (!(item.item is WeaponChoice)) { 
+                return;
+            }
+
+            if (
+                ((draggingItemFrom == txtPrimaryWeapon) && (sender == txtOffHandWeapon)) ||
+                ((draggingItemFrom == txtOffHandWeapon) && (sender == txtPrimaryWeapon))
+            ) {
+                controller.SwapWeapons();
+            } else {
+                bool primary = sender == txtPrimaryWeapon;
+                controller.EquipWeapon(draggingItemFrom.Parent.Text, primary, (WeaponChoice)item.item);
+            }
+            draggingItemFrom = null;
+            RefreshInventory();
+        }
+
+        // Begin dragging donned armor
+        private void Armor_MouseDown(object sender, MouseEventArgs e) {
+            draggingItemFrom = (Control)sender;
+            draggingItemFrom.DoDragDrop(
+                new ItemDrag { item = controller.Character.equipped.DonnedArmor },
+                DragDropEffects.Move
+            );
+        }
+
+        // Drag an armor into the armor box
+        private void Armor_DragEnter(object sender, DragEventArgs e) {
+            ItemDrag item = (ItemDrag)e.Data.GetData(typeof(ItemDrag));
+            e.Effect = (item.item is ArmorChoice) ? DragDropEffects.Move : DragDropEffects.None;
+        }
+
+        // Drop an armor into the armor box
+        private void Armor_DragDrop(object sender, DragEventArgs e) {
+            ItemDrag item = (ItemDrag) e.Data.GetData(typeof(ItemDrag));
+            if (!(item.item is ArmorChoice) || !DraggingFromLocation()) {
+                return;
+            }
+
+            controller.DonArmor(draggingItemFrom.Parent.Text, (ArmorChoice)item.item);
+            draggingItemFrom = null;
+            RefreshInventory();
+        }
+
+        // Begin dragging equipped shield
+        private void Shield_MouseDown(object sender, MouseEventArgs e) {
+            draggingItemFrom = (Control)sender;
+            draggingItemFrom.DoDragDrop(
+                new ItemDrag { item = controller.Character.equipped.OffHandShield },
+                DragDropEffects.Move
+            );
+        }
+
+        // Drag a shield into the shield box
+        private void Shield_DragEnter(object sender, DragEventArgs e) {
+            ItemDrag item = (ItemDrag)e.Data.GetData(typeof(ItemDrag));
+            e.Effect = (item.item is ShieldChoice) ? DragDropEffects.Move : DragDropEffects.None;
+        }
+
+        // Drop an shield into the shield box
+        private void Shield_DragDrop(object sender, DragEventArgs e) {
+            ItemDrag item = (ItemDrag)e.Data.GetData(typeof(ItemDrag));
+            if (!(item.item is ShieldChoice) || !DraggingFromLocation()) {
+                return;
+            }
+
+            controller.EquipShield(draggingItemFrom.Parent.Text, (ShieldChoice)item.item);
+            draggingItemFrom = null;
+            RefreshInventory();
+        }
+
+        // Begin dragging an item from a slot
+        private void Slot_MouseDown(object sender, MouseEventArgs e) {
+            draggingItemFrom = (Control)sender;
+            draggingItemFrom.DoDragDrop(
+                new ItemDrag { item = draggingItemFrom.Text }, // is this cheating?
+                DragDropEffects.Move
+            );
+        }
+
+        // Drag an item into a slot
+        private void Slot_DragEnter(object sender, DragEventArgs e) {
+            Label targetBox = (Label)sender;
+            ItemDrag item = (ItemDrag) e.Data.GetData(typeof(ItemDrag));
+            e.Effect = (item.slot == (Equipped.Slot)targetBox.Tag) ? DragDropEffects.Move : DragDropEffects.None;
+        }
+
+        // Drop an item into a slot
+        private void Slot_DragDrop(object sender, DragEventArgs e) {
+            Label targetBox = (Label)sender;
+            Equipped.Slot slot = (Equipped.Slot)(targetBox.Tag);
+            ItemDrag itemDrag = (ItemDrag)e.Data.GetData(typeof(ItemDrag));
+            if (slot != itemDrag.slot || !DraggingFromLocation()) {
+                return;
+            }
+
+            string item = (string) (itemDrag.item);
+            controller.EquipItem(draggingItemFrom.Parent.Text, slot, item);
+            draggingItemFrom = null;
+            RefreshInventory();
+        }
+
+        // Begin dragging an item from slotless
+        private void Slotless_MouseDown(object sender, MouseEventArgs e) {
+            ListBox list = (ListBox)sender;
+            int index = list.IndexFromPoint(e.Location);
+            if (index < 0) {
+                return;
+            }
+
+            draggingItemFrom = list;
+            numberDragging = 1;
+            list.DoDragDrop(list.Items[index], DragDropEffects.Move);
+        }
+
+        // Drag an item into slotless
+        private void Slotless_DragEnter(object sender, DragEventArgs e) {
+            ItemDrag item = (ItemDrag) e.Data.GetData(typeof(ItemDrag));
+            e.Effect = ((item.slot == Equipped.Slot.SLOTLESS) && (item.item is string))
+                ? DragDropEffects.Move
+                : DragDropEffects.None;
+        }
+
+        // Drop an item into slotless
+        private void Slotless_DragDrop(object sender, DragEventArgs e) {
+            if (!DraggingFromLocation()) {
+                return;
+            }
+
+            ItemDrag item = (ItemDrag)e.Data.GetData(typeof(ItemDrag));
+            if (!(item.item is string)) {
+                return;
+            }
+
+            ListBox targetList = (ListBox)sender;
+            controller.EquipItem(draggingItemFrom.Parent.Text, Equipped.Slot.SLOTLESS, (string)item.item);
+            draggingItemFrom = null;
+            RefreshInventory();
+        }
+
+        private void RefreshInventory() {
             foreach (var location in controller.Character.inventory) {
                 ListLocation(location.Value, locationLists[location.Key]);
             }
-            RefreshWeight();
+            RefreshEquipment();
         }
 
         private void ListItems<T>(List<T> items, ListBox locationBox) {
             foreach (object item in items) {
-                locationBox.Items.Add(new ItemAndQty { item = item, qty = 1 });
+                locationBox.Items.Add(new ItemDrag { item = item });
             }
         }
 
@@ -390,7 +592,11 @@ namespace PlayMore35 {
                 if (item.Value == 0) {
                     continue;
                 }
-                locationBox.Items.Add(new ItemAndQty { item = item.Key, qty = item.Value });
+                locationBox.Items.Add(new ItemDrag {
+                    item = item.Key,
+                    qty = item.Value,
+                    slot = controller.SlotForItem(item.Key)
+                });
             }
         }
 
@@ -400,6 +606,30 @@ namespace PlayMore35 {
             ListItems(location.armor, locationBox);
             ListItems(location.shields, locationBox);
             ListItems(location.items, locationBox);
+        }
+
+        private void RefreshEquipment() {
+            EquippedChoices equipped = controller.Character.equipped;
+            txtPrimaryWeapon.Text = equipped.PrimaryHandWeapon?.FullName() ?? "";
+            txtOffHandWeapon.Text = equipped.OffHandWeapon?.FullName() ?? "";
+            txtArmor.Text = equipped.DonnedArmor?.FullName() ?? "";
+            txtShield.Text = equipped.OffHandShield?.FullName() ?? "";
+
+            foreach (Label slotBox in slotBoxes) {
+                if (equipped.SlottedItems.ContainsKey((Equipped.Slot)slotBox.Tag)) {
+                    slotBox.Text = equipped.SlottedItems[(Equipped.Slot)slotBox.Tag];
+                }
+            }
+            lstSlotless.Items.Clear();
+            foreach (Item item in controller.EquippedItems.SlotlessItems) {
+                lstSlotless.Items.Add(new ItemDrag { item = item.ItemEffect.Name });
+            }
+            // XXX: why in the world does this need to be one higher????
+            if (lstSlotless.Items.Count > 2) {
+                lstSlotless.Height = lstSlotless.ItemHeight * (lstSlotless.Items.Count + 1);
+            }
+            RefreshEffects();
+            RefreshWeight();
         }
 
         private void InitializeInventory() {
@@ -424,9 +654,11 @@ namespace PlayMore35 {
                     Text = chkWeightCounts.Text,
                     Left = chkWeightCounts.Left,
                     Top = chkWeightCounts.Top,
-                    Checked = location.Value.weighs
+                    Checked = location.Value.weighs,
+                    AutoSize = true
                 };
                 countWeight.CheckedChanged += CountWeight_CheckedChanged(location.Key);
+                locationWeights[location.Key] = countWeight;
                 locationBox.Controls.Add(countWeight);
 
                 ListBox locationList = new ListBox() {
@@ -436,9 +668,9 @@ namespace PlayMore35 {
                     Left = lstSampleItems.Left,
                     Height = 1
                 };
-                locationList.MouseDown += new MouseEventHandler(Item_MouseDown);
-                locationList.DragEnter += new DragEventHandler(Item_DragEnter);
-                locationList.DragDrop += new DragEventHandler(Item_DragDrop);
+                locationList.MouseDown += new MouseEventHandler(LocationItem_MouseDown);
+                locationList.DragEnter += new DragEventHandler(Location_DragEnter);
+                locationList.DragDrop += new DragEventHandler(Location_DragDrop);
                 locationLists[location.Key] = locationList;
                 locationBox.Controls.Add(locationList);
 
@@ -446,6 +678,7 @@ namespace PlayMore35 {
                 inventoryTab.Controls.Add(locationBox);
                 locationLeft += locationBox.Width + locationBuffer;
             }
+            RefreshEquipment();
         }
 
         private void MainForm_Resize(object sender, EventArgs e) {
@@ -577,6 +810,22 @@ namespace PlayMore35 {
                 mnuCondition.DropDownItems.Add(mnuToggle);
             }
 
+            txtHead.Tag = Equipped.Slot.HEAD;
+            txtFace.Tag = Equipped.Slot.FACE;
+            txtNeck.Tag = Equipped.Slot.NECK;
+            txtTorso.Tag = Equipped.Slot.TORSO;
+            txtBody.Tag = Equipped.Slot.BODY;
+            txtWaist.Tag = Equipped.Slot.WAIST;
+            txtShoulders.Tag = Equipped.Slot.SHOULDERS;
+            txtArms.Tag = Equipped.Slot.ARMS;
+            txtHands.Tag = Equipped.Slot.HANDS;
+            txtRing1.Tag = Equipped.Slot.RING1;
+            txtRing2.Tag = Equipped.Slot.RING2;
+            txtFeet.Tag = Equipped.Slot.FEET;
+            slotBoxes = new List<Label> {
+                txtHead, txtFace, txtNeck, txtTorso, txtBody, txtWaist, txtShoulders, txtArms, txtHands, txtRing1, txtRing2, txtFeet
+            };
+
             RefreshEffects();
         }
 
@@ -590,9 +839,10 @@ namespace PlayMore35 {
             }
         }
 
-        class ItemAndQty {
+        class ItemDrag {
+            public Equipped.Slot slot = Equipped.Slot.SLOTLESS;
             public object item;
-            public int qty;
+            public int qty = 1;
 
             public override string ToString() {
                 return qty == 1 ? item.ToString() : $"{item} x {qty}";

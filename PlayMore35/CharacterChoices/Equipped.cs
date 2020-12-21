@@ -23,15 +23,17 @@ namespace PlayMore35.Items {
         // to the player's total weight carried.
         public decimal UnequippedWeight;
 
-        public int TotalWeight() {
-            return (int)Math.Ceiling(UnequippedWeight +
-                (PrimaryHandWeapon?.Weight ?? 0) +
+        public decimal EquippedWeight() {
+            return (PrimaryHandWeapon?.Weight ?? 0) +
                 (PrimaryHandWeapon == OffHandWeapon ? 0 : OffHandWeapon?.Weight ?? 0) +
                 (DonnedArmor?.Weight ?? 0) +
                 (OffHandShield?.Weight ?? 0) +
                 (SlotlessItems.Select(x => x.Weight).Sum()) +
-                (SlottedItems.Values.Select(x => x.Weight).Sum())
-            );
+                (SlottedItems.Values.Select(x => x.Weight).Sum());
+        }
+
+        public decimal TotalWeight() {
+            return UnequippedWeight + EquippedWeight();
         }
 
         public IEnumerable<Effect> GetGlobalEffects() {

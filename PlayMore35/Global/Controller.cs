@@ -115,6 +115,10 @@ namespace PlayMore35.Global {
             return shield;
         }
 
+        public decimal WeightAtLocation(string location) {
+            return WeightAtLocation(Character.inventory[location]);
+        }
+
         private decimal WeightAtLocation(InventoryLocation location) {
             return
                 location.weapons.Select(x => WeaponFromChoice(x).Weight).Sum() +
@@ -248,11 +252,15 @@ namespace PlayMore35.Global {
             ComputeWeight();
         }
 
-        private void ComputeWeight() {
+        public void ComputeWeight() {
             EquippedItems.UnequippedWeight = Character.inventory.Values
                 .Where(x => x.weighs)
                 .Select(x => WeightAtLocation(x))
                 .Sum();
+        }
+
+        public Equipped.Slot SlotForItem(string itemName) {
+            return ItemDefinitions[itemName].ItemSlot;
         }
 
         // **** MUTATORS ****
@@ -260,6 +268,217 @@ namespace PlayMore35.Global {
         public void CountWeight(string locationName, bool weighs) {
             Character.inventory[locationName].weighs = weighs;
             ComputeWeight();
+        }
+
+        // remove methods do NOT move them into inventory.
+
+        public WeaponChoice RemoveEquippedWeapon(bool primary) {
+            WeaponChoice removed = primary ? Character.equipped.PrimaryHandWeapon : Character.equipped.OffHandWeapon;
+            if (primary) {
+                Character.equipped.PrimaryHandWeapon = null;
+                EquippedItems.PrimaryHandWeapon = null;
+            } else {
+                Character.equipped.OffHandWeapon = null;
+                EquippedItems.OffHandWeapon = null;
+            }
+
+            ComputeWeight();
+            return removed;
+        }
+
+        public ArmorChoice RemoveDonnedArmor() {
+            ArmorChoice removed = Character.equipped.DonnedArmor;
+            Character.equipped.DonnedArmor = null;
+            EquippedItems.DonnedArmor = null;
+
+            ComputeWeight();
+            return removed;
+        }
+
+        public ShieldChoice RemoveEquippedShield() {
+            ShieldChoice removed = Character.equipped.OffHandShield;
+            Character.equipped.OffHandShield = null;
+            EquippedItems.OffHandShield = null;
+
+            ComputeWeight();
+            return removed;
+        }
+
+        // returns the quantity actually removed
+        public int RemoveItem(string from, string itemName, int quantity) {
+            if (!Character.inventory[from].items.ContainsKey(itemName)) {
+                return 0;
+            }
+
+            int maxQuantity = Character.inventory[from].items[itemName];
+            if (quantity >= maxQuantity) {
+                quantity = maxQuantity;
+                Character.inventory[from].items.Remove(itemName);
+            } else {
+                Character.inventory[from].items[itemName] -= quantity;
+            }
+
+            ComputeWeight();
+            return quantity;
+        }
+
+        // unequip methods move the item into the specified inventory location.
+
+        public void UnequipWeapon(string to, bool primary) {
+            if (!Character.inventory.ContainsKey(to)) {
+                return;
+            }
+
+            WeaponChoice unequipped = RemoveEquippedWeapon(primary);
+            if (unequipped != null) {
+                Character.inventory[to].weapons.Add(unequipped);
+            }
+
+            ComputeWeight();
+        }
+
+        public void UndonArmor(string to) {
+            if (!Character.inventory.ContainsKey(to)) {
+                return;
+            }
+
+            ArmorChoice removed = RemoveDonnedArmor();
+            if (removed != null) {
+                Character.inventory[to].armor.Add(removed);
+            }
+
+            ComputeWeight();
+        }
+
+        public void UnequipShield(string to) {
+            if (!Character.inventory.ContainsKey(to)) {
+                return;
+            }
+
+            ShieldChoice removed = RemoveEquippedShield();
+            if (removed != null) {
+                Character.inventory[to].shields.Add(removed);
+            }
+
+            ComputeWeight();
+        }
+
+        public void UnequipItem(Equipped.Slot from, string to) {
+            Dictionary<Equipped.Slot, string> items = Character.equipped.SlottedItems;
+            if (!items.ContainsKey(from)) {
+                return;
+            }
+
+            string removed = items[from];
+            items.Remove(from);
+            AddItem(to, removed, 1);
+
+            ComputeWeight();
+        }
+
+        public void UnequipSlotlessItem(string to, string item) {
+            if (!Character.equipped.SlotlessItems.Contains(item)) {
+                return;
+            }
+            Character.equipped.SlotlessItems.Remove(item);
+            Item toRemove = EquippedItems.SlotlessItems.Where(x => x.ItemEffect.Name.Equals(item)).First();
+            EquippedItems.SlotlessItems.Remove(toRemove);
+            AddItem(to, item, 1);
+
+            ComputeWeight();
+        }
+
+        public void EquipWeapon(string from, bool primary, WeaponChoice weaponChoice) {
+            if (!Character.inventory.ContainsKey(from) || !Character.inventory[from].weapons.Contains(weaponChoice)) {
+                return;
+            }
+
+            Character.inventory[from].weapons.Remove(weaponChoice);
+            Weapon weapon = WeaponFromChoice(weaponChoice);
+            UnequipWeapon(from, primary);
+            if (primary) {
+                Character.equipped.PrimaryHandWeapon = weaponChoice;
+                EquippedItems.PrimaryHandWeapon = weapon;
+            } else {
+                Character.equipped.OffHandWeapon = weaponChoice;
+                EquippedItems.OffHandWeapon = weapon;
+                UnequipShield(from);
+            }
+
+            ComputeWeight();
+        }
+
+        public void DonArmor(string from, ArmorChoice armorChoice) {
+            if (!Character.inventory.ContainsKey(from) || !Character.inventory[from].armor.Contains(armorChoice)) {
+                return;
+            }
+
+            Character.inventory[from].armor.Remove(armorChoice);
+            Armor armor = ArmorFromChoice(armorChoice);
+            UndonArmor(from);
+            Character.equipped.DonnedArmor = armorChoice;
+            EquippedItems.DonnedArmor = armor;
+
+            ComputeWeight();
+        }
+
+        public void EquipShield(string from, ShieldChoice shieldChoice) {
+            if (!Character.inventory.ContainsKey(from) || !Character.inventory[from].shields.Contains(shieldChoice)) {
+                return;
+            }
+
+            Character.inventory[from].shields.Remove(shieldChoice);
+            Shield shield = ShieldFromChoice(shieldChoice);
+
+            Character.equipped.OffHandShield = shieldChoice;
+            EquippedItems.OffHandShield = shield;
+            UnequipWeapon(from, false);
+
+            ComputeWeight();
+        }
+
+        public void EquipItem(string from, Equipped.Slot to, string itemName) {
+            if (!Character.inventory.ContainsKey(from)) {
+                return;
+            }
+
+            Item item = ItemDefinitions[itemName];
+            if (item.ItemSlot != to) {
+                return;
+            }
+
+            if (to == Equipped.Slot.SLOTLESS) {
+                EquippedItems.SlotlessItems.Add(ItemDefinitions[itemName]);
+                Character.equipped.SlotlessItems.Add(itemName);
+                RemoveItem(from, itemName, 1);
+            } else {
+                string previouslyEquipped = EquippedItems.SlottedItems.ContainsKey(to)
+                    ? EquippedItems.SlottedItems[to].ItemEffect.Name
+                    : null;
+                EquippedItems.SlottedItems[to] = item;
+                Character.equipped.SlottedItems[to] = itemName;
+                RemoveItem(from, itemName, 1);
+
+                if (previouslyEquipped != null) {
+                    if (Character.inventory[from].items.ContainsKey(previouslyEquipped)) {
+                        Character.inventory[from].items[previouslyEquipped] += 1;
+                    } else {
+                        Character.inventory[from].items[previouslyEquipped] = 1;
+                    }
+                }
+            }
+
+            ComputeWeight();
+        }
+
+        public void SwapWeapons() {
+            WeaponChoice swapChoice = Character.equipped.PrimaryHandWeapon;
+            Character.equipped.PrimaryHandWeapon = Character.equipped.OffHandWeapon;
+            Character.equipped.OffHandWeapon = swapChoice;
+
+            Weapon swap = EquippedItems.PrimaryHandWeapon;
+            EquippedItems.PrimaryHandWeapon = EquippedItems.OffHandWeapon;
+            EquippedItems.OffHandWeapon = swap;
         }
 
         public void MoveItem(string from, string to, object item, int quantity) {
@@ -272,19 +491,8 @@ namespace PlayMore35.Global {
 
             if (item is string itemName) {
                 if (Character.inventory[from].items.ContainsKey(itemName)) {
-                    int maxQuantity = Character.inventory[from].items[itemName];
-                    if (quantity >= maxQuantity) {
-                        quantity = maxQuantity;
-                        Character.inventory[from].items.Remove(itemName);
-                    } else {
-                        Character.inventory[from].items[itemName] -= quantity;
-                    }
-
-                    if (Character.inventory[to].items.ContainsKey(itemName)) {
-                        Character.inventory[to].items[itemName] += quantity;
-                    } else {
-                        Character.inventory[to].items[itemName] = quantity;
-                    }
+                    quantity = RemoveItem(from, itemName, quantity);
+                    AddItem(to, itemName, quantity);
                 }
             } else if (item is WeaponChoice weapon) {
                 if (Character.inventory[from].weapons.Remove(weapon)) {
@@ -302,10 +510,15 @@ namespace PlayMore35.Global {
 
             ComputeWeight();
         }
-        
-        // still to come:  functions that move items around on the character,
-        // accounting for how that affects weight and such.
 
+        public void AddItem(string to, string itemName, int quantity) {
+            if (Character.inventory[to].items.ContainsKey(itemName)) {
+                Character.inventory[to].items[itemName] += quantity;
+            } else {
+                Character.inventory[to].items[itemName] = quantity;
+            }
+        }
+        
         // **** ACCESSORS ****
 
         public (int value, List<string> explanation) GetStatistic(string stat) {
