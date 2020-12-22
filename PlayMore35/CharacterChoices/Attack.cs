@@ -345,7 +345,7 @@ namespace PlayMore35.Items {
                 rules,
                 items,
                 shield.ShieldBash.DamageDieMedium,
-                shield.SizeCategory,
+                shield.SizeCategory + (shield.Spiked ? 1 : 0),
                 shield.ShieldBash.CriticalMultiplier,
                 shield.ShieldBash.Properties,
                 sizeDiscrepancy,

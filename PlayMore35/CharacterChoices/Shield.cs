@@ -82,9 +82,7 @@ namespace PlayMore35.Items {
             MaxDexBonus = definition.MaxDexBonus;
             AttackRollPenalty = definition.AttackRollPenalty;
             ShieldBashEffort = definition.ShieldBashEffort;
-            if (definition.ShieldBash != null) {
-                ShieldBash = new AttackMode(definition.ShieldBash);
-            }
+            AddBash();
         }
 
         public Shield() { }
@@ -97,8 +95,17 @@ namespace PlayMore35.Items {
             return all;
         }
 
-        public void AddSpikes() {
-            // TODO make this matter
+        private void AddBash() {
+            if (ShieldBashEffort == null) {
+                return;
+            }
+            ShieldBash = new AttackMode {
+                ProficencyCategory = Weapon.Proficiency.MARTIAL,
+                DamageDieMedium = (ShieldBashEffort == Weapon.Effort.LIGHT) ? (1,3) : (1,4),
+                DamageType = Constants.BLUDGEONING,
+                ThreatRange = 20,
+                CriticalMultiplier = 2
+            };
         }
     }
 }

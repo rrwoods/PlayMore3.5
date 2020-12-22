@@ -329,60 +329,12 @@
     }
   },
   {
-    "name": "light wooden shield bash",
-    "weight": 0,
-    "effort": "LIGHT",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d3",
-      "type": "bludgeoning",
-      "threat": 20,
-      "crit": 2
-    }
-  },
-  {
-    "name": "light steel shield bash",
-    "weight": 0,
-    "effort": "LIGHT",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d3",
-      "type": "bludgeoning",
-      "threat": 20,
-      "crit": 2
-    }
-  },
-  {
     "name": "armor spikes",
     "weight": 0,
     "effort": "LIGHT",
     "melee": {
       "proficiency": "MARTIAL",
       "damage": "1d6",
-      "type": "piercing",
-      "threat": 20,
-      "crit": 2
-    }
-  },
-  {
-    "name": "spiked light wooden shield bash",
-    "weight": 0,
-    "effort": "LIGHT",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d4",
-      "type": "piercing",
-      "threat": 20,
-      "crit": 2
-    }
-  },
-  {
-    "name": "spiked light steel shield bash",
-    "weight": 0,
-    "effort": "LIGHT",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d4",
       "type": "piercing",
       "threat": 20,
       "crit": 2
@@ -469,54 +421,6 @@
       "damage": "1d6",
       "type": "slashing",
       "threat": 18,
-      "crit": 2
-    }
-  },
-  {
-    "name": "heavy wooden shield bash",
-    "weight": 0,
-    "effort": "ONE_HANDED",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d4",
-      "type": "bludgeoning",
-      "threat": 20,
-      "crit": 2
-    }
-  },
-  {
-    "name": "heavy steel shield bash",
-    "weight": 0,
-    "effort": "ONE_HANDED",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d4",
-      "type": "bludgeoning",
-      "threat": 20,
-      "crit": 2
-    }
-  },
-  {
-    "name": "spiked heavy wooden shield bash",
-    "weight": 0,
-    "effort": "ONE_HANDED",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d6",
-      "type": "piercing",
-      "threat": 20,
-      "crit": 2
-    }
-  },
-  {
-    "name": "spiked heavy steel shield bash",
-    "weight": 0,
-    "effort": "ONE_HANDED",
-    "melee": {
-      "proficiency": "MARTIAL",
-      "damage": "1d6",
-      "type": "piercing",
-      "threat": 20,
       "crit": 2
     }
   },

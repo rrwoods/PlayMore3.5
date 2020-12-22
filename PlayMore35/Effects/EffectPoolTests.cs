@@ -159,6 +159,10 @@ namespace PlayMore35.Effects.Tests {
                 p,
                 items
             );
+
+            items.PrimaryHandWeapon = null;
+            items.OffHandShield.Spiked = true;
+            CheckAttack(+0, "1d6", p, items);
         }
 
         public Armor Breastplate() {

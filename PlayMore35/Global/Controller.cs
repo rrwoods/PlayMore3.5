@@ -90,6 +90,8 @@ namespace PlayMore35.Global {
             foreach (string property in choice.ArmorProperties) {
                 armor.Properties.Add(ArmorPropertyDefinitions[property]);
             }
+            // TODO : make an AddSpikes method on armor that takes care of this
+            // and get rid of the armor spikes weapon def
             if (choice.Spiked) {
                 armor.ArmorSpikes = new AttackMode(WeaponDefinitions["armor spikes"].Melee?.atk);
                 foreach (string property in choice.MeleeProperties) {
@@ -108,9 +110,7 @@ namespace PlayMore35.Global {
             foreach (string property in choice.ArmorProperties) {
                 shield.Properties.Add(ArmorPropertyDefinitions[property]);
             }
-            if (choice.Spiked) {
-                shield.AddSpikes();
-            }
+            shield.Spiked = choice.Spiked;
             foreach (string property in choice.MeleeProperties) {
                 shield.ShieldBash.Properties.Add(WeaponPropertyDefinitions[property]);
             }
@@ -158,24 +158,12 @@ namespace PlayMore35.Global {
             WeaponDefinitions = GetResource(Properties.Resources.weapons, "weapons.json")
                 .Select(x => new Weapon((JObject)x))
                 .ToDictionary(x => x.Name);
-
             ArmorDefinitions = GetResource(Properties.Resources.armor, "armor.json")
                 .Select(x => new Armor((JObject)x))
                 .ToDictionary(x => x.Name);
-
             ShieldDefinitions = GetResource(Properties.Resources.shields, "shields.json")
                 .Select(x => new Shield((JObject)x))
                 .ToDictionary(x => x.Name);
-            List<Shield> spiked = ShieldDefinitions.Values
-                .Where(x => x.ShieldBashEffort != null)
-                .Select(x => new Shield(x) {
-                    Name = $"spiked {x.Name}"
-                })
-                .ToList(); // Finalize the iteration before modifying the dictionary it's based on
-            spiked.ForEach(x => ShieldDefinitions[x.Name] = x);
-            foreach (Shield shield in ShieldDefinitions.Values.Where(x => x.ShieldBashEffort != null)) {
-                shield.ShieldBash = new AttackMode(WeaponDefinitions[shield.Name + " bash"].Melee?.atk);
-            }
 
             WeaponPropertyDefinitions = GetResource(Properties.Resources.weaponProperties, "weaponProperties.json")
                 .Select(x => new WeaponProperty((JObject)x))
