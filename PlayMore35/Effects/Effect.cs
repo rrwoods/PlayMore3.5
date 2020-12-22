@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
 
 namespace PlayMore35.Effects {
-    public class Effect {
+    public class Effect : IJsonable {
         public Effect(string name) {
             Name = name;
         }
@@ -49,30 +49,15 @@ namespace PlayMore35.Effects {
             if (ExtraAttacks.Any()) {
                 json.Add("extra attacks", new JArray(ExtraAttacks.Select(x => x.ToJson())));
             }
-            if (AttackModifiers.Any()) {
-                json.Add("attack", new JArray(AttackModifiers.Select(x => x.ToJson())));
-            }
-            if (DamageModifiers.Any()) {
-                json.Add("damage", new JArray(DamageModifiers.Select(x => x.ToJson())));
-            }
-            if (ExtraDice.Any()) {
-                json.Add("dice", new JArray(ExtraDice.Select(x => x.ToJson())));
-            }
-            if (ThreatModifiers.Any()) {
-                json.Add("threat", new JArray(ThreatModifiers.Select(x => x.ToJson())));
-            }
-            if (RangeMultipliers.Any()) {
-                json.Add("range", new JArray(RangeMultipliers.Select(x => x.ToJson())));
-            }
-            if (Modifiers.Any()) {
-                json.Add("modifiers", new JArray(Modifiers.Select(x => x.ToJson())));
-            }
-            if (Multipliers.Any()) {
-                json.Add("multipliers", new JArray(Multipliers.Select(x => x.ToJson())));
-            }
-            if (WeaponProficiencies.Any()) {
-                json.Add("weapon proficiencies", new JArray(WeaponProficiencies.Select(x => x.ToJson())));
-            }
+            json.AddList("extra attacks", ExtraAttacks);
+            json.AddList("attack", AttackModifiers);
+            json.AddList("damage", DamageModifiers);
+            json.AddList("dice", ExtraDice);
+            json.AddList("threat", ThreatModifiers);
+            json.AddList("range", RangeMultipliers);
+            json.AddList("modifiers", Modifiers);
+            json.AddList("multipliers", Multipliers);
+            json.AddList("weapon proficiencies", WeaponProficiencies);
             if (ArmorProficiencies.Any()) {
                 json.Add("armor proficiencies", new JArray(ArmorProficiencies));
             }
@@ -85,15 +70,11 @@ namespace PlayMore35.Effects {
                     new JProperty("select from", x.selectFrom)
                 ))));
             }
-            if (SpecificFeats.Any()) {
-                json.Add("specific feats", new JArray(SpecificFeats));
-            }
+            json.AddList("specific feats", SpecificFeats);
             if (SkillPointsEachLevel != 0) {
                 json.Add("skill points", SkillPointsEachLevel);
             }
-            if (Flags.Any()) {
-                json.Add("flags", new JArray(Flags));
-            }
+            json.AddList("flags", Flags);
             if (Text.Any()) {
                 json.Add("text", new JArray(Text.Select(x => new JObject(
                     new JProperty("category", x.category),

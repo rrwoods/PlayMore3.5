@@ -30,9 +30,7 @@ namespace PlayMore35.CharacterChoices {
 
         public JToken ToJson() {
             JObject json = new JObject(new JProperty("name", Name), new JProperty("type", CreatureType));
-            if (SubTypes.Any()) {
-                json["subtypes"] = new JArray(SubTypes);
-            }
+            json.AddList("subtypes", SubTypes);
             if (SizeCategory != 0) {
                 json["size"] = SizeCategory;
             }
@@ -57,21 +55,11 @@ namespace PlayMore35.CharacterChoices {
             if (Cha != 0) {
                 json["cha"] = Cha;
             }
-            if (AutomaticLanguages.Any()) {
-                json["automatic languages"] = new JArray(AutomaticLanguages);
-            }
-            if (BonusLanguages.Any()) {
-                json["bonus languages"] = new JArray(BonusLanguages);
-            }
-            if (FamiliarWeapons.Any()) {
-                json["weapon familiarity"] = new JArray(FamiliarWeapons);
-            }
-            if (Toggles.Any()) {
-                json["toggles"] = new JArray(Toggles);
-            }
-            if (Effects.Any()) {
-                json["effects"] = new JArray(Effects.Select(x => x.ToJson()));
-            }
+            json.AddList("automatic languages", AutomaticLanguages);
+            json.AddList("bonus languages", BonusLanguages);
+            json.AddList("weapon familiarity", FamiliarWeapons);
+            json.AddList("toggles", Toggles);
+            json.AddList("effects", Effects);
             return json;
         }
 
@@ -105,18 +93,10 @@ namespace PlayMore35.CharacterChoices {
             if (json["cha"] != null) {
                 Cha = (int)json["cha"];
             }
-            if (json["automatic languages"] != null) {
-                AutomaticLanguages.AddRange(json["automatic languages"].Select(x => (string)x));
-            }
-            if (json["bonus languages"] != null) {
-                BonusLanguages.AddRange(json["bonus languages"].Select(x => (string)x));
-            }
-            if (json["weapon familiarity"] != null) {
-                FamiliarWeapons.AddRange(json["weapon familiarity"].Select(x => (string)x));
-            }
-            if (json["toggles"] != null) {
-                Toggles.AddRange(json["toggles"].Select(x => (string)x));
-            }
+            AutomaticLanguages.ReadJson("automatic languages", json);
+            BonusLanguages.ReadJson("bonus languages", json);
+            FamiliarWeapons.ReadJson("weapon familiarity", json);
+            Toggles.ReadJson("toggles", json);
             if (json["effects"] != null) {
                 Effects.AddRange(json["effects"].Select(x => new Effect((JObject)x)));
             }

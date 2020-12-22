@@ -17,9 +17,7 @@ namespace PlayMore35.Effects {
 
         public JObject ToJson() {
             JObject json = new JObject(new JProperty("name", Name));
-            if (tags.Any()) {
-                json.Add("tags", new JArray(tags));
-            }
+            json.AddList("tags", tags);
             if (minValue != null) {
                 json.Add("min", minValue);
             }
@@ -42,9 +40,7 @@ namespace PlayMore35.Effects {
 
         public Statistic(JObject token) {
             Name = (string)token["name"];
-            if (token.ContainsKey("tags")) {
-                tags.AddRange(token["tags"].Select(x => (string)x));
-            }
+            tags.ReadJson("tags", token);
             if (token.ContainsKey("min")) {
                 minValue = (int)token["min"];
             }

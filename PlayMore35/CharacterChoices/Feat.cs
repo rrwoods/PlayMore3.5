@@ -16,35 +16,27 @@ namespace PlayMore35.CharacterChoices {
             JObject json = new JObject(
                 new JProperty("benefit", Benefit)
             );
-            if (Descriptors.Any()) {
-                json["descriptors"] = new JArray(Descriptors);
-            }
+            json.AddList("descriptors", Descriptors);
             if (Prerequisites.Any()) {
                 json["prerequisites"] = Prerequisites;
             }
             if (ChoiceDescription.Any()) {
                 json["choice"] = ChoiceDescription;
             }
-            if (Parameters.Any()) {
-                json["parameters"] = new JArray(Parameters);
-            }
+            json.AddList("parameters", Parameters);
             return json;
         }
 
         public Feat(JObject json) {
             Benefit = new Effect((JObject)json["benefit"]);
-            if (json["descriptors"] != null) {
-                Descriptors.AddRange(json["descriptors"].Select(x => (string)x));
-            }
+            Descriptors.ReadJson("descriptors", json);
             if (json["prerequisites"] != null) {
                 Prerequisites = (string)json["prerequisites"];
             }
             if (json["choice"] != null) {
                 ChoiceDescription = (string)json["choice"];
             }
-            if (json["parameters"] != null) {
-                Parameters.AddRange(json["parameters"].Select(x => (string)x));
-            }
+            Parameters.ReadJson("parameters", json);
         }
     }
 }
