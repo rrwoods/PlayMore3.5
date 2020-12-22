@@ -10,13 +10,15 @@ namespace PlayMore35.CharacterChoices {
         public List<string> ArmorProperties;
         public List<string> MeleeProperties;
 
+        public bool IsShield = false;
+
         public JToken ToJson() {
             return new JObject(
                 new JProperty("name", Name),
                 new JProperty("size", SizeCategory),
                 new JProperty("spiked", Spiked),
                 new JProperty("properties", new JArray(ArmorProperties)),
-                new JProperty("spikes properties", new JArray(MeleeProperties))
+                new JProperty("melee properties", new JArray(MeleeProperties))
             );
         }
 
@@ -25,7 +27,7 @@ namespace PlayMore35.CharacterChoices {
             SizeCategory = (int)json["size"];
             Spiked = (bool)json["spiked"];
             ArmorProperties = ((JArray)json["properties"]).Select(x => (string)x).ToList();
-            MeleeProperties = ((JArray)json["spikes properties"]).Select(x => (string)x).ToList();
+            MeleeProperties = ((JArray)json["melee properties"]).Select(x => (string)x).ToList();
         }
 
         public ArmorChoice() {

@@ -491,17 +491,17 @@ namespace PlayMore35 {
         // Drag a shield into the shield box
         private void Shield_DragEnter(object sender, DragEventArgs e) {
             ItemDrag item = (ItemDrag)e.Data.GetData(typeof(ItemDrag));
-            e.Effect = (item.item is ShieldChoice) ? DragDropEffects.Move : DragDropEffects.None;
+            e.Effect = (item.item is ArmorChoice armor && armor.IsShield) ? DragDropEffects.Move : DragDropEffects.None;
         }
 
         // Drop an shield into the shield box
         private void Shield_DragDrop(object sender, DragEventArgs e) {
             ItemDrag item = (ItemDrag)e.Data.GetData(typeof(ItemDrag));
-            if (!(item.item is ShieldChoice) || !DraggingFromLocation()) {
+            if (!(item.item is ArmorChoice armor && armor.IsShield) || !DraggingFromLocation()) {
                 return;
             }
 
-            controller.EquipShield(draggingItemFrom.Parent.Text, (ShieldChoice)item.item);
+            controller.EquipShield(draggingItemFrom.Parent.Text, armor);
             draggingItemFrom = null;
             RefreshInventory();
         }

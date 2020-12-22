@@ -27,7 +27,7 @@ namespace PlayMore35.Items {
         // Light, heavy, and tower shields should all leave this null.
         public int? AttackRollPenalty = null; // negative number
 
-        // It's up to the user of this class to account for shield spikes.
+        public bool Spiked = false;
         public Weapon.Effort? ShieldBashEffort = null;
         public AttackMode ShieldBash = null;
 
@@ -95,6 +95,10 @@ namespace PlayMore35.Items {
                 all = all.Concat(ShieldBash.GetGlobalEffects());
             }
             return all;
+        }
+
+        public void AddSpikes() {
+            // TODO make this matter
         }
     }
 }

@@ -92,7 +92,7 @@ namespace PlayMore35.CharacterChoices {
             }
         }
 
-        public IEnumerable<ShieldChoice> Shields {
+        public IEnumerable<ArmorChoice> Shields {
             get {
                 return inventory.SelectMany(x => x.Value.shields);
             }

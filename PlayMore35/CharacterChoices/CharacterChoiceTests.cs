@@ -55,8 +55,9 @@ namespace PlayMore35.CharacterChoices {
                         Name = "full plate",
                         ArmorProperties = new List<string> { "mwk" }
                     },
-                    OffHandShield = new ShieldChoice {
-                        Name = "heavy wooden shield"
+                    OffHandShield = new ArmorChoice {
+                        Name = "heavy wooden shield",
+                        IsShield = true
                     }
                 }
             };

@@ -9,7 +9,7 @@ namespace PlayMore35.CharacterChoices {
 
         public List<WeaponChoice> weapons;
         public List<ArmorChoice> armor;
-        public List<ShieldChoice> shields;
+        public List<ArmorChoice> shields;
 
         public Dictionary<string, int> items;
 
@@ -27,7 +27,7 @@ namespace PlayMore35.CharacterChoices {
             weighs = (bool)json["weighs"];
             weapons = ((JArray)json["weapons"]).Select(x => new WeaponChoice((JObject)x)).ToList();
             armor = ((JArray)json["armor"]).Select(x => new ArmorChoice((JObject)x)).ToList();
-            shields = ((JArray)json["shields"]).Select(x => new ShieldChoice((JObject)x)).ToList();
+            shields = ((JArray)json["shields"]).Select(x => new ArmorChoice((JObject)x) { IsShield = true }).ToList();
             items = ((JObject)json["items"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
         }
 

@@ -10,7 +10,7 @@ namespace PlayMore35.CharacterChoices {
         public WeaponChoice OffHandWeapon = null;
 
         public ArmorChoice DonnedArmor = null;
-        public ShieldChoice OffHandShield = null;
+        public ArmorChoice OffHandShield = null;
 
         public Dictionary<Items.Equipped.Slot, string> SlottedItems = new Dictionary<Items.Equipped.Slot, string>();
         public List<string> SlotlessItems = new List<string>();
@@ -43,7 +43,7 @@ namespace PlayMore35.CharacterChoices {
                 DonnedArmor = new ArmorChoice((JObject)json["armor"]);
             }
             if (json["shield"] != null) {
-                OffHandShield = new ShieldChoice((JObject)json["shield"]);
+                OffHandShield = new ArmorChoice((JObject)json["shield"]) { IsShield = true };
             }
 
             SlottedItems = ((JObject)json["slots"]).Properties().ToDictionary(

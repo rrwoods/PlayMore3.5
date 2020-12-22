@@ -99,7 +99,7 @@ namespace PlayMore35.Global {
             return armor;
         }
 
-        private Shield ShieldFromChoice(ShieldChoice choice) {
+        private Shield ShieldFromChoice(ArmorChoice choice) {
             Shield shield = new Shield(ShieldDefinitions[choice.Name]) {
                 SizeCategory = choice.SizeCategory
             };
@@ -107,6 +107,9 @@ namespace PlayMore35.Global {
 
             foreach (string property in choice.ArmorProperties) {
                 shield.Properties.Add(ArmorPropertyDefinitions[property]);
+            }
+            if (choice.Spiked) {
+                shield.AddSpikes();
             }
             foreach (string property in choice.MeleeProperties) {
                 shield.ShieldBash.Properties.Add(WeaponPropertyDefinitions[property]);
@@ -279,8 +282,8 @@ namespace PlayMore35.Global {
             return removed;
         }
 
-        public ShieldChoice RemoveEquippedShield() {
-            ShieldChoice removed = Character.equipped.OffHandShield;
+        public ArmorChoice RemoveEquippedShield() {
+            ArmorChoice removed = Character.equipped.OffHandShield;
             Character.equipped.OffHandShield = null;
             EquippedItems.OffHandShield = null;
 
@@ -339,7 +342,7 @@ namespace PlayMore35.Global {
                 return;
             }
 
-            ShieldChoice removed = RemoveEquippedShield();
+            ArmorChoice removed = RemoveEquippedShield();
             if (removed != null) {
                 Character.inventory[to].shields.Add(removed);
             }
@@ -406,7 +409,7 @@ namespace PlayMore35.Global {
             ComputeWeight();
         }
 
-        public void EquipShield(string from, ShieldChoice shieldChoice) {
+        public void EquipShield(string from, ArmorChoice shieldChoice) {
             if (!Character.inventory.ContainsKey(from) || !Character.inventory[from].shields.Contains(shieldChoice)) {
                 return;
             }
@@ -483,12 +486,12 @@ namespace PlayMore35.Global {
                     Character.inventory[to].weapons.Add(weapon);
                 }
             } else if (item is ArmorChoice armor) {
-                if (Character.inventory[from].armor.Remove(armor)) {
+                if (armor.IsShield) {
+                    if (Character.inventory[from].shields.Remove(armor)) {
+                        Character.inventory[to].shields.Add(armor);
+                    }
+                } else if (Character.inventory[from].armor.Remove(armor)) {
                     Character.inventory[to].armor.Add(armor);
-                }
-            } else if (item is ShieldChoice shield) {
-                if (Character.inventory[from].shields.Remove(shield)) {
-                    Character.inventory[to].shields.Add(shield);
                 }
             }
 

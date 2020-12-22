@@ -84,7 +84,6 @@
     <Compile Include="CharacterChoices\EquippedChoices.cs" />
     <Compile Include="CharacterChoices\InventoryLocation.cs" />
     <Compile Include="CharacterChoices\Item.cs" />
-    <Compile Include="CharacterChoices\ShieldChoice.cs" />
     <Compile Include="CharacterChoices\ArmorChoice.cs" />
     <Compile Include="CharacterChoices\Character.cs" />
     <Compile Include="CharacterChoices\CharacterChoiceTests.cs" />
