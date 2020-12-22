@@ -280,8 +280,5 @@
         public static readonly string SICKENED = "sickened";
         public static readonly string STUNNED = "stunned";
         public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
-        public static readonly string[] ALL_TOGGLEABLE_CONDITIONS = new string[] {
-            BLINDED, CHARGING, COWERING, DAZED, DAZZLED, DEAFENED, ENTANGLED, EXHAUSTED, FASCINATED, FATIGUED, FLAT_FOOTED, HELPLESS_AND_PARALYZED, INVISIBLE, NAUSEATED, PRONE, SICKENED, STABLE, STUNNED
-        };
     }
 }

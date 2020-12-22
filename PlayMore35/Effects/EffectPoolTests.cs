@@ -607,11 +607,9 @@ namespace PlayMore35.Effects.Tests {
         [TestMethod]
         public void TestControllableAmount() {
             EffectPool p = Rules();
+            p.controllableAmounts["Power attack penalty"] = 0;
 
-            ControllableAmount powerAttackAmount = new ControllableAmount("Power attack penalty")
-                .Minimum(0)
-                .Maximum((BASE_ATTACK_BONUS));
-
+            IAmount powerAttackAmount = new ControllableAmount("Power attack penalty");
             p.AddEffect(new Effect("Power Attack")
                 .AddAttackModifier(
                     new AttackMatcher().Melee(),
@@ -648,22 +646,17 @@ namespace PlayMore35.Effects.Tests {
             CheckAttack(+2, "1d8", p, longswordTwo);
 
             // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
-            powerAttackAmount.Amt = 1;
+            p.controllableAmounts["Power attack penalty"] = 1;
             CheckAttack(+1, "1d4", p, daggerPri);
             CheckAttack(+1, "1d8+1", p, longswordPri);
             CheckAttack(+1, "1d8+2", p, longswordTwo);
 
-            // Power attack for "3", clamped to 2 -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
-            powerAttackAmount.Amt = 3;
+            // Power attack for 2, -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
+            p.controllableAmounts["Power attack penalty"] = 2;
             CheckAttack(+0, "1d4", p, daggerPri);
             CheckAttack(+0, "1d8+2", p, longswordPri);
             CheckAttack(+0, "1d8+4", p, longswordTwo);
 
-            // Power attack for "-1", clamped to 0, same as no power attack
-            powerAttackAmount.Amt = -1;
-            CheckAttack(+2, "1d4", p, daggerPri);
-            CheckAttack(+2, "1d8", p, longswordPri);
-            CheckAttack(+2, "1d8", p, longswordTwo);
         }
 
         [TestMethod]

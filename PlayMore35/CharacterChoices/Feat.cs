@@ -9,7 +9,7 @@ namespace PlayMore35.CharacterChoices {
         public List<string> Descriptors = new List<string>(); // don't bother with [General].  nothing cares.
         public string Prerequisites = ""; // not formalizing this for now
         public string ChoiceDescription = "";
-        public Statistic Parameter = null;
+        public List<string> Parameters = new List<string>();
         public Effect Benefit; // name of the feat is the name of the effect
 
         public JToken ToJson() {
@@ -25,8 +25,8 @@ namespace PlayMore35.CharacterChoices {
             if (ChoiceDescription.Any()) {
                 json["choice"] = ChoiceDescription;
             }
-            if (Parameter != null) {
-                json["parameter"] = Parameter.ToJson();
+            if (Parameters.Any()) {
+                json["parameters"] = new JArray(Parameters);
             }
             return json;
         }
@@ -42,8 +42,8 @@ namespace PlayMore35.CharacterChoices {
             if (json["choice"] != null) {
                 ChoiceDescription = (string)json["choice"];
             }
-            if (json["parameter"] != null) {
-                Parameter = new Statistic((JObject)json["parameter"]);
+            if (json["parameters"] != null) {
+                Parameters.AddRange(json["parameters"].Select(x => (string)x));
             }
         }
     }

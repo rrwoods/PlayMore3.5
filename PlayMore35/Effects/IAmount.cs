@@ -8,7 +8,7 @@ namespace PlayMore35.Effects {
     public static class Amount {
         public static IAmount FromJson(JToken json) {
             if (json["controllable"] != null) {
-                return new ControllableAmount((JObject)json["controllable"]);
+                return new ControllableAmount((string)json["controllable"]);
             }
             if (json["fixed"] != null) {
                 return new FixedAmount((int)json["fixed"]);

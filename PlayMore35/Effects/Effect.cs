@@ -282,11 +282,6 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect Controllable() {
-            Toggle = new ControllableToggle(Name);
-            return this;
-        }
-
         private IEnumerable<AlterType> GetAlterers<AlterType, SubjectType> (
             EffectPool pool,
             Equipped items,

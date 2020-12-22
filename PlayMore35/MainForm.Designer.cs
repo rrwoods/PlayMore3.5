@@ -28,10 +28,11 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCharacterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuCondition = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.statsTab = new System.Windows.Forms.TabPage();
             this.inventoryTab = new System.Windows.Forms.TabPage();
+            this.lblTotalWeight = new System.Windows.Forms.Label();
+            this.lblEquippedWeight = new System.Windows.Forms.Label();
             this.txtFeet = new System.Windows.Forms.Label();
             this.txtRing2 = new System.Windows.Forms.Label();
             this.txtRing1 = new System.Windows.Forms.Label();
@@ -66,12 +67,14 @@
             this.lblArmor = new System.Windows.Forms.Label();
             this.lblOffHandWeapon = new System.Windows.Forms.Label();
             this.lblPrimaryWeapon = new System.Windows.Forms.Label();
-            this.lblTotalWeight = new System.Windows.Forms.Label();
             this.grpSampleLocation2 = new System.Windows.Forms.GroupBox();
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.lblEquippedWeight = new System.Windows.Forms.Label();
+            this.txtParam = new System.Windows.Forms.TextBox();
+            this.txtParam2 = new System.Windows.Forms.TextBox();
+            this.lblParam = new System.Windows.Forms.Label();
+            this.lblParam2 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.statsTab.SuspendLayout();
@@ -82,7 +85,7 @@
             // lblTopLeft
             // 
             this.lblTopLeft.AutoSize = true;
-            this.lblTopLeft.Location = new System.Drawing.Point(3, 3);
+            this.lblTopLeft.Location = new System.Drawing.Point(3, 0);
             this.lblTopLeft.Name = "lblTopLeft";
             this.lblTopLeft.Size = new System.Drawing.Size(76, 17);
             this.lblTopLeft.TabIndex = 0;
@@ -92,8 +95,7 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.mnuCondition});
+            this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(913, 24);
@@ -115,12 +117,6 @@
             this.saveCharacterToolStripMenuItem.Text = "&Save character...";
             this.saveCharacterToolStripMenuItem.Click += new System.EventHandler(this.SaveCharacter_Click);
             // 
-            // mnuCondition
-            // 
-            this.mnuCondition.Name = "mnuCondition";
-            this.mnuCondition.Size = new System.Drawing.Size(77, 20);
-            this.mnuCondition.Text = "&Conditions";
-            // 
             // tabControl1
             // 
             this.tabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
@@ -137,11 +133,15 @@
             // 
             // statsTab
             // 
+            this.statsTab.Controls.Add(this.lblParam2);
+            this.statsTab.Controls.Add(this.lblParam);
+            this.statsTab.Controls.Add(this.txtParam2);
+            this.statsTab.Controls.Add(this.txtParam);
             this.statsTab.Controls.Add(this.lblTopLeft);
             this.statsTab.Location = new System.Drawing.Point(4, 4);
             this.statsTab.Name = "statsTab";
             this.statsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.statsTab.Size = new System.Drawing.Size(905, 570);
+            this.statsTab.Size = new System.Drawing.Size(905, 585);
             this.statsTab.TabIndex = 0;
             this.statsTab.Text = "Stats";
             this.statsTab.UseVisualStyleBackColor = true;
@@ -194,6 +194,26 @@
             this.inventoryTab.Text = "Inventory";
             this.inventoryTab.UseVisualStyleBackColor = true;
             this.inventoryTab.Paint += new System.Windows.Forms.PaintEventHandler(this.InventoryTab_Paint);
+            // 
+            // lblTotalWeight
+            // 
+            this.lblTotalWeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTotalWeight.AutoSize = true;
+            this.lblTotalWeight.Location = new System.Drawing.Point(202, 565);
+            this.lblTotalWeight.Name = "lblTotalWeight";
+            this.lblTotalWeight.Size = new System.Drawing.Size(66, 17);
+            this.lblTotalWeight.TabIndex = 3;
+            this.lblTotalWeight.Text = "Total load";
+            // 
+            // lblEquippedWeight
+            // 
+            this.lblEquippedWeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblEquippedWeight.AutoSize = true;
+            this.lblEquippedWeight.Location = new System.Drawing.Point(3, 565);
+            this.lblEquippedWeight.Name = "lblEquippedWeight";
+            this.lblEquippedWeight.Size = new System.Drawing.Size(106, 17);
+            this.lblEquippedWeight.TabIndex = 54;
+            this.lblEquippedWeight.Text = "Equipped weight";
             // 
             // txtFeet
             // 
@@ -585,16 +605,6 @@
             this.lblPrimaryWeapon.Text = "Primary weapon";
             this.lblPrimaryWeapon.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // lblTotalWeight
-            // 
-            this.lblTotalWeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblTotalWeight.AutoSize = true;
-            this.lblTotalWeight.Location = new System.Drawing.Point(202, 565);
-            this.lblTotalWeight.Name = "lblTotalWeight";
-            this.lblTotalWeight.Size = new System.Drawing.Size(66, 17);
-            this.lblTotalWeight.TabIndex = 3;
-            this.lblTotalWeight.Text = "Total load";
-            // 
             // grpSampleLocation2
             // 
             this.grpSampleLocation2.Location = new System.Drawing.Point(513, 6);
@@ -637,15 +647,47 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // lblEquippedWeight
+            // txtParam
             // 
-            this.lblEquippedWeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblEquippedWeight.AutoSize = true;
-            this.lblEquippedWeight.Location = new System.Drawing.Point(3, 565);
-            this.lblEquippedWeight.Name = "lblEquippedWeight";
-            this.lblEquippedWeight.Size = new System.Drawing.Size(106, 17);
-            this.lblEquippedWeight.TabIndex = 54;
-            this.lblEquippedWeight.Text = "Equipped weight";
+            this.txtParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtParam.Location = new System.Drawing.Point(8, 554);
+            this.txtParam.Name = "txtParam";
+            this.txtParam.Size = new System.Drawing.Size(32, 25);
+            this.txtParam.TabIndex = 1;
+            this.txtParam.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtParam.Visible = false;
+            // 
+            // txtParam2
+            // 
+            this.txtParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtParam2.Location = new System.Drawing.Point(8, 523);
+            this.txtParam2.Name = "txtParam2";
+            this.txtParam2.Size = new System.Drawing.Size(32, 25);
+            this.txtParam2.TabIndex = 2;
+            this.txtParam2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtParam2.Visible = false;
+            // 
+            // lblParam
+            // 
+            this.lblParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblParam.AutoSize = true;
+            this.lblParam.Location = new System.Drawing.Point(46, 557);
+            this.lblParam.Name = "lblParam";
+            this.lblParam.Size = new System.Drawing.Size(116, 17);
+            this.lblParam.TabIndex = 3;
+            this.lblParam.Text = "Sample parameter";
+            this.lblParam.Visible = false;
+            // 
+            // lblParam2
+            // 
+            this.lblParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblParam2.AutoSize = true;
+            this.lblParam2.Location = new System.Drawing.Point(46, 526);
+            this.lblParam2.Name = "lblParam2";
+            this.lblParam2.Size = new System.Drawing.Size(116, 17);
+            this.lblParam2.TabIndex = 4;
+            this.lblParam2.Text = "Sample parameter";
+            this.lblParam2.Visible = false;
             // 
             // MainForm
             // 
@@ -678,7 +720,6 @@
 
         private System.Windows.Forms.Label lblTopLeft;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem mnuCondition;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCharacterToolStripMenuItem;
         private System.Windows.Forms.TabControl tabControl1;
@@ -724,6 +765,10 @@
         private System.Windows.Forms.Label txtOffHandWeapon;
         private System.Windows.Forms.Label txtPrimaryWeapon;
         private System.Windows.Forms.Label lblEquippedWeight;
+        private System.Windows.Forms.Label lblParam2;
+        private System.Windows.Forms.Label lblParam;
+        private System.Windows.Forms.TextBox txtParam2;
+        private System.Windows.Forms.TextBox txtParam;
     }
 }
 

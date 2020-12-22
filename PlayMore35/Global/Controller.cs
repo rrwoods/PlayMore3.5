@@ -17,7 +17,6 @@ namespace PlayMore35.Global {
 
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
-        public Dictionary<string, ControllableToggle> Toggles;
 
         public Character Character;
         private int NormalSizeCategory;
@@ -127,15 +126,6 @@ namespace PlayMore35.Global {
                 location.items.Select(x => ItemDefinitions[x.Key].Weight * x.Value).Sum();
         }
 
-        public void AddToggle(string flag) {
-            ControllableToggle toggle = new ControllableToggle(flag);
-            Effects.AddEffect(new Effect(flag)
-                .SetToggle(toggle)
-                .AddFlag(flag)
-            );
-            Toggles[flag] = toggle;
-        }
-
         // Completely toss out every effect and item definition we have, and refresh the rules of the game.
         // Also, re-determine the character's equipped items.
         public void Reload() {
@@ -194,11 +184,6 @@ namespace PlayMore35.Global {
                 .Select(x => new Item((JObject)x))
                 .ToDictionary(x => x.ItemEffect.Name);
 
-            Toggles = new Dictionary<string, ControllableToggle>();
-            foreach (string flag in ALL_TOGGLEABLE_CONDITIONS) {
-                AddToggle(flag);
-            }
-
             Race race = RaceDefinitions[Character.race];
             Effects.GenerateRaceEffects(race);
             NormalSizeCategory = race.SizeCategory;
@@ -218,6 +203,11 @@ namespace PlayMore35.Global {
                     foreach (Effect feature in @class.ClassFeatures[level]) {
                         Effects.AddEffect(feature);
                     }
+                }
+            }
+            foreach (List<string> level in Character.feats) {
+                foreach (string featName in level) {
+                    Effects.GenerateFeatEffects(FeatDefinitions[featName]);
                 }
             }
 

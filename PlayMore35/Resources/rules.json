@@ -1038,6 +1038,15 @@
       "name": "Negative levels"
     }
   ],
+  "flags": [
+    "charging",
+    "exhausted",
+    "fatigued",
+    "flat-footed",
+    "prone",
+    "stable"
+  ],
+  "amounts": [],
   "effects": [
     {
       "name": "STR damage",

@@ -29,6 +29,7 @@ namespace PlayMore35 {
         private int verticalBufferLarge;
         private int columnWidth;
         private int locationWidthBuffer;
+        private int paramBuffer;
 
         private bool loaded = false;
 
@@ -686,12 +687,28 @@ namespace PlayMore35 {
         }
 
         private void Toggle_Click(object sender, EventArgs e) {
-            ToolStripMenuItem toggle = (ToolStripMenuItem)sender;
+            CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
-            toggle.Checked = !toggle.Checked;
-            controller.Toggles[flag].on = toggle.Checked;
+            controller.Effects.controllableFlags[flag] = toggle.Checked;
 
             RefreshEffects();
+        }
+
+        private void Param_Leave(object sender, EventArgs e) {
+            TextBox box = (TextBox)sender;
+            if (int.TryParse(box.Text, out int value)) {
+                box.BackColor = SystemColors.Window;
+                string parameterName = (string)box.Tag;
+                controller.Effects.controllableAmounts[parameterName] = value;
+                RefreshEffects();
+            } else if (box.Text.Equals("")) {
+                box.BackColor = SystemColors.Window;
+                string parameterName = (string)box.Tag;
+                controller.Effects.controllableAmounts[parameterName] = 0;
+                RefreshEffects();
+            } else {
+                box.BackColor = Color.Red;
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
@@ -700,6 +717,7 @@ namespace PlayMore35 {
             leftBuffer = lblTopLeft.Left;
             topBuffer = lblTopLeft.Top + 5; // eh.
             verticalBufferLarge = 8;
+            paramBuffer = lblParam2.Top - lblParam.Top;
 
             using (OpenFileDialog dialog = new OpenFileDialog()) {
                 dialog.InitialDirectory = "c:\\";
@@ -804,10 +822,43 @@ namespace PlayMore35 {
                 new List<Label> { miscSkills }
             };
 
-            foreach (string flag in ALL_TOGGLEABLE_CONDITIONS) {
-                ToolStripMenuItem mnuToggle = new ToolStripMenuItem(flag);
-                mnuToggle.Click += Toggle_Click;
-                mnuCondition.DropDownItems.Add(mnuToggle);
+            int txtTop = txtParam.Top;
+            int lblTop = lblParam.Top;
+            foreach (string parameter in controller.Effects.controllableAmounts.Keys) {
+                TextBox txtNewParam = new TextBox() {
+                    Top = txtTop,
+                    Left = txtParam.Left,
+                    Width = txtParam.Width,
+                    TextAlign = HorizontalAlignment.Center,
+                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
+                    Tag = parameter
+                };
+                txtNewParam.Leave += Param_Leave;
+                statsTab.Controls.Add(txtNewParam);
+
+                Label lblNewParam = new Label() {
+                    Top = lblTop,
+                    Left = lblParam.Left,
+                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left
+                };
+                lblNewParam.Text = parameter;
+                statsTab.Controls.Add(lblNewParam);
+
+                txtTop += paramBuffer;
+                lblTop += paramBuffer;
+            }
+
+            foreach (string toggle in controller.Effects.controllableFlags.Keys) {
+                CheckBox chkNewToggle = new CheckBox() {
+                    Top = txtTop,
+                    Left = txtParam.Left,
+                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
+                    Text = toggle
+                };
+                chkNewToggle.Click += Toggle_Click;
+                statsTab.Controls.Add(chkNewToggle);
+
+                txtTop += paramBuffer;
             }
 
             txtHead.Tag = Equipped.Slot.HEAD;

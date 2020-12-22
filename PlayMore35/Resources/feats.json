@@ -1231,10 +1231,11 @@
     }
   },
   {
+    "flags": [ "within 30 ft." ],
     "benefit": {
       "name": "Point Blank Shot",
       "active": {
-        "controllable": "within 30 ft."
+        "flag": "within 30 ft."
       },
       "attack": [
         {
@@ -1253,16 +1254,13 @@
   },
   {
     "prerequisites": "STR 13",
-    "parameter": {
-      "name": "Power Attack",
-      "min": 0
-    },
+    "parameters": [ "Power Attack" ],
     "benefit": {
       "name": "Power Attack",
       "active": {
         "conditional": {
           "left": {
-            "stat value": "Power Attack"
+            "controllable": "Power Attack"
           },
           "relation": "GREATER_THAN",
           "right": {
@@ -1284,7 +1282,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "Power Attack"
+                    "controllable": "Power Attack"
                   },
                   "scalar": -1
                 }
@@ -1310,7 +1308,7 @@
             "type": "untyped",
             "amounts": [
               {
-                "stat value": "Power Attack"
+                "controllable": "Power Attack"
               }
             ]
           }
@@ -1331,7 +1329,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "Power Attack"
+                    "controllable": "Power Attack"
                   },
                   "scalar": 2
                 }
@@ -1405,10 +1403,11 @@
   },
   {
     "prerequisites": "DEX 13, Point Blank Shot",
+    "flags": [ "Rapid Shot" ],
     "benefit": {
       "name": "Rapid Shot",
       "active": {
-        "controllable": "Rapid Shot"
+        "flag": "Rapid Shot"
       },
       "extra attacks": [
         {
@@ -1920,6 +1919,18 @@
         {
           "category": "Metamagic",
           "text": "+3 levels; burst, emanation, line, or spread has its stated measure increased by 100%"
+        }
+      ]
+    }
+  },
+  {
+    "prerequisites": "Soul binding, Intimidate 4 ranks",
+    "benefit": {
+      "name": "Improved Binding",
+      "text": [
+        {
+          "category": "Downtime",
+          "text": "your effective binder level is 2 higher for determining the level of vestige you can bind"
         }
       ]
     }

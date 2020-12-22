@@ -104,7 +104,6 @@
     <Compile Include="Effects\ItemAmount.cs" />
     <Compile Include="Effects\SmallestAmount.cs" />
     <Compile Include="Effects\StackingRules.cs" />
-    <Compile Include="Effects\ControllableToggle.cs" />
     <Compile Include="Effects\DiceGroup.cs" />
     <Compile Include="Effects\FlagToggle.cs" />
     <Compile Include="Effects\LookupAmount.cs" />
