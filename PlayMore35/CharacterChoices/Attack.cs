@@ -434,8 +434,8 @@ namespace PlayMore35.Items {
             int offSizeCategory = offWpnPresent ? AdjustSize(offHandWeapon.SizeCategory, sizeChange) : 0;
             int offSizeDiscrepancy = offWpnPresent ? offSizeCategory - playerSizeCategory : 0;
 
-            // Exact same weapon in both hands.  Player is two-handing a single weapon.
-            if (primaryHandWeapon == offHandWeapon) {
+            // We assume the player intends to two-hand a weapon if they are holding one weapon and no shield.
+            if (!shieldPresent && primaryHandWeapon != null && offHandWeapon == null) {
                 if (primaryHandWeapon.Melee != null) {
                     if (priEffort >= Weapon.Effort.LIGHT && priEffort <= Weapon.Effort.TWO_HANDED) {
                         // You can't get a mechanical benefit for two-handing a light weapon.

@@ -213,17 +213,11 @@ namespace PlayMore35.Global {
 
             EquippedItems = new Equipped();
 
-            if (Character.equipped.TwoHandWeapon != null) {
-                Weapon weapon = WeaponFromChoice(Character.equipped.TwoHandWeapon);
-                EquippedItems.PrimaryHandWeapon = weapon;
-                EquippedItems.OffHandWeapon = weapon;
-            } else {
-                if (Character.equipped.PrimaryHandWeapon != null) {
-                    EquippedItems.PrimaryHandWeapon = WeaponFromChoice(Character.equipped.PrimaryHandWeapon);
-                }
-                if (Character.equipped.OffHandWeapon != null) {
-                    EquippedItems.OffHandWeapon = WeaponFromChoice(Character.equipped.OffHandWeapon);
-                }
+            if (Character.equipped.PrimaryHandWeapon != null) {
+                EquippedItems.PrimaryHandWeapon = WeaponFromChoice(Character.equipped.PrimaryHandWeapon);
+            }
+            if (Character.equipped.OffHandWeapon != null) {
+                EquippedItems.OffHandWeapon = WeaponFromChoice(Character.equipped.OffHandWeapon);
             }
             if (Character.equipped.DonnedArmor != null) {
                 EquippedItems.DonnedArmor = ArmorFromChoice(Character.equipped.DonnedArmor);

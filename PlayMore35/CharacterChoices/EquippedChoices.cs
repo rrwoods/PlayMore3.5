@@ -8,7 +8,6 @@ namespace PlayMore35.CharacterChoices {
     public class EquippedChoices : IJsonable {
         public WeaponChoice PrimaryHandWeapon = null;
         public WeaponChoice OffHandWeapon = null;
-        public WeaponChoice TwoHandWeapon = null;
 
         public ArmorChoice DonnedArmor = null;
         public ShieldChoice OffHandShield = null;
@@ -26,7 +25,6 @@ namespace PlayMore35.CharacterChoices {
             JObject json = new JObject();
             JsonProperty(json, "primary", PrimaryHandWeapon);
             JsonProperty(json, "offhand", OffHandWeapon);
-            JsonProperty(json, "twohand", TwoHandWeapon);
             JsonProperty(json, "armor", DonnedArmor);
             JsonProperty(json, "shield", OffHandShield);
             json["slots"] = new JObject(SlottedItems.Select(x => new JProperty(x.Key.ToString(), x.Value)));
@@ -40,9 +38,6 @@ namespace PlayMore35.CharacterChoices {
             }
             if (json["offhand"] != null) {
                 OffHandWeapon = new WeaponChoice((JObject)json["offhand"]);
-            }
-            if (json["twohand"] != null) {
-                TwoHandWeapon = new WeaponChoice((JObject)json["twohand"]);
             }
             if (json["armor"] != null) {
                 DonnedArmor = new ArmorChoice((JObject)json["armor"]);

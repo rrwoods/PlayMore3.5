@@ -173,32 +173,6 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod]
-        public void TestArmor() {
-            EffectPool p = Rules();
-            Armor breastplate = Breastplate();
-            Equipped items = new Equipped {
-                DonnedArmor = breastplate
-            };
-            p.AddEffect(ModifyStat(+30, DEX_SCORE)); // 40 dex, but for AC we can only use +3
-            CheckStat(18, p, items, AC);
-
-            breastplate.ArmorSpikes = new AttackMode {
-                ProficencyCategory = Weapon.Proficiency.MARTIAL,
-                DamageDieMedium = (1, 6),
-                DamageType = PIERCING
-            };
-            CheckAttack(+0, "1d6", p, items);
-
-            items.PrimaryHandWeapon = Longsword();
-            CheckAttack(
-                new int[] { +0, +0, -4, -8 },
-                new string[] { "1d6", "1d8", "1d8", "1d6" },
-                p,
-                items
-            );
-        }
-
-        [TestMethod]
         public void TestDeniedDex() {
             EffectPool p = Rules();
             Equipped items = new Equipped();
@@ -367,8 +341,7 @@ namespace PlayMore35.Effects.Tests {
 
             Weapon bow = CompositeBow(+2);
             Equipped items = new Equipped() {
-                PrimaryHandWeapon = bow,
-                OffHandWeapon = bow
+                PrimaryHandWeapon = bow
             };
             
             List<Attack> attack = Attack.Generate(p, 0, items);
@@ -385,8 +358,7 @@ namespace PlayMore35.Effects.Tests {
 
             Weapon bow = CompositeBow(+4);
             Equipped items = new Equipped() {
-                PrimaryHandWeapon = bow,
-                OffHandWeapon = bow
+                PrimaryHandWeapon = bow
             };
             
             List<Attack> attack = Attack.Generate(p, 0, items);
@@ -525,7 +497,7 @@ namespace PlayMore35.Effects.Tests {
                 .AddDamageModifier(AttackMatcher.ALL, new Modifier((DEX_MODIFIER), CIRCUMSTANCE))
             );
 
-            items.PrimaryHandWeapon = items.OffHandWeapon = Greatsword();
+            items.PrimaryHandWeapon = Greatsword();
 
             List<Attack> greatswordAttacks = Attack.Generate(p, 0, items);
             Assert.AreEqual(1, greatswordAttacks.Count());
@@ -545,8 +517,9 @@ namespace PlayMore35.Effects.Tests {
 
             EffectPool p = Rules();
             // it's big enough that we have to two-hand it
-            Equipped items = new Equipped();
-            items.PrimaryHandWeapon = items.OffHandWeapon = dagger;
+            Equipped items = new Equipped {
+                PrimaryHandWeapon = dagger
+            };
 
             var daggerAttacks = Attack.Generate(p, 0, items);
             Assert.AreEqual(2, daggerAttacks.Count());
@@ -635,28 +608,20 @@ namespace PlayMore35.Effects.Tests {
             Equipped longswordPri = new Equipped {
                 PrimaryHandWeapon = longsword
             };
-            Equipped longswordTwo = new Equipped {
-                PrimaryHandWeapon = longsword,
-                OffHandWeapon = longsword
-            };
 
             // Just BAB -- attack at +2, no damage bonus.
             CheckAttack(+2, "1d4", p, daggerPri);
             CheckAttack(+2, "1d8", p, longswordPri);
-            CheckAttack(+2, "1d8", p, longswordTwo);
 
             // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
             p.controllableAmounts["Power attack penalty"] = 1;
             CheckAttack(+1, "1d4", p, daggerPri);
-            CheckAttack(+1, "1d8+1", p, longswordPri);
-            CheckAttack(+1, "1d8+2", p, longswordTwo);
+            CheckAttack(+1, "1d8+2", p, longswordPri);
 
             // Power attack for 2, -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
             p.controllableAmounts["Power attack penalty"] = 2;
             CheckAttack(+0, "1d4", p, daggerPri);
-            CheckAttack(+0, "1d8+2", p, longswordPri);
-            CheckAttack(+0, "1d8+4", p, longswordTwo);
-
+            CheckAttack(+0, "1d8+4", p, longswordPri);
         }
 
         [TestMethod]
@@ -761,8 +726,7 @@ namespace PlayMore35.Effects.Tests {
                 new string[] { "1d4+3", "1d4+2", "1d4+1", "1d4+2", "1d4+1" },
                 p,
                 new Equipped {
-                    PrimaryHandWeapon = quarterstaff,
-                    OffHandWeapon = quarterstaff
+                    PrimaryHandWeapon = quarterstaff
                 }
             );
         }
