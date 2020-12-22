@@ -192,12 +192,6 @@
       "name": "Current hit points"
     },
     {
-      "name": "Lethal damage"
-    },
-    {
-      "name": "Nonlethal damage"
-    },
-    {
       "name": "Appraise ranks"
     },
     {
@@ -1046,7 +1040,10 @@
     "prone",
     "stable"
   ],
-  "amounts": [],
+  "amounts": [
+    "Lethal damage",
+    "Nonlethal damage"
+  ],
   "effects": [
     {
       "name": "STR damage",
@@ -1609,11 +1606,11 @@
       ]
     },
     {
-      "name": "Lethal damage",
+      "name": "Damage",
       "active": {
         "conditional": {
           "left": {
-            "stat value": "Lethal damage"
+            "controllable": "Lethal damage"
           },
           "relation": "GREATER_THAN",
           "right": {
@@ -1630,7 +1627,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "Lethal damage"
+                    "controllable": "Lethal damage"
                   },
                   "scalar": -1.0
                 }
@@ -4946,15 +4943,30 @@
     {
       "name": "staggered",
       "active": {
-        "conditional": {
-          "left": {
-            "stat value": "Nonlethal damage"
+        "all": [
+          {
+            "conditional": {
+              "left": {
+                "controllable": "Nonlethal damage"
+              },
+              "relation": "EQUAL",
+              "right": {
+                "stat value": "Current hit points"
+              }
+            }
           },
-          "relation": "EQUAL",
-          "right": {
-            "stat value": "Current hit points"
+          {
+            "conditional": {
+              "left": {
+                "stat value": "Current hit points"
+              },
+              "relation": "GREATER_THAN",
+              "right": {
+                "fixed": 0
+              }
+            }
           }
-        }
+        ]
       },
       "text": [
         {
@@ -5019,7 +5031,7 @@
           {
             "conditional": {
               "left": {
-                "stat value": "Nonlethal damage"
+                "controllable": "Nonlethal damage"
               },
               "relation": "GREATER_THAN",
               "right": {
@@ -5078,7 +5090,7 @@
               {
                 "conditional": {
                   "left": {
-                    "stat value": "Nonlethal damage"
+                    "controllable": "Nonlethal damage"
                   },
                   "relation": "GREATER_THAN",
                   "right": {

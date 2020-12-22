@@ -839,6 +839,7 @@ namespace PlayMore35 {
                 Label lblNewParam = new Label() {
                     Top = lblTop,
                     Left = lblParam.Left,
+                    AutoSize = true,
                     Anchor = AnchorStyles.Bottom | AnchorStyles.Left
                 };
                 lblNewParam.Text = parameter;
