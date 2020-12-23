@@ -33,18 +33,22 @@ namespace PlayMore35 {
 
         private bool loaded = false;
 
+        // 1. each of these fields represents one of the four sections of the summary page.
+        // 2. the outer list is list of subsections, with visual separation between each subsection.
+        // 3. each subsection contains a list of rows
+        // 4. each row is a list of labels
+        private List<List<List<Label>>> beforeCombat;
+        private List<List<List<Label>>> enemyTurn;
+        private List<List<List<Label>>> myTurn;
+        private List<List<List<Label>>> misc;
+
         private Label name, desc1, desc2, init, senses, listen, spot, evade, languages, condition;
-        private List<List<Label>> beforeCombat; // can't initialize right away apparently.
 
         private Label ac, touch, acEffects, currentHp, maxHp, dr, react, resist, immune, sr, fort, reflex, will;
-        private List<List<Label>> enemyTurn;
 
         private Label speed, movement;
-        private List<Label> attacks = new List<Label>();
-        private List<Label> damage = new List<Label>();
-        private List<Label> criticals = new List<Label>();
+        private List<List<Label>> attacks = new List<List<Label>>();
         private Label space, reach, bab, grapple, atkOptions, actions, specialActions;
-        private List<List<Label>> myTurn;
 
         private Label str_score, str_mod, str_check;
         private Label dex_score, dex_mod, dex_check;
@@ -53,9 +57,8 @@ namespace PlayMore35 {
         private Label wis_score, wis_mod, wis_check;
         private Label cha_score, cha_mod, cha_check;
         private Label sq;
-        private List<Label> skills = new List<Label>();
+        private List<List<Label>> skills = new List<List<Label>>();
         private Label miscSkills;
-        private List<List<Label>> misc;
 
         private List<Label> slotBoxes;
 
@@ -122,6 +125,11 @@ namespace PlayMore35 {
                 ToolTipLabel(check, abilityCheck.explanation);
                 check.Show();
             }
+        }
+
+        private void RemoveDynamicRows(List<List<Label>> section) {
+            section.ForEach(row => row.ForEach(label => statsTab.Controls.Remove(label)));
+            section.Clear();
         }
 
         private void OneLineText(Label label, Dictionary<string, List<string>> textEffects, string key, string postfix = "") {
@@ -192,19 +200,8 @@ namespace PlayMore35 {
 
             LabelStat(speed, "Speed", LAND_SPEED, " ft.", false);
             MultilineText(movement, textEffects, MOVEMENT, false);
-            foreach (Label label in attacks) {
-                statsTab.Controls.Remove(label);
-            }
-            attacks.Clear();
-            foreach (Label label in damage) {
-                statsTab.Controls.Remove(label);
-            }
-            damage.Clear();
-            foreach (Label label in criticals) {
-                statsTab.Controls.Remove(label);
-            }
-            criticals.Clear();
-            foreach (Items.Attack attack in controller.GetAttacks()) {
+            RemoveDynamicRows(attacks);
+            foreach (Attack attack in controller.GetAttacks()) {
                 StringBuilder text = new StringBuilder();
                 text.Append(attack.RangeIncrement > 0 ? "Ranged " : "Melee ");
                 text.Append(attack.WeaponName + " " + ValueText(attack.AttackBonus.bonus, true));
@@ -214,16 +211,15 @@ namespace PlayMore35 {
                 Label attackLabel = new Label().Initialize(this);
                 attackLabel.Text = text.ToString();
                 ToolTipLabel(attackLabel, attack.AttackBonus.explanation);
-                attacks.Add(attackLabel);
                 Label damageLabel = new Label().Initialize(this);
                 damageLabel.Text = "(" + attack.Damage.dice.ToString() + ")";
                 ToolTipLabel(damageLabel, attack.Damage.explanation);
-                damage.Add(damageLabel);
                 Label critLabel = new Label().Initialize(this);
                 critLabel.Text = "(" + attack.ThreatRange + (attack.ThreatRange == 20 ? "" : "–20") + "/"
                     + attack.CriticalDamage.dice.ToString() + ")";
                 ToolTipLabel(critLabel, attack.CriticalDamage.explanation);
-                criticals.Add(critLabel);
+
+                attacks.Add(new List<Label> { attackLabel, damageLabel, critLabel });
             }
             LabelStat(space, "Space", SPACE, " ft.;", false);
             LabelStat(reach, "Reach", REACH, " ft.", false);
@@ -240,15 +236,12 @@ namespace PlayMore35 {
             AbilityScore(wis_score, wis_mod, wis_check, "WIS");
             AbilityScore(cha_score, cha_mod, cha_check, "CHA");
             MultilineText(sq, textEffects, SQ);
-            foreach (Label label in skills) {
-                statsTab.Controls.Remove(label);
-            }
-            skills.Clear();
+            RemoveDynamicRows(skills);
             foreach (string skill in SKILLS_LIST) {
                 if (controller.Effects.GetStat(skill).Relevant(controller.Effects, controller.EquippedItems)) {
                     Label label = new Label().Initialize(this);
                     LabelStat(label, skill, skill);
-                    skills.Add(label);
+                    skills.Add(new List<Label> { label });
                 }
             }
             MultilineText(miscSkills, textEffects, SKILLS, false);
@@ -267,32 +260,37 @@ namespace PlayMore35 {
             lblTotalWeight.Text = $"Total load: {controller.EquippedItems.TotalWeight()} lbs.";
         }
 
-        private void RepositionColumn(int columnLeft, List<List<Label>> column) {
-            int top = topBuffer;
-            foreach (List<Label> labels in column) {
-                bool anyText = false;
-                foreach (Label label in labels) {
+        private void RepositionRow(List<Label> row) {
+            if (row.Count > 1) {
+                int left = row[0].Right;
+                int top = row[0].Top;
+                foreach (Label label in row.Skip(1)) {
                     if (label.Text.Any()) {
-                        anyText = true;
-                        label.Left = columnLeft;
                         label.Top = top;
-                        label.MaximumSize = new Size(columnWidth - 2 * leftBuffer, 1000);
-                        top = label.Bottom;
+                        label.Left = left;
+                        left = label.Right;
                     }
-                }
-                if (anyText) {
-                    top += verticalBufferLarge;
                 }
             }
         }
 
-        private void RepositionRow(Label first, params Label[] rest) {
-            int left = first.Right;
-            foreach (Label label in rest) {
-                if (label.Text.Any()) {
-                    label.Top = first.Top;
-                    label.Left = left;
-                    left = label.Right;
+        private void RepositionColumn(int columnLeft, List<List<List<Label>>> column) {
+            int top = topBuffer;
+            foreach (List<List<Label>> section in column) {
+                bool anyText = false;
+                foreach (List<Label> row in section) {
+                    Label first = row[0];
+                    if (first.Text.Any()) {
+                        anyText = true;
+                        first.Left = columnLeft;
+                        first.Top = top;
+                        first.MaximumSize = new Size(columnWidth - 2 * leftBuffer, 1000);
+                        top = first.Bottom;
+                        RepositionRow(row);
+                    }
+                }
+                if (anyText) {
+                    top += verticalBufferLarge;
                 }
             }
         }
@@ -304,27 +302,9 @@ namespace PlayMore35 {
             columnWidth = ClientSize.Width / 4;
 
             RepositionColumn(leftBuffer, beforeCombat);
-            RepositionRow(listen, spot);
-
             RepositionColumn(leftBuffer + columnWidth, enemyTurn);
-            RepositionRow(ac, touch);
-            RepositionRow(currentHp, maxHp, dr);
-            RepositionRow(fort, reflex, will);
-
             RepositionColumn(leftBuffer + columnWidth * 2, myTurn);
-            RepositionRow(space, reach);
-            for (int i = 0; i < attacks.Count(); i++) {
-                RepositionRow(attacks[i], damage[i], criticals[i]);
-            }
-            RepositionRow(bab, grapple);
-
             RepositionColumn(leftBuffer + columnWidth * 3, misc);
-            RepositionRow(str_score, str_mod, str_check);
-            RepositionRow(dex_score, dex_mod, dex_check);
-            RepositionRow(con_score, con_mod, con_check);
-            RepositionRow(int_score, int_mod, int_check);
-            RepositionRow(wis_score, wis_mod, wis_check);
-            RepositionRow(cha_score, cha_mod, cha_check);
         }
 
 
@@ -744,16 +724,16 @@ namespace PlayMore35 {
             evade = new Label().Initialize(this);
             languages = new Label().Initialize(this);
             condition = new Label().Initialize(this);
-            beforeCombat = new List<List<Label>> {
-                new List<Label> { name },
-                new List<Label> { desc1 },
-                new List<Label> { desc2 },
-                new List<Label> { languages },
-                new List<Label> { init },
-                new List<Label> { senses },
-                new List<Label> { listen },
-                new List<Label> { evade },
-                new List<Label> { condition },
+            beforeCombat = new List<List<List<Label>>> {
+                new List<List<Label>> { new List<Label> { name } },
+                new List<List<Label>> { new List<Label> { desc1 } },
+                new List<List<Label>> { new List<Label> { desc2 } },
+                new List<List<Label>> { new List<Label> { languages } },
+                new List<List<Label>> { new List<Label> { init } },
+                new List<List<Label>> { new List<Label> { senses } },
+                new List<List<Label>> { new List<Label> { listen, spot } },
+                new List<List<Label>> { new List<Label> { evade } },
+                new List<List<Label>> { new List<Label> { condition } },
             };
 
             ac = new Label().Initialize(this);
@@ -769,11 +749,19 @@ namespace PlayMore35 {
             fort = new Label().Initialize(this);
             reflex = new Label().Initialize(this);
             will = new Label().Initialize(this);
-            enemyTurn = new List<List<Label>> {
-                new List<Label> { ac, acEffects, currentHp },
-                new List<Label> { react, resist, immune },
-                new List<Label> { sr },
-                new List<Label> { fort }
+            enemyTurn = new List<List<List<Label>>> {
+                new List<List<Label>> {
+                    new List<Label> { ac, touch },
+                    new List<Label> { acEffects },
+                    new List<Label> { currentHp, maxHp, dr },
+                },
+                new List<List<Label>> {
+                    new List<Label> { react },
+                    new List<Label> { resist },
+                    new List<Label> { immune },
+                },
+                new List<List<Label>> { new List<Label> { sr } },
+                new List<List<Label>> { new List<Label> { fort, reflex, will } }
             };
 
             speed = new Label().Initialize(this);
@@ -785,14 +773,17 @@ namespace PlayMore35 {
             atkOptions = new Label().Initialize(this);
             specialActions = new Label().Initialize(this);
             actions = new Label().Initialize(this);
-            myTurn = new List<List<Label>> {
-                new List<Label> { speed, movement },
+            myTurn = new List<List<List<Label>>> {
+                new List<List<Label>> {
+                    new List<Label> { speed },
+                    new List<Label> { movement }
+                },
                 attacks,
-                new List<Label> { space },
-                new List<Label> { bab },
-                new List<Label> { atkOptions },
-                new List<Label> { specialActions },
-                new List<Label> { actions },
+                new List<List<Label>> { new List<Label> { space, reach } },
+                new List<List<Label>> { new List<Label> { bab, grapple } },
+                new List<List<Label>> { new List<Label> { atkOptions } },
+                new List<List<Label>> { new List<Label> { specialActions } },
+                new List<List<Label>> { new List<Label> { actions } },
             };
 
             str_score = new Label().Initialize(this);
@@ -815,11 +806,18 @@ namespace PlayMore35 {
             cha_check = new Label().Initialize(this);
             sq = new Label().Initialize(this);
             miscSkills = new Label().Initialize(this);
-            misc = new List<List<Label>> {
-                new List<Label> { str_score, dex_score, con_score, int_score, wis_score, cha_score },
-                new List<Label> { sq },
+            misc = new List<List<List<Label>>> {
+                new List<List<Label>> {
+                    new List<Label> { str_score, str_mod, str_check },
+                    new List<Label> { dex_score, dex_mod, dex_check },
+                    new List<Label> { con_score, con_mod, con_check },
+                    new List<Label> { int_score, int_mod, int_check },
+                    new List<Label> { wis_score, wis_mod, wis_check },
+                    new List<Label> { cha_score, cha_mod, cha_check }
+                },
+                new List<List<Label>> { new List<Label> { sq } },
                 skills,
-                new List<Label> { miscSkills }
+                new List<List<Label>> { new List<Label> { miscSkills } }
             };
 
             int txtTop = txtParam.Top;
