@@ -28,6 +28,94 @@
     "cha": -2,
     "speed": 20,
     "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
+    "flags": [ "standing on the ground" ],
+    "stats": [
+      {
+        "name": "STR checks vs trips",
+        "tags": [
+          "STR checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "STR checks vs bull rushes",
+        "tags": [
+          "STR checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "DEX checks vs trips",
+        "tags": [
+          "DEX checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "Craft (stone or metal)",
+        "tags": [
+          "Craft",
+          "All skills",
+          "INT skills"
+        ]
+      },
+      {
+        "name": "Appraise (stone or metal)",
+        "tags": [
+          "Appraise",
+          "All skills",
+          "INT skills"
+        ]
+      },
+      {
+        "name": "Fort saves vs poison",
+        "tags": [
+          "Fort saves",
+          "All saves",
+          "Saves vs poison"
+        ]
+      },
+      {
+        "name": "Ref saves vs poison",
+        "tags": [
+          "Ref saves",
+          "All saves",
+          "Saves vs poison"
+        ]
+      },
+      {
+        "name": "Will saves vs poison",
+        "tags": [
+          "Will saves",
+          "All saves",
+          "Saves vs poison"
+        ]
+      },
+      {
+        "name": "Fort saves vs spells",
+        "tags": [
+          "Fort saves",
+          "All saves",
+          "Saves vs spells"
+        ]
+      },
+      {
+        "name": "Ref saves vs spells",
+        "tags": [
+          "Ref saves",
+          "All saves",
+          "Saves vs spells"
+        ]
+      },
+      {
+        "name": "Will saves vs spells",
+        "tags": [
+          "Will saves",
+          "All saves",
+          "Saves vs spells"
+        ]
+      }
+    ],
     "effects": [
       {
         "name": "dwarf racial traits",
@@ -48,20 +136,12 @@
             "text": "Trapfinding (stone only)"
           },
           {
-            "category": "Resist",
-            "text": "+4 vs bull rushes and trips while standing on the ground"
-          },
-          {
             "category": "Atk Options",
             "text": "+1 attack vs orcs and goblinoids"
           },
           {
             "category": "AC",
             "text": "+4 dodge vs giants"
-          },
-          {
-            "category": "Skills",
-            "text": "+2 racial to stone- or metal-related Appraise and Craft"
           }
         ],
         "modifiers": [
@@ -99,6 +179,47 @@
             }
           }
         ]
+      },
+      {
+        "name": "stability",
+        "active": {
+          "flag": "standing on the ground"
+        },
+        "modifiers": [
+          {
+            "affects": "STR checks vs bull rushes",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
+          },
+          {
+            "affects": "STR checks vs trips",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
+          },
+          {
+            "affects": "DEX checks vs trips",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -110,6 +231,32 @@
     "bonus languages": [ "Draconic", "Gnoll", "Gnome", "Orc", "Sylvan" ],
     "dex": 2,
     "con": -2,
+    "stats": [
+      {
+        "name": "Fort saves vs enchantments",
+        "tags": [
+          "Fort saves",
+          "All saves",
+          "Saves vs enchantments"
+        ]
+      },
+      {
+        "name": "Ref saves vs enchantments",
+        "tags": [
+          "Ref saves",
+          "All saves",
+          "Saves vs enchantments"
+        ]
+      },
+      {
+        "name": "Will saves vs enchantments",
+        "tags": [
+          "Will saves",
+          "All saves",
+          "Saves vs enchantments"
+        ]
+      }
+    ],
     "effects": [
       {
         "name": "elf racial traits",
@@ -195,6 +342,32 @@
     "size": -1,
     "speed": 20,
     "weapon familiarity": [ "gnome hooked hammer" ],
+    "stats": [
+      {
+        "name": "Fort saves vs illusions",
+        "tags": [
+          "Fort saves",
+          "All saves",
+          "Saves vs enchantments"
+        ]
+      },
+      {
+        "name": "Ref saves vs illusions",
+        "tags": [
+          "Ref saves",
+          "All saves",
+          "Saves vs enchantments"
+        ]
+      },
+      {
+        "name": "Will saves vs illusions",
+        "tags": [
+          "Will saves",
+          "All saves",
+          "Saves vs enchantments"
+        ]
+      }
+    ],
     "effects": [
       {
         "name": "gnome racial traits",
@@ -480,12 +653,41 @@
     "dex": -2,
     "speed": 20,
     "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
+    "flags": [ "standing on the ground" ],
+    "stats": [
+      {
+        "name": "STR checks vs trips",
+        "tags": [
+          "STR checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "STR checks vs bull rushes",
+        "tags": [
+          "STR checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "DEX checks vs trips",
+        "tags": [
+          "DEX checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "Diplomacy w/(earth) creatures",
+        "tags": [
+          "Diplomacy",
+          "CHA skills",
+          "All skills"
+        ]
+      }
+    ],
     "effects": [
       {
         "name": "dream dwarf racial traits",
-        "flags": [
-          "Can't be encumbered"
-        ],
         "text": [
           {
             "category": "Senses",
@@ -493,23 +695,15 @@
           },
           {
             "category": "Senses",
-            "text": "auto-search stonework within 10 ft."
-          },
-          {
-            "category": "Resist",
-            "text": "+4 vs bull rushes and trips while standing on the ground"
+            "text": "Auto-search stonework within 10 ft."
           },
           {
             "category": "Skills",
-            "text": "+2 racial to Diplomacy w/(earth) creatures"
+            "text": "Trapfinding (stone only)"
           },
           {
             "category": "Senses",
-            "text": "easily distinguish between ethereal and material creatures"
-          },
-          {
-            "category": "misc casting",
-            "text": "+1 caster level on divinations while standing on the ground"
+            "text": "easily see ethereal creatures"
           }
         ],
         "modifiers": [
@@ -523,6 +717,65 @@
                 }
               ]
             }
+          },
+          {
+            "affects": "Diplomacy w/(earth) creatures",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 2
+                }
+              ]
+            }
+          }
+        ],
+        "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ]
+      },
+      {
+        "name": "stability",
+        "active": {
+          "flag": "standing on the ground"
+        },
+        "modifiers": [
+          {
+            "affects": "STR checks vs bull rushes",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
+          },
+          {
+            "affects": "STR checks vs trips",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
+          },
+          {
+            "affects": "DEX checks vs trips",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
+          }
+        ],
+        "text": [
+          {
+            "category": "Misc casting",
+            "text": "+1 caster level for divination spells and [earth] spells"
           }
         ]
       }

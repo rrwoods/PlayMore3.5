@@ -26,6 +26,16 @@
     }
   },
   {
+    "stats": [
+      {
+        "name": "Fort saves vs cold weather",
+        "tags": [
+          "All saves",
+          "Fort saves",
+          "Saves vs cold weather"
+        ]
+      }
+    ],
     "slot": "SLOTLESS",
     "weight": 10,
     "effect": {
@@ -55,6 +65,16 @@
     }
   },
   {
+    "stats": [
+      {
+        "name": "Fort saves vs cold weather",
+        "tags": [
+          "All saves",
+          "Fort saves",
+          "Saves vs cold weather"
+        ]
+      }
+    ],
     "slot": "SLOTLESS",
     "weight": 7,
     "effect": {

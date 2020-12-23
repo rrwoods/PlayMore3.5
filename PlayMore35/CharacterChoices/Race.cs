@@ -28,6 +28,9 @@ namespace PlayMore35.CharacterChoices {
         public List<string> Toggles = new List<string>();
         public List<Effect> Effects = new List<Effect>();
 
+        public List<string> Flags = new List<string>();
+        public List<Statistic> NewStats = new List<Statistic>();
+
         public JToken ToJson() {
             JObject json = new JObject(new JProperty("name", Name), new JProperty("type", CreatureType));
             json.AddList("subtypes", SubTypes);
@@ -60,6 +63,8 @@ namespace PlayMore35.CharacterChoices {
             json.AddList("weapon familiarity", FamiliarWeapons);
             json.AddList("toggles", Toggles);
             json.AddList("effects", Effects);
+            json.AddList("flags", Flags);
+            json.AddList("stats", NewStats);
             return json;
         }
 
@@ -97,8 +102,12 @@ namespace PlayMore35.CharacterChoices {
             BonusLanguages.ReadJson("bonus languages", json);
             FamiliarWeapons.ReadJson("weapon familiarity", json);
             Toggles.ReadJson("toggles", json);
+            Flags.ReadJson("flags", json);
             if (json["effects"] != null) {
                 Effects.AddRange(json["effects"].Select(x => new Effect((JObject)x)));
+            }
+            if (json["stats"] != null) {
+                NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
             }
         }
     }

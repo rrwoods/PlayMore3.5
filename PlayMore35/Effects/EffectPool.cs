@@ -42,7 +42,17 @@ namespace PlayMore35.Effects {
         }
 
         public void AddStat(Statistic stat) {
-            stats[stat.Name] = stat;
+            if (stats.ContainsKey(stat.Name)) {
+                stats[stat.Name].EnsureTags(stat);
+            } else {
+                stats[stat.Name] = stat;
+            }
+        }
+
+        public void AddStats(IEnumerable<Statistic> stats) {
+            foreach (Statistic stat in stats) {
+                AddStat(stat);
+            }
         }
 
         public Statistic GetStat(string name) {
@@ -181,6 +191,8 @@ namespace PlayMore35.Effects {
             }
             AddEffect(effect);
             effects.AddRange(race.Effects);
+            race.Flags.ForEach(x => controllableFlags[x] = false);
+            AddStats(race.NewStats);
         }
 
         private int BaseSaveBonus(CharacterClass.BonusProgression prog, int level) {
@@ -241,6 +253,7 @@ namespace PlayMore35.Effects {
         public void GenerateFeatEffects(Feat feat) {
             AddEffect(feat.Benefit);
             feat.Parameters.ForEach(x => controllableAmounts[x] = 0);
+            AddStats(feat.NewStats);
         }
     }
 }

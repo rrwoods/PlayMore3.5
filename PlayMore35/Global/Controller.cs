@@ -174,6 +174,7 @@ namespace PlayMore35.Global {
             ItemDefinitions = GetResource(Properties.Resources.items, "items.json")
                 .Select(x => new Item((JObject)x))
                 .ToDictionary(x => x.ItemEffect.Name);
+            Effects.AddStats(ItemDefinitions.Values.SelectMany(x => x.NewStats));
 
             Race race = RaceDefinitions[Character.race];
             Effects.GenerateRaceEffects(race);

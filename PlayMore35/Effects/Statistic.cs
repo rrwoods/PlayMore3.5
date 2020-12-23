@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 using static System.Math;
 
 namespace PlayMore35.Effects {
-    public class Statistic {
+    public class Statistic : IJsonable {
         public string Name { get; private set; }
         private readonly List<string> tags = new List<string>();
         private int? minValue = null;
@@ -15,7 +15,7 @@ namespace PlayMore35.Effects {
         private readonly bool roundUp = true;
         private readonly Dictionary<string, IToggle> ignoredModifierTypes = new Dictionary<string, IToggle>();
 
-        public JObject ToJson() {
+        public JToken ToJson() {
             JObject json = new JObject(new JProperty("name", Name));
             json.AddList("tags", tags);
             if (minValue != null) {
@@ -76,6 +76,14 @@ namespace PlayMore35.Effects {
         public Statistic AddTag(string tag) {
             tags.Add(tag);
             return this;
+        }
+
+        public void EnsureTags(Statistic from) {
+            foreach (string tag in from.tags) {
+                if (!tags.Contains(tag)) {
+                    tags.Add(tag);
+                }
+            }
         }
 
         public bool HasTag(string tag) {

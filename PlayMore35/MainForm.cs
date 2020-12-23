@@ -853,6 +853,7 @@ namespace PlayMore35 {
                 CheckBox chkNewToggle = new CheckBox() {
                     Top = txtTop,
                     Left = txtParam.Left,
+                    AutoSize = true,
                     Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                     Text = toggle
                 };

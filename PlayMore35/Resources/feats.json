@@ -221,13 +221,50 @@
     }
   },
   {
+    "parameters": [ "Combat Expertise" ],
     "prerequisites": "INT 13",
     "benefit": {
       "name": "Combat Expertise",
-      "text": [
+      "active": {
+        "conditional": {
+          "left": {
+            "controllable": "Combat Expertise"
+          },
+          "relation": "GREATER_THAN",
+          "right": {
+            "fixed": 0
+          }
+        }
+      },
+      "attack": [
         {
-          "category": "Atk Options",
-          "text": "when attacking or full attacking, take up to -5 (but not more than BAB) on attack rolls this round to get an equal dodge bonus to AC"
+          "affects": {},
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": {
+                    "controllable": "Combat Expertise"
+                  },
+                  "scalar": -1
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "controllable": "Combat Expertise"
+              }
+            ]
+          }
         }
       ]
     }
@@ -450,11 +487,85 @@
     }
   },
   {
+    "stats": [
+      {
+        "name": "Fort saves vs cold weather",
+        "tags": [
+          "Fort saves",
+          "All saves",
+          "Saves vs cold weather"
+        ]
+      },
+      {
+        "name": "Fort saves vs hot weather",
+        "tags": [
+          "Fort saves",
+          "All saves",
+          "Saves vs hot weather"
+        ]
+      },
+      {
+        "name": "Fort saves vs suffocation",
+        "tags": [
+          "Fort saves",
+          "All saves",
+          "Saves vs suffocation"
+        ]
+      },
+      {
+        "name": "Swim vs nonlethal damage",
+        "tags": [
+          "Swim",
+          "All skills",
+          "STR skills",
+          "ACP skills"
+        ]
+      },
+      {
+        "name": "CON checks to continue running",
+        "tags": [
+          "CON checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "CON checks vs forced march",
+        "tags": [
+          "CON checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "CON checks to hold breath",
+        "tags": [
+          "CON checks",
+          "Ability checks"
+        ]
+      },
+      {
+        "name": "CON checks vs starvation or thirst",
+        "tags": [
+          "CON checks",
+          "Ability checks"
+        ]
+      }
+    ],
     "benefit": {
       "name": "Endurance",
       "modifiers": [
         {
-          "affects": "Fort saves vs hot/cold",
+          "affects": "Fort saves vs hot weather",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        },
+        {
+          "affects": "Fort saves vs cold weather",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -474,29 +585,64 @@
               }
             ]
           }
+        },
+        {
+          "affects": "Swim vs nonlethal damage",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        },
+        {
+          "affects": "CON checks to continue running",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        },
+        {
+          "affects": "CON checks vs forced march",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        },
+        {
+          "affects": "CON checks to hold breath",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
+        },
+        {
+          "affects": "CON checks vs starvation or thirst",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              {
+                "fixed": 4
+              }
+            ]
+          }
         }
       ],
       "text": [
-        {
-          "category": "Skills",
-          "text": "+4 Swim vs nonlethal damage"
-        },
-        {
-          "category": "Skills",
-          "text": "+4 CON checks to continue running"
-        },
-        {
-          "category": "Skills",
-          "text": "+4 CON checks vs forced march"
-        },
-        {
-          "category": "Skills",
-          "text": "+4 CON checks to hold breath"
-        },
-        {
-          "category": "Skills",
-          "text": "+4 CON checks vs starvation or thirst"
-        },
         {
           "category": "Condition",
           "text": "Sleep in light or medium armor w/o fatigue"
@@ -1900,7 +2046,7 @@
     }
   },
   {
-    "prerequisites": "DEX 13, INT 13, Combat Experties, Dodge, Mobility, Spring Attack, base attack bonus +4",
+    "prerequisites": "DEX 13, INT 13, Combat Expertise, Dodge, Mobility, Spring Attack, base attack bonus +4",
     "benefit": {
       "name": "Whirlwind Attack",
       "text": [

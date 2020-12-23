@@ -39,9 +39,19 @@ namespace PlayMore35.CharacterChoices {
         }
 
         public string FullName() {
+            // if it's a shield without spikes, its properties are ambiguous:
+            // is a "mwk light wooden shield" actually a mwk shield, or is its *attack* mwk?
+            // for now i'm just introducing the word "bash" after the melee properties, if
+            // it has any (so the above would be an actual mwk shield, and if it were instead
+            // a mwk weapon, it would be "mwk bash light wooden shield")
+            string attackName =
+                Spiked
+                    ? "spiked "
+                    : (MeleeProperties.Any() ? "bash " : ""); 
+
             return
                 string.Join("", MeleeProperties.Select(x => x + " ")) +
-                (Spiked ? "spiked " : "") +
+                attackName +
                 string.Join("", ArmorProperties.Select(x => x + " ")) +
                 Name;
         }

@@ -12,6 +12,8 @@ namespace PlayMore35.CharacterChoices {
         public List<string> Parameters = new List<string>();
         public Effect Benefit; // name of the feat is the name of the effect
 
+        public List<Statistic> NewStats = new List<Statistic>();
+
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("benefit", Benefit)
@@ -24,6 +26,7 @@ namespace PlayMore35.CharacterChoices {
                 json["choice"] = ChoiceDescription;
             }
             json.AddList("parameters", Parameters);
+            json.AddList("stats", NewStats);
             return json;
         }
 
@@ -37,6 +40,9 @@ namespace PlayMore35.CharacterChoices {
                 ChoiceDescription = (string)json["choice"];
             }
             Parameters.ReadJson("parameters", json);
+            if (json["stats"] != null) {
+                NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
+            }
         }
     }
 }
