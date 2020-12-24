@@ -726,6 +726,7 @@
     "effects": [
       {
         "name": "dream dwarf racial traits",
+        "flags": [ "Can't be encumbered" ],
         "text": [
           {
             "category": "Senses",

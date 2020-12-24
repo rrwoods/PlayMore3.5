@@ -888,13 +888,26 @@ namespace PlayMore35 {
             RefreshEffects();
         }
 
-        private void SaveCharacter_Click(object sender, EventArgs e) {
+        private bool SaveCharacter() {
             SaveFileDialog saveCharacter = new SaveFileDialog {
                 Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
                 FilterIndex = 1
             };
             if (saveCharacter.ShowDialog() == DialogResult.OK) {
                 File.WriteAllText(saveCharacter.FileName, controller.Character.ToJson().ToString());
+                return true;
+            }
+            return false;
+        }
+
+        private void SaveCharacter_Click(object sender, EventArgs e) {
+            SaveCharacter();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
+            DialogResult r = MessageBox.Show("Save character first?", "Exiting", MessageBoxButtons.YesNo);
+            if (r == DialogResult.Yes) {
+                e.Cancel = !SaveCharacter();
             }
         }
 

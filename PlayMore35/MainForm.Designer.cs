@@ -30,6 +30,10 @@
             this.saveCharacterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.statsTab = new System.Windows.Forms.TabPage();
+            this.lblParam2 = new System.Windows.Forms.Label();
+            this.lblParam = new System.Windows.Forms.Label();
+            this.txtParam2 = new System.Windows.Forms.TextBox();
+            this.txtParam = new System.Windows.Forms.TextBox();
             this.inventoryTab = new System.Windows.Forms.TabPage();
             this.lblTotalWeight = new System.Windows.Forms.Label();
             this.lblEquippedWeight = new System.Windows.Forms.Label();
@@ -71,10 +75,6 @@
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.txtParam = new System.Windows.Forms.TextBox();
-            this.txtParam2 = new System.Windows.Forms.TextBox();
-            this.lblParam = new System.Windows.Forms.Label();
-            this.lblParam2 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.statsTab.SuspendLayout();
@@ -145,6 +145,48 @@
             this.statsTab.TabIndex = 0;
             this.statsTab.Text = "Stats";
             this.statsTab.UseVisualStyleBackColor = true;
+            // 
+            // lblParam2
+            // 
+            this.lblParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblParam2.AutoSize = true;
+            this.lblParam2.Location = new System.Drawing.Point(46, 526);
+            this.lblParam2.Name = "lblParam2";
+            this.lblParam2.Size = new System.Drawing.Size(116, 17);
+            this.lblParam2.TabIndex = 4;
+            this.lblParam2.Text = "Sample parameter";
+            this.lblParam2.Visible = false;
+            // 
+            // lblParam
+            // 
+            this.lblParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblParam.AutoSize = true;
+            this.lblParam.Location = new System.Drawing.Point(46, 557);
+            this.lblParam.Name = "lblParam";
+            this.lblParam.Size = new System.Drawing.Size(116, 17);
+            this.lblParam.TabIndex = 3;
+            this.lblParam.Text = "Sample parameter";
+            this.lblParam.Visible = false;
+            // 
+            // txtParam2
+            // 
+            this.txtParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtParam2.Location = new System.Drawing.Point(8, 523);
+            this.txtParam2.Name = "txtParam2";
+            this.txtParam2.Size = new System.Drawing.Size(32, 25);
+            this.txtParam2.TabIndex = 2;
+            this.txtParam2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtParam2.Visible = false;
+            // 
+            // txtParam
+            // 
+            this.txtParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtParam.Location = new System.Drawing.Point(8, 554);
+            this.txtParam.Name = "txtParam";
+            this.txtParam.Size = new System.Drawing.Size(32, 25);
+            this.txtParam.TabIndex = 1;
+            this.txtParam.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtParam.Visible = false;
             // 
             // inventoryTab
             // 
@@ -647,48 +689,6 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // txtParam
-            // 
-            this.txtParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam.Location = new System.Drawing.Point(8, 554);
-            this.txtParam.Name = "txtParam";
-            this.txtParam.Size = new System.Drawing.Size(32, 25);
-            this.txtParam.TabIndex = 1;
-            this.txtParam.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtParam.Visible = false;
-            // 
-            // txtParam2
-            // 
-            this.txtParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam2.Location = new System.Drawing.Point(8, 523);
-            this.txtParam2.Name = "txtParam2";
-            this.txtParam2.Size = new System.Drawing.Size(32, 25);
-            this.txtParam2.TabIndex = 2;
-            this.txtParam2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtParam2.Visible = false;
-            // 
-            // lblParam
-            // 
-            this.lblParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblParam.AutoSize = true;
-            this.lblParam.Location = new System.Drawing.Point(46, 557);
-            this.lblParam.Name = "lblParam";
-            this.lblParam.Size = new System.Drawing.Size(116, 17);
-            this.lblParam.TabIndex = 3;
-            this.lblParam.Text = "Sample parameter";
-            this.lblParam.Visible = false;
-            // 
-            // lblParam2
-            // 
-            this.lblParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblParam2.AutoSize = true;
-            this.lblParam2.Location = new System.Drawing.Point(46, 526);
-            this.lblParam2.Name = "lblParam2";
-            this.lblParam2.Size = new System.Drawing.Size(116, 17);
-            this.lblParam2.TabIndex = 4;
-            this.lblParam2.Text = "Sample parameter";
-            this.lblParam2.Visible = false;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -700,6 +700,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "PlayMore3.5";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.menuStrip1.ResumeLayout(false);
