@@ -59,6 +59,10 @@ namespace PlayMore35.Effects {
             return stats[name];
         }
 
+        public IEnumerable<Statistic> RelevantStatsWithTag(string tag, Equipped items) {
+            return stats.Values.Where(x => x.HasTag(tag) && x.Relevant(this, items));
+        }
+
         public void AddEffect(Effect effect) {
             effects.Add(effect);
         }

@@ -44,18 +44,18 @@ namespace PlayMore35 {
 
         private Label name, desc1, desc2, init, senses, listen, spot, evade, languages, condition;
 
-        private Label ac, touch, acEffects, currentHp, maxHp, dr, react, resist, immune, sr, fort, reflex, will;
+        private Label ac, touch;
+        private Label acEffects;
+        private Label currentHp, maxHp, dr;
+        private Label react, resist, immune;
+        private Label sr;
+        private List<List<Label>> saves = new List<List<Label>>();
 
         private Label speed, movement;
         private List<List<Label>> attacks = new List<List<Label>>();
         private Label space, reach, bab, grapple, atkOptions, actions, specialActions;
 
-        private Label str_score, str_mod, str_check;
-        private Label dex_score, dex_mod, dex_check;
-        private Label con_score, con_mod, con_check;
-        private Label int_score, int_mod, int_check;
-        private Label wis_score, wis_mod, wis_check;
-        private Label cha_score, cha_mod, cha_check;
+        private List<List<Label>> abilityScores = new List<List<Label>>();
         private Label sq;
         private List<List<Label>> skills = new List<List<Label>>();
         private Label miscSkills;
@@ -102,29 +102,63 @@ namespace PlayMore35 {
             toolTips[label].SetToolTip(label, string.Join("\n", explanation));
         }
 
-        private void LabelStat(Label label, string prefix, string stat, string postfix = "", bool plus = true) {
-            (int value, List<string> explanation) = GetStatValue(stat);
+        private void LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
             label.Text = $"{prefix} {statValue}{postfix}";
             ToolTipLabel(label, explanation);
         }
 
-        private void AbilityScore(Label score, Label mod, Label check, string ability) {
-            LabelStat(score, ability, ability + " score", "", false);
+        private void LabelStat(Label label, string prefix, string stat, string postfix = "", bool plus = true) {
+            var (value, explanation) = GetStatValue(stat);
+            LabelStat(label, value, explanation, prefix, stat, postfix, plus);
+        }
 
-            var abilityModifier = GetStatValue(ability + " modifier");
-            string value = ValueText(abilityModifier.value, true);
-            mod.Text = $"({value})";
-            ToolTipLabel(mod, abilityModifier.explanation);
-
-            var abilityCheck = GetStatValue(ability + " checks");
-            if (abilityCheck.value == abilityModifier.value) {
-                check.Hide();
-            } else {
-                check.Text = $"(check at {ValueText(abilityCheck.value, true)})";
-                ToolTipLabel(check, abilityCheck.explanation);
-                check.Show();
+        private void DynamicStat(List<List<Label>> section, string prefix, string stat, string postfix = "", bool plus = true, int hideIfEqual = int.MinValue) {
+            (int baseValue, List<string> baseExplanation) = GetStatValue(stat);
+            IEnumerable<Effects.Statistic> specials = controller.Effects.RelevantStatsWithTag(stat, controller.EquippedItems);
+            bool relevant =
+                specials.Any() ||
+                controller.Effects.GetStat(stat).Relevant(controller.Effects, controller.EquippedItems);
+            if ((baseValue != hideIfEqual) && relevant) {
+                Label label = new Label().Initialize(this);
+                section.Add(new List<Label> { label });
+                LabelStat(label, baseValue, baseExplanation, prefix, stat, postfix, plus);
             }
+
+            foreach (Effects.Statistic special in specials) {
+                // this is a hack, i don't much care tbh.
+                if (special.Name.Equals("Initiative")) {
+                    continue;
+                }
+                (int value, List<string> explanation) = special.GetValue(controller.Effects, controller.EquippedItems);
+                if (value == baseValue) {
+                    continue;
+                }
+                string statValue = ValueText(value, plus);
+                Label lblSpecial = new Label() {
+                    Text = $"{special.Name} {statValue}"
+                }.Initialize(this);
+                ToolTipLabel(lblSpecial, explanation);
+                section.Add(new List<Label> { lblSpecial });
+            }
+        }
+
+        private void AbilityScore(string ability) {
+            Label lblScore = new Label().Initialize(this);
+            Label lblModifier = new Label().Initialize(this);
+
+            string scoreStat = $"{ability} score";
+            var (sValue, sExplanation) = GetStatValue(scoreStat);
+            LabelStat(lblScore, sValue, sExplanation, ability, scoreStat, "", false);
+
+            string modifierStat = $"{ability} modifier";
+            var (mValue, mExplanation) = GetStatValue(modifierStat);
+            LabelStat(lblModifier, mValue, mExplanation, "(", modifierStat, " )");
+
+            abilityScores.Add(new List<Label> { lblScore, lblModifier });
+
+            string checkStat = $"{ability} checks";
+            DynamicStat(abilityScores, checkStat, checkStat, "", true, mValue);
         }
 
         private void RemoveDynamicRows(List<List<Label>> section) {
@@ -194,9 +228,10 @@ namespace PlayMore35 {
             MultilineText(resist, textEffects, RESIST);
             MultilineText(immune, textEffects, IMMUNE);
             OneLineText(sr, textEffects, SR);
-            LabelStat(fort, "Fort", FORT_SAVES, ",");
-            LabelStat(reflex, "Ref", REF_SAVES, ",");
-            LabelStat(will, "Will", WILL_SAVES);
+            RemoveDynamicRows(saves);
+            DynamicStat(saves, "Fort save", FORT_SAVES);
+            DynamicStat(saves, "Ref save", REF_SAVES);
+            DynamicStat(saves, "Will save", WILL_SAVES);
 
             LabelStat(speed, "Speed", LAND_SPEED, " ft.", false);
             MultilineText(movement, textEffects, MOVEMENT, false);
@@ -229,20 +264,17 @@ namespace PlayMore35 {
             MultilineText(specialActions, textEffects, SPECIAL_ACTIONS);
             MultilineText(actions, textEffects, ACTIONS);
 
-            AbilityScore(str_score, str_mod, str_check, "STR");
-            AbilityScore(dex_score, dex_mod, dex_check, "DEX");
-            AbilityScore(con_score, con_mod, con_check, "CON");
-            AbilityScore(int_score, int_mod, int_check, "INT");
-            AbilityScore(wis_score, wis_mod, wis_check, "WIS");
-            AbilityScore(cha_score, cha_mod, cha_check, "CHA");
+            RemoveDynamicRows(abilityScores);
+            AbilityScore("STR");
+            AbilityScore("DEX");
+            AbilityScore("CON");
+            AbilityScore("INT");
+            AbilityScore("WIS");
+            AbilityScore("CHA");
             MultilineText(sq, textEffects, SQ);
             RemoveDynamicRows(skills);
             foreach (string skill in SKILLS_LIST) {
-                if (controller.Effects.GetStat(skill).Relevant(controller.Effects, controller.EquippedItems)) {
-                    Label label = new Label().Initialize(this);
-                    LabelStat(label, skill, skill);
-                    skills.Add(new List<Label> { label });
-                }
+                DynamicStat(skills, skill, skill);
             }
             MultilineText(miscSkills, textEffects, SKILLS, false);
 
@@ -279,6 +311,9 @@ namespace PlayMore35 {
             foreach (List<List<Label>> section in column) {
                 bool anyText = false;
                 foreach (List<Label> row in section) {
+                    if (!row.Any()) {
+                        continue;
+                    }
                     Label first = row[0];
                     if (first.Text.Any()) {
                         anyText = true;
@@ -746,9 +781,7 @@ namespace PlayMore35 {
             resist = new Label().Initialize(this);
             immune = new Label().Initialize(this);
             sr = new Label().Initialize(this);
-            fort = new Label().Initialize(this);
-            reflex = new Label().Initialize(this);
-            will = new Label().Initialize(this);
+            
             enemyTurn = new List<List<List<Label>>> {
                 new List<List<Label>> {
                     new List<Label> { ac, touch },
@@ -761,7 +794,7 @@ namespace PlayMore35 {
                     new List<Label> { immune },
                 },
                 new List<List<Label>> { new List<Label> { sr } },
-                new List<List<Label>> { new List<Label> { fort, reflex, will } }
+                saves
             };
 
             speed = new Label().Initialize(this);
@@ -786,35 +819,10 @@ namespace PlayMore35 {
                 new List<List<Label>> { new List<Label> { actions } },
             };
 
-            str_score = new Label().Initialize(this);
-            str_mod = new Label().Initialize(this);
-            str_check = new Label().Initialize(this);
-            dex_score = new Label().Initialize(this);
-            dex_mod = new Label().Initialize(this);
-            dex_check = new Label().Initialize(this);
-            con_score = new Label().Initialize(this);
-            con_mod = new Label().Initialize(this);
-            con_check = new Label().Initialize(this);
-            int_score = new Label().Initialize(this);
-            int_mod = new Label().Initialize(this);
-            int_check = new Label().Initialize(this);
-            wis_score = new Label().Initialize(this);
-            wis_mod = new Label().Initialize(this);
-            wis_check = new Label().Initialize(this);
-            cha_score = new Label().Initialize(this);
-            cha_mod = new Label().Initialize(this);
-            cha_check = new Label().Initialize(this);
             sq = new Label().Initialize(this);
             miscSkills = new Label().Initialize(this);
             misc = new List<List<List<Label>>> {
-                new List<List<Label>> {
-                    new List<Label> { str_score, str_mod, str_check },
-                    new List<Label> { dex_score, dex_mod, dex_check },
-                    new List<Label> { con_score, con_mod, con_check },
-                    new List<Label> { int_score, int_mod, int_check },
-                    new List<Label> { wis_score, wis_mod, wis_check },
-                    new List<Label> { cha_score, cha_mod, cha_check }
-                },
+                abilityScores,
                 new List<List<Label>> { new List<Label> { sq } },
                 skills,
                 new List<List<Label>> { new List<Label> { miscSkills } }

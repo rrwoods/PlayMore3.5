@@ -87,6 +87,10 @@ namespace PlayMore35.Effects {
         }
 
         public bool HasTag(string tag) {
+            return tags.Contains(tag);
+        }
+
+        public bool MatchesTag(string tag) {
             return Name.Equals(tag) || tags.Contains(tag);
         }
 
@@ -120,7 +124,7 @@ namespace PlayMore35.Effects {
         public bool Relevant(EffectPool pool, Items.Equipped items) {
             return pool.GetModifiers(items, this)
                 .Where(x => !ignoredModifierTypes.ContainsKey(x.Type) || !ignoredModifierTypes[x.Type].On(pool, items))
-                .Where(x => x.ComputeAmount(pool, items) != 0)
+                .Where(x => x.Type.Equals(Constants.BASE) || x.ComputeAmount(pool, items) != 0)
                 .Where(x => x.Type != Constants.ABILITY_MODIFIER)
                 .Any();
         }

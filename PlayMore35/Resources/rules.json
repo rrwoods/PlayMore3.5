@@ -1743,7 +1743,7 @@
         {
           "affects": "Appraise",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Appraise ranks"
@@ -1754,7 +1754,7 @@
         {
           "affects": "Autohypnosis",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Autohypnosis ranks"
@@ -1765,7 +1765,7 @@
         {
           "affects": "Balance",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Balance ranks"
@@ -1776,7 +1776,7 @@
         {
           "affects": "Bluff",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Bluff ranks"
@@ -1787,7 +1787,7 @@
         {
           "affects": "Climb",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Climb ranks"
@@ -1798,7 +1798,7 @@
         {
           "affects": "Concentration",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Concentration ranks"
@@ -1809,7 +1809,7 @@
         {
           "affects": "Craft",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Craft ranks"
@@ -1820,7 +1820,7 @@
         {
           "affects": "Decipher Script",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Decipher Script ranks"
@@ -1831,7 +1831,7 @@
         {
           "affects": "Diplomacy",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Diplomacy ranks"
@@ -1842,7 +1842,7 @@
         {
           "affects": "Disable Device",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Disable Device ranks"
@@ -1853,7 +1853,7 @@
         {
           "affects": "Disguise",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Disguise ranks"
@@ -1864,7 +1864,7 @@
         {
           "affects": "Escape Artist",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Escape Artist ranks"
@@ -1875,7 +1875,7 @@
         {
           "affects": "Forgery",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Forgery ranks"
@@ -1886,7 +1886,7 @@
         {
           "affects": "Gather Information",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Gather Information ranks"
@@ -1897,7 +1897,7 @@
         {
           "affects": "Handle Animal",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Handle Animal ranks"
@@ -1908,7 +1908,7 @@
         {
           "affects": "Heal",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Heal ranks"
@@ -1919,7 +1919,7 @@
         {
           "affects": "Hide",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Hide ranks"
@@ -1930,7 +1930,7 @@
         {
           "affects": "Iaijutsu Focus",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Iaijutsu Focus ranks"
@@ -1941,7 +1941,7 @@
         {
           "affects": "Intimidate",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Intimidate ranks"
@@ -1952,7 +1952,7 @@
         {
           "affects": "Jump",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Jump ranks"
@@ -1963,7 +1963,7 @@
         {
           "affects": "Knowledge (arcana)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (arcana) ranks"
@@ -1974,7 +1974,7 @@
         {
           "affects": "Knowledge (architecture and engineering)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (architecture and engineering) ranks"
@@ -1985,7 +1985,7 @@
         {
           "affects": "Knowledge (dungeoneering)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (dungeoneering) ranks"
@@ -1996,7 +1996,7 @@
         {
           "affects": "Knowledge (geography)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (geography) ranks"
@@ -2007,7 +2007,7 @@
         {
           "affects": "Knowledge (history)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (history) ranks"
@@ -2018,7 +2018,7 @@
         {
           "affects": "Knowledge (local)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (local) ranks"
@@ -2029,7 +2029,7 @@
         {
           "affects": "Knowledge (nature)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (nature) ranks"
@@ -2040,7 +2040,7 @@
         {
           "affects": "Knowledge (nobility and royalty)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (nobility and royalty) ranks"
@@ -2051,7 +2051,7 @@
         {
           "affects": "Knowledge (psionics)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (psionics) ranks"
@@ -2062,7 +2062,7 @@
         {
           "affects": "Knowledge (religion)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (religion) ranks"
@@ -2073,7 +2073,7 @@
         {
           "affects": "Knowledge (the planes)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Knowledge (the planes) ranks"
@@ -2084,7 +2084,7 @@
         {
           "affects": "Martial Lore",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Martial Lore ranks"
@@ -2095,7 +2095,7 @@
         {
           "affects": "Listen",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Listen ranks"
@@ -2106,7 +2106,7 @@
         {
           "affects": "Move Silently",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Move Silently ranks"
@@ -2117,7 +2117,7 @@
         {
           "affects": "Open Lock",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Open Lock ranks"
@@ -2128,7 +2128,7 @@
         {
           "affects": "Perform (act)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (act) ranks"
@@ -2139,7 +2139,7 @@
         {
           "affects": "Perform (comedy)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (comedy) ranks"
@@ -2150,7 +2150,7 @@
         {
           "affects": "Perform (dance)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (dance) ranks"
@@ -2161,7 +2161,7 @@
         {
           "affects": "Perform (keyboard instruments)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (keyboard instruments) ranks"
@@ -2172,7 +2172,7 @@
         {
           "affects": "Perform (oratory)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (oratory) ranks"
@@ -2183,7 +2183,7 @@
         {
           "affects": "Perform (percussion instruments)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (percussion instruments) ranks"
@@ -2194,7 +2194,7 @@
         {
           "affects": "Perform (string instruments)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (string instruments) ranks"
@@ -2205,7 +2205,7 @@
         {
           "affects": "Perform (wind instruments)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (wind instruments) ranks"
@@ -2216,7 +2216,7 @@
         {
           "affects": "Perform (sing)",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Perform (sing) ranks"
@@ -2227,7 +2227,7 @@
         {
           "affects": "Profession",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Profession ranks"
@@ -2238,7 +2238,7 @@
         {
           "affects": "Psicraft",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Psicraft ranks"
@@ -2249,7 +2249,7 @@
         {
           "affects": "Ride",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Ride ranks"
@@ -2260,7 +2260,7 @@
         {
           "affects": "Search",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Search ranks"
@@ -2271,7 +2271,7 @@
         {
           "affects": "Sense Motive",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Sense Motive ranks"
@@ -2282,7 +2282,7 @@
         {
           "affects": "Sleight Of Hand",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Sleight Of Hand ranks"
@@ -2293,7 +2293,7 @@
         {
           "affects": "Spellcraft",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Spellcraft ranks"
@@ -2304,7 +2304,7 @@
         {
           "affects": "Spot",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Spot ranks"
@@ -2315,7 +2315,7 @@
         {
           "affects": "Survival",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Survival ranks"
@@ -2326,7 +2326,7 @@
         {
           "affects": "Swim",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Swim ranks"
@@ -2337,7 +2337,7 @@
         {
           "affects": "Truespeak",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Truespeak ranks"
@@ -2348,7 +2348,7 @@
         {
           "affects": "Tumble",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Tumble ranks"
@@ -2359,7 +2359,7 @@
         {
           "affects": "Use Magic Device",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Use Magic Device ranks"
@@ -2370,7 +2370,7 @@
         {
           "affects": "Use Psionic Device",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Use Psionic Device ranks"
@@ -2381,7 +2381,7 @@
         {
           "affects": "Use Rope",
           "mod": {
-            "type": "base",
+            "type": "untyped",
             "amounts": [
               {
                 "stat value": "Use Rope ranks"

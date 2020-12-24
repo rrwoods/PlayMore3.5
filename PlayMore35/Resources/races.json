@@ -34,6 +34,7 @@
         "name": "STR checks vs trips",
         "tags": [
           "STR checks",
+          "STR modifier",
           "Ability checks"
         ]
       },
@@ -41,6 +42,7 @@
         "name": "STR checks vs bull rushes",
         "tags": [
           "STR checks",
+          "STR modifier",
           "Ability checks"
         ]
       },
@@ -48,6 +50,7 @@
         "name": "DEX checks vs trips",
         "tags": [
           "DEX checks",
+          "DEX modifier",
           "Ability checks"
         ]
       },
@@ -182,9 +185,7 @@
       },
       {
         "name": "stability",
-        "active": {
-          "flag": "standing on the ground"
-        },
+        "active": { "flag": "standing on the ground" },
         "modifiers": [
           {
             "affects": "STR checks vs bull rushes",
@@ -196,9 +197,26 @@
                 }
               ]
             }
-          },
+          }
+        ]
+      },
+      {
+        "name": "stability",
+        "active": {
+          "all": [
+            { "flag": "standing on the ground" },
+            {
+              "conditional": {
+                "left": { "stat value": "DEX modifier" },
+                "relation": "GREATER_THAN",
+                "right": { "stat value": "STR modifier" }
+              }
+            }
+          ]
+        },
+        "modifiers": [
           {
-            "affects": "STR checks vs trips",
+            "affects": "DEX checks vs trips",
             "mod": {
               "type": "racial",
               "amounts": [
@@ -207,9 +225,26 @@
                 }
               ]
             }
-          },
+          }
+        ]
+      },
+      {
+        "name": "stability",
+        "active": {
+          "all": [
+            { "flag": "standing on the ground" },
+            {
+              "conditional": {
+                "left": { "stat value": "DEX modifier" },
+                "relation": "LESS_THAN_OR_EQUAL",
+                "right": { "stat value": "STR modifier" }
+              }
+            }
+          ]
+        },
+        "modifiers": [
           {
-            "affects": "DEX checks vs trips",
+            "affects": "STR checks vs trips",
             "mod": {
               "type": "racial",
               "amounts": [
@@ -659,6 +694,7 @@
         "name": "STR checks vs trips",
         "tags": [
           "STR checks",
+          "STR modifier",
           "Ability checks"
         ]
       },
@@ -666,6 +702,7 @@
         "name": "STR checks vs bull rushes",
         "tags": [
           "STR checks",
+          "STR modifier",
           "Ability checks"
         ]
       },
@@ -673,6 +710,7 @@
         "name": "DEX checks vs trips",
         "tags": [
           "DEX checks",
+          "DEX modifier",
           "Ability checks"
         ]
       },
@@ -734,34 +772,10 @@
       },
       {
         "name": "stability",
-        "active": {
-          "flag": "standing on the ground"
-        },
+        "active": { "flag": "standing on the ground" },
         "modifiers": [
           {
             "affects": "STR checks vs bull rushes",
-            "mod": {
-              "type": "racial",
-              "amounts": [
-                {
-                  "fixed": 4
-                }
-              ]
-            }
-          },
-          {
-            "affects": "STR checks vs trips",
-            "mod": {
-              "type": "racial",
-              "amounts": [
-                {
-                  "fixed": 4
-                }
-              ]
-            }
-          },
-          {
-            "affects": "DEX checks vs trips",
             "mod": {
               "type": "racial",
               "amounts": [
@@ -776,6 +790,62 @@
           {
             "category": "Misc casting",
             "text": "+1 caster level for divination spells and [earth] spells"
+          }
+        ]
+      },
+      {
+        "name": "stability",
+        "active": {
+          "all": [
+            { "flag": "standing on the ground" },
+            {
+              "conditional": {
+                "left": { "stat value": "DEX modifier" },
+                "relation": "GREATER_THAN",
+                "right": { "stat value": "STR modifier" }
+              }
+            }
+          ]
+        },
+        "modifiers": [
+          {
+            "affects": "DEX checks vs trips",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "stability",
+        "active": {
+          "all": [
+            { "flag": "standing on the ground" },
+            {
+              "conditional": {
+                "left": { "stat value": "DEX modifier" },
+                "relation": "LESS_THAN_OR_EQUAL",
+                "right": { "stat value": "STR modifier" }
+              }
+            }
+          ]
+        },
+        "modifiers": [
+          {
+            "affects": "STR checks vs trips",
+            "mod": {
+              "type": "racial",
+              "amounts": [
+                {
+                  "fixed": 4
+                }
+              ]
+            }
           }
         ]
       }

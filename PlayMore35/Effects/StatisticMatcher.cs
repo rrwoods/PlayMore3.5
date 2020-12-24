@@ -9,7 +9,7 @@ namespace PlayMore35.Effects {
         }
 
         public bool Matches(Statistic thing) {
-            return thing.HasTag(Tag);
+            return thing.MatchesTag(Tag);
         }
 
         public JToken ToJson() {
