@@ -63,15 +63,6 @@ namespace PlayMore35.CharacterChoices {
             };
         }
 
-        private void CheckAttacks(Controller controller, int[] expAtkBonus, string[] expDamage) {
-            List<Attack> attacks = controller.GetAttacks();
-            Assert.AreEqual(expAtkBonus.Length, attacks.Count());
-            for (int i = 0; i < expAtkBonus.Length; i++) {
-                Assert.AreEqual(expAtkBonus[i], attacks[i].AttackBonus.bonus);
-                Assert.AreEqual(expDamage[i], attacks[i].Damage.dice.ToString());
-            }
-        }
-
         private void CheckStat(Controller controller, string stat, int expectedValue) {
             Assert.AreEqual(expectedValue, controller.GetStatistic(stat).value);
         }
@@ -90,14 +81,6 @@ namespace PlayMore35.CharacterChoices {
             Equipped noItems = new Equipped();
             Assert.AreEqual(14, controller.Effects.GetStat(STR_SCORE).GetValue(controller.Effects, noItems).value);
             Assert.AreEqual(77, controller.Effects.GetStat(MAX_HP).GetValue(controller.Effects, noItems).value);
-
-            // Check weapons/attacks:
-            CheckAttacks(
-                controller,
-                //           axe alone, shld alone, axe twf, shld twf
-                new int[]    {     +2,       +2,       -4,      -8 },
-                new string[] { "1d4+2", "1d10+2", "1d10+2", "1d4+1" }
-            );
 
             // Check basic armor/shields:
             CheckStat(controller, AC, 19);

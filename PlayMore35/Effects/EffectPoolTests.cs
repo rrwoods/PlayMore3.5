@@ -142,29 +142,6 @@ namespace PlayMore35.Effects.Tests {
             };
         }
 
-        [TestMethod]
-        public void TestShield() {
-            EffectPool p = Rules();
-
-            Equipped items = new Equipped {
-                OffHandShield = HeavyShield()
-            };
-            CheckStat(12, p, items, AC);
-            CheckAttack(+0, "1d4", p, items);
-
-            items.PrimaryHandWeapon = Longsword();
-            CheckAttack(
-                new int[] { +0, +0, -6, -10 },
-                new string[] { "1d4", "1d8", "1d8", "1d4" },
-                p,
-                items
-            );
-
-            items.PrimaryHandWeapon = null;
-            items.OffHandShield.Spiked = true;
-            CheckAttack(+0, "1d6", p, items);
-        }
-
         public Armor Breastplate() {
             return new Armor {
                 Type = Armor.WeightCategory.MEDIUM,
@@ -294,33 +271,6 @@ namespace PlayMore35.Effects.Tests {
             };
         }
 
-        [TestMethod]
-        public void TestMeleeWeapon() {
-            EffectPool p = Rules();
-            p.AddEffect(ModifyStat(+6, STR_SCORE));
-            p.AddEffect(ModifyStat(+10, DEX_SCORE));
-            Equipped items = new Equipped();
-
-            Weapon dagger = Dagger();
-            dagger.Tags.Add("shadow hand");
-            items.PrimaryHandWeapon = dagger;
-            
-            List<Attack> daggerAttacks = Attack.Generate(p, 0, items);
-            Assert.AreEqual(Weapon.Range.MELEE, daggerAttacks[0].Range);
-            Assert.AreEqual(+3, daggerAttacks[0].AttackBonus.bonus);
-            Assert.AreEqual("1d4+3", daggerAttacks[0].Damage.dice.ToString());
-            Assert.AreEqual(Weapon.Range.THROWN, daggerAttacks[1].Range);
-            Assert.AreEqual(+5, daggerAttacks[1].AttackBonus.bonus);
-            Assert.AreEqual("1d4+3", daggerAttacks[1].Damage.dice.ToString());
-
-            p.AddEffect(new Effect("discipline focus")
-                .AddAttackModifier(new AttackMatcher().Tag("shadow hand"), new Modifier(+1, UNTYPED))
-            );
-            daggerAttacks = Attack.Generate(p, 0, items);
-            Assert.AreEqual(Weapon.Range.MELEE, daggerAttacks[0].Range);
-            Assert.AreEqual(+4, daggerAttacks[0].AttackBonus.bonus);
-        }
-
         private Weapon CompositeBow(int str) {
             return new Weapon("Composite shortbow", 0, Weapon.Effort.ONE_HANDED) {
                 Projectile = (
@@ -335,40 +285,6 @@ namespace PlayMore35.Effects.Tests {
                     true, str
                 )
             };
-        }
-
-        [TestMethod]
-        public void TestCompositeBowStrong() {
-            EffectPool p = Rules();
-            p.AddEffect(ModifyStat(+6, STR_SCORE));
-            p.AddEffect(ModifyStat(+10, DEX_SCORE));
-
-            Weapon bow = CompositeBow(+2);
-            Equipped items = new Equipped() {
-                PrimaryHandWeapon = bow
-            };
-            
-            List<Attack> attack = Attack.Generate(p, 0, items);
-            Assert.AreEqual(1, attack.Count());
-            Assert.AreEqual(+5, attack[0].AttackBonus.bonus);
-            Assert.AreEqual("1d6+2", attack[0].Damage.dice.ToString());
-        }
-
-        [TestMethod]
-        public void TestCompositeBowWeak() {
-            EffectPool p = Rules();
-            p.AddEffect(ModifyStat(+6, STR_SCORE));
-            p.AddEffect(ModifyStat(+10, DEX_SCORE));
-
-            Weapon bow = CompositeBow(+4);
-            Equipped items = new Equipped() {
-                PrimaryHandWeapon = bow
-            };
-            
-            List<Attack> attack = Attack.Generate(p, 0, items);
-            Assert.AreEqual(1, attack.Count());
-            Assert.AreEqual(+3, attack[0].AttackBonus.bonus);
-            Assert.AreEqual("1d6+3", attack[0].Damage.dice.ToString());
         }
 
         [TestMethod]
@@ -455,87 +371,6 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod]
-        public void TestWeaponDamageBySize() {
-            EffectPool p = Rules();
-            Equipped items = new Equipped() {
-                PrimaryHandWeapon = Dagger()
-            };
-
-            p.AddEffect(ModifyStat(+2, SIZE_CATEGORY));
-            Assert.AreEqual("1d8", Attack.Generate(p, +2, items)[0].Damage.dice.ToString());
-            p.AddEffect(ModifyStat(+1000, SIZE_CATEGORY));
-            Assert.AreEqual("3d6", Attack.Generate(p, +1002, items)[0].Damage.dice.ToString());
-            p.AddEffect(ModifyStat(-2002, SIZE_CATEGORY));
-            Assert.AreEqual("—", Attack.Generate(p, -1000, items)[0].Damage.dice.ToString());
-        }
-
-        [TestMethod]
-        public void TestExtraDamageEffects() {
-            EffectPool p = Rules();
-            Equipped items = new Equipped() {
-                PrimaryHandWeapon = Dagger()
-            };
-            
-            Attack daggerMelee = Attack.Generate(p, 0, items)[0];
-            var (normalDice, normalExpl) = daggerMelee.Damage;
-            Assert.AreEqual("1d4", normalDice.ToString());
-
-            p.AddEffect(new Effect("Sneak attack")
-                .AddExtraDice(AttackMatcher.ALL, 2, 6)
-            );
-            daggerMelee = Attack.Generate(p, 0, items)[0];
-            var (sneakDice, sneakExpl) = daggerMelee.Damage;
-            Assert.AreEqual("2d6+1d4", sneakDice.ToString());
-
-            p.AddEffect(ModifyStat(+8, STR_SCORE));
-
-            p.AddEffect(new Effect("inspire courage")
-                .AddDamageModifier(AttackMatcher.ALL, new Modifier(+1, MORALE))
-            );
-            p.AddEffect(new Effect("prayer")
-                .AddDamageModifier(AttackMatcher.ALL, new Modifier(+1, LUCK))
-            );
-
-            p.AddEffect(ModifyStat(+4, DEX_SCORE));
-            p.AddEffect(new Effect("Hit-and-run fighter")
-                .AddDamageModifier(AttackMatcher.ALL, new Modifier((DEX_MODIFIER), CIRCUMSTANCE))
-            );
-
-            items.PrimaryHandWeapon = Greatsword();
-
-            List<Attack> greatswordAttacks = Attack.Generate(p, 0, items);
-            Assert.AreEqual(1, greatswordAttacks.Count());
-            Attack greatswordAttack = greatswordAttacks[0];
-            var (lotsaDice, bigExpl) = greatswordAttack.Damage;
-            Assert.AreEqual("4d6+10", lotsaDice.ToString());
-
-            var (critDice, critExpl) = greatswordAttack.CriticalDamage;
-            Assert.AreEqual("6d6+20", critDice.ToString());
-            critExpl.ForEach(x => Console.WriteLine(x));
-        }
-
-        [TestMethod]
-        public void TestWrongSizeWeapon() {
-            Weapon dagger = Dagger();
-            dagger.SizeCategory = +2;
-
-            EffectPool p = Rules();
-            // it's big enough that we have to two-hand it
-            Equipped items = new Equipped {
-                PrimaryHandWeapon = dagger
-            };
-
-            var daggerAttacks = Attack.Generate(p, 0, items);
-            Assert.AreEqual(2, daggerAttacks.Count());
-            Attack melee = daggerAttacks[0];
-            Assert.AreEqual(-4, melee.AttackBonus.bonus);
-            Assert.AreEqual(Weapon.Effort.TWO_HANDED, melee.Effort);
-            Attack thrown = daggerAttacks[1];
-            Assert.AreEqual(-4, melee.AttackBonus.bonus);
-            Assert.AreEqual(Weapon.Effort.TWO_HANDED, thrown.Effort);
-        }
-
-        [TestMethod]
         public void TestTextEffects() {
             EffectPool p = Rules();
 
@@ -558,83 +393,6 @@ namespace PlayMore35.Effects.Tests {
             Assert.AreEqual("[new category] something something", uncategorized[0]);
         }
 
-        private void CheckAttack(int[] expAtkBonus, string[] expDamage, EffectPool r, Equipped items) {
-            List<Attack> attacks = Attack.Generate(r, 0, items);
-            Assert.AreEqual(expAtkBonus.Length, attacks.Count());
-            for (int i = 0; i < expAtkBonus.Length; i++) {
-                Console.WriteLine("------ " + attacks[i].WeaponName + " " + attacks[i].Hand);
-
-                (int bonus, List<string> bonusExpl) = attacks[i].AttackBonus;
-                Console.WriteLine("Attack bonus " + bonus);
-                bonusExpl.ForEach(x => Console.WriteLine(x));
-
-                (DiceGroup damage, List<string> damageExpl) = attacks[i].Damage;
-                Console.WriteLine("Damage " + damage);
-                damageExpl.ForEach(x => Console.WriteLine(x));
-
-                Assert.AreEqual(expAtkBonus[i], attacks[i].AttackBonus.bonus);
-                Assert.AreEqual(expDamage[i], attacks[i].Damage.dice.ToString());
-            }
-        }
-
-        private void CheckAttack(int expAtkBonus, string expDamage, EffectPool r, Equipped items) {
-            CheckAttack(new int[] { expAtkBonus }, new string[] { expDamage }, r, items);
-        }
-
-        [TestMethod]
-        public void TestControllableAmount() {
-            EffectPool p = Rules();
-            p.controllableAmounts["Power attack penalty"] = 0;
-
-            IAmount powerAttackAmount = new ControllableAmount("Power attack penalty");
-            p.AddEffect(new Effect("Power Attack")
-                .AddAttackModifier(
-                    new AttackMatcher().Melee(),
-                    new Modifier(new MultiplyAmount(-1, powerAttackAmount), UNTYPED)
-                )
-                .AddDamageModifier(
-                    new AttackMatcher().TwoHandedAttack(),
-                    new Modifier(new MultiplyAmount(2, powerAttackAmount), UNTYPED)
-                )
-                .AddDamageModifier(
-                    new AttackMatcher().OneHandedWeapon().OneHandedAttack(),
-                    new Modifier(powerAttackAmount, UNTYPED)
-                )
-            );
-
-            p.AddEffect(ModifyStat(+2, BASE_ATTACK_BONUS));
-            Weapon dagger = Dagger(false);
-            Weapon longsword = Longsword();
-
-            Equipped daggerPri = new Equipped {
-                PrimaryHandWeapon = dagger
-            };
-            Equipped longswordPri = new Equipped {
-                PrimaryHandWeapon = longsword
-            };
-
-            // Just BAB -- attack at +2, no damage bonus.
-            CheckAttack(+2, "1d4", p, daggerPri);
-            CheckAttack(+2, "1d8", p, longswordPri);
-
-            // Power attack for 1 -- attack at +1... light +0 damage, 1h +1 damage, 2h +2 damage
-            p.controllableAmounts["Power attack penalty"] = 1;
-            CheckAttack(+1, "1d4", p, daggerPri);
-            CheckAttack(+1, "1d8+2", p, longswordPri);
-
-            // Power attack for 2, -- attack at +0... light +0 damage, 1h +2 damage, 2h +4 damage
-            p.controllableAmounts["Power attack penalty"] = 2;
-            CheckAttack(+0, "1d4", p, daggerPri);
-            CheckAttack(+0, "1d8+4", p, longswordPri);
-        }
-
-        [TestMethod]
-        public void TestLocalWeaponProperty() {
-            Weapon dagger = Dagger(false);
-            dagger.Melee?.atk.Properties.Add(WeaponProperty.PLUS[2]);
-            CheckAttack(+2, "1d4+2", Rules(), new Equipped { PrimaryHandWeapon = dagger });
-        }
-
         [TestMethod]
         public void TestGlobalWeaponProperty() {
             EffectPool p = Rules();
@@ -651,90 +409,6 @@ namespace PlayMore35.Effects.Tests {
             CheckStat(+5, p, items, INITIATIVE);
         }
 
-        [TestMethod]
-        public void TestTwfPenalties() {
-            EffectPool p = Rules();
-
-            Weapon priSword = Longsword();
-            Weapon offSword = Longsword();
-            Weapon offDagger = Dagger(false);
-
-            Equipped twoSwords = new Equipped {
-                PrimaryHandWeapon = priSword,
-                OffHandWeapon = offSword
-            };
-            Equipped swordDagger = new Equipped {
-                PrimaryHandWeapon = priSword,
-                OffHandWeapon = offDagger
-            };
-
-            CheckAttack(
-                new int[] { +0, -6, -10 },
-                new string[] { "1d8", "1d8", "1d8" },
-                p,
-                twoSwords
-            );
-
-            CheckAttack(
-                new int[] { +0, -4, -8 },
-                new string[] { "1d8", "1d8", "1d4" },
-                p,
-                swordDagger
-            );
-            p.AddEffect(new Effect("Two-Weapon Fighting")
-                .AddAttackModifier(new AttackMatcher().PrimaryHandTwfAttack(), new Modifier(+2, UNTYPED))
-                .AddAttackModifier(new AttackMatcher().OffHandAttack(), new Modifier(+6, UNTYPED))
-            );
-
-            CheckAttack(
-                new int[] { +0, -4, -4 },
-                new string[] { "1d8", "1d8", "1d8" },
-                p,
-                twoSwords
-            );
-
-            CheckAttack(
-                new int[] { +0, -2, -2 },
-                new string[] { "1d8", "1d8", "1d4" },
-                p,
-                swordDagger
-            );
-            p.AddEffect(ModifyStat(+4, STR_SCORE));
-            Weapon quarterstaff = new Weapon("longsword", 0, Weapon.Effort.ONE_HANDED) {
-                Melee = (
-                    new AttackMode {
-                        ProficencyCategory = Weapon.Proficiency.SIMPLE,
-                        DamageDieMedium = (1, 4),
-                        DamageType = BLUDGEONING,
-                        ThreatRange = 20,
-                        CriticalMultiplier = 2,
-                        RangeIncrement = 0
-                    },
-                    false
-                ),
-                SecondHead = (
-                    new AttackMode {
-                        ProficencyCategory = Weapon.Proficiency.SIMPLE,
-                        DamageDieMedium = (1, 4),
-                        DamageType = BLUDGEONING,
-                        ThreatRange = 20,
-                        CriticalMultiplier = 2,
-                        RangeIncrement = 0
-                    },
-                    false
-                )
-            };
-
-            CheckAttack(
-                new int[] { +2, +0, +0, +0, +0 },
-                new string[] { "1d4+3", "1d4+2", "1d4+1", "1d4+2", "1d4+1" },
-                p,
-                new Equipped {
-                    PrimaryHandWeapon = quarterstaff
-                }
-            );
-        }
-
         private Weapon Waraxe() {
             return new Weapon("dwarven waraxe", 0, Weapon.Effort.ONE_HANDED) {
                 Melee = (
@@ -747,65 +421,6 @@ namespace PlayMore35.Effects.Tests {
                     false
                 )
             };
-        }
-
-        [TestMethod]
-        public void TestNonProficientWeapon() {
-            EffectPool p = Rules();
-
-            Weapon axe = Waraxe();
-            Equipped items = new Equipped {
-                PrimaryHandWeapon = axe
-            };
-            CheckAttack(-4, "1d10", p, items);
-
-            p.AddEffect(new Effect("Exotic weapon proficiency")
-                .AddProficiency(new AttackMatcher().Names(axe.Name))
-            );
-            CheckAttack(+0, "1d10", p, items);
-        }
-
-        [TestMethod]
-        public void TestExtraAttacks() {
-            EffectPool p = Rules();
-            p.AddEffect(new Effect("haste")
-                .AddExtraAttack(AttackMatcher.ALL_EXCEPT_OFF_HAND, new ExtraAttack(-0, ENHANCEMENT))
-                .AddAttackModifier(AttackMatcher.ALL, new Modifier(+1, UNTYPED))
-                .AddModifier(AC, new Modifier(+1, DODGE))
-                .AddModifier(REF_SAVES, new Modifier(+1, DODGE))
-                .AddModifier(ALL_SPEEDS, new Modifier(+30, ENHANCEMENT)) // not bothering with the max here
-            );
-
-            Weapon sword = Longsword();
-            sword.Melee?.atk.Properties.Add(new WeaponProperty("speed") {
-                ExtraAttack = new ExtraAttack(-0, ENHANCEMENT)
-            });
-            Equipped items = new Equipped {
-                PrimaryHandWeapon = sword
-            };
-
-            List<Attack> attacks = Attack.Generate(p, 0, items);
-            Assert.AreEqual(1, attacks.Count());
-            Assert.AreEqual(+1, attacks[0].AttackBonus.bonus);
-            Assert.AreEqual(1, attacks[0].ExtraAttacks.Count());
-            Assert.AreEqual(-0, attacks[0].ExtraAttacks[0]);
-        }
-
-        [TestMethod]
-        public void TestIteratives() {
-            EffectPool p = Rules();
-            p.AddEffect(ModifyStat(+16, BASE_ATTACK_BONUS));
-            Equipped items = new Equipped {
-                PrimaryHandWeapon = Longsword()
-            };
-
-            List<Attack> attacks = Attack.Generate(p, 0, items);
-            Assert.AreEqual(1, attacks.Count());
-            Assert.AreEqual(+16, attacks[0].AttackBonus.bonus);
-            Assert.AreEqual(3, attacks[0].ExtraAttacks.Count());
-            Assert.AreEqual(-5, attacks[0].ExtraAttacks[0]);
-            Assert.AreEqual(-10, attacks[0].ExtraAttacks[1]);
-            Assert.AreEqual(-15, attacks[0].ExtraAttacks[2]);
         }
     }
 }

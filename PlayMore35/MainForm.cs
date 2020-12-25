@@ -166,6 +166,30 @@ namespace PlayMore35 {
             section.Clear();
         }
 
+        private void AttackLabels(Attack attack, bool full) {
+            StringBuilder text = new StringBuilder();
+            if (full) {
+                text.Append("     ");
+            }
+            text.Append(attack.RangeIncrement > 0 ? "Ranged " : "Melee ");
+            text.Append(attack.WeaponName + " " + ValueText(attack.AttackBonus.bonus, true));
+            foreach (int extra in attack.ExtraAttacks) {
+                text.Append("/" + ValueText(attack.AttackBonus.bonus + extra, true));
+            }
+            Label attackLabel = new Label().Initialize(this);
+            attackLabel.Text = text.ToString();
+            ToolTipLabel(attackLabel, attack.AttackBonus.explanation);
+            Label damageLabel = new Label().Initialize(this);
+            damageLabel.Text = "(" + attack.Damage.dice.ToString() + ")";
+            ToolTipLabel(damageLabel, attack.Damage.explanation);
+            Label critLabel = new Label().Initialize(this);
+            critLabel.Text = "(" + attack.ThreatRange + (attack.ThreatRange == 20 ? "" : "–20") + "/"
+                + attack.CriticalDamage.dice.ToString() + ")";
+            ToolTipLabel(critLabel, attack.CriticalDamage.explanation);
+
+            attacks.Add(new List<Label> { attackLabel, damageLabel, critLabel });
+        }
+
         private void OneLineText(Label label, Dictionary<string, List<string>> textEffects, string key, string postfix = "") {
             if (textEffects[key].Any()) {
                 label.Text = $"{key} {string.Join(", ", textEffects[key])}{postfix}";
@@ -235,27 +259,22 @@ namespace PlayMore35 {
 
             LabelStat(speed, "Speed", LAND_SPEED, " ft.", false);
             MultilineText(movement, textEffects, MOVEMENT, false);
-            RemoveDynamicRows(attacks);
-            foreach (Attack attack in controller.GetAttacks()) {
-                StringBuilder text = new StringBuilder();
-                text.Append(attack.RangeIncrement > 0 ? "Ranged " : "Melee ");
-                text.Append(attack.WeaponName + " " + ValueText(attack.AttackBonus.bonus, true));
-                foreach (int extra in attack.ExtraAttacks) {
-                    text.Append("/" + (attack.AttackBonus.bonus - extra));
-                }
-                Label attackLabel = new Label().Initialize(this);
-                attackLabel.Text = text.ToString();
-                ToolTipLabel(attackLabel, attack.AttackBonus.explanation);
-                Label damageLabel = new Label().Initialize(this);
-                damageLabel.Text = "(" + attack.Damage.dice.ToString() + ")";
-                ToolTipLabel(damageLabel, attack.Damage.explanation);
-                Label critLabel = new Label().Initialize(this);
-                critLabel.Text = "(" + attack.ThreatRange + (attack.ThreatRange == 20 ? "" : "–20") + "/"
-                    + attack.CriticalDamage.dice.ToString() + ")";
-                ToolTipLabel(critLabel, attack.CriticalDamage.explanation);
 
-                attacks.Add(new List<Label> { attackLabel, damageLabel, critLabel });
+            RemoveDynamicRows(attacks);
+            List<Attack> singleAttacks = controller.GetAttacks();
+            foreach (Attack attack in singleAttacks) {
+                AttackLabels(attack, false);
             }
+            foreach (List<Attack> fullAttack in controller.GetFullAttacks()) {
+                if (fullAttack.Count == 1 && !fullAttack[0].ExtraAttacks.Any()) {
+                    continue;
+                }
+                attacks.Add(new List<Label> { new Label() { Text = "Full Attack" }.Initialize(this) });
+                foreach (Attack attack in fullAttack) {
+                    AttackLabels(attack, true);
+                }
+            }
+
             LabelStat(space, "Space", SPACE, " ft.;", false);
             LabelStat(reach, "Reach", REACH, " ft.", false);
             LabelStat(bab, "Base Atk", BASE_ATTACK_BONUS, ";");
@@ -905,9 +924,17 @@ namespace PlayMore35 {
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
-            DialogResult r = MessageBox.Show("Save character first?", "Exiting", MessageBoxButtons.YesNo);
-            if (r == DialogResult.Yes) {
-                e.Cancel = !SaveCharacter();
+            if (!loaded) {
+                return;
+            }
+            DialogResult r = MessageBox.Show("Save character first?", "Exiting", MessageBoxButtons.YesNoCancel);
+            switch (r) {
+                case DialogResult.Yes:
+                    e.Cancel = !SaveCharacter();
+                    break;
+                case DialogResult.Cancel:
+                    e.Cancel = true;
+                    break;
             }
         }
 

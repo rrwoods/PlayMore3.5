@@ -8,7 +8,8 @@ namespace PlayMore35.Items {
     public class Weapon : IJsonable {
         public enum Proficiency { SIMPLE, MARTIAL, EXOTIC };
         public enum Effort { LIGHT, ONE_HANDED, TWO_HANDED };
-        public enum Hand { ONE_HANDED, PRIMARY_HAND_TWF, OFF_HAND_TWF, TWO_HANDED };
+        // 2-hand 2-weapon is possible with armor spikes as your "off hand" weapon.
+        public enum Hand { ONE_HANDED, PRIMARY_HAND_TWF, OFF_HAND_TWF, TWO_HANDED, TWO_HANDED_TWF };
         public enum Range { MELEE, REACH_MELEE, THROWN, BOW, OTHER_PROJECTILE };
 
         public string Name;

@@ -1448,6 +1448,9 @@
               "ONE_HANDED",
               "PRIMARY_HAND_TWF",
               "OFF_HAND_TWF"
+            ],
+            "effort": [
+              "ONE_HANDED"
             ]
           },
           "mod": {
@@ -1466,7 +1469,8 @@
               "REACH_MELEE"
             ],
             "hand": [
-              "TWO_HANDED"
+              "TWO_HANDED",
+              "TWO_HANDED_TWF"
             ]
           },
           "mod": {
@@ -1907,7 +1911,7 @@
       "attack": [
         {
           "affects": {
-            "hand": [ "PRIMARY_HAND_TWF" ]
+            "hand": [ "PRIMARY_HAND_TWF", "TWO_HANDED_TWF" ]
           },
           "mod": {
             "type": "untyped",

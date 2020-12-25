@@ -3955,7 +3955,8 @@
             "hand": [
               "TWO_HANDED",
               "ONE_HANDED",
-              "PRIMARY_HAND_TWF"
+              "PRIMARY_HAND_TWF",
+              "TWO_HANDED_TWF"
             ]
           },
           "mod": {
@@ -3984,7 +3985,8 @@
             "hand": [
               "TWO_HANDED",
               "ONE_HANDED",
-              "PRIMARY_HAND_TWF"
+              "PRIMARY_HAND_TWF",
+              "TWO_HANDED_TWF"
             ]
           },
           "mod": {
@@ -4013,7 +4015,8 @@
             "hand": [
               "TWO_HANDED",
               "ONE_HANDED",
-              "PRIMARY_HAND_TWF"
+              "PRIMARY_HAND_TWF",
+              "TWO_HANDED_TWF"
             ]
           },
           "mod": {
@@ -4086,7 +4089,8 @@
               "REACH_MELEE"
             ],
             "hand": [
-              "TWO_HANDED"
+              "TWO_HANDED",
+              "TWO_HANDED_TWF"
             ]
           },
           "mod": {

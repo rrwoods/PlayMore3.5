@@ -505,5 +505,10 @@ namespace PlayMore35.Global {
             int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;
             return Attack.Generate(Effects, sizeChange, EquippedItems);
         }
+
+        public List<List<Attack>> GetFullAttacks() {
+            int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;
+            return Attack.GenerateMultiweaponFullAttacks(Effects, sizeChange, EquippedItems);
+        }
     }
 }

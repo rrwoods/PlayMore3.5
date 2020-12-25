@@ -19,7 +19,7 @@
       "Sense Motive"
     ],
     "skill points": 2,
-    "base attack bonus": "SLOW",
+    "base attack bonus": "MEDIUM",
     "base fort save": "FAST",
     "base ref save": "SLOW",
     "base will save": "FAST",
