@@ -378,7 +378,9 @@ namespace PlayMore35.Global {
             } else {
                 Character.equipped.OffHandWeapon = weaponChoice;
                 EquippedItems.OffHandWeapon = weapon;
-                UnequipShield(from);
+                if (EquippedItems.OffHandShield.AttackRollPenalty == null) {
+                    UnequipShield(from);
+                }
             }
 
             ComputeWeight();
@@ -408,7 +410,9 @@ namespace PlayMore35.Global {
 
             Character.equipped.OffHandShield = shieldChoice;
             EquippedItems.OffHandShield = shield;
-            UnequipWeapon(from, false);
+            if (shield.AttackRollPenalty == null) {
+                UnequipWeapon(from, false);
+            }
 
             ComputeWeight();
         }

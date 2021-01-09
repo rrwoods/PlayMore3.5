@@ -1034,8 +1034,11 @@
   ],
   "flags": [
     "charging",
+    "defensive",
+    "defensive (total)",
     "exhausted",
     "fatigued",
+    "flanking",
     "flat-footed",
     "prone",
     "stable"
@@ -4785,13 +4788,64 @@
       ]
     },
     {
+      "name": "fighting defensively",
+      "active": {
+        "flag": "defensive"
+      },
+      "attack": [
+        {
+          "affects": {},
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": -4 } ]
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "dodge",
+            "amounts": [ { "fixed": 2 } ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "total defense",
+      "active": {
+        "flag": "defensive (total)"
+      },
+      "modifiers": [
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "dodge",
+            "amounts": [ { "fixed": 4 } ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "flanking",
+      "active": {
+        "flag": "flanking"
+      },
+      "attack": [
+        {
+          "affects": { "range": [ "MELEE", "REACH_MELEE" ] },
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 2 } ]
+          }
+        }
+      ]
+    },
+    {
       "name": "flat-footed",
       "active": {
         "flag": "flat-footed"
       },
-      "flags": [
-        "Flat-footed"
-      ],
       "text": [
         {
           "category": "Actions",
