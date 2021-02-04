@@ -9,6 +9,7 @@ namespace PlayMore35.CharacterChoices {
         public string alignment;
 
         public Dictionary<string, int> assignedAbilityScores;
+        public List<string> bonusLanguages;
         public string race; // templates later
         public List<string> classLevels;
         public List<string> abilityScoreIncrements;
@@ -27,6 +28,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("gender", gender),
                 new JProperty("alignment", alignment),
                 new JProperty("assigned", new JObject(assignedAbilityScores.Select(x => new JProperty(x.Key, x.Value)))),
+                new JProperty("bonus languages", new JArray(bonusLanguages)),
                 new JProperty("race", race),
                 new JProperty("classes", new JArray(classLevels)),
                 new JProperty("incremented", new JArray(abilityScoreIncrements)),
@@ -45,6 +47,7 @@ namespace PlayMore35.CharacterChoices {
             gender = (string)json["gender"];
             alignment = (string)json["alignment"];
             assignedAbilityScores = ((JObject)json["assigned"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
+            bonusLanguages = ((JArray)json["bonus languages"]).Select(x => (string)x).ToList();
             race = (string)json["race"];
             classLevels = ((JArray)json["classes"]).Select(x => (string)x).ToList();
             abilityScoreIncrements = ((JArray)json["incremented"]).Select(x => (string)x).ToList();

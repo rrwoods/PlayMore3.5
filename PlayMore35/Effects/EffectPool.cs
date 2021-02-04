@@ -176,6 +176,10 @@ namespace PlayMore35.Effects {
                     .AddModifier(skill.Key + RANKS, new Modifier(skill.Value.Sum(), BASE))
                 );
             }
+
+            foreach (string language in choices.bonusLanguages) {
+                AddEffect(new Effect("Bonus language").AddText(LANGUAGES, language));
+            }
         }
 
         public void GenerateRaceEffects(Race race) {

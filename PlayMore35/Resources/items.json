@@ -1,6 +1,19 @@
 [
   {
     "slot": "SLOTLESS",
+    "weight": 0,
+    "effect": {
+      "name": "panic button",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "std 1/day\u2014throw panic button, teleport to where it lands; 25% to become inert afterward"
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
     "weight": 2,
     "effect": {
       "name": "marbles",
