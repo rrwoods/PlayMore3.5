@@ -15,7 +15,7 @@ namespace PlayMore35.CharacterChoices {
         public List<string> abilityScoreIncrements;
         public List<int> rolledHitDice;
         public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
-        public List<List<string>> feats; // each element of the outer list is a level, inner is the feats taken at that level
+        public Dictionary<string, string> feats; // keys are feat slots, values are feat names
 
         // All items available to the character that are not currently equipped
         public Dictionary<string, InventoryLocation> inventory;
@@ -34,7 +34,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("incremented", new JArray(abilityScoreIncrements)),
                 new JProperty("hit die rolls", new JArray(rolledHitDice)),
                 new JProperty("skill ranks", new JObject(skillRanks.Select(x => new JProperty(x.Key, new JArray(x.Value))))),
-                new JProperty("feats", new JArray(feats.Select(x => new JArray(x)))),
+                new JProperty("feats", new JObject(feats.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("inventory", new JObject(
                     inventory.Select(x => new JProperty(x.Key, x.Value.ToJson()))
                 )),
@@ -56,11 +56,7 @@ namespace PlayMore35.CharacterChoices {
                 skill => skill.Name,
                 skill => ((JArray)skill.Value).Select(ranks => (int)ranks).ToList()
             );
-            feats = ((JArray)json["feats"])
-                .Select(level => ((JArray)level)
-                    .Select(feat => (string)feat).ToList())
-                .ToList();
-
+            feats = ((JObject)json["feats"]).Properties().ToDictionary(x => x.Name, x => (string)x.Value);
             inventory = ((JObject)json["inventory"]).Properties()
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
 
@@ -77,7 +73,7 @@ namespace PlayMore35.CharacterChoices {
             abilityScoreIncrements = new List<string>();
             rolledHitDice = new List<int>();
             skillRanks = new Dictionary<string, List<int>>();
-            feats = new List<List<string>>();
+            feats = new Dictionary<string, string>();
 
             inventory = new Dictionary<string, InventoryLocation>();
             equipped = new EquippedChoices();

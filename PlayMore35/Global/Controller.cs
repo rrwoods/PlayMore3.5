@@ -33,6 +33,44 @@ namespace PlayMore35.Global {
         public Dictionary<string, ArmorProperty> ArmorPropertyDefinitions;
         public Dictionary<string, Item> ItemDefinitions;
 
+        // **** CONVENIENCE METHODS THAT ALL UIS WILL PROBABLY WANT ****
+
+
+        private static readonly Dictionary<string, string> customShortNames = new Dictionary<string, string> {
+            ["Control Shape"] = "CS",
+            ["Decipher Script"] = "DS",
+            ["Disable Device"] = "DD",
+            ["Gather Information"] = "Info",
+            ["Knowledge (arcana)"] = "K:arc",
+            ["Knowledge (architecture and engineering)"] = "K:eng",
+            ["Knowledge (dungeoneering)"] = "K:dun",
+            ["Knowledge (geography)"] = "K:geo",
+            ["Knowledge (history)"] = "K:his",
+            ["Knowledge (local)"] = "K:loc",
+            ["Knowledge (nature)"] = "K:nat",
+            ["Knowledge (nobility and royalty)"] = "K:nob",
+            ["Knowledge (psionics)"] = "K:psi",
+            ["Knowledge (religion)"] = "K:rel",
+            ["Knowledge (the planes)"] = "K:pla",
+            ["Martial Lore"] = "ML",
+            ["Move Silently"] = "MS",
+            ["Open Lock"] = "Open",
+            ["Sleight Of Hand"] = "SOH",
+            ["Speak Language"] = "Lang",
+            ["Use Magic Device"] = "UMD",
+            ["Use Psionic Device"] = "UPD",
+            ["Use Rope"] = "Rope"
+        };
+        public static string ShortName(string skill) {
+            if (customShortNames.ContainsKey(skill)) {
+                return customShortNames[skill];
+            }
+            if (skill.Count() == 4) {
+                return skill;
+            }
+            return skill.Substring(0, 3);
+        }
+
         // **** INITIALIZATION AND RELOAD FUNCTIONS ****
 
         public Controller(Character character) {
@@ -197,10 +235,8 @@ namespace PlayMore35.Global {
                     }
                 }
             }
-            foreach (List<string> level in Character.feats) {
-                foreach (string featName in level) {
-                    Effects.GenerateFeatEffects(FeatDefinitions[featName]);
-                }
+            foreach (string featName in Character.feats.Values) {
+                Effects.GenerateFeatEffects(FeatDefinitions[featName]);
             }
 
             EquippedItems = new Equipped();
@@ -500,6 +536,15 @@ namespace PlayMore35.Global {
         }
         
         // **** ACCESSORS ****
+
+        public bool IsClassSkill(string skill, int levelIndex) {
+            if (ClassDefinitions[Character.classLevels[levelIndex]].ClassSkills.Contains(skill)) {
+                return true;
+            }
+
+            // this might get more complicated once we consider things like racial class skills
+            return false;
+        }
 
         public (int value, List<string> explanation) GetStatistic(string stat) {
             return Effects.GetStat(stat).GetValue(Effects, EquippedItems);

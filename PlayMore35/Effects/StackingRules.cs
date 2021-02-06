@@ -32,7 +32,7 @@ namespace PlayMore35.Effects {
         };
 
         private static string ExplainBase(int mod, string name) {
-            return ((mod < 0) ? ("" + mod) : ("+" + mod)) + " " + name;
+            return mod.ToString("+#;–#;+0") + " " + name;
         }
 
         private static string Explain(int mod, string name, string type, IEnumerable<string> overlaps) {

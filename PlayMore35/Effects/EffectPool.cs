@@ -67,6 +67,11 @@ namespace PlayMore35.Effects {
             effects.Add(effect);
         }
 
+        public void ReplaceEffect(Effect effect) {
+            effects.RemoveAll(x => x.Name == effect.Name);
+            effects.Add(effect);
+        }
+
         private IEnumerable<Effect> AllEffects(Equipped items) {
             return effects.Concat(items.GetGlobalEffects());
         }
@@ -140,15 +145,19 @@ namespace PlayMore35.Effects {
             return allText;
         }
 
-        // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
-        public void GenerateCharacterEffects(Character choices) {
-            foreach (var ability in choices.assignedAbilityScores) {
+        public void AssignAbilityScores(Dictionary<string, int> scores) {
+            foreach (var ability in scores) {
                 string name = ability.Key;
                 int score = ability.Value;
-                AddEffect(new Effect($"Assigned {name}")
+                ReplaceEffect(new Effect($"Assigned {name}")
                     .AddModifier(name + " score", new Modifier(score, BASE))
                 );
             }
+        }
+
+        // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
+        public void GenerateCharacterEffects(Character choices) {
+            AssignAbilityScores(choices.assignedAbilityScores);
             foreach (string ability in choices.abilityScoreIncrements) {
                 AddEffect(new Effect("Level")
                     .AddModifier(ability + " score", new Modifier(+1, ABILITY_MODIFIER))

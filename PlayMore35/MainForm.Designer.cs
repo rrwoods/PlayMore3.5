@@ -25,10 +25,54 @@
         /// </summary>
         private void InitializeComponent() {
             this.lblTopLeft = new System.Windows.Forms.Label();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveCharacterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.characterTab = new System.Windows.Forms.TabPage();
+            this.lblSkill2 = new System.Windows.Forms.Label();
+            this.lblSkill1 = new System.Windows.Forms.Label();
+            this.lblRolledHp = new System.Windows.Forms.Label();
+            this.txtRanksClass = new System.Windows.Forms.TextBox();
+            this.txtRanksCrossClass = new System.Windows.Forms.TextBox();
+            this.txtRolledHp = new System.Windows.Forms.TextBox();
+            this.cboClass = new System.Windows.Forms.ComboBox();
+            this.cboBonusLanguage = new System.Windows.Forms.ComboBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.txtAutomaticLanguages = new System.Windows.Forms.TextBox();
+            this.btnSaveCharacter = new System.Windows.Forms.Button();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtFinalCha = new System.Windows.Forms.TextBox();
+            this.txtFinalWis = new System.Windows.Forms.TextBox();
+            this.txtFinalInt = new System.Windows.Forms.TextBox();
+            this.txtFinalCon = new System.Windows.Forms.TextBox();
+            this.txtFinalDex = new System.Windows.Forms.TextBox();
+            this.txtFinalStr = new System.Windows.Forms.TextBox();
+            this.txtRacialCha = new System.Windows.Forms.TextBox();
+            this.txtRacialWis = new System.Windows.Forms.TextBox();
+            this.txtRacialInt = new System.Windows.Forms.TextBox();
+            this.txtRacialCon = new System.Windows.Forms.TextBox();
+            this.txtRacialDex = new System.Windows.Forms.TextBox();
+            this.txtRacialStr = new System.Windows.Forms.TextBox();
+            this.txtAssignedCha = new System.Windows.Forms.TextBox();
+            this.txtAssignedWis = new System.Windows.Forms.TextBox();
+            this.txtAssignedInt = new System.Windows.Forms.TextBox();
+            this.txtAssignedCon = new System.Windows.Forms.TextBox();
+            this.txtAssignedDex = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtAssignedStr = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cboRace = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtGender = new System.Windows.Forms.TextBox();
+            this.txtAlignment = new System.Windows.Forms.TextBox();
+            this.txtName = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.statsTab = new System.Windows.Forms.TabPage();
             this.lblParam2 = new System.Windows.Forms.Label();
             this.lblParam = new System.Windows.Forms.Label();
@@ -75,8 +119,8 @@
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.characterTab.SuspendLayout();
             this.statsTab.SuspendLayout();
             this.inventoryTab.SuspendLayout();
             this.grpSampleLocation.SuspendLayout();
@@ -92,44 +136,508 @@
             this.lblTopLeft.Text = "Sample text";
             this.lblTopLeft.Visible = false;
             // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(913, 24);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveCharacterToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "&File";
-            // 
-            // saveCharacterToolStripMenuItem
-            // 
-            this.saveCharacterToolStripMenuItem.Name = "saveCharacterToolStripMenuItem";
-            this.saveCharacterToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-            this.saveCharacterToolStripMenuItem.Text = "&Save character...";
-            this.saveCharacterToolStripMenuItem.Click += new System.EventHandler(this.SaveCharacter_Click);
-            // 
             // tabControl1
             // 
-            this.tabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
             this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl1.Controls.Add(this.characterTab);
             this.tabControl1.Controls.Add(this.statsTab);
             this.tabControl1.Controls.Add(this.inventoryTab);
-            this.tabControl1.Location = new System.Drawing.Point(0, 27);
+            this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(913, 615);
+            this.tabControl1.Size = new System.Drawing.Size(984, 661);
             this.tabControl1.TabIndex = 1;
+            // 
+            // characterTab
+            // 
+            this.characterTab.Controls.Add(this.lblSkill2);
+            this.characterTab.Controls.Add(this.lblSkill1);
+            this.characterTab.Controls.Add(this.lblRolledHp);
+            this.characterTab.Controls.Add(this.txtRanksClass);
+            this.characterTab.Controls.Add(this.txtRanksCrossClass);
+            this.characterTab.Controls.Add(this.txtRolledHp);
+            this.characterTab.Controls.Add(this.cboClass);
+            this.characterTab.Controls.Add(this.cboBonusLanguage);
+            this.characterTab.Controls.Add(this.label15);
+            this.characterTab.Controls.Add(this.txtAutomaticLanguages);
+            this.characterTab.Controls.Add(this.btnSaveCharacter);
+            this.characterTab.Controls.Add(this.label14);
+            this.characterTab.Controls.Add(this.label13);
+            this.characterTab.Controls.Add(this.label12);
+            this.characterTab.Controls.Add(this.label11);
+            this.characterTab.Controls.Add(this.label10);
+            this.characterTab.Controls.Add(this.label9);
+            this.characterTab.Controls.Add(this.txtFinalCha);
+            this.characterTab.Controls.Add(this.txtFinalWis);
+            this.characterTab.Controls.Add(this.txtFinalInt);
+            this.characterTab.Controls.Add(this.txtFinalCon);
+            this.characterTab.Controls.Add(this.txtFinalDex);
+            this.characterTab.Controls.Add(this.txtFinalStr);
+            this.characterTab.Controls.Add(this.txtRacialCha);
+            this.characterTab.Controls.Add(this.txtRacialWis);
+            this.characterTab.Controls.Add(this.txtRacialInt);
+            this.characterTab.Controls.Add(this.txtRacialCon);
+            this.characterTab.Controls.Add(this.txtRacialDex);
+            this.characterTab.Controls.Add(this.txtRacialStr);
+            this.characterTab.Controls.Add(this.txtAssignedCha);
+            this.characterTab.Controls.Add(this.txtAssignedWis);
+            this.characterTab.Controls.Add(this.txtAssignedInt);
+            this.characterTab.Controls.Add(this.txtAssignedCon);
+            this.characterTab.Controls.Add(this.txtAssignedDex);
+            this.characterTab.Controls.Add(this.label8);
+            this.characterTab.Controls.Add(this.label6);
+            this.characterTab.Controls.Add(this.label5);
+            this.characterTab.Controls.Add(this.txtAssignedStr);
+            this.characterTab.Controls.Add(this.label4);
+            this.characterTab.Controls.Add(this.cboRace);
+            this.characterTab.Controls.Add(this.label3);
+            this.characterTab.Controls.Add(this.label2);
+            this.characterTab.Controls.Add(this.txtGender);
+            this.characterTab.Controls.Add(this.txtAlignment);
+            this.characterTab.Controls.Add(this.txtName);
+            this.characterTab.Controls.Add(this.label1);
+            this.characterTab.Location = new System.Drawing.Point(4, 26);
+            this.characterTab.Name = "characterTab";
+            this.characterTab.Size = new System.Drawing.Size(976, 631);
+            this.characterTab.TabIndex = 2;
+            this.characterTab.Text = "Character";
+            this.characterTab.UseVisualStyleBackColor = true;
+            this.characterTab.Enter += new System.EventHandler(this.CharacterTab_Enter);
+            this.characterTab.Leave += new System.EventHandler(this.CharacterTab_Leave);
+            // 
+            // lblSkill2
+            // 
+            this.lblSkill2.Location = new System.Drawing.Point(639, 97);
+            this.lblSkill2.Name = "lblSkill2";
+            this.lblSkill2.Size = new System.Drawing.Size(40, 21);
+            this.lblSkill2.TabIndex = 53;
+            this.lblSkill2.Text = "Skill";
+            this.lblSkill2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lblSkill2.Visible = false;
+            // 
+            // lblSkill1
+            // 
+            this.lblSkill1.Location = new System.Drawing.Point(593, 97);
+            this.lblSkill1.Name = "lblSkill1";
+            this.lblSkill1.Size = new System.Drawing.Size(40, 21);
+            this.lblSkill1.TabIndex = 52;
+            this.lblSkill1.Text = "Skill";
+            this.lblSkill1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lblSkill1.Visible = false;
+            // 
+            // lblRolledHp
+            // 
+            this.lblRolledHp.Location = new System.Drawing.Point(546, 97);
+            this.lblRolledHp.Name = "lblRolledHp";
+            this.lblRolledHp.Size = new System.Drawing.Size(32, 21);
+            this.lblRolledHp.TabIndex = 51;
+            this.lblRolledHp.Text = "HP";
+            this.lblRolledHp.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // txtRanksClass
+            // 
+            this.txtRanksClass.BackColor = System.Drawing.Color.PaleTurquoise;
+            this.txtRanksClass.Location = new System.Drawing.Point(639, 121);
+            this.txtRanksClass.Name = "txtRanksClass";
+            this.txtRanksClass.Size = new System.Drawing.Size(40, 25);
+            this.txtRanksClass.TabIndex = 50;
+            this.txtRanksClass.Text = "4";
+            this.txtRanksClass.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtRanksClass.Visible = false;
+            // 
+            // txtRanksCrossClass
+            // 
+            this.txtRanksCrossClass.BackColor = System.Drawing.Color.Pink;
+            this.txtRanksCrossClass.Location = new System.Drawing.Point(593, 121);
+            this.txtRanksCrossClass.Name = "txtRanksCrossClass";
+            this.txtRanksCrossClass.Size = new System.Drawing.Size(40, 25);
+            this.txtRanksCrossClass.TabIndex = 49;
+            this.txtRanksCrossClass.Text = "4";
+            this.txtRanksCrossClass.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtRanksCrossClass.Visible = false;
+            // 
+            // txtRolledHp
+            // 
+            this.txtRolledHp.Location = new System.Drawing.Point(546, 121);
+            this.txtRolledHp.Name = "txtRolledHp";
+            this.txtRolledHp.Size = new System.Drawing.Size(32, 25);
+            this.txtRolledHp.TabIndex = 48;
+            this.txtRolledHp.Text = "12";
+            this.txtRolledHp.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtRolledHp.Visible = false;
+            // 
+            // cboClass
+            // 
+            this.cboClass.FormattingEnabled = true;
+            this.cboClass.Location = new System.Drawing.Point(308, 121);
+            this.cboClass.Name = "cboClass";
+            this.cboClass.Size = new System.Drawing.Size(232, 25);
+            this.cboClass.TabIndex = 47;
+            this.cboClass.Tag = "";
+            this.cboClass.Visible = false;
+            // 
+            // cboBonusLanguage
+            // 
+            this.cboBonusLanguage.FormattingEnabled = true;
+            this.cboBonusLanguage.Location = new System.Drawing.Point(101, 338);
+            this.cboBonusLanguage.Name = "cboBonusLanguage";
+            this.cboBonusLanguage.Size = new System.Drawing.Size(186, 25);
+            this.cboBonusLanguage.TabIndex = 46;
+            this.cboBonusLanguage.Visible = false;
+            // 
+            // label15
+            // 
+            this.label15.Location = new System.Drawing.Point(8, 310);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(87, 22);
+            this.label15.TabIndex = 45;
+            this.label15.Text = "Languages";
+            this.label15.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // txtAutomaticLanguages
+            // 
+            this.txtAutomaticLanguages.Enabled = false;
+            this.txtAutomaticLanguages.Location = new System.Drawing.Point(101, 307);
+            this.txtAutomaticLanguages.Name = "txtAutomaticLanguages";
+            this.txtAutomaticLanguages.Size = new System.Drawing.Size(186, 25);
+            this.txtAutomaticLanguages.TabIndex = 44;
+            // 
+            // btnSaveCharacter
+            // 
+            this.btnSaveCharacter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnSaveCharacter.Location = new System.Drawing.Point(3, 592);
+            this.btnSaveCharacter.Name = "btnSaveCharacter";
+            this.btnSaveCharacter.Size = new System.Drawing.Size(75, 36);
+            this.btnSaveCharacter.TabIndex = 43;
+            this.btnSaveCharacter.Text = "Save";
+            this.btnSaveCharacter.UseVisualStyleBackColor = true;
+            this.btnSaveCharacter.Click += new System.EventHandler(this.SaveCharacter_Click);
+            // 
+            // label14
+            // 
+            this.label14.Location = new System.Drawing.Point(8, 279);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(87, 22);
+            this.label14.TabIndex = 41;
+            this.label14.Text = "Charisma";
+            this.label14.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label13
+            // 
+            this.label13.Location = new System.Drawing.Point(8, 248);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(87, 22);
+            this.label13.TabIndex = 40;
+            this.label13.Text = "Wisdom";
+            this.label13.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label12
+            // 
+            this.label12.Location = new System.Drawing.Point(8, 217);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(87, 22);
+            this.label12.TabIndex = 39;
+            this.label12.Text = "Intelligence";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label11
+            // 
+            this.label11.Location = new System.Drawing.Point(8, 186);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(87, 22);
+            this.label11.TabIndex = 38;
+            this.label11.Text = "Constitution";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label10
+            // 
+            this.label10.Location = new System.Drawing.Point(8, 155);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(87, 22);
+            this.label10.TabIndex = 37;
+            this.label10.Text = "Dexterity";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label9
+            // 
+            this.label9.Location = new System.Drawing.Point(8, 124);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(87, 22);
+            this.label9.TabIndex = 36;
+            this.label9.Text = "Strength";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // txtFinalCha
+            // 
+            this.txtFinalCha.Enabled = false;
+            this.txtFinalCha.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFinalCha.Location = new System.Drawing.Point(229, 276);
+            this.txtFinalCha.Name = "txtFinalCha";
+            this.txtFinalCha.Size = new System.Drawing.Size(58, 25);
+            this.txtFinalCha.TabIndex = 35;
+            this.txtFinalCha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtFinalWis
+            // 
+            this.txtFinalWis.Enabled = false;
+            this.txtFinalWis.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFinalWis.Location = new System.Drawing.Point(229, 245);
+            this.txtFinalWis.Name = "txtFinalWis";
+            this.txtFinalWis.Size = new System.Drawing.Size(58, 25);
+            this.txtFinalWis.TabIndex = 34;
+            this.txtFinalWis.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtFinalInt
+            // 
+            this.txtFinalInt.Enabled = false;
+            this.txtFinalInt.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFinalInt.Location = new System.Drawing.Point(229, 214);
+            this.txtFinalInt.Name = "txtFinalInt";
+            this.txtFinalInt.Size = new System.Drawing.Size(58, 25);
+            this.txtFinalInt.TabIndex = 33;
+            this.txtFinalInt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtFinalCon
+            // 
+            this.txtFinalCon.Enabled = false;
+            this.txtFinalCon.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFinalCon.Location = new System.Drawing.Point(229, 183);
+            this.txtFinalCon.Name = "txtFinalCon";
+            this.txtFinalCon.Size = new System.Drawing.Size(58, 25);
+            this.txtFinalCon.TabIndex = 32;
+            this.txtFinalCon.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtFinalDex
+            // 
+            this.txtFinalDex.Enabled = false;
+            this.txtFinalDex.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFinalDex.Location = new System.Drawing.Point(229, 152);
+            this.txtFinalDex.Name = "txtFinalDex";
+            this.txtFinalDex.Size = new System.Drawing.Size(58, 25);
+            this.txtFinalDex.TabIndex = 31;
+            this.txtFinalDex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtFinalStr
+            // 
+            this.txtFinalStr.Enabled = false;
+            this.txtFinalStr.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFinalStr.Location = new System.Drawing.Point(229, 121);
+            this.txtFinalStr.Name = "txtFinalStr";
+            this.txtFinalStr.Size = new System.Drawing.Size(58, 25);
+            this.txtFinalStr.TabIndex = 30;
+            this.txtFinalStr.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtRacialCha
+            // 
+            this.txtRacialCha.Enabled = false;
+            this.txtRacialCha.Location = new System.Drawing.Point(165, 276);
+            this.txtRacialCha.Name = "txtRacialCha";
+            this.txtRacialCha.Size = new System.Drawing.Size(58, 25);
+            this.txtRacialCha.TabIndex = 23;
+            this.txtRacialCha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtRacialWis
+            // 
+            this.txtRacialWis.Enabled = false;
+            this.txtRacialWis.Location = new System.Drawing.Point(165, 245);
+            this.txtRacialWis.Name = "txtRacialWis";
+            this.txtRacialWis.Size = new System.Drawing.Size(58, 25);
+            this.txtRacialWis.TabIndex = 22;
+            this.txtRacialWis.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtRacialInt
+            // 
+            this.txtRacialInt.Enabled = false;
+            this.txtRacialInt.Location = new System.Drawing.Point(165, 214);
+            this.txtRacialInt.Name = "txtRacialInt";
+            this.txtRacialInt.Size = new System.Drawing.Size(58, 25);
+            this.txtRacialInt.TabIndex = 21;
+            this.txtRacialInt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtRacialCon
+            // 
+            this.txtRacialCon.Enabled = false;
+            this.txtRacialCon.Location = new System.Drawing.Point(165, 183);
+            this.txtRacialCon.Name = "txtRacialCon";
+            this.txtRacialCon.Size = new System.Drawing.Size(58, 25);
+            this.txtRacialCon.TabIndex = 20;
+            this.txtRacialCon.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtRacialDex
+            // 
+            this.txtRacialDex.Enabled = false;
+            this.txtRacialDex.Location = new System.Drawing.Point(165, 152);
+            this.txtRacialDex.Name = "txtRacialDex";
+            this.txtRacialDex.Size = new System.Drawing.Size(58, 25);
+            this.txtRacialDex.TabIndex = 19;
+            this.txtRacialDex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtRacialStr
+            // 
+            this.txtRacialStr.Enabled = false;
+            this.txtRacialStr.Location = new System.Drawing.Point(165, 121);
+            this.txtRacialStr.Name = "txtRacialStr";
+            this.txtRacialStr.Size = new System.Drawing.Size(58, 25);
+            this.txtRacialStr.TabIndex = 18;
+            this.txtRacialStr.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // txtAssignedCha
+            // 
+            this.txtAssignedCha.Location = new System.Drawing.Point(101, 276);
+            this.txtAssignedCha.Name = "txtAssignedCha";
+            this.txtAssignedCha.Size = new System.Drawing.Size(58, 25);
+            this.txtAssignedCha.TabIndex = 17;
+            this.txtAssignedCha.Tag = "CHA";
+            this.txtAssignedCha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtAssignedCha.Leave += new System.EventHandler(this.Assigned_Leave);
+            // 
+            // txtAssignedWis
+            // 
+            this.txtAssignedWis.Location = new System.Drawing.Point(101, 245);
+            this.txtAssignedWis.Name = "txtAssignedWis";
+            this.txtAssignedWis.Size = new System.Drawing.Size(58, 25);
+            this.txtAssignedWis.TabIndex = 16;
+            this.txtAssignedWis.Tag = "WIS";
+            this.txtAssignedWis.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtAssignedWis.Leave += new System.EventHandler(this.Assigned_Leave);
+            // 
+            // txtAssignedInt
+            // 
+            this.txtAssignedInt.Location = new System.Drawing.Point(101, 214);
+            this.txtAssignedInt.Name = "txtAssignedInt";
+            this.txtAssignedInt.Size = new System.Drawing.Size(58, 25);
+            this.txtAssignedInt.TabIndex = 15;
+            this.txtAssignedInt.Tag = "INT";
+            this.txtAssignedInt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtAssignedInt.Leave += new System.EventHandler(this.Assigned_Leave);
+            // 
+            // txtAssignedCon
+            // 
+            this.txtAssignedCon.Location = new System.Drawing.Point(101, 183);
+            this.txtAssignedCon.Name = "txtAssignedCon";
+            this.txtAssignedCon.Size = new System.Drawing.Size(58, 25);
+            this.txtAssignedCon.TabIndex = 14;
+            this.txtAssignedCon.Tag = "CON";
+            this.txtAssignedCon.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtAssignedCon.Leave += new System.EventHandler(this.Assigned_Leave);
+            // 
+            // txtAssignedDex
+            // 
+            this.txtAssignedDex.Location = new System.Drawing.Point(101, 152);
+            this.txtAssignedDex.Name = "txtAssignedDex";
+            this.txtAssignedDex.Size = new System.Drawing.Size(58, 25);
+            this.txtAssignedDex.TabIndex = 13;
+            this.txtAssignedDex.Tag = "DEX";
+            this.txtAssignedDex.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtAssignedDex.Leave += new System.EventHandler(this.Assigned_Leave);
+            // 
+            // label8
+            // 
+            this.label8.Location = new System.Drawing.Point(226, 93);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(58, 25);
+            this.label8.TabIndex = 12;
+            this.label8.Text = "Total";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label6
+            // 
+            this.label6.Location = new System.Drawing.Point(165, 93);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(58, 25);
+            this.label6.TabIndex = 10;
+            this.label6.Text = "Racial";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label5
+            // 
+            this.label5.Location = new System.Drawing.Point(101, 93);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(58, 25);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "Assign";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtAssignedStr
+            // 
+            this.txtAssignedStr.Location = new System.Drawing.Point(101, 121);
+            this.txtAssignedStr.Name = "txtAssignedStr";
+            this.txtAssignedStr.Size = new System.Drawing.Size(58, 25);
+            this.txtAssignedStr.TabIndex = 8;
+            this.txtAssignedStr.Tag = "STR";
+            this.txtAssignedStr.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtAssignedStr.Leave += new System.EventHandler(this.Assigned_Leave);
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(8, 68);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(87, 22);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "Race";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // cboRace
+            // 
+            this.cboRace.FormattingEnabled = true;
+            this.cboRace.Location = new System.Drawing.Point(101, 65);
+            this.cboRace.Name = "cboRace";
+            this.cboRace.Size = new System.Drawing.Size(186, 25);
+            this.cboRace.TabIndex = 6;
+            this.cboRace.SelectedValueChanged += new System.EventHandler(this.Race_SelectedValueChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(136, 37);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(51, 17);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "Gender";
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(8, 37);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(87, 21);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Alignment";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // txtGender
+            // 
+            this.txtGender.Location = new System.Drawing.Point(193, 34);
+            this.txtGender.Name = "txtGender";
+            this.txtGender.Size = new System.Drawing.Size(94, 25);
+            this.txtGender.TabIndex = 3;
+            this.txtGender.Leave += new System.EventHandler(this.Gender_Leave);
+            // 
+            // txtAlignment
+            // 
+            this.txtAlignment.Location = new System.Drawing.Point(101, 34);
+            this.txtAlignment.Name = "txtAlignment";
+            this.txtAlignment.Size = new System.Drawing.Size(29, 25);
+            this.txtAlignment.TabIndex = 2;
+            this.txtAlignment.Leave += new System.EventHandler(this.Alignment_Leave);
+            // 
+            // txtName
+            // 
+            this.txtName.Location = new System.Drawing.Point(101, 3);
+            this.txtName.Name = "txtName";
+            this.txtName.Size = new System.Drawing.Size(186, 25);
+            this.txtName.TabIndex = 1;
+            this.txtName.Leave += new System.EventHandler(this.Name_Leave);
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(8, 6);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(87, 21);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Name";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // statsTab
             // 
@@ -138,10 +646,10 @@
             this.statsTab.Controls.Add(this.txtParam2);
             this.statsTab.Controls.Add(this.txtParam);
             this.statsTab.Controls.Add(this.lblTopLeft);
-            this.statsTab.Location = new System.Drawing.Point(4, 4);
+            this.statsTab.Location = new System.Drawing.Point(4, 26);
             this.statsTab.Name = "statsTab";
             this.statsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.statsTab.Size = new System.Drawing.Size(905, 585);
+            this.statsTab.Size = new System.Drawing.Size(976, 631);
             this.statsTab.TabIndex = 0;
             this.statsTab.Text = "Stats";
             this.statsTab.UseVisualStyleBackColor = true;
@@ -150,7 +658,7 @@
             // 
             this.lblParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblParam2.AutoSize = true;
-            this.lblParam2.Location = new System.Drawing.Point(46, 526);
+            this.lblParam2.Location = new System.Drawing.Point(46, 572);
             this.lblParam2.Name = "lblParam2";
             this.lblParam2.Size = new System.Drawing.Size(116, 17);
             this.lblParam2.TabIndex = 4;
@@ -161,7 +669,7 @@
             // 
             this.lblParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblParam.AutoSize = true;
-            this.lblParam.Location = new System.Drawing.Point(46, 557);
+            this.lblParam.Location = new System.Drawing.Point(46, 603);
             this.lblParam.Name = "lblParam";
             this.lblParam.Size = new System.Drawing.Size(116, 17);
             this.lblParam.TabIndex = 3;
@@ -171,7 +679,7 @@
             // txtParam2
             // 
             this.txtParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam2.Location = new System.Drawing.Point(8, 523);
+            this.txtParam2.Location = new System.Drawing.Point(8, 569);
             this.txtParam2.Name = "txtParam2";
             this.txtParam2.Size = new System.Drawing.Size(32, 25);
             this.txtParam2.TabIndex = 2;
@@ -181,7 +689,7 @@
             // txtParam
             // 
             this.txtParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam.Location = new System.Drawing.Point(8, 554);
+            this.txtParam.Location = new System.Drawing.Point(8, 600);
             this.txtParam.Name = "txtParam";
             this.txtParam.Size = new System.Drawing.Size(32, 25);
             this.txtParam.TabIndex = 1;
@@ -228,10 +736,10 @@
             this.inventoryTab.Controls.Add(this.lblPrimaryWeapon);
             this.inventoryTab.Controls.Add(this.grpSampleLocation2);
             this.inventoryTab.Controls.Add(this.grpSampleLocation);
-            this.inventoryTab.Location = new System.Drawing.Point(4, 4);
+            this.inventoryTab.Location = new System.Drawing.Point(4, 26);
             this.inventoryTab.Name = "inventoryTab";
             this.inventoryTab.Padding = new System.Windows.Forms.Padding(3);
-            this.inventoryTab.Size = new System.Drawing.Size(905, 585);
+            this.inventoryTab.Size = new System.Drawing.Size(976, 631);
             this.inventoryTab.TabIndex = 1;
             this.inventoryTab.Text = "Inventory";
             this.inventoryTab.UseVisualStyleBackColor = true;
@@ -241,7 +749,7 @@
             // 
             this.lblTotalWeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTotalWeight.AutoSize = true;
-            this.lblTotalWeight.Location = new System.Drawing.Point(202, 565);
+            this.lblTotalWeight.Location = new System.Drawing.Point(202, 611);
             this.lblTotalWeight.Name = "lblTotalWeight";
             this.lblTotalWeight.Size = new System.Drawing.Size(66, 17);
             this.lblTotalWeight.TabIndex = 3;
@@ -251,7 +759,7 @@
             // 
             this.lblEquippedWeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblEquippedWeight.AutoSize = true;
-            this.lblEquippedWeight.Location = new System.Drawing.Point(3, 565);
+            this.lblEquippedWeight.Location = new System.Drawing.Point(3, 611);
             this.lblEquippedWeight.Name = "lblEquippedWeight";
             this.lblEquippedWeight.Size = new System.Drawing.Size(106, 17);
             this.lblEquippedWeight.TabIndex = 54;
@@ -693,19 +1201,17 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(913, 642);
+            this.ClientSize = new System.Drawing.Size(984, 661);
             this.Controls.Add(this.tabControl1);
-            this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "PlayMore3.5";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
+            this.characterTab.ResumeLayout(false);
+            this.characterTab.PerformLayout();
             this.statsTab.ResumeLayout(false);
             this.statsTab.PerformLayout();
             this.inventoryTab.ResumeLayout(false);
@@ -713,16 +1219,12 @@
             this.grpSampleLocation.ResumeLayout(false);
             this.grpSampleLocation.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.Label lblTopLeft;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveCharacterToolStripMenuItem;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage statsTab;
         private System.Windows.Forms.TabPage inventoryTab;
@@ -770,6 +1272,53 @@
         private System.Windows.Forms.Label lblParam;
         private System.Windows.Forms.TextBox txtParam2;
         private System.Windows.Forms.TextBox txtParam;
+        private System.Windows.Forms.TabPage characterTab;
+        private System.Windows.Forms.Button btnSaveCharacter;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txtFinalCha;
+        private System.Windows.Forms.TextBox txtFinalWis;
+        private System.Windows.Forms.TextBox txtFinalInt;
+        private System.Windows.Forms.TextBox txtFinalCon;
+        private System.Windows.Forms.TextBox txtFinalDex;
+        private System.Windows.Forms.TextBox txtFinalStr;
+        private System.Windows.Forms.TextBox txtRacialCha;
+        private System.Windows.Forms.TextBox txtRacialWis;
+        private System.Windows.Forms.TextBox txtRacialInt;
+        private System.Windows.Forms.TextBox txtRacialCon;
+        private System.Windows.Forms.TextBox txtRacialDex;
+        private System.Windows.Forms.TextBox txtRacialStr;
+        private System.Windows.Forms.TextBox txtAssignedCha;
+        private System.Windows.Forms.TextBox txtAssignedWis;
+        private System.Windows.Forms.TextBox txtAssignedInt;
+        private System.Windows.Forms.TextBox txtAssignedCon;
+        private System.Windows.Forms.TextBox txtAssignedDex;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtAssignedStr;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ComboBox cboRace;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtGender;
+        private System.Windows.Forms.TextBox txtAlignment;
+        private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox cboBonusLanguage;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox txtAutomaticLanguages;
+        private System.Windows.Forms.ComboBox cboClass;
+        private System.Windows.Forms.TextBox txtRolledHp;
+        private System.Windows.Forms.Label lblRolledHp;
+        private System.Windows.Forms.TextBox txtRanksClass;
+        private System.Windows.Forms.TextBox txtRanksCrossClass;
+        private System.Windows.Forms.Label lblSkill2;
+        private System.Windows.Forms.Label lblSkill1;
     }
 }
 

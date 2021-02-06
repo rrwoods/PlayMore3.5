@@ -33,6 +33,12 @@ namespace PlayMore35 {
 
         private bool loaded = false;
 
+        private List<ComboBox> bonusLanguages = new List<ComboBox>();
+        private List<ComboBox> levels = new List<ComboBox>();
+        private List<TextBox> hpRolls = new List<TextBox>();
+        private List<Label> skillNames = new List<Label>();
+        private Dictionary<string, List<TextBox>> skillRanks = new Dictionary<string, List<TextBox>>();
+
         // 1. each of these fields represents one of the four sections of the summary page.
         // 2. the outer list is list of subsections, with visual separation between each subsection.
         // 3. each subsection contains a list of rows
@@ -88,6 +94,13 @@ namespace PlayMore35 {
 
         public TabPage StatsTab() {
             return statsTab;
+        }
+
+        private void ClearDynamicControls<T>(TabPage tab, List<T> controls) where T : Control {
+            foreach (T control in controls) {
+                tab.Controls.Remove(control);
+            }
+            controls.Clear();
         }
 
         private (int value, List<string> explanation) GetStatValue(string stat) {
@@ -206,13 +219,269 @@ namespace PlayMore35 {
             }
         }
 
+        private void Name_Leave(object sender, EventArgs e) {
+            character.name = txtName.Text;
+        }
+
+        private void Alignment_Leave(object sender, EventArgs e) {
+            character.alignment = txtAlignment.Text;
+        }
+
+        private void Gender_Leave(object sender, EventArgs e) {
+            character.gender = txtGender.Text;
+        }
+
+        private void Race_SelectedValueChanged(object sender, EventArgs e) {
+            character.race = cboRace.Text;
+            DisplayRacialAbilityModifiers();
+            DisplayTotalAbilityScores();
+            HandleLanguages();
+        }
+
+        private void Assigned_Leave(object sender, EventArgs e) {
+            AssignAbilityScore((TextBox)sender);
+            HandleLanguages();
+        }
+
+        private void AssignAbilityScore(TextBox txt) {
+            try {
+                character.assignedAbilityScores[(string)txt.Tag] = int.Parse(txt.Text);
+            } catch (FormatException) {
+                character.assignedAbilityScores[(string)txt.Tag] = 0;
+                txt.Text = "";
+            }
+            controller.Effects.AssignAbilityScores(character.assignedAbilityScores);
+            DisplayTotalAbilityScores();
+        }
+
+        private void DisplayRacialAbilityModifiers() {
+            const string MODIFIER_FORMAT = "+#;–#;\"\"";
+
+            Race race = controller.RaceDefinitions[character.race];
+            txtRacialStr.Text = race.Str.ToString(MODIFIER_FORMAT);
+            txtRacialDex.Text = race.Dex.ToString(MODIFIER_FORMAT);
+            txtRacialCon.Text = race.Con.ToString(MODIFIER_FORMAT);
+            txtRacialInt.Text = race.Int.ToString(MODIFIER_FORMAT);
+            txtRacialWis.Text = race.Wis.ToString(MODIFIER_FORMAT);
+            txtRacialCha.Text = race.Cha.ToString(MODIFIER_FORMAT);
+        }
+
+        private void DisplayTotalAbilityScores() {
+            Race race = controller.RaceDefinitions[character.race];
+            txtFinalStr.Text = "" + (character.assignedAbilityScores[STR] + race.Str);
+            txtFinalDex.Text = "" + (character.assignedAbilityScores[DEX] + race.Dex);
+            txtFinalCon.Text = "" + (character.assignedAbilityScores[CON] + race.Con);
+            txtFinalInt.Text = "" + (character.assignedAbilityScores[INT] + race.Int);
+            txtFinalWis.Text = "" + (character.assignedAbilityScores[WIS] + race.Wis);
+            txtFinalCha.Text = "" + (character.assignedAbilityScores[CHA] + race.Cha);
+        }
+
+        private EventHandler SelectBonusLanguage(int i) {
+            return (object sender, EventArgs e) => {
+                character.bonusLanguages[i] = ((ComboBox)sender).Text;
+            };
+        }
+
+        private EventHandler SelectClassLevel(int i) {
+            return (object sender, EventArgs e) => {
+                character.classLevels[i] = ((ComboBox)sender).Text;
+            };
+        }
+
+        private string HitDieForLevel(int levelIndex) {
+            return "d" + controller.ClassDefinitions[character.classLevels[levelIndex]].HitDie;
+        }
+
+        private EventHandler SetHp(int levelIndex) {
+            return (object sender, EventArgs e) => {
+                try {
+                    character.rolledHitDice[levelIndex] = int.Parse(((TextBox)sender).Text);
+                } catch (FormatException) {
+                    character.rolledHitDice[levelIndex] = 0;
+                    ((TextBox)sender).Text = HitDieForLevel(levelIndex);
+                }
+            };
+        }
+
+        private EventHandler SetRanks(string skill, int levelIndex) {
+            return (object sender, EventArgs e) => {
+                try {
+                    character.skillRanks[skill][levelIndex] = int.Parse(((TextBox)sender).Text);
+                } catch (FormatException) {
+                    character.skillRanks[skill][levelIndex] = 0;
+                    ((TextBox)sender).Text = "";
+                }
+            };
+        }
+
+        private int Parse(string s) {
+            return string.IsNullOrWhiteSpace(s) ? 0 : int.Parse(s.Replace("–", "-"));
+        }
+
+        private void HandleLanguages() {
+            Race race = controller.RaceDefinitions[character.race];
+            txtAutomaticLanguages.Text = string.Join(", ", race.AutomaticLanguages);
+
+            int numBonusLanguages = Math.Max(0, (character.assignedAbilityScores[INT] + race.Int) / 2 - 5);
+            int curBonusLanguages = bonusLanguages.Count;
+            int langBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
+            int langTop = cboBonusLanguage.Top + langBuffer * curBonusLanguages;
+            for (int i = curBonusLanguages; i < numBonusLanguages; i++) {
+                ComboBox box = new ComboBox {
+                    Size = cboBonusLanguage.Size,
+                    Top = langTop,
+                    Left = cboBonusLanguage.Left
+                };
+                foreach (string language in controller.RaceDefinitions[character.race].BonusLanguages) {
+                    box.Items.Add(language);
+                }
+                if (character.bonusLanguages.Count() > i) {
+                    box.Text = character.bonusLanguages[i];
+                } else {
+                    character.bonusLanguages.Add("");
+                }
+
+                box.SelectedValueChanged += SelectBonusLanguage(i);
+
+                characterTab.Controls.Add(box);
+                bonusLanguages.Add(box);
+
+                langTop += langBuffer;
+            }
+            int excess = character.bonusLanguages.Count - numBonusLanguages;
+            if (excess > 0) {
+                character.bonusLanguages.RemoveRange(numBonusLanguages, excess);
+            }
+            for (int i = curBonusLanguages - 1; i >= numBonusLanguages; i--) {
+                characterTab.Controls.Remove(bonusLanguages[i]);
+                bonusLanguages.RemoveAt(i);
+            }
+        }
+
+        private void CharacterTab_Enter(object sender, EventArgs e) {
+            if (!loaded) {
+                return;
+            }
+
+            txtName.Text = character.name;
+            txtAlignment.Text = character.alignment;
+            txtGender.Text = character.gender;
+            cboRace.Text = character.race;
+
+            txtAssignedStr.Text = "" + character.assignedAbilityScores[STR];
+            txtAssignedDex.Text = "" + character.assignedAbilityScores[DEX];
+            txtAssignedCon.Text = "" + character.assignedAbilityScores[CON];
+            txtAssignedInt.Text = "" + character.assignedAbilityScores[INT];
+            txtAssignedWis.Text = "" + character.assignedAbilityScores[WIS];
+            txtAssignedCha.Text = "" + character.assignedAbilityScores[CHA];
+
+            DisplayRacialAbilityModifiers();
+            DisplayTotalAbilityScores();
+
+            HandleLanguages();
+
+            ClearDynamicControls(characterTab, skillNames);
+            foreach (List<TextBox> boxes in skillRanks.Values) {
+                foreach (TextBox box in boxes) {
+                    characterTab.Controls.Remove(box);
+                }
+            }
+            skillRanks.Clear();
+
+            int skillLeft = lblSkill1.Left;
+            int skillLabelBuffer = lblSkill2.Left - lblSkill1.Left;
+            int skillIndex = 0;
+            foreach (var skill in character.skillRanks) {
+                Label skillName = new Label {
+                    AutoSize = false,
+                    Size = lblSkill1.Size,
+                    Left = skillLeft,
+                    Top = lblSkill1.Top,
+                    TextAlign = lblSkill1.TextAlign,
+                    Text = Controller.ShortName(skill.Key),
+                    Tag = skill.Key,
+                };
+                toolTips[skillName] = new ToolTip();
+                toolTips[skillName].SetToolTip(skillName, skill.Key);
+
+                skillNames.Add(skillName);
+                characterTab.Controls.Add(skillName);
+
+                skillRanks[skill.Key] = new List<TextBox>();
+
+                skillIndex++;
+                skillLeft += skillLabelBuffer;
+            }
+
+            ClearDynamicControls(characterTab, levels);
+            ClearDynamicControls(characterTab, hpRolls);
+
+            int levelTop = cboClass.Top;
+            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
+            int levelIndex = 0;
+            for (int i = 0; i < character.classLevels.Count; i++) {
+                string @class = character.classLevels[i];
+                ComboBox level = new ComboBox {
+                    Top = levelTop,
+                    Left = cboClass.Left,
+                    Size = cboClass.Size
+                };
+                foreach (string className in controller.ClassDefinitions.Keys) {
+                    level.Items.Add(className);
+                }
+                level.Text = @class;
+                level.SelectedValueChanged += SelectClassLevel(levelIndex);
+                levels.Add(level);
+                characterTab.Controls.Add(level);
+
+                TextBox rolledHp = new TextBox {
+                    Top = levelTop,
+                    Left = txtRolledHp.Left,
+                    Size = txtRolledHp.Size,
+                    TextAlign = txtRolledHp.TextAlign
+                };
+                rolledHp.Text = "" + character.rolledHitDice[levelIndex];
+                rolledHp.Leave += SetHp(levelIndex);
+                hpRolls.Add(rolledHp);
+                characterTab.Controls.Add(rolledHp);
+
+                skillLeft = txtRanksCrossClass.Left;
+                foreach (Label skillName in skillNames) {
+                    string skill = (string)skillName.Tag;
+                    TextBox ranks = new TextBox {
+                        Top = levelTop,
+                        Left = skillLeft,
+                        Size = txtRanksCrossClass.Size,
+                        TextAlign = txtRanksCrossClass.TextAlign,
+                        Text = character.skillRanks[skill][levelIndex].ToString("#;#;\"\""),
+                        BackColor = controller.IsClassSkill(skill, levelIndex)
+                            ? txtRanksClass.BackColor
+                            : txtRanksCrossClass.BackColor,
+                    };
+                    ranks.Leave += SetRanks(skill, levelIndex);
+                    skillRanks[skill].Add(ranks);
+                    characterTab.Controls.Add(ranks);
+
+                    skillLeft += skillLabelBuffer;
+                }
+
+                levelTop += levelBuffer;
+                levelIndex++;
+            }
+        }
+
+        private void CharacterTab_Leave(object sender, EventArgs e) {
+            controller.Reload();
+            RefreshEffects();
+        }
+
         private void RefreshEffects() {
             Dictionary<string, List<string>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
             name.Text = character.name.ToUpper();
 
             Dictionary<string, int> classLevels = new Dictionary<string, int>();
-            foreach (var @class in character.classLevels) {
+            foreach (string @class in character.classLevels) {
                 if (!classLevels.ContainsKey(@class)) {
                     classLevels[@class] = 1;
                 } else {
@@ -222,11 +491,12 @@ namespace PlayMore35 {
             desc1.Text =
                 character.gender + " " +
                 character.race + " " +
-                string.Join(", ", classLevels.Select(x => x.Key.Replace(" ", "\u00a0") + "\u00a0" + x.Value));
+                string.Join(", ", classLevels.Select(x => x.Key.Replace(" ", "\u00a0").ToLower() + "\u00a0" + x.Value));
             // I wanted the separator for classes to be "/" like it is in most stat blocks,
             // but I also wanted wrapping line breaks to only appear between classes.  Unfortunately,
             // the zero-width space isn't respected by the wrapping routine for some reason.  So I
-            // decided to use a character that looks okay when I put a space after it instead.
+            // decided to use a character that looks okay when I put a space after it instead.  I'll
+            // probably revisit this when I move to a more modernized UI framework.
             string sizeCategory = SIZE_CATEGORIES[GetStatValue(SIZE_CATEGORY).value + 4];
             desc2.Text = character.alignment + " " + sizeCategory + " " +
                 controller.Effects.CreatureType +
@@ -768,6 +1038,10 @@ namespace PlayMore35 {
                 }
             }
 
+            foreach(string race in controller.RaceDefinitions.Keys) {
+                cboRace.Items.Add(race);
+            }
+
             name = new Label().Initialize(this);
             desc1 = new Label().Initialize(this);
             desc2 = new Label().Initialize(this);
@@ -887,6 +1161,8 @@ namespace PlayMore35 {
 
                 txtTop += paramBuffer;
             }
+
+            new ToolTip().SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
 
             txtHead.Tag = Equipped.Slot.HEAD;
             txtFace.Tag = Equipped.Slot.FACE;

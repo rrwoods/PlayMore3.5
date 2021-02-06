@@ -38,14 +38,12 @@ namespace PlayMore35.CharacterChoices {
                     ["Heal"] = new List<int> { 2, 0, 0, 0, 0, 1, 2 },
                     ["Balance"] = new List<int> { 2, 0, 0, 0, 0, 0, 0 },
                 },
-                feats = new List<List<string>> {
-                    new List<string> { "Improved Binding" },
-                    new List<string>(),
-                    new List<string> { "Constant Guardian", "Endurance" },
-                    new List<string> { "Weapon Focus (dagger)" },
-                    new List<string>(),
-                    new List<string> { "True Believer" },
-                    new List<string>()
+                feats = new Dictionary<string, string> {
+                    ["Level 1"] = "Improved Binding",
+                    ["Level 3"] = "Endurance",
+                    ["Fighter 1"] = "Constant Guardian",
+                    ["Fighter 2"] = "Weapon Focus (dagger)",
+                    ["Level 6"] = "True Believer"
                 },
                 equipped = new EquippedChoices {
                     PrimaryHandWeapon = new WeaponChoice {
@@ -112,10 +110,7 @@ namespace PlayMore35.CharacterChoices {
             CollectionAssert.AreEqual(character.abilityScoreIncrements, fromJson.abilityScoreIncrements);
             CollectionAssert.AreEqual(character.rolledHitDice, fromJson.rolledHitDice);
             CollectionAssert.AreEqual(character.skillRanks["Jump"], fromJson.skillRanks["Jump"]);
-            for (int i = 0; i < 7; i++) {
-                CollectionAssert.AreEqual(character.feats[i], fromJson.feats[i]);
-            }
-
+            CollectionAssert.AreEqual(character.feats, fromJson.feats);
             Assert.AreEqual(character.equipped.PrimaryHandWeapon.Name, fromJson.equipped.PrimaryHandWeapon.Name);
             ArmorChoice armor = character.equipped.DonnedArmor;
             ArmorChoice jsonArmor = fromJson.equipped.DonnedArmor;

@@ -6,7 +6,7 @@
       "name": "panic button",
       "text": [
         {
-          "category": "Atk Options",
+          "category": "Movement",
           "text": "std 1/day\u2014throw panic button, teleport to where it lands; 25% to become inert afterward"
         }
       ]
