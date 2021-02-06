@@ -145,6 +145,10 @@ namespace PlayMore35.Effects {
             return allText;
         }
 
+        public List<string> GetFeatSlots() {
+            return new List<string> { "Level 1", "Level 3" };
+        }
+
         public void AssignAbilityScores(Dictionary<string, int> scores) {
             foreach (var ability in scores) {
                 string name = ability.Key;

@@ -119,6 +119,11 @@
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
+            this.lblFeats = new System.Windows.Forms.Label();
+            this.cboFeat = new System.Windows.Forms.ComboBox();
+            this.lblFeatSlot = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.lblBonusLang = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.characterTab.SuspendLayout();
             this.statsTab.SuspendLayout();
@@ -152,6 +157,11 @@
             // 
             // characterTab
             // 
+            this.characterTab.Controls.Add(this.lblBonusLang);
+            this.characterTab.Controls.Add(this.label7);
+            this.characterTab.Controls.Add(this.lblFeatSlot);
+            this.characterTab.Controls.Add(this.cboFeat);
+            this.characterTab.Controls.Add(this.lblFeats);
             this.characterTab.Controls.Add(this.lblSkill2);
             this.characterTab.Controls.Add(this.lblSkill1);
             this.characterTab.Controls.Add(this.lblRolledHp);
@@ -281,7 +291,7 @@
             // cboBonusLanguage
             // 
             this.cboBonusLanguage.FormattingEnabled = true;
-            this.cboBonusLanguage.Location = new System.Drawing.Point(101, 338);
+            this.cboBonusLanguage.Location = new System.Drawing.Point(101, 368);
             this.cboBonusLanguage.Name = "cboBonusLanguage";
             this.cboBonusLanguage.Size = new System.Drawing.Size(186, 25);
             this.cboBonusLanguage.TabIndex = 46;
@@ -289,17 +299,17 @@
             // 
             // label15
             // 
-            this.label15.Location = new System.Drawing.Point(8, 310);
+            this.label15.Location = new System.Drawing.Point(101, 304);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(87, 22);
+            this.label15.Size = new System.Drawing.Size(186, 30);
             this.label15.TabIndex = 45;
             this.label15.Text = "Languages";
-            this.label15.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label15.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // txtAutomaticLanguages
             // 
             this.txtAutomaticLanguages.Enabled = false;
-            this.txtAutomaticLanguages.Location = new System.Drawing.Point(101, 307);
+            this.txtAutomaticLanguages.Location = new System.Drawing.Point(101, 337);
             this.txtAutomaticLanguages.Name = "txtAutomaticLanguages";
             this.txtAutomaticLanguages.Size = new System.Drawing.Size(186, 25);
             this.txtAutomaticLanguages.TabIndex = 44;
@@ -317,57 +327,57 @@
             // 
             // label14
             // 
-            this.label14.Location = new System.Drawing.Point(8, 279);
+            this.label14.Location = new System.Drawing.Point(8, 276);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(87, 22);
+            this.label14.Size = new System.Drawing.Size(87, 25);
             this.label14.TabIndex = 41;
             this.label14.Text = "Charisma";
-            this.label14.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label13
             // 
-            this.label13.Location = new System.Drawing.Point(8, 248);
+            this.label13.Location = new System.Drawing.Point(8, 245);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(87, 22);
+            this.label13.Size = new System.Drawing.Size(87, 25);
             this.label13.TabIndex = 40;
             this.label13.Text = "Wisdom";
-            this.label13.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label12
             // 
-            this.label12.Location = new System.Drawing.Point(8, 217);
+            this.label12.Location = new System.Drawing.Point(8, 214);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(87, 22);
+            this.label12.Size = new System.Drawing.Size(87, 25);
             this.label12.TabIndex = 39;
             this.label12.Text = "Intelligence";
-            this.label12.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label11
             // 
-            this.label11.Location = new System.Drawing.Point(8, 186);
+            this.label11.Location = new System.Drawing.Point(8, 183);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(87, 22);
+            this.label11.Size = new System.Drawing.Size(87, 25);
             this.label11.TabIndex = 38;
             this.label11.Text = "Constitution";
-            this.label11.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label10
             // 
-            this.label10.Location = new System.Drawing.Point(8, 155);
+            this.label10.Location = new System.Drawing.Point(8, 152);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(87, 22);
+            this.label10.Size = new System.Drawing.Size(87, 25);
             this.label10.TabIndex = 37;
             this.label10.Text = "Dexterity";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label9
             // 
-            this.label9.Location = new System.Drawing.Point(8, 124);
+            this.label9.Location = new System.Drawing.Point(8, 121);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(87, 22);
+            this.label9.Size = new System.Drawing.Size(87, 25);
             this.label9.TabIndex = 36;
             this.label9.Text = "Strength";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // txtFinalCha
             // 
@@ -572,12 +582,12 @@
             // 
             // label4
             // 
-            this.label4.Location = new System.Drawing.Point(8, 68);
+            this.label4.Location = new System.Drawing.Point(8, 65);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(87, 22);
+            this.label4.Size = new System.Drawing.Size(87, 25);
             this.label4.TabIndex = 7;
             this.label4.Text = "Race";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // cboRace
             // 
@@ -590,21 +600,21 @@
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(136, 37);
+            this.label3.Location = new System.Drawing.Point(136, 34);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(51, 17);
+            this.label3.Size = new System.Drawing.Size(51, 25);
             this.label3.TabIndex = 5;
             this.label3.Text = "Gender";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(8, 37);
+            this.label2.Location = new System.Drawing.Point(8, 34);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(87, 21);
+            this.label2.Size = new System.Drawing.Size(87, 24);
             this.label2.TabIndex = 4;
             this.label2.Text = "Alignment";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // txtGender
             // 
@@ -632,12 +642,12 @@
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(8, 6);
+            this.label1.Location = new System.Drawing.Point(8, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(87, 21);
+            this.label1.Size = new System.Drawing.Size(87, 24);
             this.label1.TabIndex = 0;
             this.label1.Text = "Name";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // statsTab
             // 
@@ -653,6 +663,7 @@
             this.statsTab.TabIndex = 0;
             this.statsTab.Text = "Stats";
             this.statsTab.UseVisualStyleBackColor = true;
+            this.statsTab.Enter += new System.EventHandler(this.StatsTab_Enter);
             // 
             // lblParam2
             // 
@@ -1197,6 +1208,53 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
+            // lblFeats
+            // 
+            this.lblFeats.Location = new System.Drawing.Point(101, 396);
+            this.lblFeats.Name = "lblFeats";
+            this.lblFeats.Size = new System.Drawing.Size(186, 26);
+            this.lblFeats.TabIndex = 54;
+            this.lblFeats.Text = "Feats";
+            this.lblFeats.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            // 
+            // cboFeat
+            // 
+            this.cboFeat.FormattingEnabled = true;
+            this.cboFeat.Location = new System.Drawing.Point(101, 425);
+            this.cboFeat.Name = "cboFeat";
+            this.cboFeat.Size = new System.Drawing.Size(186, 25);
+            this.cboFeat.TabIndex = 55;
+            this.cboFeat.Visible = false;
+            // 
+            // lblFeatSlot
+            // 
+            this.lblFeatSlot.Location = new System.Drawing.Point(8, 425);
+            this.lblFeatSlot.Name = "lblFeatSlot";
+            this.lblFeatSlot.Size = new System.Drawing.Size(87, 25);
+            this.lblFeatSlot.TabIndex = 56;
+            this.lblFeatSlot.Text = "Level 1";
+            this.lblFeatSlot.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblFeatSlot.Visible = false;
+            // 
+            // label7
+            // 
+            this.label7.Location = new System.Drawing.Point(8, 337);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(87, 25);
+            this.label7.TabIndex = 57;
+            this.label7.Text = "Automatic";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblBonusLang
+            // 
+            this.lblBonusLang.Location = new System.Drawing.Point(8, 368);
+            this.lblBonusLang.Name = "lblBonusLang";
+            this.lblBonusLang.Size = new System.Drawing.Size(87, 25);
+            this.lblBonusLang.TabIndex = 58;
+            this.lblBonusLang.Text = "Bonus";
+            this.lblBonusLang.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblBonusLang.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -1319,6 +1377,11 @@
         private System.Windows.Forms.TextBox txtRanksCrossClass;
         private System.Windows.Forms.Label lblSkill2;
         private System.Windows.Forms.Label lblSkill1;
+        private System.Windows.Forms.Label lblFeatSlot;
+        private System.Windows.Forms.ComboBox cboFeat;
+        private System.Windows.Forms.Label lblFeats;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lblBonusLang;
     }
 }
 

@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using PlayMore35.CharacterChoices;
+using PlayMore35.Global;
+using PlayMore35.Items;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -8,14 +12,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-
-using PlayMore35.CharacterChoices;
-using PlayMore35.Global;
-using PlayMore35.Items;
-using static PlayMore35.Properties.Resources;
-using Newtonsoft.Json.Linq;
-
 using static PlayMore35.Effects.Constants;
+using static PlayMore35.Properties.Resources;
 
 namespace PlayMore35 {
     public partial class MainForm : Form {
@@ -33,7 +31,14 @@ namespace PlayMore35 {
 
         private bool loaded = false;
 
+        private List<Label> bonusLabels = new List<Label>();
         private List<ComboBox> bonusLanguages = new List<ComboBox>();
+
+        private static List<string> availableFeats = new List<string>();
+        private int featHeaderBuffer, featBoxBuffer;
+        private List<Label> featSlots = new List<Label>();
+        private List<ComboBox> feats = new List<ComboBox>();
+
         private List<ComboBox> levels = new List<ComboBox>();
         private List<TextBox> hpRolls = new List<TextBox>();
         private List<Label> skillNames = new List<Label>();
@@ -65,6 +70,15 @@ namespace PlayMore35 {
         private Label sq;
         private List<List<Label>> skills = new List<List<Label>>();
         private Label miscSkills;
+
+        private List<CheckBox> toggles = new List<CheckBox>();
+        private List<TextBox> paramBoxes = new List<TextBox>();
+        private List<Label> paramLabels = new List<Label>();
+        // Used to keep values of parameters around so that when we re-load the stats tab
+        // we can fill them back out again -- otherwise it would (for example) forget how much
+        // damage is on you when you check your inventory
+        private Dictionary<string, int> paramValues = new Dictionary<string, int>();
+        private HashSet<string> activeToggles = new HashSet<string>();
 
         private List<Label> slotBoxes;
 
@@ -282,6 +296,12 @@ namespace PlayMore35 {
             };
         }
 
+        private EventHandler SelectFeat(string slot) {
+            return (object sender, EventArgs e) => {
+                character.feats[slot] = ((ComboBox)sender).Text;
+            };
+        }
+
         private EventHandler SelectClassLevel(int i) {
             return (object sender, EventArgs e) => {
                 character.classLevels[i] = ((ComboBox)sender).Text;
@@ -327,6 +347,15 @@ namespace PlayMore35 {
             int langBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             int langTop = cboBonusLanguage.Top + langBuffer * curBonusLanguages;
             for (int i = curBonusLanguages; i < numBonusLanguages; i++) {
+                Label bonusLabel = new Label {
+                    Size = lblBonusLang.Size,
+                    Top = langTop,
+                    Left = lblBonusLang.Left,
+                    Text = lblBonusLang.Text
+                };
+                characterTab.Controls.Add(bonusLabel);
+                bonusLabels.Add(bonusLabel);
+
                 ComboBox box = new ComboBox {
                     Size = cboBonusLanguage.Size,
                     Top = langTop,
@@ -355,6 +384,23 @@ namespace PlayMore35 {
             for (int i = curBonusLanguages - 1; i >= numBonusLanguages; i--) {
                 characterTab.Controls.Remove(bonusLanguages[i]);
                 bonusLanguages.RemoveAt(i);
+                characterTab.Controls.Remove(bonusLabels[i]);
+                bonusLabels.RemoveAt(i);
+            }
+
+            AdjustFeats();
+        }
+
+        private void AdjustFeats() {
+            int newPos = bonusLanguages.Last().Bottom + featHeaderBuffer;
+            int adjust = newPos - lblFeats.Top;
+
+            lblFeats.Top = bonusLanguages.Last().Bottom + featHeaderBuffer;
+            foreach (Label slot in featSlots) {
+                slot.Top += adjust;
+            }
+            foreach (ComboBox feat in feats) {
+                feat.Top += adjust;
             }
         }
 
@@ -379,6 +425,42 @@ namespace PlayMore35 {
             DisplayTotalAbilityScores();
 
             HandleLanguages();
+
+            ClearDynamicControls(characterTab, featSlots);
+            ClearDynamicControls(characterTab, feats);
+            int featTop = lblFeats.Bottom + featBoxBuffer;
+            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
+            foreach (string slot in controller.Effects.GetFeatSlots()) {
+                Label slotLabel = new Label {
+                    Top = featTop,
+                    Left = lblFeatSlot.Left,
+                    Size = lblFeatSlot.Size,
+                    AutoSize = false,
+                    TextAlign = lblFeatSlot.TextAlign,
+                    Text = slot
+                };
+                featSlots.Add(slotLabel);
+                characterTab.Controls.Add(slotLabel);
+
+                ComboBox featBox = new ComboBox {
+                    AutoCompleteMode = AutoCompleteMode.Append,
+                    AutoCompleteSource = AutoCompleteSource.ListItems,
+                    Top = featTop,
+                    Left = cboFeat.Left,
+                    Size = cboFeat.Size,
+                    Text = character.feats.ContainsKey(slot)
+                        ? character.feats[slot]
+                        : "",
+                };
+                foreach (string feat in availableFeats) {
+                    featBox.Items.Add(feat);
+                }
+                featBox.SelectedValueChanged += SelectFeat(slot);
+                feats.Add(featBox);
+                characterTab.Controls.Add(featBox);
+
+                featTop += levelBuffer;
+            }
 
             ClearDynamicControls(characterTab, skillNames);
             foreach (List<TextBox> boxes in skillRanks.Values) {
@@ -417,7 +499,6 @@ namespace PlayMore35 {
             ClearDynamicControls(characterTab, hpRolls);
 
             int levelTop = cboClass.Top;
-            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             int levelIndex = 0;
             for (int i = 0; i < character.classLevels.Count; i++) {
                 string @class = character.classLevels[i];
@@ -472,7 +553,6 @@ namespace PlayMore35 {
 
         private void CharacterTab_Leave(object sender, EventArgs e) {
             controller.Reload();
-            RefreshEffects();
         }
 
         private void RefreshEffects() {
@@ -994,6 +1074,11 @@ namespace PlayMore35 {
             CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
             controller.Effects.controllableFlags[flag] = toggle.Checked;
+            if (toggle.Checked) {
+                activeToggles.Add(flag);
+            } else {
+                activeToggles.Remove(flag);
+            }
 
             RefreshEffects();
         }
@@ -1004,19 +1089,92 @@ namespace PlayMore35 {
                 box.BackColor = SystemColors.Window;
                 string parameterName = (string)box.Tag;
                 controller.Effects.controllableAmounts[parameterName] = value;
+                paramValues[parameterName] = value;
                 RefreshEffects();
             } else if (box.Text.Equals("")) {
                 box.BackColor = SystemColors.Window;
                 string parameterName = (string)box.Tag;
                 controller.Effects.controllableAmounts[parameterName] = 0;
+                paramValues.Remove(parameterName);
                 RefreshEffects();
             } else {
                 box.BackColor = Color.Red;
             }
         }
 
+        private void StatsTab_Enter(object sender, EventArgs e) {
+            ClearDynamicControls(statsTab, toggles);
+            ClearDynamicControls(statsTab, paramBoxes);
+            ClearDynamicControls(statsTab, paramLabels);
+
+            int txtTop = txtParam.Top;
+            int lblTop = lblParam.Top;
+            foreach (string parameter in controller.Effects.controllableAmounts.Keys) {
+                TextBox txtNewParam = new TextBox() {
+                    Top = txtTop,
+                    Left = txtParam.Left,
+                    Width = txtParam.Width,
+                    TextAlign = HorizontalAlignment.Center,
+                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
+                    Tag = parameter
+                };
+                if (paramValues.ContainsKey(parameter)) {
+                    txtNewParam.Text = "" + paramValues[parameter];
+                }
+                txtNewParam.Leave += Param_Leave;
+                paramBoxes.Add(txtNewParam);
+                statsTab.Controls.Add(txtNewParam);
+
+                Label lblNewParam = new Label() {
+                    Top = lblTop,
+                    Left = lblParam.Left,
+                    AutoSize = true,
+                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left
+                };
+                lblNewParam.Text = parameter;
+                paramLabels.Add(lblNewParam);
+                statsTab.Controls.Add(lblNewParam);
+
+                txtTop += paramBuffer;
+                lblTop += paramBuffer;
+            }
+            foreach (var param in paramValues) {
+                if (controller.Effects.controllableAmounts.ContainsKey(param.Key)) {
+                    controller.Effects.controllableAmounts[param.Key] = param.Value;
+                }
+            }
+
+            foreach (string toggle in controller.Effects.controllableFlags.Keys) {
+                CheckBox chkNewToggle = new CheckBox() {
+                    Top = txtTop,
+                    Left = txtParam.Left,
+                    AutoSize = true,
+                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
+                    Text = toggle
+                };
+                if (activeToggles.Contains(toggle)) {
+                    chkNewToggle.Checked = true;
+                }
+                chkNewToggle.Click += Toggle_Click;
+                toggles.Add(chkNewToggle);
+                statsTab.Controls.Add(chkNewToggle);
+
+                txtTop += paramBuffer;
+            }
+            foreach (string toggle in activeToggles) {
+                if (controller.Effects.controllableFlags.ContainsKey(toggle)) {
+                    controller.Effects.controllableFlags[toggle] = true;
+                }
+            }
+
+            RefreshEffects();
+        }
+
         private void MainForm_Load(object sender, EventArgs e) {
             Font = scala;
+
+            featHeaderBuffer = lblFeats.Top - cboBonusLanguage.Bottom;
+            featBoxBuffer = cboFeat.Top - lblFeats.Bottom;
 
             leftBuffer = lblTopLeft.Left;
             topBuffer = lblTopLeft.Top + 5; // eh.
@@ -1041,6 +1199,9 @@ namespace PlayMore35 {
             foreach(string race in controller.RaceDefinitions.Keys) {
                 cboRace.Items.Add(race);
             }
+
+            availableFeats = controller.FeatDefinitions.Keys.ToList();
+            availableFeats.Sort();
 
             name = new Label().Initialize(this);
             desc1 = new Label().Initialize(this);
@@ -1120,47 +1281,6 @@ namespace PlayMore35 {
                 skills,
                 new List<List<Label>> { new List<Label> { miscSkills } }
             };
-
-            int txtTop = txtParam.Top;
-            int lblTop = lblParam.Top;
-            foreach (string parameter in controller.Effects.controllableAmounts.Keys) {
-                TextBox txtNewParam = new TextBox() {
-                    Top = txtTop,
-                    Left = txtParam.Left,
-                    Width = txtParam.Width,
-                    TextAlign = HorizontalAlignment.Center,
-                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
-                    Tag = parameter
-                };
-                txtNewParam.Leave += Param_Leave;
-                statsTab.Controls.Add(txtNewParam);
-
-                Label lblNewParam = new Label() {
-                    Top = lblTop,
-                    Left = lblParam.Left,
-                    AutoSize = true,
-                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left
-                };
-                lblNewParam.Text = parameter;
-                statsTab.Controls.Add(lblNewParam);
-
-                txtTop += paramBuffer;
-                lblTop += paramBuffer;
-            }
-
-            foreach (string toggle in controller.Effects.controllableFlags.Keys) {
-                CheckBox chkNewToggle = new CheckBox() {
-                    Top = txtTop,
-                    Left = txtParam.Left,
-                    AutoSize = true,
-                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
-                    Text = toggle
-                };
-                chkNewToggle.Click += Toggle_Click;
-                statsTab.Controls.Add(chkNewToggle);
-
-                txtTop += paramBuffer;
-            }
 
             new ToolTip().SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
 
