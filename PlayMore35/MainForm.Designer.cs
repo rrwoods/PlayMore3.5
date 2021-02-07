@@ -124,6 +124,7 @@
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
+            this.btnLoadCharacter = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.characterTab.SuspendLayout();
             this.statsTab.SuspendLayout();
@@ -157,6 +158,7 @@
             // 
             // characterTab
             // 
+            this.characterTab.Controls.Add(this.btnLoadCharacter);
             this.characterTab.Controls.Add(this.lblBonusLang);
             this.characterTab.Controls.Add(this.label7);
             this.characterTab.Controls.Add(this.lblFeatSlot);
@@ -1264,6 +1266,17 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
+            // btnLoadCharacter
+            // 
+            this.btnLoadCharacter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnLoadCharacter.Location = new System.Drawing.Point(3, 550);
+            this.btnLoadCharacter.Name = "btnLoadCharacter";
+            this.btnLoadCharacter.Size = new System.Drawing.Size(75, 36);
+            this.btnLoadCharacter.TabIndex = 59;
+            this.btnLoadCharacter.Text = "Load";
+            this.btnLoadCharacter.UseVisualStyleBackColor = true;
+            this.btnLoadCharacter.Click += new System.EventHandler(this.LoadCharacter_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -1391,6 +1404,7 @@
         private System.Windows.Forms.Label lblFeats;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label lblBonusLang;
+        private System.Windows.Forms.Button btnLoadCharacter;
     }
 }
 

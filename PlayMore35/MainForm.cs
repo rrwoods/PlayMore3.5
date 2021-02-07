@@ -92,7 +92,6 @@ namespace PlayMore35 {
         private int numberDragging = 0;
         
         private Controller controller = null;
-        private Character character = null;
 
         public MainForm() {
             InitializeComponent();
@@ -241,19 +240,19 @@ namespace PlayMore35 {
         }
 
         private void Name_Leave(object sender, EventArgs e) {
-            character.name = txtName.Text;
+            controller.Character.name = txtName.Text;
         }
 
         private void Alignment_Leave(object sender, EventArgs e) {
-            character.alignment = txtAlignment.Text;
+            controller.Character.alignment = txtAlignment.Text;
         }
 
         private void Gender_Leave(object sender, EventArgs e) {
-            character.gender = txtGender.Text;
+            controller.Character.gender = txtGender.Text;
         }
 
         private void Race_SelectedValueChanged(object sender, EventArgs e) {
-            character.race = cboRace.Text;
+            controller.Character.race = cboRace.Text;
             DisplayRacialAbilityModifiers();
             DisplayTotalAbilityScores();
             HandleLanguages();
@@ -266,19 +265,19 @@ namespace PlayMore35 {
 
         private void AssignAbilityScore(TextBox txt) {
             try {
-                character.assignedAbilityScores[(string)txt.Tag] = int.Parse(txt.Text);
+                controller.Character.assignedAbilityScores[(string)txt.Tag] = int.Parse(txt.Text);
             } catch (FormatException) {
-                character.assignedAbilityScores[(string)txt.Tag] = 0;
+                controller.Character.assignedAbilityScores[(string)txt.Tag] = 0;
                 txt.Text = "";
             }
-            controller.Effects.AssignAbilityScores(character.assignedAbilityScores);
+            controller.Effects.AssignAbilityScores(controller.Character.assignedAbilityScores);
             DisplayTotalAbilityScores();
         }
 
         private void DisplayRacialAbilityModifiers() {
             const string MODIFIER_FORMAT = "+#;–#;\"\"";
 
-            Race race = controller.RaceDefinitions[character.race];
+            Race race = controller.RaceDefinitions[controller.Character.race];
             txtRacialStr.Text = race.Str.ToString(MODIFIER_FORMAT);
             txtRacialDex.Text = race.Dex.ToString(MODIFIER_FORMAT);
             txtRacialCon.Text = race.Con.ToString(MODIFIER_FORMAT);
@@ -288,35 +287,35 @@ namespace PlayMore35 {
         }
 
         private void DisplayTotalAbilityScores() {
-            Race race = controller.RaceDefinitions[character.race];
-            txtFinalStr.Text = "" + (character.assignedAbilityScores[STR] + race.Str);
-            txtFinalDex.Text = "" + (character.assignedAbilityScores[DEX] + race.Dex);
-            txtFinalCon.Text = "" + (character.assignedAbilityScores[CON] + race.Con);
-            txtFinalInt.Text = "" + (character.assignedAbilityScores[INT] + race.Int);
-            txtFinalWis.Text = "" + (character.assignedAbilityScores[WIS] + race.Wis);
-            txtFinalCha.Text = "" + (character.assignedAbilityScores[CHA] + race.Cha);
+            Race race = controller.RaceDefinitions[controller.Character.race];
+            txtFinalStr.Text = "" + (controller.Character.assignedAbilityScores[STR] + race.Str);
+            txtFinalDex.Text = "" + (controller.Character.assignedAbilityScores[DEX] + race.Dex);
+            txtFinalCon.Text = "" + (controller.Character.assignedAbilityScores[CON] + race.Con);
+            txtFinalInt.Text = "" + (controller.Character.assignedAbilityScores[INT] + race.Int);
+            txtFinalWis.Text = "" + (controller.Character.assignedAbilityScores[WIS] + race.Wis);
+            txtFinalCha.Text = "" + (controller.Character.assignedAbilityScores[CHA] + race.Cha);
         }
 
         private EventHandler SelectBonusLanguage(int i) {
             return (object sender, EventArgs e) => {
-                character.bonusLanguages[i] = ((ComboBox)sender).Text;
+                controller.Character.bonusLanguages[i] = ((ComboBox)sender).Text;
             };
         }
 
         private EventHandler SelectFeat(string slot) {
             return (object sender, EventArgs e) => {
-                character.feats[slot] = ((ComboBox)sender).Text;
+                controller.Character.feats[slot] = ((ComboBox)sender).Text;
             };
         }
 
         private EventHandler SelectClassLevel(int i) {
             return (object sender, EventArgs e) => {
-                character.classLevels[i] = ((ComboBox)sender).Text;
+                controller.Character.classLevels[i] = ((ComboBox)sender).Text;
             };
         }
 
         private void HitDieForLevel(TextBox box, int levelIndex) {
-            box.Text = "d" + controller.ClassDefinitions[character.classLevels[levelIndex]].HitDie;
+            box.Text = "d" + controller.ClassDefinitions[controller.Character.classLevels[levelIndex]].HitDie;
             box.Font = new Font(box.Font, FontStyle.Italic);
         }
 
@@ -324,10 +323,10 @@ namespace PlayMore35 {
             return (object sender, EventArgs e) => {
                 TextBox box = (TextBox)sender;
                 try {
-                    character.rolledHitDice[levelIndex] = int.Parse(box.Text);
+                    controller.Character.rolledHitDice[levelIndex] = int.Parse(box.Text);
                     box.Font = new Font(box.Font, FontStyle.Regular);
                 } catch (FormatException) {
-                    character.rolledHitDice[levelIndex] = 0;
+                    controller.Character.rolledHitDice[levelIndex] = 0;
                     HitDieForLevel(box, levelIndex);
                 }
             };
@@ -336,9 +335,9 @@ namespace PlayMore35 {
         private EventHandler SetRanks(string skill, int levelIndex) {
             return (object sender, EventArgs e) => {
                 try {
-                    character.skillRanks[skill][levelIndex] = int.Parse(((TextBox)sender).Text);
+                    controller.Character.skillRanks[skill][levelIndex] = int.Parse(((TextBox)sender).Text);
                 } catch (FormatException) {
-                    character.skillRanks[skill][levelIndex] = 0;
+                    controller.Character.skillRanks[skill][levelIndex] = 0;
                     ((TextBox)sender).Text = "";
                 }
             };
@@ -349,10 +348,10 @@ namespace PlayMore35 {
         }
 
         private void HandleLanguages() {
-            Race race = controller.RaceDefinitions[character.race];
+            Race race = controller.RaceDefinitions[controller.Character.race];
             txtAutomaticLanguages.Text = string.Join(", ", race.AutomaticLanguages);
 
-            int numBonusLanguages = Math.Max(0, (character.assignedAbilityScores[INT] + race.Int) / 2 - 5);
+            int numBonusLanguages = Math.Max(0, (controller.Character.assignedAbilityScores[INT] + race.Int) / 2 - 5);
             int curBonusLanguages = bonusLanguages.Count;
             int langBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             int langTop = cboBonusLanguage.Top + langBuffer * curBonusLanguages;
@@ -371,13 +370,13 @@ namespace PlayMore35 {
                     Top = langTop,
                     Left = cboBonusLanguage.Left
                 };
-                foreach (string language in controller.RaceDefinitions[character.race].BonusLanguages) {
+                foreach (string language in controller.RaceDefinitions[controller.Character.race].BonusLanguages) {
                     box.Items.Add(language);
                 }
-                if (character.bonusLanguages.Count() > i) {
-                    box.Text = character.bonusLanguages[i];
+                if (controller.Character.bonusLanguages.Count() > i) {
+                    box.Text = controller.Character.bonusLanguages[i];
                 } else {
-                    character.bonusLanguages.Add("");
+                    controller.Character.bonusLanguages.Add("");
                 }
 
                 box.SelectedValueChanged += SelectBonusLanguage(i);
@@ -387,9 +386,9 @@ namespace PlayMore35 {
 
                 langTop += langBuffer;
             }
-            int excess = character.bonusLanguages.Count - numBonusLanguages;
+            int excess = controller.Character.bonusLanguages.Count - numBonusLanguages;
             if (excess > 0) {
-                character.bonusLanguages.RemoveRange(numBonusLanguages, excess);
+                controller.Character.bonusLanguages.RemoveRange(numBonusLanguages, excess);
             }
             for (int i = curBonusLanguages - 1; i >= numBonusLanguages; i--) {
                 characterTab.Controls.Remove(bonusLanguages[i]);
@@ -402,10 +401,12 @@ namespace PlayMore35 {
         }
 
         private void AdjustFeats() {
-            int newPos = bonusLanguages.Last().Bottom + featHeaderBuffer;
+            int newPos = bonusLanguages.Any()
+                ? bonusLanguages.Last().Bottom + featHeaderBuffer
+                : txtAutomaticLanguages.Bottom + featHeaderBuffer;
             int adjust = newPos - lblFeats.Top;
 
-            lblFeats.Top = bonusLanguages.Last().Bottom + featHeaderBuffer;
+            lblFeats.Top = newPos;
             foreach (Label slot in featSlots) {
                 slot.Top += adjust;
             }
@@ -414,22 +415,18 @@ namespace PlayMore35 {
             }
         }
 
-        private void CharacterTab_Enter(object sender, EventArgs e) {
-            if (!loaded) {
-                return;
-            }
+        private void DisplayCharacter() {
+            txtName.Text = controller.Character.name;
+            txtAlignment.Text = controller.Character.alignment;
+            txtGender.Text = controller.Character.gender;
+            cboRace.Text = controller.Character.race;
 
-            txtName.Text = character.name;
-            txtAlignment.Text = character.alignment;
-            txtGender.Text = character.gender;
-            cboRace.Text = character.race;
-
-            txtAssignedStr.Text = "" + character.assignedAbilityScores[STR];
-            txtAssignedDex.Text = "" + character.assignedAbilityScores[DEX];
-            txtAssignedCon.Text = "" + character.assignedAbilityScores[CON];
-            txtAssignedInt.Text = "" + character.assignedAbilityScores[INT];
-            txtAssignedWis.Text = "" + character.assignedAbilityScores[WIS];
-            txtAssignedCha.Text = "" + character.assignedAbilityScores[CHA];
+            txtAssignedStr.Text = "" + controller.Character.assignedAbilityScores[STR];
+            txtAssignedDex.Text = "" + controller.Character.assignedAbilityScores[DEX];
+            txtAssignedCon.Text = "" + controller.Character.assignedAbilityScores[CON];
+            txtAssignedInt.Text = "" + controller.Character.assignedAbilityScores[INT];
+            txtAssignedWis.Text = "" + controller.Character.assignedAbilityScores[WIS];
+            txtAssignedCha.Text = "" + controller.Character.assignedAbilityScores[CHA];
 
             DisplayRacialAbilityModifiers();
             DisplayTotalAbilityScores();
@@ -458,8 +455,8 @@ namespace PlayMore35 {
                     Top = featTop,
                     Left = cboFeat.Left,
                     Size = cboFeat.Size,
-                    Text = character.feats.ContainsKey(slot)
-                        ? character.feats[slot]
+                    Text = controller.Character.feats.ContainsKey(slot)
+                        ? controller.Character.feats[slot]
                         : "",
                 };
                 foreach (string feat in availableFeats) {
@@ -483,7 +480,7 @@ namespace PlayMore35 {
             int skillLeft = lblSkill1.Left;
             int skillLabelBuffer = lblSkill2.Left - lblSkill1.Left;
             int skillIndex = 0;
-            foreach (var skill in character.skillRanks) {
+            foreach (var skill in controller.Character.skillRanks) {
                 Label skillName = new Label {
                     AutoSize = false,
                     Size = lblSkill1.Size,
@@ -509,8 +506,8 @@ namespace PlayMore35 {
             ClearDynamicControls(characterTab, hpRolls);
 
             int levelTop = cboClass.Top;
-            for (int i = 0; i < character.classLevels.Count; i++) {
-                string @class = character.classLevels[i];
+            for (int i = 0; i < controller.Character.classLevels.Count; i++) {
+                string @class = controller.Character.classLevels[i];
                 ComboBox level = new ComboBox {
                     Top = levelTop,
                     Left = cboClass.Left,
@@ -530,10 +527,15 @@ namespace PlayMore35 {
                     Size = txtRolledHp.Size,
                     TextAlign = txtRolledHp.TextAlign,
                 };
-                if (i < character.rolledHitDice.Count) {
-                    rolledHp.Text = "" + character.rolledHitDice[i];
+                if (i < controller.Character.rolledHitDice.Count) {
+                    int roll = controller.Character.rolledHitDice[i];
+                    if (roll == 0) {
+                        HitDieForLevel(rolledHp, i);
+                    } else {
+                        rolledHp.Text = "" + roll;
+                    }
                 } else {
-                    character.rolledHitDice.Add(0);
+                    controller.Character.rolledHitDice.Add(0);
                     HitDieForLevel(rolledHp, i);
                 }
 
@@ -554,10 +556,10 @@ namespace PlayMore35 {
                             ? txtRanksClass.BackColor
                             : txtRanksCrossClass.BackColor,
                     };
-                    if (i < character.skillRanks[skill].Count) {
-                        ranks.Text = character.skillRanks[skill][i].ToString("#;#;\"\"");
+                    if (i < controller.Character.skillRanks[skill].Count) {
+                        ranks.Text = controller.Character.skillRanks[skill][i].ToString("#;#;\"\"");
                     } else {
-                        character.skillRanks[skill].Add(0);
+                        controller.Character.skillRanks[skill].Add(0);
                     }
 
                     ranks.Enter += Text_Enter;
@@ -572,6 +574,14 @@ namespace PlayMore35 {
             }
         }
 
+        private void CharacterTab_Enter(object sender, EventArgs e) {
+            if (!loaded) {
+                return;
+            }
+
+            DisplayCharacter();
+        }
+
         private void CharacterTab_Leave(object sender, EventArgs e) {
             controller.Reload();
         }
@@ -579,15 +589,15 @@ namespace PlayMore35 {
         private void RefreshEffects() {
             Dictionary<string, List<string>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
-            name.Text = character.name.ToUpper();
+            name.Text = controller.Character.name.ToUpper();
 
-            Dictionary<string, int> classLevels = character.SummarizeClassLevels();
+            Dictionary<string, int> classLevels = controller.Character.SummarizeClassLevels();
             desc1.Text =
-                character.gender + " " +
-                character.race + " " +
+                controller.Character.gender + " " +
+                controller.Character.race + " " +
                 string.Join(
                     ", ",
-                    character.classLevels.Distinct().Select(x => x.Replace(" ", "\u00a0").ToLower() + "\u00a0" + classLevels[x])
+                    controller.Character.classLevels.Distinct().Select(x => x.Replace(" ", "\u00a0").ToLower() + "\u00a0" + classLevels[x])
                 );
             // I wanted the separator for classes to be "/" like it is in most stat blocks,
             // but I also wanted wrapping line breaks to only appear between classes.  Unfortunately,
@@ -595,7 +605,7 @@ namespace PlayMore35 {
             // decided to use a character that looks okay when I put a space after it instead.  I'll
             // probably revisit this when I move to a more modernized UI framework.
             string sizeCategory = SIZE_CATEGORIES[GetStatValue(SIZE_CATEGORY).value + 4];
-            desc2.Text = character.alignment + " " + sizeCategory + " " +
+            desc2.Text = controller.Character.alignment + " " + sizeCategory + " " +
                 controller.Effects.CreatureType +
                 (controller.Effects.SubTypes.Any() ? " (" + string.Join(", ", controller.Effects.SubTypes) + ")" : "");
             MultilineText(languages, textEffects, LANGUAGES);
@@ -610,7 +620,7 @@ namespace PlayMore35 {
             LabelStat(touch, "touch", TOUCH_AC, "", false);
             MultilineText(acEffects, textEffects, AC, false);
             LabelStat(currentHp, "hp", CURRENT_HP, ";", false);
-            LabelStat(maxHp, "max", MAX_HP, " (" + character.classLevels.Count() + " HD)", false);
+            LabelStat(maxHp, "max", MAX_HP, " (" + controller.Character.classLevels.Count() + " HD)", false);
             OneLineText(dr, textEffects, DR);
             if (dr.Text.Any()) {
                 maxHp.Text += ";";
@@ -1198,20 +1208,7 @@ namespace PlayMore35 {
             verticalBufferLarge = 8;
             paramBuffer = lblParam2.Top - lblParam.Top;
 
-            using (OpenFileDialog dialog = new OpenFileDialog()) {
-                dialog.InitialDirectory = "c:\\";
-                if (dialog.ShowDialog() != DialogResult.OK) {
-                    Application.Exit();
-                    return;
-                }
-                var fileStream = dialog.OpenFile();
-                using (StreamReader reader = new StreamReader(fileStream)) {
-                    string content = reader.ReadToEnd();
-                    JObject json = JObject.Parse(content);
-                    character = new Character(json);
-                    controller = new Controller(character);
-                }
-            }
+            controller = new Controller(new Character());
 
             List<string> availableRaces = controller.RaceDefinitions.Keys.ToList();
             availableRaces.Sort();
@@ -1320,6 +1317,24 @@ namespace PlayMore35 {
             };
 
             RefreshEffects();
+        }
+
+        private bool LoadCharacter() {
+            using (OpenFileDialog dialog = new OpenFileDialog()) {
+                dialog.InitialDirectory = "c:\\";
+                if (dialog.ShowDialog() != DialogResult.OK) {
+                    return false;
+                }
+                using (StreamReader reader = new StreamReader(dialog.OpenFile())) {
+                    controller.Character = new Character(JObject.Parse(reader.ReadToEnd()));
+                }
+            }
+            DisplayCharacter();
+            return true;
+        }
+
+        private void LoadCharacter_Click(object sender, EventArgs e) {
+            LoadCharacter();
         }
 
         private bool SaveCharacter() {

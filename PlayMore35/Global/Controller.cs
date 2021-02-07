@@ -186,6 +186,7 @@ namespace PlayMore35.Global {
             RaceDefinitions = GetResource(Properties.Resources.races, "races.json")
                 .Select(x => new Race((JObject)x))
                 .ToDictionary(x => x.Name);
+            RaceDefinitions[""] = new Race(); // For completely new characters.
             ClassDefinitions = GetResource(Properties.Resources.classes, "classes.json")
                 .Select(x => new CharacterClass((JObject)x))
                 .ToDictionary(x => x.Name);

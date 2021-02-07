@@ -67,10 +67,18 @@ namespace PlayMore35.CharacterChoices {
             name = "";
             gender = "";
             alignment = "";
-            assignedAbilityScores = new Dictionary<string, int>();
+            assignedAbilityScores = new Dictionary<string, int> {
+                ["STR"] = 8,
+                ["DEX"] = 8,
+                ["CON"] = 8,
+                ["INT"] = 8,
+                ["WIS"] = 8,
+                ["CHA"] = 8,
+            };
             race = "";
             classLevels = new List<string>();
             abilityScoreIncrements = new List<string>();
+            bonusLanguages = new List<string>();
             rolledHitDice = new List<int>();
             skillRanks = new Dictionary<string, List<int>>();
             feats = new Dictionary<string, string>();
