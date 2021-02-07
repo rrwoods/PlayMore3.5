@@ -1,4 +1,13 @@
 {
+  "feats": {
+    "Level 1": 1,
+    "Level 3": 3,
+    "Level 6": 6,
+    "Level 9": 9,
+    "Level 12": 12,
+    "Level 15": 15,
+    "Level 18": 18
+  },
   "stats": [
     {
       "name": "STR score",

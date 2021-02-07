@@ -96,5 +96,17 @@ namespace PlayMore35.CharacterChoices {
                 return inventory.SelectMany(x => x.Value.shields);
             }
         }
+
+        public Dictionary<string, int> SummarizeClassLevels() {
+            Dictionary<string, int> summary = new Dictionary<string, int>();
+            foreach (var @class in classLevels) {
+                if (!summary.ContainsKey(@class)) {
+                    summary[@class] = 1;
+                } else {
+                    summary[@class]++;
+                }
+            }
+            return summary;
+        }
     }
 }

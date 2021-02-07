@@ -28,8 +28,14 @@ namespace PlayMore35.CharacterChoices {
         // within each level, a list of named class features, each represented as one effect
         public List<List<Effect>> ClassFeatures = new List<List<Effect>>();
 
+        // { description => level }
+        // examples:
+        // "Fighter 1" => 1
+        // "Endurance" => 3
+        public Dictionary<string, int> BonusFeats = new Dictionary<string, int>();
+
         public JToken ToJson() {
-            return new JObject(
+            JObject json = new JObject(
                 new JProperty("name", Name),
                 new JProperty("prerequisites", Prerequisites),
                 new JProperty("hit die", HitDie),
@@ -46,6 +52,10 @@ namespace PlayMore35.CharacterChoices {
                     new JArray(level.Select(feature => new JObject(feature)))
                 )))
             );
+            if (BonusFeats.Any()) {
+                json["bonus feats"] = new JObject(BonusFeats.Select(x => new JProperty(x.Key, x.Value)));
+            }
+            return json;
         }
 
         public CharacterClass(JObject json) {
@@ -66,6 +76,11 @@ namespace PlayMore35.CharacterChoices {
             ClassFeatures.AddRange(json["class features"].Select(level =>
                 level.Select(feature => new Effect((JObject)feature)).ToList()
             ));
+            if (json["bonus feats"] != null) {
+                foreach (JProperty feat in json["bonus feats"]) {
+                    BonusFeats[feat.Name] = (int)feat.Value;
+                }
+            }
         }
     }
 }

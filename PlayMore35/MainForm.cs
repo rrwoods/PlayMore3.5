@@ -233,6 +233,13 @@ namespace PlayMore35 {
             }
         }
 
+        private void Text_Enter(object sender, EventArgs e) {
+            // I have my suspicions that this will be inconsistent.
+            BeginInvoke((Action)delegate {
+                ((TextBox)sender).SelectAll();
+            });
+        }
+
         private void Name_Leave(object sender, EventArgs e) {
             character.name = txtName.Text;
         }
@@ -308,17 +315,20 @@ namespace PlayMore35 {
             };
         }
 
-        private string HitDieForLevel(int levelIndex) {
-            return "d" + controller.ClassDefinitions[character.classLevels[levelIndex]].HitDie;
+        private void HitDieForLevel(TextBox box, int levelIndex) {
+            box.Text = "d" + controller.ClassDefinitions[character.classLevels[levelIndex]].HitDie;
+            box.Font = new Font(box.Font, FontStyle.Italic);
         }
 
         private EventHandler SetHp(int levelIndex) {
             return (object sender, EventArgs e) => {
+                TextBox box = (TextBox)sender;
                 try {
-                    character.rolledHitDice[levelIndex] = int.Parse(((TextBox)sender).Text);
+                    character.rolledHitDice[levelIndex] = int.Parse(box.Text);
+                    box.Font = new Font(box.Font, FontStyle.Regular);
                 } catch (FormatException) {
                     character.rolledHitDice[levelIndex] = 0;
-                    ((TextBox)sender).Text = HitDieForLevel(levelIndex);
+                    HitDieForLevel(box, levelIndex);
                 }
             };
         }
@@ -430,7 +440,7 @@ namespace PlayMore35 {
             ClearDynamicControls(characterTab, feats);
             int featTop = lblFeats.Bottom + featBoxBuffer;
             int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
-            foreach (string slot in controller.Effects.GetFeatSlots()) {
+            foreach (string slot in controller.GetFeatSlots()) {
                 Label slotLabel = new Label {
                     Top = featTop,
                     Left = lblFeatSlot.Left,
@@ -499,7 +509,6 @@ namespace PlayMore35 {
             ClearDynamicControls(characterTab, hpRolls);
 
             int levelTop = cboClass.Top;
-            int levelIndex = 0;
             for (int i = 0; i < character.classLevels.Count; i++) {
                 string @class = character.classLevels[i];
                 ComboBox level = new ComboBox {
@@ -511,7 +520,7 @@ namespace PlayMore35 {
                     level.Items.Add(className);
                 }
                 level.Text = @class;
-                level.SelectedValueChanged += SelectClassLevel(levelIndex);
+                level.SelectedValueChanged += SelectClassLevel(i);
                 levels.Add(level);
                 characterTab.Controls.Add(level);
 
@@ -519,10 +528,17 @@ namespace PlayMore35 {
                     Top = levelTop,
                     Left = txtRolledHp.Left,
                     Size = txtRolledHp.Size,
-                    TextAlign = txtRolledHp.TextAlign
+                    TextAlign = txtRolledHp.TextAlign,
                 };
-                rolledHp.Text = "" + character.rolledHitDice[levelIndex];
-                rolledHp.Leave += SetHp(levelIndex);
+                if (i < character.rolledHitDice.Count) {
+                    rolledHp.Text = "" + character.rolledHitDice[i];
+                } else {
+                    character.rolledHitDice.Add(0);
+                    HitDieForLevel(rolledHp, i);
+                }
+
+                rolledHp.Enter += Text_Enter;
+                rolledHp.Leave += SetHp(i);
                 hpRolls.Add(rolledHp);
                 characterTab.Controls.Add(rolledHp);
 
@@ -534,12 +550,18 @@ namespace PlayMore35 {
                         Left = skillLeft,
                         Size = txtRanksCrossClass.Size,
                         TextAlign = txtRanksCrossClass.TextAlign,
-                        Text = character.skillRanks[skill][levelIndex].ToString("#;#;\"\""),
-                        BackColor = controller.IsClassSkill(skill, levelIndex)
+                        BackColor = controller.IsClassSkill(skill, i)
                             ? txtRanksClass.BackColor
                             : txtRanksCrossClass.BackColor,
                     };
-                    ranks.Leave += SetRanks(skill, levelIndex);
+                    if (i < character.skillRanks[skill].Count) {
+                        ranks.Text = character.skillRanks[skill][i].ToString("#;#;\"\"");
+                    } else {
+                        character.skillRanks[skill].Add(0);
+                    }
+
+                    ranks.Enter += Text_Enter;
+                    ranks.Leave += SetRanks(skill, i);
                     skillRanks[skill].Add(ranks);
                     characterTab.Controls.Add(ranks);
 
@@ -547,7 +569,6 @@ namespace PlayMore35 {
                 }
 
                 levelTop += levelBuffer;
-                levelIndex++;
             }
         }
 
@@ -560,18 +581,14 @@ namespace PlayMore35 {
 
             name.Text = character.name.ToUpper();
 
-            Dictionary<string, int> classLevels = new Dictionary<string, int>();
-            foreach (string @class in character.classLevels) {
-                if (!classLevels.ContainsKey(@class)) {
-                    classLevels[@class] = 1;
-                } else {
-                    classLevels[@class]++;
-                }
-            }
+            Dictionary<string, int> classLevels = character.SummarizeClassLevels();
             desc1.Text =
                 character.gender + " " +
                 character.race + " " +
-                string.Join(", ", classLevels.Select(x => x.Key.Replace(" ", "\u00a0").ToLower() + "\u00a0" + x.Value));
+                string.Join(
+                    ", ",
+                    character.classLevels.Distinct().Select(x => x.Replace(" ", "\u00a0").ToLower() + "\u00a0" + classLevels[x])
+                );
             // I wanted the separator for classes to be "/" like it is in most stat blocks,
             // but I also wanted wrapping line breaks to only appear between classes.  Unfortunately,
             // the zero-width space isn't respected by the wrapping routine for some reason.  So I
@@ -1196,7 +1213,9 @@ namespace PlayMore35 {
                 }
             }
 
-            foreach(string race in controller.RaceDefinitions.Keys) {
+            List<string> availableRaces = controller.RaceDefinitions.Keys.ToList();
+            availableRaces.Sort();
+            foreach(string race in availableRaces) {
                 cboRace.Items.Add(race);
             }
 

@@ -8,6 +8,11 @@ using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Effects {
     public class EffectPool : IJsonable {
+        // { slot description => level }
+        // e.g. "Level 6" => 6, or maybe "Flaw 1" => 1 and "Flaw 1 (Feat)" => 1
+        // (you'd implement the flaws themselves as feats)
+        public readonly Dictionary<string, int> featSlots = new Dictionary<string, int>();
+
         public readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
         public readonly Dictionary<string, bool> controllableFlags = new Dictionary<string, bool>();
         public readonly Dictionary<string, int> controllableAmounts = new Dictionary<string, int>();
@@ -18,6 +23,7 @@ namespace PlayMore35.Effects {
 
         public JToken ToJson() {
             return new JObject(
+                new JProperty("feats", new JObject(featSlots.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("stats", new JArray(stats.Values.Select(x => x.ToJson()))),
                 new JProperty("flags", new JArray(controllableFlags.Keys)),
                 new JProperty("amounts", new JArray(controllableAmounts.Keys)),
@@ -26,17 +32,20 @@ namespace PlayMore35.Effects {
         }
 
         public void ReadJson(JToken json) {
-            foreach(JObject token in json["stats"]) {
+            foreach (JProperty featSlot in json["feats"]) {
+                featSlots[featSlot.Name] = (int)featSlot.Value;
+            }
+            foreach (JObject token in json["stats"]) {
                 Statistic s = new Statistic(token);
                 stats[s.Name] = s;
             }
-            foreach(JObject token in json["effects"]) {
+            foreach (JObject token in json["effects"]) {
                 effects.Add(new Effect(token));
             }
-            foreach(string flag in json["flags"]) {
+            foreach (string flag in json["flags"]) {
                 controllableFlags[flag] = false;
             }
-            foreach(string amount in json["amounts"]) {
+            foreach (string amount in json["amounts"]) {
                 controllableAmounts[amount] = 0;
             }
         }
@@ -143,10 +152,6 @@ namespace PlayMore35.Effects {
             }
 
             return allText;
-        }
-
-        public List<string> GetFeatSlots() {
-            return new List<string> { "Level 1", "Level 3" };
         }
 
         public void AssignAbilityScores(Dictionary<string, int> scores) {
