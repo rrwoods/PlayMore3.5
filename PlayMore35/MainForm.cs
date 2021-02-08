@@ -315,6 +315,12 @@ namespace PlayMore35 {
         private EventHandler SelectClassLevel(int i) {
             return (object sender, EventArgs e) => {
                 controller.Character.classLevels[i] = ((ComboBox)sender).Text;
+                DisplaySkillPoints(i);
+                HandleFeats();
+                TextBox hp = hpRolls[i];
+                if (!int.TryParse(hp.Text, out int _)) {
+                    HitDieForLevel(hp, i);
+                }
             };
         }
 
@@ -408,6 +414,44 @@ namespace PlayMore35 {
             AdjustFeats();
         }
 
+        private void HandleFeats() {
+            ClearDynamicControls(characterTab, featSlots);
+            ClearDynamicControls(characterTab, feats);
+            int featTop = lblFeats.Bottom + featBoxBuffer;
+            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
+            foreach (string slot in controller.GetFeatSlots()) {
+                Label slotLabel = new Label {
+                    Top = featTop,
+                    Left = lblFeatSlot.Left,
+                    Size = lblFeatSlot.Size,
+                    AutoSize = false,
+                    TextAlign = lblFeatSlot.TextAlign,
+                    Text = slot
+                };
+                featSlots.Add(slotLabel);
+                characterTab.Controls.Add(slotLabel);
+
+                ComboBox featBox = new ComboBox {
+                    AutoCompleteMode = AutoCompleteMode.Append,
+                    AutoCompleteSource = AutoCompleteSource.ListItems,
+                    Top = featTop,
+                    Left = cboFeat.Left,
+                    Size = cboFeat.Size,
+                    Text = controller.Character.feats.ContainsKey(slot)
+                        ? controller.Character.feats[slot]
+                        : "",
+                };
+                foreach (string feat in availableFeats) {
+                    featBox.Items.Add(feat);
+                }
+                featBox.SelectedValueChanged += SelectFeat(slot);
+                feats.Add(featBox);
+                characterTab.Controls.Add(featBox);
+
+                featTop += levelBuffer;
+            }
+        }
+
         private void AdjustFeats() {
             int newPos = bonusLanguages.Any()
                 ? bonusLanguages.Last().Bottom + featHeaderBuffer
@@ -461,42 +505,7 @@ namespace PlayMore35 {
             DisplayTotalAbilityScores();
 
             HandleLanguages();
-
-            ClearDynamicControls(characterTab, featSlots);
-            ClearDynamicControls(characterTab, feats);
-            int featTop = lblFeats.Bottom + featBoxBuffer;
-            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
-            foreach (string slot in controller.GetFeatSlots()) {
-                Label slotLabel = new Label {
-                    Top = featTop,
-                    Left = lblFeatSlot.Left,
-                    Size = lblFeatSlot.Size,
-                    AutoSize = false,
-                    TextAlign = lblFeatSlot.TextAlign,
-                    Text = slot
-                };
-                featSlots.Add(slotLabel);
-                characterTab.Controls.Add(slotLabel);
-
-                ComboBox featBox = new ComboBox {
-                    AutoCompleteMode = AutoCompleteMode.Append,
-                    AutoCompleteSource = AutoCompleteSource.ListItems,
-                    Top = featTop,
-                    Left = cboFeat.Left,
-                    Size = cboFeat.Size,
-                    Text = controller.Character.feats.ContainsKey(slot)
-                        ? controller.Character.feats[slot]
-                        : "",
-                };
-                foreach (string feat in availableFeats) {
-                    featBox.Items.Add(feat);
-                }
-                featBox.SelectedValueChanged += SelectFeat(slot);
-                feats.Add(featBox);
-                characterTab.Controls.Add(featBox);
-
-                featTop += levelBuffer;
-            }
+            HandleFeats();
 
             ClearDynamicControls(characterTab, skillNames);
             foreach (List<TextBox> boxes in skillRanks.Values) {
@@ -510,6 +519,7 @@ namespace PlayMore35 {
             }
             totalSkillRanks.Clear();
 
+            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             int skillLeft = lblSkill1.Left;
             int skillLabelBuffer = lblSkill2.Left - lblSkill1.Left;
             int skillIndex = 0;
