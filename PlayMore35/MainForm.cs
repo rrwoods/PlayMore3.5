@@ -43,6 +43,10 @@ namespace PlayMore35 {
         private List<TextBox> hpRolls = new List<TextBox>();
         private List<Label> skillNames = new List<Label>();
         private Dictionary<string, List<TextBox>> skillRanks = new Dictionary<string, List<TextBox>>();
+        private List<Label> skillPoints = new List<Label>();
+        private Dictionary<string, Label> totalSkillRanks = new Dictionary<string, Label>();
+        private int skillPointsBuffer;
+        private int totalsBuffer;
 
         // 1. each of these fields represents one of the four sections of the summary page.
         // 2. the outer list is list of subsections, with visual separation between each subsection.
@@ -329,6 +333,7 @@ namespace PlayMore35 {
                     controller.Character.rolledHitDice[levelIndex] = 0;
                     HitDieForLevel(box, levelIndex);
                 }
+                DisplayTotalHp();
             };
         }
 
@@ -340,6 +345,8 @@ namespace PlayMore35 {
                     controller.Character.skillRanks[skill][levelIndex] = 0;
                     ((TextBox)sender).Text = "";
                 }
+                DisplaySkillPoints(levelIndex);
+                DisplaySkillRanks(skill);
             };
         }
 
@@ -351,7 +358,7 @@ namespace PlayMore35 {
             Race race = controller.RaceDefinitions[controller.Character.race];
             txtAutomaticLanguages.Text = string.Join(", ", race.AutomaticLanguages);
 
-            int numBonusLanguages = Math.Max(0, (controller.Character.assignedAbilityScores[INT] + race.Int) / 2 - 5);
+            int numBonusLanguages = Math.Max(0, controller.GetStartingIntelligence());
             int curBonusLanguages = bonusLanguages.Count;
             int langBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             int langTop = cboBonusLanguage.Top + langBuffer * curBonusLanguages;
@@ -360,7 +367,8 @@ namespace PlayMore35 {
                     Size = lblBonusLang.Size,
                     Top = langTop,
                     Left = lblBonusLang.Left,
-                    Text = lblBonusLang.Text
+                    Text = lblBonusLang.Text,
+                    TextAlign = lblBonusLang.TextAlign
                 };
                 characterTab.Controls.Add(bonusLabel);
                 bonusLabels.Add(bonusLabel);
@@ -413,6 +421,27 @@ namespace PlayMore35 {
             foreach (ComboBox feat in feats) {
                 feat.Top += adjust;
             }
+        }
+
+        private void DisplayTotalHp() {
+            lblTotalHp.Text = "" + controller.BaseHp();
+        }
+
+        private void DisplaySkillPoints(int levelIndex) {
+            int remaining = controller.SkillPointsRemainingAtLevel(levelIndex);
+            if (remaining > 1) {
+                skillPoints[levelIndex].Text = "" + remaining + " skill points remaining";
+            } else if (remaining == 1) {
+                skillPoints[levelIndex].Text = "1 skill point remaining";
+            } else if (remaining == 0) {
+                skillPoints[levelIndex].Text = ""; 
+            } else {
+                skillPoints[levelIndex].Text = "" + (-remaining) + " too many skill points";
+            }
+        }
+
+        private void DisplaySkillRanks(string skill) {
+            totalSkillRanks[skill].Text = "" + controller.TotalSkillRanks(skill);
         }
 
         private void DisplayCharacter() {
@@ -476,6 +505,10 @@ namespace PlayMore35 {
                 }
             }
             skillRanks.Clear();
+            foreach (Label totalRanks in totalSkillRanks.Values) {
+                characterTab.Controls.Remove(totalRanks);
+            }
+            totalSkillRanks.Clear();
 
             int skillLeft = lblSkill1.Left;
             int skillLabelBuffer = lblSkill2.Left - lblSkill1.Left;
@@ -498,12 +531,23 @@ namespace PlayMore35 {
 
                 skillRanks[skill.Key] = new List<TextBox>();
 
+                Label totalRanks = new Label {
+                    AutoSize = false,
+                    Size = lblTotalRanks.Size,
+                    Left = skillLeft,
+                    Top = 0, // this gets moved later
+                    TextAlign = lblTotalRanks.TextAlign
+                };
+                totalSkillRanks[skill.Key] = totalRanks;
+                characterTab.Controls.Add(totalRanks);
+
                 skillIndex++;
                 skillLeft += skillLabelBuffer;
             }
 
             ClearDynamicControls(characterTab, levels);
             ClearDynamicControls(characterTab, hpRolls);
+            ClearDynamicControls(characterTab, skillPoints);
 
             int levelTop = cboClass.Top;
             for (int i = 0; i < controller.Character.classLevels.Count; i++) {
@@ -569,8 +613,28 @@ namespace PlayMore35 {
 
                     skillLeft += skillLabelBuffer;
                 }
+                if (skillNames.Any()) {
+                    Label points = new Label {
+                        Top = levelTop,
+                        Left = skillLeft + skillPointsBuffer,
+                        Size = lblPoints.Size,
+                        TextAlign = lblPoints.TextAlign,
+                    };
+                    skillPoints.Add(points);
+                    characterTab.Controls.Add(points);
+                    DisplaySkillPoints(i);
+                }
 
                 levelTop += levelBuffer;
+            }
+            int totalsTop = levelTop - levelBuffer + totalsBuffer;
+
+            lblTotals.Top = totalsTop;
+            lblTotalHp.Top = totalsTop;
+            DisplayTotalHp();
+            foreach (Label skill in skillNames) {
+                totalSkillRanks[(string)skill.Tag].Top = totalsTop;
+                DisplaySkillRanks((string)skill.Tag);
             }
         }
 
@@ -1202,6 +1266,10 @@ namespace PlayMore35 {
 
             featHeaderBuffer = lblFeats.Top - cboBonusLanguage.Bottom;
             featBoxBuffer = cboFeat.Top - lblFeats.Bottom;
+            // this "buffer" is actually the difference between the left side of the points label and
+            // the left side of a hypothetical "extra" ranks box -- makes the math easier.
+            skillPointsBuffer = lblPoints.Left - 2*(txtRanksClass.Left) + txtRanksCrossClass.Left;
+            totalsBuffer = lblTotals.Top - txtRolledHp.Top;
 
             leftBuffer = lblTopLeft.Left;
             topBuffer = lblTopLeft.Top + 5; // eh.

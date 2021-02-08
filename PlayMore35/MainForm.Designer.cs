@@ -125,6 +125,10 @@
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
             this.btnLoadCharacter = new System.Windows.Forms.Button();
+            this.lblPoints = new System.Windows.Forms.Label();
+            this.lblTotalRanks = new System.Windows.Forms.Label();
+            this.lblTotals = new System.Windows.Forms.Label();
+            this.lblTotalHp = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.characterTab.SuspendLayout();
             this.statsTab.SuspendLayout();
@@ -158,6 +162,10 @@
             // 
             // characterTab
             // 
+            this.characterTab.Controls.Add(this.lblTotalHp);
+            this.characterTab.Controls.Add(this.lblTotals);
+            this.characterTab.Controls.Add(this.lblTotalRanks);
+            this.characterTab.Controls.Add(this.lblPoints);
             this.characterTab.Controls.Add(this.btnLoadCharacter);
             this.characterTab.Controls.Add(this.lblBonusLang);
             this.characterTab.Controls.Add(this.label7);
@@ -1277,6 +1285,45 @@
             this.btnLoadCharacter.UseVisualStyleBackColor = true;
             this.btnLoadCharacter.Click += new System.EventHandler(this.LoadCharacter_Click);
             // 
+            // lblPoints
+            // 
+            this.lblPoints.Location = new System.Drawing.Point(685, 121);
+            this.lblPoints.Name = "lblPoints";
+            this.lblPoints.Size = new System.Drawing.Size(159, 25);
+            this.lblPoints.TabIndex = 60;
+            this.lblPoints.Text = "8 skill points remaining";
+            this.lblPoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblPoints.UseCompatibleTextRendering = true;
+            this.lblPoints.Visible = false;
+            // 
+            // lblTotalRanks
+            // 
+            this.lblTotalRanks.Location = new System.Drawing.Point(593, 152);
+            this.lblTotalRanks.Name = "lblTotalRanks";
+            this.lblTotalRanks.Size = new System.Drawing.Size(40, 25);
+            this.lblTotalRanks.TabIndex = 61;
+            this.lblTotalRanks.Text = "4";
+            this.lblTotalRanks.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTotalRanks.Visible = false;
+            // 
+            // lblTotals
+            // 
+            this.lblTotals.Location = new System.Drawing.Point(414, 152);
+            this.lblTotals.Name = "lblTotals";
+            this.lblTotals.Size = new System.Drawing.Size(126, 25);
+            this.lblTotals.TabIndex = 62;
+            this.lblTotals.Text = "Totals";
+            this.lblTotals.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblTotalHp
+            // 
+            this.lblTotalHp.Location = new System.Drawing.Point(546, 152);
+            this.lblTotalHp.Name = "lblTotalHp";
+            this.lblTotalHp.Size = new System.Drawing.Size(32, 25);
+            this.lblTotalHp.TabIndex = 63;
+            this.lblTotalHp.Text = "123";
+            this.lblTotalHp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -1405,6 +1452,10 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label lblBonusLang;
         private System.Windows.Forms.Button btnLoadCharacter;
+        private System.Windows.Forms.Label lblPoints;
+        private System.Windows.Forms.Label lblTotalHp;
+        private System.Windows.Forms.Label lblTotals;
+        private System.Windows.Forms.Label lblTotalRanks;
     }
 }
 

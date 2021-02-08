@@ -26,7 +26,7 @@ namespace PlayMore35.CharacterChoices {
                 classLevels = new List<string> {
                     "Binder", "Barbarian", "Fighter", "Fighter", "Crusader", "Crusader", "Pious Templar"
                 },
-                abilityScoreIncrements = new List<string> { "CON" },
+                abilityScoreIncrements = new Dictionary<int, string> { [4] = "CON" },
                 rolledHitDice = new List<int> { 8, 6, 6, 5, 6, 5, 6 },
                 skillRanks = new Dictionary<string, List<int>> {
                     ["Knowledge (religion)"] = new List<int> { 4, 0, 0, 0, 1, 0, 0 },

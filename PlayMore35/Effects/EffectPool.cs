@@ -167,9 +167,9 @@ namespace PlayMore35.Effects {
         // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
         public void GenerateCharacterEffects(Character choices) {
             AssignAbilityScores(choices.assignedAbilityScores);
-            foreach (string ability in choices.abilityScoreIncrements) {
+            foreach (var ability in choices.abilityScoreIncrements) {
                 AddEffect(new Effect("Level")
-                    .AddModifier(ability + " score", new Modifier(+1, ABILITY_MODIFIER))
+                    .AddModifier(ability.Value + " score", new Modifier(+1, ABILITY_MODIFIER))
                 );
             }
             int numHd = choices.rolledHitDice.Count();

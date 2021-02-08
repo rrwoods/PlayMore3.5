@@ -12,7 +12,7 @@ namespace PlayMore35.CharacterChoices {
         public List<string> bonusLanguages;
         public string race; // templates later
         public List<string> classLevels;
-        public List<string> abilityScoreIncrements;
+        public Dictionary<int, string> abilityScoreIncrements;
         public List<int> rolledHitDice;
         public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
         public Dictionary<string, string> feats; // keys are feat slots, values are feat names
@@ -31,7 +31,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("bonus languages", new JArray(bonusLanguages)),
                 new JProperty("race", race),
                 new JProperty("classes", new JArray(classLevels)),
-                new JProperty("incremented", new JArray(abilityScoreIncrements)),
+                new JProperty("incremented", new JObject(abilityScoreIncrements.Select(x => new JProperty("" + x.Key, x.Value)))),
                 new JProperty("hit die rolls", new JArray(rolledHitDice)),
                 new JProperty("skill ranks", new JObject(skillRanks.Select(x => new JProperty(x.Key, new JArray(x.Value))))),
                 new JProperty("feats", new JObject(feats.Select(x => new JProperty(x.Key, x.Value)))),
@@ -50,7 +50,8 @@ namespace PlayMore35.CharacterChoices {
             bonusLanguages = ((JArray)json["bonus languages"]).Select(x => (string)x).ToList();
             race = (string)json["race"];
             classLevels = ((JArray)json["classes"]).Select(x => (string)x).ToList();
-            abilityScoreIncrements = ((JArray)json["incremented"]).Select(x => (string)x).ToList();
+            abilityScoreIncrements = ((JObject)json["incremented"]).Properties()
+                .ToDictionary(x => int.Parse(x.Name), x => (string)x.Value);
             rolledHitDice = ((JArray)json["hit die rolls"]).Select(x => (int)x).ToList();
             skillRanks = ((JObject)json["skill ranks"]).Properties().ToDictionary(
                 skill => skill.Name,
@@ -77,7 +78,7 @@ namespace PlayMore35.CharacterChoices {
             };
             race = "";
             classLevels = new List<string>();
-            abilityScoreIncrements = new List<string>();
+            abilityScoreIncrements = new Dictionary<int, string>();
             bonusLanguages = new List<string>();
             rolledHitDice = new List<int>();
             skillRanks = new Dictionary<string, List<int>>();

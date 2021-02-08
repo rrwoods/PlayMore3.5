@@ -575,6 +575,24 @@ namespace PlayMore35.Global {
             return feats.Values.SelectMany(x => x).ToList();
         }
 
+        public int GetStartingIntelligence() {
+            return (Character.assignedAbilityScores[INT] + RaceDefinitions[Character.race].Int) / 2 - 5;
+        }
+
+        // "Naked" HP from hit dice including CON modifier, and no other source.
+        public int BaseHp() {
+            int conScore =
+                Character.assignedAbilityScores[CON] +
+                RaceDefinitions[Character.race].Con +
+                Character.abilityScoreIncrements.Values.Where(x => x == "CON").Count();
+            int conMod = (conScore / 2) - 5;
+            int hp = 0;
+            foreach (int roll in Character.rolledHitDice) {
+                hp += Math.Max(1, roll + conMod);
+            }
+            return hp;
+        }
+
         public bool IsClassSkill(string skill, int levelIndex) {
             if (ClassDefinitions[Character.classLevels[levelIndex]].ClassSkills.Contains(skill)) {
                 return true;
@@ -582,6 +600,38 @@ namespace PlayMore35.Global {
 
             // this might get more complicated once we consider things like racial class skills
             return false;
+        }
+
+        // If the return value is positive, you can spend that many more skill points.
+        // If it's negative, you have spent that many points more than you have.
+        // If it's zero, you have spend the correct number of skill points.
+        public int SkillPointsRemainingAtLevel(int levelIndex) {
+            int spent = 0;
+            foreach (var skillRanks in Character.skillRanks) {
+                int ranks = skillRanks.Value[levelIndex];
+                spent += IsClassSkill(skillRanks.Key, levelIndex)
+                    ? ranks
+                    : 2 * ranks;
+            }
+
+            int intMod = GetStartingIntelligence();
+            foreach (var asi in Character.abilityScoreIncrements) {
+                if ((asi.Key - 1 <= levelIndex) && (asi.Value == "INT")) {
+                    intMod++;
+                }
+            }
+            int allowed = Math.Max(1, ClassDefinitions[Character.classLevels[levelIndex]].SkillPoints + intMod);
+            if (levelIndex == 0) {
+                allowed *= 4;
+            }
+
+            return allowed - spent;
+        }
+
+        public int TotalSkillRanks(string skill) {
+            return Character.skillRanks.ContainsKey(skill)
+                ? Character.skillRanks[skill].Sum()
+                : 0;
         }
 
         public (int value, List<string> explanation) GetStatistic(string stat) {
