@@ -18,7 +18,7 @@ namespace PlayMore35.Global {
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
 
-        public Character Character;
+        private Character character;
         private int NormalSizeCategory;
         public Dictionary<string, Race> RaceDefinitions;
         public Dictionary<string, CharacterClass> ClassDefinitions;
@@ -32,6 +32,18 @@ namespace PlayMore35.Global {
         public Dictionary<string, WeaponProperty> WeaponPropertyDefinitions;
         public Dictionary<string, ArmorProperty> ArmorPropertyDefinitions;
         public Dictionary<string, Item> ItemDefinitions;
+
+        public Character Character {
+            get { return character; }
+            set {
+                character = value;
+                foreach (var skill in character.skillRanks) {
+                    while (skill.Value.Count() < character.classLevels.Count()) {
+                        skill.Value.Add(0);
+                    }
+                }
+            }
+        }
 
         // **** CONVENIENCE METHODS THAT ALL UIS WILL PROBABLY WANT ****
 
@@ -588,6 +600,9 @@ namespace PlayMore35.Global {
             int conMod = (conScore / 2) - 5;
             int hp = 0;
             foreach (int roll in Character.rolledHitDice) {
+                if (roll == 0) {
+                    continue;
+                }
                 hp += Math.Max(1, roll + conMod);
             }
             return hp;

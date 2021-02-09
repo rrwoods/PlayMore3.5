@@ -45,8 +45,8 @@ namespace PlayMore35 {
         private Dictionary<string, List<TextBox>> skillRanks = new Dictionary<string, List<TextBox>>();
         private List<Label> skillPoints = new List<Label>();
         private Dictionary<string, Label> totalSkillRanks = new Dictionary<string, Label>();
-        private int skillPointsBuffer;
-        private int totalsBuffer;
+        private int levelBuffer;
+        private int skillLabelOffset, skillPointsBuffer;
 
         // 1. each of these fields represents one of the four sections of the summary page.
         // 2. the outer list is list of subsections, with visual separation between each subsection.
@@ -230,7 +230,9 @@ namespace PlayMore35 {
 
         private void MultilineText(Label label, Dictionary<string, List<string>> textEffects, string key, bool header = true) {
             if (textEffects[key].Any()) {
-                label.Text = (header ? key + "\n" : "") + string.Join("\n", textEffects[key].Select(x => "     " + x));
+                label.Text =
+                    (header ? key + "\n" : "") +
+                    string.Join("\n", textEffects[key].Where(x => x.Any()).Select(x => "     " + x));
             } else {
                 label.Text = "";
             }
@@ -276,6 +278,11 @@ namespace PlayMore35 {
             }
             controller.Effects.AssignAbilityScores(controller.Character.assignedAbilityScores);
             DisplayTotalAbilityScores();
+            HandleLanguages();
+            DisplayTotalHp();
+            for (int i = 0; i < controller.Character.classLevels.Count(); i++) {
+                DisplaySkillPoints(i);
+            }
         }
 
         private void DisplayRacialAbilityModifiers() {
@@ -310,6 +317,87 @@ namespace PlayMore35 {
             return (object sender, EventArgs e) => {
                 controller.Character.feats[slot] = ((ComboBox)sender).Text;
             };
+        }
+
+        private void AddSkillColumn(string skill, int left) {
+            Label skillName = new Label {
+                AutoSize = false,
+                Size = lblSkill1.Size,
+                Left = left,
+                Top = lblSkill1.Top,
+                TextAlign = lblSkill1.TextAlign,
+                Text = Controller.ShortName(skill),
+                Tag = skill,
+            };
+            toolTips[skillName] = new ToolTip();
+            toolTips[skillName].SetToolTip(skillName, skill);
+
+            skillNames.Add(skillName);
+            characterTab.Controls.Add(skillName);
+
+            skillRanks[skill] = new List<TextBox>();
+
+            Label totalRanks = new Label {
+                AutoSize = false,
+                Size = lblTotalRanks.Size,
+                Left = left,
+                Top = lblTotalRanks.Top,
+                TextAlign = lblTotalRanks.TextAlign,
+                Text = "0"
+            };
+            totalSkillRanks[skill] = totalRanks;
+            characterTab.Controls.Add(totalRanks);
+
+            cboAddSkill.Left = left + skillLabelOffset;
+            cboAddSkill.Items.Remove(skill);
+
+            TextBox lastBox = null;
+            for (
+                int i = 0, levelTop = txtRanksCrossClass.Top;
+                i < controller.Character.classLevels.Count();
+                i++, levelTop += levelBuffer
+            ) {
+                TextBox ranks = new TextBox {
+                    Top = levelTop,
+                    Left = left,
+                    Size = txtRanksCrossClass.Size,
+                    TextAlign = txtRanksCrossClass.TextAlign,
+                    BackColor = controller.IsClassSkill(skill, i)
+                        ? txtRanksClass.BackColor
+                        : txtRanksCrossClass.BackColor,
+                };
+                if (i < controller.Character.skillRanks[skill].Count) {
+                    ranks.Text = controller.Character.skillRanks[skill][i].ToString("#;#;\"\"");
+                } else {
+                    controller.Character.skillRanks[skill].Add(0);
+                }
+                lastBox = ranks;
+
+                ranks.Enter += Text_Enter;
+                ranks.Leave += SetRanks(skill, i);
+                skillRanks[skill].Add(ranks);
+                characterTab.Controls.Add(ranks);
+
+                skillPoints[i].Left = left + skillLabelOffset;
+            }
+
+            lastBox.Focus();
+            // this just ... doesn't work.  WinForms refuses to set the text to something that isn't in the list.
+            // this is despite the fact that you *can* do this in the properties menu just fine.
+            // cboAddSkill.Text = "Add Skill";
+        }
+
+        private void AddSkill_SelectedValueChanged(object sender, EventArgs e) {
+            string skill = ((ComboBox)sender).Text;
+            if (!SKILLS_LIST.Contains(skill)) {
+                return;
+            }
+
+            controller.Character.skillRanks[skill] = Enumerable.Repeat(0, controller.Character.classLevels.Count()).ToList();
+            AddSkillColumn(
+                skill,
+                skillNames.Any() ? skillNames.Last().Left + skillLabelOffset : lblSkill1.Left
+            );
         }
 
         private EventHandler SelectClassLevel(int i) {
@@ -368,6 +456,12 @@ namespace PlayMore35 {
             int curBonusLanguages = bonusLanguages.Count;
             int langBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             int langTop = cboBonusLanguage.Top + langBuffer * curBonusLanguages;
+            for (int i = 0; i < curBonusLanguages; i++) {
+                bonusLanguages[i].Items.Clear();
+                foreach (string language in controller.RaceDefinitions[controller.Character.race].BonusLanguages) {
+                    bonusLanguages[i].Items.Add(language);
+                }
+            }
             for (int i = curBonusLanguages; i < numBonusLanguages; i++) {
                 Label bonusLabel = new Label {
                     Size = lblBonusLang.Size,
@@ -418,7 +512,6 @@ namespace PlayMore35 {
             ClearDynamicControls(characterTab, featSlots);
             ClearDynamicControls(characterTab, feats);
             int featTop = lblFeats.Bottom + featBoxBuffer;
-            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             foreach (string slot in controller.GetFeatSlots()) {
                 Label slotLabel = new Label {
                     Top = featTop,
@@ -472,6 +565,10 @@ namespace PlayMore35 {
         }
 
         private void DisplaySkillPoints(int levelIndex) {
+            if (!skillPoints.Any()) {
+                return;
+            }
+
             int remaining = controller.SkillPointsRemainingAtLevel(levelIndex);
             if (remaining > 1) {
                 skillPoints[levelIndex].Text = "" + remaining + " skill points remaining";
@@ -519,42 +616,6 @@ namespace PlayMore35 {
             }
             totalSkillRanks.Clear();
 
-            int levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
-            int skillLeft = lblSkill1.Left;
-            int skillLabelBuffer = lblSkill2.Left - lblSkill1.Left;
-            int skillIndex = 0;
-            foreach (var skill in controller.Character.skillRanks) {
-                Label skillName = new Label {
-                    AutoSize = false,
-                    Size = lblSkill1.Size,
-                    Left = skillLeft,
-                    Top = lblSkill1.Top,
-                    TextAlign = lblSkill1.TextAlign,
-                    Text = Controller.ShortName(skill.Key),
-                    Tag = skill.Key,
-                };
-                toolTips[skillName] = new ToolTip();
-                toolTips[skillName].SetToolTip(skillName, skill.Key);
-
-                skillNames.Add(skillName);
-                characterTab.Controls.Add(skillName);
-
-                skillRanks[skill.Key] = new List<TextBox>();
-
-                Label totalRanks = new Label {
-                    AutoSize = false,
-                    Size = lblTotalRanks.Size,
-                    Left = skillLeft,
-                    Top = 0, // this gets moved later
-                    TextAlign = lblTotalRanks.TextAlign
-                };
-                totalSkillRanks[skill.Key] = totalRanks;
-                characterTab.Controls.Add(totalRanks);
-
-                skillIndex++;
-                skillLeft += skillLabelBuffer;
-            }
-
             ClearDynamicControls(characterTab, levels);
             ClearDynamicControls(characterTab, hpRolls);
             ClearDynamicControls(characterTab, skillPoints);
@@ -598,52 +659,31 @@ namespace PlayMore35 {
                 hpRolls.Add(rolledHp);
                 characterTab.Controls.Add(rolledHp);
 
-                skillLeft = txtRanksCrossClass.Left;
-                foreach (Label skillName in skillNames) {
-                    string skill = (string)skillName.Tag;
-                    TextBox ranks = new TextBox {
-                        Top = levelTop,
-                        Left = skillLeft,
-                        Size = txtRanksCrossClass.Size,
-                        TextAlign = txtRanksCrossClass.TextAlign,
-                        BackColor = controller.IsClassSkill(skill, i)
-                            ? txtRanksClass.BackColor
-                            : txtRanksCrossClass.BackColor,
-                    };
-                    if (i < controller.Character.skillRanks[skill].Count) {
-                        ranks.Text = controller.Character.skillRanks[skill][i].ToString("#;#;\"\"");
-                    } else {
-                        controller.Character.skillRanks[skill].Add(0);
-                    }
-
-                    ranks.Enter += Text_Enter;
-                    ranks.Leave += SetRanks(skill, i);
-                    skillRanks[skill].Add(ranks);
-                    characterTab.Controls.Add(ranks);
-
-                    skillLeft += skillLabelBuffer;
-                }
-                if (skillNames.Any()) {
-                    Label points = new Label {
-                        Top = levelTop,
-                        Left = skillLeft + skillPointsBuffer,
-                        Size = lblPoints.Size,
-                        TextAlign = lblPoints.TextAlign,
-                    };
-                    skillPoints.Add(points);
-                    characterTab.Controls.Add(points);
-                    DisplaySkillPoints(i);
-                }
+                Label points = new Label {
+                    Top = levelTop,
+                    Left = lblSkill1.Left + (skillNames.Count() * skillLabelOffset),
+                    Size = lblPoints.Size,
+                    TextAlign = lblPoints.TextAlign,
+                };
+                skillPoints.Add(points);
+                characterTab.Controls.Add(points);
+                DisplaySkillPoints(i);
 
                 levelTop += levelBuffer;
             }
-            int totalsTop = levelTop - levelBuffer + totalsBuffer;
 
-            lblTotals.Top = totalsTop;
-            lblTotalHp.Top = totalsTop;
+            int skillLeft = lblSkill1.Left;
+            cboAddSkill.Left = skillLeft;
+            int skillIndex = 0;
+            foreach (var skill in controller.Character.skillRanks) {
+                AddSkillColumn(skill.Key, skillLeft);
+
+                skillIndex++;
+                skillLeft += skillLabelOffset;
+            }
+
             DisplayTotalHp();
             foreach (Label skill in skillNames) {
-                totalSkillRanks[(string)skill.Tag].Top = totalsTop;
                 DisplaySkillRanks((string)skill.Tag);
             }
         }
@@ -653,10 +693,17 @@ namespace PlayMore35 {
                 return;
             }
 
+            cboAddSkill.Items.Clear();
+            foreach (string skill in SKILLS_LIST) {
+                cboAddSkill.Items.Add(skill);
+            }
             DisplayCharacter();
         }
 
         private void CharacterTab_Leave(object sender, EventArgs e) {
+            controller.Character.skillRanks = controller.Character.skillRanks
+                .Where(x => x.Value.Sum() > 0)
+                .ToDictionary(x => x.Key, x => x.Value);
             controller.Reload();
         }
 
@@ -1279,18 +1326,19 @@ namespace PlayMore35 {
             // this "buffer" is actually the difference between the left side of the points label and
             // the left side of a hypothetical "extra" ranks box -- makes the math easier.
             skillPointsBuffer = lblPoints.Left - 2*(txtRanksClass.Left) + txtRanksCrossClass.Left;
-            totalsBuffer = lblTotals.Top - txtRolledHp.Top;
+            skillLabelOffset = lblSkill2.Left - lblSkill1.Left;
 
             leftBuffer = lblTopLeft.Left;
             topBuffer = lblTopLeft.Top + 5; // eh.
             verticalBufferLarge = 8;
             paramBuffer = lblParam2.Top - lblParam.Top;
+            levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
 
             controller = new Controller(new Character());
 
             List<string> availableRaces = controller.RaceDefinitions.Keys.ToList();
             availableRaces.Sort();
-            foreach(string race in availableRaces) {
+            foreach (string race in availableRaces) {
                 cboRace.Items.Add(race);
             }
 

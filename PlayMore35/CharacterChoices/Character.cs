@@ -77,7 +77,12 @@ namespace PlayMore35.CharacterChoices {
                 ["CHA"] = 8,
             };
             race = "";
-            classLevels = new List<string>();
+
+            // yes, this assumes Fighter exists; for now I like this better than not having any levels
+            // on a new character because having now levels causes weird stuff to happen wrt the rules
+            // of the game itself (separately from anything I do to represent them in code)
+            classLevels = new List<string> { "Fighter" };
+
             abilityScoreIncrements = new Dictionary<int, string>();
             bonusLanguages = new List<string>();
             rolledHitDice = new List<int>();
