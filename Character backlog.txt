@@ -1,0 +1,29 @@
+
+===
+
+Adding class levels
+
+===
+
+To facilitate making choices associated with feats/classes:
+- make a new Feats tab, and move the feats section there
+- make a new Levels tab, and move the class level stuff there
+
+===
+
+tab order weirdness when adding dynamic stuff
+
+===
+
+ability score increment input
+
+===
+
+"Effects" that change skill point costs for crossclass
+
+Skill points from
+- race
+- feats a la Nymph's Kiss
+- feats a la Open Minded
+
+===

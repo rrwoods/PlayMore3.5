@@ -1,0 +1,22 @@
+Research the roll20 api, is this even possible?
+
+===
+
+Make a d20 roll happen in roll20 by clicking a "roll" button
+
+Report the result back on a label in the lower right corner
+
+===
+
+Allow for rolling of d20 stats:
+- create a "Roll" button that is normally hidden
+- Label_MouseOver on labels with d20 stats: show the roll button, and position it exactly adjacent to the label being hovered
+- Form_MouseOver: hide the button
+
+===
+
+Allow for rolling of attacks.  clicking the roll button for an attack should:
+- Make the attack roll
+- If it's a critical threat, make the critical confirmation roll
+- Make the damage roll
+- If it was a critical threat, roll the extra critical damage (!)
