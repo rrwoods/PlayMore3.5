@@ -1,12 +1,6 @@
 
 ===
 
-To facilitate making choices associated with feats/classes:
-- make a new Feats tab, and move the feats section there
-- make a new Levels tab, and move the class level stuff there
-
-===
-
 Adding class levels
 
 ===
@@ -27,3 +21,14 @@ Skill points from
 - feats a la Open Minded
 
 ===
+
+
+
+
+....
+
+maybe someday:
+
+remember the sizes of all the textboxes *before* the font change, so we can FUCKING SET THE BACK AFTER UGH.  setting AutoSize to false somehow makes this worse, not better
+
+though, probably, investigate whether the font change is even the culprit here first

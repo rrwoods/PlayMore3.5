@@ -543,48 +543,37 @@ namespace PlayMore35.Global {
 
         // **** ACCESSORS ****
 
-        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, int tiebreak, KeyValuePair<string, int> featSlot) {
-            const int SEGMENT_SIZE = 4; // one more than the biggest constant in GetFeatSlots
-            int k = featSlot.Value * SEGMENT_SIZE + tiebreak;
-            if (feats.ContainsKey(k)) {
-                feats[k].Add(featSlot.Key);
+        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, KeyValuePair<string, int> featSlot) {
+            if (feats.ContainsKey(featSlot.Value)) {
+                feats[featSlot.Value].Add(featSlot.Key);
             } else {
-                feats[k] = new List<string> { featSlot.Key };
+                feats[featSlot.Value] = new List<string> { featSlot.Key };
             }
         }
 
-        public List<string> GetFeatSlots() {
-            // This is a cheeky way of ensuring a consistent ordering while maintaining sanity while iterating.
-            // That ordering is: Lower level first; within a level, always race - rules - class - feats.
-            // (We don't yet have feats that grant feats, but those will come last.  Vow of Poverty is complicated.)
-
+        public SortedDictionary<int, List<string>> GetFeatSlots() {
             int level = Character.classLevels.Count;
-
-            const int RACE = 0;
-            const int RULES = 1;
-            const int CLASS = 2;
-            //const int FEATS = 3;
 
             SortedDictionary<int, List<string>> feats = new SortedDictionary<int, List<string>>();
             foreach (var feat in RaceDefinitions[Character.race].BonusFeats) {
                 if (feat.Value <= level) {
-                    AddFeatSlot(feats, RACE, feat);
+                    AddFeatSlot(feats, feat);
                 }
             }
             foreach (var feat in Effects.featSlots) {
                 if (feat.Value <= level) {
-                    AddFeatSlot(feats, RULES, feat);
+                    AddFeatSlot(feats, feat);
                 }
             }
             foreach (var classAndLevel in Character.SummarizeClassLevels()) {
                 foreach (var feat in ClassDefinitions[classAndLevel.Key].BonusFeats) {
                     if (feat.Value <= classAndLevel.Value) {
-                        AddFeatSlot(feats, CLASS, feat);
+                        AddFeatSlot(feats, feat);
                     }
                 }
             }
 
-            return feats.Values.SelectMany(x => x).ToList();
+            return feats;
         }
 
         public int GetStartingIntelligence() {

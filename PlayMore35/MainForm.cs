@@ -35,8 +35,6 @@ namespace PlayMore35 {
         private List<ComboBox> bonusLanguages = new List<ComboBox>();
 
         private static List<string> availableFeats = new List<string>();
-        private int featHeaderBuffer, featBoxBuffer;
-        private List<Label> featSlots = new List<Label>();
         private List<ComboBox> feats = new List<ComboBox>();
 
         private List<ComboBox> levels = new List<ComboBox>();
@@ -46,7 +44,7 @@ namespace PlayMore35 {
         private List<Label> skillPoints = new List<Label>();
         private Dictionary<string, Label> totalSkillRanks = new Dictionary<string, Label>();
         private int levelBuffer;
-        private int skillLabelOffset, skillPointsBuffer;
+        private int totalsBuffer, skillBufferLeft, skillLabelOffset, skillPointsBuffer;
 
         // 1. each of these fields represents one of the four sections of the summary page.
         // 2. the outer list is list of subsections, with visual separation between each subsection.
@@ -316,7 +314,9 @@ namespace PlayMore35 {
 
         private EventHandler SelectFeat(string slot) {
             return (object sender, EventArgs e) => {
-                controller.Character.feats[slot] = ((ComboBox)sender).Text;
+                ComboBox featBox = ((ComboBox)sender);
+                controller.Character.feats[slot] = featBox.Text;
+                featBox.Font = new Font(featBox.Font, FontStyle.Regular);
             };
         }
 
@@ -334,7 +334,7 @@ namespace PlayMore35 {
             toolTips[skillName].SetToolTip(skillName, skill);
 
             skillNames.Add(skillName);
-            levelsTab.Controls.Add(skillName);
+            characterTab.Controls.Add(skillName);
 
             skillRanks[skill] = new List<TextBox>();
 
@@ -347,7 +347,7 @@ namespace PlayMore35 {
                 Text = "0"
             };
             totalSkillRanks[skill] = totalRanks;
-            levelsTab.Controls.Add(totalRanks);
+            characterTab.Controls.Add(totalRanks);
 
             cboAddSkill.Left = left + skillLabelOffset;
             cboAddSkill.Items.Remove(skill);
@@ -377,7 +377,7 @@ namespace PlayMore35 {
                 ranks.Enter += Text_Enter;
                 ranks.Leave += SetRanks(skill, i);
                 skillRanks[skill].Add(ranks);
-                levelsTab.Controls.Add(ranks);
+                characterTab.Controls.Add(ranks);
 
                 skillPoints[i].Left = left + skillLabelOffset;
             }
@@ -397,7 +397,7 @@ namespace PlayMore35 {
             controller.Character.skillRanks[skill] = Enumerable.Repeat(0, controller.Character.classLevels.Count()).ToList();
             AddSkillColumn(
                 skill,
-                skillNames.Any() ? skillNames.Last().Left + skillLabelOffset : lblSkill1.Left
+                skillNames.Any() ? skillNames.Last().Left + skillLabelOffset : cboAddSkill.Left
             );
         }
 
@@ -505,64 +505,76 @@ namespace PlayMore35 {
                 characterTab.Controls.Remove(bonusLabels[i]);
                 bonusLabels.RemoveAt(i);
             }
-
-            AdjustFeats();
         }
 
         private void HandleFeats() {
-            ClearDynamicControls(characterTab, featSlots);
+            // For some reason, the race-selected method gets called before the character
+            // is actually set up.
+            if (!levels.Any()) {
+                return;
+            }
             ClearDynamicControls(characterTab, feats);
-            int featTop = lblFeats.Bottom + featBoxBuffer;
-            foreach (string slot in controller.GetFeatSlots()) {
-                Label slotLabel = new Label {
-                    Top = featTop,
-                    Left = lblFeatSlot.Left,
-                    Size = lblFeatSlot.Size,
-                    AutoSize = false,
-                    TextAlign = lblFeatSlot.TextAlign,
-                    Text = slot
-                };
-                featSlots.Add(slotLabel);
-                characterTab.Controls.Add(slotLabel);
+            int featRight = 0;
+            foreach (var level in controller.GetFeatSlots()) {
+                int featTop = levels[level.Key - 1].Top;
+                int featLeft = cboFeat.Left;
+                foreach (string slot in level.Value) {
+                    ComboBox featBox = new ComboBox {
+                        AutoCompleteMode = AutoCompleteMode.Append,
+                        AutoCompleteSource = AutoCompleteSource.ListItems,
+                        Top = featTop,
+                        Left = featLeft,
+                        Size = cboFeat.Size,
+                    };
+                    if (controller.Character.feats.ContainsKey(slot)) {
+                        featBox.Text = controller.Character.feats[slot];
+                        featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                    } else {
+                        featBox.Text = slot;
+                        featBox.Font = new Font(featBox.Font, FontStyle.Italic);
+                    }
 
-                ComboBox featBox = new ComboBox {
-                    AutoCompleteMode = AutoCompleteMode.Append,
-                    AutoCompleteSource = AutoCompleteSource.ListItems,
-                    Top = featTop,
-                    Left = cboFeat.Left,
-                    Size = cboFeat.Size,
-                    Text = controller.Character.feats.ContainsKey(slot)
-                        ? controller.Character.feats[slot]
-                        : "",
-                };
-                foreach (string feat in availableFeats) {
-                    featBox.Items.Add(feat);
+                    foreach (string feat in availableFeats) {
+                        featBox.Items.Add(feat);
+                    }
+                    featBox.SelectedValueChanged += SelectFeat(slot);
+                    feats.Add(featBox);
+                    featLeft += featBox.Width + (cboFeat.Left - cboClass.Right);
+                    characterTab.Controls.Add(featBox);
+
+                    featRight = Math.Max(featRight, featBox.Right);
                 }
-                featBox.SelectedValueChanged += SelectFeat(slot);
-                feats.Add(featBox);
-                characterTab.Controls.Add(featBox);
-
-                featTop += levelBuffer;
             }
-        }
-
-        private void AdjustFeats() {
-            int newPos = bonusLanguages.Any()
-                ? bonusLanguages.Last().Bottom + featHeaderBuffer
-                : txtAutomaticLanguages.Bottom + featHeaderBuffer;
-            int adjust = newPos - lblFeats.Top;
-
-            lblFeats.Top = newPos;
-            foreach (Label slot in featSlots) {
-                slot.Top += adjust;
-            }
-            foreach (ComboBox feat in feats) {
-                feat.Top += adjust;
-            }
+            AdjustHpAndSkills(featRight + (txtRolledHp.Left - cboFeat.Right));
         }
 
         private void DisplayTotalHp() {
             lblTotalHp.Text = "" + controller.BaseHp();
+        }
+        
+        private void AdjustHpAndSkills(int left) {
+            lblTotals.Left = left - totalsBuffer;
+            lblRolledHp.Left = left;
+            lblTotalHp.Left = left;
+            foreach (TextBox roll in hpRolls) {
+                roll.Left = left;
+            }
+
+            left += skillBufferLeft;
+            lblSkills.Left = left;
+            foreach (Label skillName in skillNames) {
+                skillName.Left = left;
+                string skill = (string)skillName.Tag;
+                totalSkillRanks[skill].Left = left;
+                for (int i = 0; i < levels.Count; i++) {
+                    skillRanks[skill][i].Left = left;
+                }
+                left += skillLabelOffset;
+            }
+            cboAddSkill.Left = left;
+            for (int i = 0; i < levels.Count; i++) {
+                skillPoints[i].Left = left;
+            }
         }
 
         private void DisplaySkillPoints(int levelIndex) {
@@ -586,50 +598,22 @@ namespace PlayMore35 {
             totalSkillRanks[skill].Text = "" + controller.TotalSkillRanks(skill);
         }
 
-        private void DisplayCharacter() {
-            txtName.Text = controller.Character.name;
-            txtAlignment.Text = controller.Character.alignment;
-            txtGender.Text = controller.Character.gender;
-            cboRace.Text = controller.Character.race;
-
-            txtAssignedStr.Text = "" + controller.Character.assignedAbilityScores[STR];
-            txtAssignedDex.Text = "" + controller.Character.assignedAbilityScores[DEX];
-            txtAssignedCon.Text = "" + controller.Character.assignedAbilityScores[CON];
-            txtAssignedInt.Text = "" + controller.Character.assignedAbilityScores[INT];
-            txtAssignedWis.Text = "" + controller.Character.assignedAbilityScores[WIS];
-            txtAssignedCha.Text = "" + controller.Character.assignedAbilityScores[CHA];
-
-            DisplayRacialAbilityModifiers();
-            DisplayTotalAbilityScores();
-
-            HandleLanguages();
-            HandleFeats();
-        }
-
-        private void CharacterTab_Enter(object sender, EventArgs e) {
-            if (!loaded) {
-                return;
-            }
-
-            DisplayCharacter();
-        }
-
         private void DisplayLevels() {
-            ClearDynamicControls(levelsTab, skillNames);
+            ClearDynamicControls(characterTab, skillNames);
             foreach (List<TextBox> boxes in skillRanks.Values) {
                 foreach (TextBox box in boxes) {
-                    levelsTab.Controls.Remove(box);
+                    characterTab.Controls.Remove(box);
                 }
             }
             skillRanks.Clear();
             foreach (Label totalRanks in totalSkillRanks.Values) {
-                levelsTab.Controls.Remove(totalRanks);
+                characterTab.Controls.Remove(totalRanks);
             }
             totalSkillRanks.Clear();
 
-            ClearDynamicControls(levelsTab, levels);
-            ClearDynamicControls(levelsTab, hpRolls);
-            ClearDynamicControls(levelsTab, skillPoints);
+            ClearDynamicControls(characterTab, levels);
+            ClearDynamicControls(characterTab, hpRolls);
+            ClearDynamicControls(characterTab, skillPoints);
 
             int levelTop = cboClass.Top;
             for (int i = 0; i < controller.Character.classLevels.Count; i++) {
@@ -645,7 +629,7 @@ namespace PlayMore35 {
                 level.Text = @class;
                 level.SelectedValueChanged += SelectClassLevel(i);
                 levels.Add(level);
-                levelsTab.Controls.Add(level);
+                characterTab.Controls.Add(level);
 
                 TextBox rolledHp = new TextBox {
                     Top = levelTop,
@@ -668,22 +652,22 @@ namespace PlayMore35 {
                 rolledHp.Enter += Text_Enter;
                 rolledHp.Leave += SetHp(i);
                 hpRolls.Add(rolledHp);
-                levelsTab.Controls.Add(rolledHp);
+                characterTab.Controls.Add(rolledHp);
 
                 Label points = new Label {
                     Top = levelTop,
-                    Left = lblSkill1.Left + (skillNames.Count() * skillLabelOffset),
+                    Left = cboAddSkill.Left + (skillNames.Count() * skillLabelOffset),
                     Size = lblPoints.Size,
                     TextAlign = lblPoints.TextAlign,
                 };
                 skillPoints.Add(points);
-                levelsTab.Controls.Add(points);
+                characterTab.Controls.Add(points);
                 DisplaySkillPoints(i);
 
                 levelTop += levelBuffer;
             }
 
-            int skillLeft = lblSkill1.Left;
+            int skillLeft = cboAddSkill.Left;
             cboAddSkill.Left = skillLeft;
             int skillIndex = 0;
             foreach (var skill in controller.Character.skillRanks) {
@@ -699,7 +683,24 @@ namespace PlayMore35 {
             }
         }
 
-        private void LevelsTab_Enter(object sender, EventArgs e) {
+        private void DisplayCharacter() {
+            txtName.Text = controller.Character.name;
+            txtAlignment.Text = controller.Character.alignment;
+            txtGender.Text = controller.Character.gender;
+            cboRace.Text = controller.Character.race;
+
+            txtAssignedStr.Text = "" + controller.Character.assignedAbilityScores[STR];
+            txtAssignedDex.Text = "" + controller.Character.assignedAbilityScores[DEX];
+            txtAssignedCon.Text = "" + controller.Character.assignedAbilityScores[CON];
+            txtAssignedInt.Text = "" + controller.Character.assignedAbilityScores[INT];
+            txtAssignedWis.Text = "" + controller.Character.assignedAbilityScores[WIS];
+            txtAssignedCha.Text = "" + controller.Character.assignedAbilityScores[CHA];
+
+            DisplayRacialAbilityModifiers();
+            DisplayTotalAbilityScores();
+
+            HandleLanguages();
+
             DisplayLevels();
             cboAddSkill.Items.Clear();
             foreach (string skill in SKILLS_LIST) {
@@ -708,9 +709,18 @@ namespace PlayMore35 {
             foreach (string skill in controller.Character.skillRanks.Keys) {
                 cboAddSkill.Items.Remove(skill);
             }
+            HandleFeats();
         }
 
-        private void LevelsTab_Leave(object sender, EventArgs e) {
+        private void CharacterTab_Enter(object sender, EventArgs e) {
+            if (!loaded) {
+                return;
+            }
+
+            DisplayCharacter();
+        }
+
+        private void CharacterTab_Leave(object sender, EventArgs e) {
             controller.Character.skillRanks = controller.Character.skillRanks
                 .Where(x => x.Value.Sum() > 0)
                 .ToDictionary(x => x.Key, x => x.Value);
@@ -1331,8 +1341,6 @@ namespace PlayMore35 {
         private void MainForm_Load(object sender, EventArgs e) {
             Font = scala;
 
-            featHeaderBuffer = lblFeats.Top - cboBonusLanguage.Bottom;
-            featBoxBuffer = cboFeat.Top - lblFeats.Bottom;
             // this "buffer" is actually the difference between the left side of the points label and
             // the left side of a hypothetical "extra" ranks box -- makes the math easier.
             skillPointsBuffer = lblPoints.Left - 2*(txtRanksClass.Left) + txtRanksCrossClass.Left;
@@ -1343,6 +1351,8 @@ namespace PlayMore35 {
             verticalBufferLarge = 8;
             paramBuffer = lblParam2.Top - lblParam.Top;
             levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
+            totalsBuffer = lblTotalHp.Left - lblTotals.Left;
+            skillBufferLeft = lblTotalRanks.Left - lblTotalHp.Left;
 
             controller = new Controller(new Character());
 
