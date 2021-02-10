@@ -1,13 +1,13 @@
 
 ===
 
-Adding class levels
-
-===
-
 To facilitate making choices associated with feats/classes:
 - make a new Feats tab, and move the feats section there
 - make a new Levels tab, and move the class level stuff there
+
+===
+
+Adding class levels
 
 ===
 

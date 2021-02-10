@@ -27,24 +27,12 @@
             this.lblTopLeft = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.characterTab = new System.Windows.Forms.TabPage();
-            this.cboAddSkill = new System.Windows.Forms.ComboBox();
-            this.lblTotalHp = new System.Windows.Forms.Label();
-            this.lblTotals = new System.Windows.Forms.Label();
-            this.lblTotalRanks = new System.Windows.Forms.Label();
-            this.lblPoints = new System.Windows.Forms.Label();
             this.btnLoadCharacter = new System.Windows.Forms.Button();
             this.lblBonusLang = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.lblFeatSlot = new System.Windows.Forms.Label();
             this.cboFeat = new System.Windows.Forms.ComboBox();
             this.lblFeats = new System.Windows.Forms.Label();
-            this.lblSkill2 = new System.Windows.Forms.Label();
-            this.lblSkill1 = new System.Windows.Forms.Label();
-            this.lblRolledHp = new System.Windows.Forms.Label();
-            this.txtRanksClass = new System.Windows.Forms.TextBox();
-            this.txtRanksCrossClass = new System.Windows.Forms.TextBox();
-            this.txtRolledHp = new System.Windows.Forms.TextBox();
-            this.cboClass = new System.Windows.Forms.ComboBox();
             this.cboBonusLanguage = new System.Windows.Forms.ComboBox();
             this.label15 = new System.Windows.Forms.Label();
             this.txtAutomaticLanguages = new System.Windows.Forms.TextBox();
@@ -84,6 +72,20 @@
             this.txtAlignment = new System.Windows.Forms.TextBox();
             this.txtName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.levelsTab = new System.Windows.Forms.TabPage();
+            this.label16 = new System.Windows.Forms.Label();
+            this.cboAddSkill = new System.Windows.Forms.ComboBox();
+            this.lblTotalHp = new System.Windows.Forms.Label();
+            this.lblTotals = new System.Windows.Forms.Label();
+            this.lblTotalRanks = new System.Windows.Forms.Label();
+            this.lblPoints = new System.Windows.Forms.Label();
+            this.lblSkill2 = new System.Windows.Forms.Label();
+            this.lblSkill1 = new System.Windows.Forms.Label();
+            this.lblRolledHp = new System.Windows.Forms.Label();
+            this.txtRanksClass = new System.Windows.Forms.TextBox();
+            this.txtRanksCrossClass = new System.Windows.Forms.TextBox();
+            this.txtRolledHp = new System.Windows.Forms.TextBox();
+            this.cboClass = new System.Windows.Forms.ComboBox();
             this.statsTab = new System.Windows.Forms.TabPage();
             this.lblParam2 = new System.Windows.Forms.Label();
             this.lblParam = new System.Windows.Forms.Label();
@@ -130,9 +132,9 @@
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.label16 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.characterTab.SuspendLayout();
+            this.levelsTab.SuspendLayout();
             this.statsTab.SuspendLayout();
             this.inventoryTab.SuspendLayout();
             this.grpSampleLocation.SuspendLayout();
@@ -154,6 +156,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.characterTab);
+            this.tabControl1.Controls.Add(this.levelsTab);
             this.tabControl1.Controls.Add(this.statsTab);
             this.tabControl1.Controls.Add(this.inventoryTab);
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -164,25 +167,12 @@
             // 
             // characterTab
             // 
-            this.characterTab.Controls.Add(this.label16);
-            this.characterTab.Controls.Add(this.cboAddSkill);
-            this.characterTab.Controls.Add(this.lblTotalHp);
-            this.characterTab.Controls.Add(this.lblTotals);
-            this.characterTab.Controls.Add(this.lblTotalRanks);
-            this.characterTab.Controls.Add(this.lblPoints);
             this.characterTab.Controls.Add(this.btnLoadCharacter);
             this.characterTab.Controls.Add(this.lblBonusLang);
             this.characterTab.Controls.Add(this.label7);
             this.characterTab.Controls.Add(this.lblFeatSlot);
             this.characterTab.Controls.Add(this.cboFeat);
             this.characterTab.Controls.Add(this.lblFeats);
-            this.characterTab.Controls.Add(this.lblSkill2);
-            this.characterTab.Controls.Add(this.lblSkill1);
-            this.characterTab.Controls.Add(this.lblRolledHp);
-            this.characterTab.Controls.Add(this.txtRanksClass);
-            this.characterTab.Controls.Add(this.txtRanksCrossClass);
-            this.characterTab.Controls.Add(this.txtRolledHp);
-            this.characterTab.Controls.Add(this.cboClass);
             this.characterTab.Controls.Add(this.cboBonusLanguage);
             this.characterTab.Controls.Add(this.label15);
             this.characterTab.Controls.Add(this.txtAutomaticLanguages);
@@ -229,56 +219,6 @@
             this.characterTab.Text = "Character";
             this.characterTab.UseVisualStyleBackColor = true;
             this.characterTab.Enter += new System.EventHandler(this.CharacterTab_Enter);
-            this.characterTab.Leave += new System.EventHandler(this.CharacterTab_Leave);
-            // 
-            // cboAddSkill
-            // 
-            this.cboAddSkill.FormattingEnabled = true;
-            this.cboAddSkill.Location = new System.Drawing.Point(593, 69);
-            this.cboAddSkill.Name = "cboAddSkill";
-            this.cboAddSkill.Size = new System.Drawing.Size(201, 25);
-            this.cboAddSkill.TabIndex = 64;
-            this.cboAddSkill.Text = "Add Skill";
-            this.cboAddSkill.SelectedValueChanged += new System.EventHandler(this.AddSkill_SelectedValueChanged);
-            // 
-            // lblTotalHp
-            // 
-            this.lblTotalHp.Location = new System.Drawing.Point(546, 93);
-            this.lblTotalHp.Name = "lblTotalHp";
-            this.lblTotalHp.Size = new System.Drawing.Size(32, 25);
-            this.lblTotalHp.TabIndex = 63;
-            this.lblTotalHp.Text = "123";
-            this.lblTotalHp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblTotals
-            // 
-            this.lblTotals.Location = new System.Drawing.Point(414, 93);
-            this.lblTotals.Name = "lblTotals";
-            this.lblTotals.Size = new System.Drawing.Size(126, 25);
-            this.lblTotals.TabIndex = 62;
-            this.lblTotals.Text = "Totals";
-            this.lblTotals.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // lblTotalRanks
-            // 
-            this.lblTotalRanks.Location = new System.Drawing.Point(593, 93);
-            this.lblTotalRanks.Name = "lblTotalRanks";
-            this.lblTotalRanks.Size = new System.Drawing.Size(41, 25);
-            this.lblTotalRanks.TabIndex = 61;
-            this.lblTotalRanks.Text = "4";
-            this.lblTotalRanks.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblTotalRanks.Visible = false;
-            // 
-            // lblPoints
-            // 
-            this.lblPoints.Location = new System.Drawing.Point(685, 121);
-            this.lblPoints.Name = "lblPoints";
-            this.lblPoints.Size = new System.Drawing.Size(159, 25);
-            this.lblPoints.TabIndex = 60;
-            this.lblPoints.Text = "8 skill points remaining";
-            this.lblPoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblPoints.UseCompatibleTextRendering = true;
-            this.lblPoints.Visible = false;
             // 
             // btnLoadCharacter
             // 
@@ -337,77 +277,6 @@
             this.lblFeats.TabIndex = 54;
             this.lblFeats.Text = "Feats";
             this.lblFeats.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            // 
-            // lblSkill2
-            // 
-            this.lblSkill2.Location = new System.Drawing.Point(639, 72);
-            this.lblSkill2.Name = "lblSkill2";
-            this.lblSkill2.Size = new System.Drawing.Size(40, 21);
-            this.lblSkill2.TabIndex = 53;
-            this.lblSkill2.Text = "Skill";
-            this.lblSkill2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lblSkill2.Visible = false;
-            // 
-            // lblSkill1
-            // 
-            this.lblSkill1.Location = new System.Drawing.Point(593, 72);
-            this.lblSkill1.Name = "lblSkill1";
-            this.lblSkill1.Size = new System.Drawing.Size(40, 21);
-            this.lblSkill1.TabIndex = 52;
-            this.lblSkill1.Text = "Skill";
-            this.lblSkill1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lblSkill1.Visible = false;
-            // 
-            // lblRolledHp
-            // 
-            this.lblRolledHp.Location = new System.Drawing.Point(546, 72);
-            this.lblRolledHp.Name = "lblRolledHp";
-            this.lblRolledHp.Size = new System.Drawing.Size(32, 21);
-            this.lblRolledHp.TabIndex = 51;
-            this.lblRolledHp.Text = "HP";
-            this.lblRolledHp.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // txtRanksClass
-            // 
-            this.txtRanksClass.BackColor = System.Drawing.Color.PaleTurquoise;
-            this.txtRanksClass.Location = new System.Drawing.Point(639, 121);
-            this.txtRanksClass.Name = "txtRanksClass";
-            this.txtRanksClass.Size = new System.Drawing.Size(40, 25);
-            this.txtRanksClass.TabIndex = 50;
-            this.txtRanksClass.Text = "4";
-            this.txtRanksClass.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtRanksClass.Visible = false;
-            // 
-            // txtRanksCrossClass
-            // 
-            this.txtRanksCrossClass.BackColor = System.Drawing.Color.Pink;
-            this.txtRanksCrossClass.Location = new System.Drawing.Point(593, 121);
-            this.txtRanksCrossClass.Name = "txtRanksCrossClass";
-            this.txtRanksCrossClass.Size = new System.Drawing.Size(40, 25);
-            this.txtRanksCrossClass.TabIndex = 49;
-            this.txtRanksCrossClass.Text = "4";
-            this.txtRanksCrossClass.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtRanksCrossClass.Visible = false;
-            // 
-            // txtRolledHp
-            // 
-            this.txtRolledHp.Location = new System.Drawing.Point(546, 121);
-            this.txtRolledHp.Name = "txtRolledHp";
-            this.txtRolledHp.Size = new System.Drawing.Size(32, 25);
-            this.txtRolledHp.TabIndex = 48;
-            this.txtRolledHp.Text = "12";
-            this.txtRolledHp.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtRolledHp.Visible = false;
-            // 
-            // cboClass
-            // 
-            this.cboClass.FormattingEnabled = true;
-            this.cboClass.Location = new System.Drawing.Point(308, 121);
-            this.cboClass.Name = "cboClass";
-            this.cboClass.Size = new System.Drawing.Size(232, 25);
-            this.cboClass.TabIndex = 47;
-            this.cboClass.Tag = "";
-            this.cboClass.Visible = false;
             // 
             // cboBonusLanguage
             // 
@@ -778,6 +647,162 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Name";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // levelsTab
+            // 
+            this.levelsTab.Controls.Add(this.label16);
+            this.levelsTab.Controls.Add(this.cboAddSkill);
+            this.levelsTab.Controls.Add(this.lblTotalHp);
+            this.levelsTab.Controls.Add(this.lblTotals);
+            this.levelsTab.Controls.Add(this.lblTotalRanks);
+            this.levelsTab.Controls.Add(this.lblPoints);
+            this.levelsTab.Controls.Add(this.lblSkill2);
+            this.levelsTab.Controls.Add(this.lblSkill1);
+            this.levelsTab.Controls.Add(this.lblRolledHp);
+            this.levelsTab.Controls.Add(this.txtRanksClass);
+            this.levelsTab.Controls.Add(this.txtRanksCrossClass);
+            this.levelsTab.Controls.Add(this.txtRolledHp);
+            this.levelsTab.Controls.Add(this.cboClass);
+            this.levelsTab.Location = new System.Drawing.Point(4, 26);
+            this.levelsTab.Name = "levelsTab";
+            this.levelsTab.Size = new System.Drawing.Size(976, 631);
+            this.levelsTab.TabIndex = 3;
+            this.levelsTab.Text = "Levels";
+            this.levelsTab.UseVisualStyleBackColor = true;
+            this.levelsTab.Enter += new System.EventHandler(this.LevelsTab_Enter);
+            this.levelsTab.Leave += new System.EventHandler(this.LevelsTab_Leave);
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(293, 0);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(34, 22);
+            this.label16.TabIndex = 78;
+            this.label16.Text = "Skills";
+            this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label16.UseCompatibleTextRendering = true;
+            this.label16.Visible = false;
+            // 
+            // cboAddSkill
+            // 
+            this.cboAddSkill.FormattingEnabled = true;
+            this.cboAddSkill.Location = new System.Drawing.Point(293, 25);
+            this.cboAddSkill.Name = "cboAddSkill";
+            this.cboAddSkill.Size = new System.Drawing.Size(201, 25);
+            this.cboAddSkill.TabIndex = 77;
+            this.cboAddSkill.Text = "Add Skill";
+            this.cboAddSkill.SelectedValueChanged += new System.EventHandler(this.AddSkill_SelectedValueChanged);
+            // 
+            // lblTotalHp
+            // 
+            this.lblTotalHp.Location = new System.Drawing.Point(246, 49);
+            this.lblTotalHp.Name = "lblTotalHp";
+            this.lblTotalHp.Size = new System.Drawing.Size(32, 25);
+            this.lblTotalHp.TabIndex = 76;
+            this.lblTotalHp.Text = "123";
+            this.lblTotalHp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblTotals
+            // 
+            this.lblTotals.Location = new System.Drawing.Point(114, 49);
+            this.lblTotals.Name = "lblTotals";
+            this.lblTotals.Size = new System.Drawing.Size(126, 25);
+            this.lblTotals.TabIndex = 75;
+            this.lblTotals.Text = "Totals";
+            this.lblTotals.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblTotalRanks
+            // 
+            this.lblTotalRanks.Location = new System.Drawing.Point(293, 49);
+            this.lblTotalRanks.Name = "lblTotalRanks";
+            this.lblTotalRanks.Size = new System.Drawing.Size(41, 25);
+            this.lblTotalRanks.TabIndex = 74;
+            this.lblTotalRanks.Text = "4";
+            this.lblTotalRanks.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTotalRanks.Visible = false;
+            // 
+            // lblPoints
+            // 
+            this.lblPoints.Location = new System.Drawing.Point(385, 77);
+            this.lblPoints.Name = "lblPoints";
+            this.lblPoints.Size = new System.Drawing.Size(159, 25);
+            this.lblPoints.TabIndex = 73;
+            this.lblPoints.Text = "8 skill points remaining";
+            this.lblPoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblPoints.UseCompatibleTextRendering = true;
+            this.lblPoints.Visible = false;
+            // 
+            // lblSkill2
+            // 
+            this.lblSkill2.Location = new System.Drawing.Point(339, 28);
+            this.lblSkill2.Name = "lblSkill2";
+            this.lblSkill2.Size = new System.Drawing.Size(40, 21);
+            this.lblSkill2.TabIndex = 72;
+            this.lblSkill2.Text = "Skill";
+            this.lblSkill2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lblSkill2.Visible = false;
+            // 
+            // lblSkill1
+            // 
+            this.lblSkill1.Location = new System.Drawing.Point(293, 28);
+            this.lblSkill1.Name = "lblSkill1";
+            this.lblSkill1.Size = new System.Drawing.Size(40, 21);
+            this.lblSkill1.TabIndex = 71;
+            this.lblSkill1.Text = "Skill";
+            this.lblSkill1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lblSkill1.Visible = false;
+            // 
+            // lblRolledHp
+            // 
+            this.lblRolledHp.Location = new System.Drawing.Point(246, 28);
+            this.lblRolledHp.Name = "lblRolledHp";
+            this.lblRolledHp.Size = new System.Drawing.Size(32, 21);
+            this.lblRolledHp.TabIndex = 70;
+            this.lblRolledHp.Text = "HP";
+            this.lblRolledHp.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // txtRanksClass
+            // 
+            this.txtRanksClass.BackColor = System.Drawing.Color.PaleTurquoise;
+            this.txtRanksClass.Location = new System.Drawing.Point(339, 77);
+            this.txtRanksClass.Name = "txtRanksClass";
+            this.txtRanksClass.Size = new System.Drawing.Size(40, 25);
+            this.txtRanksClass.TabIndex = 69;
+            this.txtRanksClass.Text = "4";
+            this.txtRanksClass.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtRanksClass.Visible = false;
+            // 
+            // txtRanksCrossClass
+            // 
+            this.txtRanksCrossClass.BackColor = System.Drawing.Color.Pink;
+            this.txtRanksCrossClass.Location = new System.Drawing.Point(293, 77);
+            this.txtRanksCrossClass.Name = "txtRanksCrossClass";
+            this.txtRanksCrossClass.Size = new System.Drawing.Size(40, 25);
+            this.txtRanksCrossClass.TabIndex = 68;
+            this.txtRanksCrossClass.Text = "4";
+            this.txtRanksCrossClass.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtRanksCrossClass.Visible = false;
+            // 
+            // txtRolledHp
+            // 
+            this.txtRolledHp.Location = new System.Drawing.Point(246, 77);
+            this.txtRolledHp.Name = "txtRolledHp";
+            this.txtRolledHp.Size = new System.Drawing.Size(32, 25);
+            this.txtRolledHp.TabIndex = 67;
+            this.txtRolledHp.Text = "12";
+            this.txtRolledHp.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtRolledHp.Visible = false;
+            // 
+            // cboClass
+            // 
+            this.cboClass.FormattingEnabled = true;
+            this.cboClass.Location = new System.Drawing.Point(8, 77);
+            this.cboClass.Name = "cboClass";
+            this.cboClass.Size = new System.Drawing.Size(232, 25);
+            this.cboClass.TabIndex = 66;
+            this.cboClass.Tag = "";
+            this.cboClass.Visible = false;
             // 
             // statsTab
             // 
@@ -1338,18 +1363,6 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(593, 44);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(34, 22);
-            this.label16.TabIndex = 65;
-            this.label16.Text = "Skills";
-            this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label16.UseCompatibleTextRendering = true;
-            this.label16.Visible = false;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -1365,6 +1378,8 @@
             this.tabControl1.ResumeLayout(false);
             this.characterTab.ResumeLayout(false);
             this.characterTab.PerformLayout();
+            this.levelsTab.ResumeLayout(false);
+            this.levelsTab.PerformLayout();
             this.statsTab.ResumeLayout(false);
             this.statsTab.PerformLayout();
             this.inventoryTab.ResumeLayout(false);
@@ -1465,25 +1480,26 @@
         private System.Windows.Forms.ComboBox cboBonusLanguage;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.TextBox txtAutomaticLanguages;
-        private System.Windows.Forms.ComboBox cboClass;
-        private System.Windows.Forms.TextBox txtRolledHp;
-        private System.Windows.Forms.Label lblRolledHp;
-        private System.Windows.Forms.TextBox txtRanksClass;
-        private System.Windows.Forms.TextBox txtRanksCrossClass;
-        private System.Windows.Forms.Label lblSkill2;
-        private System.Windows.Forms.Label lblSkill1;
         private System.Windows.Forms.Label lblFeatSlot;
         private System.Windows.Forms.ComboBox cboFeat;
         private System.Windows.Forms.Label lblFeats;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label lblBonusLang;
         private System.Windows.Forms.Button btnLoadCharacter;
-        private System.Windows.Forms.Label lblPoints;
+        private System.Windows.Forms.TabPage levelsTab;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.ComboBox cboAddSkill;
         private System.Windows.Forms.Label lblTotalHp;
         private System.Windows.Forms.Label lblTotals;
         private System.Windows.Forms.Label lblTotalRanks;
-        private System.Windows.Forms.ComboBox cboAddSkill;
-        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label lblPoints;
+        private System.Windows.Forms.Label lblSkill2;
+        private System.Windows.Forms.Label lblSkill1;
+        private System.Windows.Forms.Label lblRolledHp;
+        private System.Windows.Forms.TextBox txtRanksClass;
+        private System.Windows.Forms.TextBox txtRanksCrossClass;
+        private System.Windows.Forms.TextBox txtRolledHp;
+        private System.Windows.Forms.ComboBox cboClass;
     }
 }
 

@@ -262,6 +262,7 @@ namespace PlayMore35 {
             DisplayRacialAbilityModifiers();
             DisplayTotalAbilityScores();
             HandleLanguages();
+            HandleFeats();
         }
 
         private void Assigned_Leave(object sender, EventArgs e) {
@@ -333,7 +334,7 @@ namespace PlayMore35 {
             toolTips[skillName].SetToolTip(skillName, skill);
 
             skillNames.Add(skillName);
-            characterTab.Controls.Add(skillName);
+            levelsTab.Controls.Add(skillName);
 
             skillRanks[skill] = new List<TextBox>();
 
@@ -346,7 +347,7 @@ namespace PlayMore35 {
                 Text = "0"
             };
             totalSkillRanks[skill] = totalRanks;
-            characterTab.Controls.Add(totalRanks);
+            levelsTab.Controls.Add(totalRanks);
 
             cboAddSkill.Left = left + skillLabelOffset;
             cboAddSkill.Items.Remove(skill);
@@ -376,7 +377,7 @@ namespace PlayMore35 {
                 ranks.Enter += Text_Enter;
                 ranks.Leave += SetRanks(skill, i);
                 skillRanks[skill].Add(ranks);
-                characterTab.Controls.Add(ranks);
+                levelsTab.Controls.Add(ranks);
 
                 skillPoints[i].Left = left + skillLabelOffset;
             }
@@ -603,22 +604,32 @@ namespace PlayMore35 {
 
             HandleLanguages();
             HandleFeats();
+        }
 
-            ClearDynamicControls(characterTab, skillNames);
+        private void CharacterTab_Enter(object sender, EventArgs e) {
+            if (!loaded) {
+                return;
+            }
+
+            DisplayCharacter();
+        }
+
+        private void DisplayLevels() {
+            ClearDynamicControls(levelsTab, skillNames);
             foreach (List<TextBox> boxes in skillRanks.Values) {
                 foreach (TextBox box in boxes) {
-                    characterTab.Controls.Remove(box);
+                    levelsTab.Controls.Remove(box);
                 }
             }
             skillRanks.Clear();
             foreach (Label totalRanks in totalSkillRanks.Values) {
-                characterTab.Controls.Remove(totalRanks);
+                levelsTab.Controls.Remove(totalRanks);
             }
             totalSkillRanks.Clear();
 
-            ClearDynamicControls(characterTab, levels);
-            ClearDynamicControls(characterTab, hpRolls);
-            ClearDynamicControls(characterTab, skillPoints);
+            ClearDynamicControls(levelsTab, levels);
+            ClearDynamicControls(levelsTab, hpRolls);
+            ClearDynamicControls(levelsTab, skillPoints);
 
             int levelTop = cboClass.Top;
             for (int i = 0; i < controller.Character.classLevels.Count; i++) {
@@ -634,7 +645,7 @@ namespace PlayMore35 {
                 level.Text = @class;
                 level.SelectedValueChanged += SelectClassLevel(i);
                 levels.Add(level);
-                characterTab.Controls.Add(level);
+                levelsTab.Controls.Add(level);
 
                 TextBox rolledHp = new TextBox {
                     Top = levelTop,
@@ -657,7 +668,7 @@ namespace PlayMore35 {
                 rolledHp.Enter += Text_Enter;
                 rolledHp.Leave += SetHp(i);
                 hpRolls.Add(rolledHp);
-                characterTab.Controls.Add(rolledHp);
+                levelsTab.Controls.Add(rolledHp);
 
                 Label points = new Label {
                     Top = levelTop,
@@ -666,7 +677,7 @@ namespace PlayMore35 {
                     TextAlign = lblPoints.TextAlign,
                 };
                 skillPoints.Add(points);
-                characterTab.Controls.Add(points);
+                levelsTab.Controls.Add(points);
                 DisplaySkillPoints(i);
 
                 levelTop += levelBuffer;
@@ -688,23 +699,21 @@ namespace PlayMore35 {
             }
         }
 
-        private void CharacterTab_Enter(object sender, EventArgs e) {
-            if (!loaded) {
-                return;
-            }
-
+        private void LevelsTab_Enter(object sender, EventArgs e) {
+            DisplayLevels();
             cboAddSkill.Items.Clear();
             foreach (string skill in SKILLS_LIST) {
                 cboAddSkill.Items.Add(skill);
             }
-            DisplayCharacter();
+            foreach (string skill in controller.Character.skillRanks.Keys) {
+                cboAddSkill.Items.Remove(skill);
+            }
         }
 
-        private void CharacterTab_Leave(object sender, EventArgs e) {
+        private void LevelsTab_Leave(object sender, EventArgs e) {
             controller.Character.skillRanks = controller.Character.skillRanks
                 .Where(x => x.Value.Sum() > 0)
                 .ToDictionary(x => x.Key, x => x.Value);
-            controller.Reload();
         }
 
         private void RefreshEffects() {
@@ -1315,6 +1324,7 @@ namespace PlayMore35 {
                 }
             }
 
+            controller.Reload();
             RefreshEffects();
         }
 
