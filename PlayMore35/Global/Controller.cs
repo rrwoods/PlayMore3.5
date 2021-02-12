@@ -239,6 +239,11 @@ namespace PlayMore35.Global {
                     foreach (Effect feature in @class.ClassFeatures[level]) {
                         Effects.AddEffect(feature);
                     }
+                    if (level < @class.Flags.Count) {
+                        foreach (string flag in @class.Flags[level]) {
+                            Effects.controllableFlags[flag] = false;
+                        }
+                    }
                 }
             }
             foreach (string featName in Character.feats.Values) {

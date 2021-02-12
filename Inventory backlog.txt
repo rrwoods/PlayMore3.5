@@ -1,1 +1,5 @@
+For some reason, if you switch directly to the inventory tab after loading a character, slotless equipped items do not show up
+
+===
+
 gold tracking

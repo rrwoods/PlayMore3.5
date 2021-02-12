@@ -25,7 +25,6 @@ namespace PlayMore35.CharacterChoices {
         public List<string> BonusLanguages = new List<string>();
         public List<string> FamiliarWeapons = new List<string>();
 
-        public List<string> Toggles = new List<string>();
         public List<Effect> Effects = new List<Effect>();
         public Dictionary<string, int> BonusFeats = new Dictionary<string, int>();
 
@@ -62,7 +61,6 @@ namespace PlayMore35.CharacterChoices {
             json.AddList("automatic languages", AutomaticLanguages);
             json.AddList("bonus languages", BonusLanguages);
             json.AddList("weapon familiarity", FamiliarWeapons);
-            json.AddList("toggles", Toggles);
             if (BonusFeats.Any()) {
                 json["bonus feats"] = new JObject(BonusFeats.Select(x => new JProperty(x.Key, x.Value)));
             }
@@ -110,7 +108,6 @@ namespace PlayMore35.CharacterChoices {
                     BonusFeats[feat.Name] = (int)feat.Value;
                 }
             }
-            Toggles.ReadJson("toggles", json);
             Flags.ReadJson("flags", json);
             if (json["effects"] != null) {
                 Effects.AddRange(json["effects"].Select(x => new Effect((JObject)x)));

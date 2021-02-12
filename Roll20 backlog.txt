@@ -1,6 +1,20 @@
-Research the roll20 api, is this even possible?
+=======================================
+--- LIMITATIONS / CHALLENGES ----------
 
-===
+roll20 API access is limited to PRO accounts ($100/year).
+
+Beyond20 is a browser extension that accomplishes this by finding the chat box and send message button and using javascript to post the roll message.  Could accomplish the chat-sending with TamperMonkey.
+
+https://github.com/kakaroto/Beyond20/blob/master/src/roll20/content-script.js#L33
+
+However, Beyond20 is in the position of communicating information between two browser apps (D&D Beyond + Roll20), making a browser extension the ideal form.  Can you write a browser extension that receives information from outside the browser?
+
+
+
+... the "cheap" way out here is to have the program just put text in your clipboard you can paste into the roll20 chat box.
+
+=======================================
+--- MILESTONES ------------------------
 
 Make a d20 roll happen in roll20 by clicking a "roll" button
 

@@ -1,4 +1,7 @@
 
+For some reason, Binder 1 / Fighter 1 puts the fighter 1 feat next to Binder
+Changing classes should re-check skill box colors
+
 ===
 
 Adding class levels

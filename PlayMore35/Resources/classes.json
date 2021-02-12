@@ -1,5 +1,103 @@
 [
   {
+    "name": "Barbarian",
+    "prerequisites": "",
+    "hit die": 12,
+    "class skills": [
+      "Climb",
+      "Craft",
+      "Handle Animal",
+      "Intimidate",
+      "Jump",
+      "Listen",
+      "Tumble",
+      "Survival",
+      "Swim"
+    ],
+    "skill points": 4,
+    "base attack bonus": "FAST",
+    "base fort save": "FAST",
+    "base ref save": "SLOW",
+    "base will save": "SLOW",
+    "weapon proficiencies": [ { "proficiency": [ "SIMPLE", "MARTIAL" ] } ],
+    "armor proficiencies": [ "LIGHT", "MEDIUM" ],
+    "shield proficiencies": [ "normal" ],
+    "flags": [
+      [
+        "whirling frenzy"
+      ]
+    ],
+    "class features": [
+      [
+        {
+          "name": "pounce",
+          "text": [
+            {
+              "category": "Atk Options",
+              "text": "can full attack at the end of a charge"
+            }
+          ]
+        },
+        {
+          "name": "whirling frenzy",
+          "text": [
+            {
+              "category": "Atk Options",
+              "text": "free 1/day\u2014whirling frenzy for 3 + {{CON modifier}} rounds"
+            }
+          ]
+        },
+        {
+          "name": "whirling frenzy active",
+          "active": {
+            "flag": "whirling frenzy"
+          },
+          "modifiers": [
+            {
+              "affects": "STR score",
+              "mod": {
+                "type": "untyped",
+                "amounts": [ { "fixed": 4 } ]
+              }
+            },
+            {
+              "affects": "AC",
+              "mod": {
+                "type": "dodge",
+                "amounts": [ { "fixed": 2 } ]
+              }
+            },
+            {
+              "affects": "Ref saves",
+              "mod": {
+                "type": "dodge",
+                "amounts": [ { "fixed": 2 } ]
+              }
+            }
+          ],
+          "extra attacks": [
+            {
+              "affects": {},
+              "mod": {
+                "attack penalty": -0,
+                "bonus type": "base"
+              }
+            }
+          ],
+          "attack": [
+            {
+              "affects": {},
+              "mod": {
+                "type": "untyped",
+                "amounts": [ { "fixed": -2 } ]
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  {
     "name": "Fighter",
     "prerequisites": "",
     "hit die": 10,

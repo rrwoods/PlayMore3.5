@@ -1,0 +1,5 @@
+Text effects should display the name and tooltip the description
+
+===
+
+Text effects should replace {{stat}} with the value of the stat

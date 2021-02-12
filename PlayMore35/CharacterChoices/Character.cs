@@ -78,10 +78,10 @@ namespace PlayMore35.CharacterChoices {
             };
             race = "";
 
-            // yes, this assumes Fighter exists; for now I like this better than not having any levels
+            // yes, this assumes Barbarian exists; for now I like this better than not having any levels
             // on a new character because having now levels causes weird stuff to happen wrt the rules
             // of the game itself (separately from anything I do to represent them in code)
-            classLevels = new List<string> { "Fighter" };
+            classLevels = new List<string> { "Barbarian" };
 
             abilityScoreIncrements = new Dictionary<int, string>();
             bonusLanguages = new List<string>();

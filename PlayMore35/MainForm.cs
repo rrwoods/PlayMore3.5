@@ -44,7 +44,7 @@ namespace PlayMore35 {
         private List<Label> skillPoints = new List<Label>();
         private Dictionary<string, Label> totalSkillRanks = new Dictionary<string, Label>();
         private int levelBuffer;
-        private int totalsBuffer, skillBufferLeft, skillLabelOffset, skillPointsBuffer;
+        private int skillBufferLeft, skillLabelOffset, skillPointsBuffer;
 
         // 1. each of these fields represents one of the four sections of the summary page.
         // 2. the outer list is list of subsections, with visual separation between each subsection.
@@ -553,7 +553,6 @@ namespace PlayMore35 {
         }
         
         private void AdjustHpAndSkills(int left) {
-            lblTotals.Left = left - totalsBuffer;
             lblRolledHp.Left = left;
             lblTotalHp.Left = left;
             foreach (TextBox roll in hpRolls) {
@@ -1270,6 +1269,8 @@ namespace PlayMore35 {
         }
 
         private void StatsTab_Enter(object sender, EventArgs e) {
+            controller.Reload();
+
             ClearDynamicControls(statsTab, toggles);
             ClearDynamicControls(statsTab, paramBoxes);
             ClearDynamicControls(statsTab, paramLabels);
@@ -1334,7 +1335,6 @@ namespace PlayMore35 {
                 }
             }
 
-            controller.Reload();
             RefreshEffects();
         }
 
@@ -1351,7 +1351,6 @@ namespace PlayMore35 {
             verticalBufferLarge = 8;
             paramBuffer = lblParam2.Top - lblParam.Top;
             levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
-            totalsBuffer = lblTotalHp.Left - lblTotals.Left;
             skillBufferLeft = lblTotalRanks.Left - lblTotalHp.Left;
 
             controller = new Controller(new Character());
