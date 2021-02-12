@@ -24,7 +24,8 @@
     "shield proficiencies": [ "normal" ],
     "flags": [
       [
-        "whirling frenzy"
+        "whirling frenzy",
+        "whirling frenzy (extra attack)"
       ]
     ],
     "class features": [
@@ -39,7 +40,7 @@
           ]
         },
         {
-          "name": "whirling frenzy",
+          "name": "whirling frenzy?",
           "text": [
             {
               "category": "Atk Options",
@@ -48,7 +49,7 @@
           ]
         },
         {
-          "name": "whirling frenzy active",
+          "name": "whirling frenzy stats",
           "active": {
             "flag": "whirling frenzy"
           },
@@ -74,7 +75,13 @@
                 "amounts": [ { "fixed": 2 } ]
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "whirling frenzy attack",
+          "active": {
+            "flag": "whirling frenzy (extra attack)"
+          },
           "extra attacks": [
             {
               "affects": {},

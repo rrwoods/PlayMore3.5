@@ -548,11 +548,11 @@ namespace PlayMore35.Global {
 
         // **** ACCESSORS ****
 
-        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, KeyValuePair<string, int> featSlot) {
-            if (feats.ContainsKey(featSlot.Value)) {
-                feats[featSlot.Value].Add(featSlot.Key);
+        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, string slotName, int level) {
+            if (feats.ContainsKey(level)) {
+                feats[level].Add(slotName);
             } else {
-                feats[featSlot.Value] = new List<string> { featSlot.Key };
+                feats[level] = new List<string> { slotName };
             }
         }
 
@@ -562,18 +562,20 @@ namespace PlayMore35.Global {
             SortedDictionary<int, List<string>> feats = new SortedDictionary<int, List<string>>();
             foreach (var feat in RaceDefinitions[Character.race].BonusFeats) {
                 if (feat.Value <= level) {
-                    AddFeatSlot(feats, feat);
+                    AddFeatSlot(feats, feat.Key, feat.Value);
                 }
             }
             foreach (var feat in Effects.featSlots) {
                 if (feat.Value <= level) {
-                    AddFeatSlot(feats, feat);
+                    AddFeatSlot(feats, feat.Key, feat.Value);
                 }
             }
-            foreach (var classAndLevel in Character.SummarizeClassLevels()) {
-                foreach (var feat in ClassDefinitions[classAndLevel.Key].BonusFeats) {
-                    if (feat.Value <= classAndLevel.Value) {
-                        AddFeatSlot(feats, feat);
+            List<(string, int)> classLevels = Character.DetailClassLevels();
+            for (int levelIndex = 0; levelIndex < Character.classLevels.Count; levelIndex++) {
+                (string @class, int classLevel) = classLevels[levelIndex];
+                foreach (var feat in ClassDefinitions[@class].BonusFeats) {
+                    if (feat.Value == classLevel) {
+                        AddFeatSlot(feats, feat.Key, levelIndex + 1);
                     }
                 }
             }

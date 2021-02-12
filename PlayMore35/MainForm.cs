@@ -686,7 +686,6 @@ namespace PlayMore35 {
             txtName.Text = controller.Character.name;
             txtAlignment.Text = controller.Character.alignment;
             txtGender.Text = controller.Character.gender;
-            cboRace.Text = controller.Character.race;
 
             txtAssignedStr.Text = "" + controller.Character.assignedAbilityScores[STR];
             txtAssignedDex.Text = "" + controller.Character.assignedAbilityScores[DEX];
@@ -709,6 +708,8 @@ namespace PlayMore35 {
                 cboAddSkill.Items.Remove(skill);
             }
             HandleFeats();
+
+            cboRace.Text = controller.Character.race;
         }
 
         private void CharacterTab_Enter(object sender, EventArgs e) {

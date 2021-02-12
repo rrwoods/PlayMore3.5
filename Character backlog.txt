@@ -1,5 +1,4 @@
 
-For some reason, Binder 1 / Fighter 1 puts the fighter 1 feat next to Binder
 Changing classes should re-check skill box colors
 
 ===
@@ -25,13 +24,7 @@ Skill points from
 
 ===
 
+font weirdness with feat box -- why is the feat box not in Scala?
 
+===
 
-
-....
-
-maybe someday:
-
-remember the sizes of all the textboxes *before* the font change, so we can FUCKING SET THE BACK AFTER UGH.  setting AutoSize to false somehow makes this worse, not better
-
-though, probably, investigate whether the font change is even the culprit here first

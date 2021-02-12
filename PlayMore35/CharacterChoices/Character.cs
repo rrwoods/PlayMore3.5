@@ -122,5 +122,20 @@ namespace PlayMore35.CharacterChoices {
             }
             return summary;
         }
+
+        public List<(string, int)> DetailClassLevels() {
+            List<(string, int)> detail = new List<(string, int)>();
+            Dictionary<string, int> summary = new Dictionary<string, int>();
+            foreach (var @class in classLevels) {
+                if (!summary.ContainsKey(@class)) {
+                    summary[@class] = 1;
+                    detail.Add((@class, 1));
+                } else {
+                    summary[@class]++;
+                    detail.Add((@class, summary[@class]));
+                }
+            }
+            return detail;
+        }
     }
 }
