@@ -130,10 +130,24 @@ namespace PlayMore35 {
             toolTips[label].SetToolTip(label, string.Join("\n", explanation));
         }
 
+        private EventHandler RollStat(string dice, string description) {
+            return (object sender, EventArgs e) => {
+                controller.RollServer.Roll(dice, description);
+            };
+        }
+
         private void LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
             label.Text = $"{prefix} {statValue}{postfix}";
             ToolTipLabel(label, explanation);
+
+            string modifier = value.ToString("+#;-#;\"\"");
+            ToolStripMenuItem roll = new ToolStripMenuItem {
+                Text = $"Roll {prefix} (1d20{modifier})"
+            };
+            roll.Click += RollStat($"1d20{modifier}", prefix);
+            label.ContextMenuStrip = new ContextMenuStrip();
+            label.ContextMenuStrip.Items.Add(roll);
         }
 
         private void LabelStat(Label label, string prefix, string stat, string postfix = "", bool plus = true) {
@@ -194,26 +208,54 @@ namespace PlayMore35 {
             section.Clear();
         }
 
+        private ToolStripMenuItem AttackRoll(string weapon, int bonus) {
+            string modifier = bonus.ToString("+#;-#;\"\"");
+            ToolStripMenuItem roll = new ToolStripMenuItem {
+                Text = $"Roll {weapon} attack (1d20{modifier})"
+            };
+            roll.Click += RollStat($"1d20{modifier}", $"{weapon} attack");
+            return roll;
+        }
+
+        private ContextMenuStrip DamageRoll(string weapon, string damage) {
+            ContextMenuStrip menu = new ContextMenuStrip();
+            ToolStripMenuItem roll = new ToolStripMenuItem {
+                Text = $"Roll {weapon} damage ({damage})"
+            };
+            roll.Click += RollStat(damage, $"{weapon} damage");
+            menu.Items.Add(roll);
+            return menu;
+        }
+
         private void AttackLabels(Attack attack, bool full) {
+            Label attackLabel = new Label().Initialize(this);
+            attackLabel.ContextMenuStrip = new ContextMenuStrip();
             StringBuilder text = new StringBuilder();
             if (full) {
                 text.Append("     ");
             }
             text.Append(attack.RangeIncrement > 0 ? "Ranged " : "Melee ");
             text.Append(attack.WeaponName + " " + ValueText(attack.AttackBonus.bonus, true));
+            attackLabel.ContextMenuStrip.Items.Add(AttackRoll(attack.WeaponName, attack.AttackBonus.bonus));
             foreach (int extra in attack.ExtraAttacks) {
                 text.Append("/" + ValueText(attack.AttackBonus.bonus + extra, true));
+                // there's a quirk here where attacks at the same bonus show up separately
+                attackLabel.ContextMenuStrip.Items.Add(AttackRoll(attack.WeaponName, attack.AttackBonus.bonus + extra));
             }
-            Label attackLabel = new Label().Initialize(this);
             attackLabel.Text = text.ToString();
             ToolTipLabel(attackLabel, attack.AttackBonus.explanation);
+
             Label damageLabel = new Label().Initialize(this);
-            damageLabel.Text = "(" + attack.Damage.dice.ToString() + ")";
+            string damage = attack.Damage.dice.ToString();
+            damageLabel.Text = $"({damage})";
             ToolTipLabel(damageLabel, attack.Damage.explanation);
+            damageLabel.ContextMenuStrip = DamageRoll(attack.WeaponName, damage);
+            
             Label critLabel = new Label().Initialize(this);
-            critLabel.Text = "(" + attack.ThreatRange + (attack.ThreatRange == 20 ? "" : "–20") + "/"
-                + attack.CriticalDamage.dice.ToString() + ")";
+            damage = attack.CriticalDamage.dice.ToString();
+            critLabel.Text = $"({attack.ThreatRange}{(attack.ThreatRange == 20 ? "" : "–20")}/{damage})";
             ToolTipLabel(critLabel, attack.CriticalDamage.explanation);
+            critLabel.ContextMenuStrip = DamageRoll(attack.WeaponName + " critical", damage);
 
             attacks.Add(new List<Label> { attackLabel, damageLabel, critLabel });
         }
@@ -1355,6 +1397,7 @@ namespace PlayMore35 {
             skillBufferLeft = lblTotalRanks.Left - lblTotalHp.Left;
 
             controller = new Controller(new Character());
+            controller.StartRollServer();
 
             List<string> availableRaces = controller.RaceDefinitions.Keys.ToList();
             availableRaces.Sort();

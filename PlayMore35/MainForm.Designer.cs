@@ -636,7 +636,7 @@
             this.statsTab.Location = new System.Drawing.Point(4, 26);
             this.statsTab.Name = "statsTab";
             this.statsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.statsTab.Size = new System.Drawing.Size(976, 631);
+            this.statsTab.Size = new System.Drawing.Size(1069, 631);
             this.statsTab.TabIndex = 0;
             this.statsTab.Text = "Stats";
             this.statsTab.UseVisualStyleBackColor = true;
