@@ -176,12 +176,9 @@ namespace PlayMore35 {
                 if (value == baseValue) {
                     continue;
                 }
-                string statValue = ValueText(value, plus);
-                Label lblSpecial = new Label() {
-                    Text = $"{special.Name} {statValue}"
-                }.Initialize(this);
-                ToolTipLabel(lblSpecial, explanation);
+                Label lblSpecial = new Label().Initialize(this);
                 section.Add(new List<Label> { lblSpecial });
+                LabelStat(lblSpecial, value, explanation, special.Name, special.Name, postfix, plus);
             }
         }
 
@@ -446,7 +443,9 @@ namespace PlayMore35 {
         private EventHandler SelectClassLevel(int i) {
             return (object sender, EventArgs e) => {
                 controller.Character.classLevels[i] = ((ComboBox)sender).Text;
+
                 DisplaySkillPoints(i);
+                CheckSkillColors(i);
                 HandleFeats();
                 TextBox hp = hpRolls[i];
                 if (!int.TryParse(hp.Text, out int _)) {
@@ -633,6 +632,14 @@ namespace PlayMore35 {
             } else {
                 skillPoints[levelIndex].Text = "" + (-remaining) + " too many skill points";
             }
+        }
+
+        private void CheckSkillColors(int levelIndex) {
+            foreach (var skillRanks in skillRanks) {
+                skillRanks.Value[levelIndex].BackColor = controller.IsClassSkill(skillRanks.Key, levelIndex)
+                    ? txtRanksClass.BackColor
+                    : txtRanksCrossClass.BackColor;
+            };
         }
 
         private void DisplaySkillRanks(string skill) {
