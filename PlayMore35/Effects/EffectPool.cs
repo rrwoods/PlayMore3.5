@@ -138,15 +138,16 @@ namespace PlayMore35.Effects {
                 .Any(x => x.HasFlag(flag) && x.Toggle.On(this, items));
         }
 
-        public Dictionary<string, List<string>> GetTextEffects(Equipped items) {
-            var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<string>());
+        // Returns { category => [ (name, description) ] }
+        public Dictionary<string, List<(string, string)>> GetTextEffects(Equipped items) {
+            var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<(string, string)>());
 
             foreach (Effect e in AllEffects(items).Where(x => x.Toggle.On(this, items))) {
                 foreach ((string category, string text) in e.Text) {
                     if (allText.ContainsKey(category)) {
-                        allText[category].Add(text);
+                        allText[category].Add((e.Name, text));
                     } else {
-                        allText[UNCATEGORIZED].Add($"[{category}] {text}");
+                        allText[UNCATEGORIZED].Add((e.Name, $"[{category}] {text}"));
                     }
                 }
             }

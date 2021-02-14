@@ -1,10 +1,12 @@
-Text effects should display the name and tooltip the description
 
-But not always -- e.g. the Immune section should just have the description in the text.  This is case-by-case for each section.  The UI can handle this by defining a list of sections where the description is tooltipped
-
-edit all the existing content to have longer descriptions
 
 write Constant Guardian :)
+
+===
+
+"Downtime" category.  First column, right after languages.
+
+(Think of a better name for this category.  It encompasses exploration, maybe social, etc.  Basically anything outside combat.  But "non-combat" sounds lame.)
 
 ===
 
@@ -12,5 +14,18 @@ Text effects should replace {{stat}} with the value of the stat
 
 ===
 
+in column 1:
+
+The Listen label should say "--" when you're deafened
+The Spot label should say "--" when you're blinded
+
+(leave these alone in column 4, in case the DM deems the player can still make one of these checks in a special circumstance)
+
+===
+
 Weapon familiarity
 - in attack generation, make the attack Martial if the character has weapon familiarity
+
+===
+
+Get rid of the "specific feats" section for elves, and just give them the damn proficiencies as effects, DCFS be damned.

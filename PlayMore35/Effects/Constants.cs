@@ -242,8 +242,9 @@
         public static readonly string REACT = "React";
         public static readonly string RESIST = "Resist";
         public static readonly string IMMUNE = "Immune";
+        public static readonly string DEFEND = "Defend";
         public static readonly string SR = "SR";
-        public static readonly string MOVEMENT = "Movement";
+        public static readonly string MOVEMENT = "Move Options";
         public static readonly string ACTIONS = "Actions"; // for "can't act", or "no standard actions", or the like
         public static readonly string ATK_OPTIONS = "Atk Options"; // stat blocks spell it this way and i like it.
         public static readonly string SPECIAL_ACTIONS = "Special Actions";
@@ -253,7 +254,7 @@
         public static readonly string UNCATEGORIZED = "uncategorized";
         // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
         public static readonly string[] TEXT_CATEGORIES = {
-            LANGUAGES, SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
+            LANGUAGES, SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, DEFEND, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
         };
         // future supported categories
         public static readonly string METAMAGIC = "Metamagic";

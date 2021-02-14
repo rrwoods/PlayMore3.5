@@ -35,16 +35,16 @@
           "text": [
             {
               "category": "Atk Options",
-              "text": "can full attack at the end of a charge"
+              "text": "When you take the charge action, make a full attack in place of the single attack."
             }
           ]
         },
         {
-          "name": "whirling frenzy?",
+          "name": "whirling frenzy",
           "text": [
             {
               "category": "Atk Options",
-              "text": "free 1/day\u2014whirling frenzy for 3 + {{CON modifier}} rounds"
+              "text": "free 1/day\u2014Enter a whirling frenzy for 3 + {{CON modifier}} rounds.  Afterward, you are fatigued for the rest of the encounter."
             }
           ]
         },
@@ -191,11 +191,11 @@
     "class features": [
       [
         {
-          "name": "soul binding",
+          "name": "Soul binding",
           "text": [
             {
               "category": "Downtime",
-              "text": "binding check: 1d20 + EBL + CHA"
+              "text": "To contact a vestige, you must draw its unique seal visibly on a surface, making the image at least 5 feet across; this takes 1 minute of concentration and provokes attacks of opportunity.  A seal not used within 1 minute of completion becomes inert.\n\nNext, you must take a full-round action to summon the vestige, touching the seal and calling out its name and title (if you can't be heard, this ritual fails).  The vestige manifests in the seal's space.  This manifestation is illusory, it ignores everyone but you, and it speaks in whatever language you used to call it.  If you don't address it within 1 round, it disappears.\n\nNext, you must take 1 minute to make a pact with your vestige, gaining its powers and manifesting its sign for 24 hours.  Make a binding check (1d20+{{EBL}}+{{CHA modifier}}).  If you fail this check, you are under the vestige's influence in addition to gaining its powers."
             }
           ]
         },
@@ -204,8 +204,8 @@
           "armor proficiencies": [ "HEAVY" ],
           "text": [
             {
-              "category": "Movement",
-              "text": "std 1/5 rounds\u2014swap positions with adjacent ally"
+              "category": "Move Options",
+              "text": "std 1/5 rounds\u2014You instantly swap positions with any visible willing ally within 5 feet.  Objects carried by you or your ally go along, but creatures do not.  This movement doesn't provoke attacks of opportunity."
             }
           ]
         }

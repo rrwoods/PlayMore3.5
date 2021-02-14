@@ -6,8 +6,8 @@
       "name": "panic button",
       "text": [
         {
-          "category": "Movement",
-          "text": "std 1/day\u2014throw panic button, teleport to where it lands; 25% to become inert afterward"
+          "category": "Move Options",
+          "text": "std 1/day\u2014Throw the panic button, and teleport to the space it lands in.  Afterward, this item has a 25% chance to become inert forever."
         }
       ]
     }
@@ -20,7 +20,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "std\u2014throw marbles into adjacent square, forcing DC 15 Balance"
+          "text": "std\u2014Dump a bag of marbles into an adjacent square.  Creatures moving through or fighting in the area must make a DC 15 Balance check or be unable to move for 1 round, and failing by 5 or more causes the creature to fall."
         }
       ]
     }
@@ -33,7 +33,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "attack\u2014throw defoliator; 2d4 splash 1 to plant creatures; auto-kill noncreature plants"
+          "text": "attack\u2014Throw the defoliator as a splash weapon.  A direct hit deals 2d4 damage to plant creatures, the splash deals 1 damage to plant creatures, and either kills noncreature plants of medium or smaller size."
         }
       ]
     }
@@ -72,7 +72,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "attack\u2014throw flour as splash weapon; reduce miss chance vs invisible to 20%"
+          "text": "You can attempt to strike an opponent with a flour pouch as a touch attack, or throw the pouch as a splash weapon.  A target struck or splashed this way is covered in flour.  Its invisibility miss chance is reduced to 20%, its bonus to Hide while moving is reduced to +10, and its bonus while still is reduced to +20.  The flour is removed completely by moving through water, a gust of wind spell, or if the creature takes a full-round action to brush off the flour."
         }
       ]
     }

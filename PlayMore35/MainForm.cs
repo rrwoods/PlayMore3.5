@@ -56,23 +56,32 @@ namespace PlayMore35 {
         private List<List<List<Label>>> myTurn;
         private List<List<List<Label>>> misc;
 
-        private Label name, desc1, desc2, init, senses, listen, spot, evade, languages, condition;
+        private Label name, desc1, desc2, init;
+        private List<List<Label>> senses = new List<List<Label>>();
+        private Label listen, spot, evade, languages;
+        private List<List<Label>> condition = new List<List<Label>>();
 
         private Label ac, touch;
         private Label acEffects;
         private Label currentHp, maxHp, dr;
-        private Label react, resist, immune;
+        private List<List<Label>> react = new List<List<Label>>();
+        private Label resist, immune;
+        private List<List<Label>> defend = new List<List<Label>>();
         private Label sr;
         private List<List<Label>> saves = new List<List<Label>>();
 
-        private Label speed, movement;
+        private Label speed;
+        private List<List<Label>> movement = new List<List<Label>>();
         private List<List<Label>> attacks = new List<List<Label>>();
-        private Label space, reach, bab, grapple, atkOptions, actions, specialActions;
+        private Label space, reach, bab, grapple;
+        private List<List<Label>> atkOptions = new List<List<Label>>();
+        private List<List<Label>> actions = new List<List<Label>>();
+        private List<List<Label>> specialActions = new List<List<Label>>();
 
         private List<List<Label>> abilityScores = new List<List<Label>>();
-        private Label sq;
+        private List<List<Label>> sq = new List<List<Label>>();
         private List<List<Label>> skills = new List<List<Label>>();
-        private Label miscSkills;
+        private List<List<Label>> miscSkills = new List<List<Label>>();
 
         private List<CheckBox> toggles = new List<CheckBox>();
         private List<TextBox> paramBoxes = new List<TextBox>();
@@ -127,8 +136,12 @@ namespace PlayMore35 {
             return ((plus && value >= 0 ? "+" : "") + value).Replace("-", "–");
         }
 
-        private void ToolTipLabel(Label label, List<string> explanation) {
+        private void ToolTipStatLabel(Label label, List<string> explanation) {
             toolTips[label].SetToolTip(label, string.Join("\n", explanation));
+        }
+
+        private void ToolTipTextLabel(Label label, string description) {
+            toolTips[label].SetToolTip(label, description);
         }
 
         private EventHandler RollStat(string dice, string description) {
@@ -140,7 +153,7 @@ namespace PlayMore35 {
         private void LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
             label.Text = $"{prefix} {statValue}{postfix}";
-            ToolTipLabel(label, explanation);
+            ToolTipStatLabel(label, explanation);
 
             string modifier = value.ToString("+#;-#;\"\"");
             ToolStripMenuItem roll = new ToolStripMenuItem {
@@ -201,8 +214,11 @@ namespace PlayMore35 {
             DynamicStat(abilityScores, checkStat, checkStat, "", true, mValue);
         }
 
-        private void RemoveDynamicRows(List<List<Label>> section) {
-            section.ForEach(row => row.ForEach(label => statsTab.Controls.Remove(label)));
+        private void RemoveDynamicSection(List<List<Label>> section) {
+            section.ForEach(row => row.ForEach(label => {
+                statsTab.Controls.Remove(label);
+                toolTips.Remove(label);
+            }));
             section.Clear();
         }
 
@@ -241,38 +257,51 @@ namespace PlayMore35 {
                 attackLabel.ContextMenuStrip.Items.Add(AttackRoll(attack.WeaponName, attack.AttackBonus.bonus + extra));
             }
             attackLabel.Text = text.ToString();
-            ToolTipLabel(attackLabel, attack.AttackBonus.explanation);
+            ToolTipStatLabel(attackLabel, attack.AttackBonus.explanation);
 
             Label damageLabel = new Label().Initialize(this);
             string damage = attack.Damage.dice.ToString();
             damageLabel.Text = $"({damage})";
-            ToolTipLabel(damageLabel, attack.Damage.explanation);
+            ToolTipStatLabel(damageLabel, attack.Damage.explanation);
             damageLabel.ContextMenuStrip = DamageRoll(attack.WeaponName, damage);
             
             Label critLabel = new Label().Initialize(this);
             damage = attack.CriticalDamage.dice.ToString();
             critLabel.Text = $"({attack.ThreatRange}{(attack.ThreatRange == 20 ? "" : "–20")}/{damage})";
-            ToolTipLabel(critLabel, attack.CriticalDamage.explanation);
+            ToolTipStatLabel(critLabel, attack.CriticalDamage.explanation);
             critLabel.ContextMenuStrip = DamageRoll(attack.WeaponName + " critical", damage);
 
             attacks.Add(new List<Label> { attackLabel, damageLabel, critLabel });
         }
 
-        private void OneLineText(Label label, Dictionary<string, List<string>> textEffects, string key, string postfix = "") {
+        private void OneLineText(Label label, Dictionary<string, List<(string, string desc)>> textEffects, string key, string prefix = "") {
             if (textEffects[key].Any()) {
-                label.Text = $"{key} {string.Join(", ", textEffects[key])}{postfix}";
+                label.Text = $"{prefix}{key} {string.Join(", ", textEffects[key].Select(x => x.desc))}";
             } else {
                 label.Text = "";
             }
         }
 
-        private void MultilineText(Label label, Dictionary<string, List<string>> textEffects, string key, bool header = true) {
-            if (textEffects[key].Any()) {
-                label.Text =
-                    (header ? key + "\n" : "") +
-                    string.Join("\n", textEffects[key].Where(x => x.Any()).Select(x => "     " + x));
-            } else {
-                label.Text = "";
+        private void MultilineText(List<List<Label>> section, Dictionary<string, List<(string name, string desc)>> textEffects, string key, bool header = true) {
+            RemoveDynamicSection(section);
+            if (!textEffects[key].Any()) {
+                return;
+            }
+
+            if (header) {
+                Label headerLabel = new Label() {
+                    Text = key
+                }.Initialize(this);
+                section.Add(new List<Label> { headerLabel });
+                statsTab.Controls.Add(headerLabel);
+            }
+            foreach ((string name, string desc) in textEffects[key]) {
+                Label effectLabel = new Label() {
+                    Text = "    " + name
+                }.Initialize(this);
+                ToolTipTextLabel(effectLabel, desc);
+                section.Add(new List<Label> { effectLabel });
+                statsTab.Controls.Add(effectLabel);
             }
         }
 
@@ -832,7 +861,7 @@ namespace PlayMore35 {
         }
 
         private void RefreshEffects() {
-            Dictionary<string, List<string>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
+            Dictionary<string, List<(string name, string desc)>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
             name.Text = controller.Character.name.ToUpper();
 
@@ -853,7 +882,7 @@ namespace PlayMore35 {
             desc2.Text = controller.Character.alignment + " " + sizeCategory + " " +
                 controller.Effects.CreatureType +
                 (controller.Effects.SubTypes.Any() ? " (" + string.Join(", ", controller.Effects.SubTypes) + ")" : "");
-            MultilineText(languages, textEffects, LANGUAGES);
+            OneLineText(languages, textEffects, LANGUAGES);
             LabelStat(init, "Initiative", INITIATIVE);
             MultilineText(senses, textEffects, SENSES);
             LabelStat(listen, "Listen", LISTEN, ","); // ok navi calm down.
@@ -863,7 +892,7 @@ namespace PlayMore35 {
 
             LabelStat(ac, "AC", AC, ",", false);
             LabelStat(touch, "touch", TOUCH_AC, "", false);
-            MultilineText(acEffects, textEffects, AC, false);
+            OneLineText(acEffects, textEffects, AC, "    ");
             LabelStat(currentHp, "hp", CURRENT_HP, ";", false);
             LabelStat(maxHp, "max", MAX_HP, " (" + controller.Character.classLevels.Count() + " HD)", false);
             OneLineText(dr, textEffects, DR);
@@ -871,18 +900,19 @@ namespace PlayMore35 {
                 maxHp.Text += ";";
             }
             MultilineText(react, textEffects, REACT);
-            MultilineText(resist, textEffects, RESIST);
-            MultilineText(immune, textEffects, IMMUNE);
+            OneLineText(resist, textEffects, RESIST);
+            OneLineText(immune, textEffects, IMMUNE);
+            MultilineText(defend, textEffects, DEFEND);
             OneLineText(sr, textEffects, SR);
-            RemoveDynamicRows(saves);
+            RemoveDynamicSection(saves);
             DynamicStat(saves, "Fort save", FORT_SAVES);
             DynamicStat(saves, "Ref save", REF_SAVES);
             DynamicStat(saves, "Will save", WILL_SAVES);
 
             LabelStat(speed, "Speed", LAND_SPEED, " ft.", false);
-            MultilineText(movement, textEffects, MOVEMENT, false);
+            MultilineText(movement, textEffects, MOVEMENT);
 
-            RemoveDynamicRows(attacks);
+            RemoveDynamicSection(attacks);
             List<Attack> singleAttacks = controller.GetAttacks();
             foreach (Attack attack in singleAttacks) {
                 AttackLabels(attack, false);
@@ -905,7 +935,7 @@ namespace PlayMore35 {
             MultilineText(specialActions, textEffects, SPECIAL_ACTIONS);
             MultilineText(actions, textEffects, ACTIONS);
 
-            RemoveDynamicRows(abilityScores);
+            RemoveDynamicSection(abilityScores);
             AbilityScore("STR");
             AbilityScore("DEX");
             AbilityScore("CON");
@@ -913,7 +943,7 @@ namespace PlayMore35 {
             AbilityScore("WIS");
             AbilityScore("CHA");
             MultilineText(sq, textEffects, SQ);
-            RemoveDynamicRows(skills);
+            RemoveDynamicSection(skills);
             foreach (string skill in SKILLS_LIST) {
                 DynamicStat(skills, skill, skill);
             }
@@ -1453,8 +1483,8 @@ namespace PlayMore35 {
             skillLabelOffset = lblSkill2.Left - lblSkill1.Left;
 
             leftBuffer = lblTopLeft.Left;
-            topBuffer = lblTopLeft.Top + 5; // eh.
-            verticalBufferLarge = 8;
+            topBuffer = lblTopLeft.Top + 5;
+            verticalBufferLarge = 12;
             paramBuffer = lblParam2.Top - lblParam.Top;
             levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             levelUpBuffer = btnAddLevel.Top - cboClass.Top;
@@ -1476,22 +1506,22 @@ namespace PlayMore35 {
             desc1 = new Label().Initialize(this);
             desc2 = new Label().Initialize(this);
             init = new Label().Initialize(this);
-            senses = new Label().Initialize(this);
             listen = new Label().Initialize(this);
             spot = new Label().Initialize(this);
             evade = new Label().Initialize(this);
             languages = new Label().Initialize(this);
-            condition = new Label().Initialize(this);
             beforeCombat = new List<List<List<Label>>> {
-                new List<List<Label>> { new List<Label> { name } },
-                new List<List<Label>> { new List<Label> { desc1 } },
-                new List<List<Label>> { new List<Label> { desc2 } },
-                new List<List<Label>> { new List<Label> { languages } },
+                new List<List<Label>> {
+                    new List<Label> { name },
+                    new List<Label> { desc1 },
+                    new List<Label> { desc2 },
+                    new List<Label> { languages },
+                },
                 new List<List<Label>> { new List<Label> { init } },
-                new List<List<Label>> { new List<Label> { senses } },
+                senses,
                 new List<List<Label>> { new List<Label> { listen, spot } },
                 new List<List<Label>> { new List<Label> { evade } },
-                new List<List<Label>> { new List<Label> { condition } },
+                condition,
             };
 
             ac = new Label().Initialize(this);
@@ -1500,7 +1530,6 @@ namespace PlayMore35 {
             currentHp = new Label().Initialize(this);
             maxHp = new Label().Initialize(this);
             dr = new Label().Initialize(this);
-            react = new Label().Initialize(this);
             resist = new Label().Initialize(this);
             immune = new Label().Initialize(this);
             sr = new Label().Initialize(this);
@@ -1511,8 +1540,9 @@ namespace PlayMore35 {
                     new List<Label> { acEffects },
                     new List<Label> { currentHp, maxHp, dr },
                 },
+                defend,
+                react,
                 new List<List<Label>> {
-                    new List<Label> { react },
                     new List<Label> { resist },
                     new List<Label> { immune },
                 },
@@ -1521,34 +1551,30 @@ namespace PlayMore35 {
             };
 
             speed = new Label().Initialize(this);
-            movement = new Label().Initialize(this);
             space = new Label().Initialize(this);
             reach = new Label().Initialize(this);
             bab = new Label().Initialize(this);
             grapple = new Label().Initialize(this);
-            atkOptions = new Label().Initialize(this);
-            specialActions = new Label().Initialize(this);
-            actions = new Label().Initialize(this);
             myTurn = new List<List<List<Label>>> {
                 new List<List<Label>> {
                     new List<Label> { speed },
-                    new List<Label> { movement }
+                },
+                movement,
+                new List<List<Label>> {
+                    new List<Label> { space, reach },
+                    new List<Label> { bab, grapple },
                 },
                 attacks,
-                new List<List<Label>> { new List<Label> { space, reach } },
-                new List<List<Label>> { new List<Label> { bab, grapple } },
-                new List<List<Label>> { new List<Label> { atkOptions } },
-                new List<List<Label>> { new List<Label> { specialActions } },
-                new List<List<Label>> { new List<Label> { actions } },
+                atkOptions,
+                specialActions,
+                actions,
             };
 
-            sq = new Label().Initialize(this);
-            miscSkills = new Label().Initialize(this);
             misc = new List<List<List<Label>>> {
                 abilityScores,
-                new List<List<Label>> { new List<Label> { sq } },
+                sq,
                 skills,
-                new List<List<Label>> { new List<Label> { miscSkills } }
+                miscSkills,
             };
 
             new ToolTip().SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
@@ -1633,12 +1659,28 @@ namespace PlayMore35 {
     }
 
     static class LabelExtensions {
+        // Setting the max width of a tooltip doesn't have a convenient API, but the tooltip control *can* set its
+        // maximum width by receiving a certain WinAPI message.
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hwnd, uint msg, int wParam, int lParam);
+        private const uint SET_MAX_TOOLTIP_WIDTH_MSG = 0x418;
+
         public static Label Initialize(this Label label, MainForm form) {
-            form.StatsTab().Controls.Add(label);
-            label.AutoSize = true;
-            form.toolTips[label] = new ToolTip {
+            ToolTip toolTip = new ToolTip {
                 AutoPopDelay = 32767 // maximum value.
             };
+            IntPtr hwnd = (IntPtr) typeof(ToolTip).InvokeMember(
+                "Handle",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetProperty,
+                null,
+                toolTip,
+                null
+            );
+            SendMessage(hwnd, SET_MAX_TOOLTIP_WIDTH_MSG, 0, 300);
+
+            form.StatsTab().Controls.Add(label);
+            label.AutoSize = true;
+            form.toolTips[label] = toolTip;
             return label;
         }
     }

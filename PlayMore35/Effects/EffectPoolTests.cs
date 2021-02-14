@@ -371,29 +371,6 @@ namespace PlayMore35.Effects.Tests {
         }
 
         [TestMethod]
-        public void TestTextEffects() {
-            EffectPool p = Rules();
-
-            p.AddEffect(new Effect("Darkvision")
-                .AddText(SENSES, "darkvision 60 ft.")
-                .AddText(SENSES, "low-light vision")
-            );
-            p.AddEffect(new Effect("Something")
-                .AddText("new category", "something something")
-            );
-            var allText = p.GetTextEffects(new Equipped());
-
-            List<string> senses = allText[SENSES];
-            Assert.AreEqual(2, senses.Count());
-            Assert.AreEqual("darkvision 60 ft.", senses[0]);
-            Assert.AreEqual("low-light vision", senses[1]);
-
-            List<string> uncategorized = allText[UNCATEGORIZED];
-            Assert.AreEqual(1, uncategorized.Count());
-            Assert.AreEqual("[new category] something something", uncategorized[0]);
-        }
-
-        [TestMethod]
         public void TestGlobalWeaponProperty() {
             EffectPool p = Rules();
 

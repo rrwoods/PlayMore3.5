@@ -1705,11 +1705,7 @@
       "text": [
         {
           "category": "Actions",
-          "text": "One move or standard each round (not both, no full-rounds)"
-        },
-        {
-          "category": "Actions",
-          "text": "Any standard or strenuous action deals 1 to you"
+          "text": "You can take a single move action or standard action each round, but not both, nor can you take a full-round action.  Performing any standard action or any other action the DM deems strenuous, deals 1 damage to you afterward."
         }
       ]
     },
@@ -1741,11 +1737,7 @@
       "text": [
         {
           "category": "Condition",
-          "text": "You take 1 damage each round"
-        },
-        {
-          "category": "Condition",
-          "text": "Any healing stabilizes you; 10% chance each round to self-stabilize"
+          "text": "Each round, you have a 10% chance to become stable.  If you don't, you take 1 damage."
         }
       ]
     },
@@ -4280,7 +4272,7 @@
       "text": [
         {
           "category": "Actions",
-          "text": "Must flee from source of fear"
+          "text": "You must flee from the source of your feat as best you can.  You can use special abilities, including spells, to flee, and must do so if they are the only way to escape.  If unable to flee, you may fight."
         }
       ]
     },
@@ -4300,7 +4292,7 @@
       "text": [
         {
           "category": "Actions",
-          "text": "Must drop all held items and flee at top speed along a random path; cower if cornered"
+          "text": "You must drop anything you hold and flee at top speed from the source of your fear, as well as any other dangers you encounter, along a random path.  You can use special abilities, including spells, to flee, and must do so if they are the only way to escape.  You can't take any other actions.  If cornered, you cower."
         }
       ]
     },
@@ -4367,11 +4359,11 @@
       "text": [
         {
           "category": "Senses",
-          "text": "All vision activities and checks (like Spot) auto-fail"
+          "text": "All checks and activities that rely on vision (such as reading and Spot checks) automatically fail."
         },
         {
           "category": "Atk Options",
-          "text": "Opponents have total concealment"
+          "text": "Your opponents have total concealment against you."
         }
       ]
     },
@@ -4514,7 +4506,7 @@
       "text": [
         {
           "category": "Senses",
-          "text": "Auto-fail Listen checks"
+          "text": "You automatically fail Listen checks."
         },
         {
           "category": "Misc casting",
@@ -4633,8 +4625,8 @@
       },
       "text": [
         {
-          "category": "Movement",
-          "text": "Can't run or charge"
+          "category": "Move Options",
+          "text": "You can't run or charge."
         }
       ]
     },
@@ -4726,7 +4718,7 @@
       "text": [
         {
           "category": "Condition",
-          "text": "Rest one hour to be fatigued instead of exhausted"
+          "text": "Rest one hour to be fatigued instead of exhausted."
         }
       ]
     },
@@ -4858,7 +4850,7 @@
       "text": [
         {
           "category": "Actions",
-          "text": "Can't take immediate actions or attacks of opportunity"
+          "text": "You can't take immediate actions, or make attacks of opportunity."
         }
       ]
     },
@@ -4883,7 +4875,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "Deny opponents' DEX to AC"
+          "text": "You ignore your opponents' Dexterity bonus to AC"
         }
       ]
     },
@@ -4895,7 +4887,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "Can't attack"
+          "text": "You can't attack."
         },
         {
           "category": "Misc casting",
@@ -4903,11 +4895,7 @@
         },
         {
           "category": "Actions",
-          "text": "Can't do anything requiring attention"
-        },
-        {
-          "category": "Actions",
-          "text": "Only one move action each turn"
+          "text": "You can only take a single move action each turn, and can't do anything that requires attention."
         }
       ]
     },
@@ -4932,7 +4920,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "Can't use ranged weapons other than crossbows"
+          "text": "You can't use ranged weapons other than crossbows."
         },
         {
           "category": "AC",
@@ -5038,7 +5026,7 @@
       "text": [
         {
           "category": "Actions",
-          "text": "One move or standard each round (not both, no full-rounds)"
+          "text": "You can take a single move action or standard action each round, but not both, nor can you take a full-round action."
         }
       ]
     },
@@ -5067,7 +5055,7 @@
       "text": [
         {
           "category": "Actions",
-          "text": "Must drop all held items"
+          "text": "You drop everything you hold."
         }
       ]
     },

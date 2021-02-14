@@ -171,7 +171,7 @@
       "text": [
         {
           "category": "Misc casting",
-          "text": "your summoned creatures have +4 enhancement to STR and CON"
+          "text": "Each creature you conjure with any summon spell gains a +4 enhancement bonus to Strength and Constitution for the duration of the spell that summoned it."
         }
       ]
     }
@@ -182,15 +182,15 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "roll vs concealment miss chance twice"
+          "text": "In melee, when you miss due to concealment, reroll the miss chance once."
         },
         {
-          "category": "Resist",
-          "text": "invisible melee attacks vs you don't deny DEX and don't get +2 attack"
+          "category": "Defend",
+          "text": "In melee, you don't lose your Dexterity bonus to AC against invisible attackers, and those attackers don't get their usual +2 bonus."
         },
         {
-          "category": "Movement",
-          "text": "poor visibility reduces your speed to 3/4 instead of 1/2"
+          "category": "Move Options",
+          "text": "Darkness and poor visibility in general reduces your speed to three-quarters normal, instead of one-half."
         }
       ]
     }
@@ -215,7 +215,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "free 1/round\u2014after dropping a foe in melee, make another melee attack with the same weapon against another foe in reach"
+          "text": "Once per round, if you deal a creature enough damage to make it drop, you get an extra melee attack against another creature within reach, with the same weapon and at the same bonus.  You can't 5-foot step before this attack."
         }
       ]
     }
@@ -275,7 +275,7 @@
       "text": [
         {
           "category": "React",
-          "text": "{{DEX bonus}} additional attacks of opportunity"
+          "text": "You can make attacks of opportunity while flat-footed, and you get {{DEX bonus}} additional attacks of opportunity."
         }
       ]
     }
@@ -381,7 +381,7 @@
       "text": [
         {
           "category": "React",
-          "text": "no action 1/round\u2014if hit with a ranged weapon while you have at least one hand free and aren't flat-footed, deflect it and take no damage from it"
+          "text": "Once per round, when you are hit with a ranged weapon, if you're aware of the attack and aren't flat-footed and have a hand free, you may deflect it and take no damage from it.  This doesn't cost an action."
         }
       ]
     }
@@ -648,8 +648,8 @@
       ],
       "text": [
         {
-          "category": "Condition",
-          "text": "Sleep in light or medium armor w/o fatigue"
+          "category": "Downtime",
+          "text": "You may sleep in light or medium armor without becoming fatigued."
         }
       ]
     }
@@ -763,7 +763,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "Cleave any number of times per round"
+          "text": "You can use Cleave's extra attack any number of times per round."
         }
       ]
     }
@@ -893,7 +893,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your bull rushes don't provoke, and you get +4 on the opposed check"
+          "text": "When you perform a bull rush, you don't provoke attacks of opportunity from the defender, and you get a +4 bonus on the check to push back the defender."
         }
       ]
     }
@@ -904,7 +904,7 @@
       "text": [
         {
           "category": "React",
-          "text": "counterspell with any spell of the same school"
+          "text": "When counterspelling, you may use a spell of the same school that is higher level than the target spell."
         }
       ]
     }
@@ -938,7 +938,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your disarms don't provoke or allow a counter-disarm, and you get +4 on the opposed attack"
+          "text": "When you attempt to disarm an opponent, you don't provoke an attack of opportunity, the opponent doesn't get the normal chance to disarm you, and you get a +4 bonus on the opposed attack roll."
         }
       ]
     }
@@ -950,7 +950,7 @@
       "text": [
         {
           "category": "Downtime",
-          "text": "better familiars are available to you"
+          "text": "When choosing a familiar, more creatures are available to you.  Check the rules, and talk to your DM."
         }
       ]
     }
@@ -962,7 +962,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "you can feint as a move action"
+          "text": "You can make a Bluff check to feint in combat as a move action."
         }
       ]
     }
@@ -974,7 +974,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your grapples don't provoke"
+          "text": "You don't provoke an attack of opportunity when you start a grapple."
         }
       ],
       "modifiers": [
@@ -1017,7 +1017,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your overruns can't be avoided, and you get +4 on the knock down check"
+          "text": "When you attempt to overrun an opponent, they can't choose to avoid you, and you get a +4 bonus on the check to knock them down."
         }
       ]
     }
@@ -1029,11 +1029,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your ranged attacks ignore partial cover and partial concealment"
-        },
-        {
-          "category": "Atk Options",
-          "text": "your shots into a grapple automatically strike at your intended target"
+          "text": "Your ranged attacks ignore the AC bonus granted by anything less than total cover, and the miss chance granted by anything less than total concealment.  When you make a ranged attack against a grappling opponent, you automatically strike at your intended target."
         }
       ]
     }
@@ -1045,7 +1041,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "you don't lose your shield's AC bonus when bashing"
+          "text": "When you perform a shield bash, you don't lose the shield's shield bonus."
         }
       ]
     }
@@ -1057,7 +1053,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your sunders don't provoke, and you get +4 on attack rolls against held objects"
+          "text": "When you strike at an object held or carried by an opponent, you don't provoke an attack of opportunity, and you get a +4 bonus on the attack roll."
         }
       ]
     }
@@ -1069,7 +1065,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your trips don't provoke, you get +4 on the opposed check, and if you succeed you get a free attack"
+          "text": "When you attempt to trip an opponent, you don't provoke an attack of opportunity if you are unarmed, and you get a +4 bonus on the check.  When you successfully trip an opponent in melee, you may make a free melee attack against them."
         }
       ]
     }
@@ -1099,7 +1095,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your unarmed strikes don't provoke, and can deal lethal or nonlethal damage"
+          "text": "You don't provoke attacks of opportunity from armed opponents when you attack them unarmed, and you get an attack of opportunity against an opponent making an unarmed attack against you while you are unarmed.\n\nYour unarmed strikes can deal lethal or nonlethal damage, at your option."
         }
       ]
     }
@@ -1158,7 +1154,7 @@
       "text": [
         {
           "category": "Downtime",
-          "text": "Attract cohorts and followers"
+          "text": "Attract cohorts and followers.  Check the rules, and talk to your DM."
         }
       ]
     }
@@ -1217,7 +1213,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "std at-will\u2014make two ranged attacks at –4, or three at –6 (if BAB +11), or four at –8 (if BAB +16)"
+          "text": "As a standard action, you may fire two arrows at a single opponent within 30 feet.  Both arrows use the same attack roll with a -4 penalty.  If your base attack bonus is at least +11, you may fire three arrows at -6.  If it's at least +16, you may fire four at -8.\n\nIf you score a critical hit or can deal precision damage, roll the additional damage only for the first arrow."
         }
       ]
     }
@@ -1264,7 +1260,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "halve mounted penalties for ranged weapons"
+          "text": "The penalty you take when using a ranged weapon while mounted is halved: -2 instead of -4 when your mount double-moves, and -4 instead of -8 when it's running."
         }
       ]
     }
@@ -1276,7 +1272,7 @@
       "text": [
         {
           "category": "React",
-          "text": "1/round\u2014if your mount would be hit, replace its AC with a Ride check result"
+          "text": "Once per round when your mount would be hit in combat, you may replace your mount's AC with the result of a Ride check."
         }
       ]
     }
@@ -1288,7 +1284,7 @@
       "text": [
         {
           "category": "Misc casting",
-          "text": "you can use V, S, and M components of spells while wild shaped"
+          "text": "You can complete the verbal, somatic, and material components of spells while in a wild shape.  Material components and focuses you possess are accessible, even while those items are melded within your form.  (This doesn't give you the ability to use any other melded magic items, or to speak.)"
         }
       ]
     }
@@ -1501,7 +1497,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your ranged attacks vs foes in melee ignore the –4 penalty"
+          "text": "You can make ranged attacks at an opponent engaged in melee without the standard -4 attack roll penalty."
         }
       ]
     }
@@ -1513,7 +1509,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "draw a weapon as a free action, or a hidden weapon as a move action"
+          "text": "You can draw a weapon as a free action.  You can draw a hidden weapon as a move action."
         }
       ]
     }
@@ -1538,7 +1534,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "reload $s as a free action; can full attack with $s"
+          "text": "You can reload a $ as a free action."
         }
       ]
     }
@@ -1550,7 +1546,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "reload heavy crossbows as a move action"
+          "text": "You can reload a heavy crossbow as a move action."
         }
       ]
     }
@@ -1606,18 +1602,38 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "while mounted and charging, you can make your attack mid-charge, and you don't provoke from the foe you attack"
+          "text": "When you charge while mounted, you don't provoke an attack of opportunity from the opponent you attack.  After such a charge, you can move again.  This movement must continue the straight line of the charge, and your total movement for the round can't exceed double your mounted speed."
         }
       ]
     }
   },
   {
+    "stats": [
+      {
+        "name": "Jump with running start",
+        "tags": [
+          "Jump",
+          "All skills",
+          "STR skills",
+          "ACP skills"
+        ]
+      }
+    ],
     "benefit": {
       "name": "Run",
+      "modifiers": [
+        {
+          "affects": "Jump with running start",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 4 } ]
+          }
+        }
+      ],
       "text": [
         {
-          "category": "Movement",
-          "text": "your run distance is 4x your speed w/heavy load or armor, and 5x otherwise"
+          "category": "Move Options",
+          "text": "When running, you move 4x your normal speed if wearing heavy armor or carrying a heavy load, or 5x otherwise, and you retain your Dexterity bonus to AC."
         }
       ]
     }
@@ -1677,7 +1693,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "you can take the attack action with a ranged weapon in the middle of your move action"
+          "text": "When taking the attack action with a ranged weapon, you can move before and after the attack, provided your total distance moved is not greater than your speed."
         }
       ]
     }
@@ -1730,7 +1746,7 @@
       "text": [
         {
           "category": "React",
-          "text": "you may catch deflected projectiles; if it's a thrown weapon, you may immediately throw it back for free"
+          "text": "If you would deflect a weapon using Deflect Arrows, you may catch it instead.  If it's a thrown weapon, you may throw it back at the attacker for free."
         }
       ]
     }
@@ -1778,7 +1794,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your mounted charges deal double damage, or triple with a lance"
+          "text": "When you charge while mounted, you deal triple damage with lances and double damage with all other melee weapons."
         }
       ]
     }
@@ -1787,10 +1803,21 @@
     "prerequisites": "DEX 13, Dodge, Mobility, base attack bonus +4",
     "benefit": {
       "name": "Spring Attack",
+      "active": {
+        "conditional": {
+          "left": {
+            "item value": "Armor weight"
+          },
+          "relation": "LESS_THAN",
+          "right": {
+            "fixed": 2
+          }
+        }
+      },
       "text": [
         {
           "category": "Atk Options",
-          "text": "you can take the attack action with a melee weapon in the middle of your move action"
+          "text": "When you take the attack action with a melee weapon, you can move both before and after the attack, provided your total distance moved is not greater than your speed.  Your movement away from the opponent you attack doesn't provoke an attack of opportunity from them."
         }
       ]
     }
@@ -1843,7 +1870,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "free X/day\u2014your next unarmed attack stuns for 1 round if it hits; Fort DC 10 + 1/2 level + WIS negates; X = monk level + 1 per four non-monk levels"
+          "text": "free X/day 1/round\u2014Your next unarmed attack stuns for 1 round if it hits; Fort DC 10 + 1/2 level + WIS negates; X = monk level + 1 per four non-monk levels"
         }
       ]
     }
@@ -1878,8 +1905,8 @@
       "name": "Track",
       "text": [
         {
-          "category": "Exploration",
-          "text": "you can find and follow tracks; see Track feat"
+          "category": "Downtime",
+          "text": "You can find and follow tracks.  Check the Track feat."
         }
       ]
     }
@@ -1891,7 +1918,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "your overruns can't be avoided, and your mount gets a free hoof attack against knocked down foes"
+          "text": "When you attempt to overrun an opponent while mounted, they can't choose to avoid you, and your mount can make a free hoof attack against them if you knock them down."
         }
       ]
     }
@@ -1903,7 +1930,7 @@
       "text": [
         {
           "category": "AC",
-          "text": "+1 shield when weilding two weapons, or +2 if also fighting defensively"
+          "text": "+1 shield when weilding two weapons or +2 if also fighting defensively"
         }
       ]
     }
@@ -2060,7 +2087,7 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "in place of full attack, make one melee attack at full BAB vs each foe in reach"
+          "text": "When you take the full attack action, you can make one melee attack at your full base attack bonus against each opponent within reach, in place of your normal attack routine.  (This action forfeits extra attacks, such as from the haste spell, or the whirling frenzy class feature.)"
         }
       ]
     }
@@ -2084,7 +2111,7 @@
       "text": [
         {
           "category": "Downtime",
-          "text": "your effective binder level is 2 higher for determining the level of vestige you can bind"
+          "text": "Your effective binder level is 2 higher for determining the level of vestige you can bind, but not for any other purpose."
         }
       ]
     }

@@ -124,22 +124,6 @@
         ],
         "text": [
           {
-            "category": "Senses",
-            "text": "darkvision 60 ft."
-          },
-          {
-            "category": "Senses",
-            "text": "Auto-search stonework within 10 ft."
-          },
-          {
-            "category": "Skills",
-            "text": "Trapfinding (stone only)"
-          },
-          {
-            "category": "Atk Options",
-            "text": "+1 attack vs orcs and goblinoids"
-          },
-          {
             "category": "AC",
             "text": "+4 dodge vs giants"
           }
@@ -177,6 +161,28 @@
                 }
               ]
             }
+          }
+        ]
+      },
+      {
+        "name": "Darkvision 60 ft.",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "See in the dark up to 60 feet.  Darkvision is black and white only, but it is otherwise like normal sight, and you can function just fine with no light at all."
+          }
+        ]
+      },
+      {
+        "name": "Stonecunning",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "If you come within 10 feet of unusual stonework or a non-stone material disguised as stone, you can make a Search check as if you were actively searching.\n\nYou can sense your approximate depth underground as naturally as a human can sense which way is up."
+          },
+          {
+            "category": "Skills",
+            "text": "You can use the Search skill to find stonework traps when the task has a DC higher than 20, as a rogue can."
           }
         ]
       },
@@ -250,6 +256,15 @@
                 }
               ]
             }
+          }
+        ]
+      },
+      {
+        "name": "+1 attack vs orcs and goblinoids",
+        "text": [
+          {
+            "category": "Atk Options",
+            "text": "You get a +1 racial bonus on attack rolls against orcs and goblinoids."
           }
         ]
       }
@@ -342,14 +357,6 @@
           {
             "category": "Immune",
             "text": "sleep"
-          },
-          {
-            "category": "Senses",
-            "text": "low-light vision"
-          },
-          {
-            "category": "Senses",
-            "text": "Auto-search secret doors within 5 ft."
           }
         ],
         "specific feats": [
@@ -359,6 +366,24 @@
           "Martial Weapon Proficiency (composite longbow)",
           "Martial Weapon Proficiency (shortbow)",
           "Martial Weapon Proficiency (composite shortbow)"
+        ]
+      },
+      {
+        "name": "Low-light vision",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "You can see twice as far as a human in starlight, moonlight, torchlight, and similar conditions of poor illumination.  You retain the ability to distinguish color and detail under these conditions."
+          }
+        ]
+      },
+      {
+        "name": "Auto-search for secret doors",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "When you pass within 5 feet of a secret or concealed door, you're entitled to a Search check as if you were actively looking for it."
+          }
         ]
       }
     ]
@@ -440,21 +465,36 @@
         ],
         "text": [
           {
-            "category": "Senses",
-            "text": "low-light vision"
-          },
-          {
-            "category": "misc casting",
+            "category": "Misc casting",
             "text": "Your illusions have +1 save DC"
-          },
-          {
-            "category": "Atk Options",
-            "text": "+1 racial to attack vs kobolds and goblinoids"
           },
           {
             "category": "AC",
             "text": "+4 dodge vs giants"
-          },
+          }
+        ]
+      },
+      {
+        "name": "Low-light vision",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "You can see twice as far as a human in starlight, moonlight, torchlight, and similar conditions of poor illumination.  You retain the ability to distinguish color and detail under these conditions."
+          }
+        ]
+      },
+      {
+        "name": "+1 attack vs kobolds and goblinoids",
+        "text": [
+          {
+            "category": "Atk Options",
+            "text": "You get a +1 racial bonus on attack rolls against kobolds and goblinoids."
+          }
+        ]
+      },
+      {
+        "name": "speak with burrowing mammals",
+        "text": [
           {
             "category": "Special Actions",
             "text": "1/day\u2014speak with animals (burrowing mammal only, duration 1 minute)"
@@ -462,7 +502,7 @@
         ]
       },
       {
-        "name": "gnome racial traits",
+        "name": "dancing lights, ghost sound, prestidigitation",
         "active": {
           "conditional": {
             "left": {
@@ -553,10 +593,15 @@
           {
             "category": "Immune",
             "text": "sleep"
-          },
+          }
+        ]
+      },
+      {
+        "name": "Low-light vision",
+        "text": [
           {
             "category": "Senses",
-            "text": "low-light vision"
+            "text": "You can see twice as far as a human in starlight, moonlight, torchlight, and similar conditions of poor illumination.  You retain the ability to distinguish color and detail under these conditions."
           }
         ]
       }
@@ -573,11 +618,11 @@
     "cha": -2,
     "effects": [
       {
-        "name": "half-orc racial traits",
+        "name": "Darkvision 60 ft.",
         "text": [
           {
             "category": "Senses",
-            "text": "darkvision 60 ft."
+            "text": "See in the dark up to 60 feet.  Darkvision is black and white only, but it is otherwise like normal sight, and you can function just fine with no light at all."
           }
         ]
       }
@@ -724,24 +769,6 @@
       {
         "name": "dream dwarf racial traits",
         "flags": [ "Can't be encumbered" ],
-        "text": [
-          {
-            "category": "Senses",
-            "text": "darkvision 90 ft."
-          },
-          {
-            "category": "Senses",
-            "text": "Auto-search stonework within 10 ft."
-          },
-          {
-            "category": "Skills",
-            "text": "Trapfinding (stone only)"
-          },
-          {
-            "category": "Senses",
-            "text": "easily see ethereal creatures"
-          }
-        ],
         "modifiers": [
           {
             "affects": "Search (secret doors)",
@@ -767,6 +794,37 @@
           }
         ],
         "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ]
+      },
+      {
+        "name": "Darkvision 90 ft.",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "See in the dark up to 90 feet.  Darkvision is black and white only, but it is otherwise like normal sight, and you can function just fine with no light at all."
+          }
+        ]
+      },
+      {
+        "name": "Stonecunning",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "If you come within 10 feet of unusual stonework or a non-stone material disguised as stone, you can make a Search check as if you were actively searching.\n\nYou can sense your approximate depth underground as naturally as a human can sense which way is up."
+          },
+          {
+            "category": "Skills",
+            "text": "You can use the Search skill to find stonework traps when the task has a DC higher than 20, as a rogue can."
+          }
+        ]
+      },
+      {
+        "name": "Dream sight",
+        "text": [
+          {
+            "category": "Senses",
+            "text": "You can see ethereal creatures as easily as you see material creatures and objects.  You can easily distinguish between ethereal creatures and material ones, because ethereal creatures appear translucent and indistinct."
+          }
+        ]
       },
       {
         "name": "stability",

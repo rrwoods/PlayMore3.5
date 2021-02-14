@@ -6,6 +6,10 @@ arrow keys to move around the levels area?
 
 ===
 
+Choices associated with feats, features, etc. (like Weapon Focus)
+
+===
+
 "Effects" that change skill point costs for crossclass
 
 Skill points from
