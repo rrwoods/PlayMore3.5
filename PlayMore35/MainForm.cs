@@ -59,6 +59,7 @@ namespace PlayMore35 {
         private Label name, desc1, desc2, init;
         private List<List<Label>> senses = new List<List<Label>>();
         private Label listen, spot, evade, languages;
+        private List<List<Label>> downtime = new List<List<Label>>();
         private List<List<Label>> condition = new List<List<Label>>();
 
         private Label ac, touch;
@@ -888,6 +889,7 @@ namespace PlayMore35 {
             LabelStat(listen, "Listen", LISTEN, ","); // ok navi calm down.
             LabelStat(spot, "Spot", SPOT);
             OneLineText(evade, textEffects, EVADE);
+            MultilineText(downtime, textEffects, DOWNTIME);
             MultilineText(condition, textEffects, CONDITION);
 
             LabelStat(ac, "AC", AC, ",", false);
@@ -1521,6 +1523,7 @@ namespace PlayMore35 {
                 senses,
                 new List<List<Label>> { new List<Label> { listen, spot } },
                 new List<List<Label>> { new List<Label> { evade } },
+                downtime,
                 condition,
             };
 
@@ -1665,22 +1668,29 @@ namespace PlayMore35 {
         private static extern int SendMessage(IntPtr hwnd, uint msg, int wParam, int lParam);
         private const uint SET_MAX_TOOLTIP_WIDTH_MSG = 0x418;
 
+        private static EventHandler ResizeTooltip(ToolTip toolTip) {
+            return (object sender, EventArgs e) => {
+                IntPtr hwnd = (IntPtr)typeof(ToolTip).InvokeMember(
+                    "Handle",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetProperty,
+                    null,
+                    toolTip,
+                    null
+                );
+                SendMessage(hwnd, SET_MAX_TOOLTIP_WIDTH_MSG, 0, 300);
+            };
+        }
+
         public static Label Initialize(this Label label, MainForm form) {
             ToolTip toolTip = new ToolTip {
                 AutoPopDelay = 32767 // maximum value.
             };
-            IntPtr hwnd = (IntPtr) typeof(ToolTip).InvokeMember(
-                "Handle",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetProperty,
-                null,
-                toolTip,
-                null
-            );
-            SendMessage(hwnd, SET_MAX_TOOLTIP_WIDTH_MSG, 0, 300);
 
-            form.StatsTab().Controls.Add(label);
             label.AutoSize = true;
+            label.MouseEnter += ResizeTooltip(toolTip);
+            form.StatsTab().Controls.Add(label);
             form.toolTips[label] = toolTip;
+            
             return label;
         }
     }

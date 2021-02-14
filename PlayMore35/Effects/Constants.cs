@@ -237,6 +237,7 @@
         public static readonly string LANGUAGES = "Languages";
         public static readonly string SENSES = "Senses";
         public static readonly string EVADE = "Evade";
+        public static readonly string DOWNTIME = "Downtime";
         // AC -- already exists
         public static readonly string DR = "DR";
         public static readonly string REACT = "React";
@@ -254,7 +255,7 @@
         public static readonly string UNCATEGORIZED = "uncategorized";
         // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
         public static readonly string[] TEXT_CATEGORIES = {
-            LANGUAGES, SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, DEFEND, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
+            LANGUAGES, SENSES, EVADE, DOWNTIME, AC, DR, REACT, RESIST, IMMUNE, DEFEND, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
         };
         // future supported categories
         public static readonly string METAMAGIC = "Metamagic";

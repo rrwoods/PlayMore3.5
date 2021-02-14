@@ -10,6 +10,10 @@ Choices associated with feats, features, etc. (like Weapon Focus)
 
 ===
 
+XP tracking (where is the best place for this?)
+
+===
+
 "Effects" that change skill point costs for crossclass
 
 Skill points from
@@ -38,6 +42,10 @@ Half-ranks for skills ... this touches a lot:
 ===
 
 Removing class levels
+
+===
+
+Feats that grant feats (basically, Vow of Poverty)
 
 ===
 

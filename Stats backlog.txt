@@ -4,12 +4,6 @@ write Constant Guardian :)
 
 ===
 
-"Downtime" category.  First column, right after languages.
-
-(Think of a better name for this category.  It encompasses exploration, maybe social, etc.  Basically anything outside combat.  But "non-combat" sounds lame.)
-
-===
-
 Text effects should replace {{stat}} with the value of the stat
 
 ===
