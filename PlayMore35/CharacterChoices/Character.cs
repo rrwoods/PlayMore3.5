@@ -4,6 +4,8 @@ using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
+        public static readonly string DEFAULT_CLASS = "Barbarian";
+
         public string name;
         public string gender;
         public string alignment;
@@ -78,10 +80,7 @@ namespace PlayMore35.CharacterChoices {
             };
             race = "";
 
-            // yes, this assumes Barbarian exists; for now I like this better than not having any levels
-            // on a new character because having now levels causes weird stuff to happen wrt the rules
-            // of the game itself (separately from anything I do to represent them in code)
-            classLevels = new List<string> { "Barbarian" };
+            classLevels = new List<string> { DEFAULT_CLASS };
 
             abilityScoreIncrements = new Dictionary<int, string>();
             bonusLanguages = new List<string>();

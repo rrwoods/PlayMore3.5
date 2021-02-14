@@ -525,6 +525,7 @@
         "name": "CON checks to continue running",
         "tags": [
           "CON checks",
+          "CON modifier",
           "Ability checks"
         ]
       },
@@ -532,6 +533,7 @@
         "name": "CON checks vs forced march",
         "tags": [
           "CON checks",
+          "CON modifier",
           "Ability checks"
         ]
       },
@@ -539,6 +541,7 @@
         "name": "CON checks to hold breath",
         "tags": [
           "CON checks",
+          "CON modifier",
           "Ability checks"
         ]
       },
@@ -546,6 +549,7 @@
         "name": "CON checks vs starvation or thirst",
         "tags": [
           "CON checks",
+          "CON modifier",
           "Ability checks"
         ]
       }

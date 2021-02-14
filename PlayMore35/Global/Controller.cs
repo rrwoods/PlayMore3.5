@@ -295,6 +295,13 @@ namespace PlayMore35.Global {
 
         // **** MUTATORS ****
 
+        public void AddLevel() {
+            Character.classLevels.Add(Character.DEFAULT_CLASS);
+            foreach (var skill in Character.skillRanks) {
+                skill.Value.Add(0);
+            }
+        }
+
         public void CountWeight(string locationName, bool weighs) {
             Character.inventory[locationName].weighs = weighs;
             ComputeWeight();
@@ -591,7 +598,7 @@ namespace PlayMore35.Global {
         }
 
         public int GetStartingIntelligence() {
-            return (Character.assignedAbilityScores[INT] + RaceDefinitions[Character.race].Int) / 2 - 5;
+            return Character.assignedAbilityScores[INT] + RaceDefinitions[Character.race].Int;
         }
 
         // "Naked" HP from hit dice including CON modifier, and no other source.
@@ -609,6 +616,18 @@ namespace PlayMore35.Global {
                 hp += Math.Max(1, roll + conMod);
             }
             return hp;
+        }
+
+        public bool TooManyRanks(string skill, int levelIndex) {
+            // these are all decimals to prepare for implementation of half-ranks
+            decimal maxClassRanks = levelIndex + 4;
+            decimal maxRanks = Enumerable.Range(0, levelIndex + 1).Any(i => IsClassSkill(skill, i))
+                ? maxClassRanks
+                : maxClassRanks / 2;
+            decimal ranksAtLevel = Character.skillRanks.ContainsKey(skill)
+                ? Character.skillRanks[skill].Take(levelIndex + 1).Sum()
+                : 0;
+            return ranksAtLevel > maxRanks;
         }
 
         public bool IsClassSkill(string skill, int levelIndex) {
@@ -632,13 +651,13 @@ namespace PlayMore35.Global {
                     : 2 * ranks;
             }
 
-            int intMod = GetStartingIntelligence();
+            int intScore = GetStartingIntelligence();
             foreach (var asi in Character.abilityScoreIncrements) {
                 if ((asi.Key - 1 <= levelIndex) && (asi.Value == "INT")) {
-                    intMod++;
+                    intScore++;
                 }
             }
-            int allowed = Math.Max(1, ClassDefinitions[Character.classLevels[levelIndex]].SkillPoints + intMod);
+            int allowed = Math.Max(1, ClassDefinitions[Character.classLevels[levelIndex]].SkillPoints + ((intScore / 2) - 5));
             if (levelIndex == 0) {
                 allowed *= 4;
             }

@@ -1,17 +1,8 @@
 
-Changing classes should re-check skill box colors
-
-===
-
-Adding class levels
-
-===
 
 tab order weirdness when adding dynamic stuff
 
-===
-
-ability score increment input
+arrow keys to move around the levels area?
 
 ===
 
@@ -21,6 +12,28 @@ Skill points from
 - race
 - feats a la Nymph's Kiss
 - feats a la Open Minded
+
+===
+
+lock/unlock ability score assignment
+- starts unlocked for new character, starts locked when loading a character
+- what's the control to perform the locking/unlocking?  maybe a little lock-icon button left of the "Assign" label?  maybe the label itself (which would have blue underlined text)?
+
+- idea:
+  - assign label is blue with underlined text to indicate it's clickable
+  - hovering it changes the text to "Reassign?" or "Respec?"
+  - clicking it unlocks the boxes
+  - unlocking it is one-way until you close the program
+
+===
+
+Half-ranks for skills ... this touches a lot:
+- Character.skillRanks is the central piece
+- Text parsing for the ranks boxes on the character tab
+
+===
+
+Removing class levels
 
 ===
 

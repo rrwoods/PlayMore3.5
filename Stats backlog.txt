@@ -1,5 +1,16 @@
 Text effects should display the name and tooltip the description
 
+But not always -- e.g. the Immune section should just have the description in the text.  This is case-by-case for each section.  The UI can handle this by defining a list of sections where the description is tooltipped
+
+edit all the existing content to have longer descriptions
+
+write Constant Guardian :)
+
 ===
 
 Text effects should replace {{stat}} with the value of the stat
+
+===
+
+Weapon familiarity
+- in attack generation, make the attack Martial if the character has weapon familiarity

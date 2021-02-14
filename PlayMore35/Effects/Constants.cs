@@ -6,6 +6,7 @@
         public static readonly string INT = "INT";
         public static readonly string WIS = "WIS";
         public static readonly string CHA = "CHA";
+        public static readonly string[] ABILITIES = new string[] { STR, DEX, CON, INT, WIS, CHA };
 
         public static readonly string STR_SCORE = "STR score";
         public static readonly string DEX_SCORE = "DEX score";
