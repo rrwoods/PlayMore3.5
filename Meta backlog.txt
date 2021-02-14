@@ -1,5 +1,0 @@
-Move all the tickets in github into backlogs in this folder
-
-Delete all github tickets
-
-Delete this file

@@ -1,0 +1,37 @@
+... how will subsystems work?  might want to do one or two of these without a formal subsystems-subsystem in place, just to see what's common, and then start abstracting things away.  i'm not sure whether that's totally a good idea though just due to the possibility of accidentally burying some hardcoding too deep into the rest of the effects engine.
+
+(the order of these is based on a couple things: likely implementation complexity, my personal needs as a player, obscurity)
+
+===
+
+Vestiges (Tome of Magic, Binder)
+
+===
+
+Maneuvers (Tome of Battle, Swordsage etc.)
+
+===
+
+Soulmelds (Magic of Incarnum, Totemist etc.)
+
+===
+
+Spells (lots, everywhere)
+
+===
+
+Powers (SRD, Psion and Psychic Warrior, and many others)
+
+===
+
+Truenaming (Tome of Magic, Truenamer)
+
+===
+
+Shadowcasting (Tome of Magic, Shadowcaster)
+
+===
+
+Okay here's a crazy idea.
+
+Is multiform support a subsystem?  Do you pick forms like you pick (e.g.) Vestiges?  Just a thought.

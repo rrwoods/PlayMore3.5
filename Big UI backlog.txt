@@ -1,0 +1,29 @@
+Ability to create effects.
+
+... there's a lot here
+
+One option is to do a whole UI system based around dropdowns and fields and stuff, making the user choose every fiddly detail.  This is the easier option in terms of what needs to be done to solve the problem, but it is extremely tedious for both the user and the designer.
+
+The other option is to try to parse something the player types.  That is, try to understand things like "+1 morale to attack rolls" and convert them into effects.  Much harder from a design standpoint.  Much, much less tedious for the end user.
+
+And from effect creation, flows many things.
+
+===
+
+Ability to define new items
+
+===
+
+Ability to define new classes
+
+===
+
+Ability to define new feats
+
+===
+
+Ability to define new races
+
+===
+
+Allow the user to make house-rules, and save them off separately from the core rules, and load them.  A player in different games that each uses different house-rules should be able to load them separately.

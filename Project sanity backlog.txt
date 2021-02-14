@@ -1,0 +1,25 @@
+The Jsonable overhaul...
+
+
+... Step 1:
+
+make IJsonable require a non-constructor FromJson method that loads json into a default-constructed object
+
+===
+
+Once IJsonable has a ReadJson method that reads json into an empty T, we can write:
+
+        public static void FromJson<T>(this List<T> list, string keyName, JObject json) where T : IJsonable {
+            if (json[keyName] != null) {
+                list.AddRange(json[keyName].Select(x => new T().ReadJson(x)));
+            }
+        }
+
+===
+
+Combine core and extended defs instead of only loading extended.
+
+The procedure should be:
+- load core into dictionary
+- load extended into dictionary
+- save dictionary values into extended (sorted by key)

@@ -1,13 +1,3 @@
-
-
-write Constant Guardian :)
-
-===
-
-Text effects should replace {{stat}} with the value of the stat
-
-===
-
 in column 1:
 
 The Listen label should say "--" when you're deafened
@@ -17,9 +7,28 @@ The Spot label should say "--" when you're blinded
 
 ===
 
-Weapon familiarity
-- in attack generation, make the attack Martial if the character has weapon familiarity
+Action system: the controller should get the total number of usages available from the effects system, and the number used from the UI (via maybe UseAction and ReclaimAction functions which add/subtract 1 from the number used)
 
 ===
 
-Get rid of the "specific feats" section for elves, and just give them the damn proficiencies as effects, DCFS be damned.
+Round system:
+
+the controller should store:
+- The current day (how?  just a weekday number 0-6?  a full date?)
+- The number of rounds elapsed in the current day
+- What round the current encounter started on (you're *always* in an encounter.)
+- Whether you're in combat
+
+For specifying the flow of time, the controller will have:
+- StartCombat, which marks the current round as the start of the current encounter and sets the combat flag; also, fully resets any actions that are per-encounter, and (probably) any that are per-minute or shorter
+- EndCombat, which is identical to above, but clears the combat flag
+- NextRound, NextMinute, NextHour, and NextDay
+- ActivateToggle, which sets a Toggle, but knows to clear it after a specified number of rounds have passed
+
+For reporting what round it is, if we're in-combat it should report "round X of combat", and otherwise it should report what day and time it is.
+
+When the UI advances time it needs to refresh effects!
+
+===
+
+Display completely uncategorized text somewhere

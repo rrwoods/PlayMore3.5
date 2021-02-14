@@ -1,5 +1,3 @@
-
-
 tab order weirdness when adding dynamic stuff
 
 arrow keys to move around the levels area?
@@ -14,7 +12,19 @@ XP tracking (where is the best place for this?)
 
 ===
 
-"Effects" that change skill point costs for crossclass
+Skill tricks...
+- a "tricks" skill, which creates a "feat" slot you can put a trick into
+- tricks.json, which probably looks a lot like feats.json
+
+===
+
+ACFs, taking into consideration that some ACFs replace groups of features
+
+===
+
+"Effects" that change skill point costs for crossclass (Able Learner)
+
+"Effects" that straight up make a certain skill a class skill for you from that level forward (Martial Study)
 
 Skill points from
 - race
