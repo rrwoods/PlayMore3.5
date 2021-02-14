@@ -2115,5 +2115,16 @@
         }
       ]
     }
+  },
+  {
+    "benefit": {
+      "name": "Constant Guardian",
+      "text": [
+        {
+          "category": "Defend",
+          "text": "Once during your turn as a free action, you can take a -2 penalty on your attack rolls to grant a single ally within 10 feet a +2 dodge bonus to Armor Class, until your next turn or they are more than 10 feet away, whichever comes first."
+        }
+      ]
+    }
   }
 ]
