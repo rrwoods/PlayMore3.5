@@ -44,6 +44,7 @@ namespace PlayMore35.Global {
                         skill.Value.Add(0);
                     }
                 }
+                Reload();
             }
         }
 
@@ -89,7 +90,6 @@ namespace PlayMore35.Global {
 
         public Controller(Character character) {
             Character = character;
-            Reload();
         }
 
         // This isn't just part of construction so that tests don't start a web server
