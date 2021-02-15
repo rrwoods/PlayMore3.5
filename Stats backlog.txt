@@ -1,9 +1,11 @@
-in column 1:
 
-The Listen label should say "--" when you're deafened
-The Spot label should say "--" when you're blinded
+Set up toggles for allied effects
 
-(leave these alone in column 4, in case the DM deems the player can still make one of these checks in a special circumstance)
+===
+
+Maybe draw some separator lines on the form?
+
+https://www.csharp-examples.net/separator-line/
 
 ===
 

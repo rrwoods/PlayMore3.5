@@ -886,8 +886,20 @@ namespace PlayMore35 {
             OneLineText(languages, textEffects, LANGUAGES);
             LabelStat(init, "Initiative", INITIATIVE);
             MultilineText(senses, textEffects, SENSES);
-            LabelStat(listen, "Listen", LISTEN, ","); // ok navi calm down.
-            LabelStat(spot, "Spot", SPOT);
+
+            if (controller.Effects.HasFlag("deafened", controller.EquippedItems)) {
+                listen.Text = "Listen \u2014,";
+                ToolTipTextLabel(listen, "Defeaned");
+            } else {
+                LabelStat(listen, "Listen", LISTEN, ","); // ok navi calm down.
+            }
+            if (controller.Effects.HasFlag("blinded", controller.EquippedItems)) {
+                spot.Text = "Spot \u2014";
+                ToolTipTextLabel(spot, "Blinded");
+            } else {
+                LabelStat(spot, "Spot", SPOT);
+            }
+
             OneLineText(evade, textEffects, EVADE);
             MultilineText(downtime, textEffects, DOWNTIME);
             MultilineText(condition, textEffects, CONDITION);

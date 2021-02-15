@@ -3,3 +3,9 @@ For some reason, if you switch directly to the inventory tab after loading a cha
 ===
 
 gold tracking
+
+===
+
+Location creation
+
+Adding / removing items
