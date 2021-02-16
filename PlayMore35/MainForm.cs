@@ -1035,6 +1035,77 @@ namespace PlayMore35 {
             RepositionColumn(leftBuffer + columnWidth * 3, misc);
         }
 
+        private void InitializeInventory() {
+            foreach (string locationKey in locationGroups.Keys.ToList()) {
+                GroupBox locationGroup = locationGroups[locationKey];
+
+                locationGroup.Controls.Remove(locationLists[locationKey]);
+                locationLists.Remove(locationKey);
+
+                locationGroup.Controls.Remove(locationWeights[locationKey]);
+                locationWeights.Remove(locationKey);
+
+                inventoryTab.Controls.Remove(locationGroup);
+                locationGroups.Remove(locationKey);
+            }
+
+            int locationTop = grpSampleLocation.Top;
+            int locationLeft = grpSampleLocation.Left;
+            int locationBuffer = grpSampleLocation2.Left - grpSampleLocation.Right;
+            locationWidthBuffer = grpSampleLocation.Width - lstSampleItems.Width;
+            foreach (var location in controller.Character.inventory) {
+                GroupBox locationBox = AddLocationGroup(locationTop, locationLeft, location.Key, location.Value);
+                locationLeft += locationBox.Width + locationBuffer;
+            }
+            DisplayGold();
+            RefreshEquipment();
+        }
+
+        private GroupBox AddLocationGroup(int top, int left, string name, InventoryLocation location) {
+            GroupBox locationBox = new GroupBox {
+                Text = name,
+                Top = top,
+                Left = left,
+                Width = 100,
+                Height = 0,
+                AutoSize = true,
+                Cursor = grpSampleLocation.Cursor,
+            };
+            locationBox.MouseDown += new MouseEventHandler(Location_MouseDown);
+            locationBox.MouseUp += new MouseEventHandler(Location_MouseUp);
+            locationBox.MouseMove += new MouseEventHandler(Location_MouseMove);
+
+            CheckBox countWeight = new CheckBox() {
+                Text = chkWeightCounts.Text,
+                Left = chkWeightCounts.Left,
+                Top = chkWeightCounts.Top,
+                Checked = location.weighs,
+                AutoSize = true,
+                Cursor = chkWeightCounts.Cursor,
+            };
+            countWeight.CheckedChanged += CountWeight_CheckedChanged(name);
+            locationWeights[name] = countWeight;
+            locationBox.Controls.Add(countWeight);
+
+            ListBox locationList = new ListBox() {
+                AllowDrop = true,
+                AutoSize = true,
+                Top = lstSampleItems.Top,
+                Left = lstSampleItems.Left,
+                Height = 1,
+                Cursor = lstSampleItems.Cursor,
+            };
+            locationList.MouseDown += new MouseEventHandler(LocationItem_MouseDown);
+            locationList.DragEnter += new DragEventHandler(Location_DragEnter);
+            locationList.DragDrop += new DragEventHandler(Location_DragDrop);
+            locationLists[name] = locationList;
+            locationBox.Controls.Add(locationList);
+
+            ListLocation(location, locationList);
+            inventoryTab.Controls.Add(locationBox);
+            locationGroups[name] = locationBox;
+            return locationBox;
+        }
 
         private EventHandler CountWeight_CheckedChanged(string location) {
             return (object sender, EventArgs e) => {
@@ -1367,6 +1438,20 @@ namespace PlayMore35 {
             }
         }
 
+        private void AddLocation_Click(object sender, EventArgs e) {
+            string newName = txtLocationName.Text;
+            if (newName == "" || controller.Character.inventory.ContainsKey(newName)) {
+                txtLocationName.BackColor = Color.Red;
+                return;
+            }
+
+            txtLocationName.BackColor = SystemColors.Window;
+            txtLocationName.Text = "";
+            InventoryLocation location = new InventoryLocation();
+            controller.Character.inventory[newName] = location;
+            AddLocationGroup(this.Height / 2, this.Width / 2, newName, location);
+        }
+
         private void ListItems<T>(List<T> items, ListBox locationBox) {
             foreach (object item in items) {
                 locationBox.Items.Add(new ItemDrag { item = item });
@@ -1416,73 +1501,6 @@ namespace PlayMore35 {
             }
             RefreshEffects();
             RefreshWeight();
-        }
-
-        private void InitializeInventory() {
-            foreach (string locationKey in locationGroups.Keys.ToList()) {
-                GroupBox locationGroup = locationGroups[locationKey];
-
-                locationGroup.Controls.Remove(locationLists[locationKey]);
-                locationLists.Remove(locationKey);
-
-                locationGroup.Controls.Remove(locationWeights[locationKey]);
-                locationWeights.Remove(locationKey);
-
-                inventoryTab.Controls.Remove(locationGroup);
-                locationGroups.Remove(locationKey);
-            }
-
-            int locationTop = grpSampleLocation.Top;
-            int locationLeft = grpSampleLocation.Left;
-            int locationBuffer = grpSampleLocation2.Left - grpSampleLocation.Right;
-            locationWidthBuffer = grpSampleLocation.Width - lstSampleItems.Width;
-            foreach (var location in controller.Character.inventory) {
-                GroupBox locationBox = new GroupBox {
-                    Text = location.Key,
-                    Top = locationTop,
-                    Left = locationLeft,
-                    Width = 100,
-                    Height = 0,
-                    AutoSize = true,
-                    Cursor = grpSampleLocation.Cursor,
-                };
-                locationBox.MouseDown += new MouseEventHandler(Location_MouseDown);
-                locationBox.MouseUp += new MouseEventHandler(Location_MouseUp);
-                locationBox.MouseMove += new MouseEventHandler(Location_MouseMove);
-
-                CheckBox countWeight = new CheckBox() {
-                    Text = chkWeightCounts.Text,
-                    Left = chkWeightCounts.Left,
-                    Top = chkWeightCounts.Top,
-                    Checked = location.Value.weighs,
-                    AutoSize = true,
-                    Cursor = chkWeightCounts.Cursor,
-                };
-                countWeight.CheckedChanged += CountWeight_CheckedChanged(location.Key);
-                locationWeights[location.Key] = countWeight;
-                locationBox.Controls.Add(countWeight);
-
-                ListBox locationList = new ListBox() {
-                    AllowDrop = true,
-                    AutoSize = true,
-                    Top = lstSampleItems.Top,
-                    Left = lstSampleItems.Left,
-                    Height = 1,
-                    Cursor = lstSampleItems.Cursor,
-                };
-                locationList.MouseDown += new MouseEventHandler(LocationItem_MouseDown);
-                locationList.DragEnter += new DragEventHandler(Location_DragEnter);
-                locationList.DragDrop += new DragEventHandler(Location_DragDrop);
-                locationLists[location.Key] = locationList;
-                locationBox.Controls.Add(locationList);
-
-                ListLocation(location.Value, locationList);
-                inventoryTab.Controls.Add(locationBox);
-                locationGroups[location.Key] = locationBox;
-                locationLeft += locationBox.Width + locationBuffer;
-            }
-            DisplayGold();
-            RefreshEquipment();
         }
 
         private void MainForm_Resize(object sender, EventArgs e) {

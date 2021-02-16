@@ -1,3 +1,2 @@
-Adding inventory locations
 
 Adding (existing) items to locations

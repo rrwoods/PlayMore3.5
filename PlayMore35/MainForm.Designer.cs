@@ -91,6 +91,8 @@
             this.txtParam2 = new System.Windows.Forms.TextBox();
             this.txtParam = new System.Windows.Forms.TextBox();
             this.inventoryTab = new System.Windows.Forms.TabPage();
+            this.txtLocationName = new System.Windows.Forms.TextBox();
+            this.btnAddLocation = new System.Windows.Forms.Button();
             this.lblTransactionAmount1 = new System.Windows.Forms.Label();
             this.lblTransactionAmount2 = new System.Windows.Forms.Label();
             this.lblTransactionDescription1 = new System.Windows.Forms.Label();
@@ -861,6 +863,8 @@
             // 
             // inventoryTab
             // 
+            this.inventoryTab.Controls.Add(this.txtLocationName);
+            this.inventoryTab.Controls.Add(this.btnAddLocation);
             this.inventoryTab.Controls.Add(this.lblTransactionAmount1);
             this.inventoryTab.Controls.Add(this.lblTransactionAmount2);
             this.inventoryTab.Controls.Add(this.lblTransactionDescription1);
@@ -915,6 +919,25 @@
             this.inventoryTab.TabIndex = 1;
             this.inventoryTab.Text = "Inventory";
             this.inventoryTab.UseVisualStyleBackColor = true;
+            // 
+            // txtLocationName
+            // 
+            this.txtLocationName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtLocationName.Location = new System.Drawing.Point(576, 574);
+            this.txtLocationName.Name = "txtLocationName";
+            this.txtLocationName.Size = new System.Drawing.Size(171, 25);
+            this.txtLocationName.TabIndex = 65;
+            // 
+            // btnAddLocation
+            // 
+            this.btnAddLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddLocation.Location = new System.Drawing.Point(576, 605);
+            this.btnAddLocation.Name = "btnAddLocation";
+            this.btnAddLocation.Size = new System.Drawing.Size(171, 23);
+            this.btnAddLocation.TabIndex = 64;
+            this.btnAddLocation.Text = "Add Location";
+            this.btnAddLocation.UseVisualStyleBackColor = true;
+            this.btnAddLocation.Click += new System.EventHandler(this.AddLocation_Click);
             // 
             // lblTransactionAmount1
             // 
@@ -1610,6 +1633,8 @@
         private System.Windows.Forms.Button btnAddTransaction;
         private System.Windows.Forms.TextBox txtTransactionDesc;
         private System.Windows.Forms.TextBox txtTransactionGp;
+        private System.Windows.Forms.TextBox txtLocationName;
+        private System.Windows.Forms.Button btnAddLocation;
     }
 }
 

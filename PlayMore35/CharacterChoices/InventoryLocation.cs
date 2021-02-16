@@ -31,6 +31,11 @@ namespace PlayMore35.CharacterChoices {
             items = ((JObject)json["items"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
         }
 
-        public InventoryLocation() { }
+        public InventoryLocation() {
+            weapons = new List<WeaponChoice>();
+            armor = new List<ArmorChoice>();
+            shields = new List<ArmorChoice>();
+            items = new Dictionary<string, int>();
+        }
     }
 }
