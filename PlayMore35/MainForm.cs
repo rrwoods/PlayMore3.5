@@ -22,14 +22,21 @@ namespace PlayMore35 {
         private PrivateFontCollection fonts = new PrivateFontCollection();
         Font scala;
 
+        private bool loaded = false;
+
         private int leftBuffer;
         private int topBuffer;
         private int verticalBufferLarge;
         private int columnWidth;
         private int locationWidthBuffer;
         private int paramBuffer;
+        private int transactionBuffer;
+        // maximum number of gold transactions to display on inventory tab
+        // (this doesn't affect the number that are counted, only the number that are displayed)
+        private const int MAX_TRANSACTIONS = 100;
 
-        private bool loaded = false;
+        private List<Label> transactionDescriptions = new List<Label>();
+        private List<Label> transactionAmounts = new List<Label>();
 
         private List<Label> bonusLabels = new List<Label>();
         private List<ComboBox> bonusLanguages = new List<ComboBox>();
@@ -99,6 +106,7 @@ namespace PlayMore35 {
         private Size draggingFrom;
         public Dictionary<Label, ToolTip> toolTips = new Dictionary<Label, ToolTip>();
 
+        private Dictionary<string, GroupBox> locationGroups = new Dictionary<string, GroupBox>();
         private Dictionary<string, ListBox> locationLists = new Dictionary<string, ListBox>();
         private Dictionary<string, CheckBox> locationWeights = new Dictionary<string, CheckBox>();
         private Control draggingItemFrom = null;
@@ -1028,11 +1036,6 @@ namespace PlayMore35 {
         }
 
 
-        private void InventoryTab_Paint(object sender, PaintEventArgs e) {
-            InitializeInventory();
-            inventoryTab.Paint -= InventoryTab_Paint;
-        }
-
         private EventHandler CountWeight_CheckedChanged(string location) {
             return (object sender, EventArgs e) => {
                 controller.CountWeight(location, ((CheckBox)sender).Checked);
@@ -1282,6 +1285,88 @@ namespace PlayMore35 {
             RefreshEquipment();
         }
 
+        private void DisplayGold() {
+            ClearDynamicControls(inventoryTab, transactionAmounts);
+            ClearDynamicControls(inventoryTab, transactionDescriptions);
+
+            var transactions = controller.Character.transactions;
+            int firstTransaction = Math.Max(0, transactions.Count - MAX_TRANSACTIONS);
+            int numTransactions = Math.Min(transactions.Count, MAX_TRANSACTIONS);
+
+            int transactionTop = lblTransactionAmount2.Top - ((numTransactions - 1) * transactionBuffer);
+            for (int i = firstTransaction; i < transactions.Count; i++) {
+                var (gp, description) = transactions[i];
+
+                Label descLabel = new Label {
+                    Top = transactionTop,
+                    Left = lblTransactionDescription1.Left,
+                    Anchor = lblTransactionDescription1.Anchor,
+                    AutoSize = false,
+                    Size = lblTransactionDescription1.Size,
+                    TextAlign = lblTransactionDescription1.TextAlign,
+                    Text = description
+                };
+                transactionDescriptions.Add(descLabel);
+                inventoryTab.Controls.Add(descLabel);
+
+
+                Label gpLabel = new Label {
+                    Top = transactionTop,
+                    Left = lblTransactionAmount1.Left,
+                    Anchor = lblTransactionAmount1.Anchor,
+                    AutoSize = false,
+                    Size = lblTransactionAmount1.Size,
+                    TextAlign = lblTransactionAmount1.TextAlign,
+                    Text = "" + gp
+                };
+                transactionAmounts.Add(gpLabel);
+                inventoryTab.Controls.Add(gpLabel);
+
+                ContextMenuStrip deleteMenu = new ContextMenuStrip();
+                ToolStripMenuItem deleteTransaction = new ToolStripMenuItem($"Delete {description}");
+                deleteTransaction.Click += DeleteTransaction(i);
+                deleteMenu.Items.Add(deleteTransaction);
+                descLabel.ContextMenuStrip = deleteMenu;
+                gpLabel.ContextMenuStrip = deleteMenu;
+
+                transactionTop += transactionBuffer;
+            }
+            if (transactions.Any()) {
+                txtTransactionDesc.Text = "";
+                txtTransactionGp.Text = "";
+            }
+
+            lblTotalGold.Text = $"{controller.Character.TotalGold()} gp";
+        }
+
+        private EventHandler DeleteTransaction(int i) {
+            return (object sender, EventArgs e) => {
+                controller.Character.transactions.RemoveAt(i);
+                DisplayGold();
+            };
+        }
+
+        private void AddTransaction_Click(object sender, EventArgs e) {
+            if (decimal.TryParse(txtTransactionGp.Text, out decimal value)) {
+                txtTransactionGp.BackColor = SystemColors.Window;
+                controller.Character.transactions.Add((value, txtTransactionDesc.Text));
+                txtTransactionDesc.Text = "";
+                txtTransactionGp.Text = "";
+                txtTransactionDesc.Focus();
+                DisplayGold();
+            } else {
+                txtTransactionGp.BackColor = Color.Red;
+            }
+        }
+
+        private void TransactionGp_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                e.SuppressKeyPress = true;
+                e.Handled = true;
+                btnAddTransaction.PerformClick();
+            }
+        }
+
         private void ListItems<T>(List<T> items, ListBox locationBox) {
             foreach (object item in items) {
                 locationBox.Items.Add(new ItemDrag { item = item });
@@ -1334,6 +1419,19 @@ namespace PlayMore35 {
         }
 
         private void InitializeInventory() {
+            foreach (string locationKey in locationGroups.Keys.ToList()) {
+                GroupBox locationGroup = locationGroups[locationKey];
+
+                locationGroup.Controls.Remove(locationLists[locationKey]);
+                locationLists.Remove(locationKey);
+
+                locationGroup.Controls.Remove(locationWeights[locationKey]);
+                locationWeights.Remove(locationKey);
+
+                inventoryTab.Controls.Remove(locationGroup);
+                locationGroups.Remove(locationKey);
+            }
+
             int locationTop = grpSampleLocation.Top;
             int locationLeft = grpSampleLocation.Left;
             int locationBuffer = grpSampleLocation2.Left - grpSampleLocation.Right;
@@ -1377,8 +1475,10 @@ namespace PlayMore35 {
 
                 ListLocation(location.Value, locationList);
                 inventoryTab.Controls.Add(locationBox);
+                locationGroups[location.Key] = locationBox;
                 locationLeft += locationBox.Width + locationBuffer;
             }
+            DisplayGold();
             RefreshEquipment();
         }
 
@@ -1503,6 +1603,7 @@ namespace PlayMore35 {
             levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             levelUpBuffer = btnAddLevel.Top - cboClass.Top;
             skillBufferLeft = lblTotalRanks.Left - lblTotalHp.Left;
+            transactionBuffer = lblTransactionAmount2.Top - lblTransactionAmount1.Top;
 
             controller = new Controller(new Character());
             controller.StartRollServer();
@@ -1624,6 +1725,7 @@ namespace PlayMore35 {
                 }
             }
             DisplayCharacter();
+            InitializeInventory();
             return true;
         }
 

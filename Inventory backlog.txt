@@ -1,7 +1,6 @@
-gold tracking
 
 ===
 
-Location creation
+Use "move" cursor when over the frame of an inventory location
 
-Adding / removing items
+===

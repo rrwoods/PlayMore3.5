@@ -27,6 +27,7 @@
             this.lblTopLeft = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.characterTab = new System.Windows.Forms.TabPage();
+            this.cboAbilityIncrement = new System.Windows.Forms.ComboBox();
             this.btnAddLevel = new System.Windows.Forms.Button();
             this.lblFeatsHeader = new System.Windows.Forms.Label();
             this.cboFeat = new System.Windows.Forms.ComboBox();
@@ -90,6 +91,15 @@
             this.txtParam2 = new System.Windows.Forms.TextBox();
             this.txtParam = new System.Windows.Forms.TextBox();
             this.inventoryTab = new System.Windows.Forms.TabPage();
+            this.lblTransactionAmount1 = new System.Windows.Forms.Label();
+            this.lblTransactionAmount2 = new System.Windows.Forms.Label();
+            this.lblTransactionDescription1 = new System.Windows.Forms.Label();
+            this.lblTransactionDescription2 = new System.Windows.Forms.Label();
+            this.lblTotalGold = new System.Windows.Forms.Label();
+            this.lblTotalGoldHeader = new System.Windows.Forms.Label();
+            this.btnAddTransaction = new System.Windows.Forms.Button();
+            this.txtTransactionDesc = new System.Windows.Forms.TextBox();
+            this.txtTransactionGp = new System.Windows.Forms.TextBox();
             this.lblTotalWeight = new System.Windows.Forms.Label();
             this.lblEquippedWeight = new System.Windows.Forms.Label();
             this.txtFeet = new System.Windows.Forms.Label();
@@ -130,7 +140,6 @@
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.cboAbilityIncrement = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.characterTab.SuspendLayout();
             this.statsTab.SuspendLayout();
@@ -229,6 +238,16 @@
             this.characterTab.Text = "Character";
             this.characterTab.UseVisualStyleBackColor = true;
             this.characterTab.Enter += new System.EventHandler(this.CharacterTab_Enter);
+            // 
+            // cboAbilityIncrement
+            // 
+            this.cboAbilityIncrement.FormattingEnabled = true;
+            this.cboAbilityIncrement.Location = new System.Drawing.Point(309, 121);
+            this.cboAbilityIncrement.Name = "cboAbilityIncrement";
+            this.cboAbilityIncrement.Size = new System.Drawing.Size(52, 25);
+            this.cboAbilityIncrement.TabIndex = 97;
+            this.cboAbilityIncrement.Text = "CON";
+            this.cboAbilityIncrement.Visible = false;
             // 
             // btnAddLevel
             // 
@@ -842,6 +861,15 @@
             // 
             // inventoryTab
             // 
+            this.inventoryTab.Controls.Add(this.lblTransactionAmount1);
+            this.inventoryTab.Controls.Add(this.lblTransactionAmount2);
+            this.inventoryTab.Controls.Add(this.lblTransactionDescription1);
+            this.inventoryTab.Controls.Add(this.lblTransactionDescription2);
+            this.inventoryTab.Controls.Add(this.lblTotalGold);
+            this.inventoryTab.Controls.Add(this.lblTotalGoldHeader);
+            this.inventoryTab.Controls.Add(this.btnAddTransaction);
+            this.inventoryTab.Controls.Add(this.txtTransactionDesc);
+            this.inventoryTab.Controls.Add(this.txtTransactionGp);
             this.inventoryTab.Controls.Add(this.lblTotalWeight);
             this.inventoryTab.Controls.Add(this.lblEquippedWeight);
             this.inventoryTab.Controls.Add(this.txtFeet);
@@ -887,7 +915,102 @@
             this.inventoryTab.TabIndex = 1;
             this.inventoryTab.Text = "Inventory";
             this.inventoryTab.UseVisualStyleBackColor = true;
-            this.inventoryTab.Paint += new System.Windows.Forms.PaintEventHandler(this.InventoryTab_Paint);
+            // 
+            // lblTransactionAmount1
+            // 
+            this.lblTransactionAmount1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTransactionAmount1.Location = new System.Drawing.Point(962, 536);
+            this.lblTransactionAmount1.Name = "lblTransactionAmount1";
+            this.lblTransactionAmount1.Size = new System.Drawing.Size(68, 17);
+            this.lblTransactionAmount1.TabIndex = 63;
+            this.lblTransactionAmount1.Text = "45";
+            this.lblTransactionAmount1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTransactionAmount1.Visible = false;
+            // 
+            // lblTransactionAmount2
+            // 
+            this.lblTransactionAmount2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTransactionAmount2.Location = new System.Drawing.Point(962, 553);
+            this.lblTransactionAmount2.Name = "lblTransactionAmount2";
+            this.lblTransactionAmount2.Size = new System.Drawing.Size(68, 17);
+            this.lblTransactionAmount2.TabIndex = 62;
+            this.lblTransactionAmount2.Text = "98";
+            this.lblTransactionAmount2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTransactionAmount2.Visible = false;
+            // 
+            // lblTransactionDescription1
+            // 
+            this.lblTransactionDescription1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTransactionDescription1.Location = new System.Drawing.Point(793, 536);
+            this.lblTransactionDescription1.Name = "lblTransactionDescription1";
+            this.lblTransactionDescription1.Size = new System.Drawing.Size(163, 17);
+            this.lblTransactionDescription1.TabIndex = 61;
+            this.lblTransactionDescription1.Text = "sample transaction";
+            this.lblTransactionDescription1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblTransactionDescription1.Visible = false;
+            // 
+            // lblTransactionDescription2
+            // 
+            this.lblTransactionDescription2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTransactionDescription2.Location = new System.Drawing.Point(793, 553);
+            this.lblTransactionDescription2.Name = "lblTransactionDescription2";
+            this.lblTransactionDescription2.Size = new System.Drawing.Size(163, 17);
+            this.lblTransactionDescription2.TabIndex = 60;
+            this.lblTransactionDescription2.Text = "sample transaction";
+            this.lblTransactionDescription2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblTransactionDescription2.Visible = false;
+            // 
+            // lblTotalGold
+            // 
+            this.lblTotalGold.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTotalGold.Location = new System.Drawing.Point(962, 601);
+            this.lblTotalGold.Name = "lblTotalGold";
+            this.lblTotalGold.Size = new System.Drawing.Size(68, 25);
+            this.lblTotalGold.TabIndex = 59;
+            this.lblTotalGold.Text = "0";
+            this.lblTotalGold.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblTotalGoldHeader
+            // 
+            this.lblTotalGoldHeader.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTotalGoldHeader.AutoSize = true;
+            this.lblTotalGoldHeader.Location = new System.Drawing.Point(889, 605);
+            this.lblTotalGoldHeader.Name = "lblTotalGoldHeader";
+            this.lblTotalGoldHeader.Size = new System.Drawing.Size(67, 17);
+            this.lblTotalGoldHeader.TabIndex = 58;
+            this.lblTotalGoldHeader.Text = "Total gold";
+            // 
+            // btnAddTransaction
+            // 
+            this.btnAddTransaction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddTransaction.Location = new System.Drawing.Point(1036, 573);
+            this.btnAddTransaction.Name = "btnAddTransaction";
+            this.btnAddTransaction.Size = new System.Drawing.Size(25, 25);
+            this.btnAddTransaction.TabIndex = 57;
+            this.btnAddTransaction.Text = "+";
+            this.btnAddTransaction.UseVisualStyleBackColor = true;
+            this.btnAddTransaction.Click += new System.EventHandler(this.AddTransaction_Click);
+            // 
+            // txtTransactionDesc
+            // 
+            this.txtTransactionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTransactionDesc.Location = new System.Drawing.Point(796, 573);
+            this.txtTransactionDesc.Name = "txtTransactionDesc";
+            this.txtTransactionDesc.Size = new System.Drawing.Size(160, 25);
+            this.txtTransactionDesc.TabIndex = 55;
+            this.txtTransactionDesc.Text = "starting gold";
+            this.txtTransactionDesc.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // txtTransactionGp
+            // 
+            this.txtTransactionGp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTransactionGp.Location = new System.Drawing.Point(962, 573);
+            this.txtTransactionGp.Name = "txtTransactionGp";
+            this.txtTransactionGp.Size = new System.Drawing.Size(68, 25);
+            this.txtTransactionGp.TabIndex = 56;
+            this.txtTransactionGp.Text = "100";
+            this.txtTransactionGp.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtTransactionGp.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TransactionGp_KeyDown);
             // 
             // lblTotalWeight
             // 
@@ -1301,7 +1424,7 @@
             // 
             // grpSampleLocation2
             // 
-            this.grpSampleLocation2.Location = new System.Drawing.Point(513, 6);
+            this.grpSampleLocation2.Location = new System.Drawing.Point(555, 9);
             this.grpSampleLocation2.Name = "grpSampleLocation2";
             this.grpSampleLocation2.Size = new System.Drawing.Size(147, 73);
             this.grpSampleLocation2.TabIndex = 2;
@@ -1340,16 +1463,6 @@
             this.chkWeightCounts.Text = "Count weight";
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
-            // 
-            // cboAbilityIncrement
-            // 
-            this.cboAbilityIncrement.FormattingEnabled = true;
-            this.cboAbilityIncrement.Location = new System.Drawing.Point(309, 121);
-            this.cboAbilityIncrement.Name = "cboAbilityIncrement";
-            this.cboAbilityIncrement.Size = new System.Drawing.Size(52, 25);
-            this.cboAbilityIncrement.TabIndex = 97;
-            this.cboAbilityIncrement.Text = "CON";
-            this.cboAbilityIncrement.Visible = false;
             // 
             // MainForm
             // 
@@ -1485,6 +1598,15 @@
         private System.Windows.Forms.ComboBox cboClass;
         private System.Windows.Forms.Button btnAddLevel;
         private System.Windows.Forms.ComboBox cboAbilityIncrement;
+        private System.Windows.Forms.Label lblTransactionAmount1;
+        private System.Windows.Forms.Label lblTransactionAmount2;
+        private System.Windows.Forms.Label lblTransactionDescription1;
+        private System.Windows.Forms.Label lblTransactionDescription2;
+        private System.Windows.Forms.Label lblTotalGold;
+        private System.Windows.Forms.Label lblTotalGoldHeader;
+        private System.Windows.Forms.Button btnAddTransaction;
+        private System.Windows.Forms.TextBox txtTransactionDesc;
+        private System.Windows.Forms.TextBox txtTransactionGp;
     }
 }
 

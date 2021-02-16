@@ -1,4 +1,4 @@
-write Constant Guardian :)
+Constant Guardian shouldn't be a column-2 effect, it should be a column-3 effect because it's something you do on your own turn, but "Atk Options" seems a little weird?  It's a defensive option.  "Special Actions"?  Move "Defend" to column 3?
 
 ===
 
