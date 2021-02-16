@@ -1443,7 +1443,8 @@ namespace PlayMore35 {
                     Left = locationLeft,
                     Width = 100,
                     Height = 0,
-                    AutoSize = true
+                    AutoSize = true,
+                    Cursor = grpSampleLocation.Cursor,
                 };
                 locationBox.MouseDown += new MouseEventHandler(Location_MouseDown);
                 locationBox.MouseUp += new MouseEventHandler(Location_MouseUp);
@@ -1454,7 +1455,8 @@ namespace PlayMore35 {
                     Left = chkWeightCounts.Left,
                     Top = chkWeightCounts.Top,
                     Checked = location.Value.weighs,
-                    AutoSize = true
+                    AutoSize = true,
+                    Cursor = chkWeightCounts.Cursor,
                 };
                 countWeight.CheckedChanged += CountWeight_CheckedChanged(location.Key);
                 locationWeights[location.Key] = countWeight;
@@ -1465,7 +1467,8 @@ namespace PlayMore35 {
                     AutoSize = true,
                     Top = lstSampleItems.Top,
                     Left = lstSampleItems.Left,
-                    Height = 1
+                    Height = 1,
+                    Cursor = lstSampleItems.Cursor,
                 };
                 locationList.MouseDown += new MouseEventHandler(LocationItem_MouseDown);
                 locationList.DragEnter += new DragEventHandler(Location_DragEnter);

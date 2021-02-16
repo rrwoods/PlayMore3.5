@@ -1436,6 +1436,7 @@
             // 
             this.grpSampleLocation.Controls.Add(this.lstSampleItems);
             this.grpSampleLocation.Controls.Add(this.chkWeightCounts);
+            this.grpSampleLocation.Cursor = System.Windows.Forms.Cursors.SizeAll;
             this.grpSampleLocation.Location = new System.Drawing.Point(360, 6);
             this.grpSampleLocation.Name = "grpSampleLocation";
             this.grpSampleLocation.Size = new System.Drawing.Size(147, 132);
@@ -1446,6 +1447,7 @@
             // 
             // lstSampleItems
             // 
+            this.lstSampleItems.Cursor = System.Windows.Forms.Cursors.Default;
             this.lstSampleItems.FormattingEnabled = true;
             this.lstSampleItems.ItemHeight = 17;
             this.lstSampleItems.Location = new System.Drawing.Point(7, 52);
@@ -1456,6 +1458,7 @@
             // chkWeightCounts
             // 
             this.chkWeightCounts.AutoSize = true;
+            this.chkWeightCounts.Cursor = System.Windows.Forms.Cursors.Default;
             this.chkWeightCounts.Location = new System.Drawing.Point(6, 24);
             this.chkWeightCounts.Name = "chkWeightCounts";
             this.chkWeightCounts.Size = new System.Drawing.Size(103, 21);

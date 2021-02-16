@@ -1,6 +1,3 @@
+Adding inventory locations
 
-===
-
-Use "move" cursor when over the frame of an inventory location
-
-===
+Adding (existing) items to locations
