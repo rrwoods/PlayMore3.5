@@ -2,7 +2,7 @@
 
 ===
 
-[CORE] Choices associated with feats, features, etc. (like Weapon Focus)
+[ODRIC 4] Choices associated with feats, features, etc. (like Weapon Focus)
 
 ===
 
