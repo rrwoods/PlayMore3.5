@@ -1,23 +1,54 @@
-Text effects should replace {{stat}} with the value of the stat
+[USABILITY] Text effects should replace {{stat}} with the value of the stat
 
 ===
 
-Weapon familiarity
+[USABILITY] Formalize feat prerequisites
+- In the general case, if the prerequisite isn't satisfied, you don't benefit from the feat
+- Allow for ignoring prerequisites case by case for text-supported reasons (e.g. the bonus feats granted to monks), via an effect
+- Allow for ignoring prerequisites case by case for table-supported reasons (e.g. the DM says it's fine), effects would be annoying here
+
+===
+
+[ODRIC 1] Non-damage on-hit effects / splash damage+effects
+
+e.g.
+- net
+- marbles
+- flour pouch
+- defolitor
+- flask of acid
+should all be representable as thrown weapons
+
+===
+
+[ODRIC 2] Weapon familiarity
 - in attack generation, make the attack Martial if the character has weapon familiarity
 
 ===
 
-Races of Stone introduces exotic armor and shields, with the accompanying proficiency feats
+[ODRIC 2] Some weapons (dwarven waraxe, bastard sword) are exotic one-handed weapons but martial two-handed weapons.  How can we represent variable proficiency categories?  Possibly, have a Proficiency value of "EXOTIC_ONE_HANDED" (or something), and make the Proficiency of an attack be a property instead of a field, that checks the handedness as appropriate.
 
 ===
 
-Ability-substitution effects
+[ODRIC 3] Exotic armor and shields
+
+See Races of Stone.
+
+===
+
+[ODRIC 9] Ability-substitution effects
 
 Some way of telling a statistic "when you calculate your value, if you would add the value of X, instead add the value of Y".  Some recursion magic is probably helpful here; i.e., when you initiate the call at the top level you get to specify some substitutions, and derived calculations can add to those substitutions as necessary.  When reporting the explanation, the text should reflect the substitution (i.e. someone applying DEX with Weapon Finesse shouldn't get an explanation that mentions their STR mod)
 
 ===
 
-Weapon/armor crystals
+[ODRIC 18] bashing with a shield loses its shield bonus to AC "until your next action (usually until the next round)" -- what a phrase, ok D&D thanks so much for the very specific instruction here. Anyway.  (Also, there's a feat that lets you ignore this rule)
+
+The UX or the controller will need a way of indicating whether you're using the shield to defend or to attack. This might be handled by the Equipped class, with a flag indicating how the indicated OffHandShield is being used. Could also apply to tower shields' AC bonus (since you can also use those for cover instead).
+
+===
+
+[ALTH] Augment crystals
 
 Least/lesser/greater should be enable-don't-enforce: show the user when they're attaching a crystal to a weapon that "can't" take it, but don't make them unable to do it
 
@@ -27,8 +58,12 @@ Then there's the UI consideration of how to attach a crystal (drag crystal onto 
 
 ===
 
-Weapon tags in JSON data -- tags.json looks like
+[ALTH] Weapon tags in JSON data
+
+tags.json looks like:
+
 [ { "shadow hand": "dagger", "siangham" }, { "special monk weapon": "siangham" } ]
+
 etc.
 
 Things to include
@@ -40,18 +75,14 @@ Things to include
 
 ===
 
-Some weapons (dwarven waraxe, bastard sword) are exotic one-handed weapons but martial two-handed weapons.  How can we represent variable proficiency categories?  Possibly, have a Proficiency value of "USUALLY_EXOTIC" (or something), and make the Proficiency of an attack be a property instead of a field, that checks the handedness as appropriate.
-
-===
-
-Effects that modify critical characteristics, e.g.
+[COMMON] Effects that modify critical characteristics, e.g.
 - Improved Critical (range increase)
 - keen (range increase)
 - Deepwood Sniper projectile improved critical class feature (multiplier increase)
 
 ===
 
-Natural attacks
+[COMMON] Natural attacks
 
 Effects should be able to generate natural attacks; races' json should be able to easily specify them and controller's GenerateRaceEffects should set up the requisite effects
 
@@ -63,45 +94,32 @@ A manufactured weapon being wielded might preclude a natural weapon from being u
 
 ===
 
-Formalize feat prerequisites
-- In the general case, if the prerequisite isn't satisfied, you don't benefit from the feat
-- Allow for ignoring prerequisites case by case for text-supported reasons (e.g. the bonus feats granted to monks), via an effect
-- Allow for ignoring prerequisites case by case for table-supported reasons (e.g. the DM says it's fine), effects would be annoying here
-
-===
-
-Set up the "Space" statistic
+[COMMON] Set up the "Space" statistic
 - LookupText on the player's size category.  If there's stuff that treats this as a number and modifies it, we'll cross that bridge when we get there.
 
 ===
 
-Non-damage on-hit effects for weapons/weaponlike things, like nets and marbles and flour pouches
+[COMMON] Skill-like checks (wild empathy, turning checks, etc).
 
-Additionally, maybe a way to indicate splash damage/effects for thrown weapons
-
-===
-
-bashing with a shield loses its shield bonus to AC "until your next action (usually until the next round)" -- what a phrase, ok D&D thanks so much for the very specific instruction here. Anyway.  (Also, there's a feat that lets you ignore this rule)
-
-The UX or the controller will need a way of indicating whether you're using the shield to defend or to attack. This might be handled by the Equipped class, with a flag indicating how the indicated OffHandShield is being used. Could also apply to tower shields' AC bonus (since you can also use those for cover instead).
-
-===
-
-Skill-like checks (wild empathy, turning checks, etc).  Backend wise these are probably just stats that various classes can set up.  On the front end they can be displayed under the skills list.
+Backend wise these are probably just stats that various classes can set up.  On the front end they can be displayed under the skills list.
 
 A decision that needs to be made is what layer "knows" that these stats are skill-like.  Does the statistic itself have a flag on it (or, even, a member that hints at what kind of stat it is)?  Does the controller decide?  Does the UI decide?
 
 ===
 
-Trained-only skills, represented by a flag that's active when you have zero ranks in that skill.  The UI should grey out the text of the associated skill label.
+[COMMON] Trained-only skills
+
+represented by a flag that's active when you have zero ranks in that skill.  The UI should grey out the text of the associated skill label.
 
 ===
 
-Random skill bonuses buried in game rules.  As an example, d20srd Hide skill description mentions various bonuses while invisible.  There are probably many others in SRD, and potentially in various splatbooks.
+[ESOTERIC] Random skill bonuses buried in game rules.
+
+As an example, d20srd Hide skill description mentions various bonuses while invisible.  There are probably many others in SRD, and potentially in various splatbooks.
 
 ===
 
-Multiform support (e.g. wild shape, polymorph, hengeyokai)
+[ESOTERIC] Multiform support (e.g. wild shape, polymorph, hengeyokai)
 
 This needs to be able to overwrite any number of assigned ability scores.  Possibly via ability-substitution effects?  Like, for example, the "bear wild shape" form can set up a new stat called "Bear STR", and then set up an effect that says "when computing STR score, swap Assigned STR for Bear STR".
 
@@ -109,7 +127,7 @@ This surely varies from DM to DM, but for forms that also ignore your level incr
 
 ===
 
-Formalize DR, SR, resistances
+[USABILITY] Formalize DR, SR, resistances
 
 Right now they are text and it's up to the player to determine how conflicting ones might interact. For all three of these things, the rules are that the highest applies.
 
@@ -121,11 +139,11 @@ For DR, it's like resistances, except that the tag is the thing that overcomes t
 
 ===
 
-Nonabilities; see http://www.d20srd.org/srd/specialAbilities.htm#nonabilities
+[ESOTERIC] Nonabilities; see http://www.d20srd.org/srd/specialAbilities.htm#nonabilities
 
 ===
 
-Creature type and subtypes (like humanoid and human) respectively should be
+[USABILITY] Creature type and subtypes (like humanoid and human) respectively should be
 
 - represented as formal concepts
 - able to be referenced from an Effect (possibly because they are themselves set by an Effect)
@@ -134,7 +152,7 @@ Then, introduce the core rules surrounding various types and subtypes, as per ht
 
 ===
 
-"Ugh" tasks (do I even need to do these) (yes probably)
+[ESOTERIC] "Ugh" tasks (do I even need to do these) (yes probably)
 
 Monkey Grip i guess
 Control Shape skill (something something lycanthropy)

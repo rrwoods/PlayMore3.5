@@ -1,39 +1,38 @@
+[CORE] XP tracking (where is the best place for this?)
+
+===
+
+[CORE] Choices associated with feats, features, etc. (like Weapon Focus)
+
+===
+
+[USABILITY] ACFs, taking into consideration that some ACFs replace groups of features
+(this is marked as usability, because for now I'm just putting the ACFs I actually use into the classes themselves)
+
+===
+
+[USABILITY] tab order things:
+
 tab order weirdness when adding dynamic stuff
 
 arrow keys to move around the levels area?
 
 ===
 
-Choices associated with feats, features, etc. (like Weapon Focus)
-
-===
-
-XP tracking (where is the best place for this?)
-
-===
-
-Skill tricks...
+[ALTH] Skill tricks
 - a "tricks" skill, which creates a "feat" slot you can put a trick into
 - tricks.json, which probably looks a lot like feats.json
 
 ===
 
-ACFs, taking into consideration that some ACFs replace groups of features
-
-===
-
-"Effects" that change skill point costs for crossclass (Able Learner)
-
-"Effects" that straight up make a certain skill a class skill for you from that level forward (Martial Study)
-
-Skill points from
+[COMMON] "Effects" that grant skill points
 - race
 - feats a la Nymph's Kiss
 - feats a la Open Minded
 
 ===
 
-lock/unlock ability score assignment
+[USABILITY] lock/unlock ability score assignment (and maybe more*)
 - starts unlocked for new character, starts locked when loading a character
 - what's the control to perform the locking/unlocking?  maybe a little lock-icon button left of the "Assign" label?  maybe the label itself (which would have blue underlined text)?
 
@@ -43,23 +42,33 @@ lock/unlock ability score assignment
   - clicking it unlocks the boxes
   - unlocking it is one-way until you close the program
 
+* Should this lock/unlock also apply to levels?  languages?  basically everything that was here when you loaded the character?
+
 ===
 
-Half-ranks for skills ... this touches a lot:
+[COMMON] Half-ranks for skills ... this touches a lot:
 - Character.skillRanks is the central piece
 - Text parsing for the ranks boxes on the character tab
 
 ===
 
-Removing class levels
+[USABILITY] Removing class levels
 
 ===
 
-Feats that grant feats (basically, Vow of Poverty)
+[ESOTERIC] "Effects" that change skill point costs for crossclass (Able Learner)
 
 ===
 
-font weirdness with feat box -- why is the feat box not in Scala?
+[ESOTERIC] "Effects" that straight up make a certain skill a class skill for you from that level forward (Martial Study)
+
+===
+
+[ESOTERIC] Feats that grant feats (basically, Vow of Poverty)
+
+===
+
+[USABILITY] font weirdness with feat box -- why is the feat box not in Scala?
 
 ===
 

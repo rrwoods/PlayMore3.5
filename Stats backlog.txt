@@ -1,19 +1,20 @@
-
-Set up toggles for allied effects
+[CORE] Set up toggles for allied effects
 
 ===
 
-Maybe draw some separator lines on the form?
+[USABILITY] Maybe draw some separator lines on the form?
 
 https://www.csharp-examples.net/separator-line/
 
 ===
 
-Action system: the controller should get the total number of usages available from the effects system, and the number used from the UI (via maybe UseAction and ReclaimAction functions which add/subtract 1 from the number used)
+[USABILITY] Action system
+
+The controller should get the total number of usages available from the effects system, and the number used from the UI (via maybe UseAction and ReclaimAction functions which add/subtract 1 from the number used)
 
 ===
 
-Round system:
+[USABILITY] Round system:
 
 the controller should store:
 - The current day (how?  just a weekday number 0-6?  a full date?)
@@ -33,4 +34,12 @@ When the UI advances time it needs to refresh effects!
 
 ===
 
-Display completely uncategorized text somewhere
+[USABILITY] Display completely uncategorized text somewhere (under SQ probably)
+
+===
+
+[USABILITY] Positioning of toggles and parameters should be context-dependent
+
+e.g.
+- damage near hp
+- charging, flanking in Atk Options

@@ -1,5 +1,11 @@
-Constant Guardian shouldn't be a column-2 effect, it should be a column-3 effect because it's something you do on your own turn, but "Atk Options" seems a little weird?  It's a defensive option.  "Special Actions"?  Move "Defend" to column 3?
+[USABILITY] Consider a "Def Options" section, underneath "Atk Options" -- Constant Guardian and the "choose an ally" part of Dodge go here, for example
 
 ===
 
-Get rid of the "specific feats" section for elves, and just give them the damn proficiencies as effects, DCFS be damned.
+[COMMON] Make more use of the "SQ" section 
+- possibly completely eliminate "Downtime"; anything that's outside combat should go here
+- possibly expand the name to "Special Qualities" since it's multiline
+
+===
+
+[COMMON] Get rid of the "specific feats" section for elves, and just give them the damn proficiencies as effects, DCFS be damned.

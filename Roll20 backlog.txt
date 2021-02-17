@@ -1,1 +1,1 @@
-Optionally-custom roll descriptions, so that (for example) an ability check's description isn't "("
+[USABILITY] Optionally-custom roll descriptions, so that (for example) an ability check's description isn't "("

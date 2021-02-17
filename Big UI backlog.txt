@@ -1,4 +1,4 @@
-Ability to create effects.
+[USABILITY] Ability to create effects.
 
 ... there's a lot here
 
@@ -10,20 +10,20 @@ And from effect creation, flows many things.
 
 ===
 
-Ability to define new items
+[USABILITY] Ability to define new items
 
 ===
 
-Ability to define new classes
+[USABILITY] Ability to define new classes
 
 ===
 
-Ability to define new feats
+[USABILITY] Ability to define new feats
 
 ===
 
-Ability to define new races
+[USABILITY] Ability to define new races
 
 ===
 
-Allow the user to make house-rules, and save them off separately from the core rules, and load them.  A player in different games that each uses different house-rules should be able to load them separately.
+[USABILITY] Allow the user to make house-rules, and save them off separately from the core rules, and load them.  A player in different games that each uses different house-rules should be able to load them separately.
