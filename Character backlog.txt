@@ -1,7 +1,3 @@
-[CORE] XP tracking (where is the best place for this?)
-
-===
-
 [ODRIC 4] Choices associated with feats, features, etc. (like Weapon Focus)
 
 ===

@@ -38,6 +38,9 @@ namespace PlayMore35 {
         private List<Label> transactionDescriptions = new List<Label>();
         private List<Label> transactionAmounts = new List<Label>();
 
+        private List<Label> sessionDescriptions = new List<Label>();
+        private List<Label> sessionXps = new List<Label>();
+
         private List<Label> bonusLabels = new List<Label>();
         private List<ComboBox> bonusLanguages = new List<ComboBox>();
 
@@ -485,6 +488,7 @@ namespace PlayMore35 {
             controller.AddLevel();
             DisplayLevels();
             HandleFeats();
+            DisplayXp();
         }
 
         private EventHandler SelectAbilityIncrement(int levelIndex) {
@@ -825,6 +829,91 @@ namespace PlayMore35 {
             }
         }
 
+        private void DisplayXp() {
+            int xpNeeded = controller.Character.ExperienceToNextLevel();
+            int nextLevel = controller.Character.classLevels.Count + 1;
+            btnAddLevel.Text = xpNeeded < 0
+                ? "Level Up!"
+                : $"{xpNeeded.ToString("#,###")} XP to level {nextLevel}";
+
+            ClearDynamicControls(characterTab, sessionXps);
+            ClearDynamicControls(characterTab, sessionDescriptions);
+
+            var sessions = controller.Character.sessions;
+            int sessionTop = lblSampleSession2.Top - ((sessions.Count - 1) * transactionBuffer);
+            for (int i = 0; i < sessions.Count; i++) {
+                var (xp, description) = sessions[i];
+
+                Label descLabel = new Label {
+                    Top = sessionTop,
+                    Left = lblSampleSession1.Left,
+                    Anchor = lblSampleSession1.Anchor,
+                    AutoSize = false,
+                    Size = lblSampleSession1.Size,
+                    TextAlign = lblSampleSession1.TextAlign,
+                    Text = description
+                };
+                sessionDescriptions.Add(descLabel);
+                characterTab.Controls.Add(descLabel);
+
+
+                Label xpLabel = new Label {
+                    Top = sessionTop,
+                    Left = lblSampleXp1.Left,
+                    Anchor = lblSampleXp1.Anchor,
+                    AutoSize = false,
+                    Size = lblSampleXp1.Size,
+                    TextAlign = lblSampleXp1.TextAlign,
+                    Text = "" + xp
+                };
+                sessionXps.Add(xpLabel);
+                characterTab.Controls.Add(xpLabel);
+
+                ContextMenuStrip deleteMenu = new ContextMenuStrip();
+                ToolStripMenuItem deleteSession = new ToolStripMenuItem($"Delete {description}");
+                deleteSession.Click += DeleteSession(i);
+                deleteMenu.Items.Add(deleteSession);
+                descLabel.ContextMenuStrip = deleteMenu;
+                xpLabel.ContextMenuStrip = deleteMenu;
+
+                sessionTop += transactionBuffer;
+            }
+            if (sessions.Any()) {
+                txtSessionDesc.Text = "";
+                txtSessionXp.Text = "";
+            }
+
+            lblTotalXp.Text = controller.Character.TotalExperience().ToString("#,###;-#,###;0");
+        }
+
+        private EventHandler DeleteSession(int i) {
+            return (object sender, EventArgs e) => {
+                controller.Character.sessions.RemoveAt(i);
+                DisplayXp();
+            };
+        }
+
+        private void AddSession_Click(object sender, EventArgs e) {
+            if (int.TryParse(txtSessionXp.Text, out int value)) {
+                txtSessionXp.BackColor = SystemColors.Window;
+                controller.Character.sessions.Add((value, txtSessionDesc.Text));
+                txtSessionDesc.Text = "";
+                txtSessionXp.Text = "";
+                txtSessionDesc.Focus();
+                DisplayXp();
+            } else {
+                txtSessionXp.BackColor = Color.Red;
+            }
+        }
+
+        private void SessionXp_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                e.SuppressKeyPress = true;
+                e.Handled = true;
+                btnAddSession.PerformClick();
+            }
+        }
+
         private void DisplayCharacter() {
             txtName.Text = controller.Character.name;
             txtAlignment.Text = controller.Character.alignment;
@@ -851,6 +940,7 @@ namespace PlayMore35 {
                 cboAddSkill.Items.Remove(skill);
             }
             HandleFeats();
+            DisplayXp();
 
             cboRace.Text = controller.Character.race;
         }
@@ -1407,7 +1497,7 @@ namespace PlayMore35 {
                 txtTransactionGp.Text = "";
             }
 
-            lblTotalGold.Text = $"{controller.Character.TotalGold()} gp";
+            lblTotalGold.Text = controller.Character.TotalGold().ToString("#,###.##;-#,###.##;0");
         }
 
         private EventHandler DeleteTransaction(int i) {

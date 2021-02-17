@@ -27,6 +27,15 @@
             this.lblTopLeft = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.characterTab = new System.Windows.Forms.TabPage();
+            this.lblSampleXp1 = new System.Windows.Forms.Label();
+            this.lblSampleXp2 = new System.Windows.Forms.Label();
+            this.lblSampleSession1 = new System.Windows.Forms.Label();
+            this.lblSampleSession2 = new System.Windows.Forms.Label();
+            this.lblTotalXp = new System.Windows.Forms.Label();
+            this.lblTotalXpHeader = new System.Windows.Forms.Label();
+            this.btnAddSession = new System.Windows.Forms.Button();
+            this.txtSessionDesc = new System.Windows.Forms.TextBox();
+            this.txtSessionXp = new System.Windows.Forms.TextBox();
             this.cboAbilityIncrement = new System.Windows.Forms.ComboBox();
             this.btnAddLevel = new System.Windows.Forms.Button();
             this.lblFeatsHeader = new System.Windows.Forms.Label();
@@ -175,6 +184,15 @@
             // 
             // characterTab
             // 
+            this.characterTab.Controls.Add(this.lblSampleXp1);
+            this.characterTab.Controls.Add(this.lblSampleXp2);
+            this.characterTab.Controls.Add(this.lblSampleSession1);
+            this.characterTab.Controls.Add(this.lblSampleSession2);
+            this.characterTab.Controls.Add(this.lblTotalXp);
+            this.characterTab.Controls.Add(this.lblTotalXpHeader);
+            this.characterTab.Controls.Add(this.btnAddSession);
+            this.characterTab.Controls.Add(this.txtSessionDesc);
+            this.characterTab.Controls.Add(this.txtSessionXp);
             this.characterTab.Controls.Add(this.cboAbilityIncrement);
             this.characterTab.Controls.Add(this.btnAddLevel);
             this.characterTab.Controls.Add(this.lblFeatsHeader);
@@ -241,6 +259,102 @@
             this.characterTab.UseVisualStyleBackColor = true;
             this.characterTab.Enter += new System.EventHandler(this.CharacterTab_Enter);
             // 
+            // lblSampleXp1
+            // 
+            this.lblSampleXp1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSampleXp1.Location = new System.Drawing.Point(962, 536);
+            this.lblSampleXp1.Name = "lblSampleXp1";
+            this.lblSampleXp1.Size = new System.Drawing.Size(68, 17);
+            this.lblSampleXp1.TabIndex = 106;
+            this.lblSampleXp1.Text = "45";
+            this.lblSampleXp1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblSampleXp1.Visible = false;
+            // 
+            // lblSampleXp2
+            // 
+            this.lblSampleXp2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSampleXp2.Location = new System.Drawing.Point(962, 553);
+            this.lblSampleXp2.Name = "lblSampleXp2";
+            this.lblSampleXp2.Size = new System.Drawing.Size(68, 17);
+            this.lblSampleXp2.TabIndex = 105;
+            this.lblSampleXp2.Text = "98";
+            this.lblSampleXp2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblSampleXp2.Visible = false;
+            // 
+            // lblSampleSession1
+            // 
+            this.lblSampleSession1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSampleSession1.Location = new System.Drawing.Point(650, 536);
+            this.lblSampleSession1.Name = "lblSampleSession1";
+            this.lblSampleSession1.Size = new System.Drawing.Size(306, 17);
+            this.lblSampleSession1.TabIndex = 104;
+            this.lblSampleSession1.Text = "sample session";
+            this.lblSampleSession1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblSampleSession1.Visible = false;
+            // 
+            // lblSampleSession2
+            // 
+            this.lblSampleSession2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSampleSession2.Location = new System.Drawing.Point(650, 553);
+            this.lblSampleSession2.Name = "lblSampleSession2";
+            this.lblSampleSession2.Size = new System.Drawing.Size(306, 17);
+            this.lblSampleSession2.TabIndex = 103;
+            this.lblSampleSession2.Text = "sample session";
+            this.lblSampleSession2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblSampleSession2.Visible = false;
+            // 
+            // lblTotalXp
+            // 
+            this.lblTotalXp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTotalXp.Location = new System.Drawing.Point(962, 601);
+            this.lblTotalXp.Name = "lblTotalXp";
+            this.lblTotalXp.Size = new System.Drawing.Size(68, 25);
+            this.lblTotalXp.TabIndex = 102;
+            this.lblTotalXp.Text = "0";
+            this.lblTotalXp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblTotalXpHeader
+            // 
+            this.lblTotalXpHeader.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTotalXpHeader.AutoSize = true;
+            this.lblTotalXpHeader.Location = new System.Drawing.Point(853, 605);
+            this.lblTotalXpHeader.Name = "lblTotalXpHeader";
+            this.lblTotalXpHeader.Size = new System.Drawing.Size(103, 17);
+            this.lblTotalXpHeader.TabIndex = 101;
+            this.lblTotalXpHeader.Text = "Total experience";
+            // 
+            // btnAddSession
+            // 
+            this.btnAddSession.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddSession.Location = new System.Drawing.Point(1036, 573);
+            this.btnAddSession.Name = "btnAddSession";
+            this.btnAddSession.Size = new System.Drawing.Size(25, 25);
+            this.btnAddSession.TabIndex = 100;
+            this.btnAddSession.Text = "+";
+            this.btnAddSession.UseVisualStyleBackColor = true;
+            this.btnAddSession.Click += new System.EventHandler(this.AddSession_Click);
+            // 
+            // txtSessionDesc
+            // 
+            this.txtSessionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSessionDesc.Location = new System.Drawing.Point(650, 573);
+            this.txtSessionDesc.Name = "txtSessionDesc";
+            this.txtSessionDesc.Size = new System.Drawing.Size(306, 25);
+            this.txtSessionDesc.TabIndex = 98;
+            this.txtSessionDesc.Text = "kill the kobold!";
+            this.txtSessionDesc.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // txtSessionXp
+            // 
+            this.txtSessionXp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSessionXp.Location = new System.Drawing.Point(962, 573);
+            this.txtSessionXp.Name = "txtSessionXp";
+            this.txtSessionXp.Size = new System.Drawing.Size(68, 25);
+            this.txtSessionXp.TabIndex = 99;
+            this.txtSessionXp.Text = "75";
+            this.txtSessionXp.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtSessionXp.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SessionXp_KeyDown);
+            // 
             // cboAbilityIncrement
             // 
             this.cboAbilityIncrement.FormattingEnabled = true;
@@ -253,11 +367,11 @@
             // 
             // btnAddLevel
             // 
-            this.btnAddLevel.Location = new System.Drawing.Point(510, 152);
+            this.btnAddLevel.Location = new System.Drawing.Point(461, 152);
             this.btnAddLevel.Name = "btnAddLevel";
-            this.btnAddLevel.Size = new System.Drawing.Size(89, 25);
+            this.btnAddLevel.Size = new System.Drawing.Size(138, 25);
             this.btnAddLevel.TabIndex = 96;
-            this.btnAddLevel.Text = "Level Up!";
+            this.btnAddLevel.Text = "19,000 XP to level 20";
             this.btnAddLevel.UseVisualStyleBackColor = true;
             this.btnAddLevel.Click += new System.EventHandler(this.AddLevel_Click);
             // 
@@ -942,9 +1056,9 @@
             // lblTransactionAmount1
             // 
             this.lblTransactionAmount1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTransactionAmount1.Location = new System.Drawing.Point(962, 536);
+            this.lblTransactionAmount1.Location = new System.Drawing.Point(952, 536);
             this.lblTransactionAmount1.Name = "lblTransactionAmount1";
-            this.lblTransactionAmount1.Size = new System.Drawing.Size(68, 17);
+            this.lblTransactionAmount1.Size = new System.Drawing.Size(78, 17);
             this.lblTransactionAmount1.TabIndex = 63;
             this.lblTransactionAmount1.Text = "45";
             this.lblTransactionAmount1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -953,9 +1067,9 @@
             // lblTransactionAmount2
             // 
             this.lblTransactionAmount2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTransactionAmount2.Location = new System.Drawing.Point(962, 553);
+            this.lblTransactionAmount2.Location = new System.Drawing.Point(952, 553);
             this.lblTransactionAmount2.Name = "lblTransactionAmount2";
-            this.lblTransactionAmount2.Size = new System.Drawing.Size(68, 17);
+            this.lblTransactionAmount2.Size = new System.Drawing.Size(78, 17);
             this.lblTransactionAmount2.TabIndex = 62;
             this.lblTransactionAmount2.Text = "98";
             this.lblTransactionAmount2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -964,7 +1078,7 @@
             // lblTransactionDescription1
             // 
             this.lblTransactionDescription1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTransactionDescription1.Location = new System.Drawing.Point(793, 536);
+            this.lblTransactionDescription1.Location = new System.Drawing.Point(783, 536);
             this.lblTransactionDescription1.Name = "lblTransactionDescription1";
             this.lblTransactionDescription1.Size = new System.Drawing.Size(163, 17);
             this.lblTransactionDescription1.TabIndex = 61;
@@ -975,7 +1089,7 @@
             // lblTransactionDescription2
             // 
             this.lblTransactionDescription2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTransactionDescription2.Location = new System.Drawing.Point(793, 553);
+            this.lblTransactionDescription2.Location = new System.Drawing.Point(783, 553);
             this.lblTransactionDescription2.Name = "lblTransactionDescription2";
             this.lblTransactionDescription2.Size = new System.Drawing.Size(163, 17);
             this.lblTransactionDescription2.TabIndex = 60;
@@ -986,18 +1100,18 @@
             // lblTotalGold
             // 
             this.lblTotalGold.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTotalGold.Location = new System.Drawing.Point(962, 601);
+            this.lblTotalGold.Location = new System.Drawing.Point(952, 601);
             this.lblTotalGold.Name = "lblTotalGold";
-            this.lblTotalGold.Size = new System.Drawing.Size(68, 25);
+            this.lblTotalGold.Size = new System.Drawing.Size(78, 25);
             this.lblTotalGold.TabIndex = 59;
-            this.lblTotalGold.Text = "0";
+            this.lblTotalGold.Text = "999,999.99";
             this.lblTotalGold.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblTotalGoldHeader
             // 
             this.lblTotalGoldHeader.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lblTotalGoldHeader.AutoSize = true;
-            this.lblTotalGoldHeader.Location = new System.Drawing.Point(889, 605);
+            this.lblTotalGoldHeader.Location = new System.Drawing.Point(879, 605);
             this.lblTotalGoldHeader.Name = "lblTotalGoldHeader";
             this.lblTotalGoldHeader.Size = new System.Drawing.Size(67, 17);
             this.lblTotalGoldHeader.TabIndex = 58;
@@ -1017,7 +1131,7 @@
             // txtTransactionDesc
             // 
             this.txtTransactionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTransactionDesc.Location = new System.Drawing.Point(796, 573);
+            this.txtTransactionDesc.Location = new System.Drawing.Point(786, 573);
             this.txtTransactionDesc.Name = "txtTransactionDesc";
             this.txtTransactionDesc.Size = new System.Drawing.Size(160, 25);
             this.txtTransactionDesc.TabIndex = 55;
@@ -1027,9 +1141,9 @@
             // txtTransactionGp
             // 
             this.txtTransactionGp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTransactionGp.Location = new System.Drawing.Point(962, 573);
+            this.txtTransactionGp.Location = new System.Drawing.Point(952, 573);
             this.txtTransactionGp.Name = "txtTransactionGp";
-            this.txtTransactionGp.Size = new System.Drawing.Size(68, 25);
+            this.txtTransactionGp.Size = new System.Drawing.Size(78, 25);
             this.txtTransactionGp.TabIndex = 56;
             this.txtTransactionGp.Text = "100";
             this.txtTransactionGp.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -1635,6 +1749,15 @@
         private System.Windows.Forms.TextBox txtTransactionGp;
         private System.Windows.Forms.TextBox txtLocationName;
         private System.Windows.Forms.Button btnAddLocation;
+        private System.Windows.Forms.Label lblSampleXp1;
+        private System.Windows.Forms.Label lblSampleXp2;
+        private System.Windows.Forms.Label lblSampleSession1;
+        private System.Windows.Forms.Label lblSampleSession2;
+        private System.Windows.Forms.Label lblTotalXp;
+        private System.Windows.Forms.Label lblTotalXpHeader;
+        private System.Windows.Forms.Button btnAddSession;
+        private System.Windows.Forms.TextBox txtSessionDesc;
+        private System.Windows.Forms.TextBox txtSessionXp;
     }
 }
 

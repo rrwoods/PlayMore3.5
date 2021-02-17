@@ -25,6 +25,8 @@ namespace PlayMore35.CharacterChoices {
 
         public EquippedChoices equipped;
 
+        public List<(int xp, string description)> sessions;
+
         public JToken ToJson() {
             return new JObject(
                 new JProperty("name", name),
@@ -45,7 +47,11 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("inventory", new JObject(
                     inventory.Select(x => new JProperty(x.Key, x.Value.ToJson()))
                 )),
-                new JProperty("equipped", equipped.ToJson())
+                new JProperty("equipped", equipped.ToJson()),
+                new JProperty("sessions", new JArray(sessions.Select(x => new JObject(
+                    new JProperty("xp", x.xp),
+                    new JProperty("description", x.description)
+                ))))
             );
         }
 
@@ -70,6 +76,7 @@ namespace PlayMore35.CharacterChoices {
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
 
             equipped = new EquippedChoices((JObject)json["equipped"]);
+            sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
         }
 
         public Character() {
@@ -97,6 +104,7 @@ namespace PlayMore35.CharacterChoices {
             transactions = new List<(decimal gp, string description)>();
             inventory = new Dictionary<string, InventoryLocation>();
             equipped = new EquippedChoices();
+            sessions = new List<(int xp, string description)>();
         }
 
         public IEnumerable<WeaponChoice> Weapons {
@@ -146,6 +154,17 @@ namespace PlayMore35.CharacterChoices {
 
         public decimal TotalGold() {
             return transactions.Select(x => x.gp).Sum();
+        }
+
+        public int TotalExperience() {
+            return sessions.Select(x => x.xp).Sum();
+        }
+
+        // if this number is negative, the player is due to level up
+        public int ExperienceToNextLevel() {
+            int level = classLevels.Count;
+            int threshold = 500 * level * (level + 1);
+            return threshold - TotalExperience();
         }
     }
 }
