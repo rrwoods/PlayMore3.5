@@ -185,8 +185,8 @@
           "text": "In melee, when you miss due to concealment, reroll the miss chance once."
         },
         {
-          "category": "Defend",
-          "text": "In melee, you don't lose your Dexterity bonus to AC against invisible attackers, and those attackers don't get their usual +2 bonus."
+          "category": "AC",
+          "text": "keep DEX vs invisible and they don't get +2"
         },
         {
           "category": "Move Options",
@@ -469,7 +469,11 @@
       "text": [
         {
           "category": "AC",
-          "text": "+1 dodge vs one foe you choose"
+          "text": "+1 dodge vs chosen foe"
+        },
+        {
+          "category": "Def Options",
+          "text": "During your action, you designate an opponent and receive a +1 dodge bonus to AC against attacks from that opponent.  You can select a new opponent on any action."
         }
       ]
     }
@@ -648,7 +652,7 @@
       ],
       "text": [
         {
-          "category": "Downtime",
+          "category": "Special Qualities",
           "text": "You may sleep in light or medium armor without becoming fatigued."
         }
       ]
@@ -949,7 +953,7 @@
       "name": "Improved Familiar",
       "text": [
         {
-          "category": "Downtime",
+          "category": "Special Qualities",
           "text": "When choosing a familiar, more creatures are available to you.  Check the rules, and talk to your DM."
         }
       ]
@@ -1153,7 +1157,7 @@
       "name": "Leadership",
       "text": [
         {
-          "category": "Downtime",
+          "category": "Special Qualities",
           "text": "Attract cohorts and followers.  Check the rules, and talk to your DM."
         }
       ]
@@ -1905,7 +1909,7 @@
       "name": "Track",
       "text": [
         {
-          "category": "Downtime",
+          "category": "Special Qualities",
           "text": "You can find and follow tracks.  Check the Track feat."
         }
       ]
@@ -2110,7 +2114,7 @@
       "name": "Improved Binding",
       "text": [
         {
-          "category": "Downtime",
+          "category": "Special Qualities",
           "text": "Your effective binder level is 2 higher for determining the level of vestige you can bind, but not for any other purpose."
         }
       ]
@@ -2121,7 +2125,7 @@
       "name": "Constant Guardian",
       "text": [
         {
-          "category": "Defend",
+          "category": "Def Options",
           "text": "Once during your turn as a free action, you can take a -2 penalty on your attack rolls to grant a single ally within 10 feet a +2 dodge bonus to Armor Class, until your next turn or they are more than 10 feet away, whichever comes first."
         }
       ]

@@ -237,25 +237,24 @@
         public static readonly string LANGUAGES = "Languages";
         public static readonly string SENSES = "Senses";
         public static readonly string EVADE = "Evade";
-        public static readonly string DOWNTIME = "Downtime";
         // AC -- already exists
         public static readonly string DR = "DR";
         public static readonly string REACT = "React";
         public static readonly string RESIST = "Resist";
         public static readonly string IMMUNE = "Immune";
-        public static readonly string DEFEND = "Defend";
         public static readonly string SR = "SR";
         public static readonly string MOVEMENT = "Move Options";
         public static readonly string ACTIONS = "Actions"; // for "can't act", or "no standard actions", or the like
         public static readonly string ATK_OPTIONS = "Atk Options"; // stat blocks spell it this way and i like it.
+        public static readonly string DEF_OPTIONS = "Def Options";
         public static readonly string SPECIAL_ACTIONS = "Special Actions";
-        public static readonly string SQ = "SQ";
+        public static readonly string SQ = "Special Qualities";
         public static readonly string SKILLS = "Skills";
         public static readonly string CONDITION = "Condition"; // try really, really hard not to use this -- it's not at any point of performance.
         public static readonly string UNCATEGORIZED = "uncategorized";
         // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
         public static readonly string[] TEXT_CATEGORIES = {
-            LANGUAGES, SENSES, EVADE, DOWNTIME, AC, DR, REACT, RESIST, IMMUNE, DEFEND, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
+            LANGUAGES, SENSES, EVADE, AC, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, DEF_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
         };
         // future supported categories
         public static readonly string METAMAGIC = "Metamagic";

@@ -86,6 +86,7 @@ namespace PlayMore35 {
         private List<List<Label>> attacks = new List<List<Label>>();
         private Label space, reach, bab, grapple;
         private List<List<Label>> atkOptions = new List<List<Label>>();
+        private List<List<Label>> defOptions = new List<List<Label>>();
         private List<List<Label>> actions = new List<List<Label>>();
         private List<List<Label>> specialActions = new List<List<Label>>();
 
@@ -999,7 +1000,6 @@ namespace PlayMore35 {
             }
 
             OneLineText(evade, textEffects, EVADE);
-            MultilineText(downtime, textEffects, DOWNTIME);
             MultilineText(condition, textEffects, CONDITION);
 
             LabelStat(ac, "AC", AC, ",", false);
@@ -1014,7 +1014,6 @@ namespace PlayMore35 {
             MultilineText(react, textEffects, REACT);
             OneLineText(resist, textEffects, RESIST);
             OneLineText(immune, textEffects, IMMUNE);
-            MultilineText(defend, textEffects, DEFEND);
             OneLineText(sr, textEffects, SR);
             RemoveDynamicSection(saves);
             DynamicStat(saves, "Fort save", FORT_SAVES);
@@ -1044,6 +1043,7 @@ namespace PlayMore35 {
             LabelStat(bab, "Base Atk", BASE_ATTACK_BONUS, ";");
             LabelStat(grapple, "Grp", GRAPPLE);
             MultilineText(atkOptions, textEffects, ATK_OPTIONS);
+            MultilineText(defOptions, textEffects, DEF_OPTIONS);
             MultilineText(specialActions, textEffects, SPECIAL_ACTIONS);
             MultilineText(actions, textEffects, ACTIONS);
 
@@ -1793,6 +1793,7 @@ namespace PlayMore35 {
                 },
                 attacks,
                 atkOptions,
+                defOptions,
                 specialActions,
                 actions,
             };

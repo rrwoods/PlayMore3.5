@@ -1,11 +1,1 @@
-[USABILITY] Consider a "Def Options" section, underneath "Atk Options" -- Constant Guardian and the "choose an ally" part of Dodge go here, for example
-
-===
-
-[COMMON] Make more use of the "SQ" section 
-- possibly completely eliminate "Downtime"; anything that's outside combat should go here
-- possibly expand the name to "Special Qualities" since it's multiline
-
-===
-
 [COMMON] Get rid of the "specific feats" section for elves, and just give them the damn proficiencies as effects, DCFS be damned.
