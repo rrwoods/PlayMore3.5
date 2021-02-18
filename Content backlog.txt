@@ -1,5 +1,1 @@
-[ODRIC 2] [BUG] Whirling frenzy is granting off-hand attacks
-
-===
-
 [COMMON] Get rid of the "specific feats" section for elves, and just give them the damn proficiencies as effects, DCFS be damned.

@@ -84,7 +84,14 @@
           },
           "extra attacks": [
             {
-              "affects": {},
+              "affects": {
+                "hand": [
+                  "TWO_HANDED",
+                  "ONE_HANDED",
+                  "PRIMARY_HAND_TWF",
+                  "TWO_HANDED_TWF"
+                ]
+              },
               "mod": {
                 "attack penalty": -0,
                 "bonus type": "base"
