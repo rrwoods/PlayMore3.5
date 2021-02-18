@@ -109,7 +109,7 @@ namespace PlayMore35.Items {
             AttackBonus = StackModifiers(attackModifiers, rules, items);
             if (!rules.Proficient(items, this)) {
                 AttackBonus.bonus -= 4;
-                AttackBonus.explanation.Add("-4 not proficient");
+                AttackBonus.explanation.Add("–4 not proficient");
             }
 
             IEnumerable<ExtraAttack> extrasFromProps = properties
@@ -128,19 +128,19 @@ namespace PlayMore35.Items {
                     compositeStrToDamage = StrengthRating;
                 } else {
                     AttackBonus.bonus -= 2;
-                    AttackBonus.explanation.Add($"-2 insufficient STR for +{StrengthRating} composite bow");
+                    AttackBonus.explanation.Add($"–2 insufficient STR for +{StrengthRating} composite bow");
                     compositeStrToDamage = Math.Max(strModifier, 0); // penalty would already be applied by game rules.
                 }
             }
             if (sizeDiscrepancy != 0) {
                 int attackPenalty = -2 * Math.Abs(sizeDiscrepancy);
                 AttackBonus.bonus += attackPenalty;
-                AttackBonus.explanation.Add($"{attackPenalty} inappropriately-sized weapon");
+                AttackBonus.explanation.Add($"{attackPenalty.ToString("+#;–#;–0")} inappropriately-sized weapon");
             }
 
             if (twfPenalty != 0) {
                 AttackBonus.bonus += twfPenalty;
-                AttackBonus.explanation.Add($"{twfPenalty} two-weapon fighting penalty");
+                AttackBonus.explanation.Add($"{twfPenalty.ToString("+#;–#;0")} two-weapon fighting penalty");
             }
 
             DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);

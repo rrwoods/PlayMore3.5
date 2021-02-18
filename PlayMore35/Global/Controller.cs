@@ -302,6 +302,14 @@ namespace PlayMore35.Global {
             }
         }
 
+        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, string slotName, int level) {
+            if (feats.ContainsKey(level)) {
+                feats[level].Add(slotName);
+            } else {
+                feats[level] = new List<string> { slotName };
+            }
+        }
+
         public void CountWeight(string locationName, bool weighs) {
             Character.inventory[locationName].weighs = weighs;
             ComputeWeight();
@@ -439,7 +447,7 @@ namespace PlayMore35.Global {
             } else {
                 Character.equipped.OffHandWeapon = weaponChoice;
                 EquippedItems.OffHandWeapon = weapon;
-                if (EquippedItems.OffHandShield.AttackRollPenalty == null) {
+                if (EquippedItems.OffHandShield != null && EquippedItems.OffHandShield.AttackRollPenalty == null) {
                     UnequipShield(from);
                 }
             }
@@ -552,6 +560,34 @@ namespace PlayMore35.Global {
             ComputeWeight();
         }
 
+        public void AddWeapon(string to, string weaponName) {
+            Character.inventory[to].weapons.Add(new WeaponChoice {
+                Name = weaponName,
+                SizeCategory = GetSizeCategory()
+            });
+            ComputeWeight();
+        }
+
+        public void AddArmor(string to, string armorName) {
+            Character.inventory[to].armor.Add(new ArmorChoice {
+                Name = armorName,
+                SizeCategory = GetSizeCategory()
+            });
+            ComputeWeight();
+        }
+
+        public void AddShield(string to, string shieldName) {
+            Character.inventory[to].shields.Add(new ArmorChoice {
+                Name = shieldName,
+                SizeCategory = GetSizeCategory()
+            });
+            ComputeWeight();
+        }
+
+        public void AddItem(string to, string itemName) {
+            AddItem(to, itemName, 1);
+        }
+
         public void AddItem(string to, string itemName, int quantity) {
             if (Character.inventory[to].items.ContainsKey(itemName)) {
                 Character.inventory[to].items[itemName] += quantity;
@@ -561,14 +597,6 @@ namespace PlayMore35.Global {
         }
 
         // **** ACCESSORS ****
-
-        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, string slotName, int level) {
-            if (feats.ContainsKey(level)) {
-                feats[level].Add(slotName);
-            } else {
-                feats[level] = new List<string> { slotName };
-            }
-        }
 
         public SortedDictionary<int, List<string>> GetFeatSlots() {
             int level = Character.classLevels.Count;
@@ -595,6 +623,11 @@ namespace PlayMore35.Global {
             }
 
             return feats;
+        }
+
+        // "normal" size category, independent of any effects.
+        public int GetSizeCategory() {
+            return RaceDefinitions[Character.race].SizeCategory;
         }
 
         public int GetStartingIntelligence() {

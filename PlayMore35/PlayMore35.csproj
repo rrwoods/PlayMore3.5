@@ -78,6 +78,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddItemDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddItemDialog.Designer.cs">
+      <DependentUpon>AddItemDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="CharacterChoices\CharacterClass.cs" />
     <Compile Include="CharacterChoices\Feat.cs" />
     <Compile Include="CharacterChoices\Race.cs" />
@@ -138,6 +144,9 @@
     <Compile Include="CharacterChoices\WeaponProperty.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddItemDialog.resx">
+      <DependentUpon>AddItemDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

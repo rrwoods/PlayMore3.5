@@ -1,10 +1,26 @@
 [CORE] Set up toggles for allied effects
 
+This is fairly involved.  What even is an "allied effect"?
+
+Need a list of arbitrary effects (that, eventually, the user will be able to add to via an effect-creation UI), associated with a character.  These effects will probably always be toggleable, but in theory the player could make one that's just always on (maybe there's an effect that an ally uses every day without fail, or maybe the DM just says "you get this permanently", or whatever)
+
 ===
 
 [USABILITY] Maybe draw some separator lines on the form?
 
 https://www.csharp-examples.net/separator-line/
+
+===
+
+[USABILITY] Positioning of toggles and parameters should be context-dependent
+
+e.g.
+- damage near hp
+- charging, flanking in Atk Options
+
+This means that the toggles themselves need data about where they go, similarly to text effects.
+
+*Probably* a prerequisite to the action system, to avoid checkboxes just piling up in the bottom-left?
 
 ===
 
@@ -25,8 +41,10 @@ the controller should store:
 For specifying the flow of time, the controller will have:
 - StartCombat, which marks the current round as the start of the current encounter and sets the combat flag; also, fully resets any actions that are per-encounter, and (probably) any that are per-minute or shorter
 - EndCombat, which is identical to above, but clears the combat flag
-- NextRound, NextMinute, NextHour, and NextDay
 - ActivateToggle, which sets a Toggle, but knows to clear it after a specified number of rounds have passed
+- NextRound, NextMinute, NextHour, and NextDay, which advances time the appropriate number of rounds
+  - (beyond NextRound, are these actually necessary?  won't the desired workflow be "it's now x:xx pm" or whatever?)
+- An undo button, for when you accidentally advance time (which should correct the states of flags that were changed as a result of advancing time)
 
 For reporting what round it is, if we're in-combat it should report "round X of combat", and otherwise it should report what day and time it is.
 
@@ -35,11 +53,3 @@ When the UI advances time it needs to refresh effects!
 ===
 
 [USABILITY] Display completely uncategorized text somewhere (under SQ probably)
-
-===
-
-[USABILITY] Positioning of toggles and parameters should be context-dependent
-
-e.g.
-- damage near hp
-- charging, flanking in Atk Options

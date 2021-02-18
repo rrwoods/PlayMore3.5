@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.lblTopLeft = new System.Windows.Forms.Label();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.characterTab = new System.Windows.Forms.TabPage();
+            this.tabMain = new System.Windows.Forms.TabControl();
+            this.pagCharacter = new System.Windows.Forms.TabPage();
             this.lblSampleXp1 = new System.Windows.Forms.Label();
             this.lblSampleXp2 = new System.Windows.Forms.Label();
             this.lblSampleSession1 = new System.Windows.Forms.Label();
@@ -94,12 +94,12 @@
             this.txtAlignment = new System.Windows.Forms.TextBox();
             this.txtName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.statsTab = new System.Windows.Forms.TabPage();
+            this.pagStats = new System.Windows.Forms.TabPage();
             this.lblParam2 = new System.Windows.Forms.Label();
             this.lblParam = new System.Windows.Forms.Label();
             this.txtParam2 = new System.Windows.Forms.TextBox();
             this.txtParam = new System.Windows.Forms.TextBox();
-            this.inventoryTab = new System.Windows.Forms.TabPage();
+            this.pagInventory = new System.Windows.Forms.TabPage();
             this.txtLocationName = new System.Windows.Forms.TextBox();
             this.btnAddLocation = new System.Windows.Forms.Button();
             this.lblTransactionAmount1 = new System.Windows.Forms.Label();
@@ -149,12 +149,13 @@
             this.lblPrimaryWeapon = new System.Windows.Forms.Label();
             this.grpSampleLocation2 = new System.Windows.Forms.GroupBox();
             this.grpSampleLocation = new System.Windows.Forms.GroupBox();
+            this.btnAddItem = new System.Windows.Forms.Button();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.tabControl1.SuspendLayout();
-            this.characterTab.SuspendLayout();
-            this.statsTab.SuspendLayout();
-            this.inventoryTab.SuspendLayout();
+            this.tabMain.SuspendLayout();
+            this.pagCharacter.SuspendLayout();
+            this.pagStats.SuspendLayout();
+            this.pagInventory.SuspendLayout();
             this.grpSampleLocation.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -168,96 +169,96 @@
             this.lblTopLeft.Text = "Sample text";
             this.lblTopLeft.Visible = false;
             // 
-            // tabControl1
+            // tabMain
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.characterTab);
-            this.tabControl1.Controls.Add(this.statsTab);
-            this.tabControl1.Controls.Add(this.inventoryTab);
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1077, 661);
-            this.tabControl1.TabIndex = 1;
+            this.tabMain.Controls.Add(this.pagCharacter);
+            this.tabMain.Controls.Add(this.pagStats);
+            this.tabMain.Controls.Add(this.pagInventory);
+            this.tabMain.Location = new System.Drawing.Point(0, 0);
+            this.tabMain.Name = "tabMain";
+            this.tabMain.SelectedIndex = 0;
+            this.tabMain.Size = new System.Drawing.Size(1077, 661);
+            this.tabMain.TabIndex = 1;
             // 
-            // characterTab
+            // pagCharacter
             // 
-            this.characterTab.Controls.Add(this.lblSampleXp1);
-            this.characterTab.Controls.Add(this.lblSampleXp2);
-            this.characterTab.Controls.Add(this.lblSampleSession1);
-            this.characterTab.Controls.Add(this.lblSampleSession2);
-            this.characterTab.Controls.Add(this.lblTotalXp);
-            this.characterTab.Controls.Add(this.lblTotalXpHeader);
-            this.characterTab.Controls.Add(this.btnAddSession);
-            this.characterTab.Controls.Add(this.txtSessionDesc);
-            this.characterTab.Controls.Add(this.txtSessionXp);
-            this.characterTab.Controls.Add(this.cboAbilityIncrement);
-            this.characterTab.Controls.Add(this.btnAddLevel);
-            this.characterTab.Controls.Add(this.lblFeatsHeader);
-            this.characterTab.Controls.Add(this.cboFeat);
-            this.characterTab.Controls.Add(this.lblSkills);
-            this.characterTab.Controls.Add(this.cboAddSkill);
-            this.characterTab.Controls.Add(this.lblTotalHp);
-            this.characterTab.Controls.Add(this.lblTotalRanks);
-            this.characterTab.Controls.Add(this.lblPoints);
-            this.characterTab.Controls.Add(this.lblSkill2);
-            this.characterTab.Controls.Add(this.lblSkill1);
-            this.characterTab.Controls.Add(this.lblRolledHp);
-            this.characterTab.Controls.Add(this.txtRanksClass);
-            this.characterTab.Controls.Add(this.txtRanksCrossClass);
-            this.characterTab.Controls.Add(this.txtRolledHp);
-            this.characterTab.Controls.Add(this.cboClass);
-            this.characterTab.Controls.Add(this.btnLoadCharacter);
-            this.characterTab.Controls.Add(this.lblBonusLang);
-            this.characterTab.Controls.Add(this.label7);
-            this.characterTab.Controls.Add(this.cboBonusLanguage);
-            this.characterTab.Controls.Add(this.label15);
-            this.characterTab.Controls.Add(this.txtAutomaticLanguages);
-            this.characterTab.Controls.Add(this.btnSaveCharacter);
-            this.characterTab.Controls.Add(this.label14);
-            this.characterTab.Controls.Add(this.label13);
-            this.characterTab.Controls.Add(this.label12);
-            this.characterTab.Controls.Add(this.label11);
-            this.characterTab.Controls.Add(this.label10);
-            this.characterTab.Controls.Add(this.label9);
-            this.characterTab.Controls.Add(this.txtFinalCha);
-            this.characterTab.Controls.Add(this.txtFinalWis);
-            this.characterTab.Controls.Add(this.txtFinalInt);
-            this.characterTab.Controls.Add(this.txtFinalCon);
-            this.characterTab.Controls.Add(this.txtFinalDex);
-            this.characterTab.Controls.Add(this.txtFinalStr);
-            this.characterTab.Controls.Add(this.txtRacialCha);
-            this.characterTab.Controls.Add(this.txtRacialWis);
-            this.characterTab.Controls.Add(this.txtRacialInt);
-            this.characterTab.Controls.Add(this.txtRacialCon);
-            this.characterTab.Controls.Add(this.txtRacialDex);
-            this.characterTab.Controls.Add(this.txtRacialStr);
-            this.characterTab.Controls.Add(this.txtAssignedCha);
-            this.characterTab.Controls.Add(this.txtAssignedWis);
-            this.characterTab.Controls.Add(this.txtAssignedInt);
-            this.characterTab.Controls.Add(this.txtAssignedCon);
-            this.characterTab.Controls.Add(this.txtAssignedDex);
-            this.characterTab.Controls.Add(this.label8);
-            this.characterTab.Controls.Add(this.label6);
-            this.characterTab.Controls.Add(this.label5);
-            this.characterTab.Controls.Add(this.txtAssignedStr);
-            this.characterTab.Controls.Add(this.label4);
-            this.characterTab.Controls.Add(this.cboRace);
-            this.characterTab.Controls.Add(this.label3);
-            this.characterTab.Controls.Add(this.label2);
-            this.characterTab.Controls.Add(this.txtGender);
-            this.characterTab.Controls.Add(this.txtAlignment);
-            this.characterTab.Controls.Add(this.txtName);
-            this.characterTab.Controls.Add(this.label1);
-            this.characterTab.Location = new System.Drawing.Point(4, 26);
-            this.characterTab.Name = "characterTab";
-            this.characterTab.Size = new System.Drawing.Size(1069, 631);
-            this.characterTab.TabIndex = 2;
-            this.characterTab.Text = "Character";
-            this.characterTab.UseVisualStyleBackColor = true;
-            this.characterTab.Enter += new System.EventHandler(this.CharacterTab_Enter);
+            this.pagCharacter.Controls.Add(this.lblSampleXp1);
+            this.pagCharacter.Controls.Add(this.lblSampleXp2);
+            this.pagCharacter.Controls.Add(this.lblSampleSession1);
+            this.pagCharacter.Controls.Add(this.lblSampleSession2);
+            this.pagCharacter.Controls.Add(this.lblTotalXp);
+            this.pagCharacter.Controls.Add(this.lblTotalXpHeader);
+            this.pagCharacter.Controls.Add(this.btnAddSession);
+            this.pagCharacter.Controls.Add(this.txtSessionDesc);
+            this.pagCharacter.Controls.Add(this.txtSessionXp);
+            this.pagCharacter.Controls.Add(this.cboAbilityIncrement);
+            this.pagCharacter.Controls.Add(this.btnAddLevel);
+            this.pagCharacter.Controls.Add(this.lblFeatsHeader);
+            this.pagCharacter.Controls.Add(this.cboFeat);
+            this.pagCharacter.Controls.Add(this.lblSkills);
+            this.pagCharacter.Controls.Add(this.cboAddSkill);
+            this.pagCharacter.Controls.Add(this.lblTotalHp);
+            this.pagCharacter.Controls.Add(this.lblTotalRanks);
+            this.pagCharacter.Controls.Add(this.lblPoints);
+            this.pagCharacter.Controls.Add(this.lblSkill2);
+            this.pagCharacter.Controls.Add(this.lblSkill1);
+            this.pagCharacter.Controls.Add(this.lblRolledHp);
+            this.pagCharacter.Controls.Add(this.txtRanksClass);
+            this.pagCharacter.Controls.Add(this.txtRanksCrossClass);
+            this.pagCharacter.Controls.Add(this.txtRolledHp);
+            this.pagCharacter.Controls.Add(this.cboClass);
+            this.pagCharacter.Controls.Add(this.btnLoadCharacter);
+            this.pagCharacter.Controls.Add(this.lblBonusLang);
+            this.pagCharacter.Controls.Add(this.label7);
+            this.pagCharacter.Controls.Add(this.cboBonusLanguage);
+            this.pagCharacter.Controls.Add(this.label15);
+            this.pagCharacter.Controls.Add(this.txtAutomaticLanguages);
+            this.pagCharacter.Controls.Add(this.btnSaveCharacter);
+            this.pagCharacter.Controls.Add(this.label14);
+            this.pagCharacter.Controls.Add(this.label13);
+            this.pagCharacter.Controls.Add(this.label12);
+            this.pagCharacter.Controls.Add(this.label11);
+            this.pagCharacter.Controls.Add(this.label10);
+            this.pagCharacter.Controls.Add(this.label9);
+            this.pagCharacter.Controls.Add(this.txtFinalCha);
+            this.pagCharacter.Controls.Add(this.txtFinalWis);
+            this.pagCharacter.Controls.Add(this.txtFinalInt);
+            this.pagCharacter.Controls.Add(this.txtFinalCon);
+            this.pagCharacter.Controls.Add(this.txtFinalDex);
+            this.pagCharacter.Controls.Add(this.txtFinalStr);
+            this.pagCharacter.Controls.Add(this.txtRacialCha);
+            this.pagCharacter.Controls.Add(this.txtRacialWis);
+            this.pagCharacter.Controls.Add(this.txtRacialInt);
+            this.pagCharacter.Controls.Add(this.txtRacialCon);
+            this.pagCharacter.Controls.Add(this.txtRacialDex);
+            this.pagCharacter.Controls.Add(this.txtRacialStr);
+            this.pagCharacter.Controls.Add(this.txtAssignedCha);
+            this.pagCharacter.Controls.Add(this.txtAssignedWis);
+            this.pagCharacter.Controls.Add(this.txtAssignedInt);
+            this.pagCharacter.Controls.Add(this.txtAssignedCon);
+            this.pagCharacter.Controls.Add(this.txtAssignedDex);
+            this.pagCharacter.Controls.Add(this.label8);
+            this.pagCharacter.Controls.Add(this.label6);
+            this.pagCharacter.Controls.Add(this.label5);
+            this.pagCharacter.Controls.Add(this.txtAssignedStr);
+            this.pagCharacter.Controls.Add(this.label4);
+            this.pagCharacter.Controls.Add(this.cboRace);
+            this.pagCharacter.Controls.Add(this.label3);
+            this.pagCharacter.Controls.Add(this.label2);
+            this.pagCharacter.Controls.Add(this.txtGender);
+            this.pagCharacter.Controls.Add(this.txtAlignment);
+            this.pagCharacter.Controls.Add(this.txtName);
+            this.pagCharacter.Controls.Add(this.label1);
+            this.pagCharacter.Location = new System.Drawing.Point(4, 26);
+            this.pagCharacter.Name = "pagCharacter";
+            this.pagCharacter.Size = new System.Drawing.Size(1069, 631);
+            this.pagCharacter.TabIndex = 2;
+            this.pagCharacter.Text = "Character";
+            this.pagCharacter.UseVisualStyleBackColor = true;
+            this.pagCharacter.Enter += new System.EventHandler(this.CharacterTab_Enter);
             // 
             // lblSampleXp1
             // 
@@ -917,21 +918,21 @@
             this.label1.Text = "Name";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // statsTab
+            // pagStats
             // 
-            this.statsTab.Controls.Add(this.lblParam2);
-            this.statsTab.Controls.Add(this.lblParam);
-            this.statsTab.Controls.Add(this.txtParam2);
-            this.statsTab.Controls.Add(this.txtParam);
-            this.statsTab.Controls.Add(this.lblTopLeft);
-            this.statsTab.Location = new System.Drawing.Point(4, 26);
-            this.statsTab.Name = "statsTab";
-            this.statsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.statsTab.Size = new System.Drawing.Size(1069, 631);
-            this.statsTab.TabIndex = 0;
-            this.statsTab.Text = "Stats";
-            this.statsTab.UseVisualStyleBackColor = true;
-            this.statsTab.Enter += new System.EventHandler(this.StatsTab_Enter);
+            this.pagStats.Controls.Add(this.lblParam2);
+            this.pagStats.Controls.Add(this.lblParam);
+            this.pagStats.Controls.Add(this.txtParam2);
+            this.pagStats.Controls.Add(this.txtParam);
+            this.pagStats.Controls.Add(this.lblTopLeft);
+            this.pagStats.Location = new System.Drawing.Point(4, 26);
+            this.pagStats.Name = "pagStats";
+            this.pagStats.Padding = new System.Windows.Forms.Padding(3);
+            this.pagStats.Size = new System.Drawing.Size(1069, 631);
+            this.pagStats.TabIndex = 0;
+            this.pagStats.Text = "Stats";
+            this.pagStats.UseVisualStyleBackColor = true;
+            this.pagStats.Enter += new System.EventHandler(this.StatsTab_Enter);
             // 
             // lblParam2
             // 
@@ -975,64 +976,64 @@
             this.txtParam.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.txtParam.Visible = false;
             // 
-            // inventoryTab
+            // pagInventory
             // 
-            this.inventoryTab.Controls.Add(this.txtLocationName);
-            this.inventoryTab.Controls.Add(this.btnAddLocation);
-            this.inventoryTab.Controls.Add(this.lblTransactionAmount1);
-            this.inventoryTab.Controls.Add(this.lblTransactionAmount2);
-            this.inventoryTab.Controls.Add(this.lblTransactionDescription1);
-            this.inventoryTab.Controls.Add(this.lblTransactionDescription2);
-            this.inventoryTab.Controls.Add(this.lblTotalGold);
-            this.inventoryTab.Controls.Add(this.lblTotalGoldHeader);
-            this.inventoryTab.Controls.Add(this.btnAddTransaction);
-            this.inventoryTab.Controls.Add(this.txtTransactionDesc);
-            this.inventoryTab.Controls.Add(this.txtTransactionGp);
-            this.inventoryTab.Controls.Add(this.lblTotalWeight);
-            this.inventoryTab.Controls.Add(this.lblEquippedWeight);
-            this.inventoryTab.Controls.Add(this.txtFeet);
-            this.inventoryTab.Controls.Add(this.txtRing2);
-            this.inventoryTab.Controls.Add(this.txtRing1);
-            this.inventoryTab.Controls.Add(this.txtHands);
-            this.inventoryTab.Controls.Add(this.txtArms);
-            this.inventoryTab.Controls.Add(this.txtShoulders);
-            this.inventoryTab.Controls.Add(this.txtWaist);
-            this.inventoryTab.Controls.Add(this.txtBody);
-            this.inventoryTab.Controls.Add(this.txtTorso);
-            this.inventoryTab.Controls.Add(this.txtNeck);
-            this.inventoryTab.Controls.Add(this.txtFace);
-            this.inventoryTab.Controls.Add(this.txtHead);
-            this.inventoryTab.Controls.Add(this.txtShield);
-            this.inventoryTab.Controls.Add(this.txtArmor);
-            this.inventoryTab.Controls.Add(this.txtOffHandWeapon);
-            this.inventoryTab.Controls.Add(this.txtPrimaryWeapon);
-            this.inventoryTab.Controls.Add(this.lblSlotless);
-            this.inventoryTab.Controls.Add(this.lstSlotless);
-            this.inventoryTab.Controls.Add(this.lblFeet);
-            this.inventoryTab.Controls.Add(this.lblRing2);
-            this.inventoryTab.Controls.Add(this.lblRing1);
-            this.inventoryTab.Controls.Add(this.lblHands);
-            this.inventoryTab.Controls.Add(this.lblArms);
-            this.inventoryTab.Controls.Add(this.lblShoulders);
-            this.inventoryTab.Controls.Add(this.lblWaist);
-            this.inventoryTab.Controls.Add(this.lblBody);
-            this.inventoryTab.Controls.Add(this.lblTorso);
-            this.inventoryTab.Controls.Add(this.lblNeck);
-            this.inventoryTab.Controls.Add(this.lblFace);
-            this.inventoryTab.Controls.Add(this.lblHead);
-            this.inventoryTab.Controls.Add(this.lblShield);
-            this.inventoryTab.Controls.Add(this.lblArmor);
-            this.inventoryTab.Controls.Add(this.lblOffHandWeapon);
-            this.inventoryTab.Controls.Add(this.lblPrimaryWeapon);
-            this.inventoryTab.Controls.Add(this.grpSampleLocation2);
-            this.inventoryTab.Controls.Add(this.grpSampleLocation);
-            this.inventoryTab.Location = new System.Drawing.Point(4, 26);
-            this.inventoryTab.Name = "inventoryTab";
-            this.inventoryTab.Padding = new System.Windows.Forms.Padding(3);
-            this.inventoryTab.Size = new System.Drawing.Size(1069, 631);
-            this.inventoryTab.TabIndex = 1;
-            this.inventoryTab.Text = "Inventory";
-            this.inventoryTab.UseVisualStyleBackColor = true;
+            this.pagInventory.Controls.Add(this.txtLocationName);
+            this.pagInventory.Controls.Add(this.btnAddLocation);
+            this.pagInventory.Controls.Add(this.lblTransactionAmount1);
+            this.pagInventory.Controls.Add(this.lblTransactionAmount2);
+            this.pagInventory.Controls.Add(this.lblTransactionDescription1);
+            this.pagInventory.Controls.Add(this.lblTransactionDescription2);
+            this.pagInventory.Controls.Add(this.lblTotalGold);
+            this.pagInventory.Controls.Add(this.lblTotalGoldHeader);
+            this.pagInventory.Controls.Add(this.btnAddTransaction);
+            this.pagInventory.Controls.Add(this.txtTransactionDesc);
+            this.pagInventory.Controls.Add(this.txtTransactionGp);
+            this.pagInventory.Controls.Add(this.lblTotalWeight);
+            this.pagInventory.Controls.Add(this.lblEquippedWeight);
+            this.pagInventory.Controls.Add(this.txtFeet);
+            this.pagInventory.Controls.Add(this.txtRing2);
+            this.pagInventory.Controls.Add(this.txtRing1);
+            this.pagInventory.Controls.Add(this.txtHands);
+            this.pagInventory.Controls.Add(this.txtArms);
+            this.pagInventory.Controls.Add(this.txtShoulders);
+            this.pagInventory.Controls.Add(this.txtWaist);
+            this.pagInventory.Controls.Add(this.txtBody);
+            this.pagInventory.Controls.Add(this.txtTorso);
+            this.pagInventory.Controls.Add(this.txtNeck);
+            this.pagInventory.Controls.Add(this.txtFace);
+            this.pagInventory.Controls.Add(this.txtHead);
+            this.pagInventory.Controls.Add(this.txtShield);
+            this.pagInventory.Controls.Add(this.txtArmor);
+            this.pagInventory.Controls.Add(this.txtOffHandWeapon);
+            this.pagInventory.Controls.Add(this.txtPrimaryWeapon);
+            this.pagInventory.Controls.Add(this.lblSlotless);
+            this.pagInventory.Controls.Add(this.lstSlotless);
+            this.pagInventory.Controls.Add(this.lblFeet);
+            this.pagInventory.Controls.Add(this.lblRing2);
+            this.pagInventory.Controls.Add(this.lblRing1);
+            this.pagInventory.Controls.Add(this.lblHands);
+            this.pagInventory.Controls.Add(this.lblArms);
+            this.pagInventory.Controls.Add(this.lblShoulders);
+            this.pagInventory.Controls.Add(this.lblWaist);
+            this.pagInventory.Controls.Add(this.lblBody);
+            this.pagInventory.Controls.Add(this.lblTorso);
+            this.pagInventory.Controls.Add(this.lblNeck);
+            this.pagInventory.Controls.Add(this.lblFace);
+            this.pagInventory.Controls.Add(this.lblHead);
+            this.pagInventory.Controls.Add(this.lblShield);
+            this.pagInventory.Controls.Add(this.lblArmor);
+            this.pagInventory.Controls.Add(this.lblOffHandWeapon);
+            this.pagInventory.Controls.Add(this.lblPrimaryWeapon);
+            this.pagInventory.Controls.Add(this.grpSampleLocation2);
+            this.pagInventory.Controls.Add(this.grpSampleLocation);
+            this.pagInventory.Location = new System.Drawing.Point(4, 26);
+            this.pagInventory.Name = "pagInventory";
+            this.pagInventory.Padding = new System.Windows.Forms.Padding(3);
+            this.pagInventory.Size = new System.Drawing.Size(1069, 631);
+            this.pagInventory.TabIndex = 1;
+            this.pagInventory.Text = "Inventory";
+            this.pagInventory.UseVisualStyleBackColor = true;
             // 
             // txtLocationName
             // 
@@ -1571,6 +1572,7 @@
             // 
             // grpSampleLocation
             // 
+            this.grpSampleLocation.Controls.Add(this.btnAddItem);
             this.grpSampleLocation.Controls.Add(this.lstSampleItems);
             this.grpSampleLocation.Controls.Add(this.chkWeightCounts);
             this.grpSampleLocation.Cursor = System.Windows.Forms.Cursors.SizeAll;
@@ -1581,6 +1583,17 @@
             this.grpSampleLocation.TabStop = false;
             this.grpSampleLocation.Text = "Sample location";
             this.grpSampleLocation.Visible = false;
+            // 
+            // btnAddItem
+            // 
+            this.btnAddItem.Cursor = System.Windows.Forms.Cursors.Default;
+            this.btnAddItem.Location = new System.Drawing.Point(7, 25);
+            this.btnAddItem.Name = "btnAddItem";
+            this.btnAddItem.Size = new System.Drawing.Size(21, 21);
+            this.btnAddItem.TabIndex = 66;
+            this.btnAddItem.Text = "+";
+            this.btnAddItem.UseVisualStyleBackColor = true;
+            this.btnAddItem.Visible = false;
             // 
             // lstSampleItems
             // 
@@ -1596,7 +1609,7 @@
             // 
             this.chkWeightCounts.AutoSize = true;
             this.chkWeightCounts.Cursor = System.Windows.Forms.Cursors.Default;
-            this.chkWeightCounts.Location = new System.Drawing.Point(6, 24);
+            this.chkWeightCounts.Location = new System.Drawing.Point(34, 26);
             this.chkWeightCounts.Name = "chkWeightCounts";
             this.chkWeightCounts.Size = new System.Drawing.Size(103, 21);
             this.chkWeightCounts.TabIndex = 2;
@@ -1609,20 +1622,20 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1077, 661);
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.tabMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "MainForm";
             this.Text = "PlayMore3.5";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
-            this.tabControl1.ResumeLayout(false);
-            this.characterTab.ResumeLayout(false);
-            this.characterTab.PerformLayout();
-            this.statsTab.ResumeLayout(false);
-            this.statsTab.PerformLayout();
-            this.inventoryTab.ResumeLayout(false);
-            this.inventoryTab.PerformLayout();
+            this.tabMain.ResumeLayout(false);
+            this.pagCharacter.ResumeLayout(false);
+            this.pagCharacter.PerformLayout();
+            this.pagStats.ResumeLayout(false);
+            this.pagStats.PerformLayout();
+            this.pagInventory.ResumeLayout(false);
+            this.pagInventory.PerformLayout();
             this.grpSampleLocation.ResumeLayout(false);
             this.grpSampleLocation.PerformLayout();
             this.ResumeLayout(false);
@@ -1632,9 +1645,9 @@
         #endregion
 
         private System.Windows.Forms.Label lblTopLeft;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage statsTab;
-        private System.Windows.Forms.TabPage inventoryTab;
+        private System.Windows.Forms.TabControl tabMain;
+        private System.Windows.Forms.TabPage pagStats;
+        private System.Windows.Forms.TabPage pagInventory;
         private System.Windows.Forms.GroupBox grpSampleLocation2;
         private System.Windows.Forms.GroupBox grpSampleLocation;
         private System.Windows.Forms.Label lblTotalWeight;
@@ -1679,7 +1692,7 @@
         private System.Windows.Forms.Label lblParam;
         private System.Windows.Forms.TextBox txtParam2;
         private System.Windows.Forms.TextBox txtParam;
-        private System.Windows.Forms.TabPage characterTab;
+        private System.Windows.Forms.TabPage pagCharacter;
         private System.Windows.Forms.Button btnSaveCharacter;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label13;
@@ -1758,6 +1771,7 @@
         private System.Windows.Forms.Button btnAddSession;
         private System.Windows.Forms.TextBox txtSessionDesc;
         private System.Windows.Forms.TextBox txtSessionXp;
+        private System.Windows.Forms.Button btnAddItem;
     }
 }
 

@@ -113,8 +113,11 @@ namespace PlayMore35 {
         private Dictionary<string, GroupBox> locationGroups = new Dictionary<string, GroupBox>();
         private Dictionary<string, ListBox> locationLists = new Dictionary<string, ListBox>();
         private Dictionary<string, CheckBox> locationWeights = new Dictionary<string, CheckBox>();
+        private Dictionary<string, Button> addItemButtons = new Dictionary<string, Button>();
         private Control draggingItemFrom = null;
         private int numberDragging = 0;
+
+        private AddItemDialog addItemDialog = new AddItemDialog();
         
         private Controller controller = null;
 
@@ -131,7 +134,7 @@ namespace PlayMore35 {
         }
 
         public TabPage StatsTab() {
-            return statsTab;
+            return pagStats;
         }
 
         private void ClearDynamicControls<T>(TabPage tab, List<T> controls) where T : Control {
@@ -229,7 +232,7 @@ namespace PlayMore35 {
 
         private void RemoveDynamicSection(List<List<Label>> section) {
             section.ForEach(row => row.ForEach(label => {
-                statsTab.Controls.Remove(label);
+                pagStats.Controls.Remove(label);
                 toolTips.Remove(label);
             }));
             section.Clear();
@@ -306,7 +309,7 @@ namespace PlayMore35 {
                     Text = key
                 }.Initialize(this);
                 section.Add(new List<Label> { headerLabel });
-                statsTab.Controls.Add(headerLabel);
+                pagStats.Controls.Add(headerLabel);
             }
             foreach ((string name, string desc) in textEffects[key]) {
                 Label effectLabel = new Label() {
@@ -314,7 +317,7 @@ namespace PlayMore35 {
                 }.Initialize(this);
                 ToolTipTextLabel(effectLabel, desc);
                 section.Add(new List<Label> { effectLabel });
-                statsTab.Controls.Add(effectLabel);
+                pagStats.Controls.Add(effectLabel);
             }
         }
 
@@ -416,7 +419,7 @@ namespace PlayMore35 {
             toolTips[skillName].SetToolTip(skillName, skill);
 
             skillNames.Add(skillName);
-            characterTab.Controls.Add(skillName);
+            pagCharacter.Controls.Add(skillName);
 
             skillRanks[skill] = new List<TextBox>();
 
@@ -429,7 +432,7 @@ namespace PlayMore35 {
                 Text = "0"
             };
             totalSkillRanks[skill] = totalRanks;
-            characterTab.Controls.Add(totalRanks);
+            pagCharacter.Controls.Add(totalRanks);
 
             cboAddSkill.Left = left + skillLabelOffset;
             cboAddSkill.Items.Remove(skill);
@@ -460,7 +463,7 @@ namespace PlayMore35 {
                 ranksBox.Enter += Text_Enter;
                 ranksBox.Leave += SetRanks(skill, i);
                 skillRanks[skill].Add(ranksBox);
-                characterTab.Controls.Add(ranksBox);
+                pagCharacter.Controls.Add(ranksBox);
 
                 skillPoints[i].Left = left + skillLabelOffset;
             }
@@ -592,7 +595,7 @@ namespace PlayMore35 {
                     Text = lblBonusLang.Text,
                     TextAlign = lblBonusLang.TextAlign
                 };
-                characterTab.Controls.Add(bonusLabel);
+                pagCharacter.Controls.Add(bonusLabel);
                 bonusLabels.Add(bonusLabel);
 
                 ComboBox box = new ComboBox {
@@ -611,7 +614,7 @@ namespace PlayMore35 {
 
                 box.SelectedValueChanged += SelectBonusLanguage(i);
 
-                characterTab.Controls.Add(box);
+                pagCharacter.Controls.Add(box);
                 bonusLanguages.Add(box);
 
                 langTop += langBuffer;
@@ -621,9 +624,9 @@ namespace PlayMore35 {
                 controller.Character.bonusLanguages.RemoveRange(numBonusLanguages, excess);
             }
             for (int i = curBonusLanguages - 1; i >= numBonusLanguages; i--) {
-                characterTab.Controls.Remove(bonusLanguages[i]);
+                pagCharacter.Controls.Remove(bonusLanguages[i]);
                 bonusLanguages.RemoveAt(i);
-                characterTab.Controls.Remove(bonusLabels[i]);
+                pagCharacter.Controls.Remove(bonusLabels[i]);
                 bonusLabels.RemoveAt(i);
             }
         }
@@ -634,7 +637,7 @@ namespace PlayMore35 {
             if (!levels.Any()) {
                 return;
             }
-            ClearDynamicControls(characterTab, feats);
+            ClearDynamicControls(pagCharacter, feats);
             int featRight = 0;
             foreach (var level in controller.GetFeatSlots()) {
                 int featTop = levels[level.Key - 1].Top;
@@ -661,7 +664,7 @@ namespace PlayMore35 {
                     featBox.SelectedValueChanged += SelectFeat(slot);
                     feats.Add(featBox);
                     featLeft += featBox.Width + (cboFeat.Left - cboClass.Right);
-                    characterTab.Controls.Add(featBox);
+                    pagCharacter.Controls.Add(featBox);
 
                     featRight = Math.Max(featRight, featBox.Right);
                 }
@@ -727,22 +730,22 @@ namespace PlayMore35 {
         }
 
         private void DisplayLevels() {
-            ClearDynamicControls(characterTab, skillNames);
+            ClearDynamicControls(pagCharacter, skillNames);
             foreach (List<TextBox> boxes in skillRanks.Values) {
                 foreach (TextBox box in boxes) {
-                    characterTab.Controls.Remove(box);
+                    pagCharacter.Controls.Remove(box);
                 }
             }
             skillRanks.Clear();
             foreach (Label totalRanks in totalSkillRanks.Values) {
-                characterTab.Controls.Remove(totalRanks);
+                pagCharacter.Controls.Remove(totalRanks);
             }
             totalSkillRanks.Clear();
 
-            ClearDynamicControls(characterTab, increments);
-            ClearDynamicControls(characterTab, levels);
-            ClearDynamicControls(characterTab, hpRolls);
-            ClearDynamicControls(characterTab, skillPoints);
+            ClearDynamicControls(pagCharacter, increments);
+            ClearDynamicControls(pagCharacter, levels);
+            ClearDynamicControls(pagCharacter, hpRolls);
+            ClearDynamicControls(pagCharacter, skillPoints);
 
             int levelTop = cboClass.Top;
             for (int i = 0; i < controller.Character.classLevels.Count; i++) {
@@ -758,7 +761,7 @@ namespace PlayMore35 {
                 level.Text = @class;
                 level.SelectedValueChanged += SelectClassLevel(i);
                 levels.Add(level);
-                characterTab.Controls.Add(level);
+                pagCharacter.Controls.Add(level);
 
                 TextBox rolledHp = new TextBox {
                     Top = levelTop,
@@ -781,7 +784,7 @@ namespace PlayMore35 {
                 rolledHp.Enter += Text_Enter;
                 rolledHp.Leave += SetHp(i);
                 hpRolls.Add(rolledHp);
-                characterTab.Controls.Add(rolledHp);
+                pagCharacter.Controls.Add(rolledHp);
 
                 Label points = new Label {
                     Top = levelTop,
@@ -790,7 +793,7 @@ namespace PlayMore35 {
                     TextAlign = lblPoints.TextAlign,
                 };
                 skillPoints.Add(points);
-                characterTab.Controls.Add(points);
+                pagCharacter.Controls.Add(points);
                 DisplaySkillPoints(i);
 
                 if ((i+1) % 4 == 0) {
@@ -807,7 +810,7 @@ namespace PlayMore35 {
                     }
                     increment.SelectedValueChanged += SelectAbilityIncrement(i);
                     increments.Add(increment);
-                    characterTab.Controls.Add(increment);
+                    pagCharacter.Controls.Add(increment);
                 }
 
                 levelTop += levelBuffer;
@@ -837,8 +840,8 @@ namespace PlayMore35 {
                 ? "Level Up!"
                 : $"{xpNeeded.ToString("#,###")} XP to level {nextLevel}";
 
-            ClearDynamicControls(characterTab, sessionXps);
-            ClearDynamicControls(characterTab, sessionDescriptions);
+            ClearDynamicControls(pagCharacter, sessionXps);
+            ClearDynamicControls(pagCharacter, sessionDescriptions);
 
             var sessions = controller.Character.sessions;
             int sessionTop = lblSampleSession2.Top - ((sessions.Count - 1) * transactionBuffer);
@@ -855,7 +858,7 @@ namespace PlayMore35 {
                     Text = description
                 };
                 sessionDescriptions.Add(descLabel);
-                characterTab.Controls.Add(descLabel);
+                pagCharacter.Controls.Add(descLabel);
 
 
                 Label xpLabel = new Label {
@@ -868,7 +871,7 @@ namespace PlayMore35 {
                     Text = "" + xp
                 };
                 sessionXps.Add(xpLabel);
-                characterTab.Controls.Add(xpLabel);
+                pagCharacter.Controls.Add(xpLabel);
 
                 ContextMenuStrip deleteMenu = new ContextMenuStrip();
                 ToolStripMenuItem deleteSession = new ToolStripMenuItem($"Delete {description}");
@@ -1135,7 +1138,10 @@ namespace PlayMore35 {
                 locationGroup.Controls.Remove(locationWeights[locationKey]);
                 locationWeights.Remove(locationKey);
 
-                inventoryTab.Controls.Remove(locationGroup);
+                locationGroup.Controls.Remove(addItemButtons[locationKey]);
+                addItemButtons.Remove(locationKey);
+
+                pagInventory.Controls.Remove(locationGroup);
                 locationGroups.Remove(locationKey);
             }
 
@@ -1149,6 +1155,28 @@ namespace PlayMore35 {
             }
             DisplayGold();
             RefreshEquipment();
+        }
+
+        private EventHandler AddItem(string locationName, InventoryLocation location, ListBox locationList) {
+            return (object sender, EventArgs e) => {
+                DialogResult result = addItemDialog.ShowDialog();
+                if (result == DialogResult.Cancel) {
+                    return;
+                }
+
+                if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagWeapons) {
+                    controller.AddWeapon(locationName, (string)addItemDialog.lstAddWeapon.SelectedItem);
+                } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagArmor) {
+                    controller.AddArmor(locationName, (string)addItemDialog.lstAddArmor.SelectedItem);
+                } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagShields) {
+                    controller.AddShield(locationName, (string)addItemDialog.lstAddShield.SelectedItem);
+                } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagItems) {
+                    controller.AddItem(locationName, (string)addItemDialog.lstAddItem.SelectedItem);
+                }
+                
+                ListLocation(location, locationList);
+                RefreshWeight();
+            };
         }
 
         private GroupBox AddLocationGroup(int top, int left, string name, InventoryLocation location) {
@@ -1167,8 +1195,7 @@ namespace PlayMore35 {
 
             CheckBox countWeight = new CheckBox() {
                 Text = chkWeightCounts.Text,
-                Left = chkWeightCounts.Left,
-                Top = chkWeightCounts.Top,
+                Location = chkWeightCounts.Location,
                 Checked = location.weighs,
                 AutoSize = true,
                 Cursor = chkWeightCounts.Cursor,
@@ -1180,8 +1207,7 @@ namespace PlayMore35 {
             ListBox locationList = new ListBox() {
                 AllowDrop = true,
                 AutoSize = true,
-                Top = lstSampleItems.Top,
-                Left = lstSampleItems.Left,
+                Location = lstSampleItems.Location,
                 Height = 1,
                 Cursor = lstSampleItems.Cursor,
             };
@@ -1191,8 +1217,19 @@ namespace PlayMore35 {
             locationLists[name] = locationList;
             locationBox.Controls.Add(locationList);
 
+            Button addItem = new Button() {
+                Location = btnAddItem.Location,
+                Size = btnAddItem.Size,
+                Anchor = btnAddItem.Anchor,
+                Text = btnAddItem.Text,
+                Cursor = btnAddItem.Cursor,
+            };
+            addItem.Click += AddItem(name, location, locationList);
+            addItemButtons[name] = addItem;
+            locationBox.Controls.Add(addItem);
+
             ListLocation(location, locationList);
-            inventoryTab.Controls.Add(locationBox);
+            pagInventory.Controls.Add(locationBox);
             locationGroups[name] = locationBox;
             return locationBox;
         }
@@ -1447,8 +1484,8 @@ namespace PlayMore35 {
         }
 
         private void DisplayGold() {
-            ClearDynamicControls(inventoryTab, transactionAmounts);
-            ClearDynamicControls(inventoryTab, transactionDescriptions);
+            ClearDynamicControls(pagInventory, transactionAmounts);
+            ClearDynamicControls(pagInventory, transactionDescriptions);
 
             var transactions = controller.Character.transactions;
             int firstTransaction = Math.Max(0, transactions.Count - MAX_TRANSACTIONS);
@@ -1468,7 +1505,7 @@ namespace PlayMore35 {
                     Text = description
                 };
                 transactionDescriptions.Add(descLabel);
-                inventoryTab.Controls.Add(descLabel);
+                pagInventory.Controls.Add(descLabel);
 
 
                 Label gpLabel = new Label {
@@ -1481,7 +1518,7 @@ namespace PlayMore35 {
                     Text = "" + gp
                 };
                 transactionAmounts.Add(gpLabel);
-                inventoryTab.Controls.Add(gpLabel);
+                pagInventory.Controls.Add(gpLabel);
 
                 ContextMenuStrip deleteMenu = new ContextMenuStrip();
                 ToolStripMenuItem deleteTransaction = new ToolStripMenuItem($"Delete {description}");
@@ -1632,9 +1669,9 @@ namespace PlayMore35 {
         private void StatsTab_Enter(object sender, EventArgs e) {
             controller.Reload();
 
-            ClearDynamicControls(statsTab, toggles);
-            ClearDynamicControls(statsTab, paramBoxes);
-            ClearDynamicControls(statsTab, paramLabels);
+            ClearDynamicControls(pagStats, toggles);
+            ClearDynamicControls(pagStats, paramBoxes);
+            ClearDynamicControls(pagStats, paramLabels);
 
             int txtTop = txtParam.Top;
             int lblTop = lblParam.Top;
@@ -1652,7 +1689,7 @@ namespace PlayMore35 {
                 }
                 txtNewParam.Leave += Param_Leave;
                 paramBoxes.Add(txtNewParam);
-                statsTab.Controls.Add(txtNewParam);
+                pagStats.Controls.Add(txtNewParam);
 
                 Label lblNewParam = new Label() {
                     Top = lblTop,
@@ -1662,7 +1699,7 @@ namespace PlayMore35 {
                 };
                 lblNewParam.Text = parameter;
                 paramLabels.Add(lblNewParam);
-                statsTab.Controls.Add(lblNewParam);
+                pagStats.Controls.Add(lblNewParam);
 
                 txtTop += paramBuffer;
                 lblTop += paramBuffer;
@@ -1686,7 +1723,7 @@ namespace PlayMore35 {
                 }
                 chkNewToggle.Click += Toggle_Click;
                 toggles.Add(chkNewToggle);
-                statsTab.Controls.Add(chkNewToggle);
+                pagStats.Controls.Add(chkNewToggle);
 
                 txtTop += paramBuffer;
             }
@@ -1824,6 +1861,11 @@ namespace PlayMore35 {
             };
 
             RefreshEffects();
+
+            controller.WeaponDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddWeapon.Items.Add(x));
+            controller.ArmorDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddArmor.Items.Add(x));
+            controller.ShieldDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddShield.Items.Add(x));
+            controller.ItemDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddItem.Items.Add(x));
         }
 
         private bool LoadCharacter() {

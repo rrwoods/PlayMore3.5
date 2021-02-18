@@ -82,6 +82,12 @@ Things to include
 
 ===
 
+[COMMON] Tower shields impose -2 on all your attack rolls
+
+https://www.d20srd.org/srd/equipment/armor.htm -- ALL attack rolls (the attackRollPenalty field on shields is only for rolls made with that hand).
+
+===
+
 [COMMON] Natural attacks
 
 Effects should be able to generate natural attacks; races' json should be able to easily specify them and controller's GenerateRaceEffects should set up the requisite effects
