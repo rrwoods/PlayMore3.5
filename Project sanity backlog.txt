@@ -1,5 +1,12 @@
-The Jsonable overhaul...
+Do some basic profiling; the program seems to get very slow in a long session.
 
+Rethink the way tooltips are done -- the idiomatic way is NOT to do what I currently do (which is to have a separate tooltip for each label), but rather to have one tooltip on which you change the text as the user mouses over things.  This might (?) relieve a lot of memory pressure.
+
+Another source of leakage might be the "systems" handling dynamic labeling and dynamic controls in general; are we holding onto some references that might cause these not to be freed appropriately?
+
+===
+
+The Jsonable overhaul...
 
 ... Step 1:
 

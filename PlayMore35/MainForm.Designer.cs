@@ -1105,7 +1105,7 @@
             this.lblTotalGold.Name = "lblTotalGold";
             this.lblTotalGold.Size = new System.Drawing.Size(78, 25);
             this.lblTotalGold.TabIndex = 59;
-            this.lblTotalGold.Text = "999,999.99";
+            this.lblTotalGold.Text = "0";
             this.lblTotalGold.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblTotalGoldHeader

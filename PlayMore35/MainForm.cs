@@ -1128,21 +1128,25 @@ namespace PlayMore35 {
             RepositionColumn(leftBuffer + columnWidth * 3, misc);
         }
 
+        private void RemoveLocationGroup(string locationKey) {
+            GroupBox locationGroup = locationGroups[locationKey];
+
+            locationGroup.Controls.Remove(locationLists[locationKey]);
+            locationLists.Remove(locationKey);
+
+            locationGroup.Controls.Remove(locationWeights[locationKey]);
+            locationWeights.Remove(locationKey);
+
+            locationGroup.Controls.Remove(addItemButtons[locationKey]);
+            addItemButtons.Remove(locationKey);
+
+            pagInventory.Controls.Remove(locationGroup);
+            locationGroups.Remove(locationKey);
+        }
+
         private void InitializeInventory() {
             foreach (string locationKey in locationGroups.Keys.ToList()) {
-                GroupBox locationGroup = locationGroups[locationKey];
-
-                locationGroup.Controls.Remove(locationLists[locationKey]);
-                locationLists.Remove(locationKey);
-
-                locationGroup.Controls.Remove(locationWeights[locationKey]);
-                locationWeights.Remove(locationKey);
-
-                locationGroup.Controls.Remove(addItemButtons[locationKey]);
-                addItemButtons.Remove(locationKey);
-
-                pagInventory.Controls.Remove(locationGroup);
-                locationGroups.Remove(locationKey);
+                RemoveLocationGroup(locationKey);
             }
 
             int locationTop = grpSampleLocation.Top;
@@ -1157,7 +1161,7 @@ namespace PlayMore35 {
             RefreshEquipment();
         }
 
-        private EventHandler AddItem(string locationName, InventoryLocation location, ListBox locationList) {
+        private EventHandler AddItem(string locationName, InventoryLocation location) {
             return (object sender, EventArgs e) => {
                 DialogResult result = addItemDialog.ShowDialog();
                 if (result == DialogResult.Cancel) {
@@ -1174,8 +1178,26 @@ namespace PlayMore35 {
                     controller.AddItem(locationName, (string)addItemDialog.lstAddItem.SelectedItem);
                 }
                 
-                ListLocation(location, locationList);
+                ListLocation(location, locationLists[locationName], locationGroups[locationName]);
                 RefreshWeight();
+            };
+        }
+
+        private EventHandler DeleteLocation(string locationName) {
+            return (object sender, EventArgs e) => {
+                controller.RemoveLocation(locationName);
+                RemoveLocationGroup(locationName);
+            };
+        }
+
+        private EventHandler DeleteItemFrom(string locationName) {
+            return (object sender, EventArgs e) => {
+                ListBox locationList = locationLists[locationName];
+                if (!(locationList.SelectedItem is ItemDrag selected)) {
+                    return;
+                }
+                controller.RemoveThing(locationName, selected.item);
+                ListLocation(controller.Character.inventory[locationName], locationList, locationGroups[locationName]);
             };
         }
 
@@ -1192,6 +1214,13 @@ namespace PlayMore35 {
             locationBox.MouseDown += new MouseEventHandler(Location_MouseDown);
             locationBox.MouseUp += new MouseEventHandler(Location_MouseUp);
             locationBox.MouseMove += new MouseEventHandler(Location_MouseMove);
+
+            ToolStripMenuItem deleteLocation = new ToolStripMenuItem {
+                Text = $"Delete location {name}"
+            };
+            deleteLocation.Click += DeleteLocation(name);
+            locationBox.ContextMenuStrip = new ContextMenuStrip();
+            locationBox.ContextMenuStrip.Items.Add(deleteLocation);
 
             CheckBox countWeight = new CheckBox() {
                 Text = chkWeightCounts.Text,
@@ -1211,9 +1240,15 @@ namespace PlayMore35 {
                 Height = 1,
                 Cursor = lstSampleItems.Cursor,
             };
-            locationList.MouseDown += new MouseEventHandler(LocationItem_MouseDown);
+            locationList.MouseMove += new MouseEventHandler(LocationItem_MouseMove);
             locationList.DragEnter += new DragEventHandler(Location_DragEnter);
             locationList.DragDrop += new DragEventHandler(Location_DragDrop);
+            ToolStripMenuItem deleteItem = new ToolStripMenuItem {
+                Text = "Remove item"
+            };
+            deleteItem.Click += DeleteItemFrom(name);
+            locationList.ContextMenuStrip = new ContextMenuStrip();
+            locationList.ContextMenuStrip.Items.Add(deleteItem);
             locationLists[name] = locationList;
             locationBox.Controls.Add(locationList);
 
@@ -1224,11 +1259,11 @@ namespace PlayMore35 {
                 Text = btnAddItem.Text,
                 Cursor = btnAddItem.Cursor,
             };
-            addItem.Click += AddItem(name, location, locationList);
+            addItem.Click += AddItem(name, location);
             addItemButtons[name] = addItem;
             locationBox.Controls.Add(addItem);
 
-            ListLocation(location, locationList);
+            ListLocation(location, locationList, locationBox);
             pagInventory.Controls.Add(locationBox);
             locationGroups[name] = locationBox;
             return locationBox;
@@ -1270,7 +1305,11 @@ namespace PlayMore35 {
         }
 
         // Begin dragging an item from a location
-        private void LocationItem_MouseDown(object sender, MouseEventArgs e) {
+        private void LocationItem_MouseMove(object sender, MouseEventArgs e) {
+            if (e.Button != MouseButtons.Left) {
+                return;
+            }
+
             ListBox list = (ListBox)sender;
             int index = list.IndexFromPoint(e.Location);
             if (index < 0) {
@@ -1478,7 +1517,7 @@ namespace PlayMore35 {
 
         private void RefreshInventory() {
             foreach (var location in controller.Character.inventory) {
-                ListLocation(location.Value, locationLists[location.Key]);
+                ListLocation(location.Value, locationLists[location.Key], locationGroups[location.Key]);
             }
             RefreshEquipment();
         }
@@ -1598,12 +1637,13 @@ namespace PlayMore35 {
             }
         }
 
-        private void ListLocation(InventoryLocation location, ListBox locationBox) {
+        private void ListLocation(InventoryLocation location, ListBox locationBox, GroupBox locationGroup) {
             locationBox.Items.Clear();
             ListItems(location.weapons, locationBox);
             ListItems(location.armor, locationBox);
             ListItems(location.shields, locationBox);
             ListItems(location.items, locationBox);
+            locationGroup.ContextMenuStrip.Items[0].Visible = location.IsEmpty();
         }
 
         private void RefreshEquipment() {

@@ -1,3 +1,9 @@
+[CORE] Save damage with character
+
+Maybe the values of other parameters too, if it's easier to just generalize it?
+
+===
+
 [CORE] Set up toggles for allied effects
 
 This is fairly involved.  What even is an "allied effect"?

@@ -37,5 +37,9 @@ namespace PlayMore35.CharacterChoices {
             shields = new List<ArmorChoice>();
             items = new Dictionary<string, int>();
         }
+
+        public bool IsEmpty() {
+            return !(weapons.Any() || armor.Any() || shields.Any() || items.Any());
+        }
     }
 }

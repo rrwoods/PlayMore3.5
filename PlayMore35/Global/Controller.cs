@@ -367,6 +367,26 @@ namespace PlayMore35.Global {
             return quantity;
         }
 
+        public void RemoveThing(string from, object thing) {
+            if (thing is WeaponChoice weapon) {
+                Character.inventory[from].weapons.Remove(weapon);
+                ComputeWeight();
+            } else if (thing is ArmorChoice armor) {
+                if (armor.IsShield) {
+                    Character.inventory[from].shields.Remove(armor);
+                } else {
+                    Character.inventory[from].armor.Remove(armor);
+                }
+                ComputeWeight();
+            } else if (thing is string itemName) {
+                RemoveItem(from, itemName, 1);
+            }
+        }
+
+        public void RemoveLocation(string location) {
+            Character.inventory.Remove(location);
+        }
+
         // unequip methods move the item into the specified inventory location.
 
         public void UnequipWeapon(string to, bool primary) {
