@@ -4,14 +4,6 @@ Maybe the values of other parameters too, if it's easier to just generalize it?
 
 ===
 
-[CORE] Set up toggles for allied effects
-
-This is fairly involved.  What even is an "allied effect"?
-
-Need a list of arbitrary effects (that, eventually, the user will be able to add to via an effect-creation UI), associated with a character.  These effects will probably always be toggleable, but in theory the player could make one that's just always on (maybe there's an effect that an ally uses every day without fail, or maybe the DM just says "you get this permanently", or whatever)
-
-===
-
 [USABILITY] Maybe draw some separator lines on the form?
 
 https://www.csharp-examples.net/separator-line/

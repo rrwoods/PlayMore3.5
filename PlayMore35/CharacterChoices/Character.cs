@@ -2,6 +2,8 @@
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
+using PlayMore35.Effects;
+
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
         public static readonly string DEFAULT_CLASS = "Barbarian";
@@ -27,6 +29,9 @@ namespace PlayMore35.CharacterChoices {
 
         public List<(int xp, string description)> sessions;
 
+        public List<string> toggles;
+        public List<Effect> unattachedEffects;
+
         public JToken ToJson() {
             return new JObject(
                 new JProperty("name", name),
@@ -51,7 +56,9 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("sessions", new JArray(sessions.Select(x => new JObject(
                     new JProperty("xp", x.xp),
                     new JProperty("description", x.description)
-                ))))
+                )))),
+                new JProperty("toggles", new JArray(toggles)),
+                new JProperty("effects", new JArray(unattachedEffects.Select(x => x.ToJson())))
             );
         }
 
@@ -74,9 +81,10 @@ namespace PlayMore35.CharacterChoices {
             transactions = ((JArray)json["transactions"]).Select(x => ((decimal)x["amount"], (string)x["description"])).ToList();
             inventory = ((JObject)json["inventory"]).Properties()
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
-
             equipped = new EquippedChoices((JObject)json["equipped"]);
             sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
+            toggles = ((JArray)json["toggles"]).Select(x => (string)x).ToList();
+            unattachedEffects = ((JArray)json["effects"]).Select(x => new Effect((JObject)x)).ToList();
         }
 
         public Character() {
@@ -105,6 +113,9 @@ namespace PlayMore35.CharacterChoices {
             inventory = new Dictionary<string, InventoryLocation>();
             equipped = new EquippedChoices();
             sessions = new List<(int xp, string description)>();
+
+            toggles = new List<string>();
+            unattachedEffects = new List<Effect>();
         }
 
         public IEnumerable<WeaponChoice> Weapons {

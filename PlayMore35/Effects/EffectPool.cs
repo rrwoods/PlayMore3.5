@@ -199,6 +199,13 @@ namespace PlayMore35.Effects {
             foreach (string language in choices.bonusLanguages) {
                 AddEffect(new Effect("Bonus language").AddText(LANGUAGES, language));
             }
+
+            foreach (string toggle in choices.toggles) {
+                controllableFlags[toggle] = false;
+            }
+            foreach (Effect unattached in choices.unattachedEffects) {
+                AddEffect(unattached);
+            }
         }
 
         public void GenerateRaceEffects(Race race) {
