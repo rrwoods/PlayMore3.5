@@ -32,6 +32,11 @@ namespace PlayMore35.CharacterChoices {
         public List<string> toggles;
         public List<Effect> unattachedEffects;
 
+        // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
+        // These are for saving and loading ONLY!
+        public Dictionary<string, bool> flagValues;
+        public Dictionary<string, int> paramValues;
+
         public JToken ToJson() {
             return new JObject(
                 new JProperty("name", name),
@@ -58,7 +63,9 @@ namespace PlayMore35.CharacterChoices {
                     new JProperty("description", x.description)
                 )))),
                 new JProperty("toggles", new JArray(toggles)),
-                new JProperty("effects", new JArray(unattachedEffects.Select(x => x.ToJson())))
+                new JProperty("effects", new JArray(unattachedEffects.Select(x => x.ToJson()))),
+                new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
+                new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value))))
             );
         }
 
@@ -85,6 +92,8 @@ namespace PlayMore35.CharacterChoices {
             sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
             toggles = ((JArray)json["toggles"]).Select(x => (string)x).ToList();
             unattachedEffects = ((JArray)json["effects"]).Select(x => new Effect((JObject)x)).ToList();
+            flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
+            paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
         }
 
         public Character() {
@@ -116,6 +125,9 @@ namespace PlayMore35.CharacterChoices {
 
             toggles = new List<string>();
             unattachedEffects = new List<Effect>();
+
+            flagValues = new Dictionary<string, bool>();
+            paramValues = new Dictionary<string, int>();
         }
 
         public IEnumerable<WeaponChoice> Weapons {

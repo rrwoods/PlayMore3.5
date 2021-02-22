@@ -98,11 +98,6 @@ namespace PlayMore35 {
         private List<CheckBox> toggles = new List<CheckBox>();
         private List<TextBox> paramBoxes = new List<TextBox>();
         private List<Label> paramLabels = new List<Label>();
-        // Used to keep values of parameters around so that when we re-load the stats tab
-        // we can fill them back out again -- otherwise it would (for example) forget how much
-        // damage is on you when you check your inventory
-        private Dictionary<string, int> paramValues = new Dictionary<string, int>();
-        private HashSet<string> activeToggles = new HashSet<string>();
 
         private List<Label> slotBoxes;
 
@@ -1678,11 +1673,7 @@ namespace PlayMore35 {
             CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
             controller.Effects.controllableFlags[flag] = toggle.Checked;
-            if (toggle.Checked) {
-                activeToggles.Add(flag);
-            } else {
-                activeToggles.Remove(flag);
-            }
+            controller.Character.flagValues[flag] = toggle.Checked;
 
             RefreshEffects();
         }
@@ -1693,13 +1684,13 @@ namespace PlayMore35 {
                 box.BackColor = SystemColors.Window;
                 string parameterName = (string)box.Tag;
                 controller.Effects.controllableAmounts[parameterName] = value;
-                paramValues[parameterName] = value;
+                controller.Character.paramValues[parameterName] = value;
                 RefreshEffects();
             } else if (box.Text.Equals("")) {
                 box.BackColor = SystemColors.Window;
                 string parameterName = (string)box.Tag;
                 controller.Effects.controllableAmounts[parameterName] = 0;
-                paramValues.Remove(parameterName);
+                controller.Character.paramValues.Remove(parameterName);
                 RefreshEffects();
             } else {
                 box.BackColor = Color.Red;
@@ -1724,8 +1715,8 @@ namespace PlayMore35 {
                     Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                     Tag = parameter
                 };
-                if (paramValues.ContainsKey(parameter)) {
-                    txtNewParam.Text = "" + paramValues[parameter];
+                if (controller.Character.paramValues.ContainsKey(parameter)) {
+                    txtNewParam.Text = "" + controller.Character.paramValues[parameter];
                 }
                 txtNewParam.Leave += Param_Leave;
                 paramBoxes.Add(txtNewParam);
@@ -1744,7 +1735,7 @@ namespace PlayMore35 {
                 txtTop += paramBuffer;
                 lblTop += paramBuffer;
             }
-            foreach (var param in paramValues) {
+            foreach (var param in controller.Character.paramValues) {
                 if (controller.Effects.controllableAmounts.ContainsKey(param.Key)) {
                     controller.Effects.controllableAmounts[param.Key] = param.Value;
                 }
@@ -1758,8 +1749,8 @@ namespace PlayMore35 {
                     Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                     Text = toggle
                 };
-                if (activeToggles.Contains(toggle)) {
-                    chkNewToggle.Checked = true;
+                if (controller.Character.flagValues.ContainsKey(toggle)) {
+                    chkNewToggle.Checked = controller.Character.flagValues[toggle];
                 }
                 chkNewToggle.Click += Toggle_Click;
                 toggles.Add(chkNewToggle);
@@ -1767,9 +1758,9 @@ namespace PlayMore35 {
 
                 txtTop += paramBuffer;
             }
-            foreach (string toggle in activeToggles) {
+            foreach (string toggle in controller.Character.flagValues.Keys) {
                 if (controller.Effects.controllableFlags.ContainsKey(toggle)) {
-                    controller.Effects.controllableFlags[toggle] = true;
+                    controller.Effects.controllableFlags[toggle] = controller.Character.flagValues[toggle];
                 }
             }
 
@@ -1933,6 +1924,7 @@ namespace PlayMore35 {
                 FilterIndex = 1
             };
             if (saveCharacter.ShowDialog() == DialogResult.OK) {
+                controller.PrepCharacterForSave();
                 File.WriteAllText(saveCharacter.FileName, controller.Character.ToJson().ToString());
                 return true;
             }

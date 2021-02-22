@@ -1,9 +1,3 @@
-[CORE] Save damage with character
-
-Maybe the values of other parameters too, if it's easier to just generalize it?
-
-===
-
 [USABILITY] Maybe draw some separator lines on the form?
 
 https://www.csharp-examples.net/separator-line/

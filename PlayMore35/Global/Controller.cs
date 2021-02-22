@@ -279,6 +279,17 @@ namespace PlayMore35.Global {
                 EquippedItems.SlotlessItems.Add(ItemDefinitions[item]);
             }
 
+            foreach (string flag in Effects.controllableFlags.Keys.ToList()) {
+                if (character.flagValues.ContainsKey(flag)) {
+                    Effects.controllableFlags[flag] = character.flagValues[flag];
+                }
+            }
+            foreach (string param in Effects.controllableAmounts.Keys.ToList()) {
+                if (character.paramValues.ContainsKey(param)) {
+                    Effects.controllableAmounts[param] = character.paramValues[param];
+                }
+            }
+
             ComputeWeight();
         }
 
@@ -294,6 +305,15 @@ namespace PlayMore35.Global {
         }
 
         // **** MUTATORS ****
+
+        public void PrepCharacterForSave() {
+            foreach (var flag in Effects.controllableFlags) {
+                character.flagValues[flag.Key] = flag.Value;
+            }
+            foreach (var param in Effects.controllableAmounts) {
+                character.paramValues[param.Key] = param.Value;
+            }
+        }
 
         public void AddLevel() {
             Character.classLevels.Add(Character.DEFAULT_CLASS);
