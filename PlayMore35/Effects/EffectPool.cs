@@ -76,8 +76,12 @@ namespace PlayMore35.Effects {
             effects.Add(effect);
         }
 
+        public void RemoveEffect(string effect) {
+            effects.RemoveAll(x => x.Name == effect);
+        }
+
         public void ReplaceEffect(Effect effect) {
-            effects.RemoveAll(x => x.Name == effect.Name);
+            RemoveEffect(effect.Name);
             effects.Add(effect);
         }
 
@@ -240,8 +244,13 @@ namespace PlayMore35.Effects {
             }
         }
 
-        // NOT class features.  Just base attack and saves, and proficiencies.
+        // Base attack and saves, proficiencies, and subsystem-related features.
+        // Not other class features.
         public void GenerateClassEffects(CharacterClass @class, int level) {
+            AddStat(new Statistic($"{@class.Name} level"));
+            AddEffect(new Effect($"{@class.Name} level")
+                .AddModifier($"{@class.Name} level", new Modifier(level, BASE))
+            );
             int baseAttackBonus = 0;
             switch (@class.BaseAttackBonus) {
                 case CharacterClass.BonusProgression.NONE:
@@ -257,21 +266,21 @@ namespace PlayMore35.Effects {
                     baseAttackBonus = level;
                     break;
             }
-            AddEffect(new Effect(@class.Name + " base attack bonus")
+            AddEffect(new Effect($"{@class.Name} base attack bonus")
                 .AddModifier(BASE_ATTACK_BONUS, new Modifier(baseAttackBonus, BASE))
             );
 
-            AddEffect(new Effect(@class.Name + " base Fort save")
+            AddEffect(new Effect($"{@class.Name} base Fort save")
                 .AddModifier(FORT_SAVES, new Modifier(BaseSaveBonus(@class.BaseFortSave, level), BASE))
             );
-            AddEffect(new Effect(@class.Name + " base Ref save")
+            AddEffect(new Effect($"{@class.Name} base Ref save")
                 .AddModifier(REF_SAVES, new Modifier(BaseSaveBonus(@class.BaseRefSave, level), BASE))
             );
-            AddEffect(new Effect(@class.Name + " base Will save")
+            AddEffect(new Effect($"{@class.Name} base Will save")
                 .AddModifier(WILL_SAVES, new Modifier(BaseSaveBonus(@class.BaseWillSave, level), BASE))
             );
 
-            Effect proficiencies = new Effect(@class.Name + " proficiencies");
+            Effect proficiencies = new Effect($"{@class.Name} proficiencies");
             foreach (AttackMatcher proficiency in @class.WeaponProficiencies) {
                 proficiencies.AddProficiency(proficiency);
             }
@@ -282,12 +291,28 @@ namespace PlayMore35.Effects {
                 proficiencies.AddShieldProficiency(proficiency);
             }
             AddEffect(proficiencies);
+
+            if (@class.Vestiges != null) {
+                AddStats(@class.Vestiges?.stats.Select(x => new Statistic(x)));
+                foreach (Effect e in @class.Vestiges?.effects) {
+                    AddEffect(e);
+                }
+            }
         }
 
         public void GenerateFeatEffects(Feat feat) {
             AddEffect(feat.Benefit);
             feat.Parameters.ForEach(x => controllableAmounts[x] = 0);
             AddStats(feat.NewStats);
+        }
+
+        public void GenerateVestigeEffects(Vestige vestige, bool good) {
+            if (!good) {
+                AddEffect(vestige.Influence);
+            }
+            foreach (Effect ability in vestige.Abilities) {
+                AddEffect(ability);
+            }
         }
     }
 }

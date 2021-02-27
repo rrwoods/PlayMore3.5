@@ -57,6 +57,11 @@ namespace PlayMore35 {
         private int levelBuffer, levelUpBuffer;
         private int skillBufferLeft, skillLabelOffset, skillPointsBuffer;
 
+        private List<Panel> vestigePanels = new List<Panel>();
+        private List<CheckBox> goodPacts = new List<CheckBox>();
+        private List<List<RadioButton>> vestigeChoices = new List<List<RadioButton>>();
+        private int vestigePanelBuffer, vestigeChoiceBuffer;
+
         // 1. each of these fields represents one of the four sections of the summary page.
         // 2. the outer list is list of subsections, with visual separation between each subsection.
         // 3. each subsection contains a list of rows
@@ -132,9 +137,9 @@ namespace PlayMore35 {
             return pagStats;
         }
 
-        private void ClearDynamicControls<T>(TabPage tab, List<T> controls) where T : Control {
+        private void ClearDynamicControls<T>(Control container, List<T> controls) where T : Control {
             foreach (T control in controls) {
-                tab.Controls.Remove(control);
+                container.Controls.Remove(control);
             }
             controls.Clear();
         }
@@ -161,18 +166,21 @@ namespace PlayMore35 {
             };
         }
 
+        private void Rollable(Control label, string prefix, string diceText) {
+            ToolStripMenuItem roll = new ToolStripMenuItem {
+                Text = $"Roll {prefix} ({diceText})"
+            };
+            roll.Click += RollStat(diceText, prefix);
+            label.ContextMenuStrip = new ContextMenuStrip();
+            label.ContextMenuStrip.Items.Add(roll);
+        }
+
         private void LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
             label.Text = $"{prefix} {statValue}{postfix}";
             ToolTipStatLabel(label, explanation);
 
-            string modifier = value.ToString("+#;-#;\"\"");
-            ToolStripMenuItem roll = new ToolStripMenuItem {
-                Text = $"Roll {prefix} (1d20{modifier})"
-            };
-            roll.Click += RollStat($"1d20{modifier}", prefix);
-            label.ContextMenuStrip = new ContextMenuStrip();
-            label.ContextMenuStrip.Items.Add(roll);
+            Rollable(label, prefix, $"1d20{value.ToString("+#;-#;\"\"")}");
         }
 
         private void LabelStat(Label label, string prefix, string stat, string postfix = "", bool plus = true) {
@@ -511,6 +519,8 @@ namespace PlayMore35 {
                 if (!int.TryParse(hp.Text, out int _)) {
                     HitDieForLevel(hp, levelIndex);
                 }
+
+                UpdateSubsystemTabs();
             };
         }
 
@@ -1697,9 +1707,12 @@ namespace PlayMore35 {
             }
         }
 
-        private void StatsTab_Enter(object sender, EventArgs e) {
+        private void TabSwitch(object sender, TabControlEventArgs e) {
             controller.Reload();
+            RefreshEffects();
+        }
 
+        private void StatsTab_Enter(object sender, EventArgs e) {
             ClearDynamicControls(pagStats, toggles);
             ClearDynamicControls(pagStats, paramBoxes);
             ClearDynamicControls(pagStats, paramLabels);
@@ -1767,6 +1780,92 @@ namespace PlayMore35 {
             RefreshEffects();
         }
 
+        private EventHandler BindingCheck(int slotIndex) {
+            return (object sender, EventArgs e) => {
+                controller.Character.vestiges[slotIndex] = (controller.Character.vestiges[slotIndex].name, ((CheckBox)sender).Checked);
+            };
+        }
+
+        private EventHandler ChooseVestige(int slotIndex, Vestige vestige) {
+            return (object sender, EventArgs e) => {
+                if (vestige == null) {
+                    controller.SelectVestige(slotIndex, "", goodPacts[slotIndex].Checked);
+                    goodPacts[slotIndex].Text = "Good pact?";
+                } else {
+                    controller.SelectVestige(slotIndex, vestige.Name, goodPacts[slotIndex].Checked);
+                    goodPacts[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
+                }
+            };
+        }
+
+        private void VestigesTab_Enter(object sender, EventArgs e) {
+            for (int i = 0; i < vestigePanels.Count; i++) {
+                Panel vestigePanel = vestigePanels[i];
+                vestigePanel.Controls.Remove(goodPacts[i]);
+                ClearDynamicControls(vestigePanel, vestigeChoices[i]);
+            }
+            goodPacts.Clear();
+            vestigeChoices.Clear();
+            ClearDynamicControls(pagVestiges, vestigePanels);
+            
+            List<Vestige> availableVestiges = controller.AvailableVestiges();
+            int numVestiges = GetStatValue(NUM_VESTIGES).value;
+
+            int vestigeLeft = pnlVestige1.Left;
+            int bindingCheckMod = GetStatValue(BINDING_CHECK).value;
+            for (int i = 0; i < numVestiges; i++) {
+                Panel vestigePanel = new Panel {
+                    Top = pnlVestige1.Top,
+                    Left = vestigeLeft,
+                    Anchor = pnlVestige1.Anchor
+                };
+
+                int? dc = controller.CurrentVestige(i)?.BindingDc;
+                CheckBox goodPact = new CheckBox {
+                    Location = chkGoodPact.Location,
+                    Text = (dc == null) ? "Good pact?" : $"Good pact? (Binding DC {dc})",
+                    AutoSize = true,
+                    Checked = controller.GoodPact(i)
+                };
+                goodPact.Click += BindingCheck(i);
+                goodPacts.Add(goodPact);
+                vestigePanel.Controls.Add(goodPact);
+                Rollable(goodPact, "binding check", $"1d20{bindingCheckMod.ToString("+#;-#;\"\"")}");
+
+                List<RadioButton> choices = new List<RadioButton>();
+                int choiceTop = optVestige1.Top;
+
+                string currentVestige = controller.CurrentVestige(i)?.Name ?? "";
+                RadioButton noneChoice = new RadioButton {
+                    Top = choiceTop,
+                    Left = optVestige1.Left,
+                    Text = "(None)",
+                    Checked = "" == currentVestige
+                };
+                noneChoice.Click += ChooseVestige(i, null);
+                choices.Add(noneChoice);
+                vestigePanel.Controls.Add(noneChoice);
+                choiceTop += vestigeChoiceBuffer;
+                foreach (Vestige vestige in availableVestiges) {
+                    RadioButton choice = new RadioButton {
+                        Top = choiceTop,
+                        Left = optVestige1.Left,
+                        Text = vestige.Name,
+                        Checked = vestige.Name == currentVestige
+                    };
+                    choice.Click += ChooseVestige(i, vestige);
+                    choices.Add(choice);
+                    vestigePanel.Controls.Add(choice);
+                    choiceTop += vestigeChoiceBuffer;
+                }
+                vestigeChoices.Add(choices);
+
+                vestigePanels.Add(vestigePanel);
+                pagVestiges.Controls.Add(vestigePanel);
+                vestigeLeft += vestigePanelBuffer;
+            }
+        }
+
         private void MainForm_Load(object sender, EventArgs e) {
             Font = scala;
 
@@ -1783,6 +1882,11 @@ namespace PlayMore35 {
             levelUpBuffer = btnAddLevel.Top - cboClass.Top;
             skillBufferLeft = lblTotalRanks.Left - lblTotalHp.Left;
             transactionBuffer = lblTransactionAmount2.Top - lblTransactionAmount1.Top;
+            vestigePanelBuffer = pnlVestige2.Left - pnlVestige1.Left;
+            vestigeChoiceBuffer = optVestige2.Top - optVestige1.Top;
+
+            // Remove all subsystem pages.  We will re-add them when the character gains access to the systems.
+            RemoveSubsystemTabs();
 
             controller = new Controller(new Character());
             controller.StartRollServer();
@@ -1899,6 +2003,23 @@ namespace PlayMore35 {
             controller.ItemDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddItem.Items.Add(x));
         }
 
+        private void RemoveSubsystemTabs() {
+            tabMain.TabPages.Remove(pagVestiges);
+        }
+
+        private void UpdateSubsystemTabs() {
+            RemoveSubsystemTabs();
+
+            const int SUBSYSTEMS_INDEX = 1;
+            if (controller.HasVestiges()) {
+                tabMain.TabPages.Insert(SUBSYSTEMS_INDEX, pagVestiges);
+
+                // When you remove a control from a form, apparently all its events get thrown out?
+                // Makes sense kinda, but it means we need to re-add here.
+                pagVestiges.Enter += VestigesTab_Enter;
+            }
+        }
+
         private bool LoadCharacter() {
             using (OpenFileDialog dialog = new OpenFileDialog()) {
                 dialog.InitialDirectory = "c:\\";
@@ -1907,6 +2028,7 @@ namespace PlayMore35 {
                 }
                 using (StreamReader reader = new StreamReader(dialog.OpenFile())) {
                     controller.Character = new Character(JObject.Parse(reader.ReadToEnd()));
+                    UpdateSubsystemTabs();
                 }
             }
             DisplayCharacter();

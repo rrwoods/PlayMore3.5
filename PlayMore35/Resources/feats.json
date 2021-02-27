@@ -2112,10 +2112,13 @@
     "prerequisites": "Soul binding, Intimidate 4 ranks",
     "benefit": {
       "name": "Improved Binding",
-      "text": [
+      "modifiers": [
         {
-          "category": "Special Qualities",
-          "text": "Your effective binder level is 2 higher for determining the level of vestige you can bind, but not for any other purpose."
+          "affects": "EBL for max vestige level",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 2 } ]
+          }
         }
       ]
     }

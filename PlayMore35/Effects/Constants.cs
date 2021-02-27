@@ -282,5 +282,10 @@
         public static readonly string SICKENED = "sickened";
         public static readonly string STUNNED = "stunned";
         public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
+
+        public static readonly string EFFECTIVE_BINDER_LEVEL = "effective binder level";
+        public static readonly string BINDING_CHECK = "binding check";
+        public static readonly string MAX_VESTIGE_LEVEL = "maximum vestige level";
+        public static readonly string NUM_VESTIGES = "number of vestiges";
     }
 }

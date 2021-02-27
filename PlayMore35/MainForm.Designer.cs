@@ -94,6 +94,12 @@
             this.txtAlignment = new System.Windows.Forms.TextBox();
             this.txtName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.pagVestiges = new System.Windows.Forms.TabPage();
+            this.pnlVestige2 = new System.Windows.Forms.Panel();
+            this.pnlVestige1 = new System.Windows.Forms.Panel();
+            this.optVestige2 = new System.Windows.Forms.RadioButton();
+            this.optVestige1 = new System.Windows.Forms.RadioButton();
+            this.chkGoodPact = new System.Windows.Forms.CheckBox();
             this.pagStats = new System.Windows.Forms.TabPage();
             this.lblParam2 = new System.Windows.Forms.Label();
             this.lblParam = new System.Windows.Forms.Label();
@@ -154,6 +160,8 @@
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
+            this.pagVestiges.SuspendLayout();
+            this.pnlVestige1.SuspendLayout();
             this.pagStats.SuspendLayout();
             this.pagInventory.SuspendLayout();
             this.grpSampleLocation.SuspendLayout();
@@ -175,6 +183,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabMain.Controls.Add(this.pagCharacter);
+            this.tabMain.Controls.Add(this.pagVestiges);
             this.tabMain.Controls.Add(this.pagStats);
             this.tabMain.Controls.Add(this.pagInventory);
             this.tabMain.Location = new System.Drawing.Point(0, 0);
@@ -182,6 +191,7 @@
             this.tabMain.SelectedIndex = 0;
             this.tabMain.Size = new System.Drawing.Size(1077, 661);
             this.tabMain.TabIndex = 1;
+            this.tabMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.TabSwitch);
             // 
             // pagCharacter
             // 
@@ -918,6 +928,72 @@
             this.label1.Text = "Name";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // pagVestiges
+            // 
+            this.pagVestiges.Controls.Add(this.pnlVestige2);
+            this.pagVestiges.Controls.Add(this.pnlVestige1);
+            this.pagVestiges.Location = new System.Drawing.Point(4, 26);
+            this.pagVestiges.Name = "pagVestiges";
+            this.pagVestiges.Size = new System.Drawing.Size(1069, 631);
+            this.pagVestiges.TabIndex = 3;
+            this.pagVestiges.Text = "Vestiges";
+            this.pagVestiges.UseVisualStyleBackColor = true;
+            // 
+            // pnlVestige2
+            // 
+            this.pnlVestige2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.pnlVestige2.Location = new System.Drawing.Point(214, 3);
+            this.pnlVestige2.Name = "pnlVestige2";
+            this.pnlVestige2.Size = new System.Drawing.Size(200, 620);
+            this.pnlVestige2.TabIndex = 1;
+            this.pnlVestige2.Visible = false;
+            // 
+            // pnlVestige1
+            // 
+            this.pnlVestige1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.pnlVestige1.Controls.Add(this.optVestige2);
+            this.pnlVestige1.Controls.Add(this.optVestige1);
+            this.pnlVestige1.Controls.Add(this.chkGoodPact);
+            this.pnlVestige1.Location = new System.Drawing.Point(8, 3);
+            this.pnlVestige1.Name = "pnlVestige1";
+            this.pnlVestige1.Size = new System.Drawing.Size(200, 620);
+            this.pnlVestige1.TabIndex = 0;
+            this.pnlVestige1.Visible = false;
+            // 
+            // optVestige2
+            // 
+            this.optVestige2.AutoSize = true;
+            this.optVestige2.Location = new System.Drawing.Point(3, 50);
+            this.optVestige2.Name = "optVestige2";
+            this.optVestige2.Size = new System.Drawing.Size(114, 21);
+            this.optVestige2.TabIndex = 2;
+            this.optVestige2.TabStop = true;
+            this.optVestige2.Text = "Sample vestige";
+            this.optVestige2.UseVisualStyleBackColor = true;
+            // 
+            // optVestige1
+            // 
+            this.optVestige1.AutoSize = true;
+            this.optVestige1.Location = new System.Drawing.Point(3, 30);
+            this.optVestige1.Name = "optVestige1";
+            this.optVestige1.Size = new System.Drawing.Size(114, 21);
+            this.optVestige1.TabIndex = 1;
+            this.optVestige1.TabStop = true;
+            this.optVestige1.Text = "Sample vestige";
+            this.optVestige1.UseVisualStyleBackColor = true;
+            // 
+            // chkGoodPact
+            // 
+            this.chkGoodPact.AutoSize = true;
+            this.chkGoodPact.Location = new System.Drawing.Point(3, 3);
+            this.chkGoodPact.Name = "chkGoodPact";
+            this.chkGoodPact.Size = new System.Drawing.Size(189, 21);
+            this.chkGoodPact.TabIndex = 0;
+            this.chkGoodPact.Text = "Good pact? (Binding DC 20)";
+            this.chkGoodPact.UseVisualStyleBackColor = true;
+            // 
             // pagStats
             // 
             this.pagStats.Controls.Add(this.lblParam2);
@@ -1632,6 +1708,9 @@
             this.tabMain.ResumeLayout(false);
             this.pagCharacter.ResumeLayout(false);
             this.pagCharacter.PerformLayout();
+            this.pagVestiges.ResumeLayout(false);
+            this.pnlVestige1.ResumeLayout(false);
+            this.pnlVestige1.PerformLayout();
             this.pagStats.ResumeLayout(false);
             this.pagStats.PerformLayout();
             this.pagInventory.ResumeLayout(false);
@@ -1772,6 +1851,12 @@
         private System.Windows.Forms.TextBox txtSessionDesc;
         private System.Windows.Forms.TextBox txtSessionXp;
         private System.Windows.Forms.Button btnAddItem;
+        private System.Windows.Forms.TabPage pagVestiges;
+        private System.Windows.Forms.Panel pnlVestige1;
+        private System.Windows.Forms.RadioButton optVestige2;
+        private System.Windows.Forms.RadioButton optVestige1;
+        private System.Windows.Forms.CheckBox chkGoodPact;
+        private System.Windows.Forms.Panel pnlVestige2;
     }
 }
 

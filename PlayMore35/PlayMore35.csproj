@@ -93,6 +93,7 @@
     <Compile Include="CharacterChoices\ArmorChoice.cs" />
     <Compile Include="CharacterChoices\Character.cs" />
     <Compile Include="CharacterChoices\CharacterChoiceTests.cs" />
+    <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="Effects\Alterer.cs" />
     <Compile Include="Effects\AnyToggle.cs" />
@@ -179,6 +180,7 @@
     <None Include="Resources\shields.json" />
     <None Include="Resources\rules.json" />
     <None Include="Resources\feats.json" />
+    <None Include="Resources\vestiges.json" />
     <None Include="Resources\weaponProperties.json" />
     <None Include="Resources\weapons.json" />
   </ItemGroup>

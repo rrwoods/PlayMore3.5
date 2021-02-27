@@ -44,4 +44,10 @@ When the UI advances time it needs to refresh effects!
 
 ===
 
+[ESOTERIC] An "Aura" section, after Senses before Languages in section 1
+
+This is for stuff like draconic auras and other things that continuously affect allies.
+
+===
+
 [USABILITY] Display completely uncategorized text somewhere (under SQ probably)

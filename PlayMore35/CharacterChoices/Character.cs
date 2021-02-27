@@ -31,6 +31,7 @@ namespace PlayMore35.CharacterChoices {
 
         public List<string> toggles;
         public List<Effect> unattachedEffects;
+        public List<(string name, bool good)> vestiges;
 
         // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
         // These are for saving and loading ONLY!
@@ -64,6 +65,7 @@ namespace PlayMore35.CharacterChoices {
                 )))),
                 new JProperty("toggles", new JArray(toggles)),
                 new JProperty("effects", new JArray(unattachedEffects.Select(x => x.ToJson()))),
+                new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("good", x.good))))),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value))))
             );
@@ -92,6 +94,7 @@ namespace PlayMore35.CharacterChoices {
             sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
             toggles = ((JArray)json["toggles"]).Select(x => (string)x).ToList();
             unattachedEffects = ((JArray)json["effects"]).Select(x => new Effect((JObject)x)).ToList();
+            vestiges = ((JArray)json["vestiges"]).Select(x => ((string)x["name"], (bool)x["good"])).ToList();
             flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
             paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
         }
@@ -125,6 +128,7 @@ namespace PlayMore35.CharacterChoices {
 
             toggles = new List<string>();
             unattachedEffects = new List<Effect>();
+            vestiges = new List<(string name, bool good)>();
 
             flagValues = new Dictionary<string, bool>();
             paramValues = new Dictionary<string, int>();

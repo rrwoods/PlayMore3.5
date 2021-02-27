@@ -1,8 +1,22 @@
-... how will subsystems work?  might want to do one or two of these without a formal subsystems-subsystem in place, just to see what's common, and then start abstracting things away.  i'm not sure whether that's totally a good idea though just due to the possibility of accidentally burying some hardcoding too deep into the rest of the effects engine.
+... how will subsystems work?  Might want to do one or two of these without a formal subsystems-subsystem in place, just to see what's common, and then start abstracting things away.  I'm not sure whether that's totally a good idea though just due to the possibility of accidentally burying some hardcoding too deep into the rest of the effects engine.
 
-===
+Most of these subsystems want to interact with the action/round system; in one way or another, they provide new things to do with your actions, and those things (usually) consume a resource of some sort:
+- Casting a spell consumes a spell slot
+- Manifesting a power consumes power points
+- Casting a mystery consumes both a mystery slot (much like a spellcaster) and a use of that particular mystery
+- Initiating a maneuver expends that maneuver
+- Speaking an utterance doesn't consume a resource (?)
 
-[ODRIC 1] Vestiges (Tome of Magic, Binder)
+The other two of these systems don't have a resource component.  Instead, they have all-day (ish) effects the character can choose between at some long interval.  These two subsystems probably don't share enough mechanics with the previous five to warrant using the same framework (in fact I don't think they share any).
+- Binders can bind some number of vestiges, each lasting 24 hours.  Most will probably bind all their vestiges at the beginning of each day but it's conceivable that they could choose later.  Each vestige has a vestige level (analogous to spell level), and your effective binder level determines the highest level of vestige you can bind.  There's no restriction on how many of a given level you can bind.  E.g., a single-classed binder 14 has max vestige level 6th and can bind three vestiges.  All three can be 6th level if she wants.
+- Meldshapers can shape some number of soulmelds, each occupying a particular "chakra".  (A chakra is essentially a body slot; they have strange restrictions with magic items, but I don't personally think it's worth accounting for those restrictions here.)  The main power limitations meldshapers face are number of soulmelds shaped, number of soulmelds bound, and open chakra binds.
+
+These two subsystems probably share enough with *each other* that it warrants creating a framework just for them.  (This also leaves open the possibility of using this framework to create new homebrew systems.)  Essentially, each of these enables "put an effect in a slot".  Binder is very simple in this regard:  The effects are vestiges, and the slots are all identical.  The number of slots you have and the highest level vestige you can put in each slot is determined by your effective binder level.
+
+Meldshaping classes are more complicated, but are still effect-in-slot.  The effects/slots come in three varieties:
+- Shaping a soulmeld at a chakra, which turns on the soulmeld's "shaped" effect
+- Binding a soulmeld to a chakra, which turns on the soulmeld's "bound" effect for that chakra, and can only be done if it's shaped there
+- Investing essentia into something, which turns on that thing's "invested" effect.  For soulmelds, it can only be done if it's shaped, but some feats and items can also have essentia invested.
 
 ===
 
@@ -36,7 +50,7 @@ These classes (usually) don't also advance other class features.  Note that (for
 
 ===
 
-[ESOTERIC] Shadowcasting (Tome of Magic, Shadowcaster)
+[ESOTERIC] Mysteries (Tome of Magic, Shadowcaster)
 
 ===
 

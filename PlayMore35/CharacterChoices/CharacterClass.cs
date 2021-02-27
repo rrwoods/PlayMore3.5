@@ -37,6 +37,9 @@ namespace PlayMore35.CharacterChoices {
         // "Endurance" => 3
         public Dictionary<string, int> BonusFeats = new Dictionary<string, int>();
 
+        // S U B S Y S T E M S .
+        public (List<string> stats, List<Effect> effects)? Vestiges;
+
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("name", Name),
@@ -61,6 +64,14 @@ namespace PlayMore35.CharacterChoices {
             if (BonusFeats.Any()) {
                 json["bonus feats"] = new JObject(BonusFeats.Select(x => new JProperty(x.Key, x.Value)));
             }
+
+            if (Vestiges != null) {
+                json["vestiges"] = new JObject(
+                    new JProperty("stats", new JArray(Vestiges?.stats)),
+                    new JProperty("effects", new JArray(Vestiges?.effects.Select(x => x.ToJson())))
+                );
+            }
+
             return json;
         }
 
@@ -91,6 +102,13 @@ namespace PlayMore35.CharacterChoices {
                 foreach (JProperty feat in json["bonus feats"]) {
                     BonusFeats[feat.Name] = (int)feat.Value;
                 }
+            }
+
+            if (json["vestiges"] != null) {
+                Vestiges = (
+                    json["vestiges"]["stats"].Select(x => (string)x).ToList(),
+                    json["vestiges"]["effects"].Select(x => new Effect((JObject)x)).ToList()
+                );
             }
         }
     }

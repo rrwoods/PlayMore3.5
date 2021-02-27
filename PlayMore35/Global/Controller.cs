@@ -35,6 +35,8 @@ namespace PlayMore35.Global {
         public Dictionary<string, ArmorProperty> ArmorPropertyDefinitions;
         public Dictionary<string, Item> ItemDefinitions;
 
+        public Dictionary<string, Vestige> VestigeDefinitions;
+
         public Character Character {
             get { return character; }
             set {
@@ -234,6 +236,10 @@ namespace PlayMore35.Global {
                 .ToDictionary(x => x.ItemEffect.Name);
             Effects.AddStats(ItemDefinitions.Values.SelectMany(x => x.NewStats));
 
+            VestigeDefinitions = GetResource(Properties.Resources.vestiges, "vestiges.json")
+                .Select(x => new Vestige((JObject)x))
+                .ToDictionary(x => x.Name);
+
             Race race = RaceDefinitions[Character.race];
             Effects.GenerateRaceEffects(race);
             NormalSizeCategory = race.SizeCategory;
@@ -255,6 +261,13 @@ namespace PlayMore35.Global {
             }
             foreach (string featName in Character.feats.Values) {
                 Effects.GenerateFeatEffects(FeatDefinitions[featName]);
+            }
+
+            foreach (var (name, good) in Character.vestiges) {
+                if (name == "") {
+                    continue;
+                }
+                Effects.GenerateVestigeEffects(VestigeDefinitions[name], good);
             }
 
             EquippedItems = new Equipped();
@@ -328,6 +341,13 @@ namespace PlayMore35.Global {
             } else {
                 feats[level] = new List<string> { slotName };
             }
+        }
+
+        public void SelectVestige(int slotIndex, string vestige, bool good) {
+            while (character.vestiges.Count <= slotIndex) {
+                character.vestiges.Add(("", true));
+            }
+            character.vestiges[slotIndex] = (vestige, good);
         }
 
         public void CountWeight(string locationName, bool weighs) {
@@ -756,6 +776,33 @@ namespace PlayMore35.Global {
         public List<List<Attack>> GetFullAttacks() {
             int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;
             return Attack.GenerateMultiweaponFullAttacks(Effects, sizeChange, EquippedItems);
+        }
+
+        public bool HasVestiges() {
+            return Character.classLevels.Any(x => ClassDefinitions[x].Vestiges != null);
+        }
+
+        public List<Vestige> AvailableVestiges() {
+            if (!HasVestiges()) {
+                return new List<Vestige>();
+            }
+
+            int maxVestigeLevel = Effects.stats[MAX_VESTIGE_LEVEL].GetValue(Effects, EquippedItems).value;
+            return VestigeDefinitions.Values.Where(x => x.Level <= maxVestigeLevel).OrderBy(x => x.Name).ToList();
+        }
+
+        public Vestige CurrentVestige(int slotIndex) {
+            if (character.vestiges.Count <= slotIndex || character.vestiges[slotIndex].name == "") {
+                return null;
+            }
+            return VestigeDefinitions[character.vestiges[slotIndex].name];
+        }
+
+        public bool GoodPact(int slotIndex) {
+            if (character.vestiges.Count <= slotIndex) {
+                return false;
+            }
+            return character.vestiges[slotIndex].good;
         }
     }
 }

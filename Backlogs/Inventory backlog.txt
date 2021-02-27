@@ -1,1 +1,7 @@
+[USABILITY] Add no-effect name-only items to a location
+
+If an item name doesn't have a definition associated with it, when the controller creates it, it should just make an item that does nothing.
+
+===
+
 [USABILITY] Be able to view descriptions of items

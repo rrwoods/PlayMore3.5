@@ -30,3 +30,7 @@ The procedure should be:
 - load core into dictionary
 - load extended into dictionary
 - save dictionary values into extended (sorted by key)
+
+===
+
+Effect removal should probably be done by some sort of unique identifier, rather than by name.  E.g., when swapping away from a vestige, I shouldn't risk removing unrelated effects.  (Alternatively, use flags to turn vestige effects on and off, but we need to do this after we aren't just piling up all the flags in the lower left)
