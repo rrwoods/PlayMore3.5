@@ -9,18 +9,6 @@
 
 ===
 
-[ODRIC 1] Non-damage on-hit effects / splash damage+effects
-
-e.g.
-- net
-- marbles
-- flour pouch
-- defolitor
-- flask of acid
-should all be representable as thrown weapons
-
-===
-
 [ODRIC 2] Weapon familiarity
 - in attack generation, make the attack Martial if the character has weapon familiarity
 
