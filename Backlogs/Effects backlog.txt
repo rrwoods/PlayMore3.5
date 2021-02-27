@@ -1,7 +1,3 @@
-[USABILITY] Text effects should replace {{stat}} with the value of the stat
-
-===
-
 [USABILITY] Formalize feat prerequisites
 - In the general case, if the prerequisite isn't satisfied, you don't benefit from the feat
 - Allow for ignoring prerequisites case by case for text-supported reasons (e.g. the bonus feats granted to monks), via an effect
@@ -63,6 +59,14 @@ Things to include
 
 ===
 
+[COMMON] Variable extra dice
+
+Examples (and places to update once it's implemented)
+- rogue sneak attack
+- Malphas sudden strike
+
+===
+
 [COMMON] Effects that modify critical characteristics, e.g.
 - Improved Critical (range increase)
 - keen (range increase)
@@ -110,6 +114,14 @@ represented by a flag that's active when you have zero ranks in that skill.  The
 [ESOTERIC] Random skill bonuses buried in game rules.
 
 As an example, d20srd Hide skill description mentions various bonuses while invisible.  There are probably many others in SRD, and potentially in various splatbooks.
+
+===
+
+[ESOTERIC] "Upgrade" effects.
+
+By this I mean, an effect that says "get [benefit].  if you already had [benefit], instead get [other benefit]."  This isn't doable in the current system with a simple conditional, because the first part of the effect will satisfy the conditional and erroneously grant the secondary benefit.
+
+For an example of this, there's the uncanny dodge class feature, which frequently comes with "if you already have this, get improved uncanny dodge instead".  Another example is the vestige Leraje's "Weapon Proficiency" ability, which grants four specific proficiencies, but for each of them you already have, you instead get a +1 competence bonus on attack rolls.
 
 ===
 

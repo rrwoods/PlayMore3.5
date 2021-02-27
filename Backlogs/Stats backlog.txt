@@ -4,6 +4,12 @@ https://www.csharp-examples.net/separator-line/
 
 ===
 
+[COMMON] Unarmed strikes
+
+With at least one hand free, the attack generation routine should generate an unarmed strike attack.
+
+===
+
 [USABILITY] Positioning of toggles and parameters should be context-dependent
 
 e.g.

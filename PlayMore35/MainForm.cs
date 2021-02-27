@@ -1817,6 +1817,7 @@ namespace PlayMore35 {
                 Panel vestigePanel = new Panel {
                     Top = pnlVestige1.Top,
                     Left = vestigeLeft,
+                    Size = pnlVestige1.Size,
                     Anchor = pnlVestige1.Anchor
                 };
 

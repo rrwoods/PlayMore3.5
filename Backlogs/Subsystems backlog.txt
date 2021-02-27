@@ -38,11 +38,21 @@ These classes (usually) don't also advance other class features.  Note that (for
 
 ===
 
+[COMMON] Vestige defiance
+
+A toggle allowing a player to defy a vestige's influence and take the associated penalties.
+
+===
+
 [COMMON] Soulmelds (Magic of Incarnum, Totemist etc.)
 
 ===
 
 [COMMON] Powers (SRD, Psion and Psychic Warrior, and many others)
+
+===
+
+[COMMON] Store/show special requirements of Vestiges
 
 ===
 
