@@ -47,6 +47,12 @@ namespace PlayMore35.Items {
             WeaponSizeCategory = wpnSizeCategory;
 
             Proficiency = familiar ? Weapon.Proficiency.MARTIAL : atk.ProficencyCategory;
+            if (Proficiency == Weapon.Proficiency.ONE_HANDED_EXOTIC) {
+                Proficiency = (hand == Weapon.Hand.TWO_HANDED || hand == Weapon.Hand.TWO_HANDED_TWF)
+                    ? Weapon.Proficiency.MARTIAL
+                    : Weapon.Proficiency.EXOTIC;
+            }
+
             Effort = weapon.EffortCategory + sizeDiscrepancy;
             Hand = hand;
             DamageType = atk.DamageType;

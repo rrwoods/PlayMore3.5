@@ -691,7 +691,7 @@
     "weight": 6,
     "effort": "ONE_HANDED",
     "melee": {
-      "proficiency": "EXOTIC",
+      "proficiency": "ONE_HANDED_EXOTIC",
       "damage": "1d10",
       "type": "slashing",
       "threat": 19,

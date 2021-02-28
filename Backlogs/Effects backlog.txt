@@ -5,10 +5,6 @@
 
 ===
 
-[ODRIC 2] Some weapons (dwarven waraxe, bastard sword) are exotic one-handed weapons but martial two-handed weapons.  How can we represent variable proficiency categories?  Possibly, have a Proficiency value of "EXOTIC_ONE_HANDED" (or something), and make the Proficiency of an attack be a property instead of a field, that checks the handedness as appropriate.
-
-===
-
 [ODRIC 3] Exotic armor and shields
 
 See Races of Stone.
