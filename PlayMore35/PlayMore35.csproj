@@ -130,6 +130,9 @@
     <Compile Include="Effects\VariableAmount.cs" />
     <Compile Include="Effects\AttackMatcher.cs" />
     <Compile Include="Global\RollServer.cs" />
+    <Compile Include="LabeledField.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -101,8 +101,7 @@ namespace PlayMore35 {
         private List<List<Label>> miscSkills = new List<List<Label>>();
 
         private List<CheckBox> toggles = new List<CheckBox>();
-        private List<TextBox> paramBoxes = new List<TextBox>();
-        private List<Label> paramLabels = new List<Label>();
+        private List<LabeledField> paramFields = new List<LabeledField>();
 
         private List<Label> slotBoxes;
 
@@ -1687,24 +1686,7 @@ namespace PlayMore35 {
             RefreshEffects();
         }
 
-        private void Param_Leave(object sender, EventArgs e) {
-            TextBox box = (TextBox)sender;
-            if (int.TryParse(box.Text, out int value)) {
-                box.BackColor = SystemColors.Window;
-                string parameterName = (string)box.Tag;
-                controller.Effects.controllableParameters[parameterName].Value = value;
-                controller.Character.paramValues[parameterName] = value;
-                RefreshEffects();
-            } else if (box.Text.Equals("")) {
-                box.BackColor = SystemColors.Window;
-                string parameterName = (string)box.Tag;
-                controller.Effects.controllableParameters[parameterName].Value = 0;
-                controller.Character.paramValues.Remove(parameterName);
-                RefreshEffects();
-            } else {
-                box.BackColor = Color.Red;
-            }
-        }
+
 
         private void TabSwitch(object sender, TabControlEventArgs e) {
             controller.Reload();
@@ -1713,44 +1695,25 @@ namespace PlayMore35 {
 
         private void StatsTab_Enter(object sender, EventArgs e) {
             ClearDynamicControls(pagStats, toggles);
-            ClearDynamicControls(pagStats, paramBoxes);
-            ClearDynamicControls(pagStats, paramLabels);
+            ClearDynamicControls(pagStats, paramFields);
 
             int txtTop = txtParam.Top;
-            int lblTop = lblParam.Top;
             foreach (var parameter in controller.Effects.controllableParameters) {
                 string paramName = parameter.Key;
-                TextBox txtNewParam = new TextBox() {
+                LabeledField field = new LabeledField(paramName, controller) {
                     Top = txtTop,
                     Left = txtParam.Left,
-                    Width = txtParam.Width,
-                    TextAlign = HorizontalAlignment.Center,
-                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
-                    Tag = paramName
+                    Anchor = txtParam.Anchor
                 };
+                field.lblName.Initialize(this, false);
+                ToolTipTextLabel(field.lblName, parameter.Value.Description);
+
                 if (controller.Character.paramValues.ContainsKey(paramName)) {
-                    int value = controller.Character.paramValues[paramName];
-                    txtNewParam.Text = "" + value;
-                    parameter.Value.Value = value;
+                    field.Value = controller.Character.paramValues[paramName];
                 }
-                txtNewParam.Leave += Param_Leave;
-                paramBoxes.Add(txtNewParam);
-                pagStats.Controls.Add(txtNewParam);
-
-                Label lblNewParam = new Label() {
-                    Top = lblTop,
-                    Left = lblParam.Left,
-                    AutoSize = true,
-                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left
-                }.Initialize(this);
-
-                ToolTipTextLabel(lblNewParam, parameter.Value.Description);
-                lblNewParam.Text = paramName;
-                paramLabels.Add(lblNewParam);
-                pagStats.Controls.Add(lblNewParam);
-
+                paramFields.Add(field);
+                pagStats.Controls.Add(field);
                 txtTop += paramBuffer;
-                lblTop += paramBuffer;
             }
 
             foreach (var toggle in controller.Effects.controllableFlags) {
@@ -2103,14 +2066,16 @@ namespace PlayMore35 {
             };
         }
 
-        public static T Initialize<T>(this T label, MainForm form) where T : Control {
+        public static T Initialize<T>(this T label, MainForm form, bool addToStats = true) where T : Control {
             ToolTip toolTip = new ToolTip {
                 AutoPopDelay = 32767 // maximum value.
             };
 
             label.AutoSize = true;
             label.MouseEnter += ResizeTooltip(toolTip);
-            form.StatsTab().Controls.Add(label);
+            if (addToStats) {
+                form.StatsTab().Controls.Add(label);
+            }
             form.toolTips[label] = toolTip;
             
             return label;
