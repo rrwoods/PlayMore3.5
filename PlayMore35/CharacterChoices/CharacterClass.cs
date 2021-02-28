@@ -29,7 +29,7 @@ namespace PlayMore35.CharacterChoices {
         public List<List<Effect>> ClassFeatures = new List<List<Effect>>();
 
         // within each level, a list of toggles required by that level's features
-        public List<List<string>> Flags = new List<List<string>>();
+        public List<List<ControllableFlag>> Flags = new List<List<ControllableFlag>>();
 
         // { description => level }
         // examples:
@@ -59,7 +59,7 @@ namespace PlayMore35.CharacterChoices {
                 )))
             );
             if (Flags.Any()) {
-                json["flags"] = new JArray(Flags.Select(level => new JArray(level)));
+                json["flags"] = new JArray(Flags.Select(level => new JArray(level.Select(flag => flag.ToJson()))));
             }
             if (BonusFeats.Any()) {
                 json["bonus feats"] = new JObject(BonusFeats.Select(x => new JProperty(x.Key, x.Value)));
@@ -95,7 +95,7 @@ namespace PlayMore35.CharacterChoices {
             ));
             if (json["flags"] != null) {
                 foreach (JArray level in json["flags"]) {
-                    Flags.Add(level.Select(x => (string)x).ToList());
+                    Flags.Add(level.Select(x => new ControllableFlag((JObject)x)).ToList());
                 }
             }
             if (json["bonus feats"] != null) {

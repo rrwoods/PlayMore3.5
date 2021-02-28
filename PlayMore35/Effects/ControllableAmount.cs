@@ -13,7 +13,7 @@ namespace PlayMore35.Effects {
         }
 
         public int Get(EffectPool pool, Items.Equipped items) {
-            return pool.controllableAmounts[Name];
+            return pool.controllableParameters[Name].Value;
         }
     }
 }

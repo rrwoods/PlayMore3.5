@@ -25,7 +25,13 @@
     "cha": -2,
     "speed": 20,
     "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
-    "flags": [ "standing on the ground" ],
+    "flags": [
+      {
+        "name": "standing on the ground",
+        "category": "Condition",
+        "description": "While standing on the ground, you get a +4 bonus on some defensive ability checks."
+      }
+    ],
     "stats": [
       {
         "name": "STR checks vs trips",
@@ -730,7 +736,13 @@
     "dex": -2,
     "speed": 20,
     "weapon familiarity": [ "dwarven waraxe", "dwarven urgrosh" ],
-    "flags": [ "standing on the ground" ],
+    "flags": [
+      {
+        "name": "standing on the ground",
+        "category": "Condition",
+        "description": "While standing on the ground, you get a +4 bonus on some defensive ability checks."
+      }
+    ],
     "stats": [
       {
         "name": "STR checks vs trips",

@@ -100,6 +100,8 @@
     <Compile Include="Effects\AllToggle.cs" />
     <Compile Include="Effects\ArmorProficiencyToggle.cs" />
     <Compile Include="Effects\ControllableAmount.cs" />
+    <Compile Include="Effects\ControllableFlag.cs" />
+    <Compile Include="Effects\ControllableParameter.cs" />
     <Compile Include="Effects\EffectPoolTests.cs" />
     <Compile Include="Effects\ExtraAttack.cs" />
     <Compile Include="Effects\ISubjectMatcher.cs" />

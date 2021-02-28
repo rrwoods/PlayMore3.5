@@ -28,7 +28,7 @@ namespace PlayMore35.CharacterChoices {
         public List<Effect> Effects = new List<Effect>();
         public Dictionary<string, int> BonusFeats = new Dictionary<string, int>();
 
-        public List<string> Flags = new List<string>();
+        public List<ControllableFlag> Flags = new List<ControllableFlag>();
         public List<Statistic> NewStats = new List<Statistic>();
 
         public JToken ToJson() {
@@ -108,7 +108,9 @@ namespace PlayMore35.CharacterChoices {
                     BonusFeats[feat.Name] = (int)feat.Value;
                 }
             }
-            Flags.ReadJson("flags", json);
+            if (json["flags"] != null) {
+                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x)));
+            }
             if (json["effects"] != null) {
                 Effects.AddRange(json["effects"].Select(x => new Effect((JObject)x)));
             }

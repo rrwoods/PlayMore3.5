@@ -14,8 +14,8 @@ namespace PlayMore35.Effects {
         public readonly Dictionary<string, int> featSlots = new Dictionary<string, int>();
 
         public readonly Dictionary<string, Statistic> stats = new Dictionary<string, Statistic>();
-        public readonly Dictionary<string, bool> controllableFlags = new Dictionary<string, bool>();
-        public readonly Dictionary<string, int> controllableAmounts = new Dictionary<string, int>();
+        public readonly Dictionary<string, ControllableFlag> controllableFlags = new Dictionary<string, ControllableFlag>();
+        public readonly Dictionary<string, ControllableParameter> controllableParameters = new Dictionary<string, ControllableParameter>();
         private readonly List<Effect> effects = new List<Effect>();
 
         public string CreatureType { get; private set; } = "";
@@ -25,8 +25,8 @@ namespace PlayMore35.Effects {
             return new JObject(
                 new JProperty("feats", new JObject(featSlots.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("stats", new JArray(stats.Values.Select(x => x.ToJson()))),
-                new JProperty("flags", new JArray(controllableFlags.Keys)),
-                new JProperty("amounts", new JArray(controllableAmounts.Keys)),
+                new JProperty("flags", new JArray(controllableFlags.Values.Select(x => x.ToJson()))),
+                new JProperty("parameters", new JArray(controllableParameters.Values.Select(x => x.ToJson()))),
                 new JProperty("effects", new JArray(effects.Select(x => x.ToJson())))
             );
         }
@@ -42,11 +42,13 @@ namespace PlayMore35.Effects {
             foreach (JObject token in json["effects"]) {
                 effects.Add(new Effect(token));
             }
-            foreach (string flag in json["flags"]) {
-                controllableFlags[flag] = false;
+            foreach (JObject token in json["flags"]) {
+                ControllableFlag flag = new ControllableFlag(token);
+                controllableFlags[flag.Name] = flag;
             }
-            foreach (string amount in json["amounts"]) {
-                controllableAmounts[amount] = 0;
+            foreach (JObject token in json["parameters"]) {
+                ControllableParameter parameter = new ControllableParameter(token);
+                controllableParameters[parameter.Name] = parameter;
             }
         }
 
@@ -140,7 +142,7 @@ namespace PlayMore35.Effects {
         }
 
         public bool HasFlag(string flag, Equipped items) {
-            if (controllableFlags.ContainsKey(flag) && controllableFlags[flag]) {
+            if (controllableFlags.ContainsKey(flag) && controllableFlags[flag].On) {
                 return true;
             }
 
@@ -172,6 +174,17 @@ namespace PlayMore35.Effects {
             }
 
             return allText;
+        }
+
+        // usage:
+        // foreach (var grouping in FlagsByCategory()) {
+        //     string flagName = grouping.Key;
+        //     foreach (ControllableFlag flag in grouping) {
+        //         // ...
+        //     }
+        // }
+        public ILookup<string, ControllableFlag> FlagsByCategory() {
+            return controllableFlags.Values.ToLookup(x => x.Category);
         }
 
         public void AssignAbilityScores(Dictionary<string, int> scores) {
@@ -219,9 +232,6 @@ namespace PlayMore35.Effects {
                 AddEffect(new Effect("Bonus language").AddText(LANGUAGES, language));
             }
 
-            foreach (string toggle in choices.toggles) {
-                controllableFlags[toggle] = false;
-            }
             foreach (Effect unattached in choices.unattachedEffects) {
                 AddEffect(unattached);
             }
@@ -247,7 +257,7 @@ namespace PlayMore35.Effects {
             }
             AddEffect(effect);
             effects.AddRange(race.Effects);
-            race.Flags.ForEach(x => controllableFlags[x] = false);
+            race.Flags.ForEach(x => controllableFlags[x.Name] = x);
             AddStats(race.NewStats);
         }
 
@@ -320,7 +330,8 @@ namespace PlayMore35.Effects {
 
         public void GenerateFeatEffects(Feat feat) {
             AddEffect(feat.Benefit);
-            feat.Parameters.ForEach(x => controllableAmounts[x] = 0);
+            feat.Flags.ForEach(x => controllableFlags[x.Name] = x);
+            feat.Parameters.ForEach(x => controllableParameters[x.Name] = x);
             AddStats(feat.NewStats);
         }
 

@@ -253,8 +253,8 @@ namespace PlayMore35.Global {
                         Effects.AddEffect(feature);
                     }
                     if (level < @class.Flags.Count) {
-                        foreach (string flag in @class.Flags[level]) {
-                            Effects.controllableFlags[flag] = false;
+                        foreach (ControllableFlag flag in @class.Flags[level]) {
+                            Effects.controllableFlags[flag.Name] = flag;
                         }
                     }
                 }
@@ -294,12 +294,12 @@ namespace PlayMore35.Global {
 
             foreach (string flag in Effects.controllableFlags.Keys.ToList()) {
                 if (character.flagValues.ContainsKey(flag)) {
-                    Effects.controllableFlags[flag] = character.flagValues[flag];
+                    Effects.controllableFlags[flag].On = character.flagValues[flag];
                 }
             }
-            foreach (string param in Effects.controllableAmounts.Keys.ToList()) {
+            foreach (string param in Effects.controllableParameters.Keys.ToList()) {
                 if (character.paramValues.ContainsKey(param)) {
-                    Effects.controllableAmounts[param] = character.paramValues[param];
+                    Effects.controllableParameters[param].Value = character.paramValues[param];
                 }
             }
 
@@ -321,10 +321,10 @@ namespace PlayMore35.Global {
 
         public void PrepCharacterForSave() {
             foreach (var flag in Effects.controllableFlags) {
-                character.flagValues[flag.Key] = flag.Value;
+                character.flagValues[flag.Key] = flag.Value.On;
             }
-            foreach (var param in Effects.controllableAmounts) {
-                character.paramValues[param.Key] = param.Value;
+            foreach (var param in Effects.controllableParameters) {
+                character.paramValues[param.Key] = param.Value.Value;
             }
         }
 

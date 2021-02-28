@@ -221,7 +221,13 @@
     }
   },
   {
-    "parameters": [ "Combat Expertise" ],
+    "parameters": [
+      {
+        "name": "Combat Expertise",
+        "category": "Def Options",
+        "description": "(Number between 0 and 5, but not higher than your base attack bonus) Take a penalty to attack rolls, in exchange for that much dodge bonus to AC."
+      }
+    ],
     "prerequisites": "INT 13",
     "benefit": {
       "name": "Combat Expertise",
@@ -1381,7 +1387,13 @@
     }
   },
   {
-    "flags": [ "within 30 ft." ],
+    "flags": [
+      {
+        "name": "within 30 ft.",
+        "category": "Atk Options",
+        "description": "You are within 30 ft. of the enemy you're attacking."
+      }
+    ],
     "benefit": {
       "name": "Point Blank Shot",
       "active": {
@@ -1404,7 +1416,13 @@
   },
   {
     "prerequisites": "STR 13",
-    "parameters": [ "Power Attack" ],
+    "parameters": [
+      {
+        "name": "Power Attack",
+        "category": "Atk Options",
+        "description": "(Number between 0 and {{base attack bonus}}) Take a penalty to all attack rolls this round, in exchange for that much bonus to melee damage rolls.  The bonus is doubled for two-handed attacks."
+      }
+    ],
     "benefit": {
       "name": "Power Attack",
       "active": {
@@ -1557,7 +1575,13 @@
   },
   {
     "prerequisites": "DEX 13, Point Blank Shot",
-    "flags": [ "Rapid Shot" ],
+    "flags": [
+      {
+        "name": "Rapid Shot",
+        "category": "Atk Options",
+        "description": "Make an extra ranged attack, but take a -2 penalty on all ranged attacks this round."
+      }
+    ],
     "benefit": {
       "name": "Rapid Shot",
       "active": {

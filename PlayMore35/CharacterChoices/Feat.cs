@@ -9,7 +9,8 @@ namespace PlayMore35.CharacterChoices {
         public List<string> Descriptors = new List<string>(); // don't bother with [General].  nothing cares.
         public string Prerequisites = ""; // not formalizing this for now
         public string ChoiceDescription = "";
-        public List<string> Parameters = new List<string>();
+        public List<ControllableFlag> Flags = new List<ControllableFlag>();
+        public List<ControllableParameter> Parameters = new List<ControllableParameter>();
         public Effect Benefit; // name of the feat is the name of the effect
 
         public List<Statistic> NewStats = new List<Statistic>();
@@ -25,6 +26,7 @@ namespace PlayMore35.CharacterChoices {
             if (ChoiceDescription.Any()) {
                 json["choice"] = ChoiceDescription;
             }
+            json.AddList("flags", Flags);
             json.AddList("parameters", Parameters);
             json.AddList("stats", NewStats);
             return json;
@@ -39,7 +41,12 @@ namespace PlayMore35.CharacterChoices {
             if (json["choice"] != null) {
                 ChoiceDescription = (string)json["choice"];
             }
-            Parameters.ReadJson("parameters", json);
+            if (json["flags"] != null) {
+                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x)));
+            }
+            if (json["parameters"] != null) {
+                Parameters.AddRange(json["parameters"].Select(x => new ControllableParameter((JObject)x)));
+            }
             if (json["stats"] != null) {
                 NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
             }

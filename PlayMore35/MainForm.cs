@@ -108,7 +108,7 @@ namespace PlayMore35 {
 
         private Control dragging = null;
         private Size draggingFrom;
-        public Dictionary<Label, ToolTip> toolTips = new Dictionary<Label, ToolTip>();
+        public Dictionary<Control, ToolTip> toolTips = new Dictionary<Control, ToolTip>();
 
         private Dictionary<string, GroupBox> locationGroups = new Dictionary<string, GroupBox>();
         private Dictionary<string, ListBox> locationLists = new Dictionary<string, ListBox>();
@@ -152,11 +152,11 @@ namespace PlayMore35 {
             return ((plus && value >= 0 ? "+" : "") + value).Replace("-", "–");
         }
 
-        private void ToolTipStatLabel(Label label, List<string> explanation) {
+        private void ToolTipStatLabel(Control label, List<string> explanation) {
             toolTips[label].SetToolTip(label, string.Join("\n", explanation));
         }
 
-        private void ToolTipTextLabel(Label label, string description) {
+        private void ToolTipTextLabel(Control label, string description) {
             toolTips[label].SetToolTip(label, description);
         }
 
@@ -325,7 +325,6 @@ namespace PlayMore35 {
         }
 
         private void Text_Enter(object sender, EventArgs e) {
-            // I have my suspicions that this will be inconsistent.
             BeginInvoke((Action)delegate {
                 ((TextBox)sender).SelectAll();
             });
@@ -1682,7 +1681,7 @@ namespace PlayMore35 {
         private void Toggle_Click(object sender, EventArgs e) {
             CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
-            controller.Effects.controllableFlags[flag] = toggle.Checked;
+            controller.Effects.controllableFlags[flag].On = toggle.Checked;
             controller.Character.flagValues[flag] = toggle.Checked;
 
             RefreshEffects();
@@ -1693,13 +1692,13 @@ namespace PlayMore35 {
             if (int.TryParse(box.Text, out int value)) {
                 box.BackColor = SystemColors.Window;
                 string parameterName = (string)box.Tag;
-                controller.Effects.controllableAmounts[parameterName] = value;
+                controller.Effects.controllableParameters[parameterName].Value = value;
                 controller.Character.paramValues[parameterName] = value;
                 RefreshEffects();
             } else if (box.Text.Equals("")) {
                 box.BackColor = SystemColors.Window;
                 string parameterName = (string)box.Tag;
-                controller.Effects.controllableAmounts[parameterName] = 0;
+                controller.Effects.controllableParameters[parameterName].Value = 0;
                 controller.Character.paramValues.Remove(parameterName);
                 RefreshEffects();
             } else {
@@ -1719,17 +1718,20 @@ namespace PlayMore35 {
 
             int txtTop = txtParam.Top;
             int lblTop = lblParam.Top;
-            foreach (string parameter in controller.Effects.controllableAmounts.Keys) {
+            foreach (var parameter in controller.Effects.controllableParameters) {
+                string paramName = parameter.Key;
                 TextBox txtNewParam = new TextBox() {
                     Top = txtTop,
                     Left = txtParam.Left,
                     Width = txtParam.Width,
                     TextAlign = HorizontalAlignment.Center,
                     Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
-                    Tag = parameter
+                    Tag = paramName
                 };
-                if (controller.Character.paramValues.ContainsKey(parameter)) {
-                    txtNewParam.Text = "" + controller.Character.paramValues[parameter];
+                if (controller.Character.paramValues.ContainsKey(paramName)) {
+                    int value = controller.Character.paramValues[paramName];
+                    txtNewParam.Text = "" + value;
+                    parameter.Value.Value = value;
                 }
                 txtNewParam.Leave += Param_Leave;
                 paramBoxes.Add(txtNewParam);
@@ -1740,41 +1742,38 @@ namespace PlayMore35 {
                     Left = lblParam.Left,
                     AutoSize = true,
                     Anchor = AnchorStyles.Bottom | AnchorStyles.Left
-                };
-                lblNewParam.Text = parameter;
+                }.Initialize(this);
+
+                ToolTipTextLabel(lblNewParam, parameter.Value.Description);
+                lblNewParam.Text = paramName;
                 paramLabels.Add(lblNewParam);
                 pagStats.Controls.Add(lblNewParam);
 
                 txtTop += paramBuffer;
                 lblTop += paramBuffer;
             }
-            foreach (var param in controller.Character.paramValues) {
-                if (controller.Effects.controllableAmounts.ContainsKey(param.Key)) {
-                    controller.Effects.controllableAmounts[param.Key] = param.Value;
-                }
-            }
 
-            foreach (string toggle in controller.Effects.controllableFlags.Keys) {
+            foreach (var toggle in controller.Effects.controllableFlags) {
+                string toggleName = toggle.Key;
                 CheckBox chkNewToggle = new CheckBox() {
                     Top = txtTop,
                     Left = txtParam.Left,
                     AutoSize = true,
                     Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
-                    Text = toggle
-                };
-                if (controller.Character.flagValues.ContainsKey(toggle)) {
-                    chkNewToggle.Checked = controller.Character.flagValues[toggle];
+                    Text = toggleName
+                }.Initialize(this);
+
+                ToolTipTextLabel(chkNewToggle, toggle.Value.Description);
+                if (controller.Character.flagValues.ContainsKey(toggleName)) {
+                    bool value = controller.Character.flagValues[toggleName];
+                    chkNewToggle.Checked = value;
+                    toggle.Value.On = value;
                 }
                 chkNewToggle.Click += Toggle_Click;
                 toggles.Add(chkNewToggle);
                 pagStats.Controls.Add(chkNewToggle);
 
                 txtTop += paramBuffer;
-            }
-            foreach (string toggle in controller.Character.flagValues.Keys) {
-                if (controller.Effects.controllableFlags.ContainsKey(toggle)) {
-                    controller.Effects.controllableFlags[toggle] = controller.Character.flagValues[toggle];
-                }
             }
 
             RefreshEffects();
@@ -2104,7 +2103,7 @@ namespace PlayMore35 {
             };
         }
 
-        public static Label Initialize(this Label label, MainForm form) {
+        public static T Initialize<T>(this T label, MainForm form) where T : Control {
             ToolTip toolTip = new ToolTip {
                 AutoPopDelay = 32767 // maximum value.
             };

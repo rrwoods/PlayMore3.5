@@ -29,7 +29,6 @@ namespace PlayMore35.CharacterChoices {
 
         public List<(int xp, string description)> sessions;
 
-        public List<string> toggles;
         public List<Effect> unattachedEffects;
         public List<(string name, bool good)> vestiges;
 
@@ -63,7 +62,6 @@ namespace PlayMore35.CharacterChoices {
                     new JProperty("xp", x.xp),
                     new JProperty("description", x.description)
                 )))),
-                new JProperty("toggles", new JArray(toggles)),
                 new JProperty("effects", new JArray(unattachedEffects.Select(x => x.ToJson()))),
                 new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("good", x.good))))),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
@@ -92,7 +90,6 @@ namespace PlayMore35.CharacterChoices {
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
             equipped = new EquippedChoices((JObject)json["equipped"]);
             sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
-            toggles = ((JArray)json["toggles"]).Select(x => (string)x).ToList();
             unattachedEffects = ((JArray)json["effects"]).Select(x => new Effect((JObject)x)).ToList();
             vestiges = ((JArray)json["vestiges"]).Select(x => ((string)x["name"], (bool)x["good"])).ToList();
             flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
@@ -126,7 +123,6 @@ namespace PlayMore35.CharacterChoices {
             equipped = new EquippedChoices();
             sessions = new List<(int xp, string description)>();
 
-            toggles = new List<string>();
             unattachedEffects = new List<Effect>();
             vestiges = new List<(string name, bool good)>();
 
