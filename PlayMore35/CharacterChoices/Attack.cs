@@ -41,24 +41,24 @@ namespace PlayMore35.Items {
                 [(2, 6)] = new List<(int, int)> { (1, 4), (1, 6), (1, 8), (1, 10), (2, 6), (3, 6), (4, 6), (6, 6), (8, 6) },
             };
 
-        private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand) {
+        private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand, bool familiar) {
             WeaponName = weapon.Name;
             WeaponTags = weapon.Tags;
             WeaponSizeCategory = wpnSizeCategory;
 
-            Proficiency = atk.ProficencyCategory;
+            Proficiency = familiar ? Weapon.Proficiency.MARTIAL : atk.ProficencyCategory;
             Effort = weapon.EffortCategory + sizeDiscrepancy;
             Hand = hand;
             DamageType = atk.DamageType;
             ThreatRange = atk.ThreatRange;
         }
 
-        private Attack(Armor armor, int wpnSizeCategory, Weapon.Hand hand) {
+        private Attack(Armor armor, int wpnSizeCategory, Weapon.Hand hand, bool familiar) {
             WeaponName = "armor spikes";
             WeaponTags = new List<string>(); // can armor have weapon tags?
             WeaponSizeCategory = wpnSizeCategory;
 
-            Proficiency = armor.ArmorSpikes.ProficencyCategory;
+            Proficiency = familiar ? Weapon.Proficiency.MARTIAL : armor.ArmorSpikes.ProficencyCategory;
             Effort = Weapon.Effort.LIGHT;
             Hand = hand;
             DamageType = armor.ArmorSpikes.DamageType;
@@ -68,12 +68,12 @@ namespace PlayMore35.Items {
             RangeIncrement = 0;
         }
 
-        private Attack(Shield shield, int wpnSizeCategory, int sizeDiscrepancy, Weapon.Hand hand) {
+        private Attack(Shield shield, int wpnSizeCategory, int sizeDiscrepancy, Weapon.Hand hand, bool familiar) {
             WeaponName = "shield bash";
             WeaponTags = new List<string>(); // can shields have weapon tags?
             WeaponSizeCategory = wpnSizeCategory;
 
-            Proficiency = shield.ShieldBash.ProficencyCategory;
+            Proficiency = familiar ? Weapon.Proficiency.MARTIAL : shield.ShieldBash.ProficencyCategory;
             Effort = (Weapon.Effort)shield.ShieldBashEffort + sizeDiscrepancy;
             Hand = hand;
             DamageType = shield.ShieldBash.DamageType;
@@ -224,7 +224,7 @@ namespace PlayMore35.Items {
             }
 
             (AttackMode atk, bool reach) = ((AttackMode, bool))melee;
-            Attack attack = new Attack(weapon, wpnSizeCategory, sizeDiscrepancy, atk, hand) {
+            Attack attack = new Attack(weapon, wpnSizeCategory, sizeDiscrepancy, atk, hand, rules.Familiar(items, weapon.Name)) {
                 Range = reach ? Weapon.Range.REACH_MELEE : Weapon.Range.MELEE,
                 RangeIncrement = 0,
             };
@@ -256,7 +256,7 @@ namespace PlayMore35.Items {
             }
 
             (AttackMode atk, bool bow, int strengthRating) = ((AttackMode, bool, int))weapon.Projectile;
-            Attack attack = new Attack(weapon, wpnSizeCategory, sizeDiscrepancy, atk, hand) {
+            Attack attack = new Attack(weapon, wpnSizeCategory, sizeDiscrepancy, atk, hand, rules.Familiar(items, weapon.Name)) {
                 Range = bow ? Weapon.Range.BOW : Weapon.Range.OTHER_PROJECTILE,
                 RangeIncrement = atk.RangeIncrement,
                 StrengthRating = strengthRating
@@ -296,7 +296,7 @@ namespace PlayMore35.Items {
                 return null; // not dealing with throwing the second head of a double weapon.  for now.
             }
 
-            Attack attack = new Attack(weapon, wpnSizeCategory, sizeDiscrepancy, atk, hand) {
+            Attack attack = new Attack(weapon, wpnSizeCategory, sizeDiscrepancy, atk, hand, rules.Familiar(items, weapon.Name)) {
                 Range = Weapon.Range.THROWN,
                 RangeIncrement = atk.RangeIncrement
             };
@@ -321,7 +321,7 @@ namespace PlayMore35.Items {
             int twfPenalty = 0
         ) {
             Armor armor = items.DonnedArmor;
-            Attack spikes = new Attack(armor, armSizeCategory, hand);
+            Attack spikes = new Attack(armor, armSizeCategory, hand, false);
             spikes.ComputeAttackBonusAndDamage(
                 rules,
                 items,
@@ -344,7 +344,7 @@ namespace PlayMore35.Items {
             int twfPenalty = 0
         ) {
             Shield shield = items.OffHandShield;
-            Attack shieldBash = new Attack(shield, shSizeCategory, sizeDiscrepancy, hand);
+            Attack shieldBash = new Attack(shield, shSizeCategory, sizeDiscrepancy, hand, false);
             shieldBash.ComputeAttackBonusAndDamage(
                 rules,
                 items,

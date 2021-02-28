@@ -24,6 +24,7 @@ namespace PlayMore35.Effects {
         private readonly List<Alterer<Modifier, Statistic>> Modifiers = new List<Alterer<Modifier, Statistic>>();
         private readonly List<Alterer<Multiplier, Statistic>> Multipliers = new List<Alterer<Multiplier, Statistic>>();
 
+        public readonly List<string> WeaponFamiliarity = new List<string>();
         private readonly List<AttackMatcher> WeaponProficiencies = new List<AttackMatcher>();
         private readonly List<Armor.WeightCategory> ArmorProficiencies = new List<Armor.WeightCategory>();
         private readonly List<bool> ShieldProficiencies = new List<bool>(); // false = shield prof, true = shield+tower prof
@@ -51,6 +52,7 @@ namespace PlayMore35.Effects {
             json.AddList("range", RangeMultipliers);
             json.AddList("modifiers", Modifiers);
             json.AddList("multipliers", Multipliers);
+            json.AddList("weapon familiarity", WeaponFamiliarity);
             json.AddList("weapon proficiencies", WeaponProficiencies);
             if (ArmorProficiencies.Any()) {
                 json.Add("armor proficiencies", new JArray(ArmorProficiencies));
@@ -135,6 +137,9 @@ namespace PlayMore35.Effects {
                     }
                 }));
             }
+            if (json["weapon familiarity"] != null) {
+                WeaponFamiliarity.AddRange(json["weapon familiarity"].Select(x => (string)x));
+            }
             if (json["weapon proficiencies"] != null) {
                 WeaponProficiencies.AddRange(json["weapon proficiencies"].Select(x => new AttackMatcher((JObject)x)));
             }
@@ -210,6 +215,11 @@ namespace PlayMore35.Effects {
                 affects = new StatisticMatcher(affects),
                 mod = multiplier
             });
+            return this;
+        }
+
+        public Effect AddFamiliarity(string weapon) {
+            WeaponFamiliarity.Add(weapon);
             return this;
         }
 

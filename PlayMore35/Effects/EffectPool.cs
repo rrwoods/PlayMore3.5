@@ -121,6 +121,12 @@ namespace PlayMore35.Effects {
             return AllEffects(items).SelectMany(x => x.GetRangeMultipliers(this, items, affecting));
         }
 
+        public bool Familiar(Equipped items, string weapon) {
+            return AllEffects(items)
+                .SelectMany(x => x.WeaponFamiliarity)
+                .Any(x => x == weapon);
+        }
+
         public bool Proficient(Equipped items, Attack attack) {
             return AllEffects(items).Select(x => x.Proficient(this, items, attack)).Contains(true);
         }
@@ -235,6 +241,9 @@ namespace PlayMore35.Effects {
                 .AddModifier(CHA_SCORE, new Modifier(race.Cha, RACIAL));
             foreach (string language in race.AutomaticLanguages) {
                 effect.AddText(LANGUAGES, language);
+            }
+            foreach (string weapon in race.FamiliarWeapons) {
+                effect.AddFamiliarity(weapon);
             }
             AddEffect(effect);
             effects.AddRange(race.Effects);

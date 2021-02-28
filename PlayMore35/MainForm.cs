@@ -293,9 +293,9 @@ namespace PlayMore35 {
             attacks.Add(new List<Label> { attackLabel, damageLabel, critLabel });
         }
 
-        private void OneLineText(Label label, Dictionary<string, List<(string, string desc)>> textEffects, string key, string prefix = "") {
+        private void OneLineText(Label label, Dictionary<string, List<(string, string desc)>> textEffects, string key, string prefix = null) {
             if (textEffects[key].Any()) {
-                label.Text = $"{prefix}{key} {string.Join(", ", textEffects[key].Select(x => x.desc))}";
+                label.Text = $"{prefix ?? key} {string.Join(", ", textEffects[key].Select(x => x.desc))}";
             } else {
                 label.Text = "";
             }
