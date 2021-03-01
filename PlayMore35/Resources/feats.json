@@ -532,31 +532,7 @@
         ]
       },
       {
-        "name": "CON checks to continue running",
-        "tags": [
-          "CON checks",
-          "CON modifier",
-          "Ability checks"
-        ]
-      },
-      {
-        "name": "CON checks vs forced march",
-        "tags": [
-          "CON checks",
-          "CON modifier",
-          "Ability checks"
-        ]
-      },
-      {
-        "name": "CON checks to hold breath",
-        "tags": [
-          "CON checks",
-          "CON modifier",
-          "Ability checks"
-        ]
-      },
-      {
-        "name": "CON checks vs starvation or thirst",
+        "name": "CON checks: Endurance",
         "tags": [
           "CON checks",
           "CON modifier",
@@ -612,40 +588,7 @@
           }
         },
         {
-          "affects": "CON checks to continue running",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "fixed": 4
-              }
-            ]
-          }
-        },
-        {
-          "affects": "CON checks vs forced march",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "fixed": 4
-              }
-            ]
-          }
-        },
-        {
-          "affects": "CON checks to hold breath",
-          "mod": {
-            "type": "untyped",
-            "amounts": [
-              {
-                "fixed": 4
-              }
-            ]
-          }
-        },
-        {
-          "affects": "CON checks vs starvation or thirst",
+          "affects": "CON checks: Endurance",
           "mod": {
             "type": "untyped",
             "amounts": [
@@ -659,7 +602,7 @@
       "text": [
         {
           "category": "Special Qualities",
-          "text": "You may sleep in light or medium armor without becoming fatigued."
+          "text": "You may sleep in light or medium armor without becoming fatigued.\n\nYou get a +4 bonus on the following kinds of CON checks: to continue running, to avoid nonlethal damage from a forced march, to hold your breath, and to avoid nonlethal damage from starvation or thirst."
         }
       ]
     }
@@ -2148,12 +2091,23 @@
     }
   },
   {
+    "flags": [
+      {
+        "name": "Constant Guardian",
+        "category": "Def Options",
+        "description": "Once during your turn as a free action, you can take a -2 penalty on your attack rolls to grant a single ally within 10 feet a +2 dodge bonus to Armor Class, until your next turn or they are more than 10 feet away, whichever comes first."
+      }
+    ],
     "benefit": {
       "name": "Constant Guardian",
-      "text": [
+      "active": { "flag": "Constant Guardian" },
+      "attack": [
         {
-          "category": "Def Options",
-          "text": "Once during your turn as a free action, you can take a -2 penalty on your attack rolls to grant a single ally within 10 feet a +2 dodge bonus to Armor Class, until your next turn or they are more than 10 feet away, whichever comes first."
+          "affects": {},
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": -2 } ]
+          }
         }
       ]
     }

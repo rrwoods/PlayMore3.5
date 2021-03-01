@@ -1074,8 +1074,8 @@
     },
     {
       "name": "flat-footed",
-      "category": "Condition",
-      "description": "You're always flat-footed at the start of an encounter, or when making a Balance check with less than 5 ranks in Balance.  Your DEX bonus doesn't apply to your AC (but a penalty still does), and you can't make attacks of opportunity."
+      "category": "AC",
+      "description": "You're always flat-footed from the start of an encounter until the beginning of your first turn, or when making a Balance check with less than 5 ranks in Balance.  Your DEX bonus doesn't apply to your AC (but a penalty still does), and you can't make attacks of opportunity."
     },
     {
       "name": "prone",

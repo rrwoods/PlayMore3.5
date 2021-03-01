@@ -1967,9 +1967,10 @@ namespace PlayMore35 {
             sr = new Label().Initialize(this);
             
             enemyTurn = new List<List<List<Control>>> {
+                acControls,
                 new List<List<Control>> {
                     new List<Control> { ac, touch },
-                    new List<Control> { acEffects }, // in the spacing rework, put acControls here.
+                    new List<Control> { acEffects }, // in the spacing rework, move acControls here.
                     new List<Control> { currentHp, maxHp, dr },
                     new List<Control> { hpEffects },
                 },
