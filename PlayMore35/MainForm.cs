@@ -66,42 +66,52 @@ namespace PlayMore35 {
         // 2. the outer list is list of subsections, with visual separation between each subsection.
         // 3. each subsection contains a list of rows
         // 4. each row is a list of labels
-        private List<List<List<Label>>> beforeCombat;
-        private List<List<List<Label>>> enemyTurn;
-        private List<List<List<Label>>> myTurn;
-        private List<List<List<Label>>> misc;
+        private List<List<List<Control>>> beforeCombat;
+        private List<List<List<Control>>> enemyTurn;
+        private List<List<List<Control>>> myTurn;
+        private List<List<List<Control>>> misc;
 
         private Label name, desc1, desc2, init;
-        private List<List<Label>> senses = new List<List<Label>>();
+        private List<List<Control>> senses = new List<List<Control>>();
         private Label listen, spot, evade, languages;
-        private List<List<Label>> downtime = new List<List<Label>>();
-        private List<List<Label>> condition = new List<List<Label>>();
+        private List<List<Control>> evadeControls = new List<List<Control>>();
+        private List<List<Control>> downtime = new List<List<Control>>();
+        private List<List<Control>> condition = new List<List<Control>>();
 
         private Label ac, touch;
         private Label acEffects;
+        private List<List<Control>> acControls = new List<List<Control>>();
         private Label currentHp, maxHp, dr;
-        private List<List<Label>> react = new List<List<Label>>();
+        private Label hpEffects;
+        private List<List<Control>> hpControls = new List<List<Control>>();
+        private List<List<Control>> react = new List<List<Control>>();
         private Label resist, immune;
-        private List<List<Label>> defend = new List<List<Label>>();
+        private List<List<Control>> resistControls = new List<List<Control>>();
+        private List<List<Control>> immuneControls = new List<List<Control>>();
+        private List<List<Control>> defend = new List<List<Control>>();
         private Label sr;
-        private List<List<Label>> saves = new List<List<Label>>();
+        private List<List<Control>> srControls = new List<List<Control>>();
+        private List<List<Control>> saves = new List<List<Control>>();
 
         private Label speed;
-        private List<List<Label>> movement = new List<List<Label>>();
-        private List<List<Label>> attacks = new List<List<Label>>();
+        private List<List<Control>> movement = new List<List<Control>>();
+        private List<List<Control>> attacks = new List<List<Control>>();
         private Label space, reach, bab, grapple;
-        private List<List<Label>> atkOptions = new List<List<Label>>();
-        private List<List<Label>> defOptions = new List<List<Label>>();
-        private List<List<Label>> actions = new List<List<Label>>();
-        private List<List<Label>> specialActions = new List<List<Label>>();
+        private List<List<Control>> atkOptions = new List<List<Control>>();
+        private List<List<Control>> defOptions = new List<List<Control>>();
+        private List<List<Control>> actions = new List<List<Control>>();
+        private List<List<Control>> specialActions = new List<List<Control>>();
 
-        private List<List<Label>> abilityScores = new List<List<Label>>();
-        private List<List<Label>> sq = new List<List<Label>>();
-        private List<List<Label>> skills = new List<List<Label>>();
-        private List<List<Label>> miscSkills = new List<List<Label>>();
+        private List<List<Control>> abilityScores = new List<List<Control>>();
+        private List<List<Control>> sq = new List<List<Control>>();
+        private List<List<Control>> skills = new List<List<Control>>();
+        private List<List<Control>> miscSkills = new List<List<Control>>();
 
-        private List<CheckBox> toggles = new List<CheckBox>();
-        private List<LabeledField> paramFields = new List<LabeledField>();
+        private const string INDENT = "     ";
+
+        private Dictionary<string, List<LabeledField>> fieldsByCategory = new Dictionary<string, List<LabeledField>>();
+        private Dictionary<string, List<CheckBox>> flagsByCategory = new Dictionary<string, List<CheckBox>>();
+        private Dictionary<string, List<List<Control>>> whereFieldsGo;
 
         private List<Label> slotBoxes;
 
@@ -139,6 +149,15 @@ namespace PlayMore35 {
         private void ClearDynamicControls<T>(Control container, List<T> controls) where T : Control {
             foreach (T control in controls) {
                 container.Controls.Remove(control);
+            }
+            controls.Clear();
+        }
+
+        private void ClearDynamicControls<K, T>(Control container, Dictionary<K, List<T>> controls) where T : Control {
+            foreach (var category in controls) {
+                foreach (Control control in category.Value) {
+                    container.Controls.Remove(control);
+                }
             }
             controls.Clear();
         }
@@ -187,7 +206,7 @@ namespace PlayMore35 {
             LabelStat(label, value, explanation, prefix, stat, postfix, plus);
         }
 
-        private void DynamicStat(List<List<Label>> section, string prefix, string stat, string postfix = "", bool plus = true, int hideIfEqual = int.MinValue) {
+        private void DynamicStat(List<List<Control>> section, string prefix, string stat, string postfix = "", bool plus = true, int hideIfEqual = int.MinValue) {
             (int baseValue, List<string> baseExplanation) = GetStatValue(stat);
             IEnumerable<Effects.Statistic> specials = controller.Effects.RelevantStatsWithTag(stat, controller.EquippedItems);
             bool relevant =
@@ -195,7 +214,7 @@ namespace PlayMore35 {
                 controller.Effects.GetStat(stat).Relevant(controller.Effects, controller.EquippedItems);
             if ((baseValue != hideIfEqual) && relevant) {
                 Label label = new Label().Initialize(this);
-                section.Add(new List<Label> { label });
+                section.Add(new List<Control> { label });
                 LabelStat(label, baseValue, baseExplanation, prefix, stat, postfix, plus);
             }
 
@@ -209,7 +228,7 @@ namespace PlayMore35 {
                     continue;
                 }
                 Label lblSpecial = new Label().Initialize(this);
-                section.Add(new List<Label> { lblSpecial });
+                section.Add(new List<Control> { lblSpecial });
                 LabelStat(lblSpecial, value, explanation, special.Name, special.Name, postfix, plus);
             }
         }
@@ -226,17 +245,21 @@ namespace PlayMore35 {
             var (mValue, mExplanation) = GetStatValue(modifierStat);
             LabelStat(lblModifier, mValue, mExplanation, "(", modifierStat, " )");
 
-            abilityScores.Add(new List<Label> { lblScore, lblModifier });
+            abilityScores.Add(new List<Control> { lblScore, lblModifier });
 
             string checkStat = $"{ability} checks";
             DynamicStat(abilityScores, checkStat, checkStat, "", true, mValue);
         }
 
-        private void RemoveDynamicSection(List<List<Label>> section) {
-            section.ForEach(row => row.ForEach(label => {
-                pagStats.Controls.Remove(label);
-                toolTips.Remove(label);
-            }));
+        private void RemoveDynamicSection(List<List<Control>> section) {
+            foreach (List<Control> row in section) {
+                foreach (Control control in row) {
+                    if (control is Label label) {
+                        pagStats.Controls.Remove(label);
+                        toolTips.Remove(label);
+                    }
+                }
+            }
             section.Clear();
         }
 
@@ -289,7 +312,7 @@ namespace PlayMore35 {
             ToolTipStatLabel(critLabel, attack.CriticalDamage.explanation);
             critLabel.ContextMenuStrip = DamageRoll(attack.WeaponName + " critical", damage);
 
-            attacks.Add(new List<Label> { attackLabel, damageLabel, critLabel });
+            attacks.Add(new List<Control> { attackLabel, damageLabel, critLabel });
         }
 
         private void OneLineText(Label label, Dictionary<string, List<(string, string desc)>> textEffects, string key, string prefix = null) {
@@ -300,25 +323,47 @@ namespace PlayMore35 {
             }
         }
 
-        private void MultilineText(List<List<Label>> section, Dictionary<string, List<(string name, string desc)>> textEffects, string key, bool header = true) {
+        private void MultilineText(List<List<Control>> section, Dictionary<string, List<(string name, string desc)>> textEffects, string key, bool header = true) {
             RemoveDynamicSection(section);
-            if (!textEffects[key].Any()) {
-                return;
+            if (textEffects == null) {
+                if (!fieldsByCategory.ContainsKey(key) && !flagsByCategory.ContainsKey(key)) {
+                    return;
+                }
+            } else {
+                if (!textEffects[key].Any() && !fieldsByCategory.ContainsKey(key) && !flagsByCategory.ContainsKey(key)) {
+                    return;
+                }
             }
 
             if (header) {
                 Label headerLabel = new Label() {
                     Text = key
                 }.Initialize(this);
-                section.Add(new List<Label> { headerLabel });
+                section.Add(new List<Control> { headerLabel });
                 pagStats.Controls.Add(headerLabel);
             }
+
+            if (fieldsByCategory.ContainsKey(key)) {
+                foreach (LabeledField field in fieldsByCategory[key]) {
+                    section.Add(new List<Control> { field });
+                }
+            }
+            if (flagsByCategory.ContainsKey(key)) {
+                foreach (CheckBox flag in flagsByCategory[key]) {
+                    section.Add(new List<Control> { flag });
+                }
+            }
+
+            if (textEffects == null) {
+                return;
+            }
+
             foreach ((string name, string desc) in textEffects[key]) {
                 Label effectLabel = new Label() {
-                    Text = "    " + name
+                    Text = INDENT + name
                 }.Initialize(this);
                 ToolTipTextLabel(effectLabel, desc);
-                section.Add(new List<Label> { effectLabel });
+                section.Add(new List<Control> { effectLabel });
                 pagStats.Controls.Add(effectLabel);
             }
         }
@@ -966,7 +1011,7 @@ namespace PlayMore35 {
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        private void RefreshEffects() {
+        public void RefreshEffects() {
             Dictionary<string, List<(string name, string desc)>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
             name.Text = controller.Character.name.ToUpper();
@@ -1006,21 +1051,35 @@ namespace PlayMore35 {
             }
 
             OneLineText(evade, textEffects, EVADE);
+            MultilineText(evadeControls, null, EVADE, false);
+
             MultilineText(condition, textEffects, CONDITION);
 
             LabelStat(ac, "AC", AC, ",", false);
             LabelStat(touch, "touch", TOUCH_AC, "", false);
-            OneLineText(acEffects, textEffects, AC, "    ");
+            OneLineText(acEffects, textEffects, AC, INDENT);
+            MultilineText(acControls, null, AC, false);
+
             LabelStat(currentHp, "hp", CURRENT_HP, ";", false);
             LabelStat(maxHp, "max", MAX_HP, " (" + controller.Character.classLevels.Count() + " HD)", false);
             OneLineText(dr, textEffects, DR);
             if (dr.Text.Any()) {
                 maxHp.Text += ";";
             }
+            OneLineText(hpEffects, textEffects, HP, INDENT);
+            MultilineText(hpControls, null, HP, false);
+
             MultilineText(react, textEffects, REACT);
+
             OneLineText(resist, textEffects, RESIST);
+            MultilineText(resistControls, null, RESIST, false);
+
             OneLineText(immune, textEffects, IMMUNE);
+            MultilineText(immuneControls, null, IMMUNE, false);
+
             OneLineText(sr, textEffects, SR);
+            MultilineText(srControls, null, SR, false);
+
             RemoveDynamicSection(saves);
             DynamicStat(saves, "Fort save", FORT_SAVES);
             DynamicStat(saves, "Ref save", REF_SAVES);
@@ -1038,7 +1097,7 @@ namespace PlayMore35 {
                 if (fullAttack.Count == 1 && !fullAttack[0].ExtraAttacks.Any()) {
                     continue;
                 }
-                attacks.Add(new List<Label> { new Label() { Text = "Full Attack" }.Initialize(this) });
+                attacks.Add(new List<Control> { new Label() { Text = "Full Attack" }.Initialize(this) });
                 foreach (Attack attack in fullAttack) {
                     AttackLabels(attack, true);
                 }
@@ -1081,35 +1140,47 @@ namespace PlayMore35 {
             lblTotalWeight.Text = $"Total load: {controller.EquippedItems.TotalWeight()} lbs.";
         }
 
-        private void RepositionRow(List<Label> row) {
+        private void RepositionRow(List<Control> row) {
             if (row.Count > 1) {
                 int left = row[0].Right;
                 int top = row[0].Top;
-                foreach (Label label in row.Skip(1)) {
-                    if (label.Text.Any()) {
-                        label.Top = top;
-                        label.Left = left;
-                        left = label.Right;
+                foreach (Control control in row.Skip(1)) {
+                    if ((control is Label && control.Text.Any()) || control is LabeledField) {
+                        control.Top = top;
+                        control.Left = left;
+                        left = control.Right;
+                    } else if (control is CheckBox) {
+                        control.Top = top - 1;
+                        control.Left = left;
+                        left = control.Right;
                     }
+                    control.BringToFront();
                 }
             }
         }
 
-        private void RepositionColumn(int columnLeft, List<List<List<Label>>> column) {
+        private void RepositionColumn(int columnLeft, List<List<List<Control>>> column) {
             int top = topBuffer;
-            foreach (List<List<Label>> section in column) {
+            foreach (List<List<Control>> section in column) {
                 bool anyText = false;
-                foreach (List<Label> row in section) {
+                foreach (List<Control> row in section) {
                     if (!row.Any()) {
                         continue;
                     }
-                    Label first = row[0];
-                    if (first.Text.Any()) {
+                    Control first = row[0];
+                    if (first.Text.Any() || !(first is Label)) {
                         anyText = true;
                         first.Left = columnLeft;
                         first.Top = top;
                         first.MaximumSize = new Size(columnWidth - 2 * leftBuffer, 1000);
-                        top = first.Bottom;
+                        top += lblTopLeft.Height + 1;
+                        
+                        // I cannot for the life of me get the custom labeled field control to size itself properly.
+                        // If I AutoSize it and leave it alone, its height obscures everything else in the column.
+                        // If I manually size it, no matter which width I choose, it cuts off its own label.
+                        // So instead I'm just putting everything else on top of it.
+                        first.BringToFront();
+
                         RepositionRow(row);
                     }
                 }
@@ -1694,35 +1765,29 @@ namespace PlayMore35 {
         }
 
         private void StatsTab_Enter(object sender, EventArgs e) {
-            ClearDynamicControls(pagStats, toggles);
-            ClearDynamicControls(pagStats, paramFields);
-
-            int txtTop = txtParam.Top;
+            ClearDynamicControls(pagStats, fieldsByCategory);
             foreach (var parameter in controller.Effects.controllableParameters) {
                 string paramName = parameter.Key;
-                LabeledField field = new LabeledField(paramName, controller) {
-                    Top = txtTop,
-                    Left = txtParam.Left,
-                    Anchor = txtParam.Anchor
-                };
+                LabeledField field = new LabeledField(paramName, controller);
                 field.lblName.Initialize(this, false);
                 ToolTipTextLabel(field.lblName, parameter.Value.Description);
 
                 if (controller.Character.paramValues.ContainsKey(paramName)) {
                     field.Value = controller.Character.paramValues[paramName];
                 }
-                paramFields.Add(field);
+                string category = parameter.Value.Category;
+                if (!fieldsByCategory.ContainsKey(category)) {
+                    fieldsByCategory[category] = new List<LabeledField>();
+                }
+                fieldsByCategory[category].Add(field);
                 pagStats.Controls.Add(field);
-                txtTop += paramBuffer;
             }
 
+            ClearDynamicControls(pagStats, flagsByCategory);
             foreach (var toggle in controller.Effects.controllableFlags) {
                 string toggleName = toggle.Key;
                 CheckBox chkNewToggle = new CheckBox() {
-                    Top = txtTop,
-                    Left = txtParam.Left,
                     AutoSize = true,
-                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                     Text = toggleName
                 }.Initialize(this);
 
@@ -1733,10 +1798,13 @@ namespace PlayMore35 {
                     toggle.Value.On = value;
                 }
                 chkNewToggle.Click += Toggle_Click;
-                toggles.Add(chkNewToggle);
-                pagStats.Controls.Add(chkNewToggle);
 
-                txtTop += paramBuffer;
+                string category = toggle.Value.Category;
+                if (!flagsByCategory.ContainsKey(category)) {
+                    flagsByCategory[category] = new List<CheckBox>();
+                }
+                flagsByCategory[category].Add(chkNewToggle);
+                pagStats.Controls.Add(chkNewToggle);
             }
 
             RefreshEffects();
@@ -1871,17 +1939,18 @@ namespace PlayMore35 {
             spot = new Label().Initialize(this);
             evade = new Label().Initialize(this);
             languages = new Label().Initialize(this);
-            beforeCombat = new List<List<List<Label>>> {
-                new List<List<Label>> {
-                    new List<Label> { name },
-                    new List<Label> { desc1 },
-                    new List<Label> { desc2 },
-                    new List<Label> { languages },
+            beforeCombat = new List<List<List<Control>>> {
+                new List<List<Control>> {
+                    new List<Control> { name },
+                    new List<Control> { desc1 },
+                    new List<Control> { desc2 },
+                    new List<Control> { languages },
                 },
-                new List<List<Label>> { new List<Label> { init } },
+                new List<List<Control>> { new List<Control> { init } },
                 senses,
-                new List<List<Label>> { new List<Label> { listen, spot } },
-                new List<List<Label>> { new List<Label> { evade } },
+                new List<List<Control>> { new List<Control> { listen, spot } },
+                new List<List<Control>> { new List<Control> { evade } },
+                evadeControls,
                 downtime,
                 condition,
             };
@@ -1892,23 +1961,27 @@ namespace PlayMore35 {
             currentHp = new Label().Initialize(this);
             maxHp = new Label().Initialize(this);
             dr = new Label().Initialize(this);
+            hpEffects = new Label().Initialize(this);
             resist = new Label().Initialize(this);
             immune = new Label().Initialize(this);
             sr = new Label().Initialize(this);
             
-            enemyTurn = new List<List<List<Label>>> {
-                new List<List<Label>> {
-                    new List<Label> { ac, touch },
-                    new List<Label> { acEffects },
-                    new List<Label> { currentHp, maxHp, dr },
+            enemyTurn = new List<List<List<Control>>> {
+                new List<List<Control>> {
+                    new List<Control> { ac, touch },
+                    new List<Control> { acEffects }, // in the spacing rework, put acControls here.
+                    new List<Control> { currentHp, maxHp, dr },
+                    new List<Control> { hpEffects },
                 },
+                hpControls, // put this above hpEffects
                 defend,
                 react,
-                new List<List<Label>> {
-                    new List<Label> { resist },
-                    new List<Label> { immune },
+                new List<List<Control>> {
+                    new List<Control> { resist }, // resistControls here.
+                    new List<Control> { immune }, // immuneControls here.
                 },
-                new List<List<Label>> { new List<Label> { sr } },
+                new List<List<Control>> { new List<Control> { sr } },
+                srControls,
                 saves
             };
 
@@ -1917,14 +1990,14 @@ namespace PlayMore35 {
             reach = new Label().Initialize(this);
             bab = new Label().Initialize(this);
             grapple = new Label().Initialize(this);
-            myTurn = new List<List<List<Label>>> {
-                new List<List<Label>> {
-                    new List<Label> { speed },
+            myTurn = new List<List<List<Control>>> {
+                new List<List<Control>> {
+                    new List<Control> { speed },
                 },
                 movement,
-                new List<List<Label>> {
-                    new List<Label> { space, reach },
-                    new List<Label> { bab, grapple },
+                new List<List<Control>> {
+                    new List<Control> { space, reach },
+                    new List<Control> { bab, grapple },
                 },
                 attacks,
                 atkOptions,
@@ -1933,11 +2006,30 @@ namespace PlayMore35 {
                 actions,
             };
 
-            misc = new List<List<List<Label>>> {
+            misc = new List<List<List<Control>>> {
                 abilityScores,
                 sq,
                 skills,
                 miscSkills,
+            };
+
+            whereFieldsGo = new Dictionary<string, List<List<Control>>>() {
+                [SENSES] = senses,
+                [EVADE] = evadeControls,
+                [AC] = acControls,
+                [HP] = hpControls,
+                [REACT] = react,
+                [RESIST] = resistControls,
+                [IMMUNE] = immuneControls,
+                [SR] = srControls,
+                [MOVEMENT] = movement,
+                [ACTIONS] = actions,
+                [ATK_OPTIONS] = atkOptions,
+                [DEF_OPTIONS] = defOptions,
+                [SPECIAL_ACTIONS] = specialActions,
+                [SQ] = sq,
+                [SKILLS] = miscSkills,
+                [CONDITION] = condition
             };
 
             new ToolTip().SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");

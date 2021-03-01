@@ -1769,6 +1769,17 @@
             }
           },
           {
+            "conditional": {
+              "left": {
+                "stat value": "Current hit points"
+              },
+              "relation": "GREATER_THAN",
+              "right": {
+                "fixed": -10
+              }
+            }
+          },
+          {
             "not": {
               "flag": "stable"
             }
@@ -1780,8 +1791,31 @@
       ],
       "text": [
         {
-          "category": "Condition",
-          "text": "Each round, you have a 10% chance to become stable.  If you don't, you take 1 damage."
+          "category": "hp",
+          "text": "dying"
+        }
+      ]
+    },
+    {
+      "name": "dead",
+      "active": {
+        "conditional": {
+          "left": {
+            "stat value": "Current hit points"
+          },
+          "relation": "LESS_THAN_OR_EQUAL",
+          "right": {
+            "fixed": -10
+          }
+        }
+      },
+      "flags": [
+        "Can't act"
+      ],
+      "text": [
+        {
+          "category": "hp",
+          "text": "dead"
         }
       ]
     },

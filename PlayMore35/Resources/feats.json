@@ -1420,7 +1420,7 @@
       {
         "name": "Power Attack",
         "category": "Atk Options",
-        "description": "(Number between 0 and {{base attack bonus}}) Take a penalty to all attack rolls this round, in exchange for that much bonus to melee damage rolls.  The bonus is doubled for two-handed attacks."
+        "description": "(Number between 0 and your base attack bonus) Take a penalty to all attack rolls this round, in exchange for that much bonus to melee damage rolls.  The bonus is doubled for two-handed attacks."
       }
     ],
     "benefit": {

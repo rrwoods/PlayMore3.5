@@ -1,3 +1,9 @@
+[USABILITY] Rethink spacing
+
+Right now, spacing between sections is done by treating each List<List<Control>> as a section that needs space around it.  This causes some weirdness when we want to multiline stuff but still have it spaced right next to the thing above it.  Instead, use an explicit null section to put space between each section, and otherwise put sections next to each other.
+
+===
+
 [USABILITY] Maybe draw some separator lines on the form?
 
 https://www.csharp-examples.net/separator-line/
@@ -7,18 +13,6 @@ https://www.csharp-examples.net/separator-line/
 [COMMON] Unarmed strikes
 
 With at least one hand free, the attack generation routine should generate an unarmed strike attack.
-
-===
-
-[USABILITY] Positioning of toggles and parameters should be context-dependent
-
-e.g.
-- damage near hp
-- charging, flanking in Atk Options
-
-This means that the toggles themselves need data about where they go, similarly to text effects.
-
-*Probably* a prerequisite to the action system, to avoid checkboxes just piling up in the bottom-left?
 
 ===
 

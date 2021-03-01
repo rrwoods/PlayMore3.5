@@ -1035,9 +1035,11 @@
             // txtParam2
             // 
             this.txtParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam2.Location = new System.Drawing.Point(8, 569);
+            this.txtParam2.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.txtParam2.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtParam2.Location = new System.Drawing.Point(8, 572);
             this.txtParam2.Name = "txtParam2";
-            this.txtParam2.Size = new System.Drawing.Size(32, 25);
+            this.txtParam2.Size = new System.Drawing.Size(32, 18);
             this.txtParam2.TabIndex = 2;
             this.txtParam2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.txtParam2.Visible = false;
@@ -1045,9 +1047,11 @@
             // txtParam
             // 
             this.txtParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam.Location = new System.Drawing.Point(8, 600);
+            this.txtParam.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.txtParam.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtParam.Location = new System.Drawing.Point(8, 603);
             this.txtParam.Name = "txtParam";
-            this.txtParam.Size = new System.Drawing.Size(32, 25);
+            this.txtParam.Size = new System.Drawing.Size(32, 18);
             this.txtParam.TabIndex = 1;
             this.txtParam.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.txtParam.Visible = false;

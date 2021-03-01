@@ -1,9 +1,3 @@
-[ODRIC 3] Feats with multiple different effects
-
-Mostly, to facilitate feats that give you an option.  These will usually require an always-on effect that presents the option, and a toggleable effect that represents what happens when you use the option.  For example, Constant Guardian should have an always-on Def Options text effect, and a toggleable effect that subtracts from your attack rolls.
-
-===
-
 [ODRIC 4] Choices associated with feats, features, etc. (like Weapon Focus)
 
 ===

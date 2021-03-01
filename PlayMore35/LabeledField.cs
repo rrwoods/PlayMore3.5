@@ -7,7 +7,6 @@ using System.Windows.Forms;
 namespace PlayMore35 {
     class LabeledField : Panel {
         private const int LABEL_LEFT = 38;
-        public const int LABEL_TOP = 3;
 
         public Label lblName;
         public TextBox txtValue;
@@ -18,15 +17,17 @@ namespace PlayMore35 {
             txtValue = new TextBox {
                 Location = new Point(0, 0),
                 Size = new Size(32, 25),
-                TextAlign = HorizontalAlignment.Center
+                TextAlign = HorizontalAlignment.Center,
+                BorderStyle = BorderStyle.None,
+                BackColor = SystemColors.ActiveCaption,
             };
             txtValue.Leave += CheckValue(name, controller);
             Controls.Add(txtValue);
 
             lblName = new Label {
-                Location = new Point(LABEL_LEFT, LABEL_TOP),
-                Text = name,
                 AutoSize = true,
+                Left = LABEL_LEFT,
+                Text = name,
                 Anchor = AnchorStyles.Left,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -58,6 +59,7 @@ namespace PlayMore35 {
                     controller.Character.paramValues[name] = 0;
                     txt.Text = "";
                 }
+                ((MainForm)txt.Parent.Parent.Parent.Parent).RefreshEffects();
             };
         }
     }
