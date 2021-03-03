@@ -134,11 +134,11 @@ namespace PlayMore35.Effects {
         }
 
         public bool ProficientWithArmor(Equipped items) {
-            return AllEffects(items).Select(x => x.ProficienctWithArmor(this, items)).Contains(true);
+            return AllEffects(items).Select(x => x.ProficientWithArmor(this, items)).Contains(true);
         }
 
         public bool ProficientWithShield(Equipped items) {
-            return AllEffects(items).Select(x => x.ProficienctWithShield(this, items)).Contains(true);
+            return AllEffects(items).Select(x => x.ProficientWithShield(this, items)).Contains(true);
         }
 
         public bool HasFlag(string flag, Equipped items) {
@@ -317,6 +317,9 @@ namespace PlayMore35.Effects {
             }
             foreach (bool proficiency in @class.ShieldProficiencies) {
                 proficiencies.AddShieldProficiency(proficiency);
+            }
+            foreach (string proficiency in @class.ExoticShieldProficiencies) {
+                proficiencies.AddExoticShieldProficiency(proficiency);
             }
             AddEffect(proficiencies);
 

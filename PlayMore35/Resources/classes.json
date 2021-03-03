@@ -130,7 +130,8 @@
     "base will save": "SLOW",
     "weapon proficiencies": [ { "proficiency": [ "SIMPLE", "MARTIAL" ] } ],
     "armor proficiencies": [ "LIGHT", "MEDIUM", "HEAVY" ],
-    "shield proficiencies": [ "tower" ],
+    "shield proficiencies": [ "normal" ],
+    "exotic shield proficiencies": [ "extreme wooden shield" ],
     "bonus feats": {
       "Fighter 1": 1,
       "Fighter 2": 2,

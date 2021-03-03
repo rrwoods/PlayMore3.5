@@ -30,7 +30,7 @@ namespace PlayMore35.Effects {
                     return 0;
                 }
                 return items.DonnedArmor.ArmorBonus + StackingRules.StackModifiers(
-                    items.DonnedArmor.Properties.Select(x => x.AcModifier),
+                    items.DonnedArmor.Properties.Select(x => x.AcModifier).Where(x => x != null),
                     pool,
                     items
                 ).mod;
@@ -40,7 +40,7 @@ namespace PlayMore35.Effects {
                     return 0;
                 }
                 return items.OffHandShield.ShieldBonus + StackingRules.StackModifiers(
-                    items.OffHandShield.Properties.Select(x => x.AcModifier),
+                    items.OffHandShield.Properties.Select(x => x.AcModifier).Where(x => x != null),
                     pool,
                     items
                 ).mod;

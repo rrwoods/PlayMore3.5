@@ -23,6 +23,9 @@ namespace PlayMore35.CharacterChoices {
         public List<AttackMatcher> WeaponProficiencies = new List<AttackMatcher>();
         public List<Armor.WeightCategory> ArmorProficiencies = new List<Armor.WeightCategory>();
         public List<bool> ShieldProficiencies = new List<bool>();
+        // once i have ACFs, this will go away, because the only class that gets an exotic shield proficiency
+        // gets it via an ACF.  as far as i know.
+        public List<string> ExoticShieldProficiencies = new List<string>();
 
         // level 1 at position 0
         // within each level, a list of named class features, each represented as one effect
@@ -54,6 +57,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("weapon proficiencies", new JArray(WeaponProficiencies)),
                 new JProperty("armor proficiencies", new JArray(ArmorProficiencies)),
                 new JProperty("shield proficiencies", new JArray(ShieldProficiencies.Select(x => x ? "tower" : "normal"))),
+                new JProperty("exotic shield proficiencies", new JArray(ExoticShieldProficiencies)),
                 new JProperty("class features", new JArray(ClassFeatures.Select(level =>
                     new JArray(level.Select(feature => new JObject(feature)))
                 )))
@@ -90,6 +94,9 @@ namespace PlayMore35.CharacterChoices {
                 (Armor.WeightCategory) Enum.Parse(typeof(Armor.WeightCategory), (string)x, false)
             ));
             ShieldProficiencies.AddRange(json["shield proficiencies"].Select(x => x.Equals("tower")));
+            if (json["exotic shield proficiencies"] != null) {
+                ExoticShieldProficiencies.AddRange(json["exotic shield proficiencies"].Select(x => (string)x));
+            }
             ClassFeatures.AddRange(json["class features"].Select(level =>
                 level.Select(feature => new Effect((JObject)feature)).ToList()
             ));

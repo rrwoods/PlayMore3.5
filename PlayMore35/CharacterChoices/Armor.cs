@@ -9,9 +9,13 @@ namespace PlayMore35.Items {
     public class Armor : IJsonable {
         public enum WeightCategory { LIGHT, MEDIUM, HEAVY };
 
+        // Serialization of these fields is based on whether it's needed for the definition of the armor.
+        // E.g. SizeCategory is not serialized because each armor can come in whatever size the player wants.
+
         public string Name;
         public int SizeCategory;
         public WeightCategory Type;
+        public bool Exotic = false;
         public decimal Weight;
 
         // All of these fields should EXCLUDE modifiers from properties.  E.g., the ACP
@@ -30,6 +34,7 @@ namespace PlayMore35.Items {
             return new JObject(
                 new JProperty("name", Name),
                 new JProperty("type", Type),
+                new JProperty("exotic", Exotic),
                 new JProperty("weight", Weight),
                 new JProperty("armor bonus", ArmorBonus),
                 new JProperty("max dex", MaxDexBonus),
@@ -42,6 +47,9 @@ namespace PlayMore35.Items {
             Name = (string)json["name"];
             SizeCategory = 0;
             Type = (WeightCategory) Enum.Parse(typeof(WeightCategory), (string)json["type"], false);
+            if (json["exotic"] != null) {
+                Exotic = (bool)json["exotic"];
+            }
             Weight = (decimal)json["weight"];
             ArmorBonus = (int)json["armor bonus"];
             MaxDexBonus = (int)json["max dex"];
@@ -54,6 +62,7 @@ namespace PlayMore35.Items {
             SizeCategory = definition.SizeCategory;
             Type = definition.Type;
             Weight = definition.Weight;
+            Exotic = definition.Exotic;
             ArmorBonus = definition.ArmorBonus;
             MaxDexBonus = definition.MaxDexBonus;
             ArmorCheckPenalty = definition.ArmorCheckPenalty;

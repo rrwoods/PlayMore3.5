@@ -5,12 +5,6 @@
 
 ===
 
-[ODRIC 3] Exotic armor and shields
-
-See Races of Stone.
-
-===
-
 [ODRIC 9] Ability-substitution effects
 
 Some way of telling a statistic "when you calculate your value, if you would add the value of X, instead add the value of Y".  Some recursion magic is probably helpful here; i.e., when you initiate the call at the top level you get to specify some substitutions, and derived calculations can add to those substitutions as necessary.  When reporting the explanation, the text should reflect the substitution (i.e. someone applying DEX with Weapon Finesse shouldn't get an explanation that mentions their STR mod)

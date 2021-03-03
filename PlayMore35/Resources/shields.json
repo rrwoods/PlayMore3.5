@@ -52,5 +52,23 @@
     "max dex": 2,
     "armor check penalty": -10,
     "spell failure": 50
+  },
+  {
+    "name": "extreme wooden shield",
+    "weight": 15,
+    "shield bonus": 3,
+    "tower": false,
+    "exotic": true,
+    "armor check penalty": -4,
+    "spell failure": 15
+  },
+  {
+    "name": "extreme steel shield",
+    "weight": 25,
+    "shield bonus": 3,
+    "tower": false,
+    "exotic": true,
+    "armor check penalty": -4,
+    "spell failure": 15
   }
 ]

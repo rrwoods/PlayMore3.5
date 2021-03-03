@@ -7,8 +7,12 @@ using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Items {
     public class Shield : IJsonable {
+        // Serialization of these fields is based on whether it's needed for the definition of the shield.
+        // E.g. SizeCategory is not serialized because each shield can come in whatever size the player wants.
+
         public string Name;
         public int SizeCategory;
+        public bool Exotic = false;
         public decimal Weight;
 
         // All of these fields should EXCLUDE modifiers from properties.  E.g., the ACP
@@ -36,6 +40,7 @@ namespace PlayMore35.Items {
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("name", Name),
+                new JProperty("exotic", Exotic),
                 new JProperty("weight", Weight),
                 new JProperty("shield bonus", ShieldBonus),
                 new JProperty("tower", Tower),
@@ -56,6 +61,9 @@ namespace PlayMore35.Items {
 
         public Shield(JObject json) {
             Name = (string)json["name"];
+            if (json["exotic"] != null) {
+                Exotic = (bool)json["exotic"];
+            }
             Weight = (decimal)json["weight"];
             ShieldBonus = (int)json["shield bonus"];
             Tower = (bool)json["tower"];
@@ -74,6 +82,7 @@ namespace PlayMore35.Items {
 
         public Shield(Shield definition) {
             Name = definition.Name;
+            Exotic = definition.Exotic;
             Weight = definition.Weight;
             ShieldBonus = definition.ShieldBonus;
             Tower = definition.Tower;

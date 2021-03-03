@@ -642,7 +642,8 @@ namespace PlayMore35.Global {
             Character.inventory[to].shields.Add(new ArmorChoice {
                 Name = shieldName,
                 SizeCategory = GetSizeCategory(),
-                ArmorProperties = properties
+                ArmorProperties = properties,
+                IsShield = true
             });
             ComputeWeight();
         }

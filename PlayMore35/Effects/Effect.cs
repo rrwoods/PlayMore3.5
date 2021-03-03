@@ -26,8 +26,15 @@ namespace PlayMore35.Effects {
 
         public readonly List<string> WeaponFamiliarity = new List<string>();
         private readonly List<AttackMatcher> WeaponProficiencies = new List<AttackMatcher>();
+
+        // This could be done as an ArmorMatcher, but that feels too heavyweight right now.  If it turns out
+        // armor proficiences get any more complicated than this, though, I will unjankify this and make an ArmorMatcher instead.
         private readonly List<Armor.WeightCategory> ArmorProficiencies = new List<Armor.WeightCategory>();
+        private readonly List<string> ExoticArmorProficiencies = new List<string>();
+
+        // See above not about armor proficiencies.
         private readonly List<bool> ShieldProficiencies = new List<bool>(); // false = shield prof, true = shield+tower prof
+        private readonly List<string> ExoticShieldProficiencies = new List<string>();
 
         private readonly List<string> Flags = new List<string>();
         public readonly List<(string category, string text)> Text = new List<(string, string)>();
@@ -57,8 +64,14 @@ namespace PlayMore35.Effects {
             if (ArmorProficiencies.Any()) {
                 json.Add("armor proficiencies", new JArray(ArmorProficiencies));
             }
+            if (ExoticArmorProficiencies.Any()) {
+                json.Add("exotic armor proficiencies", new JArray(ExoticArmorProficiencies));
+            }
             if (ShieldProficiencies.Any()) {
                 json.Add("shield proficiencies", new JArray(ShieldProficiencies.Select(x => x ? "tower" : "normal")));
+            }
+            if (ExoticShieldProficiencies.Any()) {
+                json.Add("exotic shield proficiencies", new JArray(ExoticShieldProficiencies));
             }
             json.AddList("flags", Flags);
             if (Text.Any()) {
@@ -148,8 +161,14 @@ namespace PlayMore35.Effects {
                     (Armor.WeightCategory) Enum.Parse(typeof(Armor.WeightCategory), (string)x, false)
                 ));
             }
+            if (json["exotic armor proficiencies"] != null) {
+                ExoticArmorProficiencies.AddRange(json["exotic armor proficiencies"].Select(x => (string)x));
+            }
             if (json["shield proficiencies"] != null) {
                 ShieldProficiencies.AddRange(json["shield proficiencies"].Select(x => x.Equals("tower")));
+            }
+            if (json["exotic shield proficiencies"] != null) {
+                ExoticShieldProficiencies.AddRange(json["exotic shield proficiencies"].Select(x => (string)x));
             }
             if (json["flags"] != null) {
                 Flags.AddRange(json["flags"].Select(x => (string)x));
@@ -233,8 +252,18 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        public Effect AddExoticArmorProficiency(string armor) {
+            ExoticArmorProficiencies.Add(armor);
+            return this;
+        }
+
         public Effect AddShieldProficiency(bool tower) {
             ShieldProficiencies.Add(tower);
+            return this;
+        }
+
+        public Effect AddExoticShieldProficiency(string shield) {
+            ExoticShieldProficiencies.Add(shield);
             return this;
         }
 
@@ -306,24 +335,40 @@ namespace PlayMore35.Effects {
                 : false;
         }
 
-        public bool ProficienctWithArmor(EffectPool pool, Equipped items) {
+        public bool ProficientWithArmor(EffectPool pool, Equipped items) {
             if (items.DonnedArmor == null) {
                 return true; // if you're not wearing any armor, don't take nonproficiency penalties
             }
-            if (!ArmorProficiencies.Contains(items.DonnedArmor.Type)) {
-                return false;
+            if (items.DonnedArmor.Exotic) {
+                if (!ExoticArmorProficiencies.Contains(items.DonnedArmor.Name)) {
+                    return false;
+                }
+            } else {
+                if (!ArmorProficiencies.Contains(items.DonnedArmor.Type)) {
+                    return false;
+                }
             }
             return Toggle.On(pool, items);
         }
 
-        public bool ProficienctWithShield(EffectPool pool, Equipped items) {
+        public bool ProficientWithShield(EffectPool pool, Equipped items) {
             if (items.OffHandShield == null) {
                 return true;
             }
-            bool potential =
-                (items.OffHandShield.Tower && ShieldProficiencies.Contains(true)) ||
-                (!items.OffHandShield.Tower && ShieldProficiencies.Any());
-            return potential && Toggle.On(pool, items);
+            if (items.OffHandShield.Exotic) {
+                if (!ExoticShieldProficiencies.Contains(items.OffHandShield.Name)) {
+                    return false;
+                }
+            } else if (items.OffHandShield.Tower) {
+                if (!ShieldProficiencies.Contains(true)) {
+                    return false;
+                }
+            } else {
+                if (!ShieldProficiencies.Any()) {
+                    return false;
+                }
+            }
+            return Toggle.On(pool, items);
         }
 
         public bool HasFlag(string flag) {
