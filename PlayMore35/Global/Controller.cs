@@ -620,26 +620,29 @@ namespace PlayMore35.Global {
             ComputeWeight();
         }
 
-        public void AddWeapon(string to, string weaponName) {
+        public void AddWeapon(string to, string weaponName, List<string> properties) {
             Character.inventory[to].weapons.Add(new WeaponChoice {
                 Name = weaponName,
-                SizeCategory = GetSizeCategory()
+                SizeCategory = GetSizeCategory(),
+                MeleeProperties = properties
             });
             ComputeWeight();
         }
 
-        public void AddArmor(string to, string armorName) {
+        public void AddArmor(string to, string armorName, List<string> properties) {
             Character.inventory[to].armor.Add(new ArmorChoice {
                 Name = armorName,
-                SizeCategory = GetSizeCategory()
+                SizeCategory = GetSizeCategory(),
+                ArmorProperties = properties
             });
             ComputeWeight();
         }
 
-        public void AddShield(string to, string shieldName) {
+        public void AddShield(string to, string shieldName, List<string> properties) {
             Character.inventory[to].shields.Add(new ArmorChoice {
                 Name = shieldName,
-                SizeCategory = GetSizeCategory()
+                SizeCategory = GetSizeCategory(),
+                ArmorProperties = properties
             });
             ComputeWeight();
         }

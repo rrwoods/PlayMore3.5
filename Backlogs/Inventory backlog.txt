@@ -1,7 +1,3 @@
-[ODRIC 2] When adding an item, allow selection of properties
-
-===
-
 [USABILITY] Add no-effect name-only items to a location
 
 If an item name doesn't have a definition associated with it, when the controller creates it, it should just make an item that does nothing.
@@ -9,3 +5,11 @@ If an item name doesn't have a definition associated with it, when the controlle
 ===
 
 [USABILITY] Be able to view descriptions of items
+
+===
+
+[COMMON] Weapon properties are complicated
+
+The controller needs to be able to report what modes a weapon has (melee, second melee, thrown, projectile) so that the UI can use that information to allow the user to apply different properties to the various modes.  As of this writing it only applies the properties to the melee mode.
+
+Also, allow adding weapon properties to shield bashes and armor spikes.

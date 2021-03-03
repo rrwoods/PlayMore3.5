@@ -1243,11 +1243,23 @@ namespace PlayMore35 {
                 }
 
                 if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagWeapons) {
-                    controller.AddWeapon(locationName, (string)addItemDialog.lstAddWeapon.SelectedItem);
+                    List<string> properties = new List<string>();
+                    foreach (object o in addItemDialog.lstWeaponProperties.SelectedItems) {
+                        properties.Add((string)o);
+                    }
+                    controller.AddWeapon(locationName, (string)addItemDialog.lstAddWeapon.SelectedItem, properties);
                 } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagArmor) {
-                    controller.AddArmor(locationName, (string)addItemDialog.lstAddArmor.SelectedItem);
+                    List<string> properties = new List<string>();
+                    foreach (object o in addItemDialog.lstArmorProperties.SelectedItems) {
+                        properties.Add((string)o);
+                    }
+                    controller.AddArmor(locationName, (string)addItemDialog.lstAddArmor.SelectedItem, properties);
                 } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagShields) {
-                    controller.AddShield(locationName, (string)addItemDialog.lstAddShield.SelectedItem);
+                    List<string> properties = new List<string>();
+                    foreach (object o in addItemDialog.lstShieldProperties.SelectedItems) {
+                        properties.Add((string)o);
+                    }
+                    controller.AddShield(locationName, (string)addItemDialog.lstAddShield.SelectedItem, properties);
                 } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagItems) {
                     controller.AddItem(locationName, (string)addItemDialog.lstAddItem.SelectedItem);
                 }
@@ -2054,8 +2066,13 @@ namespace PlayMore35 {
             RefreshEffects();
 
             controller.WeaponDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddWeapon.Items.Add(x));
+            controller.WeaponPropertyDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstWeaponProperties.Items.Add(x));
             controller.ArmorDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddArmor.Items.Add(x));
             controller.ShieldDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddShield.Items.Add(x));
+            controller.ArmorPropertyDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => {
+                addItemDialog.lstArmorProperties.Items.Add(x);
+                addItemDialog.lstShieldProperties.Items.Add(x);
+            });
             controller.ItemDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddItem.Items.Add(x));
         }
 

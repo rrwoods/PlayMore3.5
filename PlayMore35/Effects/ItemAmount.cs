@@ -26,10 +26,24 @@ namespace PlayMore35.Effects {
 
         public int Get(EffectPool pool, Equipped items) {
             if (Key == ARMOR_BONUS) {
-                return items.DonnedArmor?.ArmorBonus ?? +0;
+                if (items.DonnedArmor == null) {
+                    return 0;
+                }
+                return items.DonnedArmor.ArmorBonus + StackingRules.StackModifiers(
+                    items.DonnedArmor.Properties.Select(x => x.AcModifier),
+                    pool,
+                    items
+                ).mod;
             }
             if (Key == SHIELD_BONUS) {
-                return items.OffHandShield?.ShieldBonus ?? +0;
+                if (items.OffHandShield == null) {
+                    return 0;
+                }
+                return items.OffHandShield.ShieldBonus + StackingRules.StackModifiers(
+                    items.OffHandShield.Properties.Select(x => x.AcModifier),
+                    pool,
+                    items
+                ).mod;
             }
             if (Key == MAX_DEX_BONUS) {
                 // c#'s min doesn't have a 3-number overload.  i'll write one myself if this happens a lot.
