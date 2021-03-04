@@ -12,7 +12,7 @@ https://www.csharp-examples.net/separator-line/
 
 [COMMON] Unarmed strikes
 
-With at least one hand free, the attack generation routine should generate an unarmed strike attack.
+With at least one hand free, the attack generation routine should generate an unarmed strike attack.  Assume the DM will allow you to two-hand a weapon and make an unarmed strike in the same full attack routine (that is, your offhand still counts as free when only weilding one weapon).
 
 ===
 
@@ -41,6 +41,14 @@ For specifying the flow of time, the controller will have:
 For reporting what round it is, if we're in-combat it should report "round X of combat", and otherwise it should report what day and time it is.
 
 When the UI advances time it needs to refresh effects!
+
+===
+
+[USABILITY] If an effect hits every skill, don't count it as relevant
+
+Basically, what happens is if you are (for example) sickened, or defy a vestige, or something else that affects every skill check, the skills list explodes to include every skill.  Those effects shouldn't cause the Relevant function to return true.
+
+Optionally, also show those effects under the skills list.
 
 ===
 

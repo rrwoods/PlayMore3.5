@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -7,6 +8,7 @@ using PlayMore35.Effects;
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
         public static readonly string DEFAULT_CLASS = "Barbarian";
+        public enum PactState { GOOD_PACT, POOR_PACT, DEFIED };
 
         public string name;
         public string gender;
@@ -30,7 +32,7 @@ namespace PlayMore35.CharacterChoices {
         public List<(int xp, string description)> sessions;
 
         public List<Effect> unattachedEffects;
-        public List<(string name, bool good)> vestiges;
+        public List<(string name, PactState state)> vestiges;
 
         // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
         // These are for saving and loading ONLY!
@@ -63,7 +65,7 @@ namespace PlayMore35.CharacterChoices {
                     new JProperty("description", x.description)
                 )))),
                 new JProperty("effects", new JArray(unattachedEffects.Select(x => x.ToJson()))),
-                new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("good", x.good))))),
+                new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("state", x.state))))),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value))))
             );
@@ -91,7 +93,9 @@ namespace PlayMore35.CharacterChoices {
             equipped = new EquippedChoices((JObject)json["equipped"]);
             sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
             unattachedEffects = ((JArray)json["effects"]).Select(x => new Effect((JObject)x)).ToList();
-            vestiges = ((JArray)json["vestiges"]).Select(x => ((string)x["name"], (bool)x["good"])).ToList();
+            vestiges = ((JArray)json["vestiges"]).Select(x =>
+                ((string)x["name"], (PactState) Enum.Parse(typeof(PactState), (string)x["state"], false))
+            ).ToList();
             flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
             paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
         }
@@ -124,7 +128,7 @@ namespace PlayMore35.CharacterChoices {
             sessions = new List<(int xp, string description)>();
 
             unattachedEffects = new List<Effect>();
-            vestiges = new List<(string name, bool good)>();
+            vestiges = new List<(string name, PactState state)>();
 
             flagValues = new Dictionary<string, bool>();
             paramValues = new Dictionary<string, int>();

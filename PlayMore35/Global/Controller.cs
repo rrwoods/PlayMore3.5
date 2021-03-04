@@ -263,11 +263,11 @@ namespace PlayMore35.Global {
                 Effects.GenerateFeatEffects(FeatDefinitions[featName]);
             }
 
-            foreach (var (name, good) in Character.vestiges) {
+            foreach (var (name, state) in Character.vestiges) {
                 if (name == "") {
                     continue;
                 }
-                Effects.GenerateVestigeEffects(VestigeDefinitions[name], good);
+                Effects.GenerateVestigeEffects(VestigeDefinitions[name], state);
             }
 
             EquippedItems = new Equipped();
@@ -343,11 +343,19 @@ namespace PlayMore35.Global {
             }
         }
 
-        public void SelectVestige(int slotIndex, string vestige, bool good) {
-            while (character.vestiges.Count <= slotIndex) {
-                character.vestiges.Add(("", true));
+        public void ChangePactState(int slotIndex, Character.PactState state) {
+            if (character.vestiges.Count <= slotIndex) {
+                return;
             }
-            character.vestiges[slotIndex] = (vestige, good);
+            string vestige = character.vestiges[slotIndex].name;
+            character.vestiges[slotIndex] = (vestige, state);
+        }
+
+        public void SelectVestige(int slotIndex, string vestige, Character.PactState state) {
+            while (character.vestiges.Count <= slotIndex) {
+                character.vestiges.Add(("", state));
+            }
+            character.vestiges[slotIndex] = (vestige, state);
         }
 
         public void CountWeight(string locationName, bool weighs) {
@@ -802,11 +810,11 @@ namespace PlayMore35.Global {
             return VestigeDefinitions[character.vestiges[slotIndex].name];
         }
 
-        public bool GoodPact(int slotIndex) {
+        public Character.PactState PactState(int slotIndex) {
             if (character.vestiges.Count <= slotIndex) {
-                return false;
+                return Character.PactState.GOOD_PACT;
             }
-            return character.vestiges[slotIndex].good;
+            return character.vestiges[slotIndex].state;
         }
     }
 }

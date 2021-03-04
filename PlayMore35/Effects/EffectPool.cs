@@ -338,9 +338,17 @@ namespace PlayMore35.Effects {
             AddStats(feat.NewStats);
         }
 
-        public void GenerateVestigeEffects(Vestige vestige, bool good) {
-            if (!good) {
+        public void GenerateVestigeEffects(Vestige vestige, Character.PactState state) {
+            if (state == Character.PactState.POOR_PACT) {
                 AddEffect(vestige.Influence);
+            }
+            if (state == Character.PactState.DEFIED) {
+                AddEffect(new Effect($"Defied {vestige.Name}")
+                    .AddAttackModifier(AttackMatcher.ALL, new Modifier(-1, UNTYPED))
+                    .AddModifier(ALL_SAVES, new Modifier(-1, UNTYPED))
+                    .AddModifier(ABILITY_CHECKS, new Modifier(-1, UNTYPED))
+                    .AddModifier(ALL_SKILLS, new Modifier(-1, UNTYPED))
+                );
             }
             foreach (Effect ability in vestige.Abilities) {
                 AddEffect(ability);

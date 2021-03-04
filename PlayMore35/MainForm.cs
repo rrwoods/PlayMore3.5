@@ -58,7 +58,8 @@ namespace PlayMore35 {
         private int skillBufferLeft, skillLabelOffset, skillPointsBuffer;
 
         private List<Panel> vestigePanels = new List<Panel>();
-        private List<CheckBox> goodPacts = new List<CheckBox>();
+        private List<Label> stateLabels = new List<Label>();
+        private List<ListBox> pactStates = new List<ListBox>();
         private List<List<RadioButton>> vestigeChoices = new List<List<RadioButton>>();
         private int vestigePanelBuffer, vestigeChoiceBuffer;
 
@@ -1822,31 +1823,33 @@ namespace PlayMore35 {
             RefreshEffects();
         }
 
-        private EventHandler BindingCheck(int slotIndex) {
-            return (object sender, EventArgs e) => {
-                controller.Character.vestiges[slotIndex] = (controller.Character.vestiges[slotIndex].name, ((CheckBox)sender).Checked);
-            };
-        }
-
         private EventHandler ChooseVestige(int slotIndex, Vestige vestige) {
             return (object sender, EventArgs e) => {
                 if (vestige == null) {
-                    controller.SelectVestige(slotIndex, "", goodPacts[slotIndex].Checked);
-                    goodPacts[slotIndex].Text = "Good pact?";
+                    controller.SelectVestige(slotIndex, "", (Character.PactState) pactStates[slotIndex].SelectedIndex);
+                    stateLabels[slotIndex].Text = "Good pact?";
                 } else {
-                    controller.SelectVestige(slotIndex, vestige.Name, goodPacts[slotIndex].Checked);
-                    goodPacts[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
+                    controller.SelectVestige(slotIndex, vestige.Name, (Character.PactState) pactStates[slotIndex].SelectedIndex);
+                    stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
                 }
+            };
+        }
+
+        private EventHandler ChangePactState(int slotIndex) {
+            return (object sender, EventArgs e) => {
+                controller.ChangePactState(slotIndex, (Character.PactState)pactStates[slotIndex].SelectedIndex);
             };
         }
 
         private void VestigesTab_Enter(object sender, EventArgs e) {
             for (int i = 0; i < vestigePanels.Count; i++) {
                 Panel vestigePanel = vestigePanels[i];
-                vestigePanel.Controls.Remove(goodPacts[i]);
+                vestigePanel.Controls.Remove(stateLabels[i]);
+                vestigePanel.Controls.Remove(pactStates[i]);
                 ClearDynamicControls(vestigePanel, vestigeChoices[i]);
             }
-            goodPacts.Clear();
+            stateLabels.Clear();
+            pactStates.Clear();
             vestigeChoices.Clear();
             ClearDynamicControls(pagVestiges, vestigePanels);
             
@@ -1860,20 +1863,31 @@ namespace PlayMore35 {
                     Top = pnlVestige1.Top,
                     Left = vestigeLeft,
                     Size = pnlVestige1.Size,
-                    Anchor = pnlVestige1.Anchor
+                    Anchor = pnlVestige1.Anchor,
+                    AutoScroll = true
                 };
 
                 int? dc = controller.CurrentVestige(i)?.BindingDc;
-                CheckBox goodPact = new CheckBox {
-                    Location = chkGoodPact.Location,
-                    Text = (dc == null) ? "Good pact?" : $"Good pact? (Binding DC {dc})",
-                    AutoSize = true,
-                    Checked = controller.GoodPact(i)
+                Label stateLabel = new Label {
+                    Location = lblPactState.Location,
+                    Text = (dc == null) ? "Pact state" : $"Pact state (Binding DC {dc})",
+                    AutoSize = true
                 };
-                goodPact.Click += BindingCheck(i);
-                goodPacts.Add(goodPact);
-                vestigePanel.Controls.Add(goodPact);
-                Rollable(goodPact, "binding check", $"1d20{bindingCheckMod.ToString("+#;-#;\"\"")}");
+                stateLabels.Add(stateLabel);
+                vestigePanel.Controls.Add(stateLabel);
+                Rollable(stateLabel, "binding check", $"1d20{bindingCheckMod.ToString("+#;-#;\"\"")}");
+
+                ListBox state = new ListBox {
+                    Location = lstPactState.Location,
+                    Size = lstPactState.Size
+                };
+                state.Items.Add("Good pact");
+                state.Items.Add("Poor pact");
+                state.Items.Add("Defied");
+                state.SelectedIndex = (int) controller.PactState(i);
+                state.Click += ChangePactState(i);
+                pactStates.Add(state);
+                vestigePanel.Controls.Add(state);
 
                 List<RadioButton> choices = new List<RadioButton>();
                 int choiceTop = optVestige1.Top;

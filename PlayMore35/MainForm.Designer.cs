@@ -99,7 +99,6 @@
             this.pnlVestige1 = new System.Windows.Forms.Panel();
             this.optVestige2 = new System.Windows.Forms.RadioButton();
             this.optVestige1 = new System.Windows.Forms.RadioButton();
-            this.chkGoodPact = new System.Windows.Forms.CheckBox();
             this.pagStats = new System.Windows.Forms.TabPage();
             this.lblParam2 = new System.Windows.Forms.Label();
             this.lblParam = new System.Windows.Forms.Label();
@@ -158,6 +157,8 @@
             this.btnAddItem = new System.Windows.Forms.Button();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
+            this.lblPactState = new System.Windows.Forms.Label();
+            this.lstPactState = new System.Windows.Forms.ListBox();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
             this.pagVestiges.SuspendLayout();
@@ -953,9 +954,10 @@
             // 
             this.pnlVestige1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.pnlVestige1.Controls.Add(this.lstPactState);
+            this.pnlVestige1.Controls.Add(this.lblPactState);
             this.pnlVestige1.Controls.Add(this.optVestige2);
             this.pnlVestige1.Controls.Add(this.optVestige1);
-            this.pnlVestige1.Controls.Add(this.chkGoodPact);
             this.pnlVestige1.Location = new System.Drawing.Point(8, 3);
             this.pnlVestige1.Name = "pnlVestige1";
             this.pnlVestige1.Size = new System.Drawing.Size(200, 620);
@@ -965,7 +967,7 @@
             // optVestige2
             // 
             this.optVestige2.AutoSize = true;
-            this.optVestige2.Location = new System.Drawing.Point(3, 50);
+            this.optVestige2.Location = new System.Drawing.Point(3, 110);
             this.optVestige2.Name = "optVestige2";
             this.optVestige2.Size = new System.Drawing.Size(114, 21);
             this.optVestige2.TabIndex = 2;
@@ -976,23 +978,13 @@
             // optVestige1
             // 
             this.optVestige1.AutoSize = true;
-            this.optVestige1.Location = new System.Drawing.Point(3, 30);
+            this.optVestige1.Location = new System.Drawing.Point(3, 90);
             this.optVestige1.Name = "optVestige1";
             this.optVestige1.Size = new System.Drawing.Size(114, 21);
             this.optVestige1.TabIndex = 1;
             this.optVestige1.TabStop = true;
             this.optVestige1.Text = "Sample vestige";
             this.optVestige1.UseVisualStyleBackColor = true;
-            // 
-            // chkGoodPact
-            // 
-            this.chkGoodPact.AutoSize = true;
-            this.chkGoodPact.Location = new System.Drawing.Point(3, 3);
-            this.chkGoodPact.Name = "chkGoodPact";
-            this.chkGoodPact.Size = new System.Drawing.Size(189, 21);
-            this.chkGoodPact.TabIndex = 0;
-            this.chkGoodPact.Text = "Good pact? (Binding DC 20)";
-            this.chkGoodPact.UseVisualStyleBackColor = true;
             // 
             // pagStats
             // 
@@ -1697,6 +1689,28 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
+            // lblPactState
+            // 
+            this.lblPactState.AutoSize = true;
+            this.lblPactState.Location = new System.Drawing.Point(3, 3);
+            this.lblPactState.Name = "lblPactState";
+            this.lblPactState.Size = new System.Drawing.Size(158, 17);
+            this.lblPactState.TabIndex = 3;
+            this.lblPactState.Text = "Pact state (Binding DC 20)";
+            // 
+            // lstPactState
+            // 
+            this.lstPactState.FormattingEnabled = true;
+            this.lstPactState.ItemHeight = 17;
+            this.lstPactState.Items.AddRange(new object[] {
+            "Good pact",
+            "Poor pact",
+            "Defied"});
+            this.lstPactState.Location = new System.Drawing.Point(6, 23);
+            this.lstPactState.Name = "lstPactState";
+            this.lstPactState.Size = new System.Drawing.Size(179, 55);
+            this.lstPactState.TabIndex = 4;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -1859,8 +1873,9 @@
         private System.Windows.Forms.Panel pnlVestige1;
         private System.Windows.Forms.RadioButton optVestige2;
         private System.Windows.Forms.RadioButton optVestige1;
-        private System.Windows.Forms.CheckBox chkGoodPact;
         private System.Windows.Forms.Panel pnlVestige2;
+        private System.Windows.Forms.ListBox lstPactState;
+        private System.Windows.Forms.Label lblPactState;
     }
 }
 
