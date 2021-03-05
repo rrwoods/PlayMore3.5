@@ -1926,6 +1926,8 @@ namespace PlayMore35 {
         private void MainForm_Load(object sender, EventArgs e) {
             Font = scala;
 
+            Rollable(lblTestRoll, "testing...", "1d7");
+
             // this "buffer" is actually the difference between the left side of the points label and
             // the left side of a hypothetical "extra" ranks box -- makes the math easier.
             skillPointsBuffer = lblPoints.Left - 2*(txtRanksClass.Left) + txtRanksCrossClass.Left;

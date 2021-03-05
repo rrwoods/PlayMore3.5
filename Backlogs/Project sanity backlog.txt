@@ -34,3 +34,9 @@ The procedure should be:
 ===
 
 Effect removal should probably be done by some sort of unique identifier, rather than by name.  E.g., when swapping away from a vestige, I shouldn't risk removing unrelated effects.  (Alternatively, use flags to turn vestige effects on and off, but we need to do this after we aren't just piling up all the flags in the lower left)
+
+===
+
+When originally integrating the UI with the stats engine, I introduced the controller and had it contain a character, but I made that character public and had the UI interact with it directly.  My reasoning at the time was that "going through the controller's character is the same as going through the controller".  In retrospect though, if/when a UI rewrite happens I will probably end up tripping over some of the shortcuts made as a result.
+
+Make Controller.character private, and write accessors/mutators for all the stuff that breaks in the UI as a result, possibly introducing some convenience in the process where it looks warranted.

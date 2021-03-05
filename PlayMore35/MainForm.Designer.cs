@@ -97,6 +97,8 @@
             this.pagVestiges = new System.Windows.Forms.TabPage();
             this.pnlVestige2 = new System.Windows.Forms.Panel();
             this.pnlVestige1 = new System.Windows.Forms.Panel();
+            this.lstPactState = new System.Windows.Forms.ListBox();
+            this.lblPactState = new System.Windows.Forms.Label();
             this.optVestige2 = new System.Windows.Forms.RadioButton();
             this.optVestige1 = new System.Windows.Forms.RadioButton();
             this.pagStats = new System.Windows.Forms.TabPage();
@@ -157,8 +159,7 @@
             this.btnAddItem = new System.Windows.Forms.Button();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.lblPactState = new System.Windows.Forms.Label();
-            this.lstPactState = new System.Windows.Forms.ListBox();
+            this.lblTestRoll = new System.Windows.Forms.Label();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
             this.pagVestiges.SuspendLayout();
@@ -196,6 +197,7 @@
             // 
             // pagCharacter
             // 
+            this.pagCharacter.Controls.Add(this.lblTestRoll);
             this.pagCharacter.Controls.Add(this.lblSampleXp1);
             this.pagCharacter.Controls.Add(this.lblSampleXp2);
             this.pagCharacter.Controls.Add(this.lblSampleSession1);
@@ -964,6 +966,28 @@
             this.pnlVestige1.TabIndex = 0;
             this.pnlVestige1.Visible = false;
             // 
+            // lstPactState
+            // 
+            this.lstPactState.FormattingEnabled = true;
+            this.lstPactState.ItemHeight = 17;
+            this.lstPactState.Items.AddRange(new object[] {
+            "Good pact",
+            "Poor pact",
+            "Defied"});
+            this.lstPactState.Location = new System.Drawing.Point(6, 23);
+            this.lstPactState.Name = "lstPactState";
+            this.lstPactState.Size = new System.Drawing.Size(179, 55);
+            this.lstPactState.TabIndex = 4;
+            // 
+            // lblPactState
+            // 
+            this.lblPactState.AutoSize = true;
+            this.lblPactState.Location = new System.Drawing.Point(3, 3);
+            this.lblPactState.Name = "lblPactState";
+            this.lblPactState.Size = new System.Drawing.Size(158, 17);
+            this.lblPactState.TabIndex = 3;
+            this.lblPactState.Text = "Pact state (Binding DC 20)";
+            // 
             // optVestige2
             // 
             this.optVestige2.AutoSize = true;
@@ -1689,27 +1713,15 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // lblPactState
+            // lblTestRoll
             // 
-            this.lblPactState.AutoSize = true;
-            this.lblPactState.Location = new System.Drawing.Point(3, 3);
-            this.lblPactState.Name = "lblPactState";
-            this.lblPactState.Size = new System.Drawing.Size(158, 17);
-            this.lblPactState.TabIndex = 3;
-            this.lblPactState.Text = "Pact state (Binding DC 20)";
-            // 
-            // lstPactState
-            // 
-            this.lstPactState.FormattingEnabled = true;
-            this.lstPactState.ItemHeight = 17;
-            this.lstPactState.Items.AddRange(new object[] {
-            "Good pact",
-            "Poor pact",
-            "Defied"});
-            this.lstPactState.Location = new System.Drawing.Point(6, 23);
-            this.lstPactState.Name = "lstPactState";
-            this.lstPactState.Size = new System.Drawing.Size(179, 55);
-            this.lstPactState.TabIndex = 4;
+            this.lblTestRoll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTestRoll.AutoSize = true;
+            this.lblTestRoll.Location = new System.Drawing.Point(3, 515);
+            this.lblTestRoll.Name = "lblTestRoll";
+            this.lblTestRoll.Size = new System.Drawing.Size(149, 17);
+            this.lblTestRoll.TabIndex = 107;
+            this.lblTestRoll.Text = "Right-click to test rolling";
             // 
             // MainForm
             // 
@@ -1876,6 +1888,7 @@
         private System.Windows.Forms.Panel pnlVestige2;
         private System.Windows.Forms.ListBox lstPactState;
         private System.Windows.Forms.Label lblPactState;
+        private System.Windows.Forms.Label lblTestRoll;
     }
 }
 
