@@ -329,17 +329,9 @@ namespace PlayMore35.Global {
         }
 
         public void AddLevel() {
-            Character.classLevels.Add(Character.DEFAULT_CLASS);
+            Character.classLevels.Add(Character.classLevels.DefaultIfEmpty(Character.DEFAULT_CLASS).Last());
             foreach (var skill in Character.skillRanks) {
                 skill.Value.Add(0);
-            }
-        }
-
-        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, string slotName, int level) {
-            if (feats.ContainsKey(level)) {
-                feats[level].Add(slotName);
-            } else {
-                feats[level] = new List<string> { slotName };
             }
         }
 
@@ -669,6 +661,14 @@ namespace PlayMore35.Global {
         }
 
         // **** ACCESSORS ****
+
+        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, string slotName, int level) {
+            if (feats.ContainsKey(level)) {
+                feats[level].Add(slotName);
+            } else {
+                feats[level] = new List<string> { slotName };
+            }
+        }
 
         public SortedDictionary<int, List<string>> GetFeatSlots() {
             int level = Character.classLevels.Count;

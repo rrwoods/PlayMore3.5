@@ -106,6 +106,7 @@
     <Compile Include="Effects\ExtraAttack.cs" />
     <Compile Include="Effects\ISubjectMatcher.cs" />
     <Compile Include="Global\Controller.cs" />
+    <Compile Include="Global\FormUtils.cs" />
     <Compile Include="Global\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />
@@ -133,6 +134,12 @@
     <Compile Include="LabeledField.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="LevelDetailsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LevelDetailsDialog.Designer.cs">
+      <DependentUpon>LevelDetailsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -152,6 +159,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AddItemDialog.resx">
       <DependentUpon>AddItemDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LevelDetailsDialog.resx">
+      <DependentUpon>LevelDetailsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

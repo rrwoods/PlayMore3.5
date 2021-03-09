@@ -27,6 +27,8 @@
             this.lblTopLeft = new System.Windows.Forms.Label();
             this.tabMain = new System.Windows.Forms.TabControl();
             this.pagCharacter = new System.Windows.Forms.TabPage();
+            this.btnLevelDetails = new System.Windows.Forms.Button();
+            this.lblTestRoll = new System.Windows.Forms.Label();
             this.lblSampleXp1 = new System.Windows.Forms.Label();
             this.lblSampleXp2 = new System.Windows.Forms.Label();
             this.lblSampleSession1 = new System.Windows.Forms.Label();
@@ -159,7 +161,7 @@
             this.btnAddItem = new System.Windows.Forms.Button();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.lblTestRoll = new System.Windows.Forms.Label();
+            this.lblClassesHeader = new System.Windows.Forms.Label();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
             this.pagVestiges.SuspendLayout();
@@ -191,12 +193,14 @@
             this.tabMain.Location = new System.Drawing.Point(0, 0);
             this.tabMain.Name = "tabMain";
             this.tabMain.SelectedIndex = 0;
-            this.tabMain.Size = new System.Drawing.Size(1077, 661);
+            this.tabMain.Size = new System.Drawing.Size(1289, 661);
             this.tabMain.TabIndex = 1;
             this.tabMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.TabSwitch);
             // 
             // pagCharacter
             // 
+            this.pagCharacter.Controls.Add(this.lblClassesHeader);
+            this.pagCharacter.Controls.Add(this.btnLevelDetails);
             this.pagCharacter.Controls.Add(this.lblTestRoll);
             this.pagCharacter.Controls.Add(this.lblSampleXp1);
             this.pagCharacter.Controls.Add(this.lblSampleXp2);
@@ -267,16 +271,37 @@
             this.pagCharacter.Controls.Add(this.label1);
             this.pagCharacter.Location = new System.Drawing.Point(4, 26);
             this.pagCharacter.Name = "pagCharacter";
-            this.pagCharacter.Size = new System.Drawing.Size(1069, 631);
+            this.pagCharacter.Size = new System.Drawing.Size(1281, 631);
             this.pagCharacter.TabIndex = 2;
             this.pagCharacter.Text = "Character";
             this.pagCharacter.UseVisualStyleBackColor = true;
             this.pagCharacter.Enter += new System.EventHandler(this.CharacterTab_Enter);
             // 
+            // btnLevelDetails
+            // 
+            this.btnLevelDetails.Location = new System.Drawing.Point(605, 121);
+            this.btnLevelDetails.Name = "btnLevelDetails";
+            this.btnLevelDetails.Size = new System.Drawing.Size(25, 25);
+            this.btnLevelDetails.TabIndex = 108;
+            this.btnLevelDetails.Text = "...";
+            this.btnLevelDetails.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.btnLevelDetails.UseVisualStyleBackColor = true;
+            this.btnLevelDetails.Visible = false;
+            // 
+            // lblTestRoll
+            // 
+            this.lblTestRoll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTestRoll.AutoSize = true;
+            this.lblTestRoll.Location = new System.Drawing.Point(3, 515);
+            this.lblTestRoll.Name = "lblTestRoll";
+            this.lblTestRoll.Size = new System.Drawing.Size(149, 17);
+            this.lblTestRoll.TabIndex = 107;
+            this.lblTestRoll.Text = "Right-click to test rolling";
+            // 
             // lblSampleXp1
             // 
             this.lblSampleXp1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblSampleXp1.Location = new System.Drawing.Point(962, 536);
+            this.lblSampleXp1.Location = new System.Drawing.Point(1174, 536);
             this.lblSampleXp1.Name = "lblSampleXp1";
             this.lblSampleXp1.Size = new System.Drawing.Size(68, 17);
             this.lblSampleXp1.TabIndex = 106;
@@ -287,7 +312,7 @@
             // lblSampleXp2
             // 
             this.lblSampleXp2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblSampleXp2.Location = new System.Drawing.Point(962, 553);
+            this.lblSampleXp2.Location = new System.Drawing.Point(1174, 553);
             this.lblSampleXp2.Name = "lblSampleXp2";
             this.lblSampleXp2.Size = new System.Drawing.Size(68, 17);
             this.lblSampleXp2.TabIndex = 105;
@@ -298,7 +323,7 @@
             // lblSampleSession1
             // 
             this.lblSampleSession1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblSampleSession1.Location = new System.Drawing.Point(650, 536);
+            this.lblSampleSession1.Location = new System.Drawing.Point(862, 536);
             this.lblSampleSession1.Name = "lblSampleSession1";
             this.lblSampleSession1.Size = new System.Drawing.Size(306, 17);
             this.lblSampleSession1.TabIndex = 104;
@@ -309,7 +334,7 @@
             // lblSampleSession2
             // 
             this.lblSampleSession2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblSampleSession2.Location = new System.Drawing.Point(650, 553);
+            this.lblSampleSession2.Location = new System.Drawing.Point(862, 553);
             this.lblSampleSession2.Name = "lblSampleSession2";
             this.lblSampleSession2.Size = new System.Drawing.Size(306, 17);
             this.lblSampleSession2.TabIndex = 103;
@@ -320,7 +345,7 @@
             // lblTotalXp
             // 
             this.lblTotalXp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTotalXp.Location = new System.Drawing.Point(962, 601);
+            this.lblTotalXp.Location = new System.Drawing.Point(1174, 601);
             this.lblTotalXp.Name = "lblTotalXp";
             this.lblTotalXp.Size = new System.Drawing.Size(68, 25);
             this.lblTotalXp.TabIndex = 102;
@@ -331,7 +356,7 @@
             // 
             this.lblTotalXpHeader.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lblTotalXpHeader.AutoSize = true;
-            this.lblTotalXpHeader.Location = new System.Drawing.Point(853, 605);
+            this.lblTotalXpHeader.Location = new System.Drawing.Point(1065, 605);
             this.lblTotalXpHeader.Name = "lblTotalXpHeader";
             this.lblTotalXpHeader.Size = new System.Drawing.Size(103, 17);
             this.lblTotalXpHeader.TabIndex = 101;
@@ -340,7 +365,7 @@
             // btnAddSession
             // 
             this.btnAddSession.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddSession.Location = new System.Drawing.Point(1036, 573);
+            this.btnAddSession.Location = new System.Drawing.Point(1248, 573);
             this.btnAddSession.Name = "btnAddSession";
             this.btnAddSession.Size = new System.Drawing.Size(25, 25);
             this.btnAddSession.TabIndex = 100;
@@ -351,7 +376,7 @@
             // txtSessionDesc
             // 
             this.txtSessionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSessionDesc.Location = new System.Drawing.Point(650, 573);
+            this.txtSessionDesc.Location = new System.Drawing.Point(862, 573);
             this.txtSessionDesc.Name = "txtSessionDesc";
             this.txtSessionDesc.Size = new System.Drawing.Size(306, 25);
             this.txtSessionDesc.TabIndex = 98;
@@ -361,7 +386,7 @@
             // txtSessionXp
             // 
             this.txtSessionXp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSessionXp.Location = new System.Drawing.Point(962, 573);
+            this.txtSessionXp.Location = new System.Drawing.Point(1174, 573);
             this.txtSessionXp.Name = "txtSessionXp";
             this.txtSessionXp.Size = new System.Drawing.Size(68, 25);
             this.txtSessionXp.TabIndex = 99;
@@ -392,7 +417,7 @@
             // lblFeatsHeader
             // 
             this.lblFeatsHeader.AutoSize = true;
-            this.lblFeatsHeader.Location = new System.Drawing.Point(605, 94);
+            this.lblFeatsHeader.Location = new System.Drawing.Point(636, 94);
             this.lblFeatsHeader.Name = "lblFeatsHeader";
             this.lblFeatsHeader.Size = new System.Drawing.Size(35, 22);
             this.lblFeatsHeader.TabIndex = 95;
@@ -403,7 +428,7 @@
             // cboFeat
             // 
             this.cboFeat.FormattingEnabled = true;
-            this.cboFeat.Location = new System.Drawing.Point(605, 121);
+            this.cboFeat.Location = new System.Drawing.Point(636, 121);
             this.cboFeat.Name = "cboFeat";
             this.cboFeat.Size = new System.Drawing.Size(186, 25);
             this.cboFeat.TabIndex = 94;
@@ -412,7 +437,7 @@
             // lblSkills
             // 
             this.lblSkills.AutoSize = true;
-            this.lblSkills.Location = new System.Drawing.Point(859, 44);
+            this.lblSkills.Location = new System.Drawing.Point(890, 44);
             this.lblSkills.Name = "lblSkills";
             this.lblSkills.Size = new System.Drawing.Size(34, 22);
             this.lblSkills.TabIndex = 93;
@@ -423,7 +448,7 @@
             // cboAddSkill
             // 
             this.cboAddSkill.FormattingEnabled = true;
-            this.cboAddSkill.Location = new System.Drawing.Point(859, 69);
+            this.cboAddSkill.Location = new System.Drawing.Point(890, 69);
             this.cboAddSkill.Name = "cboAddSkill";
             this.cboAddSkill.Size = new System.Drawing.Size(201, 25);
             this.cboAddSkill.TabIndex = 92;
@@ -432,7 +457,7 @@
             // 
             // lblTotalHp
             // 
-            this.lblTotalHp.Location = new System.Drawing.Point(809, 93);
+            this.lblTotalHp.Location = new System.Drawing.Point(840, 93);
             this.lblTotalHp.Name = "lblTotalHp";
             this.lblTotalHp.Size = new System.Drawing.Size(32, 25);
             this.lblTotalHp.TabIndex = 91;
@@ -441,7 +466,7 @@
             // 
             // lblTotalRanks
             // 
-            this.lblTotalRanks.Location = new System.Drawing.Point(859, 94);
+            this.lblTotalRanks.Location = new System.Drawing.Point(889, 93);
             this.lblTotalRanks.Name = "lblTotalRanks";
             this.lblTotalRanks.Size = new System.Drawing.Size(41, 25);
             this.lblTotalRanks.TabIndex = 89;
@@ -451,7 +476,7 @@
             // 
             // lblPoints
             // 
-            this.lblPoints.Location = new System.Drawing.Point(951, 120);
+            this.lblPoints.Location = new System.Drawing.Point(982, 120);
             this.lblPoints.Name = "lblPoints";
             this.lblPoints.Size = new System.Drawing.Size(159, 25);
             this.lblPoints.TabIndex = 88;
@@ -462,7 +487,7 @@
             // 
             // lblSkill2
             // 
-            this.lblSkill2.Location = new System.Drawing.Point(922, 72);
+            this.lblSkill2.Location = new System.Drawing.Point(953, 72);
             this.lblSkill2.Name = "lblSkill2";
             this.lblSkill2.Size = new System.Drawing.Size(40, 21);
             this.lblSkill2.TabIndex = 87;
@@ -472,7 +497,7 @@
             // 
             // lblSkill1
             // 
-            this.lblSkill1.Location = new System.Drawing.Point(876, 72);
+            this.lblSkill1.Location = new System.Drawing.Point(907, 72);
             this.lblSkill1.Name = "lblSkill1";
             this.lblSkill1.Size = new System.Drawing.Size(40, 21);
             this.lblSkill1.TabIndex = 86;
@@ -482,7 +507,7 @@
             // 
             // lblRolledHp
             // 
-            this.lblRolledHp.Location = new System.Drawing.Point(809, 72);
+            this.lblRolledHp.Location = new System.Drawing.Point(840, 72);
             this.lblRolledHp.Name = "lblRolledHp";
             this.lblRolledHp.Size = new System.Drawing.Size(32, 21);
             this.lblRolledHp.TabIndex = 85;
@@ -492,7 +517,7 @@
             // txtRanksClass
             // 
             this.txtRanksClass.BackColor = System.Drawing.Color.PaleTurquoise;
-            this.txtRanksClass.Location = new System.Drawing.Point(905, 121);
+            this.txtRanksClass.Location = new System.Drawing.Point(936, 121);
             this.txtRanksClass.Name = "txtRanksClass";
             this.txtRanksClass.Size = new System.Drawing.Size(40, 25);
             this.txtRanksClass.TabIndex = 84;
@@ -503,7 +528,7 @@
             // txtRanksCrossClass
             // 
             this.txtRanksCrossClass.BackColor = System.Drawing.Color.Pink;
-            this.txtRanksCrossClass.Location = new System.Drawing.Point(859, 121);
+            this.txtRanksCrossClass.Location = new System.Drawing.Point(890, 121);
             this.txtRanksCrossClass.Name = "txtRanksCrossClass";
             this.txtRanksCrossClass.Size = new System.Drawing.Size(40, 25);
             this.txtRanksCrossClass.TabIndex = 83;
@@ -513,7 +538,7 @@
             // 
             // txtRolledHp
             // 
-            this.txtRolledHp.Location = new System.Drawing.Point(809, 121);
+            this.txtRolledHp.Location = new System.Drawing.Point(840, 121);
             this.txtRolledHp.Name = "txtRolledHp";
             this.txtRolledHp.Size = new System.Drawing.Size(32, 25);
             this.txtRolledHp.TabIndex = 82;
@@ -937,7 +962,7 @@
             this.pagVestiges.Controls.Add(this.pnlVestige1);
             this.pagVestiges.Location = new System.Drawing.Point(4, 26);
             this.pagVestiges.Name = "pagVestiges";
-            this.pagVestiges.Size = new System.Drawing.Size(1069, 631);
+            this.pagVestiges.Size = new System.Drawing.Size(1281, 631);
             this.pagVestiges.TabIndex = 3;
             this.pagVestiges.Text = "Vestiges";
             this.pagVestiges.UseVisualStyleBackColor = true;
@@ -1020,7 +1045,7 @@
             this.pagStats.Location = new System.Drawing.Point(4, 26);
             this.pagStats.Name = "pagStats";
             this.pagStats.Padding = new System.Windows.Forms.Padding(3);
-            this.pagStats.Size = new System.Drawing.Size(1069, 631);
+            this.pagStats.Size = new System.Drawing.Size(1281, 631);
             this.pagStats.TabIndex = 0;
             this.pagStats.Text = "Stats";
             this.pagStats.UseVisualStyleBackColor = true;
@@ -1126,7 +1151,7 @@
             this.pagInventory.Location = new System.Drawing.Point(4, 26);
             this.pagInventory.Name = "pagInventory";
             this.pagInventory.Padding = new System.Windows.Forms.Padding(3);
-            this.pagInventory.Size = new System.Drawing.Size(1069, 631);
+            this.pagInventory.Size = new System.Drawing.Size(1281, 631);
             this.pagInventory.TabIndex = 1;
             this.pagInventory.Text = "Inventory";
             this.pagInventory.UseVisualStyleBackColor = true;
@@ -1713,21 +1738,22 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // lblTestRoll
+            // lblClassesHeader
             // 
-            this.lblTestRoll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblTestRoll.AutoSize = true;
-            this.lblTestRoll.Location = new System.Drawing.Point(3, 515);
-            this.lblTestRoll.Name = "lblTestRoll";
-            this.lblTestRoll.Size = new System.Drawing.Size(149, 17);
-            this.lblTestRoll.TabIndex = 107;
-            this.lblTestRoll.Text = "Right-click to test rolling";
+            this.lblClassesHeader.AutoSize = true;
+            this.lblClassesHeader.Location = new System.Drawing.Point(367, 94);
+            this.lblClassesHeader.Name = "lblClassesHeader";
+            this.lblClassesHeader.Size = new System.Drawing.Size(47, 22);
+            this.lblClassesHeader.TabIndex = 109;
+            this.lblClassesHeader.Text = "Classes";
+            this.lblClassesHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblClassesHeader.UseCompatibleTextRendering = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1077, 661);
+            this.ClientSize = new System.Drawing.Size(1289, 661);
             this.Controls.Add(this.tabMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "MainForm";
@@ -1889,6 +1915,8 @@
         private System.Windows.Forms.ListBox lstPactState;
         private System.Windows.Forms.Label lblPactState;
         private System.Windows.Forms.Label lblTestRoll;
+        private System.Windows.Forms.Button btnLevelDetails;
+        private System.Windows.Forms.Label lblClassesHeader;
     }
 }
 

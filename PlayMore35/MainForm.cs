@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 using static PlayMore35.Properties.Resources;
 
@@ -44,11 +45,13 @@ namespace PlayMore35 {
         private List<Label> bonusLabels = new List<Label>();
         private List<ComboBox> bonusLanguages = new List<ComboBox>();
 
-        private static List<string> availableFeats = new List<string>();
         private List<ComboBox> feats = new List<ComboBox>();
+
+        private LevelDetailsDialog levelDetailsDialog;
 
         private List<ComboBox> increments = new List<ComboBox>();
         private List<ComboBox> levels = new List<ComboBox>();
+        private List<Button> levelDetails = new List<Button>();
         private List<TextBox> hpRolls = new List<TextBox>();
         private List<Label> skillNames = new List<Label>();
         private Dictionary<string, List<TextBox>> skillRanks = new Dictionary<string, List<TextBox>>();
@@ -147,21 +150,9 @@ namespace PlayMore35 {
             return pagStats;
         }
 
-        private void ClearDynamicControls<T>(Control container, List<T> controls) where T : Control {
-            foreach (T control in controls) {
-                container.Controls.Remove(control);
-            }
-            controls.Clear();
-        }
 
-        private void ClearDynamicControls<K, T>(Control container, Dictionary<K, List<T>> controls) where T : Control {
-            foreach (var category in controls) {
-                foreach (Control control in category.Value) {
-                    container.Controls.Remove(control);
-                }
-            }
-            controls.Clear();
-        }
+
+        
 
         private (int value, List<string> explanation) GetStatValue(string stat) {
             return controller.Effects.GetStat(stat).GetValue(controller.Effects, controller.EquippedItems);
@@ -392,7 +383,7 @@ namespace PlayMore35 {
             DisplayRacialAbilityModifiers();
             DisplayTotalAbilityScores();
             HandleLanguages();
-            HandleFeats();
+            DisplayFeats();
         }
 
         private void Assigned_Leave(object sender, EventArgs e) {
@@ -538,7 +529,7 @@ namespace PlayMore35 {
         private void AddLevel_Click(object sender, EventArgs e) {
             controller.AddLevel();
             DisplayLevels();
-            HandleFeats();
+            DisplayFeats();
             DisplayXp();
         }
 
@@ -558,7 +549,7 @@ namespace PlayMore35 {
 
                 DisplaySkillPoints(levelIndex);
                 CheckSkillColors(levelIndex);
-                HandleFeats();
+                DisplayFeats();
                 TextBox hp = hpRolls[levelIndex];
                 if (!int.TryParse(hp.Text, out int _)) {
                     HitDieForLevel(hp, levelIndex);
@@ -680,7 +671,7 @@ namespace PlayMore35 {
             }
         }
 
-        private void HandleFeats() {
+        private void DisplayFeats() {
             // For some reason, the race-selected method gets called before the character
             // is actually set up.
             if (!levels.Any()) {
@@ -698,6 +689,7 @@ namespace PlayMore35 {
                         Top = featTop,
                         Left = featLeft,
                         Size = cboFeat.Size,
+                        Font = scala // why do i need to do this?
                     };
                     if (controller.Character.feats.ContainsKey(slot)) {
                         featBox.Text = controller.Character.feats[slot];
@@ -712,7 +704,7 @@ namespace PlayMore35 {
                     }
                     featBox.SelectedValueChanged += SelectFeat(slot);
                     feats.Add(featBox);
-                    featLeft += featBox.Width + (cboFeat.Left - cboClass.Right);
+                    featLeft += featBox.Width + (cboFeat.Left - btnLevelDetails.Right);
                     pagCharacter.Controls.Add(featBox);
 
                     featRight = Math.Max(featRight, featBox.Right);
@@ -778,6 +770,21 @@ namespace PlayMore35 {
             totalSkillRanks[skill].Text = "" + controller.TotalSkillRanks(skill);
         }
 
+        private EventHandler PopupLevelDetails(int levelIndex) {
+            return (object sender, EventArgs e) => {
+                levelDetailsDialog.PrepareLevel(levelIndex);
+                levelDetailsDialog.ShowDialog();
+
+                controller.Character.classLevels[levelIndex] = levelDetailsDialog.GetClass();
+                foreach (var feat in levelDetailsDialog.GetFeats()) {
+                    controller.Character.feats[feat.Key] = feat.Value;
+                }
+
+                DisplayLevels();
+                DisplayFeats();
+            };
+        }
+
         private void DisplayLevels() {
             ClearDynamicControls(pagCharacter, skillNames);
             foreach (List<TextBox> boxes in skillRanks.Values) {
@@ -793,6 +800,7 @@ namespace PlayMore35 {
 
             ClearDynamicControls(pagCharacter, increments);
             ClearDynamicControls(pagCharacter, levels);
+            ClearDynamicControls(pagCharacter, levelDetails);
             ClearDynamicControls(pagCharacter, hpRolls);
             ClearDynamicControls(pagCharacter, skillPoints);
 
@@ -804,13 +812,23 @@ namespace PlayMore35 {
                     Left = cboClass.Left,
                     Size = cboClass.Size
                 };
-                foreach (string className in controller.ClassDefinitions.Keys) {
+                foreach (string className in controller.ClassDefinitions.Keys.OrderBy(x => x)) {
                     level.Items.Add(className);
                 }
                 level.Text = @class;
                 level.SelectedValueChanged += SelectClassLevel(i);
                 levels.Add(level);
                 pagCharacter.Controls.Add(level);
+
+                Button details = new Button {
+                    Top = levelTop,
+                    Left = btnLevelDetails.Left,
+                    Size = btnLevelDetails.Size,
+                    Text = btnLevelDetails.Text
+                };
+                details.Click += PopupLevelDetails(i);
+                levelDetails.Add(details);
+                pagCharacter.Controls.Add(details);
 
                 TextBox rolledHp = new TextBox {
                     Top = levelTop,
@@ -992,7 +1010,7 @@ namespace PlayMore35 {
             foreach (string skill in controller.Character.skillRanks.Keys) {
                 cboAddSkill.Items.Remove(skill);
             }
-            HandleFeats();
+            DisplayFeats();
             DisplayXp();
 
             cboRace.Text = controller.Character.race;
@@ -1947,17 +1965,21 @@ namespace PlayMore35 {
             // Remove all subsystem pages.  We will re-add them when the character gains access to the systems.
             RemoveSubsystemTabs();
 
+            addItemDialog.Font = scala;
+
             controller = new Controller(new Character());
             controller.StartRollServer();
+            levelDetailsDialog = new LevelDetailsDialog(controller) {
+                Font = scala
+            };
+            availableFeats = controller.FeatDefinitions.Keys.ToList();
+            availableFeats.Sort();
 
             List<string> availableRaces = controller.RaceDefinitions.Keys.ToList();
             availableRaces.Sort();
             foreach (string race in availableRaces) {
                 cboRace.Items.Add(race);
             }
-
-            availableFeats = controller.FeatDefinitions.Keys.ToList();
-            availableFeats.Sort();
 
             name = new Label().Initialize(this);
             desc1 = new Label().Initialize(this);

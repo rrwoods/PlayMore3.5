@@ -1,4 +1,10 @@
-Do some basic profiling; the program seems to get very slow in a long session.
+When handling dynamic controls, instead of clearing them out each time, reuse the ones that are there and add/remove at the end as needed (the same way languages are handled).  The ClearDynamicControls function should go away completely.
+
+This will probably involve writing a general-use layout function that takes in the information needed to do this:  A list of controls, a sample first control, a sample second control, items to display, and a function to determine what to display on each item.  (Potentially, optionally a function to call on each control afterward, in case there's type-specific things.  This might be a good way to handle e.g. combobox list items.)
+
+===
+
+Do some basic profiling; the program seems to get very slow in a long session. (Is this still true after fixing the above?)
 
 Rethink the way tooltips are done -- the idiomatic way is NOT to do what I currently do (which is to have a separate tooltip for each label), but rather to have one tooltip on which you change the text as the user mouses over things.  This might (?) relieve a lot of memory pressure.
 
