@@ -29,10 +29,11 @@ namespace PlayMore35 {
         }
 
         public void PrepareLevel(int levelIndex) {
+            // this MUST come first, because the SelectedItem change below triggers the SelectedItemChanged event.
+            this.levelIndex = levelIndex;
+
             Text = $"Level {levelIndex + 1}";
             cboClass.SelectedItem = controller.Character.classLevels[levelIndex];
-
-            this.levelIndex = levelIndex;
             PrepareFeats();
         }
 
