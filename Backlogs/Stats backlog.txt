@@ -4,6 +4,12 @@ Right now, spacing between sections is done by treating each List<List<Control>>
 
 ===
 
+[USABILITY] Section for effects from enemies/allies
+
+Probably underneath Condition in column 1.
+
+===
+
 [USABILITY] Maybe draw some separator lines on the form?
 
 https://www.csharp-examples.net/separator-line/
@@ -41,6 +47,12 @@ For specifying the flow of time, the controller will have:
 For reporting what round it is, if we're in-combat it should report "round X of combat", and otherwise it should report what day and time it is.
 
 When the UI advances time it needs to refresh effects!
+
+===
+
+[USABILITY] Show/hide controllable parameters based on toggles
+
+The same way we do for controllable flags.
 
 ===
 

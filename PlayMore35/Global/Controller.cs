@@ -345,6 +345,15 @@ namespace PlayMore35.Global {
             ComputeWeight();
         }
 
+        public void ForceHiddenFlagsOff() {
+            foreach (var flag in Effects.controllableFlags) {
+                if (!flag.Value.Show.On(Effects, EquippedItems)) {
+                    flag.Value.On = false;
+                    character.flagValues[flag.Key] = false;
+                }
+            }
+        }
+
         public void ComputeWeight() {
             EquippedItems.UnequippedWeight = Character.inventory.Values
                 .Where(x => x.weighs)

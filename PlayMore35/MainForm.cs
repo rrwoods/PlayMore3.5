@@ -1032,6 +1032,35 @@ namespace PlayMore35 {
         }
 
         public void RefreshEffects() {
+            controller.ForceHiddenFlagsOff();
+            ClearDynamicControls(pagStats, flagsByCategory);
+            foreach (var toggle in controller.Effects.controllableFlags) {
+                if (!toggle.Value.Show.On(controller.Effects, controller.EquippedItems)) {
+                    continue;
+                }
+
+                string toggleName = toggle.Key;
+                CheckBox chkNewToggle = new CheckBox() {
+                    AutoSize = true,
+                    Text = toggleName
+                }.Initialize(this);
+
+                ToolTipTextLabel(chkNewToggle, toggle.Value.Description);
+                if (controller.Character.flagValues.ContainsKey(toggleName)) {
+                    bool value = controller.Character.flagValues[toggleName];
+                    chkNewToggle.Checked = value;
+                    toggle.Value.On = value;
+                }
+                chkNewToggle.Click += Toggle_Click;
+
+                string category = toggle.Value.Category;
+                if (!flagsByCategory.ContainsKey(category)) {
+                    flagsByCategory[category] = new List<CheckBox>();
+                }
+                flagsByCategory[category].Add(chkNewToggle);
+                pagStats.Controls.Add(chkNewToggle);
+            }
+
             Dictionary<string, List<(string name, string desc)>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
             name.Text = controller.Character.name.ToUpper();
@@ -1813,30 +1842,6 @@ namespace PlayMore35 {
                 }
                 fieldsByCategory[category].Add(field);
                 pagStats.Controls.Add(field);
-            }
-
-            ClearDynamicControls(pagStats, flagsByCategory);
-            foreach (var toggle in controller.Effects.controllableFlags) {
-                string toggleName = toggle.Key;
-                CheckBox chkNewToggle = new CheckBox() {
-                    AutoSize = true,
-                    Text = toggleName
-                }.Initialize(this);
-
-                ToolTipTextLabel(chkNewToggle, toggle.Value.Description);
-                if (controller.Character.flagValues.ContainsKey(toggleName)) {
-                    bool value = controller.Character.flagValues[toggleName];
-                    chkNewToggle.Checked = value;
-                    toggle.Value.On = value;
-                }
-                chkNewToggle.Click += Toggle_Click;
-
-                string category = toggle.Value.Category;
-                if (!flagsByCategory.ContainsKey(category)) {
-                    flagsByCategory[category] = new List<CheckBox>();
-                }
-                flagsByCategory[category].Add(chkNewToggle);
-                pagStats.Controls.Add(chkNewToggle);
             }
 
             RefreshEffects();

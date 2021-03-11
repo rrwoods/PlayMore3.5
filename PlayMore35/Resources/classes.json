@@ -32,7 +32,8 @@
         {
           "name": "whirling frenzy (extra attack)",
           "category": "Atk Options",
-          "description": "While in whirling frenzy, you can make an extra attack, but you take -2 on attack rolls that round."
+          "description": "While in whirling frenzy, you can make an extra attack, but you take -2 on attack rolls that round.",
+          "show": { "flag": "whirling frenzy" }
         }
       ]
     ],
