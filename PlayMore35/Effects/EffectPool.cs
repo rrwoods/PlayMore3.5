@@ -331,8 +331,12 @@ namespace PlayMore35.Effects {
             }
         }
 
-        public void GenerateFeatEffects(Feat feat) {
-            AddEffect(feat.Benefit);
+        public void GenerateFeatEffects(Feat feat, string choice) {
+            Effect benefit = feat.Benefit;
+            if (choice.Any()) {
+                benefit = benefit.ApplyChoice(choice);
+            }
+            AddEffect(benefit);
             feat.Flags.ForEach(x => controllableFlags[x.Name] = x);
             feat.Parameters.ForEach(x => controllableParameters[x.Name] = x);
             AddStats(feat.NewStats);

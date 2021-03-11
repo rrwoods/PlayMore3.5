@@ -12,5 +12,12 @@ namespace PlayMore35.Effects {
             );
             return json;
         }
+
+        public Alterer<AlterType, SubjectType> ApplyChoice(string choice) {
+            return new Alterer<AlterType, SubjectType> {
+                mod = mod,
+                affects = affects.ApplyChoice(choice)
+            };
+        }
     }
 }

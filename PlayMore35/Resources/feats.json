@@ -632,7 +632,7 @@
   },
   {
     "prerequisites": "Base attack bonus +1",
-    "choice": "Weapon",
+    "choice": "exotic weapon",
     "benefit": {
       "name": "Exotic Weapon Proficiency",
       "weapon proficiencies": [
@@ -740,7 +740,7 @@
     }
   },
   {
-    "choice": "School of magic",
+    "choice": "school of magic",
     "prerequisites": "Spell Focus in selected school",
     "benefit": {
       "name": "Greater Spell Focus",
@@ -785,7 +785,7 @@
   },
   {
     "prerequisites": "Proficiency with selected weapon, Weapon Focus with selected weapon, fighter level 8th",
-    "choice": "Weapon",
+    "choice": "weapon",
     "benefit": {
       "name": "Greater Weapon Focus",
       "attack": [
@@ -807,7 +807,7 @@
   },
   {
     "prerequisites": "Proficiency with selected weapon, Greater Weapon Focus with selected weapon, Weapon Focus with selected weapon, Weapon Specialization with selected weapon, fighter level 12th",
-    "choice": "Weapon",
+    "choice": "weapon",
     "benefit": {
       "name": "Greater Weapon Specialization",
       "damage": [
@@ -864,7 +864,7 @@
   },
   {
     "prerequisites": "Proficiency with selected weapon, base attack bonus +8",
-    "choice": "Weapon",
+    "choice": "weapon",
     "benefit": {
       "name": "Improved Critical",
       "threat": [
@@ -1172,7 +1172,7 @@
     }
   },
   {
-    "choice": "Weapon",
+    "choice": "martial weapon",
     "benefit": {
       "name": "Martial Weapon Proficiency",
       "weapon proficiencies": [
@@ -1492,7 +1492,7 @@
     }
   },
   {
-    "choice": "Hand crossbow or light crossbow",
+    "choice": "hand or light crossbow",
     "prerequisites": "Proficiency with chosen crossbow",
     "benefit": {
       "name": "Rapid Reload",

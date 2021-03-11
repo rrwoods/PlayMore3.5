@@ -1,7 +1,3 @@
-[ODRIC 4] Choices associated with feats, features, etc. (like Weapon Focus)
-
-===
-
 [USABILITY] ACFs, taking into consideration that some ACFs replace groups of features
 (this is marked as usability, because for now I'm just putting the ACFs I actually use into the classes themselves)
 
@@ -12,6 +8,12 @@
 tab order weirdness when adding dynamic stuff
 
 arrow keys to move around the levels area?
+
+===
+
+[ALTH] Choices associated with class features
+
+e.g. swordsage's discipline focus
 
 ===
 

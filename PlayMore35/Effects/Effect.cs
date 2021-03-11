@@ -180,6 +180,35 @@ namespace PlayMore35.Effects {
             }
         }
 
+        public Effect ApplyChoice(string choice) {
+            Effect copy = new Effect(Name) {
+                Toggle = Toggle
+            };
+
+            copy.ExtraAttacks.AddRange(ExtraAttacks.Select(x => x.ApplyChoice(choice)));
+            copy.AttackModifiers.AddRange(AttackModifiers.Select(x => x.ApplyChoice(choice)));
+            copy.DamageModifiers.AddRange(DamageModifiers.Select(x => x.ApplyChoice(choice)));
+            copy.ExtraDice.AddRange(ExtraDice.Select(x => x.ApplyChoice(choice)));
+            copy.ThreatModifiers.AddRange(ThreatModifiers.Select(x => x.ApplyChoice(choice)));
+            copy.RangeMultipliers.AddRange(RangeMultipliers.Select(x => x.ApplyChoice(choice)));
+            copy.Modifiers.AddRange(Modifiers.Select(x => x.ApplyChoice(choice)));
+            copy.Multipliers.AddRange(Multipliers.Select(x => x.ApplyChoice(choice)));
+
+            copy.WeaponFamiliarity.AddRange(WeaponFamiliarity.Select(x => x.Replace("$", choice)));
+            copy.WeaponProficiencies.AddRange(WeaponProficiencies.Select(x => (AttackMatcher) x.ApplyChoice(choice)));
+
+            copy.ArmorProficiencies.AddRange(ArmorProficiencies);
+            copy.ExoticArmorProficiencies.AddRange(ExoticArmorProficiencies.Select(x => x.Replace("$", choice)));
+
+            copy.ShieldProficiencies.AddRange(ShieldProficiencies);
+            copy.ExoticShieldProficiencies.AddRange(ExoticShieldProficiencies.Select(x => x.Replace("$", choice)));
+
+            copy.Flags.AddRange(Flags.Select(x => x.Replace("$", choice)));
+            copy.Text.AddRange(Text.Select(x => (x.category, x.text.Replace("$", choice))));
+
+            return copy;
+        }
+
         public Effect SetToggle(IToggle toggle) {
             Toggle = toggle;
             return this;

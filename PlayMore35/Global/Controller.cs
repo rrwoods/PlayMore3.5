@@ -88,6 +88,30 @@ namespace PlayMore35.Global {
             return skill.Substring(0, 3);
         }
 
+        private IEnumerable<string> weaponNames;
+        private IEnumerable<string> martialWeaponNames;
+        private IEnumerable<string> exoticWeaponNames;
+        private readonly IEnumerable<string> crossbows = new string[] { "hand crossbow", "light crossbow" };
+
+        public IEnumerable<string> ChoicesForKey(string choiceDescription) {
+            switch (choiceDescription) {
+                case "hand or light crossbow":
+                    return crossbows;
+                case "school of magic":
+                    return SCHOOLS_OF_MAGIC;
+                case "skill":
+                    return SKILLS_LIST;
+                case "weapon":
+                    return weaponNames;
+                case "martial weapon":
+                    return martialWeaponNames;
+                case "exotic weapon":
+                    return exoticWeaponNames;
+                default:
+                    return Enumerable.Empty<string>();
+            }
+        }
+
         // **** INITIALIZATION AND RELOAD FUNCTIONS ****
 
         public Controller(Character character) {
@@ -218,6 +242,16 @@ namespace PlayMore35.Global {
             WeaponDefinitions = GetResource(Properties.Resources.weapons, "weapons.json")
                 .Select(x => new Weapon((JObject)x))
                 .ToDictionary(x => x.Name);
+            weaponNames = WeaponDefinitions.Keys.OrderBy(x => x);
+            martialWeaponNames = WeaponDefinitions
+                .Where(x => x.Value.GetProficiency() == Weapon.Proficiency.MARTIAL)
+                .Select(x => x.Key)
+                .OrderBy(x => x);
+            exoticWeaponNames = WeaponDefinitions
+                .Where(x => x.Value.GetProficiency() == Weapon.Proficiency.EXOTIC)
+                .Select(x => x.Key)
+                .OrderBy(x => x);
+
             ArmorDefinitions = GetResource(Properties.Resources.armor, "armor.json")
                 .Select(x => new Armor((JObject)x))
                 .ToDictionary(x => x.Name);
@@ -259,8 +293,13 @@ namespace PlayMore35.Global {
                     }
                 }
             }
-            foreach (string featName in Character.feats.Values) {
-                Effects.GenerateFeatEffects(FeatDefinitions[featName]);
+            foreach (var feat in Character.feats) {
+                string featSlot = feat.Key;
+                string featName = feat.Value;
+                Effects.GenerateFeatEffects(
+                    FeatDefinitions[featName],
+                    Character.featChoices.ContainsKey(featSlot) ? Character.featChoices[featSlot] : ""
+                );
             }
 
             foreach (var (name, state) in Character.vestiges) {

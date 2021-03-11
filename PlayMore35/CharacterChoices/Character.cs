@@ -21,7 +21,8 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<int, string> abilityScoreIncrements;
         public List<int> rolledHitDice;
         public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
-        public Dictionary<string, string> feats; // keys are feat slots, values are feat names
+        public Dictionary<string, string> feats; // {feat slot -> feat name}
+        public Dictionary<string, string> featChoices; // {feat slot -> choice} --- "choice" here is e.g. a weapon for Weapon Focus
 
         public List<(decimal gp, string description)> transactions;
         // All items available to the character that are not currently equipped
@@ -52,6 +53,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("hit die rolls", new JArray(rolledHitDice)),
                 new JProperty("skill ranks", new JObject(skillRanks.Select(x => new JProperty(x.Key, new JArray(x.Value))))),
                 new JProperty("feats", new JObject(feats.Select(x => new JProperty(x.Key, x.Value)))),
+                new JProperty("feat choices", new JObject(featChoices.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("transactions", new JArray(transactions.Select(x => new JObject(
                     new JProperty("amount", x.gp),
                     new JProperty("description", x.description)
@@ -87,6 +89,7 @@ namespace PlayMore35.CharacterChoices {
                 skill => ((JArray)skill.Value).Select(ranks => (int)ranks).ToList()
             );
             feats = ((JObject)json["feats"]).Properties().ToDictionary(x => x.Name, x => (string)x.Value);
+            featChoices = ((JObject)json["feat choices"]).Properties().ToDictionary(x => x.Name, x => (string)x.Value);
             transactions = ((JArray)json["transactions"]).Select(x => ((decimal)x["amount"], (string)x["description"])).ToList();
             inventory = ((JObject)json["inventory"]).Properties()
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
@@ -121,6 +124,7 @@ namespace PlayMore35.CharacterChoices {
             rolledHitDice = new List<int>();
             skillRanks = new Dictionary<string, List<int>>();
             feats = new Dictionary<string, string>();
+            featChoices = new Dictionary<string, string>();
 
             transactions = new List<(decimal gp, string description)>();
             inventory = new Dictionary<string, InventoryLocation>();

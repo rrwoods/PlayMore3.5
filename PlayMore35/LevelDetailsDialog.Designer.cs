@@ -29,6 +29,8 @@
             this.cboFeat2 = new System.Windows.Forms.ComboBox();
             this.lblFeatSlot1 = new System.Windows.Forms.Label();
             this.lblFeatSlot2 = new System.Windows.Forms.Label();
+            this.lblFeatChoice = new System.Windows.Forms.Label();
+            this.cboFeatChoice = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // lblClassHeader
@@ -89,6 +91,25 @@
             this.lblFeatSlot2.Text = "Feat slot";
             this.lblFeatSlot2.Visible = false;
             // 
+            // lblFeatChoice
+            // 
+            this.lblFeatChoice.AutoSize = true;
+            this.lblFeatChoice.Location = new System.Drawing.Point(267, 62);
+            this.lblFeatChoice.Name = "lblFeatChoice";
+            this.lblFeatChoice.Size = new System.Drawing.Size(73, 17);
+            this.lblFeatChoice.TabIndex = 7;
+            this.lblFeatChoice.Text = "Feat choice";
+            this.lblFeatChoice.Visible = false;
+            // 
+            // cboFeatChoice
+            // 
+            this.cboFeatChoice.FormattingEnabled = true;
+            this.cboFeatChoice.Location = new System.Drawing.Point(270, 82);
+            this.cboFeatChoice.Name = "cboFeatChoice";
+            this.cboFeatChoice.Size = new System.Drawing.Size(186, 25);
+            this.cboFeatChoice.TabIndex = 8;
+            this.cboFeatChoice.Visible = false;
+            // 
             // LevelDetailsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -96,6 +117,8 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(934, 589);
+            this.Controls.Add(this.cboFeatChoice);
+            this.Controls.Add(this.lblFeatChoice);
             this.Controls.Add(this.lblFeatSlot2);
             this.Controls.Add(this.lblFeatSlot1);
             this.Controls.Add(this.cboFeat2);
@@ -123,5 +146,7 @@
         private System.Windows.Forms.ComboBox cboFeat2;
         private System.Windows.Forms.Label lblFeatSlot1;
         private System.Windows.Forms.Label lblFeatSlot2;
+        private System.Windows.Forms.Label lblFeatChoice;
+        private System.Windows.Forms.ComboBox cboFeatChoice;
     }
 }

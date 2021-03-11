@@ -16,8 +16,10 @@ namespace PlayMore35 {
         private Controller controller;
 
         private int levelIndex;
-        private List<ComboBox> feats = new List<ComboBox>();
         private List<Label> slotNames = new List<Label>();
+        private List<ComboBox> feats = new List<ComboBox>();
+        private Dictionary<string, Label> choiceLabels = new Dictionary<string, Label>();
+        private Dictionary<string, Control> featChoices = new Dictionary<string, Control>();
 
         public LevelDetailsDialog(Controller controller) {
             InitializeComponent();
@@ -48,20 +50,24 @@ namespace PlayMore35 {
 
             int featLeft = cboFeat1.Left;
             foreach (string featSlot in featSlots[levelIndex + 1]) {
-                ComboBox feat = new ComboBox {
+                ComboBox featBox = new ComboBox {
                     Top = cboFeat1.Top,
                     Left = featLeft,
                     Size = cboFeat1.Size,
                     Tag = featSlot
                 };
                 foreach (string availableFeat in availableFeats) {
-                    feat.Items.Add(availableFeat);
+                    featBox.Items.Add(availableFeat);
                 }
                 if (controller.Character.feats.ContainsKey(featSlot)) {
-                    feat.SelectedItem = controller.Character.feats[featSlot];
+                    string featName = controller.Character.feats[featSlot];
+                    featBox.SelectedItem = featName;
+
+                    PrepareFeatChoice(controller.FeatDefinitions[featName].ChoiceDescription, featSlot, featLeft);
                 }
-                feats.Add(feat);
-                Controls.Add(feat);
+                featBox.SelectedValueChanged += SelectFeat(featSlot, featLeft);
+                feats.Add(featBox);
+                Controls.Add(featBox);
 
                 Label slotName = new Label {
                     Top = lblFeatSlot1.Top,
@@ -75,9 +81,66 @@ namespace PlayMore35 {
             }
         }
 
+        private void PrepareFeatChoice(string choiceDescription, string featSlot, int left) {
+            if (featChoices.ContainsKey(featSlot)) {
+                Controls.Remove(choiceLabels[featSlot]);
+                choiceLabels.Remove(featSlot);
+                Controls.Remove(featChoices[featSlot]);
+                featChoices.Remove(featSlot);
+            }
+            if (!choiceDescription.Any()) {
+                return;
+            }
+
+            Label header = new Label {
+                Top = lblFeatChoice.Top,
+                Left = left,
+                AutoSize = true,
+                Text = $"Choose {choiceDescription}",
+            };
+            choiceLabels[featSlot] = header;
+            Controls.Add(header);
+
+            IEnumerable<string> choices = controller.ChoicesForKey(choiceDescription);
+            Control choiceBox;
+            if (choices.Any()) {
+                choiceBox = new ComboBox {
+                    Top = cboFeatChoice.Top,
+                    Left = left,
+                    Size = cboFeatChoice.Size,
+                    Tag = featSlot,
+                };
+                foreach (string choice in choices) {
+                    ((ComboBox)choiceBox).Items.Add(choice);
+                }
+            } else {
+                choiceBox = new TextBox {
+                    Top = cboFeatChoice.Top,
+                    Left = left,
+                    Size = cboFeatChoice.Size,
+                    Tag = featSlot,
+                };
+            }
+            if (controller.Character.featChoices.ContainsKey(featSlot)) {
+                choiceBox.Text = controller.Character.featChoices[featSlot];
+            }
+            featChoices[featSlot] = choiceBox;
+            Controls.Add(choiceBox);
+        }
+
         public void SelectClass(object sender, EventArgs e) {
             controller.Character.classLevels[levelIndex] = cboClass.Text;
             PrepareFeats();
+        }
+
+        public EventHandler SelectFeat(string featSlot, int left) {
+            return (object sender, EventArgs e) => {
+                PrepareFeatChoice(
+                    controller.FeatDefinitions[((Control)sender).Text].ChoiceDescription,
+                    featSlot,
+                    left
+                );
+            };
         }
 
         public string GetClass() {
@@ -88,6 +151,10 @@ namespace PlayMore35 {
             return Enumerable.Range(0, feats.Count)
                 .Where(i => feats[i].Text.Any())
                 .ToDictionary(i => (string) feats[i].Tag, i => feats[i].Text);
+        }
+
+        public Dictionary<string, string> GetFeatChoices() {
+            return featChoices.ToDictionary(x => x.Key, x => x.Value.Text);
         }
     }
 }

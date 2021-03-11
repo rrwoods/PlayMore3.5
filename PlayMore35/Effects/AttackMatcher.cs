@@ -56,6 +56,12 @@ namespace PlayMore35.Effects {
             }
         }
 
+        public ISubjectMatcher<Attack> ApplyChoice(string choice) {
+            return new AttackMatcher {
+                matchers = matchers.Select(x => x.ApplyChoice(choice)).ToList()
+            };
+        }
+
         public AttackMatcher() {
 
         }
@@ -194,6 +200,7 @@ namespace PlayMore35.Effects {
 
     interface IMatcher : IJsonable {
         bool Matches(Attack attack);
+        IMatcher ApplyChoice(string choice);
     }
 
     class NameMatcher : IMatcher {
@@ -203,12 +210,20 @@ namespace PlayMore35.Effects {
             return new JProperty("name", new JArray(Names));
         }
 
+        public NameMatcher() {
+
+        }
+
         public NameMatcher(List<string> names) {
-            Names = names.ToList();
+            Names = names;
         }
 
         public bool Matches(Attack attack) {
             return Names.Contains(attack.WeaponName);
+        }
+
+        public IMatcher ApplyChoice(string choice) { 
+            return new NameMatcher(Names.Select(x => x.Replace("$", choice)).ToList());
         }
     }
 
@@ -219,12 +234,20 @@ namespace PlayMore35.Effects {
             return new JProperty("tag", Tag);
         }
 
+        public TagMatcher() {
+
+        }
+
         public TagMatcher(string tag) {
             Tag = tag;
         }
 
         public bool Matches(Attack attack) {
             return attack.WeaponTags.Contains(Tag);
+        }
+
+        public IMatcher ApplyChoice(string choice) { 
+            return new TagMatcher(Tag.Replace("$", choice));
         }
     }
 
@@ -235,12 +258,20 @@ namespace PlayMore35.Effects {
             return new JProperty("size", SizeCategory);
         }
 
+        public SizeMatcher() {
+
+        }
+
         public SizeMatcher(int sizeCategory) {
             SizeCategory = sizeCategory;
         }
 
         public bool Matches(Attack attack) {
             return attack.WeaponSizeCategory == SizeCategory;
+        }
+
+        public IMatcher ApplyChoice(string choice) {
+            return this;
         }
     }
 
@@ -251,6 +282,14 @@ namespace PlayMore35.Effects {
             return new JProperty("proficiency", new JArray(Proficiencies.Select(x => x.ToString())));
         }
 
+        public ProficiencyMatcher(List<Weapon.Proficiency> proficiencies) {
+            Proficiencies = proficiencies;
+        }
+
+        public ProficiencyMatcher() {
+
+        }
+
         public ProficiencyMatcher AddProficiency(Weapon.Proficiency proficiency) {
             Proficiencies.Add(proficiency);
             return this;
@@ -258,6 +297,10 @@ namespace PlayMore35.Effects {
 
         public bool Matches(Attack attack) {
             return Proficiencies.Contains(attack.Proficiency);
+        }
+
+        public IMatcher ApplyChoice(string choice) {
+            return this;
         }
     }
 
@@ -268,6 +311,14 @@ namespace PlayMore35.Effects {
             return new JProperty("effort", new JArray(Efforts.Select(x => x.ToString())));
         }
 
+        public EffortMatcher() {
+
+        }
+
+        public EffortMatcher(List<Weapon.Effort> efforts) {
+            Efforts = efforts;
+        }
+
         public EffortMatcher AddEffort(Weapon.Effort effort) {
             Efforts.Add(effort);
             return this;
@@ -275,6 +326,10 @@ namespace PlayMore35.Effects {
 
         public bool Matches(Attack attack) {
             return Efforts.Contains(attack.Effort);
+        }
+
+        public IMatcher ApplyChoice(string choice) {
+            return this;
         }
     }
     
@@ -285,6 +340,14 @@ namespace PlayMore35.Effects {
             return new JProperty("hand", new JArray(Hands.Select(x => x.ToString())));
         }
 
+        public HandMatcher() {
+
+        }
+
+        public HandMatcher(List<Weapon.Hand> hands) {
+            Hands = hands;
+        }
+
         public HandMatcher AddHand(Weapon.Hand hand) {
             Hands.Add(hand);
             return this;
@@ -293,10 +356,22 @@ namespace PlayMore35.Effects {
         public bool Matches(Attack attack) {
             return Hands.Contains(attack.Hand);
         }
+
+        public IMatcher ApplyChoice(string choice) {
+            return this;
+        }
     }
 
     class RangeMatcher : IMatcher {
         private readonly List<Weapon.Range> Ranges = new List<Weapon.Range>();
+
+        public RangeMatcher(List<Weapon.Range> ranges) {
+            Ranges = ranges;
+        }
+
+        public RangeMatcher() {
+
+        }
 
         public JToken ToJson() {
             return new JProperty("range", new JArray(Ranges.Select(x => x.ToString())));
@@ -309,6 +384,10 @@ namespace PlayMore35.Effects {
 
         public bool Matches(Attack attack) {
             return Ranges.Contains(attack.Range);
+        }
+
+        public IMatcher ApplyChoice(string choice) {
+            return this;
         }
     }
 }

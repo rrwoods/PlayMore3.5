@@ -779,6 +779,7 @@ namespace PlayMore35 {
                 foreach (var feat in levelDetailsDialog.GetFeats()) {
                     controller.Character.feats[feat.Key] = feat.Value;
                 }
+                controller.Character.featChoices = levelDetailsDialog.GetFeatChoices();
 
                 DisplayLevels();
                 DisplayFeats();

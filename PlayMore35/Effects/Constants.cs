@@ -284,6 +284,10 @@
         public static readonly string STUNNED = "stunned";
         public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
 
+        public static readonly string[] SCHOOLS_OF_MAGIC = new string[] {
+            "Abjuration", "Conjuration", "Divination", "Enchantment", "Evocation", "Illusion", "Necromancy", "Transmutation"
+        };
+
         public static readonly string EFFECTIVE_BINDER_LEVEL = "effective binder level";
         public static readonly string BINDING_CHECK = "binding check";
         public static readonly string MAX_VESTIGE_LEVEL = "maximum vestige level";

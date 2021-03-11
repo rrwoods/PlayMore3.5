@@ -129,5 +129,22 @@ namespace PlayMore35.Items {
             }
             return effects;
         }
+
+        public Proficiency GetProficiency() {
+            Proficiency proficiency = Proficiency.EXOTIC;
+            if (Melee != null && Melee?.atk.ProficencyCategory < proficiency) {
+                proficiency = (Proficiency) Melee?.atk.ProficencyCategory;
+            }
+            if (Projectile != null && Projectile?.atk.ProficencyCategory < proficiency) {
+                proficiency = (Proficiency) Projectile?.atk.ProficencyCategory;
+            }
+            if (Thrown != null && Thrown?.ProficencyCategory < proficiency) {
+                proficiency = (Proficiency) Thrown?.ProficencyCategory;
+            }
+            if (proficiency == Proficiency.ONE_HANDED_EXOTIC) {
+                proficiency = Proficiency.EXOTIC;
+            }
+            return proficiency;
+        }
     }
 }
