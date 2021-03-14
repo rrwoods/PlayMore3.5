@@ -37,6 +37,8 @@ namespace PlayMore35.Global {
 
         public Dictionary<string, Vestige> VestigeDefinitions;
 
+        public Dictionary<string, ExternalEffect> ExternalEffectDefinitions;
+
         public Character Character {
             get { return character; }
             set {
@@ -274,6 +276,10 @@ namespace PlayMore35.Global {
                 .Select(x => new Vestige((JObject)x))
                 .ToDictionary(x => x.Name);
 
+            ExternalEffectDefinitions = GetResource(Properties.Resources.external, "external.json")
+                .Select(x => new ExternalEffect((JObject)x))
+                .ToDictionary(x => x.Effect.Name);
+
             Race race = RaceDefinitions[Character.race];
             Effects.GenerateRaceEffects(race);
             NormalSizeCategory = race.SizeCategory;
@@ -308,6 +314,8 @@ namespace PlayMore35.Global {
                 }
                 Effects.GenerateVestigeEffects(VestigeDefinitions[name], state);
             }
+
+            Character.externalEffects.ForEach(x => Effects.GenerateExternalEffect(ExternalEffectDefinitions[x]));
 
             EquippedItems = new Equipped();
 

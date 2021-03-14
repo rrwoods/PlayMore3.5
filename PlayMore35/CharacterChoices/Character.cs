@@ -32,7 +32,7 @@ namespace PlayMore35.CharacterChoices {
 
         public List<(int xp, string description)> sessions;
 
-        public List<Effect> unattachedEffects;
+        public List<string> externalEffects;
         public List<(string name, PactState state)> vestiges;
 
         // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
@@ -66,7 +66,7 @@ namespace PlayMore35.CharacterChoices {
                     new JProperty("xp", x.xp),
                     new JProperty("description", x.description)
                 )))),
-                new JProperty("effects", new JArray(unattachedEffects.Select(x => x.ToJson()))),
+                new JProperty("effects", new JArray(externalEffects)),
                 new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("state", x.state))))),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value))))
@@ -95,7 +95,7 @@ namespace PlayMore35.CharacterChoices {
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
             equipped = new EquippedChoices((JObject)json["equipped"]);
             sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
-            unattachedEffects = ((JArray)json["effects"]).Select(x => new Effect((JObject)x)).ToList();
+            externalEffects = ((JArray)json["effects"]).Select(x => (string)x).ToList();
             vestiges = ((JArray)json["vestiges"]).Select(x =>
                 ((string)x["name"], (PactState) Enum.Parse(typeof(PactState), (string)x["state"], false))
             ).ToList();
@@ -131,7 +131,7 @@ namespace PlayMore35.CharacterChoices {
             equipped = new EquippedChoices();
             sessions = new List<(int xp, string description)>();
 
-            unattachedEffects = new List<Effect>();
+            externalEffects = new List<string>();
             vestiges = new List<(string name, PactState state)>();
 
             flagValues = new Dictionary<string, bool>();

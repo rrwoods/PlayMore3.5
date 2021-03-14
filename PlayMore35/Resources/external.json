@@ -1,0 +1,35 @@
+[
+  {
+    "flags": [
+      {
+        "name": "entangle (saved)",
+        "category": "Condition",
+        "description": "In the area of an entangle spell for which you made your save, or from which you've broken free with a DC 20 Strength or Escape Artist check."
+      }
+    ],
+    "effect": {
+      "name": "entangle (saved)",
+      "active": { "flag": "entangle (saved)" },
+      "multipliers": [
+        {
+          "mod": 0.5,
+          "affects": "All speeds"
+        }
+      ]
+    }
+  },
+  {
+    "flags": [
+      {
+        "name": "entangle (failed)",
+        "category": "Condition",
+        "description": "In the area of an entangle spell for which you failed your save."
+      }
+    ],
+    "effect": {
+      "name": "entangle (failed)",
+      "active": { "flag": "entangle (failed)" },
+      "flags": [ "entangled" ]
+    }
+  }
+]

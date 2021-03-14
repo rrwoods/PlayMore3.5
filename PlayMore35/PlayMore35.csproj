@@ -85,6 +85,7 @@
       <DependentUpon>AddItemDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="CharacterChoices\CharacterClass.cs" />
+    <Compile Include="CharacterChoices\ExternalEffect.cs" />
     <Compile Include="CharacterChoices\Feat.cs" />
     <Compile Include="CharacterChoices\Race.cs" />
     <Compile Include="CharacterChoices\EquippedChoices.cs" />
@@ -191,6 +192,7 @@
     <None Include="Resources\items.json" />
     <EmbeddedResource Include="Resources\Scala_SansRegular_LF.ttf" />
     <None Include="Resources\classes.json" />
+    <None Include="Resources\external.json" />
     <None Include="Resources\races.json" />
     <None Include="Resources\shields.json" />
     <None Include="Resources\rules.json" />

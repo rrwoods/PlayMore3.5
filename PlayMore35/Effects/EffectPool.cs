@@ -231,10 +231,12 @@ namespace PlayMore35.Effects {
             foreach (string language in choices.bonusLanguages) {
                 AddEffect(new Effect("Bonus language").AddText(LANGUAGES, language));
             }
+        }
 
-            foreach (Effect unattached in choices.unattachedEffects) {
-                AddEffect(unattached);
-            }
+        public void GenerateExternalEffect(ExternalEffect effect) {
+            effect.Flags.ForEach(x => controllableFlags[x.Name] = x);
+            effect.Params.ForEach(x => controllableParameters[x.Name] = x);
+            AddEffect(effect.Effect);
         }
 
         public void GenerateRaceEffects(Race race) {
