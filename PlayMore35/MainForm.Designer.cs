@@ -103,11 +103,6 @@
             this.lblPactState = new System.Windows.Forms.Label();
             this.optVestige2 = new System.Windows.Forms.RadioButton();
             this.optVestige1 = new System.Windows.Forms.RadioButton();
-            this.pagStats = new System.Windows.Forms.TabPage();
-            this.lblParam2 = new System.Windows.Forms.Label();
-            this.lblParam = new System.Windows.Forms.Label();
-            this.txtParam2 = new System.Windows.Forms.TextBox();
-            this.txtParam = new System.Windows.Forms.TextBox();
             this.pagInventory = new System.Windows.Forms.TabPage();
             this.txtLocationName = new System.Windows.Forms.TextBox();
             this.btnAddLocation = new System.Windows.Forms.Button();
@@ -161,14 +156,20 @@
             this.btnAddItem = new System.Windows.Forms.Button();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.lblTopLeft = new System.Windows.Forms.Label();
+            this.pagStats = new System.Windows.Forms.TabPage();
+            this.tblStatsMain = new System.Windows.Forms.TableLayoutPanel();
+            this.floBeforeCombat = new System.Windows.Forms.FlowLayoutPanel();
+            this.floEnemyTurn = new System.Windows.Forms.FlowLayoutPanel();
+            this.floMyTurn = new System.Windows.Forms.FlowLayoutPanel();
+            this.floMisc = new System.Windows.Forms.FlowLayoutPanel();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
             this.pagVestiges.SuspendLayout();
             this.pnlVestige1.SuspendLayout();
-            this.pagStats.SuspendLayout();
             this.pagInventory.SuspendLayout();
             this.grpSampleLocation.SuspendLayout();
+            this.pagStats.SuspendLayout();
+            this.tblStatsMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabMain
@@ -1036,68 +1037,6 @@
             this.optVestige1.Text = "Sample vestige";
             this.optVestige1.UseVisualStyleBackColor = true;
             // 
-            // pagStats
-            // 
-            this.pagStats.Controls.Add(this.lblParam2);
-            this.pagStats.Controls.Add(this.lblParam);
-            this.pagStats.Controls.Add(this.txtParam2);
-            this.pagStats.Controls.Add(this.txtParam);
-            this.pagStats.Controls.Add(this.lblTopLeft);
-            this.pagStats.Location = new System.Drawing.Point(4, 26);
-            this.pagStats.Name = "pagStats";
-            this.pagStats.Padding = new System.Windows.Forms.Padding(3);
-            this.pagStats.Size = new System.Drawing.Size(1281, 631);
-            this.pagStats.TabIndex = 0;
-            this.pagStats.Text = "Stats";
-            this.pagStats.UseVisualStyleBackColor = true;
-            this.pagStats.Enter += new System.EventHandler(this.StatsTab_Enter);
-            // 
-            // lblParam2
-            // 
-            this.lblParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblParam2.AutoSize = true;
-            this.lblParam2.Location = new System.Drawing.Point(46, 572);
-            this.lblParam2.Name = "lblParam2";
-            this.lblParam2.Size = new System.Drawing.Size(116, 17);
-            this.lblParam2.TabIndex = 4;
-            this.lblParam2.Text = "Sample parameter";
-            this.lblParam2.Visible = false;
-            // 
-            // lblParam
-            // 
-            this.lblParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblParam.AutoSize = true;
-            this.lblParam.Location = new System.Drawing.Point(46, 603);
-            this.lblParam.Name = "lblParam";
-            this.lblParam.Size = new System.Drawing.Size(116, 17);
-            this.lblParam.TabIndex = 3;
-            this.lblParam.Text = "Sample parameter";
-            this.lblParam.Visible = false;
-            // 
-            // txtParam2
-            // 
-            this.txtParam2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam2.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.txtParam2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtParam2.Location = new System.Drawing.Point(8, 572);
-            this.txtParam2.Name = "txtParam2";
-            this.txtParam2.Size = new System.Drawing.Size(32, 18);
-            this.txtParam2.TabIndex = 2;
-            this.txtParam2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtParam2.Visible = false;
-            // 
-            // txtParam
-            // 
-            this.txtParam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtParam.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.txtParam.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtParam.Location = new System.Drawing.Point(8, 603);
-            this.txtParam.Name = "txtParam";
-            this.txtParam.Size = new System.Drawing.Size(32, 18);
-            this.txtParam.TabIndex = 1;
-            this.txtParam.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtParam.Visible = false;
-            // 
             // pagInventory
             // 
             this.pagInventory.Controls.Add(this.txtLocationName);
@@ -1739,15 +1678,78 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // lblTopLeft
+            // pagStats
             // 
-            this.lblTopLeft.AutoSize = true;
-            this.lblTopLeft.Location = new System.Drawing.Point(3, 0);
-            this.lblTopLeft.Name = "lblTopLeft";
-            this.lblTopLeft.Size = new System.Drawing.Size(76, 17);
-            this.lblTopLeft.TabIndex = 0;
-            this.lblTopLeft.Text = "Sample text";
-            this.lblTopLeft.Visible = false;
+            this.pagStats.Controls.Add(this.tblStatsMain);
+            this.pagStats.Location = new System.Drawing.Point(4, 26);
+            this.pagStats.Name = "pagStats";
+            this.pagStats.Padding = new System.Windows.Forms.Padding(3);
+            this.pagStats.Size = new System.Drawing.Size(1281, 631);
+            this.pagStats.TabIndex = 0;
+            this.pagStats.Text = "Stats";
+            this.pagStats.UseVisualStyleBackColor = true;
+            this.pagStats.Enter += new System.EventHandler(this.StatsTab_Enter);
+            // 
+            // tblStatsMain
+            // 
+            this.tblStatsMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tblStatsMain.ColumnCount = 4;
+            this.tblStatsMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblStatsMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblStatsMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblStatsMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblStatsMain.Controls.Add(this.floMisc, 3, 0);
+            this.tblStatsMain.Controls.Add(this.floMyTurn, 2, 0);
+            this.tblStatsMain.Controls.Add(this.floBeforeCombat, 0, 0);
+            this.tblStatsMain.Controls.Add(this.floEnemyTurn, 1, 0);
+            this.tblStatsMain.Location = new System.Drawing.Point(8, 6);
+            this.tblStatsMain.Name = "tblStatsMain";
+            this.tblStatsMain.RowCount = 1;
+            this.tblStatsMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblStatsMain.Size = new System.Drawing.Size(1265, 619);
+            this.tblStatsMain.TabIndex = 0;
+            // 
+            // floBeforeCombat
+            // 
+            this.floBeforeCombat.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.floBeforeCombat.Location = new System.Drawing.Point(3, 3);
+            this.floBeforeCombat.Name = "floBeforeCombat";
+            this.floBeforeCombat.Size = new System.Drawing.Size(310, 613);
+            this.floBeforeCombat.TabIndex = 0;
+            // 
+            // floEnemyTurn
+            // 
+            this.floEnemyTurn.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.floEnemyTurn.Location = new System.Drawing.Point(319, 3);
+            this.floEnemyTurn.Name = "floEnemyTurn";
+            this.floEnemyTurn.Size = new System.Drawing.Size(310, 613);
+            this.floEnemyTurn.TabIndex = 1;
+            // 
+            // floMyTurn
+            // 
+            this.floMyTurn.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.floMyTurn.Location = new System.Drawing.Point(635, 3);
+            this.floMyTurn.Name = "floMyTurn";
+            this.floMyTurn.Size = new System.Drawing.Size(310, 613);
+            this.floMyTurn.TabIndex = 2;
+            // 
+            // floMisc
+            // 
+            this.floMisc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.floMisc.Location = new System.Drawing.Point(951, 3);
+            this.floMisc.Name = "floMisc";
+            this.floMisc.Size = new System.Drawing.Size(311, 613);
+            this.floMisc.TabIndex = 3;
             // 
             // MainForm
             // 
@@ -1767,19 +1769,18 @@
             this.pagVestiges.ResumeLayout(false);
             this.pnlVestige1.ResumeLayout(false);
             this.pnlVestige1.PerformLayout();
-            this.pagStats.ResumeLayout(false);
-            this.pagStats.PerformLayout();
             this.pagInventory.ResumeLayout(false);
             this.pagInventory.PerformLayout();
             this.grpSampleLocation.ResumeLayout(false);
             this.grpSampleLocation.PerformLayout();
+            this.pagStats.ResumeLayout(false);
+            this.tblStatsMain.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
         private System.Windows.Forms.TabControl tabMain;
-        private System.Windows.Forms.TabPage pagStats;
         private System.Windows.Forms.TabPage pagInventory;
         private System.Windows.Forms.GroupBox grpSampleLocation2;
         private System.Windows.Forms.GroupBox grpSampleLocation;
@@ -1821,10 +1822,6 @@
         private System.Windows.Forms.Label txtOffHandWeapon;
         private System.Windows.Forms.Label txtPrimaryWeapon;
         private System.Windows.Forms.Label lblEquippedWeight;
-        private System.Windows.Forms.Label lblParam2;
-        private System.Windows.Forms.Label lblParam;
-        private System.Windows.Forms.TextBox txtParam2;
-        private System.Windows.Forms.TextBox txtParam;
         private System.Windows.Forms.TabPage pagCharacter;
         private System.Windows.Forms.Button btnSaveCharacter;
         private System.Windows.Forms.Label label14;
@@ -1915,7 +1912,12 @@
         private System.Windows.Forms.Label lblTestRoll;
         private System.Windows.Forms.Button btnLevelDetails;
         private System.Windows.Forms.Label lblClassesHeader;
-        private System.Windows.Forms.Label lblTopLeft;
+        private System.Windows.Forms.TabPage pagStats;
+        private System.Windows.Forms.TableLayoutPanel tblStatsMain;
+        private System.Windows.Forms.FlowLayoutPanel floMisc;
+        private System.Windows.Forms.FlowLayoutPanel floMyTurn;
+        private System.Windows.Forms.FlowLayoutPanel floBeforeCombat;
+        private System.Windows.Forms.FlowLayoutPanel floEnemyTurn;
     }
 }
 

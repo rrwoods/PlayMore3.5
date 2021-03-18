@@ -25,12 +25,7 @@ namespace PlayMore35 {
 
         private bool loaded = false;
 
-        private int leftBuffer;
-        private int topBuffer;
-        private int verticalBufferLarge;
-        private int columnWidth;
         private int locationWidthBuffer;
-        private int paramBuffer;
         private int transactionBuffer;
         // maximum number of gold transactions to display on inventory tab
         // (this doesn't affect the number that are counted, only the number that are displayed)
@@ -66,56 +61,10 @@ namespace PlayMore35 {
         private List<List<RadioButton>> vestigeChoices = new List<List<RadioButton>>();
         private int vestigePanelBuffer, vestigeChoiceBuffer;
 
-        // 1. each of these fields represents one of the four sections of the summary page.
-        // 2. the outer list is list of subsections, with visual separation between each subsection.
-        // 3. each subsection contains a list of rows
-        // 4. each row is a list of labels
-        private List<List<List<Control>>> beforeCombat;
-        private List<List<List<Control>>> enemyTurn;
-        private List<List<List<Control>>> myTurn;
-        private List<List<List<Control>>> misc;
-
-        private Label name, desc1, desc2, init;
-        private List<List<Control>> senses = new List<List<Control>>();
-        private Label listen, spot, evade, languages;
-        private List<List<Control>> evadeControls = new List<List<Control>>();
-        private List<List<Control>> downtime = new List<List<Control>>();
-        private List<List<Control>> condition = new List<List<Control>>();
-
-        private Label ac, touch;
-        private Label acEffects;
-        private List<List<Control>> acControls = new List<List<Control>>();
-        private Label currentHp, maxHp, dr;
-        private Label hpEffects;
-        private List<List<Control>> hpControls = new List<List<Control>>();
-        private List<List<Control>> react = new List<List<Control>>();
-        private Label resist, immune;
-        private List<List<Control>> resistControls = new List<List<Control>>();
-        private List<List<Control>> immuneControls = new List<List<Control>>();
-        private List<List<Control>> defend = new List<List<Control>>();
-        private Label sr;
-        private List<List<Control>> srControls = new List<List<Control>>();
-        private List<List<Control>> saves = new List<List<Control>>();
-
-        private Label speed;
-        private List<List<Control>> movement = new List<List<Control>>();
-        private List<List<Control>> attacks = new List<List<Control>>();
-        private Label space, reach, bab, grapple;
-        private List<List<Control>> atkOptions = new List<List<Control>>();
-        private List<List<Control>> defOptions = new List<List<Control>>();
-        private List<List<Control>> actions = new List<List<Control>>();
-        private List<List<Control>> specialActions = new List<List<Control>>();
-
-        private List<List<Control>> abilityScores = new List<List<Control>>();
-        private List<List<Control>> sq = new List<List<Control>>();
-        private List<List<Control>> skills = new List<List<Control>>();
-        private List<List<Control>> miscSkills = new List<List<Control>>();
-
         private const string INDENT = "     ";
 
         private Dictionary<string, List<LabeledField>> fieldsByCategory = new Dictionary<string, List<LabeledField>>();
         private Dictionary<string, List<CheckBox>> flagsByCategory = new Dictionary<string, List<CheckBox>>();
-        private Dictionary<string, List<List<Control>>> whereFieldsGo;
 
         private List<Label> slotBoxes;
 
@@ -181,29 +130,36 @@ namespace PlayMore35 {
             label.ContextMenuStrip.Items.Add(roll);
         }
 
-        private void LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", bool plus = true) {
+        private Label LabelStat(FlowLayoutPanel column, int value, List<string> explanation, string prefix, string stat, bool flowBreak = true, string postfix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
+
+            Label label = new Label().Initialize(this);
             label.Text = $"{prefix} {statValue}{postfix}";
             ToolTipStatLabel(label, explanation);
 
             Rollable(label, prefix, $"1d20{value.ToString("+#;-#;\"\"")}");
+
+            column.Controls.Add(label);
+            column.SetFlowBreak(label, flowBreak);
+            return label;
         }
 
-        private void LabelStat(Label label, string prefix, string stat, string postfix = "", bool plus = true) {
+        private Label LabelStat(FlowLayoutPanel column, string prefix, string stat, bool flowBreak = true, string postfix = "", bool plus = true) {
             var (value, explanation) = GetStatValue(stat);
-            LabelStat(label, value, explanation, prefix, stat, postfix, plus);
+            return LabelStat(column, value, explanation, prefix, stat, flowBreak, postfix, plus);
         }
 
-        private void DynamicStat(List<List<Control>> section, string prefix, string stat, string postfix = "", bool plus = true, int hideIfEqual = int.MinValue) {
+        private bool DynamicStat(FlowLayoutPanel column, string prefix, string stat, string postfix = "", bool plus = true, int hideIfEqual = int.MinValue) {
+            bool any = false;
+            
             (int baseValue, List<string> baseExplanation) = GetStatValue(stat);
             IEnumerable<Effects.Statistic> specials = controller.Effects.RelevantStatsWithTag(stat, controller.EquippedItems);
             bool relevant =
                 specials.Any() ||
                 controller.Effects.GetStat(stat).Relevant(controller.Effects, controller.EquippedItems);
             if ((baseValue != hideIfEqual) && relevant) {
-                Label label = new Label().Initialize(this);
-                section.Add(new List<Control> { label });
-                LabelStat(label, baseValue, baseExplanation, prefix, stat, postfix, plus);
+                LabelStat(column, baseValue, baseExplanation, prefix, stat, true, postfix, plus);
+                any = true;
             }
 
             foreach (Effects.Statistic special in specials) {
@@ -215,40 +171,26 @@ namespace PlayMore35 {
                 if (value == baseValue) {
                     continue;
                 }
-                Label lblSpecial = new Label().Initialize(this);
-                section.Add(new List<Control> { lblSpecial });
-                LabelStat(lblSpecial, value, explanation, special.Name, special.Name, postfix, plus);
+                LabelStat(column, value, explanation, INDENT + special.Name, special.Name, true, postfix, plus);
+                any = true;
             }
+
+            return any;
         }
 
         private void AbilityScore(string ability) {
-            Label lblScore = new Label().Initialize(this);
-            Label lblModifier = new Label().Initialize(this);
-
             string scoreStat = $"{ability} score";
             var (sValue, sExplanation) = GetStatValue(scoreStat);
-            LabelStat(lblScore, sValue, sExplanation, ability, scoreStat, "", false);
+            LabelStat(floMisc, sValue, sExplanation, ability, scoreStat, false, "", false);
 
             string modifierStat = $"{ability} modifier";
             var (mValue, mExplanation) = GetStatValue(modifierStat);
-            LabelStat(lblModifier, mValue, mExplanation, "(", modifierStat, " )");
-
-            abilityScores.Add(new List<Control> { lblScore, lblModifier });
+            Label modLabel = LabelStat(floMisc, mValue, mExplanation, "(", modifierStat, true, " )");
 
             string checkStat = $"{ability} checks";
-            DynamicStat(abilityScores, checkStat, checkStat, "", true, mValue);
-        }
-
-        private void RemoveDynamicSection(List<List<Control>> section) {
-            foreach (List<Control> row in section) {
-                foreach (Control control in row) {
-                    if (control is Label label) {
-                        pagStats.Controls.Remove(label);
-                        toolTips.Remove(label);
-                    }
-                }
+            if (DynamicStat(floMisc, checkStat, checkStat, "", true, mValue)) {
+                floMisc.SetFlowBreak(modLabel, false);
             }
-            section.Clear();
         }
 
         private ToolStripMenuItem AttackRoll(string weapon, int bonus) {
@@ -275,7 +217,7 @@ namespace PlayMore35 {
             attackLabel.ContextMenuStrip = new ContextMenuStrip();
             StringBuilder text = new StringBuilder();
             if (full) {
-                text.Append("     ");
+                text.Append(INDENT);
             }
             text.Append(attack.RangeIncrement > 0 ? "Ranged " : "Melee ");
             text.Append(attack.WeaponName + " " + ValueText(attack.AttackBonus.bonus, true));
@@ -300,50 +242,73 @@ namespace PlayMore35 {
             ToolTipStatLabel(critLabel, attack.CriticalDamage.explanation);
             critLabel.ContextMenuStrip = DamageRoll(attack.WeaponName + " critical", damage);
 
-            attacks.Add(new List<Control> { attackLabel, damageLabel, critLabel });
+            floMyTurn.Controls.Add(attackLabel);
+            floMyTurn.Controls.Add(damageLabel);
+            floMyTurn.Controls.Add(critLabel);
+            floMyTurn.SetFlowBreak(critLabel, true);
         }
 
-        private void OneLineText(Label label, Dictionary<string, List<(string, string desc)>> textEffects, string key, string prefix = null) {
-            if (textEffects[key].Any()) {
-                label.Text = $"{prefix ?? key} {string.Join(", ", textEffects[key].Select(x => x.desc))}";
-            } else {
-                label.Text = "";
+        private void SimpleText(FlowLayoutPanel column, string text, string tooltip = null, bool flowBreak = true) {
+            Label label = new Label().Initialize(this);
+            label.Text = text;
+            column.Controls.Add(label);
+            column.SetFlowBreak(label, flowBreak);
+
+            if (tooltip != null) {
+                ToolTipTextLabel(label, tooltip);
             }
         }
 
-        private void MultilineText(List<List<Control>> section, Dictionary<string, List<(string name, string desc)>> textEffects, string key, bool header = true) {
-            RemoveDynamicSection(section);
+        private bool OneLineText(FlowLayoutPanel column, Dictionary<string, List<(string, string desc)>> textEffects, string key, string prefix = null) {
+            if (!textEffects[key].Any()) {
+                return false;
+            }
+
+            Label label = new Label().Initialize(this);
+            label.Text = $"{prefix ?? key} {string.Join(", ", textEffects[key].Select(x => x.desc))}";
+            column.Controls.Add(label);
+            column.SetFlowBreak(label, true);
+            return true;
+        }
+
+        private bool MultilineText(FlowLayoutPanel column, Dictionary<string, List<(string name, string desc)>> textEffects, string key, bool header = true) {
             if (textEffects == null) {
                 if (!fieldsByCategory.ContainsKey(key) && !flagsByCategory.ContainsKey(key)) {
-                    return;
+                    return false;
                 }
             } else {
                 if (!textEffects[key].Any() && !fieldsByCategory.ContainsKey(key) && !flagsByCategory.ContainsKey(key)) {
-                    return;
+                    return false;
                 }
             }
 
+            bool any = false;
             if (header) {
                 Label headerLabel = new Label() {
                     Text = key
                 }.Initialize(this);
-                section.Add(new List<Control> { headerLabel });
-                pagStats.Controls.Add(headerLabel);
+                column.Controls.Add(headerLabel);
+                column.SetFlowBreak(headerLabel, true);
+                any = true;
             }
 
             if (fieldsByCategory.ContainsKey(key)) {
                 foreach (LabeledField field in fieldsByCategory[key]) {
-                    section.Add(new List<Control> { field });
+                    column.Controls.Add(field);
+                    column.SetFlowBreak(field, true);
+                    any = true;
                 }
             }
             if (flagsByCategory.ContainsKey(key)) {
                 foreach (CheckBox flag in flagsByCategory[key]) {
-                    section.Add(new List<Control> { flag });
+                    column.Controls.Add(flag);
+                    column.SetFlowBreak(flag, true);
+                    any = true;
                 }
             }
 
             if (textEffects == null) {
-                return;
+                return any;
             }
 
             foreach ((string name, string desc) in textEffects[key]) {
@@ -351,9 +316,18 @@ namespace PlayMore35 {
                     Text = INDENT + name
                 }.Initialize(this);
                 ToolTipTextLabel(effectLabel, desc);
-                section.Add(new List<Control> { effectLabel });
-                pagStats.Controls.Add(effectLabel);
+                column.Controls.Add(effectLabel);
+                column.SetFlowBreak(effectLabel, true);
+                any = true;
             }
+
+            return any;
+        }
+
+        private void SectionBreak(FlowLayoutPanel column) {
+            Label gap = new Label { Text = " " }.Initialize(this);
+            column.Controls.Add(gap);
+            column.SetFlowBreak(gap, true);
         }
 
         private void Text_Enter(object sender, EventArgs e) {
@@ -1027,6 +1001,12 @@ namespace PlayMore35 {
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
+        public void TextSection(FlowLayoutPanel column, Dictionary<string, List<(string, string desc)>> textEffects, string key) {
+            if (OneLineText(column, textEffects, key) | MultilineText(column, null, key, false)) {
+                SectionBreak(column);
+            }
+        }
+
         public void RefreshEffects() {
             controller.ForceHiddenFlagsOff();
             ClearDynamicControls(pagStats, flagsByCategory);
@@ -1038,7 +1018,8 @@ namespace PlayMore35 {
                 string toggleName = toggle.Key;
                 CheckBox chkNewToggle = new CheckBox() {
                     AutoSize = true,
-                    Text = toggleName
+                    Text = toggleName,
+                    Margin = new Padding(3, 0, 3, 0) // this is still too loose but i'm not sure how to tighten it further
                 }.Initialize(this);
 
                 ToolTipTextLabel(chkNewToggle, toggle.Value.Description);
@@ -1057,83 +1038,96 @@ namespace PlayMore35 {
                 pagStats.Controls.Add(chkNewToggle);
             }
 
+            floBeforeCombat.Controls.Clear();
+            floEnemyTurn.Controls.Clear();
+            floMyTurn.Controls.Clear();
+            floMisc.Controls.Clear();
+
             Dictionary<string, List<(string name, string desc)>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
 
-            name.Text = controller.Character.name.ToUpper();
+            SimpleText(floBeforeCombat, controller.Character.name.ToUpper());
 
             Dictionary<string, int> classLevels = controller.Character.SummarizeClassLevels();
-            desc1.Text =
+            string desc1 =
                 controller.Character.gender + " " +
                 controller.Character.race + " " +
                 string.Join(
                     ", ",
                     controller.Character.classLevels.Distinct().Select(x => x.Replace(" ", "\u00a0").ToLower() + "\u00a0" + classLevels[x])
                 );
+            SimpleText(floBeforeCombat, desc1);
+
             // I wanted the separator for classes to be "/" like it is in most stat blocks,
             // but I also wanted wrapping line breaks to only appear between classes.  Unfortunately,
             // the zero-width space isn't respected by the wrapping routine for some reason.  So I
             // decided to use a character that looks okay when I put a space after it instead.  I'll
             // probably revisit this when I move to a more modernized UI framework.
             string sizeCategory = SIZE_CATEGORIES[GetStatValue(SIZE_CATEGORY).value + 4];
-            desc2.Text = controller.Character.alignment + " " + sizeCategory + " " +
+            string desc2 = controller.Character.alignment + " " + sizeCategory + " " +
                 controller.Effects.CreatureType +
                 (controller.Effects.SubTypes.Any() ? " (" + string.Join(", ", controller.Effects.SubTypes) + ")" : "");
-            OneLineText(languages, textEffects, LANGUAGES);
-            LabelStat(init, "Initiative", INITIATIVE);
-            MultilineText(senses, textEffects, SENSES);
+            SimpleText(floBeforeCombat, desc2);
+            OneLineText(floBeforeCombat, textEffects, LANGUAGES);
+            SectionBreak(floBeforeCombat);
+
+            LabelStat(floBeforeCombat, "Initiative", INITIATIVE);
+            SectionBreak(floBeforeCombat);
+
+            if (MultilineText(floBeforeCombat, textEffects, SENSES)) {
+                SectionBreak(floBeforeCombat);
+            }
 
             if (controller.Effects.HasFlag("deafened", controller.EquippedItems)) {
-                listen.Text = "Listen \u2014,";
-                ToolTipTextLabel(listen, "Defeaned");
+                SimpleText(floBeforeCombat, "Listen \u2014,", "Defeaned", false);
             } else {
-                LabelStat(listen, "Listen", LISTEN, ","); // ok navi calm down.
+                LabelStat(floBeforeCombat, "Listen", LISTEN, false, ","); // ok navi calm down.
             }
             if (controller.Effects.HasFlag("blinded", controller.EquippedItems)) {
-                spot.Text = "Spot \u2014";
-                ToolTipTextLabel(spot, "Blinded");
+                SimpleText(floBeforeCombat, "Spot \u2014", "Blinded");
             } else {
-                LabelStat(spot, "Spot", SPOT);
+                LabelStat(floBeforeCombat, "Spot", SPOT);
             }
+            SectionBreak(floBeforeCombat);
 
-            OneLineText(evade, textEffects, EVADE);
-            MultilineText(evadeControls, null, EVADE, false);
+            TextSection(floBeforeCombat, textEffects, EVADE);
 
-            MultilineText(condition, textEffects, CONDITION);
+            MultilineText(floBeforeCombat, textEffects, CONDITION);
 
-            LabelStat(ac, "AC", AC, ",", false);
-            LabelStat(touch, "touch", TOUCH_AC, "", false);
-            OneLineText(acEffects, textEffects, AC, INDENT);
-            MultilineText(acControls, null, AC, false);
+            LabelStat(floEnemyTurn, "AC", AC, false, ",", false);
+            LabelStat(floEnemyTurn, "touch", TOUCH_AC, true, "", false);
+            OneLineText(floEnemyTurn, textEffects, AC, INDENT);
+            MultilineText(floEnemyTurn, null, AC, false);
 
-            LabelStat(currentHp, "hp", CURRENT_HP, ";", false);
-            LabelStat(maxHp, "max", MAX_HP, " (" + controller.Character.classLevels.Count() + " HD)", false);
-            OneLineText(dr, textEffects, DR);
-            if (dr.Text.Any()) {
+            LabelStat(floEnemyTurn, "hp", CURRENT_HP, false, ";", false);
+            OneLineText(floEnemyTurn, textEffects, HP, INDENT);
+            Label maxHp = LabelStat(floEnemyTurn, "max", MAX_HP, true, " (" + controller.Character.classLevels.Count() + " HD)", false);
+            OneLineText(floEnemyTurn, textEffects, DR);
+            if (textEffects[DR].Any()) {
                 maxHp.Text += ";";
+                floEnemyTurn.SetFlowBreak(maxHp, false);
             }
-            OneLineText(hpEffects, textEffects, HP, INDENT);
-            MultilineText(hpControls, null, HP, false);
+            MultilineText(floEnemyTurn, null, HP, false);
+            SectionBreak(floEnemyTurn);
 
-            MultilineText(react, textEffects, REACT);
+            TextSection(floBeforeCombat, textEffects, REACT);
+            TextSection(floBeforeCombat, textEffects, RESIST);
+            TextSection(floBeforeCombat, textEffects, IMMUNE);
+            TextSection(floBeforeCombat, textEffects, SR);
 
-            OneLineText(resist, textEffects, RESIST);
-            MultilineText(resistControls, null, RESIST, false);
+            DynamicStat(floEnemyTurn, "Fort save", FORT_SAVES);
+            DynamicStat(floEnemyTurn, "Ref save", REF_SAVES);
+            DynamicStat(floEnemyTurn, "Will save", WILL_SAVES);
 
-            OneLineText(immune, textEffects, IMMUNE);
-            MultilineText(immuneControls, null, IMMUNE, false);
+            LabelStat(floMyTurn, "Speed", LAND_SPEED, true, " ft.", false);
+            MultilineText(floMyTurn, textEffects, MOVEMENT, false);
+            SectionBreak(floMyTurn);
 
-            OneLineText(sr, textEffects, SR);
-            MultilineText(srControls, null, SR, false);
+            LabelStat(floMyTurn, "Space", SPACE, false, " ft.;", false);
+            LabelStat(floMyTurn, "Reach", REACH, true, " ft.", false);
+            LabelStat(floMyTurn, "Base Atk", BASE_ATTACK_BONUS, false, ";");
+            LabelStat(floMyTurn, "Grp", GRAPPLE);
+            SectionBreak(floMyTurn);
 
-            RemoveDynamicSection(saves);
-            DynamicStat(saves, "Fort save", FORT_SAVES);
-            DynamicStat(saves, "Ref save", REF_SAVES);
-            DynamicStat(saves, "Will save", WILL_SAVES);
-
-            LabelStat(speed, "Speed", LAND_SPEED, " ft.", false);
-            MultilineText(movement, textEffects, MOVEMENT);
-
-            RemoveDynamicSection(attacks);
             List<Attack> singleAttacks = controller.GetAttacks();
             foreach (Attack attack in singleAttacks) {
                 AttackLabels(attack, false);
@@ -1142,37 +1136,46 @@ namespace PlayMore35 {
                 if (fullAttack.Count == 1 && !fullAttack[0].ExtraAttacks.Any()) {
                     continue;
                 }
-                attacks.Add(new List<Control> { new Label() { Text = "Full Attack" }.Initialize(this) });
+                SimpleText(floMyTurn, "Full Attack");
                 foreach (Attack attack in fullAttack) {
                     AttackLabels(attack, true);
                 }
             }
+            if (singleAttacks.Any()) {
+                SectionBreak(floMyTurn);
+            }
 
-            LabelStat(space, "Space", SPACE, " ft.;", false);
-            LabelStat(reach, "Reach", REACH, " ft.", false);
-            LabelStat(bab, "Base Atk", BASE_ATTACK_BONUS, ";");
-            LabelStat(grapple, "Grp", GRAPPLE);
-            MultilineText(atkOptions, textEffects, ATK_OPTIONS);
-            MultilineText(defOptions, textEffects, DEF_OPTIONS);
-            MultilineText(specialActions, textEffects, SPECIAL_ACTIONS);
-            MultilineText(actions, textEffects, ACTIONS);
+            if (MultilineText(floMyTurn, textEffects, ATK_OPTIONS)) {
+                SectionBreak(floMyTurn);
+            }
+            if (MultilineText(floMyTurn, textEffects, DEF_OPTIONS)) {
+                SectionBreak(floMyTurn);
+            }
+            if (MultilineText(floMyTurn, textEffects, SPECIAL_ACTIONS)) {
+                SectionBreak(floMyTurn);
+            }
+            if (MultilineText(floMyTurn, textEffects, ACTIONS)) {
+                SectionBreak(floMyTurn);
+            }
 
-            RemoveDynamicSection(abilityScores);
             AbilityScore("STR");
             AbilityScore("DEX");
             AbilityScore("CON");
             AbilityScore("INT");
             AbilityScore("WIS");
             AbilityScore("CHA");
-            MultilineText(sq, textEffects, SQ);
-            RemoveDynamicSection(skills);
-            foreach (string skill in SKILLS_LIST) {
-                DynamicStat(skills, skill, skill);
+            SectionBreak(floMisc);
+
+            if (MultilineText(floMisc, textEffects, SQ)) {
+                SectionBreak(floMisc);
             }
-            MultilineText(miscSkills, textEffects, SKILLS, false);
+
+            foreach (string skill in SKILLS_LIST) {
+                DynamicStat(floMisc, skill, skill);
+            }
+            MultilineText(floMisc, textEffects, SKILLS, false);
 
             loaded = true;
-            RepositionLabels();
             RefreshWeight();
         }
 
@@ -1183,68 +1186,6 @@ namespace PlayMore35 {
 
             lblEquippedWeight.Text = $"Equipped weight: {controller.EquippedItems.EquippedWeight()} lbs.";
             lblTotalWeight.Text = $"Total load: {controller.EquippedItems.TotalWeight()} lbs.";
-        }
-
-        private void RepositionRow(List<Control> row) {
-            if (row.Count > 1) {
-                int left = row[0].Right;
-                int top = row[0].Top;
-                foreach (Control control in row.Skip(1)) {
-                    if ((control is Label && control.Text.Any()) || control is LabeledField) {
-                        control.Top = top;
-                        control.Left = left;
-                        left = control.Right;
-                    } else if (control is CheckBox) {
-                        control.Top = top - 1;
-                        control.Left = left;
-                        left = control.Right;
-                    }
-                    control.BringToFront();
-                }
-            }
-        }
-
-        private void RepositionColumn(int columnLeft, List<List<List<Control>>> column) {
-            int top = topBuffer;
-            foreach (List<List<Control>> section in column) {
-                bool anyText = false;
-                foreach (List<Control> row in section) {
-                    if (!row.Any()) {
-                        continue;
-                    }
-                    Control first = row[0];
-                    if (first.Text.Any() || !(first is Label)) {
-                        anyText = true;
-                        first.Left = columnLeft;
-                        first.Top = top;
-                        first.MaximumSize = new Size(columnWidth - 2 * leftBuffer, 1000);
-                        top += lblTopLeft.Height + 1;
-                        
-                        // I cannot for the life of me get the custom labeled field control to size itself properly.
-                        // If I AutoSize it and leave it alone, its height obscures everything else in the column.
-                        // If I manually size it, no matter which width I choose, it cuts off its own label.
-                        // So instead I'm just putting everything else on top of it.
-                        first.BringToFront();
-
-                        RepositionRow(row);
-                    }
-                }
-                if (anyText) {
-                    top += verticalBufferLarge;
-                }
-            }
-        }
-
-        private void RepositionLabels() {
-            if (!loaded) {
-                return;
-            }
-            columnWidth = ClientSize.Width / 4;
-
-            RepositionColumn(leftBuffer, beforeCombat);
-            RepositionColumn(leftBuffer + columnWidth, enemyTurn);
-            RepositionColumn(leftBuffer + columnWidth * 2, myTurn);
-            RepositionColumn(leftBuffer + columnWidth * 3, misc);
         }
 
         private void RemoveLocationGroup(string locationKey) {
@@ -1802,7 +1743,7 @@ namespace PlayMore35 {
         }
 
         private void MainForm_Resize(object sender, EventArgs e) {
-            RepositionLabels();
+            // REMOVE THIS EVENT! resizing handled by layout panels now
         }
 
         private void Toggle_Click(object sender, EventArgs e) {
@@ -1953,10 +1894,6 @@ namespace PlayMore35 {
             skillPointsBuffer = lblPoints.Left - 2*(txtRanksClass.Left) + txtRanksCrossClass.Left;
             skillLabelOffset = lblSkill2.Left - lblSkill1.Left;
 
-            leftBuffer = lblTopLeft.Left;
-            topBuffer = lblTopLeft.Top + 5;
-            verticalBufferLarge = 12;
-            paramBuffer = lblParam2.Top - lblParam.Top;
             levelBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             levelUpBuffer = btnAddLevel.Top - cboClass.Top;
             skillBufferLeft = lblTotalRanks.Left - lblTotalHp.Left;
@@ -1982,108 +1919,6 @@ namespace PlayMore35 {
             foreach (string race in availableRaces) {
                 cboRace.Items.Add(race);
             }
-
-            name = new Label().Initialize(this);
-            desc1 = new Label().Initialize(this);
-            desc2 = new Label().Initialize(this);
-            init = new Label().Initialize(this);
-            listen = new Label().Initialize(this);
-            spot = new Label().Initialize(this);
-            evade = new Label().Initialize(this);
-            languages = new Label().Initialize(this);
-            beforeCombat = new List<List<List<Control>>> {
-                new List<List<Control>> {
-                    new List<Control> { name },
-                    new List<Control> { desc1 },
-                    new List<Control> { desc2 },
-                    new List<Control> { languages },
-                },
-                new List<List<Control>> { new List<Control> { init } },
-                senses,
-                new List<List<Control>> { new List<Control> { listen, spot } },
-                new List<List<Control>> { new List<Control> { evade } },
-                evadeControls,
-                downtime,
-                condition,
-            };
-
-            ac = new Label().Initialize(this);
-            touch = new Label().Initialize(this);
-            acEffects = new Label().Initialize(this);
-            currentHp = new Label().Initialize(this);
-            maxHp = new Label().Initialize(this);
-            dr = new Label().Initialize(this);
-            hpEffects = new Label().Initialize(this);
-            resist = new Label().Initialize(this);
-            immune = new Label().Initialize(this);
-            sr = new Label().Initialize(this);
-            
-            enemyTurn = new List<List<List<Control>>> {
-                acControls,
-                new List<List<Control>> {
-                    new List<Control> { ac, touch },
-                    new List<Control> { acEffects }, // in the spacing rework, move acControls here.
-                    new List<Control> { currentHp, maxHp, dr },
-                    new List<Control> { hpEffects },
-                },
-                hpControls, // put this above hpEffects
-                defend,
-                react,
-                new List<List<Control>> {
-                    new List<Control> { resist }, // resistControls here.
-                    new List<Control> { immune }, // immuneControls here.
-                },
-                new List<List<Control>> { new List<Control> { sr } },
-                srControls,
-                saves
-            };
-
-            speed = new Label().Initialize(this);
-            space = new Label().Initialize(this);
-            reach = new Label().Initialize(this);
-            bab = new Label().Initialize(this);
-            grapple = new Label().Initialize(this);
-            myTurn = new List<List<List<Control>>> {
-                new List<List<Control>> {
-                    new List<Control> { speed },
-                },
-                movement,
-                new List<List<Control>> {
-                    new List<Control> { space, reach },
-                    new List<Control> { bab, grapple },
-                },
-                attacks,
-                atkOptions,
-                defOptions,
-                specialActions,
-                actions,
-            };
-
-            misc = new List<List<List<Control>>> {
-                abilityScores,
-                sq,
-                skills,
-                miscSkills,
-            };
-
-            whereFieldsGo = new Dictionary<string, List<List<Control>>>() {
-                [SENSES] = senses,
-                [EVADE] = evadeControls,
-                [AC] = acControls,
-                [HP] = hpControls,
-                [REACT] = react,
-                [RESIST] = resistControls,
-                [IMMUNE] = immuneControls,
-                [SR] = srControls,
-                [MOVEMENT] = movement,
-                [ACTIONS] = actions,
-                [ATK_OPTIONS] = atkOptions,
-                [DEF_OPTIONS] = defOptions,
-                [SPECIAL_ACTIONS] = specialActions,
-                [SQ] = sq,
-                [SKILLS] = miscSkills,
-                [CONDITION] = condition
-            };
 
             new ToolTip().SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
 

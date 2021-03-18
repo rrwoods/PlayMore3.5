@@ -5,9 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace PlayMore35 {
-    class LabeledField : Panel {
-        private const int LABEL_LEFT = 38;
-
+    class LabeledField : FlowLayoutPanel {
         public Label lblName;
         public TextBox txtValue;
 
@@ -15,18 +13,17 @@ namespace PlayMore35 {
             AutoSize = true;
 
             txtValue = new TextBox {
-                Location = new Point(0, 0),
                 Size = new Size(32, 25),
                 TextAlign = HorizontalAlignment.Center,
                 BorderStyle = BorderStyle.None,
                 BackColor = SystemColors.ActiveCaption,
+                Margin = new Padding(0),
             };
             txtValue.Leave += CheckValue(name, controller);
             Controls.Add(txtValue);
 
             lblName = new Label {
                 AutoSize = true,
-                Left = LABEL_LEFT,
                 Text = name,
                 Anchor = AnchorStyles.Left,
                 TextAlign = ContentAlignment.MiddleLeft
