@@ -150,10 +150,6 @@ namespace PlayMore35 {
             return pagStats;
         }
 
-
-
-        
-
         private (int value, List<string> explanation) GetStatValue(string stat) {
             return controller.Effects.GetStat(stat).GetValue(controller.Effects, controller.EquippedItems);
         }

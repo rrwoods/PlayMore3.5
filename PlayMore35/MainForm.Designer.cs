@@ -24,9 +24,9 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.lblTopLeft = new System.Windows.Forms.Label();
             this.tabMain = new System.Windows.Forms.TabControl();
             this.pagCharacter = new System.Windows.Forms.TabPage();
+            this.lblClassesHeader = new System.Windows.Forms.Label();
             this.btnLevelDetails = new System.Windows.Forms.Button();
             this.lblTestRoll = new System.Windows.Forms.Label();
             this.lblSampleXp1 = new System.Windows.Forms.Label();
@@ -161,7 +161,7 @@
             this.btnAddItem = new System.Windows.Forms.Button();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.lblClassesHeader = new System.Windows.Forms.Label();
+            this.lblTopLeft = new System.Windows.Forms.Label();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
             this.pagVestiges.SuspendLayout();
@@ -170,16 +170,6 @@
             this.pagInventory.SuspendLayout();
             this.grpSampleLocation.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // lblTopLeft
-            // 
-            this.lblTopLeft.AutoSize = true;
-            this.lblTopLeft.Location = new System.Drawing.Point(3, 0);
-            this.lblTopLeft.Name = "lblTopLeft";
-            this.lblTopLeft.Size = new System.Drawing.Size(76, 17);
-            this.lblTopLeft.TabIndex = 0;
-            this.lblTopLeft.Text = "Sample text";
-            this.lblTopLeft.Visible = false;
             // 
             // tabMain
             // 
@@ -276,6 +266,17 @@
             this.pagCharacter.Text = "Character";
             this.pagCharacter.UseVisualStyleBackColor = true;
             this.pagCharacter.Enter += new System.EventHandler(this.CharacterTab_Enter);
+            // 
+            // lblClassesHeader
+            // 
+            this.lblClassesHeader.AutoSize = true;
+            this.lblClassesHeader.Location = new System.Drawing.Point(367, 94);
+            this.lblClassesHeader.Name = "lblClassesHeader";
+            this.lblClassesHeader.Size = new System.Drawing.Size(47, 22);
+            this.lblClassesHeader.TabIndex = 109;
+            this.lblClassesHeader.Text = "Classes";
+            this.lblClassesHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblClassesHeader.UseCompatibleTextRendering = true;
             // 
             // btnLevelDetails
             // 
@@ -1738,16 +1739,15 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // lblClassesHeader
+            // lblTopLeft
             // 
-            this.lblClassesHeader.AutoSize = true;
-            this.lblClassesHeader.Location = new System.Drawing.Point(367, 94);
-            this.lblClassesHeader.Name = "lblClassesHeader";
-            this.lblClassesHeader.Size = new System.Drawing.Size(47, 22);
-            this.lblClassesHeader.TabIndex = 109;
-            this.lblClassesHeader.Text = "Classes";
-            this.lblClassesHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblClassesHeader.UseCompatibleTextRendering = true;
+            this.lblTopLeft.AutoSize = true;
+            this.lblTopLeft.Location = new System.Drawing.Point(3, 0);
+            this.lblTopLeft.Name = "lblTopLeft";
+            this.lblTopLeft.Size = new System.Drawing.Size(76, 17);
+            this.lblTopLeft.TabIndex = 0;
+            this.lblTopLeft.Text = "Sample text";
+            this.lblTopLeft.Visible = false;
             // 
             // MainForm
             // 
@@ -1778,8 +1778,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Label lblTopLeft;
         private System.Windows.Forms.TabControl tabMain;
         private System.Windows.Forms.TabPage pagStats;
         private System.Windows.Forms.TabPage pagInventory;
@@ -1917,6 +1915,7 @@
         private System.Windows.Forms.Label lblTestRoll;
         private System.Windows.Forms.Button btnLevelDetails;
         private System.Windows.Forms.Label lblClassesHeader;
+        private System.Windows.Forms.Label lblTopLeft;
     }
 }
 

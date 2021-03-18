@@ -31,5 +31,27 @@
       "active": { "flag": "entangle (failed)" },
       "flags": [ "entangled" ]
     }
+  },
+  {
+    "flags": [
+      {
+        "name": "resistance",
+        "category": "Condition",
+        "description": "Resistance (druid cantrip)"
+      }
+    ],
+    "effect": {
+      "name": "resistance",
+      "active": { "flag": "resistance" },
+      "modifiers": [
+        {
+          "affects": "All saves",
+          "mod": {
+            "type": "resistance",
+            "amounts": [ { "fixed": 1 } ]
+          }
+        }
+      ]
+    }
   }
 ]

@@ -4,6 +4,10 @@ Right now, spacing between sections is done by treating each List<List<Control>>
 
 ===
 
+[COMMON] Ability damage / drain
+
+===
+
 [USABILITY] Section for effects from enemies/allies
 
 Probably underneath Condition in column 1.
