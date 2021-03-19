@@ -1,17 +1,16 @@
 [CRITICAL] Fix the UI.  (You knew this was coming; just not this soon.  Oh well.)
 
-1.  Fully encapsulate Controller, to ensure a clean separation between the View and Controller layers.  Make all fields of Controller private, and write methods to cover all the functionality that breaks as a result.
-2.  Look into possible replacements for the UI framework.
-  2a.  Windows Presentation Foundation?
-  2b.  Something web-based?  (ASP?)
-  2c.  Maybe I'm actually sticking with WinForms, but squeezing every ounce possible out of FlowLayoutPanel?
+Look into possible replacements for the UI framework.
+  a.  Windows Presentation Foundation?
+  b.  Something web-based?  (ASP?)
+  c.  Maybe I'm actually sticking with WinForms, but squeezing every ounce possible out of FlowLayoutPanel?
          - possible execution of this is to relentlessly subclass it to get the functionality i need.
            - SimpleTextLayoutPanel will just render text (i.e. the description block)
            - TextEffectsLayoutPanel for e.g. Atk Options
            - AttackLayoutPanel knows how to take in attacks and turn them into rows of rollable labels
            - maybe don't even make StatisticLayoutPanel, because each one kind of has its own needs...
            - ListenSpotLayoutPanel... SkillsLayoutPanel... AbilityScoresLayoutPanel... SavesLayoutPanel...
-  2d.  ... MAUI?  .NET 6?  Am I insane?
+  d.  ... MAUI?  .NET 6?  Am I insane?
 
 ===
 
