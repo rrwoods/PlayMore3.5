@@ -1,14 +1,17 @@
-When handling dynamic controls, instead of clearing them out each time, reuse the ones that are there and add/remove at the end as needed (the same way languages are handled).  The ClearDynamicControls function should go away completely.
+[CRITICAL] Fix the UI.  (You knew this was coming; just not this soon.  Oh well.)
 
-This will probably involve writing a general-use layout function that takes in the information needed to do this:  A list of controls, a sample first control, a sample second control, items to display, and a function to determine what to display on each item.  (Potentially, optionally a function to call on each control afterward, in case there's type-specific things.  This might be a good way to handle e.g. combobox list items.)
-
-===
-
-Do some basic profiling; the program seems to get very slow in a long session. (Is this still true after fixing the above?)
-
-Rethink the way tooltips are done -- the idiomatic way is NOT to do what I currently do (which is to have a separate tooltip for each label), but rather to have one tooltip on which you change the text as the user mouses over things.  This might (?) relieve a lot of memory pressure.
-
-Another source of leakage might be the "systems" handling dynamic labeling and dynamic controls in general; are we holding onto some references that might cause these not to be freed appropriately?
+1.  Fully encapsulate Controller, to ensure a clean separation between the View and Controller layers.  Make all fields of Controller private, and write methods to cover all the functionality that breaks as a result.
+2.  Look into possible replacements for the UI framework.
+  2a.  Windows Presentation Foundation?
+  2b.  Something web-based?  (ASP?)
+  2c.  Maybe I'm actually sticking with WinForms, but squeezing every ounce possible out of FlowLayoutPanel?
+         - possible execution of this is to relentlessly subclass it to get the functionality i need.
+           - SimpleTextLayoutPanel will just render text (i.e. the description block)
+           - TextEffectsLayoutPanel for e.g. Atk Options
+           - AttackLayoutPanel knows how to take in attacks and turn them into rows of rollable labels
+           - maybe don't even make StatisticLayoutPanel, because each one kind of has its own needs...
+           - ListenSpotLayoutPanel... SkillsLayoutPanel... AbilityScoresLayoutPanel... SavesLayoutPanel...
+  2d.  ... MAUI?  .NET 6?  Am I insane?
 
 ===
 
@@ -40,9 +43,3 @@ The procedure should be:
 ===
 
 Effect removal should probably be done by some sort of unique identifier, rather than by name.  E.g., when swapping away from a vestige, I shouldn't risk removing unrelated effects.  (Alternatively, use flags to turn vestige effects on and off, but we need to do this after we aren't just piling up all the flags in the lower left)
-
-===
-
-When originally integrating the UI with the stats engine, I introduced the controller and had it contain a character, but I made that character public and had the UI interact with it directly.  My reasoning at the time was that "going through the controller's character is the same as going through the controller".  In retrospect though, if/when a UI rewrite happens I will probably end up tripping over some of the shortcuts made as a result.
-
-Make Controller.character private, and write accessors/mutators for all the stuff that breaks in the UI as a result, possibly introducing some convenience in the process where it looks warranted.

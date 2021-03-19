@@ -1,9 +1,3 @@
-[USABILITY] Rethink spacing
-
-Right now, spacing between sections is done by treating each List<List<Control>> as a section that needs space around it.  This causes some weirdness when we want to multiline stuff but still have it spaced right next to the thing above it.  Instead, use an explicit null section to put space between each section, and otherwise put sections next to each other.
-
-===
-
 [COMMON] Ability damage / drain
 
 ===
