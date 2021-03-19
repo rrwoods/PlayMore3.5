@@ -61,10 +61,7 @@ namespace PlayMore35 {
         private List<List<RadioButton>> vestigeChoices = new List<List<RadioButton>>();
         private int vestigePanelBuffer, vestigeChoiceBuffer;
 
-        private const string INDENT = "     ";
-
-        private Dictionary<string, List<LabeledField>> fieldsByCategory = new Dictionary<string, List<LabeledField>>();
-        private Dictionary<string, List<CheckBox>> flagsByCategory = new Dictionary<string, List<CheckBox>>();
+        private List<DynamicPanel> dynamicPanels;
 
         private List<Label> slotBoxes;
 
@@ -81,7 +78,7 @@ namespace PlayMore35 {
 
         private AddItemDialog addItemDialog = new AddItemDialog();
         
-        private Controller controller = null;
+        public Controller controller = null;
 
         public MainForm() {
             InitializeComponent();
@@ -97,237 +94,6 @@ namespace PlayMore35 {
 
         public TabPage StatsTab() {
             return pagStats;
-        }
-
-        private (int value, List<string> explanation) GetStatValue(string stat) {
-            return controller.Effects.GetStat(stat).GetValue(controller.Effects, controller.EquippedItems);
-        }
-
-        private string ValueText(int value, bool plus) {
-            return ((plus && value >= 0 ? "+" : "") + value).Replace("-", "–");
-        }
-
-        private void ToolTipStatLabel(Control label, List<string> explanation) {
-            toolTips[label].SetToolTip(label, string.Join("\n", explanation));
-        }
-
-        private void ToolTipTextLabel(Control label, string description) {
-            toolTips[label].SetToolTip(label, description);
-        }
-
-        private EventHandler RollStat(string dice, string description) {
-            return (object sender, EventArgs e) => {
-                controller.RollServer.Roll(dice, description);
-            };
-        }
-
-        private void Rollable(Control label, string prefix, string diceText) {
-            ToolStripMenuItem roll = new ToolStripMenuItem {
-                Text = $"Roll {prefix} ({diceText})"
-            };
-            roll.Click += RollStat(diceText, prefix);
-            label.ContextMenuStrip = new ContextMenuStrip();
-            label.ContextMenuStrip.Items.Add(roll);
-        }
-
-        private Label LabelStat(FlowLayoutPanel column, int value, List<string> explanation, string prefix, string stat, bool flowBreak = true, string postfix = "", bool plus = true) {
-            string statValue = ValueText(value, plus);
-
-            Label label = new Label().Initialize(this);
-            label.Text = $"{prefix} {statValue}{postfix}";
-            ToolTipStatLabel(label, explanation);
-
-            Rollable(label, prefix, $"1d20{value.ToString("+#;-#;\"\"")}");
-
-            column.Controls.Add(label);
-            column.SetFlowBreak(label, flowBreak);
-            return label;
-        }
-
-        private Label LabelStat(FlowLayoutPanel column, string prefix, string stat, bool flowBreak = true, string postfix = "", bool plus = true) {
-            var (value, explanation) = GetStatValue(stat);
-            return LabelStat(column, value, explanation, prefix, stat, flowBreak, postfix, plus);
-        }
-
-        private bool DynamicStat(FlowLayoutPanel column, string prefix, string stat, string postfix = "", bool plus = true, int hideIfEqual = int.MinValue) {
-            bool any = false;
-            
-            (int baseValue, List<string> baseExplanation) = GetStatValue(stat);
-            IEnumerable<Effects.Statistic> specials = controller.Effects.RelevantStatsWithTag(stat, controller.EquippedItems);
-            bool relevant =
-                specials.Any() ||
-                controller.Effects.GetStat(stat).Relevant(controller.Effects, controller.EquippedItems);
-            if ((baseValue != hideIfEqual) && relevant) {
-                LabelStat(column, baseValue, baseExplanation, prefix, stat, true, postfix, plus);
-                any = true;
-            }
-
-            foreach (Effects.Statistic special in specials) {
-                // this is a hack, i don't much care tbh.
-                if (special.Name.Equals("Initiative")) {
-                    continue;
-                }
-                (int value, List<string> explanation) = special.GetValue(controller.Effects, controller.EquippedItems);
-                if (value == baseValue) {
-                    continue;
-                }
-                LabelStat(column, value, explanation, INDENT + special.Name, special.Name, true, postfix, plus);
-                any = true;
-            }
-
-            return any;
-        }
-
-        private void AbilityScore(string ability) {
-            string scoreStat = $"{ability} score";
-            var (sValue, sExplanation) = GetStatValue(scoreStat);
-            LabelStat(floMisc, sValue, sExplanation, ability, scoreStat, false, "", false);
-
-            string modifierStat = $"{ability} modifier";
-            var (mValue, mExplanation) = GetStatValue(modifierStat);
-            Label modLabel = LabelStat(floMisc, mValue, mExplanation, "(", modifierStat, true, " )");
-
-            string checkStat = $"{ability} checks";
-            if (DynamicStat(floMisc, checkStat, checkStat, "", true, mValue)) {
-                floMisc.SetFlowBreak(modLabel, false);
-            }
-        }
-
-        private ToolStripMenuItem AttackRoll(string weapon, int bonus) {
-            string modifier = bonus.ToString("+#;-#;\"\"");
-            ToolStripMenuItem roll = new ToolStripMenuItem {
-                Text = $"Roll {weapon} attack (1d20{modifier})"
-            };
-            roll.Click += RollStat($"1d20{modifier}", $"{weapon} attack");
-            return roll;
-        }
-
-        private ContextMenuStrip DamageRoll(string weapon, string damage) {
-            ContextMenuStrip menu = new ContextMenuStrip();
-            ToolStripMenuItem roll = new ToolStripMenuItem {
-                Text = $"Roll {weapon} damage ({damage})"
-            };
-            roll.Click += RollStat(damage, $"{weapon} damage");
-            menu.Items.Add(roll);
-            return menu;
-        }
-
-        private void AttackLabels(Attack attack, bool full) {
-            Label attackLabel = new Label().Initialize(this);
-            attackLabel.ContextMenuStrip = new ContextMenuStrip();
-            StringBuilder text = new StringBuilder();
-            if (full) {
-                text.Append(INDENT);
-            }
-            text.Append(attack.RangeIncrement > 0 ? "Ranged " : "Melee ");
-            text.Append(attack.WeaponName + " " + ValueText(attack.AttackBonus.bonus, true));
-            attackLabel.ContextMenuStrip.Items.Add(AttackRoll(attack.WeaponName, attack.AttackBonus.bonus));
-            foreach (int extra in attack.ExtraAttacks) {
-                text.Append("/" + ValueText(attack.AttackBonus.bonus + extra, true));
-                // there's a quirk here where attacks at the same bonus show up separately
-                attackLabel.ContextMenuStrip.Items.Add(AttackRoll(attack.WeaponName, attack.AttackBonus.bonus + extra));
-            }
-            attackLabel.Text = text.ToString();
-            ToolTipStatLabel(attackLabel, attack.AttackBonus.explanation);
-
-            Label damageLabel = new Label().Initialize(this);
-            string damage = attack.Damage.dice.ToString();
-            damageLabel.Text = $"({damage})";
-            ToolTipStatLabel(damageLabel, attack.Damage.explanation);
-            damageLabel.ContextMenuStrip = DamageRoll(attack.WeaponName, damage);
-            
-            Label critLabel = new Label().Initialize(this);
-            damage = attack.CriticalDamage.dice.ToString();
-            critLabel.Text = $"({attack.ThreatRange}{(attack.ThreatRange == 20 ? "" : "–20")}/{damage})";
-            ToolTipStatLabel(critLabel, attack.CriticalDamage.explanation);
-            critLabel.ContextMenuStrip = DamageRoll(attack.WeaponName + " critical", damage);
-
-            floMyTurn.Controls.Add(attackLabel);
-            floMyTurn.Controls.Add(damageLabel);
-            floMyTurn.Controls.Add(critLabel);
-            floMyTurn.SetFlowBreak(critLabel, true);
-        }
-
-        private void SimpleText(FlowLayoutPanel column, string text, string tooltip = null, bool flowBreak = true) {
-            Label label = new Label().Initialize(this);
-            label.Text = text;
-            column.Controls.Add(label);
-            column.SetFlowBreak(label, flowBreak);
-
-            if (tooltip != null) {
-                ToolTipTextLabel(label, tooltip);
-            }
-        }
-
-        private bool OneLineText(FlowLayoutPanel column, Dictionary<string, List<(string, string desc)>> textEffects, string key, string prefix = null) {
-            if (!textEffects[key].Any()) {
-                return false;
-            }
-
-            Label label = new Label().Initialize(this);
-            label.Text = $"{prefix ?? key} {string.Join(", ", textEffects[key].Select(x => x.desc))}";
-            column.Controls.Add(label);
-            column.SetFlowBreak(label, true);
-            return true;
-        }
-
-        private bool MultilineText(FlowLayoutPanel column, Dictionary<string, List<(string name, string desc)>> textEffects, string key, bool header = true) {
-            if (textEffects == null) {
-                if (!fieldsByCategory.ContainsKey(key) && !flagsByCategory.ContainsKey(key)) {
-                    return false;
-                }
-            } else {
-                if (!textEffects[key].Any() && !fieldsByCategory.ContainsKey(key) && !flagsByCategory.ContainsKey(key)) {
-                    return false;
-                }
-            }
-
-            bool any = false;
-            if (header) {
-                Label headerLabel = new Label() {
-                    Text = key
-                }.Initialize(this);
-                column.Controls.Add(headerLabel);
-                column.SetFlowBreak(headerLabel, true);
-                any = true;
-            }
-
-            if (fieldsByCategory.ContainsKey(key)) {
-                foreach (LabeledField field in fieldsByCategory[key]) {
-                    column.Controls.Add(field);
-                    column.SetFlowBreak(field, true);
-                    any = true;
-                }
-            }
-            if (flagsByCategory.ContainsKey(key)) {
-                foreach (CheckBox flag in flagsByCategory[key]) {
-                    column.Controls.Add(flag);
-                    column.SetFlowBreak(flag, true);
-                    any = true;
-                }
-            }
-
-            if (textEffects == null) {
-                return any;
-            }
-
-            foreach ((string name, string desc) in textEffects[key]) {
-                Label effectLabel = new Label() {
-                    Text = INDENT + name
-                }.Initialize(this);
-                ToolTipTextLabel(effectLabel, desc);
-                column.Controls.Add(effectLabel);
-                column.SetFlowBreak(effectLabel, true);
-                any = true;
-            }
-
-            return any;
-        }
-
-        private void SectionBreak(FlowLayoutPanel column) {
-            Label gap = new Label { Text = " " }.Initialize(this);
-            column.Controls.Add(gap);
-            column.SetFlowBreak(gap, true);
         }
 
         private void Text_Enter(object sender, EventArgs e) {
@@ -423,8 +189,7 @@ namespace PlayMore35 {
                 Text = Controller.ShortName(skill),
                 Tag = skill,
             };
-            toolTips[skillName] = new ToolTip();
-            toolTips[skillName].SetToolTip(skillName, skill);
+            TOOLTIP.SetToolTip(skillName, skill);
 
             skillNames.Add(skillName);
             pagCharacter.Controls.Add(skillName);
@@ -1001,179 +766,13 @@ namespace PlayMore35 {
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        public void TextSection(FlowLayoutPanel column, Dictionary<string, List<(string, string desc)>> textEffects, string key) {
-            if (OneLineText(column, textEffects, key) | MultilineText(column, null, key, false)) {
-                SectionBreak(column);
-            }
-        }
-
         public void RefreshEffects() {
             controller.ForceHiddenFlagsOff();
-            ClearDynamicControls(pagStats, flagsByCategory);
-            foreach (var toggle in controller.Effects.controllableFlags) {
-                if (!toggle.Value.Show.On(controller.Effects, controller.EquippedItems)) {
-                    continue;
-                }
-
-                string toggleName = toggle.Key;
-                CheckBox chkNewToggle = new CheckBox() {
-                    AutoSize = true,
-                    Text = toggleName,
-                    Margin = new Padding(3, 0, 3, 0) // this is still too loose but i'm not sure how to tighten it further
-                }.Initialize(this);
-
-                ToolTipTextLabel(chkNewToggle, toggle.Value.Description);
-                if (controller.Character.flagValues.ContainsKey(toggleName)) {
-                    bool value = controller.Character.flagValues[toggleName];
-                    chkNewToggle.Checked = value;
-                    toggle.Value.On = value;
-                }
-                chkNewToggle.Click += Toggle_Click;
-
-                string category = toggle.Value.Category;
-                if (!flagsByCategory.ContainsKey(category)) {
-                    flagsByCategory[category] = new List<CheckBox>();
-                }
-                flagsByCategory[category].Add(chkNewToggle);
-                pagStats.Controls.Add(chkNewToggle);
-            }
-
-            floBeforeCombat.Controls.Clear();
-            floEnemyTurn.Controls.Clear();
-            floMyTurn.Controls.Clear();
-            floMisc.Controls.Clear();
 
             Dictionary<string, List<(string name, string desc)>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
-
-            SimpleText(floBeforeCombat, controller.Character.name.ToUpper());
-
-            Dictionary<string, int> classLevels = controller.Character.SummarizeClassLevels();
-            string desc1 =
-                controller.Character.gender + " " +
-                controller.Character.race + " " +
-                string.Join(
-                    ", ",
-                    controller.Character.classLevels.Distinct().Select(x => x.Replace(" ", "\u00a0").ToLower() + "\u00a0" + classLevels[x])
-                );
-            SimpleText(floBeforeCombat, desc1);
-
-            // I wanted the separator for classes to be "/" like it is in most stat blocks,
-            // but I also wanted wrapping line breaks to only appear between classes.  Unfortunately,
-            // the zero-width space isn't respected by the wrapping routine for some reason.  So I
-            // decided to use a character that looks okay when I put a space after it instead.  I'll
-            // probably revisit this when I move to a more modernized UI framework.
-            string sizeCategory = SIZE_CATEGORIES[GetStatValue(SIZE_CATEGORY).value + 4];
-            string desc2 = controller.Character.alignment + " " + sizeCategory + " " +
-                controller.Effects.CreatureType +
-                (controller.Effects.SubTypes.Any() ? " (" + string.Join(", ", controller.Effects.SubTypes) + ")" : "");
-            SimpleText(floBeforeCombat, desc2);
-            OneLineText(floBeforeCombat, textEffects, LANGUAGES);
-            SectionBreak(floBeforeCombat);
-
-            LabelStat(floBeforeCombat, "Initiative", INITIATIVE);
-            SectionBreak(floBeforeCombat);
-
-            if (MultilineText(floBeforeCombat, textEffects, SENSES)) {
-                SectionBreak(floBeforeCombat);
+            foreach (DynamicPanel p in dynamicPanels) {
+                p.Update(textEffects);
             }
-
-            if (controller.Effects.HasFlag("deafened", controller.EquippedItems)) {
-                SimpleText(floBeforeCombat, "Listen \u2014,", "Defeaned", false);
-            } else {
-                LabelStat(floBeforeCombat, "Listen", LISTEN, false, ","); // ok navi calm down.
-            }
-            if (controller.Effects.HasFlag("blinded", controller.EquippedItems)) {
-                SimpleText(floBeforeCombat, "Spot \u2014", "Blinded");
-            } else {
-                LabelStat(floBeforeCombat, "Spot", SPOT);
-            }
-            SectionBreak(floBeforeCombat);
-
-            TextSection(floBeforeCombat, textEffects, EVADE);
-
-            MultilineText(floBeforeCombat, textEffects, CONDITION);
-
-            LabelStat(floEnemyTurn, "AC", AC, false, ",", false);
-            LabelStat(floEnemyTurn, "touch", TOUCH_AC, true, "", false);
-            OneLineText(floEnemyTurn, textEffects, AC, INDENT);
-            MultilineText(floEnemyTurn, null, AC, false);
-
-            LabelStat(floEnemyTurn, "hp", CURRENT_HP, false, ";", false);
-            OneLineText(floEnemyTurn, textEffects, HP, INDENT);
-            Label maxHp = LabelStat(floEnemyTurn, "max", MAX_HP, true, " (" + controller.Character.classLevels.Count() + " HD)", false);
-            OneLineText(floEnemyTurn, textEffects, DR);
-            if (textEffects[DR].Any()) {
-                maxHp.Text += ";";
-                floEnemyTurn.SetFlowBreak(maxHp, false);
-            }
-            MultilineText(floEnemyTurn, null, HP, false);
-            SectionBreak(floEnemyTurn);
-
-            TextSection(floBeforeCombat, textEffects, REACT);
-            TextSection(floBeforeCombat, textEffects, RESIST);
-            TextSection(floBeforeCombat, textEffects, IMMUNE);
-            TextSection(floBeforeCombat, textEffects, SR);
-
-            DynamicStat(floEnemyTurn, "Fort save", FORT_SAVES);
-            DynamicStat(floEnemyTurn, "Ref save", REF_SAVES);
-            DynamicStat(floEnemyTurn, "Will save", WILL_SAVES);
-
-            LabelStat(floMyTurn, "Speed", LAND_SPEED, true, " ft.", false);
-            MultilineText(floMyTurn, textEffects, MOVEMENT, false);
-            SectionBreak(floMyTurn);
-
-            LabelStat(floMyTurn, "Space", SPACE, false, " ft.;", false);
-            LabelStat(floMyTurn, "Reach", REACH, true, " ft.", false);
-            LabelStat(floMyTurn, "Base Atk", BASE_ATTACK_BONUS, false, ";");
-            LabelStat(floMyTurn, "Grp", GRAPPLE);
-            SectionBreak(floMyTurn);
-
-            List<Attack> singleAttacks = controller.GetAttacks();
-            foreach (Attack attack in singleAttacks) {
-                AttackLabels(attack, false);
-            }
-            foreach (List<Attack> fullAttack in controller.GetFullAttacks()) {
-                if (fullAttack.Count == 1 && !fullAttack[0].ExtraAttacks.Any()) {
-                    continue;
-                }
-                SimpleText(floMyTurn, "Full Attack");
-                foreach (Attack attack in fullAttack) {
-                    AttackLabels(attack, true);
-                }
-            }
-            if (singleAttacks.Any()) {
-                SectionBreak(floMyTurn);
-            }
-
-            if (MultilineText(floMyTurn, textEffects, ATK_OPTIONS)) {
-                SectionBreak(floMyTurn);
-            }
-            if (MultilineText(floMyTurn, textEffects, DEF_OPTIONS)) {
-                SectionBreak(floMyTurn);
-            }
-            if (MultilineText(floMyTurn, textEffects, SPECIAL_ACTIONS)) {
-                SectionBreak(floMyTurn);
-            }
-            if (MultilineText(floMyTurn, textEffects, ACTIONS)) {
-                SectionBreak(floMyTurn);
-            }
-
-            AbilityScore("STR");
-            AbilityScore("DEX");
-            AbilityScore("CON");
-            AbilityScore("INT");
-            AbilityScore("WIS");
-            AbilityScore("CHA");
-            SectionBreak(floMisc);
-
-            if (MultilineText(floMisc, textEffects, SQ)) {
-                SectionBreak(floMisc);
-            }
-
-            foreach (string skill in SKILLS_LIST) {
-                DynamicStat(floMisc, skill, skill);
-            }
-            MultilineText(floMisc, textEffects, SKILLS, false);
 
             loaded = true;
             RefreshWeight();
@@ -1742,10 +1341,6 @@ namespace PlayMore35 {
             RefreshWeight();
         }
 
-        private void MainForm_Resize(object sender, EventArgs e) {
-            // REMOVE THIS EVENT! resizing handled by layout panels now
-        }
-
         private void Toggle_Click(object sender, EventArgs e) {
             CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
@@ -1754,33 +1349,9 @@ namespace PlayMore35 {
 
             RefreshEffects();
         }
-
-
-
+        
         private void TabSwitch(object sender, TabControlEventArgs e) {
             controller.Reload();
-            RefreshEffects();
-        }
-
-        private void StatsTab_Enter(object sender, EventArgs e) {
-            ClearDynamicControls(pagStats, fieldsByCategory);
-            foreach (var parameter in controller.Effects.controllableParameters) {
-                string paramName = parameter.Key;
-                LabeledField field = new LabeledField(paramName, controller);
-                field.lblName.Initialize(this, false);
-                ToolTipTextLabel(field.lblName, parameter.Value.Description);
-
-                if (controller.Character.paramValues.ContainsKey(paramName)) {
-                    field.Value = controller.Character.paramValues[paramName];
-                }
-                string category = parameter.Value.Category;
-                if (!fieldsByCategory.ContainsKey(category)) {
-                    fieldsByCategory[category] = new List<LabeledField>();
-                }
-                fieldsByCategory[category].Add(field);
-                pagStats.Controls.Add(field);
-            }
-
             RefreshEffects();
         }
 
@@ -1815,10 +1386,10 @@ namespace PlayMore35 {
             ClearDynamicControls(pagVestiges, vestigePanels);
             
             List<Vestige> availableVestiges = controller.AvailableVestiges();
-            int numVestiges = GetStatValue(NUM_VESTIGES).value;
+            int numVestiges = controller.GetStatistic(NUM_VESTIGES).value;
 
             int vestigeLeft = pnlVestige1.Left;
-            int bindingCheckMod = GetStatValue(BINDING_CHECK).value;
+            int bindingCheckMod = controller.GetStatistic(BINDING_CHECK).value;
             for (int i = 0; i < numVestiges; i++) {
                 Panel vestigePanel = new Panel {
                     Top = pnlVestige1.Top,
@@ -1907,7 +1478,6 @@ namespace PlayMore35 {
             addItemDialog.Font = scala;
 
             controller = new Controller(new Character());
-            controller.StartRollServer();
             levelDetailsDialog = new LevelDetailsDialog(controller) {
                 Font = scala
             };
@@ -1920,7 +1490,17 @@ namespace PlayMore35 {
                 cboRace.Items.Add(race);
             }
 
-            new ToolTip().SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
+            TOOLTIP.SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
+
+            dynamicPanels = new List<DynamicPanel> {
+                descriptionPanel, initiativePanel, sensesPanel, listenSpotPanel, evadePanel, conditionPanel,
+                acPanel, acTextPanel, hpPanel, hpTextPanel, reactPanel, resistPanel, immunePanel, srPanel, savesPanel,
+                speedPanel, baseCombatPanel1, attacksPanel, atkOptionsPanel, defOptionsPanel, specialActionsPanel, actionsPanel,
+                abilityScoresPanel, sqPanel, skillsPanel, skillEffectsPanel,
+            };
+            foreach (DynamicPanel p in dynamicPanels) {
+                p.Initialize(this);
+            }
 
             txtHead.Tag = Equipped.Slot.HEAD;
             txtFace.Tag = Equipped.Slot.FACE;
@@ -2028,42 +1608,6 @@ namespace PlayMore35 {
             public override string ToString() {
                 return qty == 1 ? item.ToString() : $"{item} x {qty}";
             }
-        }
-    }
-
-    static class LabelExtensions {
-        // Setting the max width of a tooltip doesn't have a convenient API, but the tooltip control *can* set its
-        // maximum width by receiving a certain WinAPI message.
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hwnd, uint msg, int wParam, int lParam);
-        private const uint SET_MAX_TOOLTIP_WIDTH_MSG = 0x418;
-
-        private static EventHandler ResizeTooltip(ToolTip toolTip) {
-            return (object sender, EventArgs e) => {
-                IntPtr hwnd = (IntPtr)typeof(ToolTip).InvokeMember(
-                    "Handle",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetProperty,
-                    null,
-                    toolTip,
-                    null
-                );
-                SendMessage(hwnd, SET_MAX_TOOLTIP_WIDTH_MSG, 0, 300);
-            };
-        }
-
-        public static T Initialize<T>(this T label, MainForm form, bool addToStats = true) where T : Control {
-            ToolTip toolTip = new ToolTip {
-                AutoPopDelay = 32767 // maximum value.
-            };
-
-            label.AutoSize = true;
-            label.MouseEnter += ResizeTooltip(toolTip);
-            if (addToStats) {
-                form.StatsTab().Controls.Add(label);
-            }
-            form.toolTips[label] = toolTip;
-            
-            return label;
         }
     }
 }

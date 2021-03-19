@@ -15,8 +15,6 @@ namespace PlayMore35.Global {
     public class Controller {
         private string saveDir;
 
-        public RollServer RollServer;
-
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
 
@@ -118,11 +116,6 @@ namespace PlayMore35.Global {
 
         public Controller(Character character) {
             Character = character;
-        }
-
-        // This isn't just part of construction so that tests don't start a web server
-        public void StartRollServer() {
-            RollServer = new RollServer();
         }
 
         private JToken GetResource(byte[] resource, string altFilename) {

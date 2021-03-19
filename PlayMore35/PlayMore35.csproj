@@ -78,6 +78,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbilityScoresPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="AttacksPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="BaseCombatPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DynamicStatPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="HpPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="AddItemDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -96,6 +111,9 @@
     <Compile Include="CharacterChoices\CharacterChoiceTests.cs" />
     <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
+    <Compile Include="DynamicPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Effects\Alterer.cs" />
     <Compile Include="Effects\AnyToggle.cs" />
     <Compile Include="Effects\AllToggle.cs" />
@@ -132,6 +150,15 @@
     <Compile Include="Effects\VariableAmount.cs" />
     <Compile Include="Effects\AttackMatcher.cs" />
     <Compile Include="Global\RollServer.cs" />
+    <Compile Include="AcPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ListenSpotPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="InitiativePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="LabeledField.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -158,6 +185,21 @@
     <Compile Include="CharacterChoices\WeaponProperty.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DescriptionPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SavesPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SkillsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SpeedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TextEffectPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="AddItemDialog.resx">
       <DependentUpon>AddItemDialog.cs</DependentUpon>
     </EmbeddedResource>

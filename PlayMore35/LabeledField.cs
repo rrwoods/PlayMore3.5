@@ -9,7 +9,7 @@ namespace PlayMore35 {
         public Label lblName;
         public TextBox txtValue;
 
-        public LabeledField(string name, Controller controller) : base() {
+        public LabeledField(string name, MainForm mainForm) : base() {
             AutoSize = true;
 
             txtValue = new TextBox {
@@ -17,18 +17,21 @@ namespace PlayMore35 {
                 TextAlign = HorizontalAlignment.Center,
                 BorderStyle = BorderStyle.None,
                 BackColor = SystemColors.ActiveCaption,
-                Margin = new Padding(0),
+                Margin = new Padding(3, 0, 0, 0),
             };
-            txtValue.Leave += CheckValue(name, controller);
+            txtValue.Leave += CheckValue(name, mainForm);
             Controls.Add(txtValue);
 
             lblName = new Label {
                 AutoSize = true,
                 Text = name,
                 Anchor = AnchorStyles.Left,
-                TextAlign = ContentAlignment.MiddleLeft
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0),
             };
             Controls.Add(lblName);
+
+            Margin = new Padding(0);
         }
 
         public int Value {
@@ -42,8 +45,9 @@ namespace PlayMore35 {
             }
         }
 
-        private EventHandler CheckValue(string name, Controller controller) {
+        private EventHandler CheckValue(string name, MainForm mainForm) {
             return (object sender, EventArgs e) => {
+                Controller controller = mainForm.controller;
                 TextBox txt = (TextBox)sender;
                 if (!txt.Text.Any()) {
                     controller.Effects.controllableParameters[name].Value = 0;
@@ -56,7 +60,7 @@ namespace PlayMore35 {
                     controller.Character.paramValues[name] = 0;
                     txt.Text = "";
                 }
-                ((MainForm)txt.Parent.Parent.Parent.Parent).RefreshEffects();
+                mainForm.RefreshEffects();
             };
         }
     }
