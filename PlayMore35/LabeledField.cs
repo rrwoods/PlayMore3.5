@@ -18,7 +18,7 @@ namespace PlayMore35 {
                 BorderStyle = BorderStyle.None,
                 BackColor = SystemColors.ActiveCaption,
                 Margin = new Padding(3, 0, 0, 0),
-            };
+            }.Initialize();
             txtValue.Leave += CheckValue(name, mainForm);
             Controls.Add(txtValue);
 
@@ -28,7 +28,7 @@ namespace PlayMore35 {
                 Anchor = AnchorStyles.Left,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Margin = new Padding(0),
-            };
+            }.Initialize();
             Controls.Add(lblName);
 
             Margin = new Padding(0);
@@ -41,7 +41,7 @@ namespace PlayMore35 {
                     : 0;
             }
             set {
-                txtValue.Text = "" + value;
+                txtValue.Text = value == 0 ? "" : ("" + value);
             }
         }
 

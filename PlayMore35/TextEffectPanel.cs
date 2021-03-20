@@ -62,7 +62,6 @@ namespace PlayMore35 {
                     field.Visible = true;
                 } else {
                     field = new LabeledField(paramName, mainForm);
-                    field.lblName.Initialize();
                     fields[paramName] = field;
                     Controls.Add(field);
                 }
@@ -70,6 +69,7 @@ namespace PlayMore35 {
                     field.Value = controller.Character.paramValues[paramName];
                 }
                 ToolTipTextLabel(field.lblName, parameter.Value.Description);
+                ToolTipTextLabel(field.txtValue, parameter.Value.Description);
                 any = true;
             }
             foreach (string inactive in inactiveFields) {

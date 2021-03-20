@@ -1,13 +1,3 @@
-[COMMON] Ability damage / drain
-
-===
-
-[USABILITY] Section for effects from enemies/allies
-
-Probably underneath Condition in column 1.
-
-===
-
 [USABILITY] Maybe draw some separator lines on the form?
 
 https://www.csharp-examples.net/separator-line/

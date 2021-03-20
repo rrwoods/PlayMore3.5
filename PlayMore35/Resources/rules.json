@@ -14,12 +14,6 @@
       "min": 0
     },
     {
-      "name": "STR damage"
-    },
-    {
-      "name": "STR drain"
-    },
-    {
       "name": "STR modifier"
     },
     {
@@ -38,12 +32,6 @@
     {
       "name": "DEX score",
       "min": 0
-    },
-    {
-      "name": "DEX damage"
-    },
-    {
-      "name": "DEX drain"
     },
     {
       "name": "DEX modifier"
@@ -66,12 +54,6 @@
       "min": 0
     },
     {
-      "name": "CON damage"
-    },
-    {
-      "name": "CON drain"
-    },
-    {
       "name": "CON modifier"
     },
     {
@@ -90,12 +72,6 @@
     {
       "name": "INT score",
       "min": 0
-    },
-    {
-      "name": "INT damage"
-    },
-    {
-      "name": "INT drain"
     },
     {
       "name": "INT modifier"
@@ -118,12 +94,6 @@
       "min": 0
     },
     {
-      "name": "WIS damage"
-    },
-    {
-      "name": "WIS drain"
-    },
-    {
       "name": "WIS modifier"
     },
     {
@@ -142,12 +112,6 @@
     {
       "name": "CHA score",
       "min": 0
-    },
-    {
-      "name": "CHA damage"
-    },
-    {
-      "name": "CHA drain"
     },
     {
       "name": "CHA modifier"
@@ -1098,6 +1062,66 @@
       "name": "Nonlethal damage",
       "category": "hp",
       "description": "When you have nonlethal damage equal to your current hit points, you're staggered, and can take only one action per turn.  When it exceeds your hp, you're unconscious."
+    },
+    {
+      "name": "STR damage",
+      "category": "Ability damage/drain",
+      "description": "STR damage heals at a rate of 1 per day unless noted otherwise by the effect that dealt the damage."
+    },
+    {
+      "name": "STR drain",
+      "category": "Ability damage/drain",
+      "description": "STR drain can be regained only through magical means."
+    },
+    {
+      "name": "DEX damage",
+      "category": "Ability damage/drain",
+      "description": "DEX damage heals at a rate of 1 per day unless noted otherwise by the effect that dealt the damage."
+    },
+    {
+      "name": "DEX drain",
+      "category": "Ability damage/drain",
+      "description": "DEX drain can be regained only through magical means."
+    },
+    {
+      "name": "CON damage",
+      "category": "Ability damage/drain",
+      "description": "CON damage heals at a rate of 1 per day unless noted otherwise by the effect that dealt the damage."
+    },
+    {
+      "name": "CON drain",
+      "category": "Ability damage/drain",
+      "description": "CON drain can be regained only through magical means."
+    },
+    {
+      "name": "INT damage",
+      "category": "Ability damage/drain",
+      "description": "INT damage heals at a rate of 1 per day unless noted otherwise by the effect that dealt the damage."
+    },
+    {
+      "name": "INT drain",
+      "category": "Ability damage/drain",
+      "description": "INT drain can be regained only through magical means."
+    },
+    {
+      "name": "WIS damage",
+      "category": "Ability damage/drain",
+      "description": "WIS damage heals at a rate of 1 per day unless noted otherwise by the effect that dealt the damage."
+    },
+    {
+      "name": "WIS drain",
+      "category": "Ability damage/drain",
+      "description": "WIS drain can be regained only through magical means."
+    },
+    {
+      "name": "CHA damage",
+      "category": "Ability damage/drain",
+      "description": "CHA damage heals at a rate of 1 per day unless noted otherwise by the effect that dealt the damage."
+    },
+    {
+      "name": "CHA drain",
+      "category": "Ability damage/drain",
+      "description": "CHA drain can be regained only through magical means."
     }
   ],
   "effects": [
@@ -1112,7 +1136,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "STR damage"
+                    "controllable": "STR damage"
                   },
                   "scalar": -1.0
                 }
@@ -1133,7 +1157,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "STR drain"
+                    "controllable": "STR drain"
                   },
                   "scalar": -1.0
                 }
@@ -1200,7 +1224,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "DEX damage"
+                    "controllable": "DEX damage"
                   },
                   "scalar": -1.0
                 }
@@ -1221,7 +1245,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "DEX drain"
+                    "controllable": "DEX drain"
                   },
                   "scalar": -1.0
                 }
@@ -1288,7 +1312,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "CON damage"
+                    "controllable": "CON damage"
                   },
                   "scalar": -1.0
                 }
@@ -1309,7 +1333,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "CON drain"
+                    "controllable": "CON drain"
                   },
                   "scalar": -1.0
                 }
@@ -1376,7 +1400,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "INT damage"
+                    "controllable": "INT damage"
                   },
                   "scalar": -1.0
                 }
@@ -1397,7 +1421,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "INT drain"
+                    "controllable": "INT drain"
                   },
                   "scalar": -1.0
                 }
@@ -1464,7 +1488,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "WIS damage"
+                    "controllable": "WIS damage"
                   },
                   "scalar": -1.0
                 }
@@ -1485,7 +1509,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "WIS drain"
+                    "controllable": "WIS drain"
                   },
                   "scalar": -1.0
                 }
@@ -1552,7 +1576,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "CHA damage"
+                    "controllable": "CHA damage"
                   },
                   "scalar": -1.0
                 }
@@ -1573,7 +1597,7 @@
               {
                 "multiply": {
                   "variable": {
-                    "stat value": "CHA drain"
+                    "controllable": "CHA drain"
                   },
                   "scalar": -1.0
                 }
@@ -4792,12 +4816,6 @@
       ],
       "flags": [
         "Can't run or charge"
-      ],
-      "text": [
-        {
-          "category": "Condition",
-          "text": "Rest one hour to be fatigued instead of exhausted."
-        }
       ]
     },
     {

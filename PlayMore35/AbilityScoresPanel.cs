@@ -6,30 +6,60 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 
 namespace PlayMore35 {
+    internal class AbilityDisplay : TableLayoutPanel {
+        public readonly Label score = new Label().Initialize();
+        public readonly Label mod = new Label().Initialize();
+        public readonly LabeledField damage, drain;
+
+        public AbilityDisplay(MainForm mainForm, string ability) {
+            AutoSize = true;
+            Margin = new Padding(0);
+
+            RowCount = 1;
+            ColumnCount = 4;
+            RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            string damageName = $"{ability} damage";
+            damage = new LabeledField(damageName, mainForm);
+            ToolTipTextLabel(damage.txtValue, mainForm.controller.Effects.controllableParameters[damageName].Description);
+            damage.Controls.Remove(damage.lblName);
+
+
+            string drainName = $"{ability} drain";
+            drain = new LabeledField(drainName, mainForm);
+            ToolTipTextLabel(drain.txtValue, mainForm.controller.Effects.controllableParameters[drainName].Description);
+            drain.Controls.Remove(drain.lblName);
+
+            Controls.Add(score, 0, 0);
+            ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60));
+            Controls.Add(mod, 1, 0);
+            ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 55));
+            Controls.Add(damage, 2, 0);
+            Controls.Add(drain, 3, 0);
+        }
+    }
+
     public class AbilityScoresPanel : DynamicPanel {
-        private readonly List<(Label score, Label mod, DynamicStatPanel checks)> abilities = new List<(Label score, Label mod, DynamicStatPanel checks)>();
+        private readonly List<AbilityDisplay> abilities = new List<AbilityDisplay>();
+        private readonly List<DynamicStatPanel> checks = new List<DynamicStatPanel>();
         private static readonly string[] ABILITY_NAMES = new string[] { STR, DEX, CON, INT, WIS, CHA };
 
         public override void Initialize(MainForm mainForm) {
             base.Initialize(mainForm);
-            FlowDirection = FlowDirection.LeftToRight;
 
             foreach (string ability in ABILITY_NAMES) {
-                Label score = new Label().Initialize();
-                Label mod = new Label().Initialize();
-                DynamicStatPanel checks = new DynamicStatPanel {
+                AbilityDisplay display = new AbilityDisplay(mainForm, ability);
+                abilities.Add(display);
+                Controls.Add(display);
+
+                DynamicStatPanel check = new DynamicStatPanel {
                     BaseStatistic = $"{ability} checks",
                     IndentBase = true,
                     HideBaseIfEquals = $"{ability} modifier",
                 };
-                checks.Initialize(mainForm);
-
-                abilities.Add((score, mod, checks));
-                Controls.Add(score);
-                Controls.Add(mod);
-                SetFlowBreak(mod, true);
-                Controls.Add(checks);
-                SetFlowBreak(checks, true);
+                check.Initialize(mainForm);
+                checks.Add(check);
+                Controls.Add(check);
             }
         }
 
@@ -39,7 +69,17 @@ namespace PlayMore35 {
                 string ability = ABILITY_NAMES[i];
                 LabelStat(abilities[i].score, controller, ability, $"{ability} score", "", false);
                 LabelStat(abilities[i].mod, controller, "(", $"{ability} modifier", " )");
-                abilities[i].checks.Update(textEffects);
+
+                string damageName = $"{ability} damage";
+                if (controller.Character.paramValues.ContainsKey(damageName)) {
+                    abilities[i].damage.Value = controller.Character.paramValues[damageName];
+                }
+                string drainName = $"{ability} drain";
+                if (controller.Character.paramValues.ContainsKey(drainName)) {
+                    abilities[i].drain.Value = controller.Character.paramValues[drainName];
+                }
+
+                checks[i].Update(textEffects);
             }
         }
     }
