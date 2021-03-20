@@ -3,6 +3,12 @@
 
 ===
 
+[USABILITY] use TableLayoutPanel for the class levels instead of handrolling the layout code
+
+Feats can be one column; use a FlowLayoutPanel inside the cell of the TableLayoutPanel to layout the feats left to right
+
+===
+
 [USABILITY] tab order things:
 
 tab order weirdness when adding dynamic stuff

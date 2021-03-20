@@ -1,9 +1,3 @@
-[USABILITY] Maybe draw some separator lines on the form?
-
-https://www.csharp-examples.net/separator-line/
-
-===
-
 [COMMON] Unarmed strikes
 
 With at least one hand free, the attack generation routine should generate an unarmed strike attack.  Assume the DM will allow you to two-hand a weapon and make an unarmed strike in the same full attack routine (that is, your offhand still counts as free when only weilding one weapon).
