@@ -11,7 +11,7 @@ Feats can be one column; use a FlowLayoutPanel inside the cell of the TableLayou
 
 [USABILITY] tab order things:
 
-tab order weirdness when adding dynamic stuff
+tab order weirdness when adding dynamic stuff -- this might get automatically solved via the layout panel idea above
 
 arrow keys to move around the levels area?
 
@@ -71,8 +71,3 @@ e.g. swordsage's discipline focus
 [ESOTERIC] Feats that grant feats (basically, Vow of Poverty)
 
 ===
-
-[USABILITY] why is the feat box not in Scala?
-
-===
-
