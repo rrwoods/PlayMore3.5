@@ -1121,7 +1121,10 @@ namespace PlayMore35 {
         private void Slot_MouseDown(object sender, MouseEventArgs e) {
             draggingItemFrom = (Control)sender;
             draggingItemFrom.DoDragDrop(
-                new ItemDrag { item = draggingItemFrom.Text }, // is this cheating?
+                new ItemDrag {
+                    item = draggingItemFrom.Text, // is this cheating?
+                    slot = (Equipped.Slot) draggingItemFrom.Tag
+                }, 
                 DragDropEffects.Move
             );
         }
@@ -1327,6 +1330,8 @@ namespace PlayMore35 {
             foreach (Label slotBox in slotBoxes) {
                 if (equipped.SlottedItems.ContainsKey((Equipped.Slot)slotBox.Tag)) {
                     slotBox.Text = equipped.SlottedItems[(Equipped.Slot)slotBox.Tag];
+                } else {
+                    slotBox.Text = "";
                 }
             }
             lstSlotless.Items.Clear();
