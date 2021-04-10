@@ -223,5 +223,18 @@
     "effect": {
       "name": "fast torch"
     }
+  },
+  {
+    "slot": "FEET",
+    "weight": 0,
+    "effect": {
+      "name": "anklet of translocation",
+      "text": [
+        {
+          "category": "Move Options",
+          "text": "swift 2/day\u2014Teleport 10 feet, to an unoccupied square to which you have line of sight and line of effect.  You can bring along objects up to your maximum load, but not other creatures."
+        }
+      ]
+    }
   }
 ]

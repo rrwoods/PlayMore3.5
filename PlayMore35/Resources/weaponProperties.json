@@ -104,5 +104,14 @@
         }
       ]
     }
+  },
+  {
+    "name": "ghost touch",
+    "text": [
+      {
+        "category": "Atk Options",
+        "text": "Ignore the 50% miss chance a creature has for being incorporeal"
+      }
+    ]
   }
 ]

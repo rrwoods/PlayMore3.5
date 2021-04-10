@@ -767,7 +767,8 @@
       "tags": [
         "Climb",
         "All skills",
-        "STR skills"
+        "STR skills",
+        "ACP skills"
       ]
     },
     {
@@ -783,7 +784,8 @@
       "tags": [
         "Escape Artist",
         "All skills",
-        "DEX skills"
+        "DEX skills",
+        "ACP skills"
       ]
     },
     {
