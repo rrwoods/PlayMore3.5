@@ -90,6 +90,7 @@
     <Compile Include="DynamicStatPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Effects\Text.cs" />
     <Compile Include="HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>

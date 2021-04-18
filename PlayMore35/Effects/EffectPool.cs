@@ -155,20 +155,20 @@ namespace PlayMore35.Effects {
             var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<(string, string)>());
 
             foreach (Effect e in AllEffects(items).Where(x => x.Toggle.On(this, items))) {
-                foreach ((string category, string text) in e.Text) {
-                    string display = text;
+                foreach (Text text in e.Text) {
+                    string display = text.Description;
                     while (display.Contains("{{")) {
-                        int start = text.IndexOf("{{") + 2;
-                        int end = text.IndexOf("}}", start);
-                        string statName = text.Substring(start, end - start);
+                        int start = text.Description.IndexOf("{{") + 2;
+                        int end = text.Description.IndexOf("}}", start);
+                        string statName = text.Description.Substring(start, end - start);
                         int statValue = GetStat(statName).GetValue(this, items).value;
-                        display = text.Replace("{{" + statName + "}}", "" + statValue);
+                        display = text.Description.Replace("{{" + statName + "}}", "" + statValue);
                     }
 
-                    if (allText.ContainsKey(category)) {
-                        allText[category].Add((e.Name, display));
+                    if (allText.ContainsKey(text.Category)) {
+                        allText[text.Category].Add((e.Name, display));
                     } else {
-                        allText[UNCATEGORIZED].Add((e.Name, $"[{category}] {display}"));
+                        allText[UNCATEGORIZED].Add((e.Name, $"[{text.Category}] {display}"));
                     }
                 }
             }

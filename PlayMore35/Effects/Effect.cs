@@ -37,7 +37,7 @@ namespace PlayMore35.Effects {
         private readonly List<string> ExoticShieldProficiencies = new List<string>();
 
         private readonly List<string> Flags = new List<string>();
-        public readonly List<(string category, string text)> Text = new List<(string, string)>();
+        public readonly List<Text> Text = new List<Text>();
 
         public override string ToString() {
             return Name;
@@ -74,12 +74,7 @@ namespace PlayMore35.Effects {
                 json.Add("exotic shield proficiencies", new JArray(ExoticShieldProficiencies));
             }
             json.AddList("flags", Flags);
-            if (Text.Any()) {
-                json.Add("text", new JArray(Text.Select(x => new JObject(
-                    new JProperty("category", x.category),
-                    new JProperty("text", x.text)
-                ))));
-            }
+            json.AddList("text", Text);
             return json;
         }
 
@@ -174,9 +169,7 @@ namespace PlayMore35.Effects {
                 Flags.AddRange(json["flags"].Select(x => (string)x));
             }
             if (json["text"] != null) {
-                foreach (JObject obj in json["text"]) {
-                    Text.Add(((string)obj["category"], (string)obj["text"]));
-                }
+                Text.AddRange(json["text"].Select(x => new Text((JObject)x)));
             }
         }
 
@@ -204,7 +197,7 @@ namespace PlayMore35.Effects {
             copy.ExoticShieldProficiencies.AddRange(ExoticShieldProficiencies.Select(x => x.Replace("$", choice)));
 
             copy.Flags.AddRange(Flags.Select(x => x.Replace("$", choice)));
-            copy.Text.AddRange(Text.Select(x => (x.category, x.text.Replace("$", choice))));
+            copy.Text.AddRange(Text.Select(x => x.ApplyChoice(choice)));
 
             return copy;
         }
@@ -302,7 +295,7 @@ namespace PlayMore35.Effects {
         }
 
         public Effect AddText(string category, string text) {
-            Text.Add((category, text));
+            Text.Add(new Text { Category = category, Description = text });
             return this;
         }
 
