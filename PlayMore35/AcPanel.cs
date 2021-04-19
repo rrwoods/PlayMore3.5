@@ -4,6 +4,7 @@ using static PlayMore35.Effects.Constants;
 
 using System.Windows.Forms;
 using System.Collections.Generic;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class AcPanel : DynamicPanel {
@@ -23,7 +24,7 @@ namespace PlayMore35 {
             Margin = new Padding(0);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
             LabelStat(ac, controller, AC, AC, ",", false);
             LabelStat(touch, controller, "touch", TOUCH_AC, "", false);

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Items;
 using System.Text;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class AttacksPanel : DynamicPanel {
@@ -101,7 +102,7 @@ namespace PlayMore35 {
             i++;
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
 
             int i = 0;

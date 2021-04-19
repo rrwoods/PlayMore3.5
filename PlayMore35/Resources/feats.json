@@ -1836,12 +1836,51 @@
   },
   {
     "prerequisites": "DEX 13, WIS 13, Improved Unarmed Strike, base attack bonus +8",
+    "stats": [ { "name": "non-monk levels" } ],
     "benefit": {
       "name": "Stunning Fist",
       "text": [
         {
           "category": "Atk Options",
-          "text": "free X/day 1/round\u2014Your next unarmed attack stuns for 1 round if it hits; Fort DC 10 + 1/2 level + WIS negates; X = monk level + 1 per four non-monk levels"
+          "text": "Your next unarmed attack stuns for 1 round if it hits a corporeal creature that can be critically struck; Fort DC 10 + 1/2 level + WIS negates",
+          "action": "free",
+          "recharge": "day"
+        }
+      ],
+      "modifiers": [
+        {
+          "affects": "Stunning Fist uses",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              { "stat value": "monk level" },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "non-monk levels"
+                  },
+                  "scalar": 0.25
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "non-monk levels",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              { "stat value": "Hit dice" },
+              {
+                "multiply": {
+                  "variable": {
+                    "stat value": "monk level"
+                  },
+                  "scalar": -1
+                }
+              }
+            ]
+          }
         }
       ]
     }

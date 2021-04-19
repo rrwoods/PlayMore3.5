@@ -156,6 +156,7 @@ namespace PlayMore35.Global {
             foreach (string property in choice.ProjectileProperties) {
                 weapon.Projectile?.atk.Properties.Add(WeaponPropertyDefinitions[property]);
             }
+
             return weapon;
         }
 
@@ -331,6 +332,8 @@ namespace PlayMore35.Global {
             foreach (string item in Character.equipped.SlotlessItems) {
                 EquippedItems.SlotlessItems.Add(ItemDefinitions[item]);
             }
+
+            Effects.GenerateUses(EquippedItems);
 
             foreach (string flag in Effects.controllableFlags.Keys.ToList()) {
                 if (character.flagValues.ContainsKey(flag)) {

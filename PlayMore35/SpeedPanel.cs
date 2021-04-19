@@ -4,6 +4,7 @@ using static PlayMore35.Effects.Constants;
 
 using System.Windows.Forms;
 using System.Collections.Generic;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class SpeedPanel : DynamicPanel {
@@ -22,7 +23,7 @@ namespace PlayMore35 {
             effects.Margin = new Padding(0);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             LabelStat(speed, mainForm.controller, "Speed", LAND_SPEED, " ft.", false);
             effects.Update(textEffects);
         }

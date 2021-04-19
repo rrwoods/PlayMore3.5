@@ -4,6 +4,7 @@ using static PlayMore35.Effects.Constants;
 
 using System.Windows.Forms;
 using System.Collections.Generic;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     internal class AbilityDisplay : TableLayoutPanel {
@@ -63,7 +64,7 @@ namespace PlayMore35 {
             }
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
             for (int i = 0; i < ABILITY_NAMES.Length; i++) {
                 string ability = ABILITY_NAMES[i];

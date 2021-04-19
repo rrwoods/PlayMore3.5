@@ -5,3 +5,7 @@
 [ESOTERIC] Savnok's armor property DR scales with EBL
 
 ("esoteric" because who ever uses Savnok at those levels)
+
+===
+
+[ESOTERIC] Stunning fists "per four levels" should not count non-class hit dice.

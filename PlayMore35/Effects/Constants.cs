@@ -284,6 +284,14 @@
         public static readonly string STUNNED = "stunned";
         public static readonly string HELPLESS_AND_PARALYZED = "helpless and paralyzed";
 
+        public static readonly string AT_WILL = "at-will";
+        public static readonly string ROUND = "round";
+        public static readonly string ENCOUNTER = "encounter";
+        public static readonly string MINUTE = "minute";
+        public static readonly string HOUR = "hour";
+        public static readonly string DAY = "day";
+        public static readonly string WEEK = "week";
+
         public static readonly string[] SCHOOLS_OF_MAGIC = new string[] {
             "Abjuration", "Conjuration", "Divination", "Enchantment", "Evocation", "Illusion", "Necromancy", "Transmutation"
         };

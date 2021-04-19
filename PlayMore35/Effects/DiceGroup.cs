@@ -10,8 +10,11 @@ namespace PlayMore35.Effects {
         public string Name = "";
 
         public static (int qty, int size) FromDNotation(string dice) {
-            string[] damageComponents = dice.Split('d');
-            return (int.Parse(damageComponents[0]), int.Parse(damageComponents[1]));
+            if (dice.Contains('d')) {
+                string[] damageComponents = dice.Split('d');
+                return (int.Parse(damageComponents[0]), int.Parse(damageComponents[1]));
+            }
+            return (int.Parse(dice), 1);
         }
 
         public static string ToDNotation((int qty, int size) dice) {
@@ -19,12 +22,19 @@ namespace PlayMore35.Effects {
         }
 
         public JToken ToJson() {
-            return new JObject(dice.Select(x => new JProperty(x.Key.ToString(), x.Value)));
+            return ToString();
         }
 
-        public DiceGroup(JObject json) {
-            foreach (JProperty die in json.Properties()) {
-                dice[int.Parse(die.Name)] = (int)die.Value;
+        public DiceGroup(JToken json) {
+            foreach (string component in ((string)json).Split('+')) {
+                string die = component;
+                if (component.Contains('-')) {
+                    string[] dieAndMinus = component.Split('-');
+                    AddDice(-int.Parse(dieAndMinus[1]), 1);
+                    die = dieAndMinus[0];
+                }
+                (int qty, int size) = FromDNotation(die);
+                AddDice(qty, size);
             }
         }
 
@@ -74,6 +84,16 @@ namespace PlayMore35.Effects {
             }
         }
 
+        public bool IsSingleOne() {
+            if (dice.Count != 1) {
+                return false;
+            }
+            if (!dice.ContainsKey(1)) {
+                return false;
+            }
+            return dice[1] == 1;
+        }
+
         public override string ToString() {
             if (!dice.Any()) {
                 return "—";
@@ -94,6 +114,7 @@ namespace PlayMore35.Effects {
                 return "" + dice[1];
             }
 
+            // Do not put spaces around this plus sign.
             string ret = string.Join("+", components);
             if (!dice.ContainsKey(1)) {
                 return ret;

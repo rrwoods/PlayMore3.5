@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 
 using PlayMore35.Items;
+using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Effects {
     public class Effect : IJsonable {
@@ -297,6 +298,18 @@ namespace PlayMore35.Effects {
         public Effect AddText(string category, string text) {
             Text.Add(new Text { Category = category, Description = text });
             return this;
+        }
+
+        public Statistic Uses() {
+            foreach (Text text in Text) {
+                if (text.RechargeTime != null) {
+                    if (text.StaticUses != 0) {
+                        AddModifier(this.Name + " uses", new Modifier(text.StaticUses, UNTYPED));
+                    }
+                    return (new Statistic(Name + " uses"));
+                }
+            }
+            return null;
         }
 
         private IEnumerable<AlterType> GetAlterers<AlterType, SubjectType> (

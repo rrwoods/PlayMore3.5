@@ -4,6 +4,7 @@ using static PlayMore35.Effects.Constants;
 
 using System.Windows.Forms;
 using System.Collections.Generic;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class BaseCombatPanel : DynamicPanel {
@@ -24,7 +25,7 @@ namespace PlayMore35 {
             Controls.Add(grp);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             LabelStat(space, mainForm.controller, SPACE, SPACE, " ft.;", false);
             LabelStat(reach, mainForm.controller, REACH, REACH, " ft.", false);
             LabelStat(bab, mainForm.controller, "Base Atk", BASE_ATTACK_BONUS, ";");

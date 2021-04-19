@@ -22,7 +22,7 @@ namespace PlayMore35 {
             Controls.Add(baseLabel);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
             (int baseValue, List<string> baseExpl) = controller.GetStatistic(BaseStatistic);
             IEnumerable<Statistic> specials = controller.Effects.RelevantStatsWithTag(BaseStatistic, controller.EquippedItems);

@@ -40,7 +40,7 @@ namespace PlayMore35.Effects {
                 stats[s.Name] = s;
             }
             foreach (JObject token in json["effects"]) {
-                effects.Add(new Effect(token));
+                AddEffect(new Effect(token));
             }
             foreach (JObject token in json["flags"]) {
                 ControllableFlag flag = new ControllableFlag(token);
@@ -53,6 +53,10 @@ namespace PlayMore35.Effects {
         }
 
         public void AddStat(Statistic stat) {
+            if (stat == null) {
+                return;
+            }
+
             if (stats.ContainsKey(stat.Name)) {
                 stats[stat.Name].EnsureTags(stat);
             } else {
@@ -151,25 +155,14 @@ namespace PlayMore35.Effects {
         }
 
         // Returns { category => [ (name, description) ] }
-        public Dictionary<string, List<(string, string)>> GetTextEffects(Equipped items) {
-            var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<(string, string)>());
+        public Dictionary<string, List<Text>> GetTextEffects(Equipped items) {
+            var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<Text>());
 
             foreach (Effect e in AllEffects(items).Where(x => x.Toggle.On(this, items))) {
                 foreach (Text text in e.Text) {
-                    string display = text.Description;
-                    while (display.Contains("{{")) {
-                        int start = text.Description.IndexOf("{{") + 2;
-                        int end = text.Description.IndexOf("}}", start);
-                        string statName = text.Description.Substring(start, end - start);
-                        int statValue = GetStat(statName).GetValue(this, items).value;
-                        display = text.Description.Replace("{{" + statName + "}}", "" + statValue);
-                    }
-
-                    if (allText.ContainsKey(text.Category)) {
-                        allText[text.Category].Add((e.Name, display));
-                    } else {
-                        allText[UNCATEGORIZED].Add((e.Name, $"[{text.Category}] {display}"));
-                    }
+                    Text filled = text.FillStatValues(this, items, e.Name);
+                    string category = allText.ContainsKey(text.Category) ? text.Category : UNCATEGORIZED;
+                    allText[category].Add(filled);
                 }
             }
 
@@ -258,9 +251,15 @@ namespace PlayMore35.Effects {
                 effect.AddFamiliarity(weapon);
             }
             AddEffect(effect);
-            effects.AddRange(race.Effects);
+            race.Effects.ForEach(x => AddEffect(x));
             race.Flags.ForEach(x => controllableFlags[x.Name] = x);
             AddStats(race.NewStats);
+        }
+
+        public void GenerateUses(Equipped items) {
+            foreach (Effect e in AllEffects(items)) {
+                AddStat(e.Uses());
+            }
         }
 
         private int BaseSaveBonus(CharacterClass.BonusProgression prog, int level) {

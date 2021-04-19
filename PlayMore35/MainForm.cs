@@ -10,11 +10,11 @@ using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 using static PlayMore35.Properties.Resources;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public partial class MainForm : Form {
@@ -769,7 +769,7 @@ namespace PlayMore35 {
         public void RefreshEffects() {
             controller.ForceHiddenFlagsOff();
 
-            Dictionary<string, List<(string name, string desc)>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
+            Dictionary<string, List<Text>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
             foreach (DynamicPanel p in dynamicPanels) {
                 p.Update(textEffects);
             }

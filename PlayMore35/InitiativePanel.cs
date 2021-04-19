@@ -4,6 +4,7 @@ using static PlayMore35.Effects.Constants;
 
 using System.Windows.Forms;
 using System.Collections.Generic;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class InitiativePanel : DynamicPanel {
@@ -14,7 +15,7 @@ namespace PlayMore35 {
             Controls.Add(initiative);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             LabelStat(initiative, mainForm.controller, INITIATIVE, INITIATIVE);
         }
     }

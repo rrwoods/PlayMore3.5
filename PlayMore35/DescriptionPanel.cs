@@ -4,6 +4,7 @@ using static PlayMore35.Effects.Constants;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class DescriptionPanel : DynamicPanel {
@@ -20,7 +21,7 @@ namespace PlayMore35 {
             Controls.Add(langs);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
             name.Text = controller.Character.name.ToUpper();
 
@@ -38,7 +39,7 @@ namespace PlayMore35 {
                 controller.Effects.CreatureType +
                 (controller.Effects.SubTypes.Any() ? " (" + string.Join(", ", controller.Effects.SubTypes) + ")" : "");
 
-            string languages = string.Join(", ", textEffects[LANGUAGES].Select(x => x.desc));
+            string languages = string.Join(", ", textEffects[LANGUAGES].Select(x => x.Description));
             langs.Text = $"Languages {languages}";
         }
     }

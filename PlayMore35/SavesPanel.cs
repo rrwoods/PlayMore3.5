@@ -1,6 +1,7 @@
 ﻿using static PlayMore35.Effects.Constants;
 
 using System.Collections.Generic;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class SavesPanel : DynamicPanel {
@@ -24,7 +25,7 @@ namespace PlayMore35 {
             Controls.Add(willSaves);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             fortSaves.Update(textEffects);
             refSaves.Update(textEffects);
             willSaves.Update(textEffects);

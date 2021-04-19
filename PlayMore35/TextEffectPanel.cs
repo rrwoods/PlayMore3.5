@@ -1,17 +1,21 @@
 ﻿using PlayMore35.Global;
 using static PlayMore35.Global.FormUtils;
+using static PlayMore35.Effects.Constants;
 
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.ComponentModel;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class TextEffectPanel : DynamicPanel {
         private readonly Dictionary<string, LabeledField> fields = new Dictionary<string, LabeledField>();
         private readonly Dictionary<string, CheckBox> flags = new Dictionary<string, CheckBox>();
-        private readonly Dictionary<string, Label> labels = new Dictionary<string, Label>();
+        private readonly Dictionary<string, Label> effectLabels = new Dictionary<string, Label>();
+        private readonly Dictionary<string, Label> usesLabels = new Dictionary<string, Label>();
+
         private Label header;
 
         public enum DisplayMode { SINGLE_LINE, MULTI_LINE_WITH_HEADER, MULTI_LINE_WITHOUT_HEADER }
@@ -21,6 +25,7 @@ namespace PlayMore35 {
 
         public override void Initialize(MainForm mainForm) {
             base.Initialize(mainForm);
+            FlowDirection = FlowDirection.LeftToRight;
             
             switch (DisplayStyle) {
                 case DisplayMode.SINGLE_LINE:
@@ -30,6 +35,7 @@ namespace PlayMore35 {
                         AutoSize = true,
                     };
                     Controls.Add(header);
+                    SetFlowBreak(header, true);
                     break;
             }
         }
@@ -42,7 +48,7 @@ namespace PlayMore35 {
             mainForm.RefreshEffects();
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             string category = (string)Tag;
             var effects = textEffects[category];
             bool any = false;
@@ -64,6 +70,7 @@ namespace PlayMore35 {
                     field = new LabeledField(paramName, mainForm);
                     fields[paramName] = field;
                     Controls.Add(field);
+                    SetFlowBreak(field, true);
                 }
                 if (controller.Character.paramValues.ContainsKey(paramName)) {
                     field.Value = controller.Character.paramValues[paramName];
@@ -105,6 +112,7 @@ namespace PlayMore35 {
                     flag.Click += Toggle_Click;
                     flags[toggleName] = flag;
                     Controls.Add(flag);
+                    SetFlowBreak(flag, true);
                 }
                 ToolTipTextLabel(flag, toggle.Value.Description);
                 any = true;
@@ -117,7 +125,7 @@ namespace PlayMore35 {
             switch (DisplayStyle) {
                 case DisplayMode.SINGLE_LINE:
                     if (effects.Any()) {
-                        string effectText = string.Join(", ", effects.Select(x => x.desc));
+                        string effectText = string.Join(", ", effects.Select(x => x.Description));
                         header.Text = $"{category} {effectText}";
                         header.Visible = true;
                         any = true;
@@ -128,25 +136,48 @@ namespace PlayMore35 {
 
                 case DisplayMode.MULTI_LINE_WITH_HEADER:
                 case DisplayMode.MULTI_LINE_WITHOUT_HEADER:
-                    HashSet<string> inactiveLabels = new HashSet<string>(labels.Keys);
-                    foreach (var (name, desc) in effects) {
-                        Label label;
-                        if (labels.ContainsKey(name)) {
+                    HashSet<string> inactiveLabels = new HashSet<string>(effectLabels.Keys);
+                    foreach (Text text in effects) {
+                        string name = text.Name;
+                        string desc = text.Description;
+
+                        Label effectLabel;
+                        Label usesLabel = null;
+                        if (effectLabels.ContainsKey(name)) {
                             inactiveLabels.Remove(name);
-                            label = labels[name];
-                            labels[name].Visible = true;
+                            effectLabel = effectLabels[name];
+                            effectLabels[name].Visible = true;
+
+                            if (text.RechargeTime != null) {
+                                usesLabel = usesLabels[name];
+                                usesLabels[name].Visible = true;
+                            }
                         } else {
-                            label = new Label() {
+                            effectLabel = new Label() {
                                 Text = INDENT + name
                             }.Initialize();
-                            labels[name] = label;
-                            Controls.Add(label);
+                            effectLabels[name] = effectLabel;
+                            Controls.Add(effectLabel);
+
+                            if (text.RechargeTime != null) {
+                                usesLabel = new Label() {
+                                    Text = text.ActionUses()
+                                }.Initialize();
+                                usesLabels[name] = usesLabel;
+                                Controls.Add(usesLabel);
+                                SetFlowBreak(usesLabel, true);
+                            } else {
+                                SetFlowBreak(effectLabel, true);
+                            }
                         }
-                        ToolTipTextLabel(label, desc);
+                        ToolTipTextLabel(effectLabel, desc);
+                        if (usesLabel != null) {
+                            ToolTipTextLabel(usesLabel, string.Join("\n", text.DynamicUsesExplanation));
+                        }
                         any = true;
                     }
                     foreach (string name in inactiveLabels) {
-                        labels[name].Visible = false;
+                        effectLabels[name].Visible = false;
                     }
                     break;
             }

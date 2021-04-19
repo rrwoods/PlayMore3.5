@@ -5,6 +5,7 @@ using static PlayMore35.Effects.Constants;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
+using PlayMore35.Effects;
 
 namespace PlayMore35 {
     public class HpPanel : DynamicPanel {
@@ -27,14 +28,14 @@ namespace PlayMore35 {
             Margin = new Padding(0);
         }
 
-        public override void Update(Dictionary<string, List<(string name, string desc)>> textEffects) {
+        public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
             LabelStat(hp, controller, HP, CURRENT_HP, ";", false);
             LabelStat(maxHp, controller, "max", MAX_HP, " (" + controller.Character.classLevels.Count + " HD)", false);
 
             if (textEffects[DR].Any()) {
                 maxHp.Text += ";";
-                string drText = string.Join(", ", textEffects[DR].Select(x => x.desc));
+                string drText = string.Join(", ", textEffects[DR].Select(x => x.Description));
                 dr.Text = $"DR {drText}";
                 dr.Visible = true;
             } else {

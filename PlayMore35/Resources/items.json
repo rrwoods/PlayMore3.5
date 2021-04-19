@@ -7,7 +7,10 @@
       "text": [
         {
           "category": "Move Options",
-          "text": "std 1/day\u2014Throw the panic button, and teleport to the space it lands in.  Afterward, this item has a 25% chance to become inert forever."
+          "text": "Throw the panic button, and teleport to the space it lands in.  Afterward, this item has a 25% chance to become inert forever.",
+          "action": "std",
+          "uses": 1,
+          "recharge": "day"
         }
       ]
     }
@@ -20,7 +23,10 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "std\u2014Dump a bag of marbles into an adjacent square.  Creatures moving through or fighting in the area must make a DC 15 Balance check or be unable to move for 1 round, and failing by 5 or more causes the creature to fall."
+          "text": "Dump a bag of marbles into an adjacent square.  Creatures moving through or fighting in the area must make a DC 15 Balance check or be unable to move for 1 round, and failing by 5 or more causes the creature to fall.",
+          "action": "std",
+          "uses": 1,
+          "recharge": "encounter"
         }
       ]
     }
@@ -33,7 +39,10 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "attack\u2014Throw the defoliator as a splash weapon.  A direct hit deals 2d4 damage to plant creatures, the splash deals 1 damage to plant creatures, and either kills noncreature plants of medium or smaller size."
+          "text": "Throw the defoliator as a splash weapon.  A direct hit deals 2d4 damage to plant creatures, the splash deals 1 damage to plant creatures, and either kills noncreature plants of medium or smaller size.",
+          "action": "std",
+          "uses": 1,
+          "recharge": "ever"
         }
       ]
     }
@@ -232,7 +241,10 @@
       "text": [
         {
           "category": "Move Options",
-          "text": "swift 2/day\u2014Teleport 10 feet, to an unoccupied square to which you have line of sight and line of effect.  You can bring along objects up to your maximum load, but not other creatures."
+          "text": "Teleport 10 feet, to an unoccupied square to which you have line of sight and line of effect.  You can bring along objects up to your maximum load, but not other creatures.",
+          "action": "swift",
+          "uses": 2,
+          "recharge": "day"
         }
       ]
     }

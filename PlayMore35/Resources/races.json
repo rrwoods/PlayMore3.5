@@ -503,7 +503,10 @@
         "text": [
           {
             "category": "Special Actions",
-            "text": "1/day\u2014speak with animals (burrowing mammal only, duration 1 minute)"
+            "text": "speak with animals (burrowing mammal only, duration 1 minute)",
+            "action": "std",
+            "uses": 1,
+            "recharge": "day"
           }
         ]
       },
@@ -523,7 +526,10 @@
         "text": [
           {
             "category": "Special Actions",
-            "text": "1/day\u2014dancing lights, ghost sound, prestidigitation"
+            "text": "dancing lights, ghost sound, prestidigitation",
+            "action": "std",
+            "uses": 1,
+            "recharge": "day"
           }
         ]
       }
