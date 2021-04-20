@@ -1,6 +1,6 @@
 [USABILITY] Action system
 
-The controller should get the total number of usages available from the effects system, and the number used from the UI (via maybe UseAction and ReclaimAction functions which add/subtract 1 from the number used)
+Custom flags can have uses!
 
 ===
 
