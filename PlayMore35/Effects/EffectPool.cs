@@ -53,10 +53,6 @@ namespace PlayMore35.Effects {
         }
 
         public void AddStat(Statistic stat) {
-            if (stat == null) {
-                return;
-            }
-
             if (stats.ContainsKey(stat.Name)) {
                 stats[stat.Name].EnsureTags(stat);
             } else {
@@ -258,7 +254,16 @@ namespace PlayMore35.Effects {
 
         public void GenerateUses(Equipped items) {
             foreach (Effect e in AllEffects(items)) {
-                AddStat(e.Uses());
+                Statistic stat = e.Uses();
+                if (stat != null) {
+                    AddStat(stat);
+                    controllableParameters[$"{e.Name} used"] = new ControllableParameter {
+                        Name = $"{e.Name} used",
+                        Category = "",
+                        Description = "",
+                        Value = 0
+                    };
+                }
             }
         }
 

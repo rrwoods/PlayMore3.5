@@ -77,7 +77,7 @@ namespace PlayMore35.Effects {
         }
 
         public Text ComputeUses(EffectPool effects, Equipped items) {
-            if (RechargeTime == null) {
+            if (RechargeTime == null || RechargeTime.unit == AT_WILL) {
                 return this;
             }
             string usesStat = $"{Name} uses";

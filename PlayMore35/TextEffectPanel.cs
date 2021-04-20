@@ -14,7 +14,9 @@ namespace PlayMore35 {
         private readonly Dictionary<string, LabeledField> fields = new Dictionary<string, LabeledField>();
         private readonly Dictionary<string, CheckBox> flags = new Dictionary<string, CheckBox>();
         private readonly Dictionary<string, Label> effectLabels = new Dictionary<string, Label>();
+
         private readonly Dictionary<string, Label> usesLabels = new Dictionary<string, Label>();
+        private readonly Dictionary<string, LabeledField> usedFields = new Dictionary<string, LabeledField>();
 
         private Label header;
 
@@ -137,20 +139,29 @@ namespace PlayMore35 {
                 case DisplayMode.MULTI_LINE_WITH_HEADER:
                 case DisplayMode.MULTI_LINE_WITHOUT_HEADER:
                     HashSet<string> inactiveLabels = new HashSet<string>(effectLabels.Keys);
+                    HashSet<string> inactiveUses = new HashSet<string>(usesLabels.Keys);
+                    HashSet<string> inactiveUsed = new HashSet<string>(usedFields.Keys);
                     foreach (Text text in effects) {
                         string name = text.Name;
                         string desc = text.Description;
 
                         Label effectLabel;
                         Label usesLabel = null;
+                        LabeledField usedField = null;
                         if (effectLabels.ContainsKey(name)) {
                             inactiveLabels.Remove(name);
                             effectLabel = effectLabels[name];
                             effectLabels[name].Visible = true;
 
                             if (text.RechargeTime != null) {
+                                inactiveUses.Remove(name);
                                 usesLabel = usesLabels[name];
                                 usesLabels[name].Visible = true;
+                                if (text.RechargeTime.unit != AT_WILL) {
+                                    inactiveUsed.Remove(name);
+                                    usedField = usedFields[name];
+                                    usedField.Visible = true;
+                                }
                             }
                         } else {
                             effectLabel = new Label() {
@@ -165,19 +176,36 @@ namespace PlayMore35 {
                                 }.Initialize();
                                 usesLabels[name] = usesLabel;
                                 Controls.Add(usesLabel);
-                                SetFlowBreak(usesLabel, true);
+
+                                if (text.RechargeTime.unit != AT_WILL) {
+                                    usedField = new LabeledField($"{name} used", mainForm, "used");
+                                    usedFields[name] = usedField;
+                                    Controls.Add(usedField);
+                                    SetFlowBreak(usedField, true);
+                                } else {
+                                    SetFlowBreak(usesLabel, true);
+                                }
                             } else {
                                 SetFlowBreak(effectLabel, true);
                             }
                         }
                         ToolTipTextLabel(effectLabel, desc);
-                        if (usesLabel != null) {
+                        if (usesLabel != null && text.RechargeTime.unit != AT_WILL) {
                             ToolTipTextLabel(usesLabel, string.Join("\n", text.DynamicUsesExplanation));
+                            if (controller.Character.paramValues.ContainsKey($"{name} used")) {
+                                usedField.Value = controller.Character.paramValues[$"{name} used"];
+                            }
                         }
                         any = true;
                     }
                     foreach (string name in inactiveLabels) {
                         effectLabels[name].Visible = false;
+                    }
+                    foreach (string name in inactiveUses) {
+                        usesLabels[name].Visible = false;
+                    }
+                    foreach (string name in inactiveUsed) { 
+                        usedFields[name].Visible = false;
                     }
                     break;
             }

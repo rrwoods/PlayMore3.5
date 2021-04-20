@@ -302,11 +302,11 @@ namespace PlayMore35.Effects {
 
         public Statistic Uses() {
             foreach (Text text in Text) {
-                if (text.RechargeTime != null) {
+                if (text.RechargeTime != null && text.RechargeTime.unit != AT_WILL) {
                     if (text.StaticUses != 0) {
-                        AddModifier(this.Name + " uses", new Modifier(text.StaticUses, UNTYPED));
+                        AddModifier(Name + " uses", new Modifier(text.StaticUses, UNTYPED));
                     }
-                    return (new Statistic(Name + " uses"));
+                    return new Statistic(Name + " uses");
                 }
             }
             return null;

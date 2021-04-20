@@ -3,8 +3,8 @@
 namespace PlayMore35.Effects {
     public class ControllableParameter : IJsonable {
         public string Name;
-        public string Category;
-        public string Description;
+        public string Category; // this is blank for "uses" parameters.
+        public string Description; // this is blank for "uses" parameters.
         public int Value; // not serialized, because it's tied to the character.
 
         public JToken ToJson() {
@@ -20,6 +20,10 @@ namespace PlayMore35.Effects {
             Category = (string)json["category"];
             Description = (string)json["description"];
             Value = 0;
+        }
+
+        public ControllableParameter() {
+
         }
     }
 }

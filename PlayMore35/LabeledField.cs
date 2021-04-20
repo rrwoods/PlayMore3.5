@@ -9,9 +9,12 @@ namespace PlayMore35 {
         public Label lblName;
         public TextBox txtValue;
 
-        public LabeledField(string name, MainForm mainForm) : base() {
+        public LabeledField(string name, MainForm mainForm, string displayName = null) : base() {
             AutoSize = true;
 
+            if (displayName == null) {
+                displayName = name;
+            }
             txtValue = new TextBox {
                 Size = new Size(32, 25),
                 TextAlign = HorizontalAlignment.Center,
@@ -24,7 +27,7 @@ namespace PlayMore35 {
 
             lblName = new Label {
                 AutoSize = true,
-                Text = name,
+                Text = displayName,
                 Anchor = AnchorStyles.Left,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Margin = new Padding(0),
