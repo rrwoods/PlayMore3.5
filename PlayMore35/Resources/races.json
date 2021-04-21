@@ -504,9 +504,11 @@
           {
             "category": "Special Actions",
             "text": "speak with animals (burrowing mammal only, duration 1 minute)",
-            "action": "std",
-            "uses": 1,
-            "recharge": "day"
+            "resource": {
+              "action": "std",
+              "uses": 1,
+              "recharge": "day"
+            }
           }
         ]
       },
@@ -527,9 +529,11 @@
           {
             "category": "Special Actions",
             "text": "dancing lights, ghost sound, prestidigitation",
-            "action": "std",
-            "uses": 1,
-            "recharge": "day"
+            "resource": {
+              "action": "std",
+              "uses": 1,
+              "recharge": "day"
+            }
           }
         ]
       }

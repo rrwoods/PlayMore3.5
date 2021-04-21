@@ -150,7 +150,6 @@ namespace PlayMore35.Effects {
                 .Any(x => x.HasFlag(flag) && x.Toggle.On(this, items));
         }
 
-        // Returns { category => [ (name, description) ] }
         public Dictionary<string, List<Text>> GetTextEffects(Equipped items) {
             var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<Text>());
 
@@ -160,6 +159,10 @@ namespace PlayMore35.Effects {
                     string category = allText.ContainsKey(text.Category) ? text.Category : UNCATEGORIZED;
                     allText[category].Add(filled);
                 }
+            }
+
+            foreach (ControllableFlag f in controllableFlags.Values) {
+                f.Resource?.ComputeUses(f.Name, this, items);
             }
 
             return allText;
@@ -252,18 +255,37 @@ namespace PlayMore35.Effects {
             AddStats(race.NewStats);
         }
 
-        public void GenerateUses(Equipped items) {
-            foreach (Effect e in AllEffects(items)) {
-                Statistic stat = e.Uses();
-                if (stat != null) {
-                    AddStat(stat);
-                    controllableParameters[$"{e.Name} used"] = new ControllableParameter {
-                        Name = $"{e.Name} used",
-                        Category = "",
-                        Description = "",
-                        Value = 0
-                    };
+        private bool GenerateUses(ActionResource resource, string name, Effect baseUses) {
+            if (resource != null && resource.RechargeTime.unit != AT_WILL) {
+                if (resource.StaticUses != 0) {
+                    baseUses.AddModifier($"{name} uses", new Modifier(resource.StaticUses, BASE));
                 }
+                Statistic usesStat = new Statistic($"{name} uses");
+                AddStat(usesStat);
+                controllableParameters[$"{name} used"] = new ControllableParameter {
+                    Name = $"{name} used",
+                    Category = "",
+                    Description = "",
+                    Value = 0
+                };
+                return true;
+            }
+            return false;
+        }
+
+        public void GenerateUses(Equipped items) {
+            Effect baseUses = new Effect("base uses");
+            AddEffect(baseUses);
+
+            foreach (Effect e in AllEffects(items)) {
+                foreach (Text text in e.Text) {
+                    if (GenerateUses(text.Resource, e.Name, baseUses)) {
+                        break;
+                    }
+                }
+            }
+            foreach (ControllableFlag flag in controllableFlags.Values) {
+                GenerateUses(flag.Resource, flag.Name, baseUses);
             }
         }
 

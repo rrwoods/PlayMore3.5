@@ -87,19 +87,35 @@ namespace PlayMore35 {
             }
 
             HashSet<string> inactiveFlags = new HashSet<string>(flags.Keys);
+            HashSet<string> inactiveUses = new HashSet<string>(usesLabels.Keys);
+            HashSet<string> inactiveUsed = new HashSet<string>(usedFields.Keys);
             foreach (var toggle in controller.Effects.controllableFlags) {
-                if (toggle.Value.Category != category || !toggle.Value.Show.On(controller.Effects, controller.EquippedItems)) {
+                ControllableFlag flag = toggle.Value;
+                if (flag.Category != category || !flag.Show.On(controller.Effects, controller.EquippedItems)) {
                     continue;
                 }
 
                 string toggleName = toggle.Key;
-                CheckBox flag;
+                CheckBox flagBox;
+                Label usesLabel = null;
+                LabeledField usedField = null;
                 if (flags.ContainsKey(toggleName)) {
                     inactiveFlags.Remove(toggleName);
-                    flag = flags[toggleName];
-                    flag.Visible = true;
+                    flagBox = flags[toggleName];
+                    flagBox.Visible = true;
+                    
+                    if (flag.Resource != null) {
+                        inactiveUses.Remove(flag.Name);
+                        usesLabel = usesLabels[flag.Name];
+                        usesLabel.Visible = true;
+                        if (flag.Resource.RechargeTime.unit != AT_WILL) {
+                            inactiveUsed.Remove(flag.Name);
+                            usedField = usedFields[flag.Name];
+                            usedField.Visible = true;
+                        }
+                    }
                 } else {
-                    flag = new CheckBox {
+                    flagBox = new CheckBox {
                         AutoSize = true,
                         Text = toggleName,
                         Margin = new Padding(3, 0, 0, 0)
@@ -107,16 +123,40 @@ namespace PlayMore35 {
                     
                     if (controller.Character.flagValues.ContainsKey(toggleName)) {
                         bool value = controller.Character.flagValues[toggleName];
-                        flag.Checked = value;
-                        toggle.Value.On = value;
+                        flagBox.Checked = value;
+                        flag.On = value;
                     }
 
-                    flag.Click += Toggle_Click;
-                    flags[toggleName] = flag;
-                    Controls.Add(flag);
-                    SetFlowBreak(flag, true);
+                    flagBox.Click += Toggle_Click;
+                    flags[toggleName] = flagBox;
+                    Controls.Add(flagBox);
+
+                    if (flag.Resource != null) {
+                        usesLabel = new Label {
+                            Text = flag.Resource.Description()
+                        }.Initialize();
+                        usesLabels[flag.Name] = usesLabel;
+                        Controls.Add(usesLabel);
+
+                        if (flag.Resource.RechargeTime.unit != AT_WILL) {
+                            usedField = new LabeledField($"{flag.Name} used", mainForm, "used");
+                            usedFields[flag.Name] = usedField;
+                            Controls.Add(usedField);
+                            SetFlowBreak(usedField, true);
+                        } else {
+                            SetFlowBreak(usesLabel, true);
+                        }
+                    } else {
+                        SetFlowBreak(flagBox, true);
+                    }
                 }
-                ToolTipTextLabel(flag, toggle.Value.Description);
+                ToolTipTextLabel(flagBox, flag.Description);
+                if (usesLabel != null && flag.Resource.RechargeTime.unit != AT_WILL) {
+                    ToolTipTextLabel(usesLabel, string.Join("\n", flag.Resource.DynamicUsesExplanation));
+                    if (controller.Character.paramValues.ContainsKey($"{flag.Name} used")) {
+                        usedField.Value = controller.Character.paramValues[$"{flag.Name} used"];
+                    }
+                }
                 any = true;
             }
             foreach (string inactive in inactiveFlags) {
@@ -139,8 +179,6 @@ namespace PlayMore35 {
                 case DisplayMode.MULTI_LINE_WITH_HEADER:
                 case DisplayMode.MULTI_LINE_WITHOUT_HEADER:
                     HashSet<string> inactiveLabels = new HashSet<string>(effectLabels.Keys);
-                    HashSet<string> inactiveUses = new HashSet<string>(usesLabels.Keys);
-                    HashSet<string> inactiveUsed = new HashSet<string>(usedFields.Keys);
                     foreach (Text text in effects) {
                         string name = text.Name;
                         string desc = text.Description;
@@ -151,13 +189,13 @@ namespace PlayMore35 {
                         if (effectLabels.ContainsKey(name)) {
                             inactiveLabels.Remove(name);
                             effectLabel = effectLabels[name];
-                            effectLabels[name].Visible = true;
+                            effectLabel.Visible = true;
 
-                            if (text.RechargeTime != null) {
+                            if (text.Resource != null) {
                                 inactiveUses.Remove(name);
                                 usesLabel = usesLabels[name];
-                                usesLabels[name].Visible = true;
-                                if (text.RechargeTime.unit != AT_WILL) {
+                                usesLabel.Visible = true;
+                                if (text.Resource.RechargeTime.unit != AT_WILL) {
                                     inactiveUsed.Remove(name);
                                     usedField = usedFields[name];
                                     usedField.Visible = true;
@@ -170,14 +208,14 @@ namespace PlayMore35 {
                             effectLabels[name] = effectLabel;
                             Controls.Add(effectLabel);
 
-                            if (text.RechargeTime != null) {
+                            if (text.Resource != null) {
                                 usesLabel = new Label() {
-                                    Text = text.ActionUses()
+                                    Text = text.Resource.Description()
                                 }.Initialize();
                                 usesLabels[name] = usesLabel;
                                 Controls.Add(usesLabel);
 
-                                if (text.RechargeTime.unit != AT_WILL) {
+                                if (text.Resource.RechargeTime.unit != AT_WILL) {
                                     usedField = new LabeledField($"{name} used", mainForm, "used");
                                     usedFields[name] = usedField;
                                     Controls.Add(usedField);
@@ -190,8 +228,8 @@ namespace PlayMore35 {
                             }
                         }
                         ToolTipTextLabel(effectLabel, desc);
-                        if (usesLabel != null && text.RechargeTime.unit != AT_WILL) {
-                            ToolTipTextLabel(usesLabel, string.Join("\n", text.DynamicUsesExplanation));
+                        if (usesLabel != null && text.Resource.RechargeTime.unit != AT_WILL) {
+                            ToolTipTextLabel(usesLabel, string.Join("\n", text.Resource.DynamicUsesExplanation));
                             if (controller.Character.paramValues.ContainsKey($"{name} used")) {
                                 usedField.Value = controller.Character.paramValues[$"{name} used"];
                             }
@@ -201,13 +239,14 @@ namespace PlayMore35 {
                     foreach (string name in inactiveLabels) {
                         effectLabels[name].Visible = false;
                     }
-                    foreach (string name in inactiveUses) {
-                        usesLabels[name].Visible = false;
-                    }
-                    foreach (string name in inactiveUsed) { 
-                        usedFields[name].Visible = false;
-                    }
                     break;
+            }
+
+            foreach (string name in inactiveUses) {
+                usesLabels[name].Visible = false;
+            }
+            foreach (string name in inactiveUsed) {
+                usedFields[name].Visible = false;
             }
 
             Visible = any;

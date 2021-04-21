@@ -1842,9 +1842,11 @@
       "text": [
         {
           "category": "Atk Options",
-          "text": "Your next unarmed attack stuns for 1 round if it hits a corporeal creature that can be critically struck; Fort DC 10 + 1/2 level + WIS negates",
-          "action": "free",
-          "recharge": "day"
+          "text": "Your next unarmed attack stuns for 1 round if it hits a corporeal creature that can be critically struck; Fort DC 10 + 1/2 level + WIS negates.  Usable once per round.",
+          "resource": {
+            "action": "free",
+            "recharge": "day"
+          }
         }
       ],
       "modifiers": [

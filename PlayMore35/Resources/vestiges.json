@@ -28,9 +28,11 @@
           {
             "category": "Atk Options",
             "text": "You breathe a line of fire, extending 10 feet per effective binder level, maximum 50 feet, dealing 1d6 fire damage per binder level, Reflex halves.",
-            "action": "std",
-            "uses": 1,
-            "recharge": "5 rounds"
+            "resource": {
+              "action": "std",
+              "uses": 1,
+              "recharge": "5 rounds"
+            }
           }
         ]
       },
@@ -186,8 +188,10 @@
           {
             "category": "Atk Options",
             "text": "Make a single ranged attack against two adjacent targets, using one attack roll and one damage roll for both targets.  Apply any precision damage to only the first target struck, choosing which target this is before any rolls are made.",
-            "action": "std",
-            "recharge": "at-will"
+            "resource": {
+              "action": "std",
+              "recharge": "at-will"
+            }
           }
         ]
       },
@@ -232,8 +236,10 @@
           {
             "category": "Special Actions",
             "text": "disguise self",
-            "action": "std",
-            "recharge": "at-will"
+            "resource": {
+              "action": "std",
+              "recharge": "at-will"
+            }
           }
         ]
       },
@@ -261,9 +267,11 @@
           {
             "category": "Atk Options",
             "text": "One creature within 30 feet must make a Will save or be affected as if by a command spell, cast by you.  If your effective binder level ({{effective binder level}}) is 14 or higher, they are affected as if by suggestion instead.",
-            "action": "std",
-            "uses": 1,
-            "recharge": "5 rounds"
+            "resource": {
+              "action": "std",
+              "uses": 1,
+              "recharge": "5 rounds"
+            }
           }
         ]
       },
@@ -323,8 +331,10 @@
           {
             "category": "Special Actions",
             "text": "Lift and move an object to which you have line of effect, as long as it remains within 10 feet per effective binder level ({{effective binder level}}).  The force manipulating the object is considered Medium, with a Strength score of {{effective binder level}}.  During the swift action you can move the object up to 5 feet per effective binder level.  If the object is over a light load for a {{effective binder level}}-Strength creature, you can move it only half that distance.  If it's over a light load for you, this is a move action instead.  You can't lift it more than 5 feet off the ground.  You can maintain this control each round with a swift action (or move action, if appropriate).",
-            "action": "swift",
-            "recharge": "at-will"
+            "resource": {
+              "action": "swift",
+              "recharge": "at-will"
+            }
           }
         ]
       },
@@ -334,9 +344,11 @@
           {
             "category": "Atk Options",
             "text": "Choose an enemy within 10 feet per effective binder level ({{effective binder level}}).  An unseen force with {{effective binder level}} Strength deals 1d6 to that enemy and bull rushes it in a direction of your choice, with a +2 bonus on the check.",
-            "action": "swift",
-            "uses": 1,
-            "recharge": "5 rounds"
+            "resource": {
+              "action": "swift",
+              "uses": 1,
+              "recharge": "5 rounds"
+            }
           }
         ]
       },
@@ -392,9 +404,11 @@
           {
             "category": "Atk Options",
             "text": "Every creature within a 30-foot spread must make a Will save or be dazed for 1 round.  This is a mind-affecting sonic ability.",
-            "action": "std",
-            "uses": 1,
-            "recharge": "5 rounds"
+            "resource": {
+              "action": "std",
+              "uses": 1,
+              "recharge": "5 rounds"
+            }
           }
         ]
       },
@@ -425,8 +439,10 @@
           {
             "category": "Def Options",
             "text": "Designate one creature within 10 feet per effective binder level.  As long as that creature remains within range, you take only half damage from all effects that deal hit point damage, and it takes the rest.  This effect ends immediately when you choose another creature, or you die, or it dies.  An unwilling target can make a Will save to negate the effect.",
-            "action": "std",
-            "recharge": "at-will"
+            "resource": {
+              "action": "std",
+              "recharge": "at-will"
+            }
           }
         ]
       }
@@ -452,9 +468,11 @@
           {
             "category": "Atk Options",
             "text": "Make a touch attack.  If you hit, the target must make a Will save or be confused for 1 round per three effective binder levels ({{effective binder level}}).  At effective binder level 19, this is a maze effect instead.",
-            "action": "attack",
-            "uses": 1,
-            "recharge": "5 rounds"
+            "resource": {
+              "action": "attack",
+              "uses": 1,
+              "recharge": "5 rounds"
+            }
           }
         ]
       },
@@ -519,9 +537,11 @@
           {
             "category": "Special Actions",
             "text": "Your effective binder level ({{effective binder level}}) determines the type of action this ability requires: full-round at 1st, standard at 5th, move at 10th, swift at 15th.\n\nYou are affected as if by an invisibility spell that lasts {{effective binder level}} rounds.",
-            "action": "variable",
-            "uses": 1,
-            "recharge": "5 rounds"
+            "resource": {
+              "action": "variable",
+              "uses": 1,
+              "recharge": "5 rounds"
+            }
           }
         ]
       },
@@ -565,8 +585,10 @@
           {
             "category": "Def Options",
             "text": "Summon Savnok's full plate, which appears about your body.  As you attain higher effective binder levels, the armor's quality improves as follows:  2nd mwk; 5th +1; 9th +2 light fortification; 13th +2 moderate fortification; 17th +4 moderate fortification; 20th +4 heavy fortification.  You can dismiss the armor with another full-round action (if your pact is good).",
-            "action": "full-round",
-            "recharge": "at-will"
+            "resource": {
+              "action": "full-round",
+              "recharge": "at-will"
+            }
           }
         ]
       },
@@ -580,9 +602,11 @@
           {
             "category": "Move Options",
             "text": "You instantly swap positions with any visible willing ally within 5 feet per two binder levels.  Objects carried by you or your ally go along, but creatures do not.  This movement doesn't provoke attacks of opportunity.",
-            "action": "std",
-            "uses": 1,
-            "recharge": "5 rounds"
+            "resource": {
+              "action": "std",
+              "uses": 1,
+              "recharge": "5 rounds"
+            }
           }
         ]
       }

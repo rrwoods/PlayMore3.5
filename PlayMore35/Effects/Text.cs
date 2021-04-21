@@ -11,32 +11,16 @@ namespace PlayMore35.Effects {
         public string Category = "";
         public string Description = "";
 
-        // If either of these is present, the other must be as well.
-        // Any given effect should only have one Text component that has these, or undefined behavior may result
-        public string ActionType = "";
-        public LengthOfTime RechargeTime = null;
-
-        // If an ability specifies a number of uses that has a fixed component (for example, anklet of translocation
-        // is 2, and a cleric's "3 + CHA" turn attempts is 3), it can go here, and when the effect added to a pool
-        // via AddEffect, the pool will automagically add a second effect that grants the appropriate number of uses.
-        // All variable uses need to be added via a separate modifier that modifies "{name} uses" (for example, "turn undead uses").
-        public int StaticUses = 0;
-
-        // Not serialized; these are computed each time the effect is sent to the UI.
-        public int DynamicUses = 0;
-        public List<string> DynamicUsesExplanation;
+        // Any given effect should only have one Text component that has this, or undefined behavior may result
+        public ActionResource Resource = null;
 
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("category", Category),
                 new JProperty("text", Description)
             );
-            if (RechargeTime != null) {
-                json["action"] = ActionType;
-                json["recharge"] = RechargeTime.ToJson();
-                if (StaticUses != 0) {
-                    json["uses"] = StaticUses;
-                }
+            if (Resource != null) {
+                json["resource"] = Resource.ToJson();
             }
             return json;
         }
@@ -44,12 +28,8 @@ namespace PlayMore35.Effects {
         public Text(JObject json) {
             Category = (string)json["category"];
             Description = (string)json["text"];
-            if (json["recharge"] != null) {
-                ActionType = (string)json["action"];
-                RechargeTime = new LengthOfTime((string)json["recharge"]);
-                if (json["uses"] != null) {
-                    StaticUses = (int)json["uses"];
-                }
+            if (json["resource"] != null) {
+                Resource = new ActionResource((JObject)json["resource"]);
             }
         }
 
@@ -61,9 +41,7 @@ namespace PlayMore35.Effects {
             Name = copy.Name;
             Category = copy.Category;
             Description = copy.Description;
-            ActionType = copy.ActionType;
-            StaticUses = copy.StaticUses;
-            RechargeTime = copy.RechargeTime;
+            Resource = copy.Resource;
         }
 
         public Text SetName(string name) {
@@ -73,15 +51,6 @@ namespace PlayMore35.Effects {
 
         public Text SetDescription(string newDescription) {
             Description = newDescription;
-            return this;
-        }
-
-        public Text ComputeUses(EffectPool effects, Equipped items) {
-            if (RechargeTime == null || RechargeTime.unit == AT_WILL) {
-                return this;
-            }
-            string usesStat = $"{Name} uses";
-            (DynamicUses, DynamicUsesExplanation) = effects.GetStat(usesStat).GetValue(effects, items);
             return this;
         }
 
@@ -101,10 +70,11 @@ namespace PlayMore35.Effects {
             return new Text(this).SetName(name).SetDescription(newDescription).ComputeUses(effects, items);
         }
 
-        public string ActionUses() {
-            return RechargeTime.unit == AT_WILL
-                ? $"{ActionType} {AT_WILL}"
-                : $"{ActionType} {DynamicUses}/{RechargeTime.ToString()}";
+        public Text ComputeUses(EffectPool effects, Equipped items) {
+            if (Resource != null) {
+                Resource.ComputeUses(Name, effects, items);
+            }
+            return this;
         }
     }
 }

@@ -28,9 +28,11 @@
           "name": "whirling frenzy",
           "category": "Atk Options",
           "description": "Enter a whirling frenzy for a number of rounds equal to 3 + your CON modifier, getting +4 Strength, and +2 dodge to AC and Reflex saves.  Afterward, you are fatigued for the rest of the encounter.",
-          "action": "free",
-          "uses": 1,
-          "recharge": "day"
+          "resource": {
+            "action": "free",
+            "uses": 1,
+            "recharge": "day"
+          }
         },
         {
           "name": "whirling frenzy (extra attack)",

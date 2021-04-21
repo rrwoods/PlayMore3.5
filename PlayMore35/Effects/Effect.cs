@@ -300,18 +300,6 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Statistic Uses() {
-            foreach (Text text in Text) {
-                if (text.RechargeTime != null && text.RechargeTime.unit != AT_WILL) {
-                    if (text.StaticUses != 0) {
-                        AddModifier(Name + " uses", new Modifier(text.StaticUses, UNTYPED));
-                    }
-                    return new Statistic(Name + " uses");
-                }
-            }
-            return null;
-        }
-
         private IEnumerable<AlterType> GetAlterers<AlterType, SubjectType> (
             EffectPool pool,
             Equipped items,

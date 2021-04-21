@@ -6,6 +6,9 @@ namespace PlayMore35.Effects {
         public string Category;
         public string Description;
         public IToggle Show = AlwaysOn.Instance;
+
+        public ActionResource Resource = null;
+
         public bool On; // not serialized, because it's tied to the character.
 
         public JToken ToJson() {
@@ -17,6 +20,9 @@ namespace PlayMore35.Effects {
             if (Show != AlwaysOn.Instance) {
                 json.Add(new JProperty("show", Show.ToJson()));
             }
+            if (Resource != null) {
+                json.Add(new JProperty("resource", Resource.ToJson()));
+            }
             return json;
         }
 
@@ -26,6 +32,9 @@ namespace PlayMore35.Effects {
             Description = (string)json["description"];
             if (json["show"] != null) {
                 Show = Toggle.FromJson(json["show"]);
+            }
+            if (json["resource"] != null) {
+                Resource = new ActionResource((JObject)json["resource"]);
             }
             On = false;
         }
