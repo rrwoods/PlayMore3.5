@@ -2,6 +2,7 @@
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 
+using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,7 +155,16 @@ namespace PlayMore35 {
                 if (usesLabel != null && flag.Resource.RechargeTime.unit != AT_WILL) {
                     ToolTipTextLabel(usesLabel, string.Join("\n", flag.Resource.DynamicUsesExplanation));
                     if (controller.Character.paramValues.ContainsKey($"{flag.Name} used")) {
-                        usedField.Value = controller.Character.paramValues[$"{flag.Name} used"];
+                        int used = controller.Character.paramValues[$"{flag.Name} used"];
+                        usedField.Value = used;
+                        if (used < flag.Resource.DynamicUses) {
+                            usesLabel.ForeColor = SystemColors.ControlText;
+                            flagBox.ForeColor = SystemColors.ControlText;
+                            
+                        } else {
+                            usesLabel.ForeColor = SystemColors.ControlLight;
+                            flagBox.ForeColor = SystemColors.ControlLight;
+                        }
                     }
                 }
                 any = true;
@@ -231,7 +241,15 @@ namespace PlayMore35 {
                         if (usesLabel != null && text.Resource.RechargeTime.unit != AT_WILL) {
                             ToolTipTextLabel(usesLabel, string.Join("\n", text.Resource.DynamicUsesExplanation));
                             if (controller.Character.paramValues.ContainsKey($"{name} used")) {
-                                usedField.Value = controller.Character.paramValues[$"{name} used"];
+                                int used = controller.Character.paramValues[$"{name} used"];
+                                usedField.Value = used;
+                                if (used < text.Resource.DynamicUses) {
+                                    usesLabel.ForeColor = SystemColors.ControlText;
+                                    effectLabel.ForeColor = SystemColors.ControlText;
+                                } else {
+                                    usesLabel.ForeColor = SystemColors.ControlLight;
+                                    effectLabel.ForeColor = SystemColors.ControlLight;
+                                }
                             }
                         }
                         any = true;

@@ -1,9 +1,3 @@
-[USABILITY] Action system
-
-Custom flags can have uses!
-
-===
-
 [USABILITY] Round system:
 
 the controller should store:
