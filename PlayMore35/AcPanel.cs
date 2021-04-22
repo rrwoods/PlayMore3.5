@@ -26,8 +26,8 @@ namespace PlayMore35 {
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
-            LabelStat(ac, controller, AC, AC, ",", false);
-            LabelStat(touch, controller, "touch", TOUCH_AC, "", false);
+            LabelStat(ac, controller, AC, AC, ",", null, false);
+            LabelStat(touch, controller, "touch", TOUCH_AC, "", null, false);
         }
     }
 }

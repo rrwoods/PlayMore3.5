@@ -58,20 +58,25 @@ namespace PlayMore35.Global {
             TOOLTIP.SetToolTip(label, description);
         }
 
-        public static Label LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", bool plus = true) {
+        public static Label LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
 
             label.Text = $"{prefix} {statValue}{postfix}";
             ToolTipStatLabel(label, explanation);
 
-            Rollable(label, prefix, $"1d20{value.ToString("+#;-#;\"\"")}");
+            if (rollPrefix != null) {
+                if (!rollPrefix.Any()) {
+                    rollPrefix = prefix;
+                }
+                Rollable(label, rollPrefix, $"1d20{value.ToString("+#;-#;\"\"")}");
+            }
 
             return label;
         }
 
-        public static Label LabelStat(Label label, Controller controller, string prefix, string stat, string postfix = "", bool plus = true) {
+        public static Label LabelStat(Label label, Controller controller, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
             var (value, explanation) = controller.GetStatistic(stat);
-            return LabelStat(label, value, explanation, prefix, stat, postfix, plus);
+            return LabelStat(label, value, explanation, prefix, stat, postfix, rollPrefix, plus);
         }
     }
 

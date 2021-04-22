@@ -24,7 +24,7 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            LabelStat(speed, mainForm.controller, "Speed", LAND_SPEED, " ft.", false);
+            LabelStat(speed, mainForm.controller, "Speed", LAND_SPEED, " ft.", null, false);
             effects.Update(textEffects);
         }
     }

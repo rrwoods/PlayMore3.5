@@ -68,8 +68,8 @@ namespace PlayMore35 {
             Controller controller = mainForm.controller;
             for (int i = 0; i < ABILITY_NAMES.Length; i++) {
                 string ability = ABILITY_NAMES[i];
-                LabelStat(abilities[i].score, controller, ability, $"{ability} score", "", false);
-                LabelStat(abilities[i].mod, controller, "(", $"{ability} modifier", " )");
+                LabelStat(abilities[i].score, controller, ability, $"{ability} score", "", null, false);
+                LabelStat(abilities[i].mod, controller, "(", $"{ability} modifier", " )", $"{ability} check");
 
                 string damageName = $"{ability} damage";
                 if (controller.Character.paramValues.ContainsKey(damageName)) {
