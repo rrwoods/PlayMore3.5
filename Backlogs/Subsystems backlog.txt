@@ -24,7 +24,7 @@ Meldshaping classes are more complicated, but are still effect-in-slot.  The eff
 
 ===
 
-[ODRIC 7] Spells (lots, everywhere)
+[ODRIC 7] Spells (lots, everywhere) -- prepared/spontaneous are different
 
 ===
 

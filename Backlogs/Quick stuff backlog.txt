@@ -1,0 +1,22 @@
+[ODRIC 1] Write up fast torch, and move one to slotless
+
+===
+
+[BUG] "0 XP to level 4"
+
+===
+
+[BUG] Ghost touch weapon text not showing
+
+===
+
+[COMMON] Evade should be multiline (Darkstalker, Hide in Plain Sight)
+
+===
+
+[COMMON] If the roll button is clicked and there's no incoming request, say so
+
+Alternatively, don't present a roll button without an incoming request?  Possibly hard
+
+===
+
