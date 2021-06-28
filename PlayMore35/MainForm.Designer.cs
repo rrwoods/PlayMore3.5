@@ -106,9 +106,35 @@
             this.pagStats = new System.Windows.Forms.TabPage();
             this.tblStatsMain = new System.Windows.Forms.TableLayoutPanel();
             this.floMisc = new System.Windows.Forms.FlowLayoutPanel();
+            this.abilityScoresPanel = new PlayMore35.AbilityScoresPanel();
+            this.sqPanel = new PlayMore35.TextEffectPanel();
+            this.skillsPanel = new PlayMore35.SkillsPanel();
+            this.skillEffectsPanel = new PlayMore35.TextEffectPanel();
             this.floMyTurn = new System.Windows.Forms.FlowLayoutPanel();
+            this.speedPanel = new PlayMore35.SpeedPanel();
+            this.baseCombatPanel1 = new PlayMore35.BaseCombatPanel();
+            this.attacksPanel = new PlayMore35.AttacksPanel();
+            this.atkOptionsPanel = new PlayMore35.TextEffectPanel();
+            this.defOptionsPanel = new PlayMore35.TextEffectPanel();
+            this.specialActionsPanel = new PlayMore35.TextEffectPanel();
+            this.actionsPanel = new PlayMore35.TextEffectPanel();
             this.floBeforeCombat = new System.Windows.Forms.FlowLayoutPanel();
+            this.descriptionPanel = new PlayMore35.DescriptionPanel();
+            this.initiativePanel = new PlayMore35.InitiativePanel();
+            this.sensesPanel = new PlayMore35.TextEffectPanel();
+            this.listenSpotPanel = new PlayMore35.ListenSpotPanel();
+            this.evadePanel = new PlayMore35.TextEffectPanel();
+            this.conditionPanel = new PlayMore35.TextEffectPanel();
             this.floEnemyTurn = new System.Windows.Forms.FlowLayoutPanel();
+            this.acPanel = new PlayMore35.AcPanel();
+            this.acTextPanel = new PlayMore35.TextEffectPanel();
+            this.hpPanel = new PlayMore35.HpPanel();
+            this.hpTextPanel = new PlayMore35.TextEffectPanel();
+            this.reactPanel = new PlayMore35.TextEffectPanel();
+            this.resistPanel = new PlayMore35.TextEffectPanel();
+            this.immunePanel = new PlayMore35.TextEffectPanel();
+            this.srPanel = new PlayMore35.TextEffectPanel();
+            this.savesPanel = new PlayMore35.SavesPanel();
             this.pagInventory = new System.Windows.Forms.TabPage();
             this.txtLocationName = new System.Windows.Forms.TextBox();
             this.btnAddLocation = new System.Windows.Forms.Button();
@@ -162,32 +188,7 @@
             this.btnAddItem = new System.Windows.Forms.Button();
             this.lstSampleItems = new System.Windows.Forms.ListBox();
             this.chkWeightCounts = new System.Windows.Forms.CheckBox();
-            this.abilityScoresPanel = new PlayMore35.AbilityScoresPanel();
-            this.sqPanel = new PlayMore35.TextEffectPanel();
-            this.skillsPanel = new PlayMore35.SkillsPanel();
-            this.skillEffectsPanel = new PlayMore35.TextEffectPanel();
-            this.speedPanel = new PlayMore35.SpeedPanel();
-            this.baseCombatPanel1 = new PlayMore35.BaseCombatPanel();
-            this.attacksPanel = new PlayMore35.AttacksPanel();
-            this.atkOptionsPanel = new PlayMore35.TextEffectPanel();
-            this.defOptionsPanel = new PlayMore35.TextEffectPanel();
-            this.specialActionsPanel = new PlayMore35.TextEffectPanel();
-            this.actionsPanel = new PlayMore35.TextEffectPanel();
-            this.descriptionPanel = new PlayMore35.DescriptionPanel();
-            this.initiativePanel = new PlayMore35.InitiativePanel();
-            this.sensesPanel = new PlayMore35.TextEffectPanel();
-            this.listenSpotPanel = new PlayMore35.ListenSpotPanel();
-            this.evadePanel = new PlayMore35.TextEffectPanel();
-            this.conditionPanel = new PlayMore35.TextEffectPanel();
-            this.acPanel = new PlayMore35.AcPanel();
-            this.acTextPanel = new PlayMore35.TextEffectPanel();
-            this.hpPanel = new PlayMore35.HpPanel();
-            this.hpTextPanel = new PlayMore35.TextEffectPanel();
-            this.reactPanel = new PlayMore35.TextEffectPanel();
-            this.resistPanel = new PlayMore35.TextEffectPanel();
-            this.immunePanel = new PlayMore35.TextEffectPanel();
-            this.srPanel = new PlayMore35.TextEffectPanel();
-            this.savesPanel = new PlayMore35.SavesPanel();
+            this.timelinePanel = new PlayMore35.TimelinePanel();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
             this.pagVestiges.SuspendLayout();
@@ -214,7 +215,7 @@
             this.tabMain.Location = new System.Drawing.Point(0, 0);
             this.tabMain.Name = "tabMain";
             this.tabMain.SelectedIndex = 0;
-            this.tabMain.Size = new System.Drawing.Size(1289, 661);
+            this.tabMain.Size = new System.Drawing.Size(1289, 620);
             this.tabMain.TabIndex = 1;
             this.tabMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.TabSwitch);
             // 
@@ -1069,11 +1070,12 @@
             // 
             // pagStats
             // 
+            this.pagStats.Controls.Add(this.timelinePanel);
             this.pagStats.Controls.Add(this.tblStatsMain);
             this.pagStats.Location = new System.Drawing.Point(4, 26);
             this.pagStats.Name = "pagStats";
             this.pagStats.Padding = new System.Windows.Forms.Padding(3);
-            this.pagStats.Size = new System.Drawing.Size(1281, 631);
+            this.pagStats.Size = new System.Drawing.Size(1281, 590);
             this.pagStats.TabIndex = 0;
             this.pagStats.Text = "Stats";
             this.pagStats.UseVisualStyleBackColor = true;
@@ -1096,7 +1098,7 @@
             this.tblStatsMain.Name = "tblStatsMain";
             this.tblStatsMain.RowCount = 1;
             this.tblStatsMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblStatsMain.Size = new System.Drawing.Size(1265, 619);
+            this.tblStatsMain.Size = new System.Drawing.Size(1265, 522);
             this.tblStatsMain.TabIndex = 0;
             // 
             // floMisc
@@ -1112,9 +1114,41 @@
             this.floMisc.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.floMisc.Location = new System.Drawing.Point(951, 3);
             this.floMisc.Name = "floMisc";
-            this.floMisc.Size = new System.Drawing.Size(311, 613);
+            this.floMisc.Size = new System.Drawing.Size(311, 516);
             this.floMisc.TabIndex = 3;
             this.floMisc.WrapContents = false;
+            // 
+            // abilityScoresPanel
+            // 
+            this.abilityScoresPanel.Location = new System.Drawing.Point(3, 3);
+            this.abilityScoresPanel.Name = "abilityScoresPanel";
+            this.abilityScoresPanel.Size = new System.Drawing.Size(308, 122);
+            this.abilityScoresPanel.TabIndex = 0;
+            // 
+            // sqPanel
+            // 
+            this.sqPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.sqPanel.Location = new System.Drawing.Point(3, 131);
+            this.sqPanel.Name = "sqPanel";
+            this.sqPanel.Size = new System.Drawing.Size(308, 50);
+            this.sqPanel.TabIndex = 1;
+            this.sqPanel.Tag = "Special Qualities";
+            // 
+            // skillsPanel
+            // 
+            this.skillsPanel.Location = new System.Drawing.Point(3, 187);
+            this.skillsPanel.Name = "skillsPanel";
+            this.skillsPanel.Size = new System.Drawing.Size(308, 213);
+            this.skillsPanel.TabIndex = 2;
+            // 
+            // skillEffectsPanel
+            // 
+            this.skillEffectsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.skillEffectsPanel.Location = new System.Drawing.Point(3, 406);
+            this.skillEffectsPanel.Name = "skillEffectsPanel";
+            this.skillEffectsPanel.Size = new System.Drawing.Size(308, 100);
+            this.skillEffectsPanel.TabIndex = 3;
+            this.skillEffectsPanel.Tag = "Skills";
             // 
             // floMyTurn
             // 
@@ -1132,9 +1166,66 @@
             this.floMyTurn.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.floMyTurn.Location = new System.Drawing.Point(635, 3);
             this.floMyTurn.Name = "floMyTurn";
-            this.floMyTurn.Size = new System.Drawing.Size(310, 613);
+            this.floMyTurn.Size = new System.Drawing.Size(310, 516);
             this.floMyTurn.TabIndex = 2;
             this.floMyTurn.WrapContents = false;
+            // 
+            // speedPanel
+            // 
+            this.speedPanel.Location = new System.Drawing.Point(3, 3);
+            this.speedPanel.Name = "speedPanel";
+            this.speedPanel.Size = new System.Drawing.Size(307, 23);
+            this.speedPanel.TabIndex = 0;
+            // 
+            // baseCombatPanel1
+            // 
+            this.baseCombatPanel1.Location = new System.Drawing.Point(3, 32);
+            this.baseCombatPanel1.Name = "baseCombatPanel1";
+            this.baseCombatPanel1.Size = new System.Drawing.Size(307, 43);
+            this.baseCombatPanel1.TabIndex = 1;
+            // 
+            // attacksPanel
+            // 
+            this.attacksPanel.Location = new System.Drawing.Point(3, 81);
+            this.attacksPanel.Name = "attacksPanel";
+            this.attacksPanel.Size = new System.Drawing.Size(307, 100);
+            this.attacksPanel.TabIndex = 2;
+            // 
+            // atkOptionsPanel
+            // 
+            this.atkOptionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.atkOptionsPanel.Location = new System.Drawing.Point(3, 187);
+            this.atkOptionsPanel.Name = "atkOptionsPanel";
+            this.atkOptionsPanel.Size = new System.Drawing.Size(307, 89);
+            this.atkOptionsPanel.TabIndex = 3;
+            this.atkOptionsPanel.Tag = "Atk Options";
+            // 
+            // defOptionsPanel
+            // 
+            this.defOptionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.defOptionsPanel.Location = new System.Drawing.Point(3, 282);
+            this.defOptionsPanel.Name = "defOptionsPanel";
+            this.defOptionsPanel.Size = new System.Drawing.Size(307, 89);
+            this.defOptionsPanel.TabIndex = 4;
+            this.defOptionsPanel.Tag = "Def Options";
+            // 
+            // specialActionsPanel
+            // 
+            this.specialActionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.specialActionsPanel.Location = new System.Drawing.Point(3, 377);
+            this.specialActionsPanel.Name = "specialActionsPanel";
+            this.specialActionsPanel.Size = new System.Drawing.Size(307, 89);
+            this.specialActionsPanel.TabIndex = 5;
+            this.specialActionsPanel.Tag = "Special Actions";
+            // 
+            // actionsPanel
+            // 
+            this.actionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.actionsPanel.Location = new System.Drawing.Point(3, 472);
+            this.actionsPanel.Name = "actionsPanel";
+            this.actionsPanel.Size = new System.Drawing.Size(307, 89);
+            this.actionsPanel.TabIndex = 6;
+            this.actionsPanel.Tag = "Actions";
             // 
             // floBeforeCombat
             // 
@@ -1151,9 +1242,57 @@
             this.floBeforeCombat.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.floBeforeCombat.Location = new System.Drawing.Point(3, 3);
             this.floBeforeCombat.Name = "floBeforeCombat";
-            this.floBeforeCombat.Size = new System.Drawing.Size(310, 613);
+            this.floBeforeCombat.Size = new System.Drawing.Size(310, 516);
             this.floBeforeCombat.TabIndex = 0;
             this.floBeforeCombat.WrapContents = false;
+            // 
+            // descriptionPanel
+            // 
+            this.descriptionPanel.Location = new System.Drawing.Point(3, 3);
+            this.descriptionPanel.Name = "descriptionPanel";
+            this.descriptionPanel.Size = new System.Drawing.Size(307, 72);
+            this.descriptionPanel.TabIndex = 2;
+            // 
+            // initiativePanel
+            // 
+            this.initiativePanel.Location = new System.Drawing.Point(3, 81);
+            this.initiativePanel.Name = "initiativePanel";
+            this.initiativePanel.Size = new System.Drawing.Size(307, 27);
+            this.initiativePanel.TabIndex = 1;
+            // 
+            // sensesPanel
+            // 
+            this.sensesPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.sensesPanel.Location = new System.Drawing.Point(3, 114);
+            this.sensesPanel.Name = "sensesPanel";
+            this.sensesPanel.Size = new System.Drawing.Size(307, 55);
+            this.sensesPanel.TabIndex = 3;
+            this.sensesPanel.Tag = "Senses";
+            // 
+            // listenSpotPanel
+            // 
+            this.listenSpotPanel.Location = new System.Drawing.Point(3, 175);
+            this.listenSpotPanel.Name = "listenSpotPanel";
+            this.listenSpotPanel.Size = new System.Drawing.Size(307, 23);
+            this.listenSpotPanel.TabIndex = 4;
+            // 
+            // evadePanel
+            // 
+            this.evadePanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.evadePanel.Location = new System.Drawing.Point(3, 204);
+            this.evadePanel.Name = "evadePanel";
+            this.evadePanel.Size = new System.Drawing.Size(307, 72);
+            this.evadePanel.TabIndex = 5;
+            this.evadePanel.Tag = "Evade";
+            // 
+            // conditionPanel
+            // 
+            this.conditionPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.conditionPanel.Location = new System.Drawing.Point(3, 282);
+            this.conditionPanel.Name = "conditionPanel";
+            this.conditionPanel.Size = new System.Drawing.Size(307, 109);
+            this.conditionPanel.TabIndex = 6;
+            this.conditionPanel.Tag = "Condition";
             // 
             // floEnemyTurn
             // 
@@ -1173,9 +1312,84 @@
             this.floEnemyTurn.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.floEnemyTurn.Location = new System.Drawing.Point(319, 3);
             this.floEnemyTurn.Name = "floEnemyTurn";
-            this.floEnemyTurn.Size = new System.Drawing.Size(310, 613);
+            this.floEnemyTurn.Size = new System.Drawing.Size(310, 516);
             this.floEnemyTurn.TabIndex = 1;
             this.floEnemyTurn.WrapContents = false;
+            // 
+            // acPanel
+            // 
+            this.acPanel.Location = new System.Drawing.Point(3, 3);
+            this.acPanel.Name = "acPanel";
+            this.acPanel.Size = new System.Drawing.Size(307, 23);
+            this.acPanel.TabIndex = 0;
+            // 
+            // acTextPanel
+            // 
+            this.acTextPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITHOUT_HEADER;
+            this.acTextPanel.Location = new System.Drawing.Point(3, 32);
+            this.acTextPanel.Name = "acTextPanel";
+            this.acTextPanel.Size = new System.Drawing.Size(307, 64);
+            this.acTextPanel.TabIndex = 1;
+            this.acTextPanel.Tag = "AC";
+            // 
+            // hpPanel
+            // 
+            this.hpPanel.Location = new System.Drawing.Point(3, 102);
+            this.hpPanel.Name = "hpPanel";
+            this.hpPanel.Size = new System.Drawing.Size(307, 23);
+            this.hpPanel.TabIndex = 2;
+            // 
+            // hpTextPanel
+            // 
+            this.hpTextPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITHOUT_HEADER;
+            this.hpTextPanel.Location = new System.Drawing.Point(3, 131);
+            this.hpTextPanel.Name = "hpTextPanel";
+            this.hpTextPanel.Size = new System.Drawing.Size(307, 67);
+            this.hpTextPanel.TabIndex = 3;
+            this.hpTextPanel.Tag = "hp";
+            // 
+            // reactPanel
+            // 
+            this.reactPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.reactPanel.Location = new System.Drawing.Point(3, 204);
+            this.reactPanel.Name = "reactPanel";
+            this.reactPanel.Size = new System.Drawing.Size(307, 40);
+            this.reactPanel.TabIndex = 4;
+            this.reactPanel.Tag = "React";
+            // 
+            // resistPanel
+            // 
+            this.resistPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.SINGLE_LINE;
+            this.resistPanel.Location = new System.Drawing.Point(3, 250);
+            this.resistPanel.Name = "resistPanel";
+            this.resistPanel.Size = new System.Drawing.Size(307, 40);
+            this.resistPanel.TabIndex = 5;
+            this.resistPanel.Tag = "Resist";
+            // 
+            // immunePanel
+            // 
+            this.immunePanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.SINGLE_LINE;
+            this.immunePanel.Location = new System.Drawing.Point(3, 296);
+            this.immunePanel.Name = "immunePanel";
+            this.immunePanel.Size = new System.Drawing.Size(307, 40);
+            this.immunePanel.TabIndex = 5;
+            this.immunePanel.Tag = "Immune";
+            // 
+            // srPanel
+            // 
+            this.srPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.SINGLE_LINE;
+            this.srPanel.Location = new System.Drawing.Point(3, 342);
+            this.srPanel.Name = "srPanel";
+            this.srPanel.Size = new System.Drawing.Size(307, 40);
+            this.srPanel.TabIndex = 6;
+            this.srPanel.Tag = "SR";
+            // 
+            // savesPanel
+            // 
+            this.savesPanel.Location = new System.Drawing.Point(3, 388);
+            this.savesPanel.Name = "savesPanel";
+            this.savesPanel.Size = new System.Drawing.Size(307, 100);
+            this.savesPanel.TabIndex = 7;
             // 
             // pagInventory
             // 
@@ -1818,223 +2032,20 @@
             this.chkWeightCounts.UseVisualStyleBackColor = true;
             this.chkWeightCounts.Visible = false;
             // 
-            // abilityScoresPanel
+            // timelinePanel
             // 
-            this.abilityScoresPanel.Location = new System.Drawing.Point(3, 3);
-            this.abilityScoresPanel.Name = "abilityScoresPanel";
-            this.abilityScoresPanel.Size = new System.Drawing.Size(308, 122);
-            this.abilityScoresPanel.TabIndex = 0;
-            // 
-            // sqPanel
-            // 
-            this.sqPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.sqPanel.Location = new System.Drawing.Point(3, 131);
-            this.sqPanel.Name = "sqPanel";
-            this.sqPanel.Size = new System.Drawing.Size(308, 50);
-            this.sqPanel.TabIndex = 1;
-            this.sqPanel.Tag = "Special Qualities";
-            // 
-            // skillsPanel
-            // 
-            this.skillsPanel.Location = new System.Drawing.Point(3, 187);
-            this.skillsPanel.Name = "skillsPanel";
-            this.skillsPanel.Size = new System.Drawing.Size(308, 213);
-            this.skillsPanel.TabIndex = 2;
-            // 
-            // skillEffectsPanel
-            // 
-            this.skillEffectsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.skillEffectsPanel.Location = new System.Drawing.Point(3, 406);
-            this.skillEffectsPanel.Name = "skillEffectsPanel";
-            this.skillEffectsPanel.Size = new System.Drawing.Size(308, 100);
-            this.skillEffectsPanel.TabIndex = 3;
-            this.skillEffectsPanel.Tag = "Skills";
-            // 
-            // speedPanel
-            // 
-            this.speedPanel.Location = new System.Drawing.Point(3, 3);
-            this.speedPanel.Name = "speedPanel";
-            this.speedPanel.Size = new System.Drawing.Size(307, 23);
-            this.speedPanel.TabIndex = 0;
-            // 
-            // baseCombatPanel1
-            // 
-            this.baseCombatPanel1.Location = new System.Drawing.Point(3, 32);
-            this.baseCombatPanel1.Name = "baseCombatPanel1";
-            this.baseCombatPanel1.Size = new System.Drawing.Size(307, 43);
-            this.baseCombatPanel1.TabIndex = 1;
-            // 
-            // attacksPanel
-            // 
-            this.attacksPanel.Location = new System.Drawing.Point(3, 81);
-            this.attacksPanel.Name = "attacksPanel";
-            this.attacksPanel.Size = new System.Drawing.Size(307, 100);
-            this.attacksPanel.TabIndex = 2;
-            // 
-            // atkOptionsPanel
-            // 
-            this.atkOptionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.atkOptionsPanel.Location = new System.Drawing.Point(3, 187);
-            this.atkOptionsPanel.Name = "atkOptionsPanel";
-            this.atkOptionsPanel.Size = new System.Drawing.Size(307, 89);
-            this.atkOptionsPanel.TabIndex = 3;
-            this.atkOptionsPanel.Tag = "Atk Options";
-            // 
-            // defOptionsPanel
-            // 
-            this.defOptionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.defOptionsPanel.Location = new System.Drawing.Point(3, 282);
-            this.defOptionsPanel.Name = "defOptionsPanel";
-            this.defOptionsPanel.Size = new System.Drawing.Size(307, 89);
-            this.defOptionsPanel.TabIndex = 4;
-            this.defOptionsPanel.Tag = "Def Options";
-            // 
-            // specialActionsPanel
-            // 
-            this.specialActionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.specialActionsPanel.Location = new System.Drawing.Point(3, 377);
-            this.specialActionsPanel.Name = "specialActionsPanel";
-            this.specialActionsPanel.Size = new System.Drawing.Size(307, 89);
-            this.specialActionsPanel.TabIndex = 5;
-            this.specialActionsPanel.Tag = "Special Actions";
-            // 
-            // actionsPanel
-            // 
-            this.actionsPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.actionsPanel.Location = new System.Drawing.Point(3, 472);
-            this.actionsPanel.Name = "actionsPanel";
-            this.actionsPanel.Size = new System.Drawing.Size(307, 89);
-            this.actionsPanel.TabIndex = 6;
-            this.actionsPanel.Tag = "Actions";
-            // 
-            // descriptionPanel
-            // 
-            this.descriptionPanel.Location = new System.Drawing.Point(3, 3);
-            this.descriptionPanel.Name = "descriptionPanel";
-            this.descriptionPanel.Size = new System.Drawing.Size(307, 72);
-            this.descriptionPanel.TabIndex = 2;
-            // 
-            // initiativePanel
-            // 
-            this.initiativePanel.Location = new System.Drawing.Point(3, 81);
-            this.initiativePanel.Name = "initiativePanel";
-            this.initiativePanel.Size = new System.Drawing.Size(307, 27);
-            this.initiativePanel.TabIndex = 1;
-            // 
-            // sensesPanel
-            // 
-            this.sensesPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.sensesPanel.Location = new System.Drawing.Point(3, 114);
-            this.sensesPanel.Name = "sensesPanel";
-            this.sensesPanel.Size = new System.Drawing.Size(307, 55);
-            this.sensesPanel.TabIndex = 3;
-            this.sensesPanel.Tag = "Senses";
-            // 
-            // listenSpotPanel
-            // 
-            this.listenSpotPanel.Location = new System.Drawing.Point(3, 175);
-            this.listenSpotPanel.Name = "listenSpotPanel";
-            this.listenSpotPanel.Size = new System.Drawing.Size(307, 23);
-            this.listenSpotPanel.TabIndex = 4;
-            // 
-            // evadePanel
-            // 
-            this.evadePanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.evadePanel.Location = new System.Drawing.Point(3, 204);
-            this.evadePanel.Name = "evadePanel";
-            this.evadePanel.Size = new System.Drawing.Size(307, 72);
-            this.evadePanel.TabIndex = 5;
-            this.evadePanel.Tag = "Evade";
-            // 
-            // conditionPanel
-            // 
-            this.conditionPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.conditionPanel.Location = new System.Drawing.Point(3, 282);
-            this.conditionPanel.Name = "conditionPanel";
-            this.conditionPanel.Size = new System.Drawing.Size(307, 109);
-            this.conditionPanel.TabIndex = 6;
-            this.conditionPanel.Tag = "Condition";
-            // 
-            // acPanel
-            // 
-            this.acPanel.Location = new System.Drawing.Point(3, 3);
-            this.acPanel.Name = "acPanel";
-            this.acPanel.Size = new System.Drawing.Size(307, 23);
-            this.acPanel.TabIndex = 0;
-            // 
-            // acTextPanel
-            // 
-            this.acTextPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITHOUT_HEADER;
-            this.acTextPanel.Location = new System.Drawing.Point(3, 32);
-            this.acTextPanel.Name = "acTextPanel";
-            this.acTextPanel.Size = new System.Drawing.Size(307, 64);
-            this.acTextPanel.TabIndex = 1;
-            this.acTextPanel.Tag = "AC";
-            // 
-            // hpPanel
-            // 
-            this.hpPanel.Location = new System.Drawing.Point(3, 102);
-            this.hpPanel.Name = "hpPanel";
-            this.hpPanel.Size = new System.Drawing.Size(307, 23);
-            this.hpPanel.TabIndex = 2;
-            // 
-            // hpTextPanel
-            // 
-            this.hpTextPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITHOUT_HEADER;
-            this.hpTextPanel.Location = new System.Drawing.Point(3, 131);
-            this.hpTextPanel.Name = "hpTextPanel";
-            this.hpTextPanel.Size = new System.Drawing.Size(307, 67);
-            this.hpTextPanel.TabIndex = 3;
-            this.hpTextPanel.Tag = "hp";
-            // 
-            // reactPanel
-            // 
-            this.reactPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
-            this.reactPanel.Location = new System.Drawing.Point(3, 204);
-            this.reactPanel.Name = "reactPanel";
-            this.reactPanel.Size = new System.Drawing.Size(307, 40);
-            this.reactPanel.TabIndex = 4;
-            this.reactPanel.Tag = "React";
-            // 
-            // resistPanel
-            // 
-            this.resistPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.SINGLE_LINE;
-            this.resistPanel.Location = new System.Drawing.Point(3, 250);
-            this.resistPanel.Name = "resistPanel";
-            this.resistPanel.Size = new System.Drawing.Size(307, 40);
-            this.resistPanel.TabIndex = 5;
-            this.resistPanel.Tag = "Resist";
-            // 
-            // immunePanel
-            // 
-            this.immunePanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.SINGLE_LINE;
-            this.immunePanel.Location = new System.Drawing.Point(3, 296);
-            this.immunePanel.Name = "immunePanel";
-            this.immunePanel.Size = new System.Drawing.Size(307, 40);
-            this.immunePanel.TabIndex = 5;
-            this.immunePanel.Tag = "Immune";
-            // 
-            // srPanel
-            // 
-            this.srPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.SINGLE_LINE;
-            this.srPanel.Location = new System.Drawing.Point(3, 342);
-            this.srPanel.Name = "srPanel";
-            this.srPanel.Size = new System.Drawing.Size(307, 40);
-            this.srPanel.TabIndex = 6;
-            this.srPanel.Tag = "SR";
-            // 
-            // savesPanel
-            // 
-            this.savesPanel.Location = new System.Drawing.Point(3, 388);
-            this.savesPanel.Name = "savesPanel";
-            this.savesPanel.Size = new System.Drawing.Size(307, 100);
-            this.savesPanel.TabIndex = 7;
+            this.timelinePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.timelinePanel.Location = new System.Drawing.Point(8, 534);
+            this.timelinePanel.Name = "timelinePanel";
+            this.timelinePanel.Size = new System.Drawing.Size(1265, 50);
+            this.timelinePanel.TabIndex = 1;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1289, 661);
+            this.ClientSize = new System.Drawing.Size(1289, 620);
             this.Controls.Add(this.tabMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "MainForm";
@@ -2226,6 +2237,7 @@
         private TextEffectPanel sqPanel;
         private SkillsPanel skillsPanel;
         private TextEffectPanel skillEffectsPanel;
+        private TimelinePanel timelinePanel;
     }
 }
 

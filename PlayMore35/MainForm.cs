@@ -1506,6 +1506,7 @@ namespace PlayMore35 {
             foreach (DynamicPanel p in dynamicPanels) {
                 p.Initialize(this);
             }
+            timelinePanel.Initialize(this);
 
             txtHead.Tag = Equipped.Slot.HEAD;
             txtFace.Tag = Equipped.Slot.FACE;

@@ -18,6 +18,8 @@ namespace PlayMore35.Global {
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
 
+        public Rounds rounds = new Rounds();
+
         private Character character;
         private int NormalSizeCategory;
         public Dictionary<string, Race> RaceDefinitions;

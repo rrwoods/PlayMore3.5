@@ -93,6 +93,7 @@
     <Compile Include="Effects\ActionResource.cs" />
     <Compile Include="Effects\LengthOfTime.cs" />
     <Compile Include="Effects\Text.cs" />
+    <Compile Include="Global\Rounds.cs" />
     <Compile Include="HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -191,6 +192,7 @@
     <Compile Include="DescriptionPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="RoundObserver.cs" />
     <Compile Include="SavesPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -201,6 +203,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="TextEffectPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TimelinePanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <EmbeddedResource Include="AddItemDialog.resx">
