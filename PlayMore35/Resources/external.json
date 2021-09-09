@@ -2,6 +2,28 @@
   {
     "flags": [
       {
+        "name": "tail",
+        "category": "Condition",
+        "description": "Wild magic has caused you to sprout a tail, granting +5 vs being tripped."
+      }
+    ],
+    "effect": {
+      "name": "tail",
+      "active": { "flag": "tail" },
+      "modifiers": [
+        {
+          "affects": "STR checks vs trips",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 5 } ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "flags": [
+      {
         "name": "entangle (saved)",
         "category": "Condition",
         "description": "In the area of an entangle spell for which you made your save, or from which you've broken free with a DC 20 Strength or Escape Artist check."

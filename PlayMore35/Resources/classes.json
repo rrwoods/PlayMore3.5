@@ -220,7 +220,8 @@
         "binding check",
         "EBL for max vestige level",
         "maximum vestige level",
-        "number of vestiges"
+        "number of vestiges",
+        "vestige save DC"
       ],
       "effects": [
         {
@@ -317,6 +318,27 @@
                       "miss factor": 1
                     }
                   }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "vestige save DC",
+          "modifiers": [
+            {
+              "affects": "vestige save DC",
+              "mod": {
+                "type": "untyped",
+                "amounts": [
+                  { "fixed": 10 },
+                  {
+                    "multiply": {
+                      "variable": { "stat value": "effective binder level" },
+                      "scalar": 0.5
+                    }
+                  },
+                  { "stat value": "CHA modifier" }
                 ]
               }
             }

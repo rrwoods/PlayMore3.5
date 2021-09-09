@@ -106,5 +106,14 @@
     "max dex": 1,
     "armor check penalty": -6,
     "spell failure": 35
+  },
+  {
+    "name": "dwarven stone armor",
+    "type": "HEAVY",
+    "weight": 80,
+    "armor bonus": 9,
+    "max dex": 0,
+    "armor check penalty": -7,
+    "spell failure": 40
   }
 ]

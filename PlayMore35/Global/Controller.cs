@@ -566,6 +566,7 @@ namespace PlayMore35.Global {
                 }
             }
 
+            Effects.GenerateUses(weapon.GetGlobalEffects());
             ComputeWeight();
         }
 
@@ -580,6 +581,7 @@ namespace PlayMore35.Global {
             Character.equipped.DonnedArmor = armorChoice;
             EquippedItems.DonnedArmor = armor;
 
+            Effects.GenerateUses(armor.GetGlobalEffects());
             ComputeWeight();
         }
 
@@ -597,6 +599,7 @@ namespace PlayMore35.Global {
                 UnequipWeapon(from, false);
             }
 
+            Effects.GenerateUses(shield.GetGlobalEffects());
             ComputeWeight();
         }
 
@@ -631,6 +634,7 @@ namespace PlayMore35.Global {
                 }
             }
 
+            Effects.GenerateUses(new[] { item.ItemEffect });
             ComputeWeight();
         }
 

@@ -256,5 +256,50 @@
         }
       ]
     }
+  },
+  {
+    "slot": "NECK",
+    "weight": 0,
+    "effect": {
+      "name": "torc of displacement and Con +2",
+      "modifiers": [
+        {
+          "affects": "CON score",
+          "mod": {
+            "type": "enhancement",
+            "amounts": [ { "fixed": 2 } ]
+          }
+        }
+      ],
+      "text": [
+        {
+          "category": "React",
+          "text": "Spending charges grants concealment for 1 round.  Spend 1 charge for 20%, 2 for 30%, or 3 for 40%.",
+          "resource": {
+            "action": "swift",
+            "uses": 3,
+            "recharge": "day"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "slot": "SLOTLESS",
+    "weight": 0,
+    "effect": {
+      "name": "safewing emblem",
+      "text": [
+        {
+          "category": "React",
+          "text": "If you fall at least 10 feet, this item becomes a pair of feathery wings that grant you a feather fall effect.  You descend safely from any height up to 180 feet.  When you land, this item shatters harmlessly.",
+          "resource": {
+            "action": "auto",
+            "uses": 1,
+            "recharge": "ever"
+          }
+        }
+      ]
+    }
   }
 ]

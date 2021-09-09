@@ -255,12 +255,16 @@ namespace PlayMore35.Effects {
             AddStats(race.NewStats);
         }
 
-        private bool GenerateUses(ActionResource resource, string name, Effect baseUses) {
+        public bool GenerateUses(ActionResource resource, string name, Effect baseUses) {
+            string statName = $"{name} uses";
+            if (stats.ContainsKey(statName)) {
+                return true;
+            }
             if (resource != null && resource.RechargeTime.unit != AT_WILL) {
                 if (resource.StaticUses != 0) {
                     baseUses.AddModifier($"{name} uses", new Modifier(resource.StaticUses, BASE));
                 }
-                Statistic usesStat = new Statistic($"{name} uses");
+                Statistic usesStat = new Statistic(statName);
                 AddStat(usesStat);
                 controllableParameters[$"{name} used"] = new ControllableParameter {
                     Name = $"{name} used",
@@ -273,11 +277,11 @@ namespace PlayMore35.Effects {
             return false;
         }
 
-        public void GenerateUses(Equipped items) {
+        public void GenerateUses(IEnumerable<Effect> effects) {
             Effect baseUses = new Effect("base uses");
             AddEffect(baseUses);
 
-            foreach (Effect e in AllEffects(items)) {
+            foreach (Effect e in effects) {
                 foreach (Text text in e.Text) {
                     if (GenerateUses(text.Resource, e.Name, baseUses)) {
                         break;
@@ -287,6 +291,10 @@ namespace PlayMore35.Effects {
             foreach (ControllableFlag flag in controllableFlags.Values) {
                 GenerateUses(flag.Resource, flag.Name, baseUses);
             }
+        }
+
+        public void GenerateUses(Equipped items) {
+            GenerateUses(AllEffects(items));
         }
 
         private int BaseSaveBonus(CharacterClass.BonusProgression prog, int level) {

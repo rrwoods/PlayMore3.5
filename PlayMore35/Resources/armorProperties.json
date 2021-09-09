@@ -106,6 +106,21 @@
     }
   },
   {
+    "name": "deflection +1",
+    "effect": {
+      "name": "deflection armor",
+      "modifiers": [
+        {
+          "affects": "AC",
+          "mod": {
+            "type": "deflection",
+            "amounts": [ { "fixed": 1 } ]
+          }
+        }
+      ]
+    }
+  },
+  {
     "name": "Savnok's",
     "effect": {
       "name": "Savnok's armor",
