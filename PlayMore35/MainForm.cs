@@ -1486,6 +1486,7 @@ namespace PlayMore35 {
             levelDetailsDialog = new LevelDetailsDialog(controller) {
                 Font = scala
             };
+
             availableFeats = controller.FeatDefinitions.Keys.ToList();
             availableFeats.Sort();
 
