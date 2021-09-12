@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 namespace PlayMore35.Effects {
     public class DiceGroup : IJsonable {
         // {size => quantity}, except that die size of 1 represents a flat amount
-        private Dictionary<int, int> dice = new Dictionary<int, int>();
+        public Dictionary<int, int> dice = new Dictionary<int, int>();
 
         public string Name = "";
 

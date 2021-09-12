@@ -12,6 +12,11 @@ namespace PlayMore35.Effects {
         // this is where "at-will" goes
         public string unit;
 
+        public static Dictionary<string, long> UNIT_ROUNDS = new Dictionary<string, long> {
+            ["round"]  = 1, ["minute"]  = 10, ["hour"]  = 600, ["day"]  = 1440, ["week"]  = 100800,
+            ["rounds"] = 1, ["minutes"] = 10, ["hours"] = 600, ["days"] = 1440, ["weeks"] = 100800,
+        };
+
         public JToken ToJson() {
             return ToString();
         }
@@ -25,6 +30,15 @@ namespace PlayMore35.Effects {
                 quantity = new DiceGroup(1, 1);
                 unit = json;
             }
+        }
+
+        // this DOES NOT CURRENTLY WORK with variable durations, it will silently report 0 for all die results.
+        // eventually i want to have a version that accepts a roll result.
+        public long InRounds() {
+            if (unit == "at-will" || unit == "encounter") {
+                return 0;
+            }
+            return UNIT_ROUNDS[unit] * (quantity.dice.ContainsKey(1) ? quantity.dice[1] : 0);
         }
 
         public override string ToString() {
