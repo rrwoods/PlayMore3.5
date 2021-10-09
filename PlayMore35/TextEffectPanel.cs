@@ -47,7 +47,6 @@ namespace PlayMore35 {
             CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
             mainForm.controller.Effects.controllableFlags[flag].On = toggle.Checked;
-            mainForm.controller.Character.flagValues[flag] = toggle.Checked;
             mainForm.RefreshEffects();
         }
 
@@ -157,11 +156,13 @@ namespace PlayMore35 {
                             usedFields[flag.Name] = usedField;
                             Controls.Add(usedField);
                             SetFlowBreak(usedField, true);
-                            SheetAction setFlag = new SheetAction(mainForm).SetFlag(flag.Name);
-                            if (flag.Resource.Duration != null) {
-                                setFlag.Duration(new LengthOfTime(flag.Resource.Duration.FillStatValues(allEffects, items)));
+                            use.AndThen(new SheetAction(mainForm).SetFlag(flag.Name).Duration(flag.Resource.Duration));
+                            if (!flag.Resource.RechargeTime.quantity.IsSingleOne()) {
+                                use.AndThen(new SheetAction(mainForm)
+                                    .Duration(flag.Resource.RechargeTime.ToString())
+                                    .AndThen(new SheetAction(mainForm).AdjustParam(usedName, -1))
+                                );
                             }
-                            use.AndThen(setFlag);
                         } else {
                             SetFlowBreak(usesLabel, true);
                         }
@@ -215,6 +216,7 @@ namespace PlayMore35 {
                         Label effectLabel;
                         Label usesLabel = null;
                         LabeledField usedField = null;
+                        string usedName = $"{name} used";
                         if (effectLabels.ContainsKey(name)) {
                             inactiveLabels.Remove(name);
                             effectLabel = effectLabels[name];
@@ -245,10 +247,23 @@ namespace PlayMore35 {
                                 Controls.Add(usesLabel);
 
                                 if (text.Resource.RechargeTime.unit != AT_WILL) {
-                                    usedField = new LabeledField($"{name} used", mainForm, "used");
+                                    usedField = new LabeledField(usedName, mainForm, "used");
                                     usedFields[name] = usedField;
                                     Controls.Add(usedField);
                                     SetFlowBreak(usedField, true);
+                                    SheetAction use = new SheetAction(mainForm).AdjustParam(usedName, 1);
+                                    if (!text.Resource.RechargeTime.quantity.IsSingleOne()) {
+                                        use.AndThen(new SheetAction(mainForm)
+                                            .Duration(text.Resource.RechargeTime.ToString())
+                                            .AndThen(new SheetAction(mainForm).AdjustParam(usedName, -1))
+                                        );
+                                    }
+                                    ToolStripMenuItem menuItem = new ToolStripMenuItem {
+                                        Text = $"Use {name}"
+                                    };
+                                    menuItem.Click += (s, e) => use.Perform();
+                                    effectLabel.ContextMenuStrip = new ContextMenuStrip();
+                                    effectLabel.ContextMenuStrip.Items.Add(menuItem);
                                 } else {
                                     SetFlowBreak(usesLabel, true);
                                 }
@@ -259,8 +274,8 @@ namespace PlayMore35 {
                         ToolTipTextLabel(effectLabel, desc);
                         if (usesLabel != null && text.Resource.RechargeTime.unit != AT_WILL) {
                             ToolTipTextLabel(usesLabel, string.Join("\n", text.Resource.DynamicUsesExplanation));
-                            if (controller.Character.paramValues.ContainsKey($"{name} used")) {
-                                int used = controller.Character.paramValues[$"{name} used"];
+                            if (controller.Character.paramValues.ContainsKey(usedName)) {
+                                int used = controller.Character.paramValues[usedName];
                                 usedField.Value = used;
                                 UsedUpColor(usesLabel, used < text.Resource.DynamicUses);
                                 UsedUpColor(effectLabel, used < text.Resource.DynamicUses);

@@ -54,13 +54,10 @@ namespace PlayMore35 {
                 TextBox txt = (TextBox)sender;
                 if (!txt.Text.Any()) {
                     controller.Effects.controllableParameters[name].Value = 0;
-                    controller.Character.paramValues[name] = 0;
                 } else if (int.TryParse(txt.Text, out int value)) {
                     controller.Effects.controllableParameters[name].Value = value;
-                    controller.Character.paramValues[name] = value;
                 } else {
                     controller.Effects.controllableParameters[name].Value = 0;
-                    controller.Character.paramValues[name] = 0;
                     txt.Text = "";
                 }
                 mainForm.RefreshEffects();

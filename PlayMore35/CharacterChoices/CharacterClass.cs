@@ -81,7 +81,7 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public CharacterClass(JObject json) {
+        public CharacterClass(JObject json, Character character) {
             Name = (string)json["name"];
             Prerequisites = (string)json["prerequisites"];
             HitDie = (int)json["hit die"];
@@ -104,7 +104,7 @@ namespace PlayMore35.CharacterChoices {
             ));
             if (json["flags"] != null) {
                 foreach (JArray level in json["flags"]) {
-                    Flags.Add(level.Select(x => new ControllableFlag((JObject)x)).ToList());
+                    Flags.Add(level.Select(x => new ControllableFlag((JObject)x, character)).ToList());
                 }
             }
             if (json["stats"] != null) {

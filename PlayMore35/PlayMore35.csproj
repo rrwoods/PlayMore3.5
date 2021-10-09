@@ -93,6 +93,7 @@
     <Compile Include="Effects\ActionResource.cs" />
     <Compile Include="Effects\LengthOfTime.cs" />
     <Compile Include="Effects\Text.cs" />
+    <Compile Include="Global\ActionResourceResetter.cs" />
     <Compile Include="Global\Rounds.cs" />
     <Compile Include="Global\SheetAction.cs" />
     <Compile Include="HpPanel.cs">

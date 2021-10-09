@@ -32,7 +32,7 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public Feat(JObject json) {
+        public Feat(JObject json, Character character) {
             Benefit = new Effect((JObject)json["benefit"]);
             Descriptors.ReadJson("descriptors", json);
             if (json["prerequisites"] != null) {
@@ -42,10 +42,10 @@ namespace PlayMore35.CharacterChoices {
                 ChoiceDescription = (string)json["choice"];
             }
             if (json["flags"] != null) {
-                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x)));
+                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x, character)));
             }
             if (json["parameters"] != null) {
-                Parameters.AddRange(json["parameters"].Select(x => new ControllableParameter((JObject)x)));
+                Parameters.AddRange(json["parameters"].Select(x => new ControllableParameter((JObject)x, character)));
             }
             if (json["stats"] != null) {
                 NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));

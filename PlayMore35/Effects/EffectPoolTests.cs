@@ -26,7 +26,7 @@ namespace PlayMore35.Effects.Tests {
 
         private EffectPool Rules() {
             EffectPool p = new EffectPool();
-            p.ReadJson(Dependencies.rulesJson);
+            p.ReadJson(Dependencies.rulesJson, new CharacterChoices.Character());
 
             // make all the ability modifiers zero
             p.AddEffect(ModifyStat(10, STR_SCORE));

@@ -118,6 +118,7 @@ namespace PlayMore35.Global {
 
         public Controller(Character character) {
             Character = character;
+            rounds.Register(new ActionResourceResetter(this));
         }
 
         private JToken GetResource(byte[] resource, string altFilename) {
@@ -220,21 +221,21 @@ namespace PlayMore35.Global {
             }
 
             Effects = new EffectPool();
-            Effects.ReadJson(GetResource(Properties.Resources.rules, "rules.json"));
+            Effects.ReadJson(GetResource(Properties.Resources.rules, "rules.json"), character);
             // TODO : we eventually need a way for someone to add a rule and save it off, without the effects
             // we're about to add that are specific to their character making it out to the houserules file.
 
             Effects.GenerateCharacterEffects(Character);
 
             RaceDefinitions = GetResource(Properties.Resources.races, "races.json")
-                .Select(x => new Race((JObject)x))
+                .Select(x => new Race((JObject)x, character))
                 .ToDictionary(x => x.Name);
             RaceDefinitions[""] = new Race(); // For completely new characters.
             ClassDefinitions = GetResource(Properties.Resources.classes, "classes.json")
-                .Select(x => new CharacterClass((JObject)x))
+                .Select(x => new CharacterClass((JObject)x, character))
                 .ToDictionary(x => x.Name);
             FeatDefinitions = GetResource(Properties.Resources.feats, "feats.json")
-                .Select(x => new Feat((JObject)x))
+                .Select(x => new Feat((JObject)x, character))
                 .ToDictionary(x => x.Benefit.Name);
 
             WeaponDefinitions = GetResource(Properties.Resources.weapons, "weapons.json")
@@ -273,7 +274,7 @@ namespace PlayMore35.Global {
                 .ToDictionary(x => x.Name);
 
             ExternalEffectDefinitions = GetResource(Properties.Resources.external, "external.json")
-                .Select(x => new ExternalEffect((JObject)x))
+                .Select(x => new ExternalEffect((JObject)x, character))
                 .ToDictionary(x => x.Effect.Name);
 
             Race race = RaceDefinitions[Character.race];
@@ -336,16 +337,16 @@ namespace PlayMore35.Global {
                 EquippedItems.SlotlessItems.Add(ItemDefinitions[item]);
             }
 
-            Effects.GenerateUses(EquippedItems);
+            Effects.GenerateUses(EquippedItems, character);
 
-            foreach (string flag in Effects.controllableFlags.Keys.ToList()) {
-                if (character.flagValues.ContainsKey(flag)) {
-                    Effects.controllableFlags[flag].On = character.flagValues[flag];
+            foreach (var flag in Effects.controllableFlags.ToList()) {
+                if (character.flagValues.ContainsKey(flag.Key)) {
+                    flag.Value.On = character.flagValues[flag.Key];
                 }
             }
-            foreach (string param in Effects.controllableParameters.Keys.ToList()) {
-                if (character.paramValues.ContainsKey(param)) {
-                    Effects.controllableParameters[param].Value = character.paramValues[param];
+            foreach (var param in Effects.controllableParameters.ToList()) {
+                if (character.paramValues.ContainsKey(param.Key)) {
+                    param.Value.Value = character.paramValues[param.Key];
                 }
             }
 
@@ -356,7 +357,6 @@ namespace PlayMore35.Global {
             foreach (var flag in Effects.controllableFlags) {
                 if (!flag.Value.Show.On(Effects, EquippedItems)) {
                     flag.Value.On = false;
-                    character.flagValues[flag.Key] = false;
                 }
             }
         }
@@ -373,15 +373,6 @@ namespace PlayMore35.Global {
         }
 
         // **** MUTATORS ****
-
-        public void PrepCharacterForSave() {
-            foreach (var flag in Effects.controllableFlags) {
-                character.flagValues[flag.Key] = flag.Value.On;
-            }
-            foreach (var param in Effects.controllableParameters) {
-                character.paramValues[param.Key] = param.Value.Value;
-            }
-        }
 
         public void AddLevel() {
             Character.classLevels.Add(Character.classLevels.DefaultIfEmpty(Character.DEFAULT_CLASS).Last());
@@ -567,7 +558,7 @@ namespace PlayMore35.Global {
                 }
             }
 
-            Effects.GenerateUses(weapon.GetGlobalEffects());
+            Effects.GenerateUses(weapon.GetGlobalEffects(), character);
             ComputeWeight();
         }
 
@@ -582,7 +573,7 @@ namespace PlayMore35.Global {
             Character.equipped.DonnedArmor = armorChoice;
             EquippedItems.DonnedArmor = armor;
 
-            Effects.GenerateUses(armor.GetGlobalEffects());
+            Effects.GenerateUses(armor.GetGlobalEffects(), character);
             ComputeWeight();
         }
 
@@ -600,7 +591,7 @@ namespace PlayMore35.Global {
                 UnequipWeapon(from, false);
             }
 
-            Effects.GenerateUses(shield.GetGlobalEffects());
+            Effects.GenerateUses(shield.GetGlobalEffects(), character);
             ComputeWeight();
         }
 
@@ -635,7 +626,7 @@ namespace PlayMore35.Global {
                 }
             }
 
-            Effects.GenerateUses(new[] { item.ItemEffect });
+            Effects.GenerateUses(new[] { item.ItemEffect }, character);
             ComputeWeight();
         }
 

@@ -13,8 +13,7 @@ namespace PlayMore35.Effects {
         public string unit;
 
         public static Dictionary<string, long> UNIT_ROUNDS = new Dictionary<string, long> {
-            ["round"]  = 1, ["minute"]  = 10, ["hour"]  = 600, ["day"]  = 1440, ["week"]  = 100800,
-            ["rounds"] = 1, ["minutes"] = 10, ["hours"] = 600, ["days"] = 1440, ["weeks"] = 100800,
+            ["round"] = 1, ["minute"] = 10, ["hour"] = 600, ["day"] = 14400, ["week"] = 100800,
         };
 
         public JToken ToJson() {
@@ -22,6 +21,9 @@ namespace PlayMore35.Effects {
         }
 
         public LengthOfTime(string json) {
+            if (json.EndsWith("s")) {
+                json = json.Remove(json.Length - 1);
+            }
             if (json.Contains(" ")) {
                 string[] qtyAndUnit = json.Split(' ');
                 quantity = new DiceGroup((JToken)qtyAndUnit[0]);

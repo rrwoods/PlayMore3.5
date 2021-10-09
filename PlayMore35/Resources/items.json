@@ -276,7 +276,7 @@
           "category": "React",
           "text": "Spending charges grants concealment for 1 round.  Spend 1 charge for 20%, 2 for 30%, or 3 for 40%.",
           "resource": {
-            "action": "swift",
+            "action": "imm",
             "uses": 3,
             "recharge": "day"
           }

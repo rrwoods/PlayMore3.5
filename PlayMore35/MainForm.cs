@@ -768,7 +768,7 @@ namespace PlayMore35 {
 
         public void RefreshEffects() {
             controller.ForceHiddenFlagsOff();
-            if (!loaded) {
+            if (!loaded) { // TODO : now that character flag/param values are assigned along with the ones in effect pool, try removing this
                 foreach (string paramName in controller.Effects.controllableParameters.Keys) {
                     if (!controller.Character.paramValues.ContainsKey(paramName)) {
                         controller.Character.paramValues[paramName] = 0;
@@ -1362,7 +1362,6 @@ namespace PlayMore35 {
             CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
             controller.Effects.controllableFlags[flag].On = toggle.Checked;
-            controller.Character.flagValues[flag] = toggle.Checked;
 
             RefreshEffects();
         }
@@ -1593,7 +1592,6 @@ namespace PlayMore35 {
                 FilterIndex = 1
             };
             if (saveCharacter.ShowDialog() == DialogResult.OK) {
-                controller.PrepCharacterForSave();
                 File.WriteAllText(saveCharacter.FileName, controller.Character.ToJson().ToString());
                 return true;
             }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using PlayMore35.CharacterChoices;
 
 namespace PlayMore35.Effects {
     public class ControllableFlag : IJsonable {
@@ -9,7 +10,15 @@ namespace PlayMore35.Effects {
 
         public ActionResource Resource = null;
 
-        public bool On; // not serialized, because it's tied to the character.
+        private bool on; // not serialized, because it's tied to the character.
+        public bool On {
+            get { return on; }
+            set {
+                on = value;
+                character.flagValues[Name] = value;
+            }
+        }
+        private Character character;
 
         public JToken ToJson() {
             JObject json = new JObject(
@@ -26,7 +35,7 @@ namespace PlayMore35.Effects {
             return json;
         }
 
-        public ControllableFlag(JObject json) {
+        public ControllableFlag(JObject json, Character character) {
             Name = (string)json["name"];
             Category = (string)json["category"];
             Description = (string)json["description"];
@@ -36,7 +45,8 @@ namespace PlayMore35.Effects {
             if (json["resource"] != null) {
                 Resource = new ActionResource((JObject)json["resource"]);
             }
-            On = false;
+            on = false;
+            this.character = character;
         }
     }
 }

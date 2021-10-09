@@ -19,13 +19,13 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public ExternalEffect(JObject json) {
+        public ExternalEffect(JObject json, Character character) {
             Effect = new Effect((JObject)json["effect"]);
             if (json["flags"] != null) {
-                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x)));
+                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x, character)));
             }
             if (json["params"] != null) {
-                Params.AddRange(json["params"].Select(x => new ControllableParameter((JObject)x)));
+                Params.AddRange(json["params"].Select(x => new ControllableParameter((JObject)x, character)));
             }
         }
     }

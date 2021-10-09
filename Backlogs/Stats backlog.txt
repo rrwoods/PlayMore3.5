@@ -1,18 +1,22 @@
 [USABILITY] Round system:
 
-- Right-click for using a flag, which should set up and perform a SheetAction
-  - At-will flags can have a "use", if they have a duration
-  - param-adjust the uses parameter, if it's not at-will
-  - set the flag, and specify a duration
-
-- Same as above but for text effects, which *should* not need to worry about duration?  Can ignore at-will
-
-- Set up round listeners for resetting ability/flag uses
+- Durations of "encounter" are currently broken, because I'm relying on LengthOfTime.InRounds
 
 - JSONify the SheetAction.Reverse round listeners
 - Include with character:
   - current time + combat status
   - any active temporary round listeners
+
+===
+
+[USABILITY] Action highlighter
+
+Provide checkboxes for what available actions remain in the turn (standard, move, swift), and somehow highlight (ControlHighlight background?) which items can be used.
+- If both standard and move are available, also highlight full-round actions
+- If standard is available, highlight single attacks
+- If full-round is available (see above), highlight full attacks
+- Don't highlight used-up abilities/flags
+- ... always highlight immediate actions?  unsure here.
 
 ===
 
@@ -45,3 +49,7 @@ Optionally, also show those effects under the skills list.
 [ESOTERIC] An "Aura" section, after Senses before Languages in section 1
 
 This is for stuff like draconic auras and other things that continuously affect allies.
+
+===
+
+[ESOTERIC] Variable ActionResource.RechargeTimes -- need to throw a roll out to roll20, and ask for the user to input the result

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
+using PlayMore35.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace PlayMore35.Global {
     class SheetAction {
         MainForm mainForm;
 
-        LengthOfTime duration = null; // null for instantaneous, effect will not be reversed
+        string duration = null; // null for instantaneous, effect will not be reversed
         List<SheetAction> actionsAfter = new List<SheetAction>(); // actions to fire at the end of the duration
 
         private readonly List<string> flagsToSet = new List<string>();
@@ -59,7 +60,7 @@ namespace PlayMore35.Global {
             return this;
         }
 
-        public SheetAction Duration(LengthOfTime duration) {
+        public SheetAction Duration(string duration) {
             this.duration = duration;
             return this;
         }
@@ -71,25 +72,24 @@ namespace PlayMore35.Global {
 
         public void Perform() {
             var effects = mainForm.controller.Effects;
+            var items = mainForm.controller.EquippedItems;
             var character = mainForm.controller.Character;
             flagsToSet.ForEach(x => {
                 effects.controllableFlags[x].On = true;
-                character.flagValues[x] = true;
             });
             flagsToClear.ForEach(x => {
                 effects.controllableFlags[x].On = false;
-                character.flagValues[x] = false;
             });
             foreach(var item in paramsToAdjust) {
                 effects.controllableParameters[item.Key].Value += item.Value;
-                character.paramValues[item.Key] += item.Value;
             }
             mainForm.RefreshEffects();
 
             if (duration == null) {
                 actionsAfter.ForEach(x => x.Perform());
             } else {
-                mainForm.controller.rounds.RegisterAndSave(new SheetActionReverser(this, duration.InRounds()), mainForm.controller);
+                long rounds = new LengthOfTime(duration.FillStatValues(effects, items)).InRounds();
+                mainForm.controller.rounds.RegisterAndSave(new SheetActionReverser(this, rounds), mainForm.controller);
             }
         }
 
@@ -98,15 +98,12 @@ namespace PlayMore35.Global {
             var character = mainForm.controller.Character;
             flagsToSet.ForEach(x => {
                 effects.controllableFlags[x].On = false;
-                character.flagValues[x] = false;
             });
             flagsToClear.ForEach(x => {
                 effects.controllableFlags[x].On = true;
-                character.flagValues[x] = true;
             });
             foreach (var item in paramsToAdjust) {
                 effects.controllableParameters[item.Key].Value -= item.Value;
-                character.paramValues[item.Key] -= item.Value;
             }
             mainForm.RefreshEffects();
 

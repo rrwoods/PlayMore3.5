@@ -70,7 +70,7 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public Race(JObject json) {
+        public Race(JObject json, Character character) {
             Name = (string)json["name"];
             CreatureType = (string)json["type"];
             if (json["subtypes"] != null) {
@@ -109,7 +109,7 @@ namespace PlayMore35.CharacterChoices {
                 }
             }
             if (json["flags"] != null) {
-                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x)));
+                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x, character)));
             }
             if (json["effects"] != null) {
                 Effects.AddRange(json["effects"].Select(x => new Effect((JObject)x)));

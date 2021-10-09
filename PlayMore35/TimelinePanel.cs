@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace PlayMore35 {
     class TimelinePanel : FlowLayoutPanel, IRoundObserver {
-        private Rounds rounds;
+        private MainForm mainForm;
         private readonly Button btnCombat = new Button() {
             Text = "",
             AutoSize = true
@@ -40,8 +40,8 @@ namespace PlayMore35 {
         }
 
         public void Initialize(MainForm mainForm) {
-            rounds = mainForm.controller.rounds;
-            rounds.Register(this);
+            this.mainForm = mainForm;
+            mainForm.controller.rounds.Register(this);
             btnCombat.Click += Combat_Click;
             btnNextRound.Click += NextRound_Click;
             btnSetTime.Click += SetTime_Click;
@@ -50,21 +50,24 @@ namespace PlayMore35 {
         private void Combat_Click(object sender, EventArgs e) {
             // if we're not in combat, we want to enter combat (i.e. pass true to this function), and SetTime is visible
             // if we're in combat, we want to leave combat (i.e. pass false to this function), and SetTime is not visible
-            rounds.InCombat(btnSetTime.Visible);
+            mainForm.controller.rounds.InCombat(btnSetTime.Visible);
+            mainForm.RefreshEffects();
         }
 
         private void NextRound_Click(object sender, EventArgs e) {
-            rounds.Advance();
+            mainForm.controller.rounds.Advance();
+            mainForm.RefreshEffects();
         }
 
         private void SetTime_Click(object sender, EventArgs e) {
-            DateTime cur = rounds.CurrentTime;
+            DateTime cur = mainForm.controller.rounds.CurrentTime;
             pickTimeDialog.dtpPicker.MinDate = cur;
             pickTimeDialog.dtpPicker.Value = cur;
             if (pickTimeDialog.ShowDialog() != DialogResult.OK) {
                 return;
             }
-            rounds.SetTime(pickTimeDialog.dtpPicker.Value);
+            mainForm.controller.rounds.SetTime(pickTimeDialog.dtpPicker.Value);
+            mainForm.RefreshEffects();
         }
 
         // ---- Listener method implemented as part of IRoundObserver contract
