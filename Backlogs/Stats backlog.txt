@@ -1,22 +1,18 @@
 [USABILITY] Round system:
 
-the controller should store:
-- The current day (how?  just a weekday number 0-6?  a full date?)
-- The number of rounds elapsed in the current day
-- What round the current encounter started on (you're *always* in an encounter.)
-- Whether you're in combat
+- Right-click for using a flag, which should set up and perform a SheetAction
+  - At-will flags can have a "use", if they have a duration
+  - param-adjust the uses parameter, if it's not at-will
+  - set the flag, and specify a duration
 
-For specifying the flow of time, the controller will have:
-- StartCombat, which marks the current round as the start of the current encounter and sets the combat flag; also, fully resets any actions that are per-encounter, and (probably) any that are per-minute or shorter
-- EndCombat, which is identical to above, but clears the combat flag
-- ActivateToggle, which sets a Toggle, but knows to clear it after a specified number of rounds have passed
-- NextRound, NextMinute, NextHour, and NextDay, which advances time the appropriate number of rounds
-  - (beyond NextRound, are these actually necessary?  won't the desired workflow be "it's now x:xx pm" or whatever?)
-- An undo button, for when you accidentally advance time (which should correct the states of flags that were changed as a result of advancing time)
+- Same as above but for text effects, which *should* not need to worry about duration?  Can ignore at-will
 
-For reporting what round it is, if we're in-combat it should report "round X of combat", and otherwise it should report what day and time it is.
+- Set up round listeners for resetting ability/flag uses
 
-When the UI advances time it needs to refresh effects!
+- JSONify the SheetAction.Reverse round listeners
+- Include with character:
+  - current time + combat status
+  - any active temporary round listeners
 
 ===
 

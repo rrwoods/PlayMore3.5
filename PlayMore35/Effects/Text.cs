@@ -59,15 +59,7 @@ namespace PlayMore35.Effects {
         }
 
         public Text FillStatValues(EffectPool effects, Equipped items, string name) {
-            string newDescription = Description;
-            while (newDescription.Contains("{{")) {
-                int start = newDescription.IndexOf("{{") + 2;
-                int end = newDescription.IndexOf("}}", start);
-                string statName = newDescription.Substring(start, end - start);
-                int statValue = effects.GetStat(statName).GetValue(effects, items).value;
-                newDescription = newDescription.Replace("{{" + statName + "}}", "" + statValue);
-            }
-            return new Text(this).SetName(name).SetDescription(newDescription).ComputeUses(effects, items);
+            return new Text(this).SetName(name).SetDescription(Description.FillStatValues(effects, items)).ComputeUses(effects, items);
         }
 
         public Text ComputeUses(EffectPool effects, Equipped items) {

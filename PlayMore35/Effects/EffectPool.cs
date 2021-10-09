@@ -395,4 +395,18 @@ namespace PlayMore35.Effects {
             }
         }
     }
+
+    public static class StringExtensions {
+        public static string FillStatValues(this string description, EffectPool pool, Equipped items) {
+            string newDescription = description;
+            while (newDescription.Contains("{{")) {
+                int start = newDescription.IndexOf("{{") + 2;
+                int end = newDescription.IndexOf("}}", start);
+                string statName = newDescription.Substring(start, end - start);
+                int statValue = pool.GetStat(statName).GetValue(pool, items).value;
+                newDescription = newDescription.Replace("{{" + statName + "}}", "" + statValue);
+            }
+            return newDescription;
+        }
+    }
 }

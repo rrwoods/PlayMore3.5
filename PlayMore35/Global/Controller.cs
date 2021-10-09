@@ -294,6 +294,7 @@ namespace PlayMore35.Global {
                         }
                     }
                 }
+                Effects.AddStats(@class.NewStats);
             }
             foreach (var feat in Character.feats) {
                 string featSlot = feat.Key;

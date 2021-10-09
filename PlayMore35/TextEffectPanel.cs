@@ -51,6 +51,14 @@ namespace PlayMore35 {
             mainForm.RefreshEffects();
         }
 
+        private void UsedUpColor(Control control, bool anyRemaining) {
+            if (anyRemaining) {
+                control.ForeColor = SystemColors.ControlText;
+            } else {
+                control.ForeColor = SystemColors.ControlLight;
+            }
+        }
+
         public override void Update(Dictionary<string, List<Text>> textEffects) {
             string category = (string)Tag;
             var effects = textEffects[category];
@@ -58,7 +66,9 @@ namespace PlayMore35 {
             Controller controller = mainForm.controller;
 
             HashSet<string> inactiveFields = new HashSet<string>(fields.Keys);
-            foreach (var parameter in controller.Effects.controllableParameters) {
+            EffectPool allEffects = controller.Effects;
+            Items.Equipped items = controller.EquippedItems;
+            foreach (var parameter in allEffects.controllableParameters) {
                 if (parameter.Value.Category != category) {
                     continue;
                 }
@@ -90,9 +100,9 @@ namespace PlayMore35 {
             HashSet<string> inactiveFlags = new HashSet<string>(flags.Keys);
             HashSet<string> inactiveUses = new HashSet<string>(usesLabels.Keys);
             HashSet<string> inactiveUsed = new HashSet<string>(usedFields.Keys);
-            foreach (var toggle in controller.Effects.controllableFlags) {
+            foreach (var toggle in allEffects.controllableFlags) {
                 ControllableFlag flag = toggle.Value;
-                if (flag.Category != category || !flag.Show.On(controller.Effects, controller.EquippedItems)) {
+                if (flag.Category != category || !flag.Show.On(allEffects, items)) {
                     continue;
                 }
 
@@ -100,10 +110,12 @@ namespace PlayMore35 {
                 CheckBox flagBox;
                 Label usesLabel = null;
                 LabeledField usedField = null;
+                string usedName = $"{flag.Name} used";
                 if (flags.ContainsKey(toggleName)) {
                     inactiveFlags.Remove(toggleName);
                     flagBox = flags[toggleName];
                     flagBox.Visible = true;
+                    flagBox.Checked = toggle.Value.On;
                     
                     if (flag.Resource != null) {
                         inactiveUses.Remove(flag.Name);
@@ -139,32 +151,39 @@ namespace PlayMore35 {
                         usesLabels[flag.Name] = usesLabel;
                         Controls.Add(usesLabel);
 
+                        SheetAction use = new SheetAction(mainForm).AdjustParam(usedName, 1);
                         if (flag.Resource.RechargeTime.unit != AT_WILL) {
-                            usedField = new LabeledField($"{flag.Name} used", mainForm, "used");
+                            usedField = new LabeledField(usedName, mainForm, "used");
                             usedFields[flag.Name] = usedField;
                             Controls.Add(usedField);
                             SetFlowBreak(usedField, true);
+                            SheetAction setFlag = new SheetAction(mainForm).SetFlag(flag.Name);
+                            if (flag.Resource.Duration != null) {
+                                setFlag.Duration(new LengthOfTime(flag.Resource.Duration.FillStatValues(allEffects, items)));
+                            }
+                            use.AndThen(setFlag);
                         } else {
                             SetFlowBreak(usesLabel, true);
                         }
+
+                        ToolStripMenuItem menuItem = new ToolStripMenuItem {
+                            Text = $"Use {flag.Name}"
+                        };
+                        menuItem.Click += (s, e) => use.Perform();
+                        flagBox.ContextMenuStrip = new ContextMenuStrip();
+                        flagBox.ContextMenuStrip.Items.Add(menuItem);
                     } else {
                         SetFlowBreak(flagBox, true);
                     }
                 }
-                ToolTipTextLabel(flagBox, flag.Description);
+                ToolTipTextLabel(flagBox, flag.Description.FillStatValues(allEffects, items));
                 if (usesLabel != null && flag.Resource.RechargeTime.unit != AT_WILL) {
                     ToolTipTextLabel(usesLabel, string.Join("\n", flag.Resource.DynamicUsesExplanation));
-                    if (controller.Character.paramValues.ContainsKey($"{flag.Name} used")) {
-                        int used = controller.Character.paramValues[$"{flag.Name} used"];
+                    if (controller.Character.paramValues.ContainsKey(usedName)) {
+                        int used = controller.Character.paramValues[usedName];
                         usedField.Value = used;
-                        if (used < flag.Resource.DynamicUses) {
-                            usesLabel.ForeColor = SystemColors.ControlText;
-                            flagBox.ForeColor = SystemColors.ControlText;
-                            
-                        } else {
-                            usesLabel.ForeColor = SystemColors.ControlLight;
-                            flagBox.ForeColor = SystemColors.ControlLight;
-                        }
+                        UsedUpColor(usesLabel, used < flag.Resource.DynamicUses);
+                        UsedUpColor(flagBox, used < flag.Resource.DynamicUses);
                     }
                 }
                 any = true;
@@ -243,13 +262,8 @@ namespace PlayMore35 {
                             if (controller.Character.paramValues.ContainsKey($"{name} used")) {
                                 int used = controller.Character.paramValues[$"{name} used"];
                                 usedField.Value = used;
-                                if (used < text.Resource.DynamicUses) {
-                                    usesLabel.ForeColor = SystemColors.ControlText;
-                                    effectLabel.ForeColor = SystemColors.ControlText;
-                                } else {
-                                    usesLabel.ForeColor = SystemColors.ControlLight;
-                                    effectLabel.ForeColor = SystemColors.ControlLight;
-                                }
+                                UsedUpColor(usesLabel, used < text.Resource.DynamicUses);
+                                UsedUpColor(effectLabel, used < text.Resource.DynamicUses);
                             }
                         }
                         any = true;

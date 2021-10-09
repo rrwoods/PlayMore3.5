@@ -1,4 +1,7 @@
-[ODRIC 1] Write up fast torch, and move one to slotless
+[BUG] Feat choices seem to persist between levels when clicking the ... button
+- if i click ... for level 4 first, the correct weapon focus choice shows up
+  - but then, all other levels show the choice, even though they don't have feats that ask for the choice
+- if i click ... for level 1/2/3 first, it seems to blank the weapon choice for level 4 (reflected in stats)
 
 ===
 
@@ -10,6 +13,10 @@
 
 ===
 
+[COMMON] over heavy load = 0 speed, but if less than double heavy load, also "full-rd at-will: move 5 feet" (under movement)
+
+===
+
 [COMMON] Evade should be multiline (Darkstalker, Hide in Plain Sight)
 
 ===
@@ -17,6 +24,3 @@
 [COMMON] If the roll button is clicked and there's no incoming request, say so
 
 Alternatively, don't present a roll button without an incoming request?  Possibly hard
-
-===
-

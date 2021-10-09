@@ -768,6 +768,18 @@ namespace PlayMore35 {
 
         public void RefreshEffects() {
             controller.ForceHiddenFlagsOff();
+            if (!loaded) {
+                foreach (string paramName in controller.Effects.controllableParameters.Keys) {
+                    if (!controller.Character.paramValues.ContainsKey(paramName)) {
+                        controller.Character.paramValues[paramName] = 0;
+                    }
+                }
+                foreach (string flagName in controller.Effects.controllableFlags.Keys) {
+                    if (!controller.Character.flagValues.ContainsKey(flagName)) {
+                        controller.Character.flagValues[flagName] = false;
+                    }
+                }
+            }
 
             Dictionary<string, List<Text>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
             foreach (DynamicPanel p in dynamicPanels) {

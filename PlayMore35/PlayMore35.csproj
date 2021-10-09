@@ -94,6 +94,7 @@
     <Compile Include="Effects\LengthOfTime.cs" />
     <Compile Include="Effects\Text.cs" />
     <Compile Include="Global\Rounds.cs" />
+    <Compile Include="Global\SheetAction.cs" />
     <Compile Include="HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>

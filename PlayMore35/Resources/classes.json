@@ -27,11 +27,12 @@
         {
           "name": "whirling frenzy",
           "category": "Atk Options",
-          "description": "Enter a whirling frenzy for a number of rounds equal to 3 + your CON modifier, getting +4 Strength, and +2 dodge to AC and Reflex saves.  Afterward, you are fatigued for the rest of the encounter.",
+          "description": "Enter a whirling frenzy for {{frenzy duration}} rounds, getting +4 Strength, and +2 dodge to AC and Reflex saves.  Afterward, you are fatigued for the rest of the encounter.",
           "resource": {
             "action": "free",
             "uses": 1,
-            "recharge": "day"
+            "recharge": "day",
+            "duration": "{{frenzy duration}} rounds"
           }
         },
         {
@@ -42,6 +43,9 @@
         }
       ]
     ],
+    "stats": [
+      { "name": "frenzy duration" }
+    ],
     "class features": [
       [
         {
@@ -50,6 +54,21 @@
             {
               "category": "Atk Options",
               "text": "When you take the charge action, make a full attack in place of the single attack."
+            }
+          ]
+        },
+        {
+          "name": "frenzy duration",
+          "modifiers": [
+            {
+              "affects": "frenzy duration",
+              "mod": {
+                "type": "untyped",
+                "amounts": [
+                  { "fixed": 3 },
+                  { "stat value": "CON modifier" }
+                ]
+              }
             }
           ]
         },

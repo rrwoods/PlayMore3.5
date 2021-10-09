@@ -13,6 +13,8 @@ namespace PlayMore35.Effects {
         public string ActionType;
         public LengthOfTime RechargeTime;
 
+        public string Duration; // this is a string because the duration can be stat-dependent
+
         // If an ability specifies a number of uses that has a fixed component (for example, anklet of translocation
         // is 2, and a cleric's "3 + CHA" turn attempts is 3), it can go here, and when the effect added to a pool
         // via AddEffect, the pool will automagically add a second effect that grants the appropriate number of uses.
@@ -31,6 +33,9 @@ namespace PlayMore35.Effects {
             if (StaticUses != 0) {
                 json["uses"] = StaticUses;
             }
+            if (Duration != null) {
+                json["duration"] = Duration;
+            }
             return json;
         }
 
@@ -40,6 +45,9 @@ namespace PlayMore35.Effects {
             if (json["uses"] != null) {
                 StaticUses = (int)json["uses"];
             }
+            if (json["duration"] != null) {
+                Duration = (string)json["duration"];
+            }
         }
 
         public void ComputeUses(string effectName, EffectPool effects, Equipped items) {
@@ -48,6 +56,10 @@ namespace PlayMore35.Effects {
             }
             string usesStat = $"{effectName} uses";
             (DynamicUses, DynamicUsesExplanation) = effects.GetStat(usesStat).GetValue(effects, items);
+        }
+
+        public LengthOfTime ComputeDuration(EffectPool effects, Equipped items) {
+            return new LengthOfTime(Duration.FillStatValues(effects, items));
         }
 
         public string Description() {

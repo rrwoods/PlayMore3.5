@@ -67,23 +67,14 @@ namespace PlayMore35 {
             rounds.SetTime(pickTimeDialog.dtpPicker.Value);
         }
 
-        // ---- Listener methods implemented as part of IRoundObserver contract
+        // ---- Listener method implemented as part of IRoundObserver contract
 
-        public bool SetCurrentCombatRound(long currentRound, long advanced) {
-            lblCurrentRound.Text = $"Round {currentRound} of combat";
-            return false;
-        }
-
-        public bool SetCurrentTime(DateTime time) {
+        public bool SetState(DateTime time, long currentAbsoluteRound, long currentEncounterRound, long advanced, bool combat) {
             InitializePicker();
-            lblCurrentRound.Text = time.ToString(pickTimeDialog.dtpPicker.CustomFormat);
-            return false;
-        }
-
-        public bool InCombat(bool combat) {
             btnNextRound.Visible = combat;
             btnSetTime.Visible = !combat;
             btnCombat.Text = combat ? "Leave combat" : "Enter combat";
+            lblCurrentRound.Text = combat ? $"Round {currentEncounterRound} of combat" : time.ToString(pickTimeDialog.dtpPicker.CustomFormat);
             return false;
         }
     }
