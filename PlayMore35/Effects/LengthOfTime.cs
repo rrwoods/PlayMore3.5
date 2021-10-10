@@ -37,8 +37,11 @@ namespace PlayMore35.Effects {
         // this DOES NOT CURRENTLY WORK with variable durations, it will silently report 0 for all die results.
         // eventually i want to have a version that accepts a roll result.
         public long InRounds() {
-            if (unit == "at-will" || unit == "encounter") {
+            if (unit == "at-will") {
                 return 0;
+            }
+            if (unit == "encounter") {
+                return -1;
             }
             return UNIT_ROUNDS[unit] * (quantity.dice.ContainsKey(1) ? quantity.dice[1] : 0);
         }

@@ -1,11 +1,15 @@
 [USABILITY] Round system:
 
-- Durations of "encounter" are currently broken, because I'm relying on LengthOfTime.InRounds
-
 - JSONify the SheetAction.Reverse round listeners
 - Include with character:
   - current time + combat status
   - any active temporary round listeners
+
+- Hook vestiges into this system!  Right-click -> bind will do the following:
+  - Set the currently-bound vestige
+  - Roll a binding check, and ask for its result
+  - Set the pact state to Good or Poor based on the result and the DC
+  - RegisterAndSave a round listener that sets the currently-bound vestige to None, 24 hours from now
 
 ===
 

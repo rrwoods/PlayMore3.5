@@ -9,23 +9,48 @@ using System.Threading.Tasks;
 
 namespace PlayMore35.Global {
     class SheetActionReverser : IRoundObserver, IJsonable {
+        private readonly bool useRounds = true;
         private readonly SheetAction action;
         private long roundsRemaining;
+        private bool? currentCombatStatus = null;
 
         public JToken ToJson() {
             throw new NotImplementedException();
         }
 
+        // if rounds < 0, this reverser will run the next time combat status changes
+        // if rounds > 0, this reverser will run after that many rounds
+        // don't do rounds = 0
         public SheetActionReverser(SheetAction action, long rounds) {
+            if (rounds < 0) {
+                useRounds = false;
+            } else {
+                roundsRemaining = rounds;
+            }
             this.action = action;
-            roundsRemaining = rounds;
         }
 
         public bool SetState(DateTime time, long currentAbsoluteRound, long currentEncounterRound, long advanced, bool combat) {
-            roundsRemaining -= advanced;
-            if (roundsRemaining > 0) {
+            if (useRounds) {
+                roundsRemaining -= advanced;
+                if (roundsRemaining > 0) {
+                    return false;
+                }
+                action.Reverse();
+                return true;
+            }
+
+            // if currentCombatStatus is null, this is the first SetState call
+            if (currentCombatStatus == null) {
+                currentCombatStatus = combat;
                 return false;
             }
+
+            // otherwise, we are supposed to fire when combat status changes
+            if (currentCombatStatus == combat) {
+                return false;
+            }
+
             action.Reverse();
             return true;
         }
