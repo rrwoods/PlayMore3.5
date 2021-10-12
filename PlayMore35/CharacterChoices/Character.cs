@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 
 using PlayMore35.Effects;
+using PlayMore35.Global;
 
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
@@ -40,7 +41,7 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, bool> flagValues;
         public Dictionary<string, int> paramValues;
 
-        public List<ISaveableRoundObserver> roundObservers = new List<ISaveableRoundObserver>();
+        public Rounds rounds;
 
         public JToken ToJson() {
             return new JObject(
@@ -53,7 +54,10 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("classes", new JArray(classLevels)),
                 new JProperty("incremented", new JObject(abilityScoreIncrements.Select(x => new JProperty("" + x.Key, x.Value)))),
                 new JProperty("hit die rolls", new JArray(rolledHitDice)),
-                new JProperty("skill ranks", new JObject(skillRanks.Select(x => new JProperty(x.Key, new JArray(x.Value))))),
+                new JProperty("skill ranks", new JObject(skillRanks
+                    .Where(x => x.Value.Sum() > 0)
+                    .Select(x => new JProperty(x.Key, new JArray(x.Value)))
+                )),
                 new JProperty("feats", new JObject(feats.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("feat choices", new JObject(featChoices.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("transactions", new JArray(transactions.Select(x => new JObject(
@@ -72,11 +76,11 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("state", x.state))))),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value)))),
-                new JProperty("observers", new JArray(roundObservers.Select(x => x.ToJson())))
+                new JProperty("time", rounds.ToJson())
             );
         }
 
-        public Character(MainForm mainForm, JObject json) {
+        public Character(MainForm mainForm, Character previousCharacter, JObject json) {
             name = (string)json["name"];
             gender = (string)json["gender"];
             alignment = (string)json["alignment"];
@@ -104,10 +108,10 @@ namespace PlayMore35.CharacterChoices {
             ).ToList();
             flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
             paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
-            roundObservers = ((JArray)json["observers"]).Select(x => RoundObserver.FromJson(mainForm, x)).ToList();
+            rounds = new Rounds(mainForm, previousCharacter.rounds, (JObject)json["time"]);
         }
 
-        public Character() {
+        public Character(MainForm mainForm) {
             name = "";
             gender = "";
             alignment = "";
@@ -140,6 +144,8 @@ namespace PlayMore35.CharacterChoices {
 
             flagValues = new Dictionary<string, bool>();
             paramValues = new Dictionary<string, int>();
+
+            rounds = new Rounds(mainForm);
         }
 
         public IEnumerable<WeaponChoice> Weapons {

@@ -559,7 +559,7 @@
         "text": [
           {
             "category": "Atk Options",
-            "text": "Your attacks against dexterity-denied enemies within 30 feet deal 1d6 extra damage, plus 1d6 more per four effective binder levels ({{effective binder leve}})."
+            "text": "Your attacks against dexterity-denied enemies within 30 feet deal 1d6 extra damage, plus 1d6 more per four effective binder levels ({{effective binder level}})."
           }
         ]
       }

@@ -18,8 +18,6 @@ namespace PlayMore35.Global {
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
 
-        public Rounds rounds;
-
         private Character character;
         private int NormalSizeCategory;
         public Dictionary<string, Race> RaceDefinitions;
@@ -118,8 +116,6 @@ namespace PlayMore35.Global {
 
         public Controller(Character character) {
             Character = character;
-            rounds = new Rounds(this);
-            rounds.Register(new ActionResourceResetter(this));
         }
 
         private JToken GetResource(byte[] resource, string altFilename) {

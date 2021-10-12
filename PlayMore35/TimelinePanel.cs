@@ -41,7 +41,7 @@ namespace PlayMore35 {
 
         public void Initialize(MainForm mainForm) {
             this.mainForm = mainForm;
-            mainForm.controller.rounds.Register(this);
+            mainForm.controller.Character.rounds.Register(this);
             btnCombat.Click += Combat_Click;
             btnNextRound.Click += NextRound_Click;
             btnSetTime.Click += SetTime_Click;
@@ -50,24 +50,21 @@ namespace PlayMore35 {
         private void Combat_Click(object sender, EventArgs e) {
             // if we're not in combat, we want to enter combat (i.e. pass true to this function), and SetTime is visible
             // if we're in combat, we want to leave combat (i.e. pass false to this function), and SetTime is not visible
-            mainForm.controller.rounds.InCombat(btnSetTime.Visible);
-            mainForm.RefreshEffects();
+            mainForm.controller.Character.rounds.InCombat(btnSetTime.Visible);
         }
 
         private void NextRound_Click(object sender, EventArgs e) {
-            mainForm.controller.rounds.Advance();
-            mainForm.RefreshEffects();
+            mainForm.controller.Character.rounds.Advance();
         }
 
         private void SetTime_Click(object sender, EventArgs e) {
-            DateTime cur = mainForm.controller.rounds.CurrentTime;
+            DateTime cur = mainForm.controller.Character.rounds.CurrentTime;
             pickTimeDialog.dtpPicker.MinDate = cur;
             pickTimeDialog.dtpPicker.Value = cur;
             if (pickTimeDialog.ShowDialog() != DialogResult.OK) {
                 return;
             }
-            mainForm.controller.rounds.SetTime(pickTimeDialog.dtpPicker.Value);
-            mainForm.RefreshEffects();
+            mainForm.controller.Character.rounds.SetTime(pickTimeDialog.dtpPicker.Value);
         }
 
         // ---- Listener method implemented as part of IRoundObserver contract

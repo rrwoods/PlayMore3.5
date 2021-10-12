@@ -11,10 +11,10 @@ namespace PlayMore35.Global {
         private bool lastCombatStatus = false;
         // i tried just storing a reference to the resettableParams dictionary here, but it somehow magically got out of sync.
         // i might be misunderstanding something about how reference assignment works in c#.
-        private readonly Controller controller;
+        private readonly MainForm mainForm;
 
-        public ActionResourceResetter(Controller controller) {
-            this.controller = controller;
+        public ActionResourceResetter(MainForm mainForm) {
+            this.mainForm = mainForm;
         }
 
         public bool SetState(DateTime time, long currentAbsoluteRound, long currentEncounterRound, long advanced, bool combat) {
@@ -24,7 +24,7 @@ namespace PlayMore35.Global {
                 return false;
             }
             DateTime lastTime = (DateTime)this.lastTime; // cast away nullable because c# is stupid.
-            var resettableParams = controller.Effects.resettableParameters;
+            var resettableParams = mainForm.controller.Effects.resettableParameters;
 
             if (
                 (advanced >= LengthOfTime.UNIT_ROUNDS["week"]) ||

@@ -114,7 +114,6 @@
     <Compile Include="CharacterChoices\Item.cs" />
     <Compile Include="CharacterChoices\ArmorChoice.cs" />
     <Compile Include="CharacterChoices\Character.cs" />
-    <Compile Include="CharacterChoices\CharacterChoiceTests.cs" />
     <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="DynamicPanel.cs">
@@ -127,7 +126,6 @@
     <Compile Include="Effects\ControllableAmount.cs" />
     <Compile Include="Effects\ControllableFlag.cs" />
     <Compile Include="Effects\ControllableParameter.cs" />
-    <Compile Include="Effects\EffectPoolTests.cs" />
     <Compile Include="Effects\ExtraAttack.cs" />
     <Compile Include="Effects\ISubjectMatcher.cs" />
     <Compile Include="Global\Controller.cs" />

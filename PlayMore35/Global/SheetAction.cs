@@ -163,7 +163,7 @@ namespace PlayMore35.Global {
                 actionsAfter.ForEach(x => x.Perform());
             } else {
                 long rounds = new LengthOfTime(duration.FillStatValues(effects, items)).InRounds();
-                mainForm.controller.rounds.RegisterAndSave(new SheetActionReverser(this, rounds));
+                mainForm.controller.Character.rounds.RegisterAndSave(new SheetActionReverser(this, rounds));
             }
         }
 

@@ -1493,7 +1493,7 @@ namespace PlayMore35 {
 
             addItemDialog.Font = scala;
 
-            controller = new Controller(new Character());
+            controller = new Controller(new Character(this));
             levelDetailsDialog = new LevelDetailsDialog(controller) {
                 Font = scala
             };
@@ -1573,7 +1573,7 @@ namespace PlayMore35 {
                     return false;
                 }
                 using (StreamReader reader = new StreamReader(dialog.OpenFile())) {
-                    controller.Character = new Character(this, JObject.Parse(reader.ReadToEnd()));
+                    controller.Character = new Character(this, controller.Character, JObject.Parse(reader.ReadToEnd()));
                     UpdateSubsystemTabs();
                 }
             }
