@@ -8,6 +8,12 @@ If an item name doesn't have a definition associated with it, when the controlle
 
 ===
 
+[COMMON] Allow combinations of items
+
+Include the ability to "merge" two items together, if they have the same slot.  E.g., a torc of displacement + torc of Constitution.
+
+===
+
 [COMMON] Weapon properties are complicated
 
 The controller needs to be able to report what modes a weapon has (melee, second melee, thrown, projectile) so that the UI can use that information to allow the user to apply different properties to the various modes.  As of this writing it only applies the properties to the melee mode.

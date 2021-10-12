@@ -1556,12 +1556,13 @@ namespace PlayMore35 {
         private void UpdateSubsystemTabs() {
             RemoveSubsystemTabs();
 
+            // What position do the subsystem tabs get added at.
             const int SUBSYSTEMS_INDEX = 1;
+
+            // When you remove a control from a form, apparently all its events get thrown out?
+            // Makes sense kinda, but it means we need to re-add here.
             if (controller.HasVestiges()) {
                 tabMain.TabPages.Insert(SUBSYSTEMS_INDEX, pagVestiges);
-
-                // When you remove a control from a form, apparently all its events get thrown out?
-                // Makes sense kinda, but it means we need to re-add here.
                 pagVestiges.Enter += VestigesTab_Enter;
             }
         }

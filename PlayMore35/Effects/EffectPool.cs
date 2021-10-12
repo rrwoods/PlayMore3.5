@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Items;
@@ -408,14 +409,24 @@ namespace PlayMore35.Effects {
     }
 
     public static class StringExtensions {
+        private static List<string> statAlerts = new List<string>();
         public static string FillStatValues(this string description, EffectPool pool, Equipped items) {
             string newDescription = description;
             while (newDescription.Contains("{{")) {
                 int start = newDescription.IndexOf("{{") + 2;
                 int end = newDescription.IndexOf("}}", start);
                 string statName = newDescription.Substring(start, end - start);
-                int statValue = pool.GetStat(statName).GetValue(pool, items).value;
-                newDescription = newDescription.Replace("{{" + statName + "}}", "" + statValue);
+                try { 
+                    int statValue = pool.GetStat(statName).GetValue(pool, items).value;
+                    newDescription = newDescription.Replace("{{" + statName + "}}", "" + statValue);
+                } catch (KeyNotFoundException) {
+                    if (!statAlerts.Contains(statName)) {
+                        statAlerts.Add(statName);
+                        // TODO : don't messagebox here, use some sort of error-registration system i guess?
+                        MessageBox.Show($"Couldn't find stat '{statName}' during processing of effect");
+                    }
+                    return newDescription;
+                }
             }
             return newDescription;
         }

@@ -78,16 +78,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbilityScoresPanel.cs">
+    <Compile Include="UI\AbilityScoresPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AttacksPanel.cs">
+    <Compile Include="UI\AttacksPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="BaseCombatPanel.cs">
+    <Compile Include="UI\BaseCombatPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DynamicStatPanel.cs">
+    <Compile Include="UI\DynamicStatPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Effects\ActionResource.cs" />
@@ -96,13 +96,13 @@
     <Compile Include="Global\ActionResourceResetter.cs" />
     <Compile Include="Global\Rounds.cs" />
     <Compile Include="Global\SheetAction.cs" />
-    <Compile Include="HpPanel.cs">
+    <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AddItemDialog.cs">
+    <Compile Include="UI\AddItemDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AddItemDialog.Designer.cs">
+    <Compile Include="UI\AddItemDialog.Designer.cs">
       <DependentUpon>AddItemDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="CharacterChoices\CharacterClass.cs" />
@@ -116,7 +116,7 @@
     <Compile Include="CharacterChoices\Character.cs" />
     <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
-    <Compile Include="DynamicPanel.cs">
+    <Compile Include="UI\DynamicPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Effects\Alterer.cs" />
@@ -154,28 +154,28 @@
     <Compile Include="Effects\VariableAmount.cs" />
     <Compile Include="Effects\AttackMatcher.cs" />
     <Compile Include="Global\RollServer.cs" />
-    <Compile Include="AcPanel.cs">
+    <Compile Include="UI\AcPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ListenSpotPanel.cs">
+    <Compile Include="UI\ListenSpotPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="InitiativePanel.cs">
+    <Compile Include="UI\InitiativePanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="LabeledField.cs">
+    <Compile Include="UI\LabeledField.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="LevelDetailsDialog.cs">
+    <Compile Include="UI\LevelDetailsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LevelDetailsDialog.Designer.cs">
+    <Compile Include="UI\LevelDetailsDialog.Designer.cs">
       <DependentUpon>LevelDetailsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainForm.cs">
+    <Compile Include="UI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="UI\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Effects\Constants.cs" />
@@ -187,43 +187,43 @@
     <Compile Include="CharacterChoices\Shield.cs" />
     <Compile Include="CharacterChoices\Weapon.cs" />
     <Compile Include="CharacterChoices\WeaponProperty.cs" />
-    <Compile Include="PickTime.cs">
+    <Compile Include="UI\PickTime.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PickTime.Designer.cs">
+    <Compile Include="UI\PickTime.Designer.cs">
       <DependentUpon>PickTime.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="UI\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DescriptionPanel.cs">
+    <Compile Include="UI\DescriptionPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="RoundObserver.cs" />
-    <Compile Include="SavesPanel.cs">
+    <Compile Include="UI\RoundObserver.cs" />
+    <Compile Include="UI\SavesPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SkillsPanel.cs">
+    <Compile Include="UI\SkillsPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SpeedPanel.cs">
+    <Compile Include="UI\SpeedPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="TextEffectPanel.cs">
+    <Compile Include="UI\TextEffectPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="TimelinePanel.cs">
+    <Compile Include="UI\TimelinePanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <EmbeddedResource Include="AddItemDialog.resx">
+    <EmbeddedResource Include="UI\AddItemDialog.resx">
       <DependentUpon>AddItemDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LevelDetailsDialog.resx">
+    <EmbeddedResource Include="UI\LevelDetailsDialog.resx">
       <DependentUpon>LevelDetailsDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="UI\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PickTime.resx">
+    <EmbeddedResource Include="UI\PickTime.resx">
       <DependentUpon>PickTime.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
