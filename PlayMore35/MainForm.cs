@@ -1573,7 +1573,7 @@ namespace PlayMore35 {
                     return false;
                 }
                 using (StreamReader reader = new StreamReader(dialog.OpenFile())) {
-                    controller.Character = new Character(JObject.Parse(reader.ReadToEnd()));
+                    controller.Character = new Character(this, JObject.Parse(reader.ReadToEnd()));
                     UpdateSubsystemTabs();
                 }
             }

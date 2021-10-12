@@ -1,21 +1,41 @@
 ﻿using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
-using PlayMore35.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PlayMore35.Global {
-    class SheetActionReverser : IRoundObserver, IJsonable {
+    class SheetActionReverser : ISaveableRoundObserver {
         private readonly bool useRounds = true;
         private readonly SheetAction action;
         private long roundsRemaining;
         private bool? currentCombatStatus = null;
 
         public JToken ToJson() {
-            throw new NotImplementedException();
+            JObject json = new JObject(
+                new JProperty("type", "sheet action reverser"),
+                new JProperty("rounds left", useRounds ? roundsRemaining : -1),
+                new JProperty("action", action.ToJson())
+            );
+            if (currentCombatStatus != null) {
+                json["combat"] = currentCombatStatus;
+            }
+            return json;
+        }
+
+        public SheetActionReverser(MainForm mainForm, JObject json) {
+            long rounds = (long)json["rounds left"];
+            if (rounds < 0) {
+                useRounds = false;
+            } else {
+                roundsRemaining = rounds;
+            }
+
+            action = new SheetAction(mainForm, (JObject)json["action"]);
+
+            if (json["combat"] != null) {
+                currentCombatStatus = (bool)json["combat"];
+            }
         }
 
         // if rounds < 0, this reverser will run the next time combat status changes
@@ -56,15 +76,44 @@ namespace PlayMore35.Global {
         }
     }
 
-    class SheetAction {
+    class SheetAction : IJsonable {
         MainForm mainForm;
 
         string duration = null; // null for instantaneous, effect will not be reversed
-        List<SheetAction> actionsAfter = new List<SheetAction>(); // actions to fire at the end of the duration
-
         private readonly List<string> flagsToSet = new List<string>();
         private readonly List<string> flagsToClear = new List<string>();
         private readonly Dictionary<string, int> paramsToAdjust = new Dictionary<string, int>();
+        List<SheetAction> actionsAfter = new List<SheetAction>(); // actions to fire at the end of the duration
+
+        public JToken ToJson() {
+            JObject json = new JObject();
+            if (duration != null) {
+                json["duration"] = duration;
+            }
+            json.AddList("set", flagsToSet);
+            json.AddList("clear", flagsToClear);
+            if (paramsToAdjust.Any()) {
+                json["adjust"] = new JObject(paramsToAdjust.Select(x => new JProperty(x.Key, x.Value)));
+            }
+            json.AddList("after", actionsAfter);
+            return json;
+        }
+
+        public SheetAction(MainForm mainForm, JObject json) {
+            this.mainForm = mainForm;
+            if (json["duration"] != null) {
+                duration = (string)json["duration"];
+            }
+            flagsToSet.ReadJson("set", json);
+            flagsToClear.ReadJson("clear", json);
+            if (json["adjust"] != null) {
+                paramsToAdjust = ((JObject)json["adjust"]).Properties()
+                    .ToDictionary(x => x.Name, x => int.Parse((string)x.Value));
+            }
+            if (json["after"] != null) {
+                actionsAfter.AddRange(json["after"].Select(x => new SheetAction(mainForm, (JObject)x)));
+            }
+        }
 
         public SheetAction(MainForm mainForm) {
             this.mainForm = mainForm;
@@ -114,7 +163,7 @@ namespace PlayMore35.Global {
                 actionsAfter.ForEach(x => x.Perform());
             } else {
                 long rounds = new LengthOfTime(duration.FillStatValues(effects, items)).InRounds();
-                mainForm.controller.rounds.RegisterAndSave(new SheetActionReverser(this, rounds), mainForm.controller);
+                mainForm.controller.rounds.RegisterAndSave(new SheetActionReverser(this, rounds));
             }
         }
 

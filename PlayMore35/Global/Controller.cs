@@ -18,7 +18,7 @@ namespace PlayMore35.Global {
         // Rules of the game, plus effects inherent to the character.
         public EffectPool Effects;
 
-        public Rounds rounds = new Rounds();
+        public Rounds rounds;
 
         private Character character;
         private int NormalSizeCategory;
@@ -118,6 +118,7 @@ namespace PlayMore35.Global {
 
         public Controller(Character character) {
             Character = character;
+            rounds = new Rounds(this);
             rounds.Register(new ActionResourceResetter(this));
         }
 

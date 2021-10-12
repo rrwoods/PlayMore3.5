@@ -1,12 +1,11 @@
-﻿using System;
+﻿using PlayMore35.CharacterChoices;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PlayMore35.Global {
     public class Rounds {
         private List<IRoundObserver> observers = new List<IRoundObserver>();
+        private Controller controller;
 
         private readonly DateTime roundZero;
         private DateTime encounterStartTime;
@@ -14,26 +13,35 @@ namespace PlayMore35.Global {
         private long currentRound = 0;
         private bool combat = false;
 
-        public Rounds() {
+        public Rounds(Controller controller) {
+            this.controller = controller;
+
             DateTime now = DateTime.Now;
             encounterStartTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, (now.Second / 6) * 6);
             roundZero = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, (now.Second / 6) * 6);
         }
 
         public void Register(IRoundObserver observer) {
-            observers.Add(observer);
-            observer.SetState(CurrentTime, currentRound, currentRound - encounterStartRound, 0, combat);
+            if (!Notify(observer, 0)) {
+                observers.Add(observer);
+            }
         }
 
-        public void RegisterAndSave<T>(T observer, Controller controller) where T : IRoundObserver, IJsonable {
-            Register(observer);
+        public void RegisterAndSave(ISaveableRoundObserver observer) {
+            if (!Notify(observer, 0)) {
+                controller.Character.roundObservers.Add(observer);
+            }
         }
 
         public DateTime CurrentTime => roundZero.AddSeconds(currentRound * 6);
 
+        private bool Notify(IRoundObserver observer, long advanced) {
+            return observer.SetState(CurrentTime, currentRound, currentRound - encounterStartRound, advanced, combat);
+        }
+
         private void NotifyRounds(long advanced) {
-            DateTime time = CurrentTime;
-            observers.RemoveAll(x => x.SetState(time, currentRound, currentRound - encounterStartRound, advanced, combat));
+            observers.RemoveAll(x => Notify(x, advanced));
+            controller.Character.roundObservers.RemoveAll(x => Notify(x, advanced));
         }
 
         public void Advance(long rounds = 1) {

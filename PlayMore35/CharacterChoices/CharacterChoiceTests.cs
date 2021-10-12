@@ -98,7 +98,7 @@ namespace PlayMore35.CharacterChoices {
         public void TestSerialization() {
             Character character = SampleCharacter();
 
-            Character fromJson = new Character((JObject)character.ToJson());
+            Character fromJson = new Character(null, (JObject)character.ToJson());
 
             Assert.AreEqual(character.assignedAbilityScores["STR"], fromJson.assignedAbilityScores["STR"]);
             Assert.AreEqual(character.assignedAbilityScores["DEX"], fromJson.assignedAbilityScores["DEX"]);

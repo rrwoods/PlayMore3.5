@@ -271,10 +271,10 @@ namespace PlayMore35.Effects {
             }
             
             if (resource.StaticUses != 0) {
-                baseUses.AddModifier($"{name} uses", new Modifier(resource.StaticUses, BASE));
+                baseUses.AddModifier(statName, new Modifier(resource.StaticUses, BASE));
             }
-            Statistic usesStat = new Statistic(statName);
-            AddStat(usesStat);
+            AddStat(new Statistic(statName));
+
             string usedName = $"{name} used";
             ControllableParameter usedParam = new ControllableParameter(character) {
                 Name = usedName,

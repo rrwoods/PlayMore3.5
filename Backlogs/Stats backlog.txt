@@ -1,15 +1,22 @@
 [USABILITY] Round system:
 
-- JSONify the SheetAction.Reverse round listeners
-- Include with character:
-  - current time + combat status
-  - any active temporary round listeners
+- Include current time + combat status when saving character
 
 - Hook vestiges into this system!  Right-click -> bind will do the following:
   - Set the currently-bound vestige
   - Roll a binding check, and ask for its result
   - Set the pact state to Good or Poor based on the result and the DC
   - RegisterAndSave a round listener that sets the currently-bound vestige to None, 24 hours from now
+
+- after-effects -- rage leaves you fatigued
+
+... finish the stuff in "items to write" :P
+
+===
+
+[ODRIC 1] fatigue levels, which work like fear levels
+
+- "Exhausted" and "fatigued" checkboxes instead add 2 and 1 to fatigue level
 
 ===
 
