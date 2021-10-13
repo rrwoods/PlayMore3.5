@@ -1580,6 +1580,7 @@ namespace PlayMore35 {
             }
             DisplayCharacter();
             InitializeInventory();
+            timelinePanel.RefreshTimeline();
             return true;
         }
 

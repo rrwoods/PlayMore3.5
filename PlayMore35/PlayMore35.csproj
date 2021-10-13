@@ -93,7 +93,6 @@
     <Compile Include="Effects\ActionResource.cs" />
     <Compile Include="Effects\LengthOfTime.cs" />
     <Compile Include="Effects\Text.cs" />
-    <Compile Include="Global\ActionResourceResetter.cs" />
     <Compile Include="Global\Rounds.cs" />
     <Compile Include="Global\SheetAction.cs" />
     <Compile Include="UI\HpPanel.cs">
@@ -198,7 +197,6 @@
     <Compile Include="UI\DescriptionPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="UI\RoundObserver.cs" />
     <Compile Include="UI\SavesPanel.cs">
       <SubType>Component</SubType>
     </Compile>
