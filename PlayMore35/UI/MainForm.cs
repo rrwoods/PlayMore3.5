@@ -768,18 +768,6 @@ namespace PlayMore35 {
 
         public void RefreshEffects() {
             controller.ForceHiddenFlagsOff();
-            if (!loaded) { // TODO : now that character flag/param values are assigned along with the ones in effect pool, try removing this
-                foreach (string paramName in controller.Effects.controllableParameters.Keys) {
-                    if (!controller.Character.paramValues.ContainsKey(paramName)) {
-                        controller.Character.paramValues[paramName] = 0;
-                    }
-                }
-                foreach (string flagName in controller.Effects.controllableFlags.Keys) {
-                    if (!controller.Character.flagValues.ContainsKey(flagName)) {
-                        controller.Character.flagValues[flagName] = false;
-                    }
-                }
-            }
 
             Dictionary<string, List<Text>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
             foreach (DynamicPanel p in dynamicPanels) {
@@ -1356,14 +1344,6 @@ namespace PlayMore35 {
             }
             RefreshEffects();
             RefreshWeight();
-        }
-
-        private void Toggle_Click(object sender, EventArgs e) {
-            CheckBox toggle = (CheckBox)sender;
-            string flag = toggle.Text;
-            controller.Effects.controllableFlags[flag].On = toggle.Checked;
-
-            RefreshEffects();
         }
         
         private void TabSwitch(object sender, TabControlEventArgs e) {

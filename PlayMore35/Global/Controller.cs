@@ -336,11 +336,6 @@ namespace PlayMore35.Global {
 
             Effects.GenerateUses(EquippedItems, character);
 
-            foreach (var flag in Effects.controllableFlags.ToList()) {
-                if (character.flagValues.ContainsKey(flag.Key)) {
-                    flag.Value.On = character.flagValues[flag.Key];
-                }
-            }
             foreach (var param in Effects.controllableParameters.ToList()) {
                 if (character.paramValues.ContainsKey(param.Key)) {
                     param.Value.Value = character.paramValues[param.Key];

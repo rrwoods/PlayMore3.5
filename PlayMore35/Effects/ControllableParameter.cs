@@ -29,13 +29,14 @@ namespace PlayMore35.Effects {
             Name = (string)json["name"];
             Category = (string)json["category"];
             Description = (string)json["description"];
+            character.paramValues.TryGetValue(Name, out parameterValue);
             this.character = character;
-            parameterValue = 0;
         }
 
-        public ControllableParameter(Character character) {
+        public ControllableParameter(string name, Character character) {
+            Name = name;
+            character.paramValues.TryGetValue(name, out parameterValue);
             this.character = character;
-            parameterValue = 0;
         }
     }
 }

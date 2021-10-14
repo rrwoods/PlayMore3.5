@@ -45,7 +45,7 @@ namespace PlayMore35.Effects {
             if (json["resource"] != null) {
                 Resource = new ActionResource((JObject)json["resource"]);
             }
-            on = false;
+            character.flagValues.TryGetValue(Name, out on);
             this.character = character;
         }
     }

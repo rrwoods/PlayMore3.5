@@ -277,8 +277,7 @@ namespace PlayMore35.Effects {
             AddStat(new Statistic(statName));
 
             string usedName = $"{name} used";
-            ControllableParameter usedParam = new ControllableParameter(character) {
-                Name = usedName,
+            ControllableParameter usedParam = new ControllableParameter(usedName, character) {
                 Category = "",
                 Description = "",
             };
