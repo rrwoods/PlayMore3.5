@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Linq;
+using PlayMore35.UI;
 
 namespace PlayMore35.Global {
     public class FormUtils {
@@ -12,6 +13,7 @@ namespace PlayMore35.Global {
             AutoPopDelay = 32767 // maximum value.
         };
         private static readonly RollServer rollServer = new RollServer();
+        private static RollPrompt rollPrompt = new RollPrompt();
 
         public static List<string> availableFeats;
 
@@ -72,6 +74,12 @@ namespace PlayMore35.Global {
             }
 
             return label;
+        }
+
+        public static int GetRollResult(string description) {
+            rollPrompt.SetRollDescription(description);
+            rollPrompt.ShowDialog();
+            return rollPrompt.RollResult();
         }
 
         public static Label LabelStat(Label label, Controller controller, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {

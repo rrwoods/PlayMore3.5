@@ -1371,6 +1371,7 @@ namespace PlayMore35 {
             RefreshEffects();
         }
 
+        // this is what happens when you click on a vestige
         private EventHandler ChooseVestige(int slotIndex, Vestige vestige) {
             return (object sender, EventArgs e) => {
                 if (vestige == null) {
@@ -1380,6 +1381,17 @@ namespace PlayMore35 {
                     controller.SelectVestige(slotIndex, vestige.Name, (Character.PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
                 }
+            };
+        }
+
+        // this is what happens when you use the action/round handler by right-clicking and choosing bind
+        private EventHandler BindVestige(int slotIndex, Vestige vestige, string bindingCheckDice) {
+            return (sender, e) => {
+                RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
+                bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
+                controller.SelectVestige(slotIndex, vestige.Name, bindingCheckSuccess ? Character.PactState.GOOD_PACT : Character.PactState.POOR_PACT);
+                controller.Character.rounds.Schedule(new SheetAction(this).UnbindSlot(slotIndex), LengthOfTime.UNIT_ROUNDS["day"]);
+                controller.Character.rounds.Advance(21);
             };
         }
 
@@ -1405,7 +1417,7 @@ namespace PlayMore35 {
             int numVestiges = controller.GetStatistic(NUM_VESTIGES).value;
 
             int vestigeLeft = pnlVestige1.Left;
-            int bindingCheckMod = controller.GetStatistic(BINDING_CHECK).value;
+            string bindingCheck = $"1d20{controller.GetStatistic(BINDING_CHECK).value.ToString("+#;-#;\"\"")}";
             for (int i = 0; i < numVestiges; i++) {
                 Panel vestigePanel = new Panel {
                     Top = pnlVestige1.Top,
@@ -1423,7 +1435,7 @@ namespace PlayMore35 {
                 };
                 stateLabels.Add(stateLabel);
                 vestigePanel.Controls.Add(stateLabel);
-                Rollable(stateLabel, "binding check", $"1d20{bindingCheckMod.ToString("+#;-#;\"\"")}");
+                Rollable(stateLabel, "binding check", bindingCheck);
 
                 ListBox state = new ListBox {
                     Location = lstPactState.Location,
@@ -1459,6 +1471,14 @@ namespace PlayMore35 {
                         Checked = vestige.Name == currentVestige
                     };
                     choice.Click += ChooseVestige(i, vestige);
+
+                    ToolStripMenuItem menuItem = new ToolStripMenuItem {
+                        Text = $"Bind {vestige.Name}"
+                    };
+                    menuItem.Click += BindVestige(i, vestige, bindingCheck);
+                    choice.ContextMenuStrip = new ContextMenuStrip();
+                    choice.ContextMenuStrip.Items.Add(menuItem);
+
                     choices.Add(choice);
                     vestigePanel.Controls.Add(choice);
                     choiceTop += vestigeChoiceBuffer;

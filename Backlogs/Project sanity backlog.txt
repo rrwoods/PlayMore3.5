@@ -1,3 +1,7 @@
+Moving things into the UI folder did not change their namespaces!  Fix this.
+
+===
+
 Get rid of "ClearDynamicControls" and do the recycle pattern for all such controls
 
 ===

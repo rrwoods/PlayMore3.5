@@ -1,11 +1,5 @@
 [USABILITY] Round system:
 
-- Hook vestiges into this system!  Right-click -> bind will do the following:
-  - Set the currently-bound vestige
-  - Roll a binding check, and ask for its result
-  - Set the pact state to Good or Poor based on the result and the DC
-  - RegisterAndSave a round listener that sets the currently-bound vestige to None, 24 hours from now
-
 - after-effects -- rage leaves you fatigued
 
 ... finish the stuff in "items to write" :P
