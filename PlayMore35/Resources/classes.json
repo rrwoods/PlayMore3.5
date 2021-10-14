@@ -32,7 +32,11 @@
             "action": "free",
             "uses": 1,
             "recharge": "day",
-            "duration": "{{frenzy duration}} rounds"
+            "duration": "{{frenzy duration}} rounds",
+            "after": {
+              "set": [ "fatigued" ],
+              "duration": "encounter"
+            }
           }
         },
         {

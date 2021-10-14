@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-
+using PlayMore35.Global;
 using PlayMore35.Items;
 using static PlayMore35.Effects.Constants;
 
@@ -14,6 +14,8 @@ namespace PlayMore35.Effects {
         public LengthOfTime RechargeTime;
 
         public string Duration; // this is a string because the duration can be stat-dependent
+
+        public SheetAction ActionAfter;
 
         // If an ability specifies a number of uses that has a fixed component (for example, anklet of translocation
         // is 2, and a cleric's "3 + CHA" turn attempts is 3), it can go here, and when the effect added to a pool
@@ -36,6 +38,9 @@ namespace PlayMore35.Effects {
             if (Duration != null) {
                 json["duration"] = Duration;
             }
+            if (ActionAfter != null) {
+                json["after"] = ActionAfter.ToJson();
+            }
             return json;
         }
 
@@ -47,6 +52,9 @@ namespace PlayMore35.Effects {
             }
             if (json["duration"] != null) {
                 Duration = (string)json["duration"];
+            }
+            if (json["after"] != null) {
+                ActionAfter = new SheetAction((JObject)json["after"]);
             }
         }
 

@@ -1390,7 +1390,7 @@ namespace PlayMore35 {
                 RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
                 controller.SelectVestige(slotIndex, vestige.Name, bindingCheckSuccess ? Character.PactState.GOOD_PACT : Character.PactState.POOR_PACT);
-                controller.Character.rounds.Schedule(new SheetAction(this).UnbindSlot(slotIndex), LengthOfTime.UNIT_ROUNDS["day"]);
+                controller.Character.rounds.Schedule(new SheetAction().UnbindSlot(slotIndex), "24 hours");
                 controller.Character.rounds.Advance(21);
             };
         }

@@ -1,7 +1,5 @@
 [USABILITY] Round system:
 
-- after-effects -- rage leaves you fatigued
-
 ... finish the stuff in "items to write" :P
 
 ===
@@ -49,10 +47,16 @@ Optionally, also show those effects under the skills list.
 
 ===
 
-[ESOTERIC] An "Aura" section, after Senses before Languages in section 1
-
-This is for stuff like draconic auras and other things that continuously affect allies.
+[ESOTERIC] Variable ActionResource.RechargeTimes -- need to throw a roll out to roll20, and ask for the user to input the result
 
 ===
 
-[ESOTERIC] Variable ActionResource.RechargeTimes -- need to throw a roll out to roll20, and ask for the user to input the result
+[ESOTERIC] A way of unscheduling actions
+
+E.g., clicking "none" on the vestiges tab should unschedule all future unbind actions for that slot (someone with Expel Vestige might want this)
+
+===
+
+[ESOTERIC] An "Aura" section, after Senses before Languages in section 1
+
+This is for stuff like draconic auras and other things that continuously affect allies.

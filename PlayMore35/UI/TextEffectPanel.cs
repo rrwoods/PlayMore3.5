@@ -150,27 +150,31 @@ namespace PlayMore35 {
                         usesLabels[flag.Name] = usesLabel;
                         Controls.Add(usesLabel);
 
-                        SheetAction use = new SheetAction(mainForm).AdjustParam(usedName, 1);
+                        SheetAction useCharge = new SheetAction().AdjustParam(usedName, 1);
                         if (flag.Resource.RechargeTime.unit != AT_WILL) {
                             usedField = new LabeledField(usedName, mainForm, "used");
                             usedFields[flag.Name] = usedField;
                             Controls.Add(usedField);
                             SetFlowBreak(usedField, true);
-                            use.AndThen(new SheetAction(mainForm).SetFlag(flag.Name).Duration(flag.Resource.Duration));
                             if (!flag.Resource.RechargeTime.quantity.IsSingleOne()) {
-                                use.AndThen(new SheetAction(mainForm)
-                                    .Duration(flag.Resource.RechargeTime.ToString())
-                                    .AndThen(new SheetAction(mainForm).AdjustParam(usedName, -1))
-                                );
+                                useCharge.Duration(flag.Resource.RechargeTime.ToString());
                             }
                         } else {
                             SetFlowBreak(usesLabel, true);
                         }
 
+                        SheetAction getEffect = new SheetAction().SetFlag(flag.Name).Duration(flag.Resource.Duration);
+                        if (flag.Resource.ActionAfter != null) {
+                            getEffect.AndThen(flag.Resource.ActionAfter);
+                        }
+
                         ToolStripMenuItem menuItem = new ToolStripMenuItem {
                             Text = $"Use {flag.Name}"
                         };
-                        menuItem.Click += (s, e) => use.Perform();
+                        menuItem.Click += (s, e) => {
+                            useCharge.Perform(mainForm);
+                            getEffect.Perform(mainForm);
+                        };
                         flagBox.ContextMenuStrip = new ContextMenuStrip();
                         flagBox.ContextMenuStrip.Items.Add(menuItem);
                     } else {
@@ -251,17 +255,17 @@ namespace PlayMore35 {
                                     usedFields[name] = usedField;
                                     Controls.Add(usedField);
                                     SetFlowBreak(usedField, true);
-                                    SheetAction use = new SheetAction(mainForm).AdjustParam(usedName, 1);
+                                    SheetAction use = new SheetAction().AdjustParam(usedName, 1);
                                     if (!text.Resource.RechargeTime.quantity.IsSingleOne()) {
-                                        use.AndThen(new SheetAction(mainForm)
+                                        use.AndThen(new SheetAction()
                                             .Duration(text.Resource.RechargeTime.ToString())
-                                            .AndThen(new SheetAction(mainForm).AdjustParam(usedName, -1))
+                                            .AndThen(new SheetAction().AdjustParam(usedName, -1))
                                         );
                                     }
                                     ToolStripMenuItem menuItem = new ToolStripMenuItem {
                                         Text = $"Use {name}"
                                     };
-                                    menuItem.Click += (s, e) => use.Perform();
+                                    menuItem.Click += (s, e) => use.Perform(mainForm);
                                     effectLabel.ContextMenuStrip = new ContextMenuStrip();
                                     effectLabel.ContextMenuStrip.Items.Add(menuItem);
                                 } else {

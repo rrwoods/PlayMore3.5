@@ -17,6 +17,7 @@ namespace PlayMore35.Global {
         public bool Combat { get; private set; } = false;
 
         private Dictionary<long, List<SheetAction>> scheduledActions = new Dictionary<long, List<SheetAction>>();
+        private List<SheetAction> encounterActions = new List<SheetAction>();
 
         public JToken ToJson() {
             return new JObject(
@@ -28,7 +29,8 @@ namespace PlayMore35.Global {
                 new JProperty("scheduled actions", new JObject(scheduledActions.Select(sched => new JProperty(
                     sched.Key.ToString(),
                     new JArray(sched.Value.Select(action => action.ToJson()))
-                ))))
+                )))),
+                new JProperty("encounter actions", new JArray(encounterActions.Select(action => action.ToJson())))
             );
         }
 
@@ -46,8 +48,11 @@ namespace PlayMore35.Global {
                 if (json["scheduled actions"] != null) {
                     foreach (JProperty sched in json["scheduled actions"]) {
                         scheduledActions[long.Parse(sched.Name)] =
-                            ((JArray)sched.Value).Select(x => new SheetAction(mainForm, (JObject)x)).ToList();
+                            ((JArray)sched.Value).Select(x => new SheetAction((JObject)x)).ToList();
                     }
+                }
+                if (json["encounter actions"] != null) {
+                    encounterActions.AddRange(json["encounter actions"].Select(x => new SheetAction((JObject)x)));
                 }
             }
         }
@@ -107,12 +112,13 @@ namespace PlayMore35.Global {
 
             foreach (long round in scheduledActions.Keys.ToList()) {
                 if (round <= CurrentRound) {
-                    scheduledActions[round].ForEach(x => x.Perform());
+                    scheduledActions[round].ForEach(x => x.Perform(mainForm));
                     scheduledActions.Remove(round);
                 }
             }
 
             mainForm.RefreshEffects();
+            mainForm.timelinePanel.RefreshTimeline();
         }
 
         public void SetTime(DateTime time) {
@@ -128,11 +134,19 @@ namespace PlayMore35.Global {
             EncounterStartRound = CurrentRound;
 
             mainForm.controller.Effects.resettableParameters["encounter"].ForEach(x => x.Value = 0);
+            encounterActions.ForEach(x => x.Perform(mainForm));
+            encounterActions.Clear();
             mainForm.RefreshEffects();
         }
 
-        public void Schedule(SheetAction action, long roundsFromNow) {
-            long absoluteRound = CurrentRound + roundsFromNow;
+        public void Schedule(SheetAction action, string durationString) {
+            LengthOfTime duration = new LengthOfTime(durationString.FillStatValues(mainForm.controller.Effects, mainForm.controller.EquippedItems));
+            if (duration.unit == "encounter") {
+                encounterActions.Add(action);
+                return;
+            }
+
+            long absoluteRound = CurrentRound + duration.InRounds();
             if (!scheduledActions.ContainsKey(absoluteRound)) {
                 scheduledActions[absoluteRound] = new List<SheetAction>();
             }

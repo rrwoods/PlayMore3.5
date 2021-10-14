@@ -6,8 +6,6 @@ using System.Linq;
 
 namespace PlayMore35.Global {
     public class SheetAction : IJsonable {
-        MainForm mainForm;
-
         string duration = null; // null for instantaneous, effect will not be reversed
         private readonly List<string> flagsToSet = new List<string>();
         private readonly List<string> flagsToClear = new List<string>();
@@ -30,8 +28,7 @@ namespace PlayMore35.Global {
             return json;
         }
 
-        public SheetAction(MainForm mainForm, JObject json) {
-            this.mainForm = mainForm;
+        public SheetAction(JObject json) {
             if (json["duration"] != null) {
                 duration = (string)json["duration"];
             }
@@ -43,12 +40,14 @@ namespace PlayMore35.Global {
             }
             unbindSlots.ReadJson("unbind", json);
             if (json["after"] != null) {
-                actionsAfter.AddRange(json["after"].Select(x => new SheetAction(mainForm, (JObject)x)));
+                actionsAfter.AddRange(json["after"].Select(x => new SheetAction((JObject)x)));
             }
         }
 
+        public SheetAction() { }
+
         private SheetAction Revert() {
-            SheetAction revert = new SheetAction(mainForm);
+            SheetAction revert = new SheetAction();
             revert.flagsToSet.AddRange(flagsToClear);
             revert.flagsToClear.AddRange(flagsToSet);
             foreach (var adjustment in paramsToAdjust) {
@@ -56,10 +55,6 @@ namespace PlayMore35.Global {
             }
             revert.actionsAfter.AddRange(actionsAfter);
             return revert;
-        }
-
-        public SheetAction(MainForm mainForm) {
-            this.mainForm = mainForm;
         }
 
         public SheetAction SetFlag(string flag) {
@@ -92,14 +87,14 @@ namespace PlayMore35.Global {
             return this;
         }
 
-        public void Perform() {
-            if (PerformNoRefresh()) {
+        public void Perform(MainForm mainForm) {
+            if (PerformNoRefresh(mainForm)) {
                 mainForm.controller.Reload();
             }
             mainForm.RefreshEffects();
         }
 
-        private bool PerformNoRefresh() {
+        private bool PerformNoRefresh(MainForm mainForm) {
             bool requireReload = false;
 
             var effects = mainForm.controller.Effects;
@@ -116,10 +111,9 @@ namespace PlayMore35.Global {
             });
 
             if (duration == null) {
-                actionsAfter.ForEach(x => requireReload = x.PerformNoRefresh() || requireReload);
+                actionsAfter.ForEach(x => requireReload = x.PerformNoRefresh(mainForm) || requireReload);
             } else {
-                long rounds = new LengthOfTime(duration.FillStatValues(effects, items)).InRounds();
-                mainForm.controller.Character.rounds.Schedule(Revert(), rounds);
+                mainForm.controller.Character.rounds.Schedule(Revert(), duration);
             }
 
             return requireReload;

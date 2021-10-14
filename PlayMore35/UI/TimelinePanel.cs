@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 
 namespace PlayMore35 {
-    class TimelinePanel : FlowLayoutPanel {
+    public class TimelinePanel : FlowLayoutPanel {
         private MainForm mainForm;
         private readonly Button btnCombat = new Button() {
             Text = "",
