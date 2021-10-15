@@ -262,7 +262,7 @@ namespace PlayMore35.Global {
                 .Select(x => new ArmorProperty((JObject)x))
                 .ToDictionary(x => x.Name);
             ItemDefinitions = GetResource(Properties.Resources.items, "items.json")
-                .Select(x => new Item((JObject)x))
+                .Select(x => new Item((JObject)x, character))
                 .ToDictionary(x => x.ItemEffect.Name);
             Effects.AddStats(ItemDefinitions.Values.SelectMany(x => x.NewStats));
 
@@ -327,11 +327,15 @@ namespace PlayMore35.Global {
                 EquippedItems.OffHandShield = ShieldFromChoice(Character.equipped.OffHandShield);
             }
 
-            foreach (var item in Character.equipped.SlottedItems) {
-                EquippedItems.SlottedItems[item.Key] = ItemDefinitions[item.Value];
+            foreach (var itemRef in Character.equipped.SlottedItems) {
+                Item item = ItemDefinitions[itemRef.Value];
+                EquippedItems.SlottedItems[itemRef.Key] = item;
+                item.NewFlags.ForEach(x => Effects.controllableFlags[x.Name] = x);
             }
-            foreach (string item in Character.equipped.SlotlessItems) {
-                EquippedItems.SlotlessItems.Add(ItemDefinitions[item]);
+            foreach (string itemName in Character.equipped.SlotlessItems) {
+                Item item = ItemDefinitions[itemName];
+                EquippedItems.SlotlessItems.Add(item);
+                item.NewFlags.ForEach(x => Effects.controllableFlags[x.Name] = x);
             }
 
             Effects.GenerateUses(EquippedItems, character);

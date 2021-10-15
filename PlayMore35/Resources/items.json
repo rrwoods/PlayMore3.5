@@ -301,5 +301,26 @@
         }
       ]
     }
+  },
+  {
+    "slot": "RING1",
+    "weight": 0,
+    "effect": {
+      "name": "ring of \"spell storing\"",
+      "text": [
+        {
+          "category": "Atk Options",
+          "text": "You can discharge the stored spell, casting it."
+        }
+      ],
+      "active": { "flag": "stored spell in ring" }
+    },
+    "flags": [
+      {
+        "name": "stored spell in ring",
+        "category": "React",
+        "description": "In response to a spell that targets you or is cast through your square, use an attack of opportunity to intercept the spell, storing it for later use."
+      }
+    ]
   }
 ]

@@ -1,3 +1,12 @@
+[COMMON] Ring slots are interchangeable.
+
+Perhaps, a ring-slot item can say its slot is RING1, and the system knows it can also go in RING2.
+
+Alternatively, make two ring slots both of type RING, stored separately from the other slotted items.
+- this might have the advantage of supporting hand of glory better?
+
+===
+
 [USABILITY] Add no-effect name-only items to a location
 
 If an item name doesn't have a definition associated with it, when the controller creates it, it should just make an item that does nothing.
