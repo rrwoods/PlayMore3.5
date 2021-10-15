@@ -999,6 +999,11 @@
       "name": "Special size modifier"
     },
     {
+      "name": "Fatigue level",
+      "min": 0,
+      "max": 2
+    },
+    {
       "name": "Fear level",
       "min": 0,
       "max": 3
@@ -4782,9 +4787,30 @@
       ]
     },
     {
+      "name": "exhausted checked",
+      "active": { "flag": "exhausted" },
+      "modifiers": [
+        {
+          "affects": "Fatigue level",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 2 } ]
+          }
+        }
+      ]
+    },
+    {
       "name": "exhausted",
       "active": {
-        "flag": "exhausted"
+        "conditional": {
+          "left": {
+            "stat value": "Fatigue level"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 2
+          }
+        }
       },
       "modifiers": [
         {
@@ -4854,9 +4880,30 @@
       ]
     },
     {
+      "name": "fatigued checked",
+      "active": { "flag": "fatigued" },
+      "modifiers": [
+        {
+          "affects": "Fatigue level",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 1 } ]
+          }
+        }
+      ]
+    },
+    {
       "name": "fatigued",
       "active": {
-        "flag": "fatigued"
+        "conditional": {
+          "left": {
+            "stat value": "Fatigue level"
+          },
+          "relation": "EQUAL",
+          "right": {
+            "fixed": 1
+          }
+        }
       },
       "modifiers": [
         {

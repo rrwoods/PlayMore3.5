@@ -97,6 +97,11 @@ namespace PlayMore35.Global {
         private bool PerformNoRefresh(MainForm mainForm) {
             bool requireReload = false;
 
+            if (duration == "encounter" && !mainForm.controller.Character.rounds.Combat) {
+                actionsAfter.ForEach(x => requireReload = x.PerformNoRefresh(mainForm) || requireReload);
+                return requireReload;
+            }
+
             var effects = mainForm.controller.Effects;
             var items = mainForm.controller.EquippedItems;
             var character = mainForm.controller.Character;
