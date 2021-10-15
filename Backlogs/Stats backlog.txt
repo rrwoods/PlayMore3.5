@@ -1,15 +1,3 @@
-[USABILITY] Round system:
-
-... finish the stuff in "items to write" :P
-
-===
-
-[ODRIC 1] fatigue levels, which work like fear levels
-
-- "Exhausted" and "fatigued" checkboxes instead add 2 and 1 to fatigue level
-
-===
-
 [USABILITY] Action highlighter
 
 Provide checkboxes for what available actions remain in the turn (standard, move, swift), and somehow highlight (ControlHighlight background?) which items can be used.

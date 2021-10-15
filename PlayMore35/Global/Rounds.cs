@@ -152,5 +152,11 @@ namespace PlayMore35.Global {
             }
             scheduledActions[absoluteRound].Add(action);
         }
+
+        public void Unschedule(SheetAction action) {
+            foreach (var sched in scheduledActions) {
+                sched.Value.RemoveAll(x => x.Matches(action));
+            }
+        }
     }
 }

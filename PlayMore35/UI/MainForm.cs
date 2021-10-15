@@ -1357,6 +1357,7 @@ namespace PlayMore35 {
                 if (vestige == null) {
                     controller.SelectVestige(slotIndex, "", (Character.PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = "Good pact?";
+                    controller.Character.rounds.Unschedule(new SheetAction().UnbindSlot(slotIndex));
                 } else {
                     controller.SelectVestige(slotIndex, vestige.Name, (Character.PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";

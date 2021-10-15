@@ -123,5 +123,14 @@ namespace PlayMore35.Global {
 
             return requireReload;
         }
+
+        public bool Matches(SheetAction action) {
+            return duration == action.duration &&
+                   flagsToSet.SequenceEqual(action.flagsToSet) &&
+                   flagsToClear.SequenceEqual(action.flagsToClear) &&
+                   paramsToAdjust.Count == action.paramsToAdjust.Count && !paramsToAdjust.Except(action.paramsToAdjust).Any() &&
+                   unbindSlots.SequenceEqual(action.unbindSlots) &&
+                   actionsAfter.Count == action.actionsAfter.Count && (actionsAfter.Zip(action.actionsAfter, (x, y) => x.Matches(y)).All(x => x));
+        }
     }
 }
