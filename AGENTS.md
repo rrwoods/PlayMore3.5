@@ -58,3 +58,8 @@ Before running `git commit`, inspect staged changes and update repository docume
 - `ROADMAP.md`: Update when backlog items, progression tiers, or feature priorities are started, completed, or reordered.
 - `GLOSSARY.md`: Update when domain language, rules concepts, or terminology are introduced, modified, or retired.
 - `VISION.md`: Update when product destination, architectural invariants, capabilities, or anti-goals shift.
+
+### Scope gate
+
+Before running `git commit` or marking a PR ready, audit changes against the originating issue or specification:
+- Verify that no shims, compatibility layers, or features explicitly marked **Out of Scope** or **Anti-goals** were introduced.
