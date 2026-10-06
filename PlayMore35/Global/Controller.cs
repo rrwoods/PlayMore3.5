@@ -822,16 +822,6 @@ namespace PlayMore35.Global {
         public (int value, List<string> explanation) GetStatistic(string stat) {
             return Effects.GetStat(stat).GetValue(Effects, EquippedItems);
         }
-        
-        public List<Attack> GetAttacks() {
-            int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;
-            return Attack.Generate(Effects, sizeChange, EquippedItems);
-        }
-
-        public List<List<Attack>> GetFullAttacks() {
-            int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;
-            return Attack.GenerateMultiweaponFullAttacks(Effects, sizeChange, EquippedItems);
-        }
 
         public List<AttackRoutine> GetAllRoutines() {
             int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;

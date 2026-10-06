@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PlayMore35\PlayMore35.csproj" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
 </Project>

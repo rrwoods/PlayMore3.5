@@ -11,10 +11,31 @@ using PlayMore35.Effects;
 namespace PlayMore35 {
     public class AttacksPanel : DynamicPanel {
         private readonly List<Label> labels = new List<Label>();
+        private readonly LinkLabel lnkConfigure = new LinkLabel {
+            Text = "Configure Attack Routines...",
+            AutoSize = true
+        };
 
         public override void Initialize(MainForm mainForm) {
             base.Initialize(mainForm);
             FlowDirection = FlowDirection.LeftToRight;
+            lnkConfigure.LinkClicked += Configure_LinkClicked;
+            Controls.Add(lnkConfigure);
+            SetFlowBreak(lnkConfigure, true);
+        }
+
+        private void Configure_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            if (mainForm?.controller?.Character == null) {
+                return;
+            }
+            if (mainForm.controller.Character.RoutinePreferences == null) {
+                mainForm.controller.Character.RoutinePreferences = new AttackRoutinePreferences();
+            }
+            using (var dialog = new ConfigureAttackRoutinesDialog(mainForm.controller.Character.RoutinePreferences)) {
+                if (dialog.ShowDialog(this) == DialogResult.OK) {
+                    mainForm.RefreshEffects();
+                }
+            }
         }
 
         private ToolStripMenuItem AttackRoll(string weapon, int bonus) {
@@ -100,13 +121,25 @@ namespace PlayMore35 {
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
             Controller controller = mainForm.controller;
+            var visibleRoutines = controller.GetVisibleRoutines();
+
+            var standardRoutines = visibleRoutines
+                .Where(r => r.ActionType == RoutineActionType.Standard)
+                .ToList();
+
+            var fullRoutines = visibleRoutines
+                .Where(r => r.ActionType == RoutineActionType.FullAttack)
+                .ToList();
 
             int i = 0;
-            foreach (Attack attack in controller.GetAttacks()) {
-                AttackLabels(attack, false, ref i);
+            foreach (AttackRoutine routine in standardRoutines) {
+                foreach (Attack attack in routine.Attacks) {
+                    AttackLabels(attack, false, ref i);
+                }
             }
-            foreach (List<Attack> fullAttack in controller.GetFullAttacks()) {
-                if (fullAttack.Count <= 1) {
+
+            foreach (AttackRoutine routine in fullRoutines) {
+                if (routine.Attacks.Count <= 1) {
                     continue;
                 }
 
@@ -118,13 +151,13 @@ namespace PlayMore35 {
                     labels.Add(fullHeader);
                     Controls.Add(fullHeader);
                 }
-                fullHeader.Text = "Full Attack";
+                fullHeader.Text = string.IsNullOrEmpty(routine.DisplayName) ? "Full Attack" : routine.DisplayName;
                 fullHeader.ContextMenuStrip = null;
                 SetFlowBreak(fullHeader, true);
                 fullHeader.Visible = true;
                 i++;
 
-                foreach (Attack attack in fullAttack) {
+                foreach (Attack attack in routine.Attacks) {
                     AttackLabels(attack, true, ref i);
                 }
             }

@@ -1,4 +1,4 @@
-﻿# PlayMore35
+# PlayMore35
 
 A live character companion and combat tracker for **Dungeons & Dragons 3.5 Edition**.
 
@@ -29,7 +29,7 @@ The application provides a combat-first interface organized around the natural f
 ### 1. Defenses, Vitals, & Combat Rolls
 The main **Stats** tab functions as your active combat sheet:
 - **Armor Class & Defenses**: At-a-glance visibility into full Armor Class, Touch AC, and Flat-Footed AC, alongside Hit Points, damage reduction, and saving throws.
-- **Attack Routines**: Automatically computed attack bonuses and damage expressions for equipped weapons, factoring in weapon size, enhancement bonuses, ability modifiers, and two-handed grips.
+- **Attack Routines**: Automatically computed standard and full-attack routines partitioned by action economy, with category-based visibility filtering (two-weapon fighting, double weapons, shield bashes, armor spikes) and interactive one-click rolls.
 - **Dynamic Panels**: Real-time panels for initiative, movement speeds, Spot and Listen checks, and active combat capabilities.
 
 ### 2. Situational Toggles & Attack Options

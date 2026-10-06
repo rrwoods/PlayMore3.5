@@ -1,0 +1,75 @@
+﻿using System;
+using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PlayMore35.Global;
+using PlayMore35.Items;
+
+namespace PlayMore35.Tests {
+    [TestClass]
+    public class ConfigureAttackRoutinesDialogTests {
+        [TestMethod]
+        public void Dialog_InitializesWithCurrentPreferences() {
+            var prefs = new AttackRoutinePreferences();
+            prefs.SetCategoryVisible(RoutineCategory.OffHandShieldBash, true);
+            prefs.SetCategoryVisible(RoutineCategory.PrimarySolo, false);
+
+            using (var dialog = new ConfigureAttackRoutinesDialog(prefs)) {
+                Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.OffHandShieldBash));
+                Assert.IsFalse(dialog.GetCategoryChecked(RoutineCategory.PrimarySolo));
+                Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.TwoWeaponFighting));
+            }
+        }
+
+        [TestMethod]
+        public void Dialog_SavePreferences_UpdatesModel() {
+            var prefs = new AttackRoutinePreferences();
+            using (var dialog = new ConfigureAttackRoutinesDialog(prefs)) {
+                dialog.SetCategoryChecked(RoutineCategory.OffHandShieldBash, true);
+                dialog.SetCategoryChecked(RoutineCategory.TwoWeaponFighting, false);
+                dialog.SavePreferences();
+            }
+
+            Assert.IsTrue(prefs.IsCategoryVisible(RoutineCategory.OffHandShieldBash));
+            Assert.IsFalse(prefs.IsCategoryVisible(RoutineCategory.TwoWeaponFighting));
+        }
+
+        [TestMethod]
+        public void Dialog_ResetToDefaults_RestoresTabletopDefaults() {
+            var prefs = new AttackRoutinePreferences();
+            prefs.SetCategoryVisible(RoutineCategory.OffHandShieldBash, true);
+            prefs.SetCategoryVisible(RoutineCategory.PrimarySolo, false);
+
+            using (var dialog = new ConfigureAttackRoutinesDialog(prefs)) {
+                dialog.ResetToDefaults();
+                Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.PrimarySolo));
+                Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.TwoWeaponFighting));
+                Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.DoubleWeapon));
+                Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.ArmorSpikesSolo));
+                Assert.IsFalse(dialog.GetCategoryChecked(RoutineCategory.OffHandShieldBash));
+                Assert.IsFalse(dialog.GetCategoryChecked(RoutineCategory.ArmorSpikesTWF));
+            }
+        }
+
+        [TestMethod]
+        public void Dialog_DisplayNames_AreHumanReadable() {
+            foreach (RoutineCategory cat in (RoutineCategory[])Enum.GetValues(typeof(RoutineCategory))) {
+                string name = ConfigureAttackRoutinesDialog.GetCategoryDisplayName(cat);
+                Assert.IsFalse(string.IsNullOrWhiteSpace(name));
+                Assert.AreNotEqual(cat.ToString(), name, $"Category {cat} should have a friendly display name");
+            }
+        }
+
+        [TestMethod]
+        public void LegacyMethods_PurgedFromCodebase() {
+            // Acceptance criteria: Legacy methods Attack.Generate, Attack.GenerateMultiweaponFullAttacks,
+            // and legacy Controller.GetAttacks() / GetFullAttacks() are purged.
+            var attackType = typeof(Attack);
+            Assert.IsNull(attackType.GetMethod("Generate", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(attackType.GetMethod("GenerateMultiweaponFullAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+
+            var controllerType = typeof(Controller);
+            Assert.IsNull(controllerType.GetMethod("GetAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+            Assert.IsNull(controllerType.GetMethod("GetFullAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+        }
+    }
+}
