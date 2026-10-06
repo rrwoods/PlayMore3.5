@@ -9,6 +9,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.PactMagic;
 
 using static PlayMore35.Effects.Constants;
 
@@ -49,6 +50,9 @@ namespace PlayMore35.Global {
                     while (skill.Value.Count() < character.classLevels.Count()) {
                         skill.Value.Add(0);
                     }
+                }
+                foreach (var engine in Subsystems.All) {
+                    engine.Initialize(this);
                 }
                 Reload();
             }
@@ -129,6 +133,7 @@ namespace PlayMore35.Global {
         // **** INITIALIZATION AND RELOAD FUNCTIONS ****
 
         public Controller(Character character) {
+            Subsystems.Register(new PactMagicEngine());
             Character = character;
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using Newtonsoft.Json.Linq;
@@ -84,6 +84,9 @@ namespace PlayMore35.Effects {
         public void AddEffect(Effect effect) {
             effects.Add(effect);
         }
+
+        public IEnumerable<Effect> Effects => effects;
+        public IEnumerable<Effect> InherentEffects => effects;
 
         public void RemoveEffect(string effect) {
             effects.RemoveAll(x => x.Name == effect);
