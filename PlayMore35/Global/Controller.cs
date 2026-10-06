@@ -35,8 +35,6 @@ namespace PlayMore35.Global {
         public Dictionary<string, ArmorProperty> ArmorPropertyDefinitions;
         public Dictionary<string, Item> ItemDefinitions;
 
-        public Dictionary<string, Vestige> VestigeDefinitions;
-
         public Dictionary<string, ExternalEffect> ExternalEffectDefinitions;
 
         public Character Character {
@@ -63,9 +61,7 @@ namespace PlayMore35.Global {
         public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
 
         public void ClearSlot(string subsystem, int slotIndex) {
-            var slotted = (subsystem == "vestige" || subsystem == PactMagicEngine.SubsystemId)
-                ? (Subsystems.Get<PactMagicEngine>() ?? Subsystems.Get(subsystem) as ISlottedSubsystem)
-                : Subsystems.Get(subsystem) as ISlottedSubsystem;
+            var slotted = Subsystems.Get(subsystem) as ISlottedSubsystem;
             slotted?.ClearSlot(slotIndex);
         }
 
@@ -237,6 +233,7 @@ namespace PlayMore35.Global {
                 DirectoryInfo saveDirectory = Directory.CreateDirectory(saveDir);
             }
 
+            EquippedItems = EquippedItems ?? new Equipped();
             Effects = new EffectPool();
             Effects.ReadJson(GetResource(Properties.Resources.rules, "rules.json"), character);
             // TODO : we eventually need a way for someone to add a rule and save it off, without the effects
@@ -285,10 +282,6 @@ namespace PlayMore35.Global {
                 .Select(x => new Item((JObject)x, character))
                 .ToDictionary(x => x.ItemEffect.Name);
             Effects.AddStats(ItemDefinitions.Values.SelectMany(x => x.NewStats));
-
-            VestigeDefinitions = GetResource(Properties.Resources.vestiges, "vestiges.json")
-                .Select(x => new Vestige((JObject)x))
-                .ToDictionary(x => x.Name);
 
             ExternalEffectDefinitions = GetResource(Properties.Resources.external, "external.json")
                 .Select(x => new ExternalEffect((JObject)x, character))
@@ -394,14 +387,6 @@ namespace PlayMore35.Global {
             foreach (var skill in Character.skillRanks) {
                 skill.Value.Add(0);
             }
-        }
-
-        public void ChangePactState(int slotIndex, PactState state) {
-            Subsystems.Get<PactMagicEngine>()?.ChangePactState(slotIndex, state);
-        }
-
-        public void SelectVestige(int slotIndex, string vestige, PactState state) {
-            Subsystems.Get<PactMagicEngine>()?.BindVestige(slotIndex, vestige, state);
         }
 
         public void CountWeight(string locationName, bool weighs) {
@@ -848,20 +833,5 @@ namespace PlayMore35.Global {
             return Attack.GenerateMultiweaponFullAttacks(Effects, sizeChange, EquippedItems);
         }
 
-        public bool HasVestiges() {
-            return Subsystems.Get<PactMagicEngine>()?.IsActive == true;
-        }
-
-        public List<Vestige> AvailableVestiges() {
-            return Subsystems.Get<PactMagicEngine>()?.AvailableVestiges().ToList() ?? new List<Vestige>();
-        }
-
-        public Vestige CurrentVestige(int slotIndex) {
-            return Subsystems.Get<PactMagicEngine>()?.CurrentVestige(slotIndex);
-        }
-
-        public PactState PactState(int slotIndex) {
-            return Subsystems.Get<PactMagicEngine>()?.GetSlot(slotIndex)?.State ?? PlayMore35.Subsystems.PactMagic.PactState.GOOD_PACT;
-        }
     }
 }

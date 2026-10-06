@@ -98,7 +98,7 @@ namespace PlayMore35.Effects {
         }
 
         private IEnumerable<Effect> AllEffects(Equipped items) {
-            return effects.Concat(items.GetGlobalEffects());
+            return (items != null) ? effects.Concat(items.GetGlobalEffects()) : effects;
         }
 
         public IEnumerable<ExtraAttack> GetExtraAttacks(Equipped items, Attack affecting) {

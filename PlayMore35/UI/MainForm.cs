@@ -777,6 +777,7 @@ namespace PlayMore35 {
 
             loaded = true;
             RefreshWeight();
+            UpdateSubsystemTabs();
         }
 
         private void RefreshWeight() {
@@ -1355,12 +1356,13 @@ namespace PlayMore35 {
         // this is what happens when you click on a vestige
         private EventHandler ChooseVestige(int slotIndex, Vestige vestige) {
             return (object sender, EventArgs e) => {
+                var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
                 if (vestige == null) {
-                    controller.SelectVestige(slotIndex, "", (PactState) pactStates[slotIndex].SelectedIndex);
+                    pactEngine?.BindVestige(slotIndex, "", (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = "Good pact?";
                     controller.Character.Timeline.Unschedule(new SheetAction().ClearSlot("vestige", slotIndex));
                 } else {
-                    controller.SelectVestige(slotIndex, vestige.Name, (PactState) pactStates[slotIndex].SelectedIndex);
+                    pactEngine?.BindVestige(slotIndex, vestige.Name, (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
                 }
             };
@@ -1371,7 +1373,8 @@ namespace PlayMore35 {
             return (sender, e) => {
                 RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
-                controller.SelectVestige(slotIndex, vestige.Name, bindingCheckSuccess ? PactState.GOOD_PACT : PactState.POOR_PACT);
+                var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
+                pactEngine?.BindVestige(slotIndex, vestige.Name, bindingCheckSuccess ? PactState.GOOD_PACT : PactState.POOR_PACT);
                 controller.Character.Timeline.Schedule(new SheetAction().ClearSlot("vestige", slotIndex), "24 hours");
                 var result = controller.Character.Timeline.Advance(21);
                 if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
@@ -1386,7 +1389,8 @@ namespace PlayMore35 {
 
         private EventHandler ChangePactState(int slotIndex) {
             return (object sender, EventArgs e) => {
-                controller.ChangePactState(slotIndex, (PactState)pactStates[slotIndex].SelectedIndex);
+                var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
+                pactEngine?.ChangePactState(slotIndex, (PactState)pactStates[slotIndex].SelectedIndex);
             };
         }
 
@@ -1402,8 +1406,9 @@ namespace PlayMore35 {
             vestigeChoices.Clear();
             ClearDynamicControls(pagVestiges, vestigePanels);
             
-            List<Vestige> availableVestiges = controller.AvailableVestiges();
-            int numVestiges = controller.GetStatistic(NUM_VESTIGES).value;
+            var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
+            List<Vestige> availableVestiges = pactEngine?.AvailableVestiges().ToList() ?? new List<Vestige>();
+            int numVestiges = pactEngine?.SlotCount ?? controller.GetStatistic(NUM_VESTIGES).value;
 
             int vestigeLeft = pnlVestige1.Left;
             string bindingCheck = $"1d20{controller.GetStatistic(BINDING_CHECK).value.ToString("+#;-#;\"\"")}";
@@ -1416,7 +1421,7 @@ namespace PlayMore35 {
                     AutoScroll = true
                 };
 
-                int? dc = controller.CurrentVestige(i)?.BindingDc;
+                int? dc = pactEngine?.CurrentVestige(i)?.BindingDc;
                 Label stateLabel = new Label {
                     Location = lblPactState.Location,
                     Text = (dc == null) ? "Pact state" : $"Pact state (Binding DC {dc})",
@@ -1433,7 +1438,7 @@ namespace PlayMore35 {
                 state.Items.Add("Good pact");
                 state.Items.Add("Poor pact");
                 state.Items.Add("Defied");
-                state.SelectedIndex = (int) controller.PactState(i);
+                state.SelectedIndex = (int) (pactEngine?.GetSlot(i)?.State ?? PactState.GOOD_PACT);
                 state.Click += ChangePactState(i);
                 pactStates.Add(state);
                 vestigePanel.Controls.Add(state);
@@ -1441,7 +1446,7 @@ namespace PlayMore35 {
                 List<RadioButton> choices = new List<RadioButton>();
                 int choiceTop = optVestige1.Top;
 
-                string currentVestige = controller.CurrentVestige(i)?.Name ?? "";
+                string currentVestige = pactEngine?.CurrentVestige(i)?.Name ?? "";
                 RadioButton noneChoice = new RadioButton {
                     Top = choiceTop,
                     Left = optVestige1.Left,
@@ -1563,16 +1568,18 @@ namespace PlayMore35 {
         }
 
         private void UpdateSubsystemTabs() {
-            RemoveSubsystemTabs();
+            bool hasVestiges = controller.Subsystems.Get<PactMagicEngine>()?.IsActive == true;
+            bool currentlyShowing = tabMain.TabPages.Contains(pagVestiges);
 
             // What position do the subsystem tabs get added at.
             const int SUBSYSTEMS_INDEX = 1;
 
-            // When you remove a control from a form, apparently all its events get thrown out?
-            // Makes sense kinda, but it means we need to re-add here.
-            if (controller.HasVestiges()) {
-                tabMain.TabPages.Insert(SUBSYSTEMS_INDEX, pagVestiges);
+            if (hasVestiges && !currentlyShowing) {
+                tabMain.TabPages.Insert(Math.Min(SUBSYSTEMS_INDEX, tabMain.TabPages.Count), pagVestiges);
+                pagVestiges.Enter -= VestigesTab_Enter;
                 pagVestiges.Enter += VestigesTab_Enter;
+            } else if (!hasVestiges && currentlyShowing) {
+                RemoveSubsystemTabs();
             }
         }
 

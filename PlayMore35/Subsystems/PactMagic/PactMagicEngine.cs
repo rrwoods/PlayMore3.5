@@ -4,6 +4,7 @@ using System.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Items;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Subsystems.PactMagic {
@@ -17,7 +18,7 @@ namespace PlayMore35.Subsystems.PactMagic {
             this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
             this.slots = new SubsystemSlotGroup<PactSlot>(() => {
                 if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
-                    return stat.GetValue(context.Effects, context.EquippedItems).value;
+                    return stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value;
                 }
                 return 0;
             });
@@ -28,7 +29,7 @@ namespace PlayMore35.Subsystems.PactMagic {
         public bool IsActive {
             get {
                 if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
-                    return stat.GetValue(context.Effects, context.EquippedItems).value > 0;
+                    return stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value > 0;
                 }
                 return false;
             }
@@ -97,7 +98,7 @@ namespace PlayMore35.Subsystems.PactMagic {
             }
             int maxLevel = 0;
             if (context?.Effects?.stats?.TryGetValue(MAX_VESTIGE_LEVEL, out var stat) == true) {
-                maxLevel = stat.GetValue(context.Effects, context.EquippedItems).value;
+                maxLevel = stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value;
             }
             return contentProvider.GetVestiges()
                 .Where(v => v.Level <= maxLevel)
