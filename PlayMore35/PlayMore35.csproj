@@ -203,6 +203,9 @@
     <Compile Include="CharacterChoices\Shield.cs" />
     <Compile Include="CharacterChoices\Weapon.cs" />
     <Compile Include="CharacterChoices\WeaponProperty.cs" />
+    <Compile Include="UI\ConfigureAttackRoutinesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="UI\PickTime.cs">
       <SubType>Form</SubType>
     </Compile>
