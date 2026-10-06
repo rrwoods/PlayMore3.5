@@ -5,6 +5,7 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -20,6 +21,16 @@ namespace PlayMore35.Tests {
 
             public void ClearSlot(string subsystem, int slotIndex) {
                 ClearedSlots.Add((subsystem, slotIndex));
+            }
+
+            public List<AttackRoutine> GetAllRoutines() {
+                return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
+            }
+
+            public List<AttackRoutine> GetVisibleRoutines() {
+                var all = GetAllRoutines();
+                var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
+                return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
             }
         }
 

@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.PactMagic;
 
@@ -43,6 +44,7 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, int> paramValues;
 
         public Timeline Timeline { get; set; }
+        public AttackRoutinePreferences RoutinePreferences { get; set; } = new AttackRoutinePreferences();
         public Timeline rounds {
             get => Timeline;
             set => Timeline = value;
@@ -79,11 +81,14 @@ namespace PlayMore35.CharacterChoices {
                 )))),
                 new JProperty("effects", new JArray(externalEffects)),
                 new JProperty("subsystems", new JObject(Subsystems.Select(x => new JProperty(x.Key, x.Value.ToJson())))),
+                new JProperty("routine preferences", RoutinePreferences.ToJson()),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("time", Timeline.ToJson())
             );
         }
+
+        public Character(JObject json) : this(null, null, json) { }
 
         public Character(MainForm mainForm, Character previousCharacter, JObject json) {
             name = (string)json["name"];
@@ -118,10 +123,15 @@ namespace PlayMore35.CharacterChoices {
             }
             flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
             paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
+            if (json["routine preferences"] is JObject prefObj) {
+                RoutinePreferences = new AttackRoutinePreferences(prefObj);
+            } else {
+                RoutinePreferences = new AttackRoutinePreferences();
+            }
             Timeline = new Timeline(previousCharacter?.Timeline, (JObject)json["time"]);
         }
 
-        public Character() : this(null) { }
+        public Character() : this((MainForm)null) { }
 
         public Character(MainForm mainForm) {
             name = "";

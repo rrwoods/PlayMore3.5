@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -24,6 +24,9 @@ namespace PlayMore35.Tests {
                 var slotted = Subsystems.Get(subsystem) as ISlottedSubsystem;
                 slotted?.ClearSlot(slotIndex);
             }
+
+            public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
+            public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
         }
 
         private class TestContentProvider : ISubsystemContentProvider {

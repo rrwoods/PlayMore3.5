@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
@@ -11,5 +12,7 @@ namespace PlayMore35.Global {
         Timeline Timeline { get; }
         SubsystemRegistry Subsystems { get; }
         void ClearSlot(string subsystem, int slotIndex);
+        List<AttackRoutine> GetAllRoutines();
+        List<AttackRoutine> GetVisibleRoutines();
     }
 }
