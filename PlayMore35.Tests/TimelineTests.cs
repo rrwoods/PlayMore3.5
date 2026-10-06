@@ -23,6 +23,9 @@ namespace PlayMore35.Tests {
             public void ClearSlot(string subsystem, int slotIndex) {
                 ClearedSlots.Add((subsystem, slotIndex));
             }
+
+            public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
+            public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
         }
 
         [TestMethod]

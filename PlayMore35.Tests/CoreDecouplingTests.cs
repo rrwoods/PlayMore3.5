@@ -24,6 +24,16 @@ namespace PlayMore35.Tests {
                 var slotted = Subsystems.Get(subsystem) as ISlottedSubsystem;
                 slotted?.ClearSlot(slotIndex);
             }
+
+            public List<AttackRoutine> GetAllRoutines() {
+                return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
+            }
+
+            public List<AttackRoutine> GetVisibleRoutines() {
+                var all = GetAllRoutines();
+                var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
+                return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
+            }
         }
 
         private class SpySlottedSubsystem : ISlottedSubsystem {

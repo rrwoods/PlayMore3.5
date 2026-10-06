@@ -833,5 +833,16 @@ namespace PlayMore35.Global {
             return Attack.GenerateMultiweaponFullAttacks(Effects, sizeChange, EquippedItems);
         }
 
+        public List<AttackRoutine> GetAllRoutines() {
+            int sizeChange = Effects.stats[SIZE_CATEGORY].GetValue(Effects, EquippedItems).value - NormalSizeCategory;
+            return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, sizeChange);
+        }
+
+        public List<AttackRoutine> GetVisibleRoutines() {
+            var all = GetAllRoutines();
+            var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
+            return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
+        }
+
     }
 }
