@@ -11,7 +11,6 @@ using PlayMore35.Subsystems.PactMagic;
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
         public static readonly string DEFAULT_CLASS = "Barbarian";
-        public enum PactState { GOOD_PACT, POOR_PACT, DEFIED };
 
         public string name;
         public string gender;
@@ -36,7 +35,6 @@ namespace PlayMore35.CharacterChoices {
         public List<(int xp, string description)> sessions;
 
         public List<string> externalEffects;
-        public List<(string name, PactState state)> vestiges;
         public Dictionary<string, ISubsystemState> Subsystems { get; set; } = new Dictionary<string, ISubsystemState>();
 
         // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
@@ -80,7 +78,6 @@ namespace PlayMore35.CharacterChoices {
                     new JProperty("description", x.description)
                 )))),
                 new JProperty("effects", new JArray(externalEffects)),
-                new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("state", x.state))))),
                 new JProperty("subsystems", new JObject(Subsystems.Select(x => new JProperty(x.Key, x.Value.ToJson())))),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value)))),
@@ -111,13 +108,6 @@ namespace PlayMore35.CharacterChoices {
             equipped = new EquippedChoices((JObject)json["equipped"]);
             sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
             externalEffects = ((JArray)json["effects"]).Select(x => (string)x).ToList();
-            if (json["vestiges"] is JArray vestigeArray) {
-                vestiges = vestigeArray.Select(x =>
-                    ((string)x["name"], (PactState) Enum.Parse(typeof(PactState), (string)x["state"], false))
-                ).ToList();
-            } else {
-                vestiges = new List<(string name, PactState state)>();
-            }
             Subsystems = new Dictionary<string, ISubsystemState>();
             if (json["subsystems"] is JObject subObj) {
                 foreach (var prop in subObj.Properties()) {
@@ -125,11 +115,16 @@ namespace PlayMore35.CharacterChoices {
                         Subsystems[prop.Name] = PactMagicState.FromJson(pactJson);
                     }
                 }
-            }
-            if (!Subsystems.ContainsKey(PactMagicEngine.SubsystemId) && vestiges.Count > 0) {
+            } else if (json["vestiges"] is JArray vestigeArray && vestigeArray.Count > 0) {
                 var pms = new PactMagicState();
-                foreach (var (name, state) in vestiges) {
-                    pms.Slots.Add(new PactSlot(name, (PlayMore35.Subsystems.PactMagic.PactState)(int)state));
+                foreach (var token in vestigeArray) {
+                    string vName = (string)token["name"] ?? "";
+                    string vState = (string)token["state"];
+                    PactState state = PactState.GOOD_PACT;
+                    if (!string.IsNullOrEmpty(vState) && Enum.TryParse(vState, true, out PactState parsed)) {
+                        state = parsed;
+                    }
+                    pms.Slots.Add(new PactSlot(vName, state));
                 }
                 Subsystems[PactMagicEngine.SubsystemId] = pms;
             }
@@ -169,7 +164,6 @@ namespace PlayMore35.CharacterChoices {
             sessions = new List<(int xp, string description)>();
 
             externalEffects = new List<string>();
-            vestiges = new List<(string name, PactState state)>();
             Subsystems = new Dictionary<string, ISubsystemState>();
 
             flagValues = new Dictionary<string, bool>();

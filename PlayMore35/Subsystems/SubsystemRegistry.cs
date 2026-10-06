@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,10 +9,13 @@ namespace PlayMore35.Subsystems {
 
         public IEnumerable<ISubsystemEngine> All => engines;
 
-        public void Register(ISubsystemEngine engine) {
+        public void Register(ISubsystemEngine engine, string alias = null) {
             if (engine == null) throw new ArgumentNullException(nameof(engine));
             if (!string.IsNullOrEmpty(engine.Id)) {
                 enginesById[engine.Id] = engine;
+            }
+            if (!string.IsNullOrEmpty(alias)) {
+                enginesById[alias] = engine;
             }
             if (!engines.Contains(engine)) {
                 engines.Add(engine);

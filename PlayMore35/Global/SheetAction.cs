@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
+using PlayMore35.Subsystems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,7 +146,13 @@ namespace PlayMore35.Global {
             }
 
             foreach (var slot in slotsToClear) {
-                context.ClearSlot(slot.subsystem, slot.slotIndex);
+                var slotted = context.Subsystems?.Get(slot.subsystem) as ISlottedSubsystem
+                    ?? (slot.subsystem == "vestige" ? context.Subsystems?.Get<ISlottedSubsystem>() : null);
+                if (slotted != null) {
+                    slotted.ClearSlot(slot.slotIndex);
+                } else {
+                    context.ClearSlot(slot.subsystem, slot.slotIndex);
+                }
                 requirement = TimelineRefreshRequirement.FullReload;
             }
 
