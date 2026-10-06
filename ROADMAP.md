@@ -204,6 +204,16 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Combine core and extended data definitions (load core $\to$ load extended $\to$ save sorted).
 
 ### 4.5 Project Architecture & Sanity
+- **Deepen the Timeline & Sheet Action Module ([#74](https://github.com/rrwoods/PlayMore3.5/issues/74))**:
+  - Decouple `Rounds` and `SheetAction` from `MainForm` into a headless, in-process module.
+  - Enables headless unit testing and unblocks the synchronized combat clock for the Encounter Tracker.
+  - Slices: [#78](https://github.com/rrwoods/PlayMore3.5/issues/78) (Test harness & context seam), [#79](https://github.com/rrwoods/PlayMore3.5/issues/79) (Timeline core & result contract), [#80](https://github.com/rrwoods/PlayMore3.5/issues/80) (SheetAction & generic slots), [#81](https://github.com/rrwoods/PlayMore3.5/issues/81) (Combat transitions & UI rewiring).
+- **Deepen the Subsystems & Resource Pools Module ([#75](https://github.com/rrwoods/PlayMore3.5/issues/75))**:
+  - Consolidate Pact Magic, Tome of Battle Maneuvers, Spellcasting, and Invocations behind a uniform effect-in-slot and resource pool interface.
+- **Deepen the Attack Routine Evaluation Module ([#76](https://github.com/rrwoods/PlayMore3.5/issues/76))**:
+  - Encapsulate combinatorial weapon-hand pairing, TWF penalties, and iterative attack progressions behind an evaluator interface.
+- **Deepen the Character Engine Module ([#77](https://github.com/rrwoods/PlayMore3.5/issues/77))**:
+  - Replace the pass-through `Controller` coordinator with a deep character session module emitting clean read-only state projections.
 - **UI Namespaces**:
   - Fix namespaces for controls and forms moved into the `UI/` folder.
 - **Dynamic Control Recycling**:
