@@ -10,7 +10,7 @@ Canonical triage roles mapped to matching labels (`needs-triage`, `needs-info`, 
 
 ### Domain docs
 
-Single-context layout (`CONTEXT.md` and `docs/adr/` at the repo root). See `docs/agents/domain.md`.
+Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root). See `docs/agents/domain.md`.
 
 ### Product vision
 
@@ -39,7 +39,7 @@ powershell -ExecutionPolicy Bypass -File scripts/check-crlf.ps1 -Fix
 When authoring an implementation plan (`implementation_plan.md`), include planned updates to repository documentation under `Proposed Changes` as appropriate:
 - `README.md`: Include when user-facing features, dashboard workflows, status matrix, or setup instructions change.
 - `ROADMAP.md`: Include when backlog items, progression tiers, or feature priorities are started, completed, or reordered.
-- `CONTEXT.md`: Include when domain language, rules concepts, or terminology are introduced, modified, or retired.
+- `GLOSSARY.md`: Include when domain language, rules concepts, or terminology are introduced, modified, or retired.
 - `VISION.md`: Include when product destination, architectural invariants, capabilities, or anti-goals shift.
 
 ## Pre-commit gates
@@ -49,5 +49,5 @@ When authoring an implementation plan (`implementation_plan.md`), include planne
 Before running `git commit`, inspect staged changes and update repository documentation as appropriate:
 - `README.md`: Update when user-facing features, dashboard workflows, status matrix, or setup instructions change.
 - `ROADMAP.md`: Update when backlog items, progression tiers, or feature priorities are started, completed, or reordered.
-- `CONTEXT.md`: Update when domain language, rules concepts, or terminology are introduced, modified, or retired.
+- `GLOSSARY.md`: Update when domain language, rules concepts, or terminology are introduced, modified, or retired.
 - `VISION.md`: Update when product destination, architectural invariants, capabilities, or anti-goals shift.
