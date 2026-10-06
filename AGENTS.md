@@ -43,23 +43,23 @@ Prefer linear git history:
 
 ### Documentation gate
 
-When authoring an implementation plan (`implementation_plan.md`), include planned updates to repository documentation under `Proposed Changes` as appropriate:
-- `README.md`: Include when user-facing features, dashboard workflows, status matrix, or setup instructions change.
-- `ROADMAP.md`: Include when backlog items, progression tiers, or feature priorities are started, completed, or reordered.
-- `GLOSSARY.md`: Include when domain language, rules concepts, or terminology are introduced, modified, or retired.
-- `VISION.md`: Include when product destination, architectural invariants, capabilities, or anti-goals shift.
+When authoring an implementation plan (`implementation_plan.md`), include planned repository documentation updates under `Proposed Changes` following the [Documentation checklist](#documentation-checklist).
 
 ## Pre-commit gates
 
 ### Documentation gate
 
-Before running `git commit`, inspect staged changes and update repository documentation as appropriate:
-- `README.md`: Update when user-facing features, dashboard workflows, status matrix, or setup instructions change.
-- `ROADMAP.md`: Update when backlog items, progression tiers, or feature priorities are started, completed, or reordered.
-- `GLOSSARY.md`: Update when domain language, rules concepts, or terminology are introduced, modified, or retired.
-- `VISION.md`: Update when product destination, architectural invariants, capabilities, or anti-goals shift.
+Before running `git commit`, inspect staged changes and update repository documentation following the [Documentation checklist](#documentation-checklist).
 
 ### Scope gate
 
 Before running `git commit` or marking a PR ready, audit changes against the originating issue or specification:
 - Verify that no shims, compatibility layers, or features explicitly marked **Out of Scope** or **Anti-goals** were introduced.
+
+## Documentation checklist
+
+Update repository documentation as appropriate:
+- `README.md`: When user-facing features, dashboard workflows, status matrix, or setup instructions change.
+- `ROADMAP.md`: When backlog items, progression tiers, or feature priorities are started, completed, or reordered.
+- `GLOSSARY.md`: When domain language, rules concepts, or terminology are introduced, modified, or retired.
+- `VISION.md`: When product destination, architectural invariants, capabilities, or anti-goals shift.
