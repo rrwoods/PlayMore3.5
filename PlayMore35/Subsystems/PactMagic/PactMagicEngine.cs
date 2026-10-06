@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.CharacterChoices;
@@ -43,12 +43,6 @@ namespace PlayMore35.Subsystems.PactMagic {
                     for (int i = 0; i < pactState.Slots.Count && i < slots.Capacity; i++) {
                         slots[i] = pactState.Slots[i];
                     }
-                } else if (context.Character.vestiges != null && context.Character.vestiges.Count > 0) {
-                    for (int i = 0; i < context.Character.vestiges.Count && i < slots.Capacity; i++) {
-                        var (name, pState) = context.Character.vestiges[i];
-                        slots[i] = new PactSlot(name, (PactState)(int)pState);
-                    }
-                    SyncState();
                 } else {
                     SyncState();
                 }

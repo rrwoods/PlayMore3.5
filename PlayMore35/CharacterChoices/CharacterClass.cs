@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -42,7 +42,7 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, int> BonusFeats = new Dictionary<string, int>();
 
         // S U B S Y S T E M S .
-        public (List<string> stats, List<Effect> effects)? Vestiges;
+        public Dictionary<string, SubsystemFeature> Subsystems = new Dictionary<string, SubsystemFeature>();
 
         public JToken ToJson() {
             JObject json = new JObject(
@@ -71,10 +71,10 @@ namespace PlayMore35.CharacterChoices {
                 json["bonus feats"] = new JObject(BonusFeats.Select(x => new JProperty(x.Key, x.Value)));
             }
 
-            if (Vestiges != null) {
-                json["vestiges"] = new JObject(
-                    new JProperty("stats", new JArray(Vestiges?.stats)),
-                    new JProperty("effects", new JArray(Vestiges?.effects.Select(x => x.ToJson())))
+            foreach (var kvp in Subsystems) {
+                json[kvp.Key] = new JObject(
+                    new JProperty("stats", new JArray(kvp.Value.Stats)),
+                    new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
                 );
             }
 
@@ -117,11 +117,26 @@ namespace PlayMore35.CharacterChoices {
             }
 
             if (json["vestiges"] != null) {
-                Vestiges = (
-                    json["vestiges"]["stats"].Select(x => (string)x).ToList(),
-                    json["vestiges"]["effects"].Select(x => new Effect((JObject)x)).ToList()
-                );
+                Subsystems["vestiges"] = new SubsystemFeature {
+                    Stats = json["vestiges"]["stats"].Select(x => (string)x).ToList(),
+                    Effects = json["vestiges"]["effects"].Select(x => new Effect((JObject)x)).ToList()
+                };
+            }
+            if (json["subsystems"] is JObject subsJson) {
+                foreach (var prop in subsJson.Properties()) {
+                    if (prop.Value is JObject sObj) {
+                        Subsystems[prop.Name] = new SubsystemFeature {
+                            Stats = sObj["stats"] != null ? sObj["stats"].Select(x => (string)x).ToList() : new List<string>(),
+                            Effects = sObj["effects"] != null ? sObj["effects"].Select(x => new Effect((JObject)x)).ToList() : new List<Effect>()
+                        };
+                    }
+                }
             }
         }
+    }
+
+    public class SubsystemFeature {
+        public List<string> Stats { get; set; } = new List<string>();
+        public List<Effect> Effects { get; set; } = new List<Effect>();
     }
 }

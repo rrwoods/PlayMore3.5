@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Subsystems.PactMagic;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1355,11 +1356,11 @@ namespace PlayMore35 {
         private EventHandler ChooseVestige(int slotIndex, Vestige vestige) {
             return (object sender, EventArgs e) => {
                 if (vestige == null) {
-                    controller.SelectVestige(slotIndex, "", (Character.PactState) pactStates[slotIndex].SelectedIndex);
+                    controller.SelectVestige(slotIndex, "", (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = "Good pact?";
                     controller.Character.Timeline.Unschedule(new SheetAction().ClearSlot("vestige", slotIndex));
                 } else {
-                    controller.SelectVestige(slotIndex, vestige.Name, (Character.PactState) pactStates[slotIndex].SelectedIndex);
+                    controller.SelectVestige(slotIndex, vestige.Name, (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
                 }
             };
@@ -1370,7 +1371,7 @@ namespace PlayMore35 {
             return (sender, e) => {
                 RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
-                controller.SelectVestige(slotIndex, vestige.Name, bindingCheckSuccess ? Character.PactState.GOOD_PACT : Character.PactState.POOR_PACT);
+                controller.SelectVestige(slotIndex, vestige.Name, bindingCheckSuccess ? PactState.GOOD_PACT : PactState.POOR_PACT);
                 controller.Character.Timeline.Schedule(new SheetAction().ClearSlot("vestige", slotIndex), "24 hours");
                 var result = controller.Character.Timeline.Advance(21);
                 if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
@@ -1385,7 +1386,7 @@ namespace PlayMore35 {
 
         private EventHandler ChangePactState(int slotIndex) {
             return (object sender, EventArgs e) => {
-                controller.ChangePactState(slotIndex, (Character.PactState)pactStates[slotIndex].SelectedIndex);
+                controller.ChangePactState(slotIndex, (PactState)pactStates[slotIndex].SelectedIndex);
             };
         }
 

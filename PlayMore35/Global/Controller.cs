@@ -63,9 +63,10 @@ namespace PlayMore35.Global {
         public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
 
         public void ClearSlot(string subsystem, int slotIndex) {
-            if (subsystem == "vestige") {
-                SelectVestige(slotIndex, "", Character.PactState.GOOD_PACT);
-            }
+            var slotted = (subsystem == "vestige" || subsystem == PactMagicEngine.SubsystemId)
+                ? (Subsystems.Get<PactMagicEngine>() ?? Subsystems.Get(subsystem) as ISlottedSubsystem)
+                : Subsystems.Get(subsystem) as ISlottedSubsystem;
+            slotted?.ClearSlot(slotIndex);
         }
 
         // **** CONVENIENCE METHODS THAT ALL UIS WILL PROBABLY WANT ****
@@ -133,7 +134,7 @@ namespace PlayMore35.Global {
         // **** INITIALIZATION AND RELOAD FUNCTIONS ****
 
         public Controller(Character character) {
-            Subsystems.Register(new PactMagicEngine());
+            Subsystems.Register(new PactMagicEngine(), "vestige");
             Character = character;
         }
 
@@ -322,11 +323,10 @@ namespace PlayMore35.Global {
                 );
             }
 
-            foreach (var (name, state) in Character.vestiges) {
-                if (name == "") {
-                    continue;
+            foreach (var engine in Subsystems.All) {
+                if (engine.IsActive) {
+                    engine.ContributeEffects(Effects, this);
                 }
-                Effects.GenerateVestigeEffects(VestigeDefinitions[name], state);
             }
 
             Character.externalEffects.ForEach(x => Effects.GenerateExternalEffect(ExternalEffectDefinitions[x]));
@@ -396,19 +396,12 @@ namespace PlayMore35.Global {
             }
         }
 
-        public void ChangePactState(int slotIndex, Character.PactState state) {
-            if (character.vestiges.Count <= slotIndex) {
-                return;
-            }
-            string vestige = character.vestiges[slotIndex].name;
-            character.vestiges[slotIndex] = (vestige, state);
+        public void ChangePactState(int slotIndex, PactState state) {
+            Subsystems.Get<PactMagicEngine>()?.ChangePactState(slotIndex, state);
         }
 
-        public void SelectVestige(int slotIndex, string vestige, Character.PactState state) {
-            while (character.vestiges.Count <= slotIndex) {
-                character.vestiges.Add(("", state));
-            }
-            character.vestiges[slotIndex] = (vestige, state);
+        public void SelectVestige(int slotIndex, string vestige, PactState state) {
+            Subsystems.Get<PactMagicEngine>()?.BindVestige(slotIndex, vestige, state);
         }
 
         public void CountWeight(string locationName, bool weighs) {
@@ -856,30 +849,19 @@ namespace PlayMore35.Global {
         }
 
         public bool HasVestiges() {
-            return Character.classLevels.Any(x => ClassDefinitions[x].Vestiges != null);
+            return Subsystems.Get<PactMagicEngine>()?.IsActive == true;
         }
 
         public List<Vestige> AvailableVestiges() {
-            if (!HasVestiges()) {
-                return new List<Vestige>();
-            }
-
-            int maxVestigeLevel = Effects.stats[MAX_VESTIGE_LEVEL].GetValue(Effects, EquippedItems).value;
-            return VestigeDefinitions.Values.Where(x => x.Level <= maxVestigeLevel).OrderBy(x => x.Name).ToList();
+            return Subsystems.Get<PactMagicEngine>()?.AvailableVestiges().ToList() ?? new List<Vestige>();
         }
 
         public Vestige CurrentVestige(int slotIndex) {
-            if (character.vestiges.Count <= slotIndex || character.vestiges[slotIndex].name == "") {
-                return null;
-            }
-            return VestigeDefinitions[character.vestiges[slotIndex].name];
+            return Subsystems.Get<PactMagicEngine>()?.CurrentVestige(slotIndex);
         }
 
-        public Character.PactState PactState(int slotIndex) {
-            if (character.vestiges.Count <= slotIndex) {
-                return Character.PactState.GOOD_PACT;
-            }
-            return character.vestiges[slotIndex].state;
+        public PactState PactState(int slotIndex) {
+            return Subsystems.Get<PactMagicEngine>()?.GetSlot(slotIndex)?.State ?? PlayMore35.Subsystems.PactMagic.PactState.GOOD_PACT;
         }
     }
 }
