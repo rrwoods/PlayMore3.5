@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,13 +16,99 @@ namespace PlayMore35.Items {
         public Weapon.Hand Hand { get; private set; }
         public Weapon.Range Range { get; private set; }
         public (int bonus, List<string> explanation) AttackBonus; // XXX : {get private set} is missing because i modify the bonus directly.
-        public List<int> ExtraAttacks { get; private set; }
-        public (DiceGroup dice, List<string> explanation) Damage { get; private set; }
-        public (DiceGroup dice, List<string> explanation) CriticalDamage { get; private set; }
+        public DiceGroup BaseDamage { get; private set; }
+        public IReadOnlyList<DiceGroup> BonusDice { get; private set; } = new List<DiceGroup>();
+        public IReadOnlyList<DiceGroup> CriticalBonusDice { get; private set; } = new List<DiceGroup>();
+        public int CriticalMultiplier { get; private set; } = 2;
+        public List<string> DamageExplanation { get; private set; } = new List<string>();
+        public List<string> CriticalDamageExplanation { get; private set; } = new List<string>();
+
+        public DiceGroup TotalDamage {
+            get {
+                DiceGroup total = new DiceGroup(WeaponName + " damage");
+                if (BaseDamage != null) {
+                    total.AddDice(BaseDamage);
+                }
+                if (BonusDice != null) {
+                    foreach (var die in BonusDice) {
+                        total.AddDice(die);
+                    }
+                }
+                return total;
+            }
+        }
+
+        public DiceGroup CriticalBaseDamage {
+            get {
+                DiceGroup critBase = new DiceGroup(WeaponName + " critical base damage");
+                if (BaseDamage != null) {
+                    critBase.AddDice(BaseDamage);
+                }
+                critBase.Multiply(CriticalMultiplier);
+                return critBase;
+            }
+        }
+
+        public DiceGroup CriticalTotalDamage {
+            get {
+                DiceGroup critTotal = new DiceGroup(WeaponName + " critical total damage");
+                critTotal.AddDice(CriticalBaseDamage);
+                if (CriticalBonusDice != null) {
+                    foreach (var die in CriticalBonusDice) {
+                        critTotal.AddDice(die);
+                    }
+                }
+                return critTotal;
+            }
+        }
+
+        public (DiceGroup dice, List<string> explanation) Damage => (TotalDamage, DamageExplanation);
+        public (DiceGroup dice, List<string> explanation) CriticalDamage => (CriticalTotalDamage, CriticalDamageExplanation);
         public string DamageType { get; private set; }
         public int ThreatRange { get; private set; }
         public int RangeIncrement { get; private set; }
         public int StrengthRating { get; private set; } = -1; // only relevant for ranged weapons (composite bows); -1 = noncomposite
+
+        public static Attack CreateForTesting(
+            string name,
+            int bonus,
+            DiceGroup baseDamage,
+            IEnumerable<DiceGroup> bonusDice = null,
+            IEnumerable<DiceGroup> criticalBonusDice = null,
+            int criticalMultiplier = 2,
+            int threatRange = 20,
+            int rangeIncrement = 0
+        ) {
+            var bDice = (bonusDice ?? Enumerable.Empty<DiceGroup>()).ToList();
+            var cbDice = criticalBonusDice != null
+                ? criticalBonusDice.ToList()
+                : new List<DiceGroup>(bDice);
+
+            return new Attack(name, bonus, baseDamage, bDice, cbDice, criticalMultiplier, threatRange, rangeIncrement);
+        }
+
+        private Attack(
+            string name,
+            int bonus,
+            DiceGroup baseDamage,
+            List<DiceGroup> bonusDice,
+            List<DiceGroup> criticalBonusDice,
+            int criticalMultiplier,
+            int threatRange,
+            int rangeIncrement
+        ) {
+            WeaponName = name;
+            WeaponTags = new List<string>();
+            AttackBonus = (bonus, new List<string> { $"+{bonus} base attack" });
+            BaseDamage = baseDamage;
+            BonusDice = bonusDice.AsReadOnly();
+            CriticalBonusDice = criticalBonusDice.AsReadOnly();
+            CriticalMultiplier = criticalMultiplier;
+            ThreatRange = threatRange;
+            RangeIncrement = rangeIncrement;
+            DamageExplanation = new List<string> { baseDamage?.ToString() ?? "" };
+            CriticalDamageExplanation = new List<string> { $"{baseDamage?.ToString()} ×{criticalMultiplier}" };
+        }
 
         // keys are the Medium damage dice
         // values are lists of damage dice ordered from Fine to Colossal
@@ -118,14 +204,6 @@ namespace PlayMore35.Items {
                 AttackBonus.explanation.Add("–4 not proficient");
             }
 
-            IEnumerable<ExtraAttack> extrasFromProps = properties
-                .Select(x => x.ExtraAttack)
-                .Where(x => x != null);
-            IEnumerable<ExtraAttack> extras = rules.GetExtraAttacks(items, this)
-                .Concat(extrasFromProps);
-            ExtraAttacks = StackExtraAttacks(extras);
-            ExtraAttacks.Sort((a, b) => b.CompareTo(a));
-
             // XXX : This is crappy but composite bows are crappy.  Oh well.
             int compositeStrToDamage = 0;
             if (Range == Weapon.Range.BOW && StrengthRating >= 0) {
@@ -149,8 +227,8 @@ namespace PlayMore35.Items {
                 AttackBonus.explanation.Add($"{twfPenalty.ToString("+#;–#;0")} two-weapon fighting penalty");
             }
 
-            DiceGroup damage = BaseDamageDice(sizeCategory, damageDieMedium);
-            string baseExpl = damage.ToString() + " " + damage.Name;
+            DiceGroup baseDamage = BaseDamageDice(sizeCategory, damageDieMedium);
+            string baseExpl = baseDamage.ToString() + " " + baseDamage.Name;
             List<string> explanation = new List<string>() {
                 baseExpl
             };
@@ -162,18 +240,21 @@ namespace PlayMore35.Items {
                 .Concat(dmgModsFromProps);
 
             (int mod, List<string> modExpl) = StackModifiers(damageModifiers, rules, items);
-            damage.AddDice(mod + compositeStrToDamage, 1);
+            baseDamage.AddDice(mod + compositeStrToDamage, 1);
             explanation.AddRange(modExpl);
             if (compositeStrToDamage > 0) {
                 explanation.Add($"+{compositeStrToDamage} STR to composite bow damage");
             }
 
-            DiceGroup critDamage = new DiceGroup(WeaponName + " critical hit damage").AddDice(damage);
+            BaseDamage = baseDamage;
+            CriticalMultiplier = criticalMultiplier;
+
             List<string> critExplanation = new List<string>();
             critExplanation.AddRange(explanation);
-
-            critDamage.Multiply(criticalMultiplier);
             critExplanation.Add($"Critical hit ×{criticalMultiplier}");
+
+            List<DiceGroup> bonusDiceList = new List<DiceGroup>();
+            List<DiceGroup> critBonusDiceList = new List<DiceGroup>();
 
             IEnumerable<DiceGroup> extraDiceFromProps = properties
                 .Where(x => x.ExtraDamage.qty != 0)
@@ -181,14 +262,16 @@ namespace PlayMore35.Items {
             IEnumerable<DiceGroup> extraDice = rules.GetExtraDice(items, this)
                 .Concat(extraDiceFromProps);
             foreach (DiceGroup extra in extraDice) {
-                damage.AddDice(extra);
-                critDamage.AddDice(extra);
+                bonusDiceList.Add(extra);
+                critBonusDiceList.Add(extra);
                 explanation.Add(extra.ToString() + " " + extra.Name);
                 critExplanation.Add(extra.ToString() + " " + extra.Name);
             }
 
-            Damage = (damage, explanation);
-            CriticalDamage = (critDamage, critExplanation);
+            BonusDice = bonusDiceList.AsReadOnly();
+            CriticalBonusDice = critBonusDiceList.AsReadOnly();
+            DamageExplanation = explanation;
+            CriticalDamageExplanation = critExplanation;
 
             IEnumerable<Modifier> threatModsFromProps = properties
                 .Select(x => x.ThreatModifier)
