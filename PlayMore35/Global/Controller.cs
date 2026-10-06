@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
+using PlayMore35.Subsystems;
 
 using static PlayMore35.Effects.Constants;
 
@@ -54,6 +55,8 @@ namespace PlayMore35.Global {
         }
 
         public Timeline Timeline => Character?.Timeline;
+
+        public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
 
         public void ClearSlot(string subsystem, int slotIndex) {
             if (subsystem == "vestige") {
