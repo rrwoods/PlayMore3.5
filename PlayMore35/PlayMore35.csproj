@@ -102,6 +102,13 @@
     <Compile Include="Subsystems\SubsystemRegistry.cs" />
     <Compile Include="Subsystems\SubsystemSlotGroup.cs" />
     <Compile Include="Subsystems\ResourcePool.cs" />
+    <Compile Include="Subsystems\ISubsystemState.cs" />
+    <Compile Include="Subsystems\ISubsystemContentProvider.cs" />
+    <Compile Include="Subsystems\ResourceSubsystemContentProvider.cs" />
+    <Compile Include="Subsystems\PactMagic\PactState.cs" />
+    <Compile Include="Subsystems\PactMagic\PactSlot.cs" />
+    <Compile Include="Subsystems\PactMagic\PactMagicState.cs" />
+    <Compile Include="Subsystems\PactMagic\PactMagicEngine.cs" />
     <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>
