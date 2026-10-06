@@ -183,7 +183,7 @@ namespace PlayMore35.Tests {
                 new JProperty("equipped", new EquippedChoices().ToJson()),
                 new JProperty("sessions", new JArray()),
                 new JProperty("effects", new JArray()),
-                new JProperty("vestiges", new JArray()),
+                new JProperty("subsystems", new JObject()),
                 new JProperty("flag values", new JObject()),
                 new JProperty("parameter values", new JObject()),
                 new JProperty("time", new JObject(
