@@ -44,10 +44,14 @@ namespace PlayMore35 {
         }
 
         private void Combat_Click(object sender, EventArgs e) {
-            // if we're not in combat, we want to enter combat (i.e. pass true to this function), and SetTime is visible
-            // if we're in combat, we want to leave combat (i.e. pass false to this function), and SetTime is not visible
-            mainForm.controller.Character.Timeline.InCombat(btnSetTime.Visible);
-            mainForm.RefreshEffects();
+            var timeline = mainForm.controller.Character.Timeline;
+            var result = timeline.Combat ? timeline.EndCombat() : timeline.StartCombat();
+            if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
+                mainForm.controller.Reload();
+            }
+            if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
+                mainForm.RefreshEffects();
+            }
             RefreshTimeline();
         }
 

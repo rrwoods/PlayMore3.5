@@ -188,22 +188,68 @@ namespace PlayMore35.Global {
             return Advance(targetRound - CurrentRound, context ?? Context);
         }
 
-        public void InCombat(bool combat, ICharacterContext context = null) {
-            if (this.Combat == combat) {
-                return;
+        public TimelineAdvanceResult StartCombat(ICharacterContext context = null) {
+            if (this.Combat) {
+                return new TimelineAdvanceResult {
+                    RoundsAdvanced = 0,
+                    PreviousTime = CurrentTime,
+                    CurrentTime = CurrentTime,
+                    RefreshRequirement = TimelineRefreshRequirement.None
+                };
             }
-            this.Combat = combat;
+
+            this.Combat = true;
             EncounterStartTime = CurrentTime;
             EncounterStartRound = CurrentRound;
 
-            var ctx = context ?? Context;
-            if (ctx?.Effects?.resettableParameters != null && ctx.Effects.resettableParameters.ContainsKey("encounter")) {
-                ctx.Effects.resettableParameters["encounter"].ForEach(x => x.Value = 0);
+            return new TimelineAdvanceResult {
+                RoundsAdvanced = 0,
+                PreviousTime = CurrentTime,
+                CurrentTime = CurrentTime,
+                RefreshRequirement = TimelineRefreshRequirement.RecomputeDerived
+            };
+        }
+
+        public TimelineAdvanceResult EndCombat(ICharacterContext context = null) {
+            if (!this.Combat) {
+                return new TimelineAdvanceResult {
+                    RoundsAdvanced = 0,
+                    PreviousTime = CurrentTime,
+                    CurrentTime = CurrentTime,
+                    RefreshRequirement = TimelineRefreshRequirement.None
+                };
             }
+
+            this.Combat = false;
+            var ctx = context ?? Context;
+            var result = new TimelineAdvanceResult {
+                RoundsAdvanced = 0,
+                PreviousTime = CurrentTime,
+                CurrentTime = CurrentTime,
+                RefreshRequirement = TimelineRefreshRequirement.RecomputeDerived
+            };
+
+            if (ctx?.Effects?.resettableParameters != null && ctx.Effects.resettableParameters.ContainsKey("encounter")) {
+                var list = ctx.Effects.resettableParameters["encounter"];
+                list.ForEach(x => x.Value = 0);
+            }
+
             if (ctx != null) {
-                encounterActions.ForEach(x => x.Perform(ctx));
+                foreach (var action in encounterActions) {
+                    result.ExpiredActions.Add(action);
+                    var req = action.Perform(ctx);
+                    if (req == TimelineRefreshRequirement.FullReload) {
+                        result.RefreshRequirement = TimelineRefreshRequirement.FullReload;
+                    }
+                }
             }
             encounterActions.Clear();
+
+            return result;
+        }
+
+        public TimelineAdvanceResult InCombat(bool combat, ICharacterContext context = null) {
+            return combat ? StartCombat(context) : EndCombat(context);
         }
 
         public void Schedule(SheetAction action, string durationString, ICharacterContext context = null) {
