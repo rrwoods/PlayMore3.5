@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using static PlayMore35.Global.FormUtils;
 
 using System.Windows.Forms;
@@ -59,10 +59,6 @@ namespace PlayMore35 {
             text.Append(attack.WeaponName + " " + ValueText(attack.AttackBonus.bonus, true));
             attackLabel.ContextMenuStrip = new ContextMenuStrip();
             attackLabel.ContextMenuStrip.Items.Add(AttackRoll(attack.WeaponName, attack.AttackBonus.bonus));
-            foreach (int extra in attack.ExtraAttacks) {
-                text.Append("/" + ValueText(attack.AttackBonus.bonus + extra, true));
-                attackLabel.ContextMenuStrip.Items.Add(AttackRoll(attack.WeaponName, attack.AttackBonus.bonus + extra));
-            }
             attackLabel.Text = text.ToString();
             SetFlowBreak(attackLabel, false);
             attackLabel.Visible = true;
@@ -110,7 +106,7 @@ namespace PlayMore35 {
                 AttackLabels(attack, false, ref i);
             }
             foreach (List<Attack> fullAttack in controller.GetFullAttacks()) {
-                if (fullAttack.Count == 1 && !fullAttack[0].ExtraAttacks.Any()) {
+                if (fullAttack.Count <= 1) {
                     continue;
                 }
 
