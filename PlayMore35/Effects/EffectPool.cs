@@ -86,7 +86,6 @@ namespace PlayMore35.Effects {
         }
 
         public IEnumerable<Effect> Effects => effects;
-        public IEnumerable<Effect> InherentEffects => effects;
 
         public void RemoveEffect(string effect) {
             effects.RemoveAll(x => x.Name == effect);
