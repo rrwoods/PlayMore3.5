@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,11 +12,11 @@ using PlayMore35.Items;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Global {
-    public class Controller {
+    public class Controller : ICharacterContext {
         private string saveDir;
 
         // Rules of the game, plus effects inherent to the character.
-        public EffectPool Effects;
+        public EffectPool Effects { get; set; }
 
         private Character character;
         private int NormalSizeCategory;
@@ -24,7 +24,7 @@ namespace PlayMore35.Global {
         public Dictionary<string, CharacterClass> ClassDefinitions;
         public Dictionary<string, Feat> FeatDefinitions;
 
-        public Equipped EquippedItems;
+        public Equipped EquippedItems { get; set; }
 
         public Dictionary<string, Weapon> WeaponDefinitions;
         public Dictionary<string, Armor> ArmorDefinitions;
@@ -41,12 +41,23 @@ namespace PlayMore35.Global {
             get { return character; }
             set {
                 character = value;
+                if (character?.Timeline != null) {
+                    character.Timeline.Context = this;
+                }
                 foreach (var skill in character.skillRanks) {
                     while (skill.Value.Count() < character.classLevels.Count()) {
                         skill.Value.Add(0);
                     }
                 }
                 Reload();
+            }
+        }
+
+        public Timeline Timeline => Character?.Timeline;
+
+        public void ClearSlot(string subsystem, int slotIndex) {
+            if (subsystem == "vestige") {
+                SelectVestige(slotIndex, "", Character.PactState.GOOD_PACT);
             }
         }
 

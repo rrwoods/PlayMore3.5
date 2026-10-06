@@ -12,7 +12,7 @@ namespace PlayMore35.Tests {
             public Character Character { get; set; }
             public EffectPool Effects { get; set; }
             public Equipped EquippedItems { get; set; }
-            public Rounds Timeline => Character?.Timeline;
+            public Timeline Timeline => Character?.Timeline;
 
             public readonly List<(string subsystem, int slotIndex)> ClearedSlots = new List<(string, int)>();
 

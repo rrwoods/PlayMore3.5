@@ -7,7 +7,7 @@ namespace PlayMore35.Global {
         Character Character { get; }
         EffectPool Effects { get; }
         Equipped EquippedItems { get; }
-        Rounds Timeline { get; }
+        Timeline Timeline { get; }
         void ClearSlot(string subsystem, int slotIndex);
     }
 }

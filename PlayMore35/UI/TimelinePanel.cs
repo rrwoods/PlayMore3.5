@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using System;
 using System.Windows.Forms;
 
@@ -46,28 +46,41 @@ namespace PlayMore35 {
         private void Combat_Click(object sender, EventArgs e) {
             // if we're not in combat, we want to enter combat (i.e. pass true to this function), and SetTime is visible
             // if we're in combat, we want to leave combat (i.e. pass false to this function), and SetTime is not visible
-            mainForm.controller.Character.rounds.InCombat(btnSetTime.Visible);
+            mainForm.controller.Character.Timeline.InCombat(btnSetTime.Visible);
+            mainForm.RefreshEffects();
             RefreshTimeline();
         }
 
         private void NextRound_Click(object sender, EventArgs e) {
-            mainForm.controller.Character.rounds.Advance();
+            var result = mainForm.controller.Character.Timeline.Advance();
+            if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
+                mainForm.controller.Reload();
+            }
+            if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
+                mainForm.RefreshEffects();
+            }
             RefreshTimeline();
         }
 
         private void SetTime_Click(object sender, EventArgs e) {
-            DateTime cur = mainForm.controller.Character.rounds.CurrentTime;
+            DateTime cur = mainForm.controller.Character.Timeline.CurrentTime;
             pickTimeDialog.dtpPicker.MinDate = cur;
             pickTimeDialog.dtpPicker.Value = cur;
             if (pickTimeDialog.ShowDialog() != DialogResult.OK) {
                 return;
             }
-            mainForm.controller.Character.rounds.SetTime(pickTimeDialog.dtpPicker.Value);
+            var result = mainForm.controller.Character.Timeline.SetTime(pickTimeDialog.dtpPicker.Value);
+            if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
+                mainForm.controller.Reload();
+            }
+            if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
+                mainForm.RefreshEffects();
+            }
             RefreshTimeline();
         }
 
         public void RefreshTimeline() {
-            Rounds rounds = mainForm.controller.Character.rounds;
+            Timeline rounds = mainForm.controller.Character.Timeline;
 
             btnNextRound.Visible = rounds.Combat;
             btnSetTime.Visible = !rounds.Combat;
