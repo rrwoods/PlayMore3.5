@@ -1,4 +1,4 @@
-﻿## Agent skills
+## Agent skills
 
 ### Issue tracker
 
@@ -11,6 +11,10 @@ Canonical triage roles mapped to matching labels (`needs-triage`, `needs-info`, 
 ### Domain docs
 
 Single-context layout (`CONTEXT.md` and `docs/adr/` at the repo root). See `docs/agents/domain.md`.
+
+### Product vision
+
+Product destination, architectural invariants, capability frontiers, and anti-goals: see `VISION.md`.
 
 ## Formatting and conventions
 
