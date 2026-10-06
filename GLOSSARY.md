@@ -82,8 +82,12 @@ _Avoid_: Timed buff, event, scheduled job
 An at-will spell-like ability chosen from a fixed grade (least, lesser, greater, dark) that functions as an essence, shape, or sustained effect.
 _Avoid_: Spell, SLA, magic trick
 
+**Attack**:
+A discrete offensive action evaluated with a single attack roll bonus, threat range, damage dice, and critical multiplier.
+_Avoid_: Strike, swing, blow, attack step, attack roll
+
 **Attack Routine**:
-An automatically generated combat sequence (such as a single strike, full iterative attack, or two-weapon fighting routine) evaluated from currently equipped weapons.
+An automatically generated combat sequence (such as a single attack, full iterative progression, or two-weapon fighting sequence) evaluated from currently equipped weapons.
 _Avoid_: Attack macro, custom attack, attack combo
 
 **Action Economy**:
