@@ -210,6 +210,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Slices: [#78](https://github.com/rrwoods/PlayMore3.5/issues/78) (Test harness & context seam), [#79](https://github.com/rrwoods/PlayMore3.5/issues/79) (Timeline core & result contract), [#80](https://github.com/rrwoods/PlayMore3.5/issues/80) (SheetAction & generic slots), [#81](https://github.com/rrwoods/PlayMore3.5/issues/81) (Combat transitions & UI rewiring).
 - **Deepen the Subsystems & Resource Pools Module ([#75](https://github.com/rrwoods/PlayMore3.5/issues/75))**:
   - Consolidate Pact Magic, Tome of Battle Maneuvers, Spellcasting, and Invocations behind a uniform effect-in-slot and resource pool interface.
+  - Slices: [#84](https://github.com/rrwoods/PlayMore3.5/issues/84) (Core abstractions & domain primitives), [#85](https://github.com/rrwoods/PlayMore3.5/issues/85) (Pact Magic engine & persistence), [#86](https://github.com/rrwoods/PlayMore3.5/issues/86) (Core models decoupling), [#87](https://github.com/rrwoods/PlayMore3.5/issues/87) (UI rewiring & Controller shrinkage).
 - **Deepen the Attack Routine Evaluation Module ([#76](https://github.com/rrwoods/PlayMore3.5/issues/76))**:
   - Encapsulate combinatorial weapon-hand pairing, TWF penalties, and iterative attack progressions behind an evaluator interface.
 - **Deepen the Character Engine Module ([#77](https://github.com/rrwoods/PlayMore3.5/issues/77))**:

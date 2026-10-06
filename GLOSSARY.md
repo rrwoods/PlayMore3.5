@@ -90,6 +90,20 @@ _Avoid_: Attack macro, custom attack, attack combo
 The categorization and advisory presentation of abilities by action cost (standard, move, swift, immediate, full-round, free) without turn-expenditure locks.
 _Avoid_: Action tracker, action lock, turn budget
 
+### Subsystems & Resources
+
+**Subsystem**:
+An encapsulated magic or martial discipline (such as Pact Magic, Martial Maneuvers, Vancian Spellcasting, or Meldshaping) governed by specialized preparation, selection, or recovery mechanics.
+_Avoid_: System, subsystem engine, magic system
+
+**Subsystem Slot**:
+A discrete assignment receptacle within a subsystem (such as a vestige bind slot or readied maneuver slot) holding an active configuration or ability.
+_Avoid_: Bind slot, maneuver slot, slot
+
+**Resource Pool**:
+A quantitative allocation of consumable or replenishable subsystem units (such as spell slots per day, power points, or readied martial maneuvers).
+_Avoid_: Resource, pool, spell pool
+
 ### Inventory & Equipment
 
 **Equipped Item**:
