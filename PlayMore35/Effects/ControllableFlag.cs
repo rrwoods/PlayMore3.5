@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 
 namespace PlayMore35.Effects {
@@ -47,6 +47,15 @@ namespace PlayMore35.Effects {
             }
             character.flagValues.TryGetValue(Name, out on);
             this.character = character;
+        }
+
+        public ControllableFlag(string name, Character character, bool on = false) {
+            Name = name;
+            Category = "";
+            Description = "";
+            this.character = character;
+            this.on = on;
+            character.flagValues[name] = on;
         }
     }
 }

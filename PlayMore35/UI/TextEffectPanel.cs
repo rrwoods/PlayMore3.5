@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 
@@ -172,8 +172,12 @@ namespace PlayMore35 {
                             Text = $"Use {flag.Name}"
                         };
                         menuItem.Click += (s, e) => {
-                            useCharge.Perform(mainForm);
-                            getEffect.Perform(mainForm);
+                            useCharge.Perform(mainForm.controller);
+                            var req = getEffect.Perform(mainForm.controller);
+                            if (req == Global.TimelineRefreshRequirement.FullReload) {
+                                mainForm.controller.Reload();
+                            }
+                            mainForm.RefreshEffects();
                         };
                         flagBox.ContextMenuStrip = new ContextMenuStrip();
                         flagBox.ContextMenuStrip.Items.Add(menuItem);
@@ -265,7 +269,13 @@ namespace PlayMore35 {
                                     ToolStripMenuItem menuItem = new ToolStripMenuItem {
                                         Text = $"Use {name}"
                                     };
-                                    menuItem.Click += (s, e) => use.Perform(mainForm);
+                                    menuItem.Click += (s, e) => {
+                                        var req = use.Perform(mainForm.controller);
+                                        if (req == Global.TimelineRefreshRequirement.FullReload) {
+                                            mainForm.controller.Reload();
+                                        }
+                                        mainForm.RefreshEffects();
+                                    };
                                     effectLabel.ContextMenuStrip = new ContextMenuStrip();
                                     effectLabel.ContextMenuStrip.Items.Add(menuItem);
                                 } else {
