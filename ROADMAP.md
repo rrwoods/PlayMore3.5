@@ -202,6 +202,11 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - In-app authoring for new items, classes, feats, and races.
   - Separate house rules from core rules; ability to save/load distinct house-rule sets per campaign.
   - Combine core and extended data definitions (load core $\to$ load extended $\to$ save sorted).
+- **Categorized House Rules & Forgotten RAW Checklist**:
+  - Simple checklist UI allowing users to enable or disable individual commonly-houseruled conventions and frequently forgotten or esoteric Rules-as-Written quirks.
+  - Logical categorization by domain (e.g., Proficiencies & Combat Quirks, Spells & Magic Descriptors, Class Specifics).
+  - Pre-populate with loose game design quirks and widespread table conventions (e.g., Monk nonproficiency with unarmed strikes, all Enchantment spells gaining the `[Mind-Affecting]` descriptor).
+  - Integrates with the house rule persistence layer and dynamic effect recomputation.
 
 ### 4.5 Project Architecture & Sanity
 - **Deepen the Timeline & Sheet Action Module ([#74](https://github.com/rrwoods/PlayMore3.5/issues/74))**:
