@@ -1,6 +1,7 @@
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
+using PlayMore35.Subsystems;
 
 namespace PlayMore35.Global {
     public interface ICharacterContext {
@@ -8,6 +9,7 @@ namespace PlayMore35.Global {
         EffectPool Effects { get; }
         Equipped EquippedItems { get; }
         Timeline Timeline { get; }
+        SubsystemRegistry Subsystems { get; }
         void ClearSlot(string subsystem, int slotIndex);
     }
 }

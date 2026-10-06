@@ -97,6 +97,11 @@
     <Compile Include="Global\Timeline.cs" />
     <Compile Include="Global\TimelineAdvanceResult.cs" />
     <Compile Include="Global\SheetAction.cs" />
+    <Compile Include="Subsystems\ISubsystemEngine.cs" />
+    <Compile Include="Subsystems\ISlottedSubsystem.cs" />
+    <Compile Include="Subsystems\SubsystemRegistry.cs" />
+    <Compile Include="Subsystems\SubsystemSlotGroup.cs" />
+    <Compile Include="Subsystems\ResourcePool.cs" />
     <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -4,6 +4,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Subsystems;
 using System;
 using System.Collections.Generic;
 
@@ -15,6 +16,7 @@ namespace PlayMore35.Tests {
             public EffectPool Effects { get; set; }
             public Equipped EquippedItems { get; set; }
             public Timeline Timeline => Character?.Timeline;
+            public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
 
             public readonly List<(string subsystem, int slotIndex)> ClearedSlots = new List<(string, int)>();
 
