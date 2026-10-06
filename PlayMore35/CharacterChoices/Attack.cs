@@ -110,6 +110,18 @@ namespace PlayMore35.Items {
             CriticalDamageExplanation = new List<string> { $"{baseDamage?.ToString()} ×{criticalMultiplier}" };
         }
 
+        public Attack WithIterativePenalty(int penalty, string explanation = null) {
+            var copy = (Attack)this.MemberwiseClone();
+            var expl = new List<string>(this.AttackBonus.explanation);
+            if (!string.IsNullOrEmpty(explanation)) {
+                expl.Add(explanation);
+            } else if (penalty != 0) {
+                expl.Add($"{penalty.ToString("+#;–#;0")} iterative attack");
+            }
+            copy.AttackBonus = (this.AttackBonus.bonus + penalty, expl);
+            return copy;
+        }
+
         // keys are the Medium damage dice
         // values are lists of damage dice ordered from Fine to Colossal
         private static readonly Dictionary<(int, int), List<(int, int)>> damageSteps =

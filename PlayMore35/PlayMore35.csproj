@@ -130,6 +130,7 @@
     <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="CharacterChoices\AttackRoutine.cs" />
+    <Compile Include="CharacterChoices\AttackRoutineEvaluator.cs" />
     <Compile Include="UI\DynamicPanel.cs">
       <SubType>Component</SubType>
     </Compile>

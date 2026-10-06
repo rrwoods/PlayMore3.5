@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
@@ -77,6 +77,7 @@ namespace PlayMore35.Items {
             }
             if (json["effort"] != null) {
                 ShieldBashEffort = (Weapon.Effort) Enum.Parse(typeof(Weapon.Effort), (string)json["effort"], false);
+                AddBash();
             }
         }
 
