@@ -41,11 +41,25 @@ Prefer linear git history:
 
 ## Planning gates
 
+### Rules arbitration gate
+
+When authoring an implementation plan (`implementation_plan.md`) or preparing to touch game rules (mechanics, formulas, stacking, prerequisites, modifiers, subsystems, or `rules.json`):
+- **Never extrapolate from model memory**: The agent is strictly prohibited from inventing, assuming, or remembering D&D 3.5e mechanics.
+- **Human arbitration required**: The agent must halt and require the user to provide an authoritative primary source (sourcebook title, page number, and a verbatim quote or screenshot extract of the rule text) before designing or writing code.
+- **Plan provenance**: Every planned rules change must include a `Rules Provenance` table documenting the book, page, exact quote, and user confirmation before implementation can begin. See `docs/agents/rules-template.md`.
+
 ### Documentation gate
 
 When authoring an implementation plan (`implementation_plan.md`), include planned repository documentation updates under `Proposed Changes` following the [Documentation checklist](#documentation-checklist).
 
 ## Pre-commit gates
+
+### Rules provenance gate
+
+Before running `git commit` or marking a PR ready for changes touching game rules:
+- Audit all modified rules logic and `rules.json` entries against the user-supplied source quote in the plan or issue.
+- Verify that unit tests validating the rule cite the primary source (book and page) in test comments or names.
+- Confirm that no unarbitrated mechanical assumptions or extrapolation crept into the implementation.
 
 ### Documentation gate
 
