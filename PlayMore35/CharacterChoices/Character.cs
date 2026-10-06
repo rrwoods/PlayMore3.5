@@ -115,18 +115,6 @@ namespace PlayMore35.CharacterChoices {
                         Subsystems[prop.Name] = PactMagicState.FromJson(pactJson);
                     }
                 }
-            } else if (json["vestiges"] is JArray vestigeArray && vestigeArray.Count > 0) {
-                var pms = new PactMagicState();
-                foreach (var token in vestigeArray) {
-                    string vName = (string)token["name"] ?? "";
-                    string vState = (string)token["state"];
-                    PactState state = PactState.GOOD_PACT;
-                    if (!string.IsNullOrEmpty(vState) && Enum.TryParse(vState, true, out PactState parsed)) {
-                        state = parsed;
-                    }
-                    pms.Slots.Add(new PactSlot(vName, state));
-                }
-                Subsystems[PactMagicEngine.SubsystemId] = pms;
             }
             flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
             paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);

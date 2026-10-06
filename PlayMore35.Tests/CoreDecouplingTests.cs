@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -103,6 +103,42 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(1, spy.ClearedSlots.Count);
             Assert.AreEqual(1, spy.ClearedSlots[0]);
+        }
+
+        [TestMethod]
+        public void Character_DoesNotDeserializeLegacyVestigesJson() {
+            var json = new JObject(
+                new JProperty("name", "LegacyChar"),
+                new JProperty("gender", ""),
+                new JProperty("alignment", ""),
+                new JProperty("race", ""),
+                new JProperty("assigned", new JObject(
+                    new JProperty("STR", 10), new JProperty("DEX", 10), new JProperty("CON", 10),
+                    new JProperty("INT", 10), new JProperty("WIS", 10), new JProperty("CHA", 10)
+                )),
+                new JProperty("bonus languages", new JArray()),
+                new JProperty("classes", new JArray("Binder")),
+                new JProperty("incremented", new JObject()),
+                new JProperty("hit die rolls", new JArray()),
+                new JProperty("skill ranks", new JObject()),
+                new JProperty("feats", new JObject()),
+                new JProperty("feat choices", new JObject()),
+                new JProperty("transactions", new JArray()),
+                new JProperty("inventory", new JObject()),
+                new JProperty("equipped", new EquippedChoices().ToJson()),
+                new JProperty("sessions", new JArray()),
+                new JProperty("effects", new JArray()),
+                new JProperty("vestiges", new JArray(new JObject(
+                    new JProperty("name", "Aym"),
+                    new JProperty("state", "GOOD_PACT")
+                ))),
+                new JProperty("flag values", new JObject()),
+                new JProperty("parameter values", new JObject()),
+                new JProperty("time", new Timeline().ToJson())
+            );
+
+            var character = new Character(null, null, json);
+            Assert.AreEqual(0, character.Subsystems.Count, "Character must not parse legacy json['vestiges'] into Subsystems.");
         }
     }
 }
