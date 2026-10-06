@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -42,6 +42,7 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, int> paramValues;
 
         public Rounds rounds;
+        public Rounds Timeline => rounds;
 
         public JToken ToJson() {
             return new JObject(
@@ -110,6 +111,8 @@ namespace PlayMore35.CharacterChoices {
             paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
             rounds = new Rounds(mainForm, previousCharacter.rounds, (JObject)json["time"]);
         }
+
+        public Character() : this(null) { }
 
         public Character(MainForm mainForm) {
             name = "";
