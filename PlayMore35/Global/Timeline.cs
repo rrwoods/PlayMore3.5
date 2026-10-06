@@ -167,6 +167,15 @@ namespace PlayMore35.Global {
                     scheduledActions.Remove(round);
                     foreach (var action in actions) {
                         result.ExpiredActions.Add(action);
+                        if (ctx != null) {
+                            var req = action.Perform(ctx);
+                            if (req == TimelineRefreshRequirement.FullReload) {
+                                result.RefreshRequirement = TimelineRefreshRequirement.FullReload;
+                            } else if (req == TimelineRefreshRequirement.RecomputeDerived &&
+                                       result.RefreshRequirement != TimelineRefreshRequirement.FullReload) {
+                                result.RefreshRequirement = TimelineRefreshRequirement.RecomputeDerived;
+                            }
+                        }
                     }
                 }
             }
@@ -190,6 +199,9 @@ namespace PlayMore35.Global {
             var ctx = context ?? Context;
             if (ctx?.Effects?.resettableParameters != null && ctx.Effects.resettableParameters.ContainsKey("encounter")) {
                 ctx.Effects.resettableParameters["encounter"].ForEach(x => x.Value = 0);
+            }
+            if (ctx != null) {
+                encounterActions.ForEach(x => x.Perform(ctx));
             }
             encounterActions.Clear();
         }

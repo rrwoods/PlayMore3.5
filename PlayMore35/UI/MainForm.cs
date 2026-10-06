@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using PlayMore35.Items;
@@ -1357,7 +1357,7 @@ namespace PlayMore35 {
                 if (vestige == null) {
                     controller.SelectVestige(slotIndex, "", (Character.PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = "Good pact?";
-                    controller.Character.rounds.Unschedule(new SheetAction().UnbindSlot(slotIndex));
+                    controller.Character.Timeline.Unschedule(new SheetAction().ClearSlot("vestige", slotIndex));
                 } else {
                     controller.SelectVestige(slotIndex, vestige.Name, (Character.PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
@@ -1371,8 +1371,15 @@ namespace PlayMore35 {
                 RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
                 controller.SelectVestige(slotIndex, vestige.Name, bindingCheckSuccess ? Character.PactState.GOOD_PACT : Character.PactState.POOR_PACT);
-                controller.Character.rounds.Schedule(new SheetAction().UnbindSlot(slotIndex), "24 hours");
-                controller.Character.rounds.Advance(21);
+                controller.Character.Timeline.Schedule(new SheetAction().ClearSlot("vestige", slotIndex), "24 hours");
+                var result = controller.Character.Timeline.Advance(21);
+                if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
+                    controller.Reload();
+                }
+                if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
+                    RefreshEffects();
+                }
+                timelinePanel.RefreshTimeline();
             };
         }
 
