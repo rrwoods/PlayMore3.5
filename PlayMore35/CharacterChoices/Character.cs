@@ -41,8 +41,11 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, bool> flagValues;
         public Dictionary<string, int> paramValues;
 
-        public Rounds rounds;
-        public Rounds Timeline => rounds;
+        public Timeline Timeline { get; set; }
+        public Timeline rounds {
+            get => Timeline;
+            set => Timeline = value;
+        }
 
         public JToken ToJson() {
             return new JObject(
@@ -77,7 +80,7 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("vestiges", new JArray(vestiges.Select(x => new JObject(new JProperty("name", x.name), new JProperty("state", x.state))))),
                 new JProperty("flag values", new JObject(flagValues.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("parameter values", new JObject(paramValues.Select(x => new JProperty(x.Key, x.Value)))),
-                new JProperty("time", rounds.ToJson())
+                new JProperty("time", Timeline.ToJson())
             );
         }
 
@@ -109,7 +112,7 @@ namespace PlayMore35.CharacterChoices {
             ).ToList();
             flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
             paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
-            rounds = new Rounds(mainForm, previousCharacter.rounds, (JObject)json["time"]);
+            Timeline = new Timeline(previousCharacter?.Timeline, (JObject)json["time"]);
         }
 
         public Character() : this(null) { }
@@ -148,7 +151,7 @@ namespace PlayMore35.CharacterChoices {
             flagValues = new Dictionary<string, bool>();
             paramValues = new Dictionary<string, int>();
 
-            rounds = new Rounds(mainForm);
+            Timeline = new Timeline();
         }
 
         public IEnumerable<WeaponChoice> Weapons {
