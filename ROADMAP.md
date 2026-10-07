@@ -62,6 +62,10 @@ Features required for the author's primary active character, alongside immediate
   - Support feats that waive this penalty (*Improved Shield Bash*).
   - Controller/UX state indicating whether a shield is currently wielded defensively or used offensively as an off-hand weapon (analogous to tower shield total cover vs. AC bonus).
 
+### Low-Priority Odric / Binder Mechanics
+- **[ODRIC] Vestige Special Requirements**:
+  - Store and display special requirements for binding vestiges in the Pact Magic / vestiges interface (e.g. alignment constraints, environmental conditions, or situational binding penalties from *Tome of Magic*).
+
 ---
 
 ## Tier 2: Current Party Members
@@ -89,10 +93,13 @@ Features required to support the other players in the active gaming group.
 
 ---
 
-## Tier 3: Alth
+## Tier 3: Alth & High-Priority Usability
 
-Features tagged specifically for the character Alth.
+Features tagged specifically for the character Alth, alongside high-priority custom authoring tools.
 
+- **In-App Effect Authoring (High Priority)**:
+  - In-app UI system for defining new arbitrary effects (structured fields/dropdowns vs. natural language parser converting phrases like `"+1 morale to attack rolls"` into concrete effects).
+  - Foundational effect generation layer that unblocks custom item, feat, class, and race authoring.
 - **[ALTH] Class Feature Choices**:
   - Selections tied to class features (e.g., Swordsage discipline focus).
 - **[ALTH] Skill Tricks**:
@@ -153,6 +160,11 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Rules-embedded situational bonuses (Hide bonuses while invisible).
   - Global skill effects: Effects affecting all skills (sickened, vestige defiance) should not trigger relevance for every skill; display centrally.
   - Space statistic (lookup table on creature size category).
+- **Epic Base Attack & Save Bonus Mechanics**:
+  - D&D 3.5 epic progression rules (level > 20): Track "non-epic class levels" to determine which levels contribute toward standard base attack bonus and base save bonus progressions versus epic attack bonus and epic save bonus progressions.
+- **Esoteric Rules & Mechanics (Monkey Grip & Control Shape)**:
+  - *Monkey Grip*: Support wielding weapons one size category larger than normal with a -2 attack roll penalty.
+  - *Control Shape Skill*: Model Control Shape skill checks for afflicted and natural lycanthropes.
 
 ### 4.2 Dashboard & Combat UX
 *(Note: Section 0 restructuring is prioritized in Tier 1).*
@@ -162,6 +174,8 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
 - **Automated Attack Permutations**:
   - Automatically calculate valid attack permutations (single attack, full iterative routine, two-handed grip, TWF combinations) with a sensible baseline initially visible.
   - Combined attack and damage workflow: show roll damage button after attack roll (deferred with RollServer).
+- **Roll Button Feedback**:
+  - Provide feedback if the roll button is clicked and no incoming Roll20 request is listening on `RollServer`. Alternatively, avoid presenting or enable/disable the roll button based on active incoming listener availability.
 - **Comprehensive Effects View**:
   - "All Effects" inspector displaying active, inactive, and conditional effects with toggle overrides.
   - Display uncategorized text under Special Qualities.
@@ -199,7 +213,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Savnok vestige DR scaling with Effective Binder Level.
   - Stunning Fist "per four levels" excluding non-class hit dice.
 - **Content Creation & House Rules Layer**:
-  - In-app authoring for new items, classes, feats, and races.
+  - In-app authoring for new items, classes, feats, and races (building upon Tier 3 in-app effect authoring).
   - Separate house rules from core rules; ability to save/load distinct house-rule sets per campaign.
   - Combine core and extended data definitions (load core $\to$ load extended $\to$ save sorted).
 
