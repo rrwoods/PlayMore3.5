@@ -2,60 +2,46 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 
 namespace PlayMore35.Effects {
-    public class ControllableFlag : IJsonable {
-        public string Name;
-        public string Category;
-        public string Description;
-        public IToggle Show = AlwaysOn.Instance;
-
-        public ActionResource Resource = null;
-
+    public class ControllableFlag : FlagDefinition {
         private bool on; // not serialized, because it's tied to the character.
         public bool On {
             get { return on; }
             set {
                 on = value;
-                character.flagValues[Name] = value;
+                if (character != null) {
+                    character.flagValues[Name] = value;
+                }
             }
         }
         private Character character;
 
-        public JToken ToJson() {
-            JObject json = new JObject(
-                new JProperty("name", Name),
-                new JProperty("category", Category),
-                new JProperty("description", Description)
-            );
-            if (Show != AlwaysOn.Instance) {
-                json.Add(new JProperty("show", Show.ToJson()));
-            }
-            if (Resource != null) {
-                json.Add(new JProperty("resource", Resource.ToJson()));
-            }
-            return json;
-        }
-
-        public ControllableFlag(JObject json, Character character) {
-            Name = (string)json["name"];
-            Category = (string)json["category"];
-            Description = (string)json["description"];
-            if (json["show"] != null) {
-                Show = Toggle.FromJson(json["show"]);
-            }
-            if (json["resource"] != null) {
-                Resource = new ActionResource((JObject)json["resource"]);
-            }
-            character.flagValues.TryGetValue(Name, out on);
+        public ControllableFlag(FlagDefinition def, Character character)
+            : base(def.Name, def.Category, def.Description, def.Show, def.Resource) {
             this.character = character;
+            character?.flagValues.TryGetValue(Name, out on);
         }
 
-        public ControllableFlag(string name, Character character, bool on = false) {
-            Name = name;
-            Category = "";
-            Description = "";
+        public ControllableFlag(JObject json, Character character)
+            : base(json) {
+            this.character = character;
+            character?.flagValues.TryGetValue(Name, out on);
+        }
+
+        public ControllableFlag(string name, Character character, bool on = false)
+            : base(name) {
             this.character = character;
             this.on = on;
-            character.flagValues[name] = on;
+            if (character != null) {
+                character.flagValues[name] = on;
+            }
+        }
+
+        public void BindCharacter(Character character) {
+            this.character = character;
+            if (character != null && character.flagValues.TryGetValue(Name, out bool val)) {
+                this.on = val;
+            }
         }
     }
 }
+

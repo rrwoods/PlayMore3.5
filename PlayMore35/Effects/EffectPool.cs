@@ -33,7 +33,24 @@ namespace PlayMore35.Effects {
             );
         }
 
+        private Character character;
+
+        public void BindCharacter(Character character) {
+            this.character = character;
+            foreach (var flag in controllableFlags.Values) {
+                flag.BindCharacter(character);
+            }
+            foreach (var param in controllableParameters.Values) {
+                param.BindCharacter(character);
+            }
+        }
+
+        public void ReadJson(JToken json) {
+            ReadJson(json, this.character);
+        }
+
         public void ReadJson(JToken json, Character character) {
+            this.character = character;
             foreach (JProperty featSlot in json["feats"]) {
                 featSlots[featSlot.Name] = (int)featSlot.Value;
             }
@@ -200,6 +217,7 @@ namespace PlayMore35.Effects {
 
         // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
         public void GenerateCharacterEffects(Character choices) {
+            this.character = choices;
             AssignAbilityScores(choices.assignedAbilityScores);
             foreach (var ability in choices.abilityScoreIncrements) {
                 AddEffect(new Effect("Level")
@@ -235,8 +253,8 @@ namespace PlayMore35.Effects {
         }
 
         public void GenerateExternalEffect(ExternalEffect effect) {
-            effect.Flags.ForEach(x => controllableFlags[x.Name] = x);
-            effect.Params.ForEach(x => controllableParameters[x.Name] = x);
+            effect.Flags.ForEach(x => controllableFlags[x.Name] = new ControllableFlag(x, character));
+            effect.Params.ForEach(x => controllableParameters[x.Name] = new ControllableParameter(x, character));
             AddEffect(effect.Effect);
         }
 
@@ -260,7 +278,7 @@ namespace PlayMore35.Effects {
             }
             AddEffect(effect);
             race.Effects.ForEach(x => AddEffect(x));
-            race.Flags.ForEach(x => controllableFlags[x.Name] = x);
+            race.Flags.ForEach(x => controllableFlags[x.Name] = new ControllableFlag(x, character));
             AddStats(race.NewStats);
         }
 
@@ -386,8 +404,8 @@ namespace PlayMore35.Effects {
                 benefit = benefit.ApplyChoice(choice);
             }
             AddEffect(benefit);
-            feat.Flags.ForEach(x => controllableFlags[x.Name] = x);
-            feat.Parameters.ForEach(x => controllableParameters[x.Name] = x);
+            feat.Flags.ForEach(x => controllableFlags[x.Name] = new ControllableFlag(x, character));
+            feat.Parameters.ForEach(x => controllableParameters[x.Name] = new ControllableParameter(x, character));
             AddStats(feat.NewStats);
         }
     }

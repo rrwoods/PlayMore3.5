@@ -300,8 +300,8 @@ namespace PlayMore35.Global {
                         Effects.AddEffect(feature);
                     }
                     if (level < @class.Flags.Count) {
-                        foreach (ControllableFlag flag in @class.Flags[level]) {
-                            Effects.controllableFlags[flag.Name] = flag;
+                        foreach (FlagDefinition flag in @class.Flags[level]) {
+                            Effects.controllableFlags[flag.Name] = new ControllableFlag(flag, character);
                         }
                     }
                 }
@@ -342,12 +342,12 @@ namespace PlayMore35.Global {
             foreach (var itemRef in Character.equipped.SlottedItems) {
                 Item item = ItemDefinitions[itemRef.Value];
                 EquippedItems.SlottedItems[itemRef.Key] = item;
-                item.NewFlags.ForEach(x => Effects.controllableFlags[x.Name] = x);
+                item.NewFlags.ForEach(x => Effects.controllableFlags[x.Name] = new ControllableFlag(x, character));
             }
             foreach (string itemName in Character.equipped.SlotlessItems) {
                 Item item = ItemDefinitions[itemName];
                 EquippedItems.SlotlessItems.Add(item);
-                item.NewFlags.ForEach(x => Effects.controllableFlags[x.Name] = x);
+                item.NewFlags.ForEach(x => Effects.controllableFlags[x.Name] = new ControllableFlag(x, character));
             }
 
             Effects.GenerateUses(EquippedItems, character);

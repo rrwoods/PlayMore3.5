@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 using Newtonsoft.Json.Linq;
@@ -9,8 +9,8 @@ namespace PlayMore35.CharacterChoices {
         public List<string> Descriptors = new List<string>(); // don't bother with [General].  nothing cares.
         public string Prerequisites = ""; // not formalizing this for now
         public string ChoiceDescription = "";
-        public List<ControllableFlag> Flags = new List<ControllableFlag>();
-        public List<ControllableParameter> Parameters = new List<ControllableParameter>();
+        public List<FlagDefinition> Flags = new List<FlagDefinition>();
+        public List<ParameterDefinition> Parameters = new List<ParameterDefinition>();
         public Effect Benefit; // name of the feat is the name of the effect
 
         public List<Statistic> NewStats = new List<Statistic>();
@@ -32,7 +32,7 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public Feat(JObject json, Character character) {
+        public Feat(JObject json) {
             Benefit = new Effect((JObject)json["benefit"]);
             Descriptors.ReadJson("descriptors", json);
             if (json["prerequisites"] != null) {
@@ -42,14 +42,17 @@ namespace PlayMore35.CharacterChoices {
                 ChoiceDescription = (string)json["choice"];
             }
             if (json["flags"] != null) {
-                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x, character)));
+                Flags.AddRange(json["flags"].Select(x => new FlagDefinition((JObject)x)));
             }
             if (json["parameters"] != null) {
-                Parameters.AddRange(json["parameters"].Select(x => new ControllableParameter((JObject)x, character)));
+                Parameters.AddRange(json["parameters"].Select(x => new ParameterDefinition((JObject)x)));
             }
             if (json["stats"] != null) {
                 NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
             }
+        }
+
+        public Feat(JObject json, Character character) : this(json) {
         }
     }
 }

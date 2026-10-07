@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +28,7 @@ namespace PlayMore35.CharacterChoices {
         public List<Effect> Effects = new List<Effect>();
         public Dictionary<string, int> BonusFeats = new Dictionary<string, int>();
 
-        public List<ControllableFlag> Flags = new List<ControllableFlag>();
+        public List<FlagDefinition> Flags = new List<FlagDefinition>();
         public List<Statistic> NewStats = new List<Statistic>();
 
         public JToken ToJson() {
@@ -70,7 +70,7 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public Race(JObject json, Character character) {
+        public Race(JObject json) {
             Name = (string)json["name"];
             CreatureType = (string)json["type"];
             if (json["subtypes"] != null) {
@@ -109,7 +109,7 @@ namespace PlayMore35.CharacterChoices {
                 }
             }
             if (json["flags"] != null) {
-                Flags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x, character)));
+                Flags.AddRange(json["flags"].Select(x => new FlagDefinition((JObject)x)));
             }
             if (json["effects"] != null) {
                 Effects.AddRange(json["effects"].Select(x => new Effect((JObject)x)));
@@ -117,6 +117,9 @@ namespace PlayMore35.CharacterChoices {
             if (json["stats"] != null) {
                 NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
             }
+        }
+
+        public Race(JObject json, Character character) : this(json) {
         }
 
         public Race() {
