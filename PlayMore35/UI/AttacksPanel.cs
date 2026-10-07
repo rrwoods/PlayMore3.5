@@ -11,31 +11,10 @@ using PlayMore35.Effects;
 namespace PlayMore35 {
     public class AttacksPanel : DynamicPanel {
         private readonly List<Label> labels = new List<Label>();
-        private readonly LinkLabel lnkConfigure = new LinkLabel {
-            Text = "Configure Attack Routines...",
-            AutoSize = true
-        };
 
         public override void Initialize(MainForm mainForm) {
             base.Initialize(mainForm);
             FlowDirection = FlowDirection.LeftToRight;
-            lnkConfigure.LinkClicked += Configure_LinkClicked;
-            Controls.Add(lnkConfigure);
-            SetFlowBreak(lnkConfigure, true);
-        }
-
-        private void Configure_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            if (mainForm?.controller?.Character == null) {
-                return;
-            }
-            if (mainForm.controller.Character.RoutinePreferences == null) {
-                mainForm.controller.Character.RoutinePreferences = new AttackRoutinePreferences();
-            }
-            using (var dialog = new ConfigureAttackRoutinesDialog(mainForm.controller.Character.RoutinePreferences)) {
-                if (dialog.ShowDialog(this) == DialogResult.OK) {
-                    mainForm.RefreshEffects();
-                }
-            }
         }
 
         private ToolStripMenuItem AttackRoll(string weapon, int bonus) {

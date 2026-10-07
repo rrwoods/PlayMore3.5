@@ -1,4 +1,4 @@
-﻿namespace PlayMore35 {
+namespace PlayMore35 {
     partial class MainForm {
         /// <summary>
         /// Required designer variable.
@@ -24,6 +24,9 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.configureAttackRoutinesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabMain = new System.Windows.Forms.TabControl();
             this.pagCharacter = new System.Windows.Forms.TabPage();
             this.lblClassesHeader = new System.Windows.Forms.Label();
@@ -201,6 +204,7 @@
             this.floMyTurn.SuspendLayout();
             this.floBeforeCombat.SuspendLayout();
             this.floEnemyTurn.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabMain
@@ -212,10 +216,10 @@
             this.tabMain.Controls.Add(this.pagVestiges);
             this.tabMain.Controls.Add(this.pagInventory);
             this.tabMain.Controls.Add(this.pagStats);
-            this.tabMain.Location = new System.Drawing.Point(0, 0);
+            this.tabMain.Location = new System.Drawing.Point(0, 24);
             this.tabMain.Name = "tabMain";
             this.tabMain.SelectedIndex = 0;
-            this.tabMain.Size = new System.Drawing.Size(1289, 653);
+            this.tabMain.Size = new System.Drawing.Size(1289, 629);
             this.tabMain.TabIndex = 1;
             this.tabMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.TabSwitch);
             // 
@@ -2042,13 +2046,40 @@
             this.savesPanel.Size = new System.Drawing.Size(307, 100);
             this.savesPanel.TabIndex = 7;
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.optionsToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1289, 24);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.configureAttackRoutinesToolStripMenuItem});
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.optionsToolStripMenuItem.Text = "Options";
+            // 
+            // configureAttackRoutinesToolStripMenuItem
+            // 
+            this.configureAttackRoutinesToolStripMenuItem.Name = "configureAttackRoutinesToolStripMenuItem";
+            this.configureAttackRoutinesToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.configureAttackRoutinesToolStripMenuItem.Text = "Configure Attack Routines";
+            this.configureAttackRoutinesToolStripMenuItem.Click += new System.EventHandler(this.ConfigureAttackRoutines_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1289, 653);
             this.Controls.Add(this.tabMain);
+            this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "PlayMore3.5";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
@@ -2070,7 +2101,10 @@
             this.floMyTurn.ResumeLayout(false);
             this.floBeforeCombat.ResumeLayout(false);
             this.floEnemyTurn.ResumeLayout(false);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -2240,6 +2274,9 @@
         private SkillsPanel skillsPanel;
         private TextEffectPanel skillEffectsPanel;
         public TimelinePanel timelinePanel;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem configureAttackRoutinesToolStripMenuItem;
     }
 }
 

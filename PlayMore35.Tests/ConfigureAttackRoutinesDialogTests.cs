@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Reflection;
+using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.Global;
 using PlayMore35.Items;
@@ -74,6 +76,17 @@ namespace PlayMore35.Tests {
             var controllerType = typeof(Controller);
             Assert.IsNull(controllerType.GetMethod("GetAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
             Assert.IsNull(controllerType.GetMethod("GetFullAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+        }
+
+        [TestMethod]
+        public void MainForm_HasOptionsConfigureAttackRoutinesMenu() {
+            using (var form = new MainForm()) {
+                Assert.IsNotNull(form.MainMenuStrip, "MainForm must have a MainMenuStrip");
+                var optionsMenu = form.MainMenuStrip.Items.OfType<ToolStripMenuItem>().FirstOrDefault(i => i.Text == "Options");
+                Assert.IsNotNull(optionsMenu, "MainMenuStrip must contain 'Options' menu item");
+                var configItem = optionsMenu.DropDownItems.OfType<ToolStripMenuItem>().FirstOrDefault(i => i.Text == "Configure Attack Routines");
+                Assert.IsNotNull(configItem, "'Options' menu must contain 'Configure Attack Routines' item");
+            }
         }
     }
 }
