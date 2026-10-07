@@ -52,8 +52,37 @@ namespace PlayMore35.Global {
             label.ContextMenuStrip.Items.Add(roll);
         }
 
+        private static readonly Dictionary<string, string> customShortNames = new Dictionary<string, string> {
+            ["Control Shape"] = "CS",
+            ["Decipher Script"] = "DS",
+            ["Disable Device"] = "DD",
+            ["Gather Information"] = "Info",
+            ["Knowledge (arcana)"] = "K:arc",
+            ["Knowledge (architecture and engineering)"] = "K:eng",
+            ["Knowledge (dungeoneering)"] = "K:dun",
+            ["Knowledge (geography)"] = "K:geo",
+            ["Knowledge (history)"] = "K:his",
+            ["Knowledge (local)"] = "K:loc",
+            ["Knowledge (nature)"] = "K:nat",
+            ["Knowledge (nobility and royalty)"] = "K:nob",
+            ["Knowledge (psionics)"] = "K:psi",
+            ["Knowledge (religion)"] = "K:rel",
+            ["Knowledge (the planes)"] = "K:pla",
+            ["Martial Lore"] = "ML",
+            ["Move Silently"] = "MS",
+            ["Open Lock"] = "Open",
+            ["Sleight Of Hand"] = "SOH",
+            ["Speak Language"] = "Lang",
+            ["Use Magic Device"] = "UMD",
+            ["Use Psionic Device"] = "UPD",
+            ["Use Rope"] = "Rope"
+        };
+
         public static string ShortName(string skill) {
             if (skill == null) return "";
+            if (customShortNames.TryGetValue(skill, out string customName)) {
+                return customName;
+            }
             if (skill.Count() == 4) {
                 return skill;
             }

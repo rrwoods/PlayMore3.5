@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.CharacterChoices;
@@ -129,6 +129,21 @@ namespace PlayMore35.Tests {
             var updatedStr = session.GetStatistic("STR score");
             Assert.AreEqual(18, updatedStr.Value);
             Assert.IsTrue(session.HeavyLoad > initialHeavyLoad, "Heavy load should increase with higher STR.");
+        }
+
+        [TestMethod]
+        public void FormUtils_ShortName_AppliesCustomShortNamesAndFallbacks() {
+            Assert.AreEqual("K:rel", FormUtils.ShortName("Knowledge (religion)"));
+            Assert.AreEqual("K:dun", FormUtils.ShortName("Knowledge (dungeoneering)"));
+            Assert.AreEqual("UMD", FormUtils.ShortName("Use Magic Device"));
+            Assert.AreEqual("MS", FormUtils.ShortName("Move Silently"));
+            Assert.AreEqual("Info", FormUtils.ShortName("Gather Information"));
+            Assert.AreEqual("Open", FormUtils.ShortName("Open Lock"));
+            Assert.AreEqual("Heal", FormUtils.ShortName("Heal"));
+            Assert.AreEqual("Jump", FormUtils.ShortName("Jump"));
+            Assert.AreEqual("Int", FormUtils.ShortName("Intimidate"));
+            Assert.AreEqual("Sur", FormUtils.ShortName("Survival"));
+            Assert.AreEqual("", FormUtils.ShortName(null));
         }
     }
 }
