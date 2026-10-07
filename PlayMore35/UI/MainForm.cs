@@ -1620,6 +1620,20 @@ namespace PlayMore35 {
             SaveCharacter();
         }
 
+        private void ConfigureAttackRoutines_Click(object sender, EventArgs e) {
+            if (controller?.Character == null) {
+                return;
+            }
+            if (controller.Character.RoutinePreferences == null) {
+                controller.Character.RoutinePreferences = new AttackRoutinePreferences();
+            }
+            using (var dialog = new ConfigureAttackRoutinesDialog(controller.Character.RoutinePreferences)) {
+                if (dialog.ShowDialog(this) == DialogResult.OK) {
+                    RefreshEffects();
+                }
+            }
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
             if (!loaded) {
                 return;
