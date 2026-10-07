@@ -94,11 +94,6 @@ namespace PlayMore35.Global {
             var statView = session.GetStatistic(stat);
             return LabelStat(label, statView.Value, statView.Explanation, prefix, stat, postfix, rollPrefix, plus);
         }
-
-        public static Label LabelStat(Label label, Controller controller, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
-            var (value, explanation) = controller.GetStatistic(stat);
-            return LabelStat(label, value, explanation, prefix, stat, postfix, rollPrefix, plus);
-        }
     }
 
     static class LabelExtensions {

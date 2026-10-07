@@ -215,6 +215,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Encapsulate combinatorial weapon-hand pairing, TWF penalties, and iterative attack progressions behind an evaluator interface.
 - **Deepen the Character Engine Module ([#77](https://github.com/rrwoods/PlayMore3.5/issues/77))**:
   - Replace the pass-through `Controller` coordinator with a deep character session module emitting clean read-only state projections.
+  - Slices: [#94](https://github.com/rrwoods/PlayMore3.5/issues/94) (Domain primitives & catalog extraction), [#95](https://github.com/rrwoods/PlayMore3.5/issues/95) (CharacterSession engine), [#96](https://github.com/rrwoods/PlayMore3.5/issues/96) (Projections & evaluation wrappers), [#97](https://github.com/rrwoods/PlayMore3.5/issues/97) (Presentation layer migration), [#98](https://github.com/rrwoods/PlayMore3.5/issues/98) (Controller purge & isolation verification).
 - **UI Namespaces**:
   - Fix namespaces for controls and forms moved into the `UI/` folder.
 - **Dynamic Control Recycling**:

@@ -73,9 +73,8 @@ namespace PlayMore35.Tests {
             Assert.IsNull(attackType.GetMethod("Generate", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
             Assert.IsNull(attackType.GetMethod("GenerateMultiweaponFullAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
 
-            var controllerType = typeof(Controller);
-            Assert.IsNull(controllerType.GetMethod("GetAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
-            Assert.IsNull(controllerType.GetMethod("GetFullAttacks", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+            var controllerType = Type.GetType("PlayMore35.Global.Controller, PlayMore35");
+            Assert.IsNull(controllerType, "Controller type must be completely purged from assembly.");
         }
 
         [TestMethod]
