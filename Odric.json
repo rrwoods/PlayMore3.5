@@ -156,21 +156,19 @@
     "round zero": "2026-10-06T20:11:30.0000000",
     "encounter start time": "2026-10-06T20:12:00.0000000",
     "encounter start round": 5,
-    "current round": 14,
+    "current round": 28835,
     "combat": false,
     "scheduled actions": {
-      "22": [
+      "43214": [
         {
-          "clear": [
-            "whirling frenzy"
-          ],
-          "after": [
+          "clear_slots": [
             {
-              "duration": "encounter",
-              "set": [
-                "fatigued"
-              ]
+              "subsystem": "vestige",
+              "slot": 0
             }
+          ],
+          "unbind": [
+            0
           ]
         }
       ]
