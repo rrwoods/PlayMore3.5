@@ -35,16 +35,6 @@ namespace PlayMore35.Effects {
 
         private Character character;
 
-        public void BindCharacter(Character character) {
-            this.character = character;
-            foreach (var flag in controllableFlags.Values) {
-                flag.BindCharacter(character);
-            }
-            foreach (var param in controllableParameters.Values) {
-                param.BindCharacter(character);
-            }
-        }
-
         public void ReadJson(JToken json) {
             ReadJson(json, this.character);
         }

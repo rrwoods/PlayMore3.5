@@ -38,8 +38,6 @@ namespace PlayMore35.Items {
             }
         }
 
-        public Item(JObject json, Character character) : this(json) { }
-
         public Item() { }
     }
 }
