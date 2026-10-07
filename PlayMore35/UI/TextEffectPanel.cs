@@ -95,6 +95,7 @@ namespace PlayMore35 {
             HashSet<string> inactiveFlags = new HashSet<string>(flags.Keys);
             HashSet<string> inactiveUses = new HashSet<string>(usesLabels.Keys);
             HashSet<string> inactiveUsed = new HashSet<string>(usedFields.Keys);
+            var parameters = session.GetControllableParameters().GroupBy(p => p.Name).ToDictionary(g => g.Key, g => g.First().Value);
             foreach (var flag in session.GetControllableFlags()) {
                 if (flag.Category != category || !flag.IsVisible) {
                     continue;
@@ -111,11 +112,11 @@ namespace PlayMore35 {
                     flagBox.Visible = true;
                     flagBox.Checked = flag.IsActive;
                     
-                    if (flag.Resource != null) {
+                    if (flag.HasResource) {
                         inactiveUses.Remove(flag.Name);
                         usesLabel = usesLabels[flag.Name];
                         usesLabel.Visible = true;
-                        if (flag.Resource.RechargeTime.unit != AT_WILL) {
+                        if (!flag.IsAtWill) {
                             inactiveUsed.Remove(flag.Name);
                             usedField = usedFields[flag.Name];
                             usedField.Visible = true;
@@ -134,29 +135,29 @@ namespace PlayMore35 {
                     flags[toggleName] = flagBox;
                     Controls.Add(flagBox);
 
-                    if (flag.Resource != null) {
+                    if (flag.HasResource) {
                         usesLabel = new Label {
-                            Text = flag.Resource.Description()
+                            Text = flag.ResourceDescription
                         }.Initialize();
                         usesLabels[flag.Name] = usesLabel;
                         Controls.Add(usesLabel);
 
                         SheetAction useCharge = new SheetAction().AdjustParam(usedName, 1);
-                        if (flag.Resource.RechargeTime.unit != AT_WILL) {
+                        if (!flag.IsAtWill) {
                             usedField = new LabeledField(usedName, mainForm, "used");
                             usedFields[flag.Name] = usedField;
                             Controls.Add(usedField);
                             SetFlowBreak(usedField, true);
-                            if (!flag.Resource.RechargeTime.quantity.IsSingleOne()) {
-                                useCharge.Duration(flag.Resource.RechargeTime.ToString());
+                            if (!string.IsNullOrEmpty(flag.RechargeDuration)) {
+                                useCharge.Duration(flag.RechargeDuration);
                             }
                         } else {
                             SetFlowBreak(usesLabel, true);
                         }
 
-                        SheetAction getEffect = new SheetAction().SetFlag(flag.Name).Duration(flag.Resource.Duration);
-                        if (flag.Resource.ActionAfter != null) {
-                            getEffect.AndThen(flag.Resource.ActionAfter);
+                        SheetAction getEffect = new SheetAction().SetFlag(flag.Name).Duration(flag.EffectDuration);
+                        if (flag.ActionAfter != null) {
+                            getEffect.AndThen(flag.ActionAfter);
                         }
 
                         ToolStripMenuItem menuItem = new ToolStripMenuItem {
@@ -174,13 +175,12 @@ namespace PlayMore35 {
                     }
                 }
                 ToolTipTextLabel(flagBox, flag.Description);
-                if (usesLabel != null && flag.Resource.RechargeTime.unit != AT_WILL) {
-                    ToolTipTextLabel(usesLabel, string.Join("\n", flag.Resource.DynamicUsesExplanation));
-                    if (session.Character.paramValues.ContainsKey(usedName)) {
-                        int used = session.Character.paramValues[usedName];
+                if (usesLabel != null && !flag.IsAtWill) {
+                    ToolTipTextLabel(usesLabel, string.Join("\n", flag.UsesExplanation));
+                    if (parameters.TryGetValue(usedName, out int used)) {
                         usedField.Value = used;
-                        UsedUpColor(usesLabel, used < flag.Resource.DynamicUses);
-                        UsedUpColor(flagBox, used < flag.Resource.DynamicUses);
+                        UsedUpColor(usesLabel, used < flag.MaxUses);
+                        UsedUpColor(flagBox, used < flag.MaxUses);
                     }
                 }
                 any = true;
@@ -273,8 +273,7 @@ namespace PlayMore35 {
                         ToolTipTextLabel(effectLabel, desc);
                         if (usesLabel != null && text.Resource.RechargeTime.unit != AT_WILL) {
                             ToolTipTextLabel(usesLabel, string.Join("\n", text.Resource.DynamicUsesExplanation));
-                            if (session.Character.paramValues.ContainsKey(usedName)) {
-                                int used = session.Character.paramValues[usedName];
+                            if (parameters.TryGetValue(usedName, out int used)) {
                                 usedField.Value = used;
                                 UsedUpColor(usesLabel, used < text.Resource.DynamicUses);
                                 UsedUpColor(effectLabel, used < text.Resource.DynamicUses);

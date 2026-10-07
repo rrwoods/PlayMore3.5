@@ -129,7 +129,7 @@ namespace PlayMore35 {
         }
 
         public void SelectClass(object sender, EventArgs e) {
-            session.Character.classLevels[levelIndex] = cboClass.Text;
+            session.Mutate(c => c.classLevels[levelIndex] = cboClass.Text);
             PrepareFeats();
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -146,7 +146,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("NG", session.Character.alignment);
             Assert.AreEqual("dream dwarf", session.Character.race);
             Assert.AreEqual(4, session.Character.classLevels.Count);
-            CollectionAssert.AreEqual(new[] { "Binder", "Barbarian", "Fighter", "Fighter" }, session.Character.classLevels);
+            CollectionAssert.AreEqual(new[] { "Binder", "Barbarian", "Fighter", "Fighter" }, session.Character.classLevels.ToList());
 
             // Assert feats & choices
             Assert.AreEqual("Improved Binding", session.Character.feats["Level 1"]);

@@ -136,6 +136,8 @@
     <Compile Include="CharacterChoices\Item.cs" />
     <Compile Include="CharacterChoices\ArmorChoice.cs" />
     <Compile Include="CharacterChoices\Character.cs" />
+    <Compile Include="CharacterChoices\IReadOnlyCharacter.cs" />
+    <Compile Include="CharacterChoices\ReadOnlyCharacter.cs" />
     <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="CharacterChoices\AttackRoutine.cs" />

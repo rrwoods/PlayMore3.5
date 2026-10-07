@@ -34,8 +34,6 @@ namespace PlayMore35.Global {
             );
         }
 
-        public Timeline(Timeline previous, JObject json) : this(json) { }
-
         public Timeline(JObject json) {
             if (json == null) {
                 DefaultInitialize();

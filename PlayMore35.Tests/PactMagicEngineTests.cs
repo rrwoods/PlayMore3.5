@@ -198,7 +198,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(json["subsystems"]);
             Assert.IsNotNull(json["subsystems"][PactMagicEngine.SubsystemId]);
 
-            var restored = new Character(null, null, (JObject)json);
+            var restored = new Character((JObject)json);
             Assert.IsTrue(restored.Subsystems.ContainsKey(PactMagicEngine.SubsystemId));
             var restoredPact = restored.Subsystems[PactMagicEngine.SubsystemId] as PactMagicState;
             Assert.IsNotNull(restoredPact);

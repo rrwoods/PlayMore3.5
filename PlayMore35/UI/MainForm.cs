@@ -159,13 +159,12 @@ namespace PlayMore35 {
         }
 
         private void DisplayTotalAbilityScores() {
-            Race race = session.Catalog.Races[session.Character.race];
-            txtFinalStr.Text = "" + (session.Character.assignedAbilityScores[STR] + race.Str);
-            txtFinalDex.Text = "" + (session.Character.assignedAbilityScores[DEX] + race.Dex);
-            txtFinalCon.Text = "" + (session.Character.assignedAbilityScores[CON] + race.Con);
-            txtFinalInt.Text = "" + (session.Character.assignedAbilityScores[INT] + race.Int);
-            txtFinalWis.Text = "" + (session.Character.assignedAbilityScores[WIS] + race.Wis);
-            txtFinalCha.Text = "" + (session.Character.assignedAbilityScores[CHA] + race.Cha);
+            txtFinalStr.Text = session.GetStatistic(STR_SCORE).Value.ToString();
+            txtFinalDex.Text = session.GetStatistic(DEX_SCORE).Value.ToString();
+            txtFinalCon.Text = session.GetStatistic(CON_SCORE).Value.ToString();
+            txtFinalInt.Text = session.GetStatistic(INT_SCORE).Value.ToString();
+            txtFinalWis.Text = session.GetStatistic(WIS_SCORE).Value.ToString();
+            txtFinalCha.Text = session.GetStatistic(CHA_SCORE).Value.ToString();
         }
 
         private EventHandler SelectBonusLanguage(int i) {
@@ -1515,7 +1514,7 @@ namespace PlayMore35 {
 
             addItemDialog.Font = scala;
 
-            session = new CharacterSession(new Character(this), new GameRulesCatalog());
+            session = new CharacterSession(new Character(), new GameRulesCatalog());
             levelDetailsDialog = new LevelDetailsDialog(session) {
                 Font = scala
             };
@@ -1598,7 +1597,7 @@ namespace PlayMore35 {
                     return false;
                 }
                 using (StreamReader reader = new StreamReader(dialog.OpenFile())) {
-                    Character loadedCharacter = new Character(this, session.Character, JObject.Parse(reader.ReadToEnd()));
+                    Character loadedCharacter = new Character(JObject.Parse(reader.ReadToEnd()));
                     session = new CharacterSession(loadedCharacter, session.Catalog);
                     levelDetailsDialog = new LevelDetailsDialog(session) {
                         Font = scala
@@ -1637,7 +1636,7 @@ namespace PlayMore35 {
                 return;
             }
             if (session.Character.RoutinePreferences == null) {
-                session.Character.RoutinePreferences = new AttackRoutinePreferences();
+                session.Mutate(c => c.RoutinePreferences = new AttackRoutinePreferences());
             }
             using (var dialog = new ConfigureAttackRoutinesDialog(session.Character.RoutinePreferences)) {
                 if (dialog.ShowDialog(this) == DialogResult.OK) {

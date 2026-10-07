@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using PlayMore35.Rules;
+using PlayMore35.Effects;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
@@ -30,6 +31,27 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Take penalty to hit", toggle.Description);
             Assert.IsTrue(toggle.IsActive);
             Assert.IsTrue(toggle.IsVisible);
+            Assert.IsFalse(toggle.HasResource);
+            Assert.IsNull(typeof(ToggleView).GetProperty("Resource"), "ToggleView must not expose internal ActionResource model.");
+
+            var resourceJson = new Newtonsoft.Json.Linq.JObject {
+                ["action"] = "swift",
+                ["recharge"] = "day",
+                ["uses"] = 3,
+                ["duration"] = "1 round"
+            };
+            var actionRes = new ActionResource(resourceJson);
+            actionRes.DynamicUses = 3;
+            actionRes.DynamicUsesExplanation = new List<string> { "Base: 3" };
+
+            var resourceToggle = new ToggleView("Turn Undead", "Channeling", "Turn undead creatures", false, true, actionRes);
+            Assert.IsTrue(resourceToggle.HasResource);
+            Assert.IsFalse(resourceToggle.IsAtWill);
+            Assert.AreEqual(3, resourceToggle.MaxUses);
+            Assert.AreEqual("swift 3/day", resourceToggle.ResourceDescription);
+            Assert.AreEqual("1 round", resourceToggle.EffectDuration);
+            Assert.AreEqual(1, resourceToggle.UsesExplanation.Count);
+            Assert.AreEqual("Base: 3", resourceToggle.UsesExplanation[0]);
 
             var param = new ParamView("Damage", "hp", "Damage taken", 12);
             Assert.AreEqual("Damage", param.Name);
