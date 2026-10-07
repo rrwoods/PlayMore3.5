@@ -4,11 +4,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Rules;
 
 namespace PlayMore35.Tests {
     [TestClass]
     public class AttackRoutineEvaluatorTests {
-        private Controller CreateControllerWithFighter(int fighterLevel, int strScore = 14, IEnumerable<string> feats = null) {
+        private CharacterSession CreateSessionWithFighter(int fighterLevel, int strScore = 14, IEnumerable<string> feats = null) {
             var character = new Character();
             character.classLevels.Clear();
             for (int i = 0; i < fighterLevel; i++) {
@@ -29,17 +30,17 @@ namespace PlayMore35.Tests {
                 }
             }
 
-            var controller = new Controller(character);
-            return controller;
+            var session = new CharacterSession(character, new GameRulesCatalog());
+            return session;
         }
 
         // Source: Player's Handbook 3.5, p. 143
         [TestMethod]
         public void EvaluateRoutines_SoloPrimaryWeapon_GeneratesStandardAndIterativeFullAttacks() {
-            var controller = CreateControllerWithFighter(11, strScore: 16); // BAB +11/+6/+1, STR +3
-            controller.EquippedItems.PrimaryHandWeapon = controller.WeaponDefinitions["greatsword"];
+            var session = CreateSessionWithFighter(11, strScore: 16); // BAB +11/+6/+1, STR +3
+            session.Mutate(c => c.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "greatsword" });
 
-            var routines = AttackRoutineEvaluator.EvaluateRoutines(controller.Effects, controller.EquippedItems, 0);
+            var routines = session.GetAllRoutines();
 
             // Verify Standard attack routine
             var standard = routines.FirstOrDefault(r => r.ActionType == RoutineActionType.Standard && r.Category == RoutineCategory.PrimarySolo);
@@ -67,11 +68,13 @@ namespace PlayMore35.Tests {
         // Source: Player's Handbook 3.5, p. 143, p. 160
         [TestMethod]
         public void EvaluateRoutines_TwoWeaponFighting_SequencesProgressionTiers_WithTwfPenalties() {
-            var controller = CreateControllerWithFighter(6, strScore: 14, feats: new[] { "Two-Weapon Fighting", "Improved Two-Weapon Fighting" });
-            controller.EquippedItems.PrimaryHandWeapon = controller.WeaponDefinitions["longsword"];
-            controller.EquippedItems.OffHandWeapon = controller.WeaponDefinitions["short sword"];
+            var session = CreateSessionWithFighter(6, strScore: 14, feats: new[] { "Two-Weapon Fighting", "Improved Two-Weapon Fighting" });
+            session.Mutate(c => {
+                c.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "longsword" };
+                c.equipped.OffHandWeapon = new WeaponChoice { Name = "short sword" };
+            });
 
-            var routines = AttackRoutineEvaluator.EvaluateRoutines(controller.Effects, controller.EquippedItems, 0);
+            var routines = session.GetAllRoutines();
 
             var twfRoutine = routines.FirstOrDefault(r => r.ActionType == RoutineActionType.FullAttack && r.Category == RoutineCategory.TwoWeaponFighting);
             Assert.IsNotNull(twfRoutine, "TWF full attack routine must exist");
@@ -100,10 +103,10 @@ namespace PlayMore35.Tests {
         // Source: Player's Handbook 3.5, p. 118, p. 160
         [TestMethod]
         public void EvaluateRoutines_DoubleWeapon_GeneratesTwoHandedSingleAndTwfRoutines() {
-            var controller = CreateControllerWithFighter(1, strScore: 14);
-            controller.EquippedItems.PrimaryHandWeapon = controller.WeaponDefinitions["orc double axe"];
+            var session = CreateSessionWithFighter(1, strScore: 14);
+            session.Mutate(c => c.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "orc double axe" });
 
-            var routines = AttackRoutineEvaluator.EvaluateRoutines(controller.Effects, controller.EquippedItems, 0);
+            var routines = session.GetAllRoutines();
 
             // Double weapon single attack routine (two-handed)
             var standard = routines.FirstOrDefault(r => r.ActionType == RoutineActionType.Standard && r.Category == RoutineCategory.DoubleWeapon);
@@ -125,15 +128,13 @@ namespace PlayMore35.Tests {
         // Source: Player's Handbook 3.5, p. 124, p. 125
         [TestMethod]
         public void EvaluateRoutines_SoloArmorSpikesAndSoloShieldBash_GenerateValidStandaloneRoutines() {
-            var controller = CreateControllerWithFighter(1, strScore: 14);
-            var armor = new Armor(controller.ArmorDefinitions["full plate"].ToJson() as Newtonsoft.Json.Linq.JObject);
-            armor.ArmorSpikes = new AttackMode(controller.WeaponDefinitions["armor spikes"].Melee?.atk);
-            controller.EquippedItems.DonnedArmor = armor;
+            var session = CreateSessionWithFighter(1, strScore: 14);
+            session.Mutate(c => {
+                c.equipped.DonnedArmor = new ArmorChoice { Name = "full plate", Spiked = true };
+                c.equipped.OffHandShield = new ArmorChoice { Name = "heavy steel shield", IsShield = true };
+            });
 
-            var shield = controller.ShieldDefinitions["heavy steel shield"];
-            controller.EquippedItems.OffHandShield = shield;
-
-            var routines = AttackRoutineEvaluator.EvaluateRoutines(controller.Effects, controller.EquippedItems, 0);
+            var routines = session.GetAllRoutines();
 
             var spikesSolo = routines.FirstOrDefault(r => r.Category == RoutineCategory.ArmorSpikesSolo);
             Assert.IsNotNull(spikesSolo, "Solo armor spikes routine must exist");
@@ -147,16 +148,14 @@ namespace PlayMore35.Tests {
         // Source: Player's Handbook 3.5, p. 160
         [TestMethod]
         public void EvaluateRoutines_MultiWeaponSecondaryCombinations_CategorizedCorrectly() {
-            var controller = CreateControllerWithFighter(1, strScore: 14);
-            controller.EquippedItems.PrimaryHandWeapon = controller.WeaponDefinitions["longsword"];
-            var armor = new Armor(controller.ArmorDefinitions["full plate"].ToJson() as Newtonsoft.Json.Linq.JObject);
-            armor.ArmorSpikes = new AttackMode(controller.WeaponDefinitions["armor spikes"].Melee?.atk);
-            controller.EquippedItems.DonnedArmor = armor;
+            var session = CreateSessionWithFighter(1, strScore: 14);
+            session.Mutate(c => {
+                c.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "longsword" };
+                c.equipped.DonnedArmor = new ArmorChoice { Name = "full plate", Spiked = true };
+                c.equipped.OffHandShield = new ArmorChoice { Name = "heavy steel shield", IsShield = true };
+            });
 
-            var shield = controller.ShieldDefinitions["heavy steel shield"];
-            controller.EquippedItems.OffHandShield = shield;
-
-            var routines = AttackRoutineEvaluator.EvaluateRoutines(controller.Effects, controller.EquippedItems, 0);
+            var routines = session.GetAllRoutines();
 
             var shieldTwf = routines.FirstOrDefault(r => r.Category == RoutineCategory.OffHandShieldBash);
             Assert.IsNotNull(shieldTwf, "Off-hand shield bash TWF routine must exist");

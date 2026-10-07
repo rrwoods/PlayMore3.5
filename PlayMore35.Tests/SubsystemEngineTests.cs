@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.CharacterChoices;
@@ -135,11 +135,11 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void CharacterContext_ExposesSubsystemRegistry() {
-            var controller = new Controller(new Character());
-            Assert.IsNotNull(controller.Subsystems);
-            Assert.IsInstanceOfType(controller.Subsystems, typeof(SubsystemRegistry));
+            var session = new CharacterSession(new Character(), new PlayMore35.Rules.GameRulesCatalog());
+            Assert.IsNotNull(session.Subsystems);
+            Assert.IsInstanceOfType(session.Subsystems, typeof(SubsystemRegistry));
 
-            ICharacterContext context = controller;
+            ICharacterContext context = session;
             Assert.IsNotNull(context.Subsystems);
         }
     }

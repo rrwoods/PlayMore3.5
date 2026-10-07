@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -43,24 +43,24 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void Controller_HasNoBespokeVestigeMembers() {
-            var vestigeMethods = typeof(Controller).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+        public void CharacterSession_HasNoBespokeVestigeMembers() {
+            var vestigeMethods = typeof(CharacterSession).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(m => m.Name.IndexOf("Vestige", StringComparison.OrdinalIgnoreCase) >= 0 || m.Name.IndexOf("PactState", StringComparison.OrdinalIgnoreCase) >= 0)
                 .Select(m => m.Name)
                 .ToList();
-            Assert.AreEqual(0, vestigeMethods.Count, $"Expected 0 bespoke vestige methods on Controller, but found: {string.Join(", ", vestigeMethods)}");
+            Assert.AreEqual(0, vestigeMethods.Count, $"Expected 0 bespoke vestige methods on CharacterSession, but found: {string.Join(", ", vestigeMethods)}");
 
-            var vestigeFields = typeof(Controller).GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            var vestigeFields = typeof(CharacterSession).GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(f => f.Name.IndexOf("Vestige", StringComparison.OrdinalIgnoreCase) >= 0 || f.Name.IndexOf("PactState", StringComparison.OrdinalIgnoreCase) >= 0)
                 .Select(f => f.Name)
                 .ToList();
-            Assert.AreEqual(0, vestigeFields.Count, $"Expected 0 bespoke vestige fields on Controller, but found: {string.Join(", ", vestigeFields)}");
+            Assert.AreEqual(0, vestigeFields.Count, $"Expected 0 bespoke vestige fields on CharacterSession, but found: {string.Join(", ", vestigeFields)}");
 
-            var vestigeProperties = typeof(Controller).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            var vestigeProperties = typeof(CharacterSession).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(p => p.Name.IndexOf("Vestige", StringComparison.OrdinalIgnoreCase) >= 0 || p.Name.IndexOf("PactState", StringComparison.OrdinalIgnoreCase) >= 0)
                 .Select(p => p.Name)
                 .ToList();
-            Assert.AreEqual(0, vestigeProperties.Count, $"Expected 0 bespoke vestige properties on Controller, but found: {string.Join(", ", vestigeProperties)}");
+            Assert.AreEqual(0, vestigeProperties.Count, $"Expected 0 bespoke vestige properties on CharacterSession, but found: {string.Join(", ", vestigeProperties)}");
         }
 
         [TestMethod]
@@ -71,10 +71,11 @@ namespace PlayMore35.Tests {
 
             var character = new Character();
             character.classLevels.Add("Binder");
-            var controller = new Controller(character);
-            controller.Subsystems.Register(engine, "vestige");
+            var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
+            ICharacterContext ctx = session;
+            session.Subsystems.Register(engine, "vestige");
 
-            engine.Initialize(controller);
+            engine.Initialize(session);
             Assert.IsTrue(engine.IsActive);
             Assert.AreEqual(1, engine.SlotCount);
 
@@ -84,66 +85,67 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(PactState.GOOD_PACT, engine.GetSlot(0)?.State);
 
             // Reload character and verify effects contributed
-            controller.Reload();
-            Assert.IsTrue(controller.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be active in EffectPool.");
-            Assert.IsFalse(controller.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Good Pact should not contribute influence effect.");
+            session.Recalculate();
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be active in EffectPool.");
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Good Pact should not contribute influence effect.");
 
             // Override pact state to Poor Pact
             engine.ChangePactState(0, PactState.POOR_PACT);
-            controller.Reload();
-            Assert.IsTrue(controller.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should still be active in EffectPool.");
-            Assert.IsTrue(controller.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Poor Pact should contribute influence effect.");
+            session.Recalculate();
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should still be active in EffectPool.");
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Poor Pact should contribute influence effect.");
 
             // Override pact state to Defied
             engine.ChangePactState(0, PactState.DEFIED);
-            controller.Reload();
-            Assert.IsTrue(controller.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Defied pact retains ability effects.");
-            Assert.IsFalse(controller.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Defied pact does not contribute influence effects.");
-            Assert.IsTrue(controller.Effects.Effects.Any(e => e.Name == "Defied Aym"), "Defied pact contributes -1 penalties effect.");
+            session.Recalculate();
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Defied pact retains ability effects.");
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Defied pact does not contribute influence effects.");
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Defied Aym"), "Defied pact contributes -1 penalties effect.");
 
             // Re-bind with Good Pact and schedule 24-hour expiration on timeline
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
-            controller.Reload();
-            Assert.IsTrue(controller.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"));
+            session.Recalculate();
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"));
 
-            controller.Timeline.Schedule(new SheetAction().ClearSlot("vestige", 0), "24 hours");
+            session.Timeline.Schedule(new SheetAction().ClearSlot("vestige", 0), "24 hours");
 
             // Advance timeline by 24 hours (86,400 seconds)
-            var result = controller.Timeline.Advance(86400);
+            var result = session.AdvanceTimeline(new LengthOfTime("24 hours"));
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, result.RefreshRequirement, "24-hour expiration should require FullReload.");
 
             // Execute the FullReload requirement
-            controller.Reload();
+            session.Recalculate();
 
             // Verify slot is cleared and effects removed
             Assert.IsNull(engine.CurrentVestige(0), "Slot 0 should be unbound after 24 hours.");
-            Assert.IsFalse(controller.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be removed after 24 hours.");
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be removed after 24 hours.");
         }
 
         [TestMethod]
-        public void Controller_ClearSlot_RoutesToPactMagicEngine() {
+        public void CharacterSession_ClearSlot_RoutesToPactMagicEngine() {
             var vestige = CreateTestVestige("Aym", 1, 15);
             var contentProvider = new TestContentProvider(vestige);
             var engine = new PactMagicEngine(contentProvider);
 
             var character = new Character();
-            var controller = new Controller(character);
-            controller.Subsystems.Register(engine, "vestige");
+            var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
+            ICharacterContext ctx = session;
+            session.Subsystems.Register(engine, "vestige");
 
-            controller.Effects.AddStat(new Statistic(NUM_VESTIGES));
-            controller.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(NUM_VESTIGES, new Modifier(1, UNTYPED)));
-            engine.Initialize(controller);
+            ctx.Effects.AddStat(new Statistic(NUM_VESTIGES));
+            ctx.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(NUM_VESTIGES, new Modifier(1, UNTYPED)));
+            engine.Initialize(session);
 
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
             Assert.AreEqual("Aym", engine.CurrentVestige(0)?.Name);
 
             // ClearSlot using alias
-            controller.ClearSlot("vestige", 0);
+            session.ClearSlot("vestige", 0);
             Assert.IsNull(engine.CurrentVestige(0));
 
             // Rebind and clear using canonical ID
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
-            controller.ClearSlot(PactMagicEngine.SubsystemId, 0);
+            session.ClearSlot(PactMagicEngine.SubsystemId, 0);
             Assert.IsNull(engine.CurrentVestige(0));
         }
     }

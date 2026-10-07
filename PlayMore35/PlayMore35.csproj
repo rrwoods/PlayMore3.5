@@ -153,7 +153,6 @@
     <Compile Include="Effects\ControllableParameter.cs" />
     <Compile Include="Effects\ExtraAttack.cs" />
     <Compile Include="Effects\ISubjectMatcher.cs" />
-    <Compile Include="Global\Controller.cs" />
     <Compile Include="UI\FormUtils.cs" />
     <Compile Include="Global\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
