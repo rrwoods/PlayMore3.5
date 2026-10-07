@@ -32,7 +32,7 @@ namespace PlayMore35.CharacterChoices {
         public List<List<Effect>> ClassFeatures = new List<List<Effect>>();
 
         // within each level, a list of toggles required by that level's features
-        public List<List<ControllableFlag>> Flags = new List<List<ControllableFlag>>();
+        public List<List<FlagDefinition>> Flags = new List<List<FlagDefinition>>();
         public List<Statistic> NewStats = new List<Statistic>();
 
         // { description => level }
@@ -81,7 +81,7 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public CharacterClass(JObject json, Character character) {
+        public CharacterClass(JObject json) {
             Name = (string)json["name"];
             Prerequisites = (string)json["prerequisites"];
             HitDie = (int)json["hit die"];
@@ -104,7 +104,7 @@ namespace PlayMore35.CharacterChoices {
             ));
             if (json["flags"] != null) {
                 foreach (JArray level in json["flags"]) {
-                    Flags.Add(level.Select(x => new ControllableFlag((JObject)x, character)).ToList());
+                    Flags.Add(level.Select(x => new FlagDefinition((JObject)x)).ToList());
                 }
             }
             if (json["stats"] != null) {
@@ -132,6 +132,9 @@ namespace PlayMore35.CharacterChoices {
                     }
                 }
             }
+        }
+
+        public CharacterClass(JObject json, Character character) : this(json) {
         }
     }
 

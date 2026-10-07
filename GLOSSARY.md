@@ -14,6 +14,10 @@ _Avoid_: Character builder, offline planner, statblock viewer
 A live session interface for managing multiple combatants, initiative order, rounds, and shared conditions simultaneously.
 _Avoid_: Combat runner, battle manager
 
+**Character Session**:
+An isolated, autonomous runtime host managing an active character's live effect evaluation, timeline progression, inventory, and dynamic recalculations during play.
+_Avoid_: Controller, character coordinator, character engine
+
 **Enable, Don't Enforce**:
 The design principle that rules and constraints are advisory and calculative, never hard-blocking table fiat or house rules.
 _Avoid_: Strict validation, hard enforcement, rule blocking
@@ -23,6 +27,10 @@ A non-blocking visual indicator alerting the player that a prerequisite or rule 
 _Avoid_: Error badge, validation failure, blocker
 
 ### Rules & State
+
+**Rules Catalog**:
+An immutable repository of core and house rule definitions (races, classes, feats, items) shared read-only across character sessions.
+_Avoid_: Rules cache, item database, game data
 
 **Core Rules**:
 The official 3.5e game rules and content definitions for stats, feats, classes, and items.

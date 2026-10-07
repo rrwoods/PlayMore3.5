@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +13,7 @@ namespace PlayMore35.Items {
         public decimal Weight;
 
         public List<Statistic> NewStats = new List<Statistic>();
-        public List<ControllableFlag> NewFlags = new List<ControllableFlag>();
+        public List<FlagDefinition> NewFlags = new List<FlagDefinition>();
 
         public JToken ToJson() {
             JObject json = new JObject(
@@ -26,7 +26,7 @@ namespace PlayMore35.Items {
             return json;
         }
 
-        public Item(JObject json, Character character) {
+        public Item(JObject json) {
             ItemSlot = (Equipped.Slot) Enum.Parse(typeof(Equipped.Slot), (string)json["slot"], false);
             ItemEffect = new Effect((JObject)json["effect"]);
             Weight = (decimal)json["weight"];
@@ -34,9 +34,11 @@ namespace PlayMore35.Items {
                 NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
             }
             if (json["flags"] != null) {
-                NewFlags.AddRange(json["flags"].Select(x => new ControllableFlag((JObject)x, character)));
+                NewFlags.AddRange(json["flags"].Select(x => new FlagDefinition((JObject)x)));
             }
         }
+
+        public Item(JObject json, Character character) : this(json) { }
 
         public Item() { }
     }
