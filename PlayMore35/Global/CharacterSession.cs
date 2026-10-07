@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.CharacterChoices;
@@ -21,6 +21,14 @@ namespace PlayMore35.Global {
         public Character Character => character;
         public Timeline Timeline => character?.Timeline;
         public IRulesCatalog Catalog => catalog;
+        public SubsystemRegistry Subsystems => subsystems;
+
+        public string CreatureType => effects?.CreatureType ?? "";
+        public IReadOnlyList<string> SubTypes => (effects?.SubTypes ?? new List<string>()).AsReadOnly();
+        public decimal TotalWeight => equippedItems?.TotalWeight() ?? 0m;
+        public int LightLoad => GetStatistic(LIGHT_LOAD).Value;
+        public int MediumLoad => GetStatistic(MEDIUM_LOAD).Value;
+        public int HeavyLoad => GetStatistic(HEAVY_LOAD).Value;
 
         // ICharacterContext explicit / collaborator implementation
         Character ICharacterContext.Character => character;
@@ -30,16 +38,8 @@ namespace PlayMore35.Global {
         SubsystemRegistry ICharacterContext.Subsystems => subsystems;
         void ICharacterContext.ClearSlot(string subsystem, int slotIndex) => ClearSlot(subsystem, slotIndex);
 
-        List<AttackRoutine> ICharacterContext.GetAllRoutines() {
-            int sizeChange = effects.stats[SIZE_CATEGORY].GetValue(effects, equippedItems).value - normalSizeCategory;
-            return AttackRoutineEvaluator.EvaluateRoutines(effects, equippedItems, sizeChange);
-        }
-
-        List<AttackRoutine> ICharacterContext.GetVisibleRoutines() {
-            var all = ((ICharacterContext)this).GetAllRoutines();
-            var prefs = character?.RoutinePreferences ?? new AttackRoutinePreferences();
-            return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
-        }
+        List<AttackRoutine> ICharacterContext.GetAllRoutines() => GetAllRoutines().ToList();
+        List<AttackRoutine> ICharacterContext.GetVisibleRoutines() => GetVisibleRoutines().ToList();
 
         public CharacterSession(Character character, IRulesCatalog catalog) {
             this.catalog = catalog ?? new GameRulesCatalog();
@@ -710,6 +710,71 @@ namespace PlayMore35.Global {
                     flag.Value.On = false;
                 }
             }
+        }
+
+        public StatView GetStatistic(string name) {
+            if (effects != null && effects.stats.TryGetValue(name, out var stat)) {
+                var (val, expl) = stat.GetValue(effects, equippedItems);
+                return new StatView(name, val, expl.AsReadOnly());
+            }
+            return new StatView(name, 0);
+        }
+
+        public bool IsStatRelevant(string name) {
+            if (effects != null && effects.stats.TryGetValue(name, out var stat)) {
+                return stat.Relevant(effects, equippedItems);
+            }
+            return false;
+        }
+
+        public IEnumerable<StatView> GetRelevantStats(string tag) {
+            if (effects == null) return Enumerable.Empty<StatView>();
+            return effects.RelevantStatsWithTag(tag, equippedItems).Select(s => {
+                var (val, expl) = s.GetValue(effects, equippedItems);
+                return new StatView(s.Name, val, expl.AsReadOnly());
+            });
+        }
+
+        public IEnumerable<ToggleView> GetControllableFlags() {
+            if (effects == null) return Enumerable.Empty<ToggleView>();
+            return effects.controllableFlags.Values.Select(f =>
+                new ToggleView(
+                    f.Name,
+                    f.Category,
+                    f.Description,
+                    f.On,
+                    f.Show.On(effects, equippedItems),
+                    f.Resource
+                )
+            );
+        }
+
+        public IEnumerable<ParamView> GetControllableParameters() {
+            if (effects == null) return Enumerable.Empty<ParamView>();
+            return effects.controllableParameters.Values.Select(p =>
+                new ParamView(
+                    p.Name,
+                    p.Category,
+                    p.Description,
+                    p.Value
+                )
+            );
+        }
+
+        public IReadOnlyList<AttackRoutine> GetAllRoutines() {
+            if (effects == null || equippedItems == null) return new List<AttackRoutine>().AsReadOnly();
+            int sizeChange = effects.stats[SIZE_CATEGORY].GetValue(effects, equippedItems).value - normalSizeCategory;
+            return AttackRoutineEvaluator.EvaluateRoutines(effects, equippedItems, sizeChange).AsReadOnly();
+        }
+
+        public IReadOnlyList<AttackRoutine> GetVisibleRoutines() {
+            var all = GetAllRoutines();
+            var prefs = character?.RoutinePreferences ?? new AttackRoutinePreferences();
+            return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList().AsReadOnly();
+        }
+
+        public Dictionary<string, List<Text>> GetTextEffects() {
+            return effects?.GetTextEffects(equippedItems) ?? new Dictionary<string, List<Text>>();
         }
 
         public TimelineAdvanceResult AdvanceTimeline(LengthOfTime duration) {
