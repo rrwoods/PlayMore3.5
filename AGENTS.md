@@ -39,6 +39,11 @@ Prefer linear git history:
 - Integrate branch commits via fast-forward merges (`git merge --ff-only <branch>`). Avoid `--no-ff` merge commits where possible.
 - When a task graph has a single active frontier (strictly sequential dependencies), work directly on the branch without creating extra worktree indirection. Still dispatch an implementer subagent per ticket (inheriting the workspace) to keep the orchestrator's context window lean.
 
+### Pull requests
+
+When authoring pull request descriptions with Mermaid diagrams:
+- Always wrap Mermaid edge labels in double quotes (e.g. `-->|"Read/Write Mutation"|`). Unquoted slashes, brackets, or parentheses break GitHub's Mermaid parser.
+
 ## Planning gates
 
 ### Rules arbitration gate
@@ -68,6 +73,7 @@ Before running `git commit`, inspect staged changes and update repository docume
 ### Scope gate
 
 Before running `git commit` or marking a PR ready, audit changes against the originating issue or specification:
+- Check the diff against the issue's **Out of Scope** and **Anti-goals**. If any JSON fallback, adapter shim, or deprecated forwarding constructor was introduced, flag it as a hard violation.
 - Verify that no shims, compatibility layers, or features explicitly marked **Out of Scope** or **Anti-goals** were introduced.
 
 ## Documentation checklist
