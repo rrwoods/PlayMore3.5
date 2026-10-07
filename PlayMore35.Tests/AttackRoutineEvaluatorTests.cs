@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.CharacterChoices;
@@ -139,8 +139,9 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(spikesSolo, "Solo armor spikes routine must exist");
             Assert.AreEqual("armor spikes", spikesSolo.Attacks[0].WeaponName);
 
-            var shieldSolo = routines.FirstOrDefault(r => r.Attacks.Any(a => a.WeaponName == "shield bash") && r.Attacks.Count == 1);
-            Assert.IsNotNull(shieldSolo, "Solo shield bash routine must exist");
+            var shieldSolo = routines.FirstOrDefault(r => r.Category == RoutineCategory.ShieldBashSolo);
+            Assert.IsNotNull(shieldSolo, "Solo shield bash routine must exist under RoutineCategory.ShieldBashSolo");
+            Assert.AreEqual("shield bash", shieldSolo.Attacks[0].WeaponName);
         }
 
         // Source: Player's Handbook 3.5, p. 160

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -30,6 +30,7 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(prefs.IsCategoryVisible(RoutineCategory.PrimarySolo));
             Assert.IsTrue(prefs.IsCategoryVisible(RoutineCategory.TwoWeaponFighting));
             Assert.IsTrue(prefs.IsCategoryVisible(RoutineCategory.DoubleWeapon));
+            Assert.IsTrue(prefs.IsCategoryVisible(RoutineCategory.ShieldBashSolo));
             Assert.IsTrue(prefs.IsCategoryVisible(RoutineCategory.ArmorSpikesSolo));
 
             Assert.IsFalse(prefs.IsCategoryVisible(RoutineCategory.OffHandShieldBash));
@@ -89,10 +90,12 @@ namespace PlayMore35.Tests {
             controller.EquippedItems.OffHandShield = controller.ShieldDefinitions["heavy steel shield"];
 
             var allRoutines = controller.GetAllRoutines();
+            Assert.IsTrue(allRoutines.Any(r => r.Category == RoutineCategory.ShieldBashSolo));
             Assert.IsTrue(allRoutines.Any(r => r.Category == RoutineCategory.OffHandShieldBash));
             Assert.IsTrue(allRoutines.Any(r => r.Category == RoutineCategory.ArmorSpikesTWF));
 
             var visibleRoutines = controller.GetVisibleRoutines();
+            Assert.IsTrue(visibleRoutines.Any(r => r.Category == RoutineCategory.ShieldBashSolo));
             Assert.IsFalse(visibleRoutines.Any(r => r.Category == RoutineCategory.OffHandShieldBash));
             Assert.IsFalse(visibleRoutines.Any(r => r.Category == RoutineCategory.ArmorSpikesTWF));
             Assert.IsTrue(visibleRoutines.Any(r => r.Category == RoutineCategory.PrimarySolo));
@@ -103,6 +106,12 @@ namespace PlayMore35.Tests {
             var updatedVisible = controller.GetVisibleRoutines();
             Assert.IsTrue(updatedVisible.Any(r => r.Category == RoutineCategory.ArmorSpikesTWF));
             Assert.IsFalse(updatedVisible.Any(r => r.Category == RoutineCategory.OffHandShieldBash));
+
+            // Disable ShieldBashSolo independently
+            controller.Character.RoutinePreferences.SetCategoryVisible(RoutineCategory.ShieldBashSolo, false);
+            var withoutShieldSolo = controller.GetVisibleRoutines();
+            Assert.IsFalse(withoutShieldSolo.Any(r => r.Category == RoutineCategory.ShieldBashSolo));
+            Assert.IsTrue(withoutShieldSolo.Any(r => r.Category == RoutineCategory.PrimarySolo));
         }
     }
 }

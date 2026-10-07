@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PlayMore35.Items {
@@ -11,6 +11,7 @@ namespace PlayMore35.Items {
         PrimarySolo,
         TwoWeaponFighting,
         DoubleWeapon,
+        ShieldBashSolo,
         OffHandShieldBash,
         ArmorSpikesSolo,
         ArmorSpikesTWF
