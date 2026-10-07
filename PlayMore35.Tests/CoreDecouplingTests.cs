@@ -146,7 +146,7 @@ namespace PlayMore35.Tests {
                 new JProperty("time", new Timeline().ToJson())
             );
 
-            var character = new Character(null, null, json);
+            var character = new Character(json);
             Assert.AreEqual(0, character.Subsystems.Count, "Character must not parse legacy json['vestiges'] into Subsystems.");
         }
     }

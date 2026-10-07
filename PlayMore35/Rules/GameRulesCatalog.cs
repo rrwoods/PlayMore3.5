@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -154,69 +154,36 @@ namespace PlayMore35.Rules {
             return JToken.Parse(json);
         }
 
+        private static T FindEntity<T>(IReadOnlyDictionary<string, T> dictionary, string name, Func<T, string> nameSelector) where T : class {
+            if (string.IsNullOrEmpty(name)) return null;
+            if (dictionary.TryGetValue(name, out var entity)) return entity;
+            return dictionary.Values.FirstOrDefault(x => string.Equals(nameSelector(x), name, StringComparison.OrdinalIgnoreCase));
+        }
+
         public Race GetRace(string name) {
             if (string.IsNullOrEmpty(name)) {
                 return Races[""];
             }
-            if (Races.TryGetValue(name, out var r)) {
-                return r;
-            }
-            return Races.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+            return FindEntity(Races, name, x => x.Name);
         }
 
-        public CharacterClass GetClass(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (Classes.TryGetValue(name, out var c)) return c;
-            return Classes.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public CharacterClass GetClass(string name) => FindEntity(Classes, name, x => x.Name);
 
-        public Feat GetFeat(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (Feats.TryGetValue(name, out var f)) return f;
-            return Feats.Values.FirstOrDefault(x => string.Equals(x.Benefit.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public Feat GetFeat(string name) => FindEntity(Feats, name, x => x.Benefit?.Name);
 
-        public Weapon GetWeapon(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (Weapons.TryGetValue(name, out var w)) return w;
-            return Weapons.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public Weapon GetWeapon(string name) => FindEntity(Weapons, name, x => x.Name);
 
-        public Armor GetArmor(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (Armors.TryGetValue(name, out var a)) return a;
-            return Armors.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public Armor GetArmor(string name) => FindEntity(Armors, name, x => x.Name);
 
-        public Shield GetShield(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (Shields.TryGetValue(name, out var s)) return s;
-            return Shields.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public Shield GetShield(string name) => FindEntity(Shields, name, x => x.Name);
 
-        public WeaponProperty GetWeaponProperty(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (WeaponProperties.TryGetValue(name, out var wp)) return wp;
-            return WeaponProperties.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public WeaponProperty GetWeaponProperty(string name) => FindEntity(WeaponProperties, name, x => x.Name);
 
-        public ArmorProperty GetArmorProperty(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (ArmorProperties.TryGetValue(name, out var ap)) return ap;
-            return ArmorProperties.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public ArmorProperty GetArmorProperty(string name) => FindEntity(ArmorProperties, name, x => x.Name);
 
-        public Item GetItem(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (Items.TryGetValue(name, out var i)) return i;
-            return Items.Values.FirstOrDefault(x => string.Equals(x.ItemEffect.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public Item GetItem(string name) => FindEntity(Items, name, x => x.ItemEffect?.Name);
 
-        public ExternalEffect GetExternalEffect(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (ExternalEffects.TryGetValue(name, out var e)) return e;
-            return ExternalEffects.Values.FirstOrDefault(x => string.Equals(x.Effect.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        public ExternalEffect GetExternalEffect(string name) => FindEntity(ExternalEffects, name, x => x.Effect?.Name);
 
         public IEnumerable<string> ChoicesForKey(string choiceDescription) {
             switch (choiceDescription) {

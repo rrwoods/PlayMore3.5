@@ -8,7 +8,7 @@ using PlayMore35.Subsystems;
 
 namespace PlayMore35.Global {
     public interface ICharacterSession {
-        Character Character { get; }
+        IReadOnlyCharacter Character { get; }
         Timeline Timeline { get; }
         IRulesCatalog Catalog { get; }
         SubsystemRegistry Subsystems { get; }

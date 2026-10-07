@@ -12,13 +12,14 @@ using static PlayMore35.Effects.Constants;
 namespace PlayMore35.Global {
     public class CharacterSession : ICharacterSession, ICharacterContext {
         private Character character;
+        private readonly IReadOnlyCharacter readOnlyCharacter;
         private readonly IRulesCatalog catalog;
         private EffectPool effects;
         private Equipped equippedItems;
         private readonly SubsystemRegistry subsystems = new SubsystemRegistry();
         private int normalSizeCategory;
 
-        public Character Character => character;
+        public IReadOnlyCharacter Character => readOnlyCharacter;
         public Timeline Timeline => character?.Timeline;
         public IRulesCatalog Catalog => catalog;
         public SubsystemRegistry Subsystems => subsystems;
@@ -45,6 +46,7 @@ namespace PlayMore35.Global {
         public CharacterSession(Character character, IRulesCatalog catalog) {
             this.catalog = catalog ?? new GameRulesCatalog();
             this.character = character ?? new Character();
+            this.readOnlyCharacter = new ReadOnlyCharacter(this.character);
 
             if (this.character.Timeline != null) {
                 this.character.Timeline.Context = this;
@@ -287,31 +289,27 @@ namespace PlayMore35.Global {
             WeaponChoice removed = primary ? character.equipped.PrimaryHandWeapon : character.equipped.OffHandWeapon;
             if (primary) {
                 character.equipped.PrimaryHandWeapon = null;
-                equippedItems.PrimaryHandWeapon = null;
             } else {
                 character.equipped.OffHandWeapon = null;
-                equippedItems.OffHandWeapon = null;
             }
 
-            ComputeWeight();
+            Recalculate();
             return removed;
         }
 
         public ArmorChoice RemoveDonnedArmor() {
             ArmorChoice removed = character.equipped.DonnedArmor;
             character.equipped.DonnedArmor = null;
-            equippedItems.DonnedArmor = null;
 
-            ComputeWeight();
+            Recalculate();
             return removed;
         }
 
         public ArmorChoice RemoveEquippedShield() {
             ArmorChoice removed = character.equipped.OffHandShield;
             character.equipped.OffHandShield = null;
-            equippedItems.OffHandShield = null;
 
-            ComputeWeight();
+            Recalculate();
             return removed;
         }
 
@@ -362,7 +360,7 @@ namespace PlayMore35.Global {
                 character.inventory[to].weapons.Add(unequipped);
             }
 
-            ComputeWeight();
+            Recalculate();
         }
 
         public void UndonArmor(string to) {
@@ -373,7 +371,7 @@ namespace PlayMore35.Global {
                 character.inventory[to].armor.Add(removed);
             }
 
-            ComputeWeight();
+            Recalculate();
         }
 
         public void UnequipShield(string to) {
@@ -384,7 +382,7 @@ namespace PlayMore35.Global {
                 character.inventory[to].shields.Add(removed);
             }
 
-            ComputeWeight();
+            Recalculate();
         }
 
         public void UnequipItem(Equipped.Slot from, string to) {
@@ -395,7 +393,7 @@ namespace PlayMore35.Global {
             items.Remove(from);
             AddItem(to, removed, 1);
 
-            ComputeWeight();
+            Recalculate();
         }
 
         public void UnequipSlotlessItem(string to, string item) {
@@ -408,7 +406,7 @@ namespace PlayMore35.Global {
             }
             AddItem(to, item, 1);
 
-            ComputeWeight();
+            Recalculate();
         }
 
         public void EquipWeapon(string from, bool primary, WeaponChoice weaponChoice) {
@@ -417,23 +415,17 @@ namespace PlayMore35.Global {
             }
 
             character.inventory[from].weapons.Remove(weaponChoice);
-            Weapon weapon = WeaponFromChoice(weaponChoice);
             UnequipWeapon(from, primary);
             if (primary) {
                 character.equipped.PrimaryHandWeapon = weaponChoice;
-                equippedItems.PrimaryHandWeapon = weapon;
             } else {
                 character.equipped.OffHandWeapon = weaponChoice;
-                equippedItems.OffHandWeapon = weapon;
                 if (equippedItems.OffHandShield != null && equippedItems.OffHandShield.AttackRollPenalty == null) {
                     UnequipShield(from);
                 }
             }
 
-            if (weapon != null) {
-                effects.GenerateUses(weapon.GetGlobalEffects(), character);
-            }
-            ComputeWeight();
+            Recalculate();
         }
 
         public void DonArmor(string from, ArmorChoice armorChoice) {
@@ -442,15 +434,10 @@ namespace PlayMore35.Global {
             }
 
             character.inventory[from].armor.Remove(armorChoice);
-            Armor armor = ArmorFromChoice(armorChoice);
             UndonArmor(from);
             character.equipped.DonnedArmor = armorChoice;
-            equippedItems.DonnedArmor = armor;
 
-            if (armor != null) {
-                effects.GenerateUses(armor.GetGlobalEffects(), character);
-            }
-            ComputeWeight();
+            Recalculate();
         }
 
         public void EquipShield(string from, ArmorChoice shieldChoice) {
@@ -459,18 +446,13 @@ namespace PlayMore35.Global {
             }
 
             character.inventory[from].shields.Remove(shieldChoice);
-            Shield shield = ShieldFromChoice(shieldChoice);
-
             character.equipped.OffHandShield = shieldChoice;
-            equippedItems.OffHandShield = shield;
+            Shield shield = ShieldFromChoice(shieldChoice);
             if (shield != null && shield.AttackRollPenalty == null) {
                 UnequipWeapon(from, false);
             }
 
-            if (shield != null) {
-                effects.GenerateUses(shield.GetGlobalEffects(), character);
-            }
-            ComputeWeight();
+            Recalculate();
         }
 
         public void EquipItem(string from, Equipped.Slot to, string itemName) {
@@ -480,14 +462,12 @@ namespace PlayMore35.Global {
             if (item == null || item.ItemSlot != to) return;
 
             if (to == Equipped.Slot.SLOTLESS) {
-                equippedItems.SlotlessItems.Add(item);
                 character.equipped.SlotlessItems.Add(itemName);
                 RemoveItem(from, itemName, 1);
             } else {
-                string previouslyEquipped = equippedItems.SlottedItems.ContainsKey(to)
-                    ? equippedItems.SlottedItems[to].ItemEffect.Name
+                string previouslyEquipped = character.equipped.SlottedItems.ContainsKey(to)
+                    ? character.equipped.SlottedItems[to]
                     : null;
-                equippedItems.SlottedItems[to] = item;
                 character.equipped.SlottedItems[to] = itemName;
                 RemoveItem(from, itemName, 1);
 
@@ -500,8 +480,7 @@ namespace PlayMore35.Global {
                 }
             }
 
-            effects.GenerateUses(new[] { item.ItemEffect }, character);
-            ComputeWeight();
+            Recalculate();
         }
 
         public void SwapWeapons() {
@@ -509,9 +488,7 @@ namespace PlayMore35.Global {
             character.equipped.PrimaryHandWeapon = character.equipped.OffHandWeapon;
             character.equipped.OffHandWeapon = swapChoice;
 
-            Weapon swap = equippedItems.PrimaryHandWeapon;
-            equippedItems.PrimaryHandWeapon = equippedItems.OffHandWeapon;
-            equippedItems.OffHandWeapon = swap;
+            Recalculate();
         }
 
         public void MoveItem(string from, string to, object item, int quantity) {
@@ -836,7 +813,7 @@ namespace PlayMore35.Global {
 
         public void AddLevel() {
             Mutate(c => {
-                c.classLevels.Add(c.classLevels.DefaultIfEmpty(Character.DEFAULT_CLASS).Last());
+                c.classLevels.Add(c.classLevels.DefaultIfEmpty(PlayMore35.CharacterChoices.Character.DEFAULT_CLASS).Last());
                 foreach (var skill in c.skillRanks) {
                     skill.Value.Add(0);
                 }

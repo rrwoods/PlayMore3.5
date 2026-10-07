@@ -88,9 +88,7 @@ namespace PlayMore35.CharacterChoices {
             );
         }
 
-        public Character(JObject json) : this(null, null, json) { }
-
-        public Character(MainForm mainForm, Character previousCharacter, JObject json) {
+        public Character(JObject json) {
             name = (string)json["name"];
             gender = (string)json["gender"];
             alignment = (string)json["alignment"];
@@ -128,12 +126,10 @@ namespace PlayMore35.CharacterChoices {
             } else {
                 RoutinePreferences = new AttackRoutinePreferences();
             }
-            Timeline = new Timeline(previousCharacter?.Timeline, (JObject)json["time"]);
+            Timeline = new Timeline((JObject)json["time"]);
         }
 
-        public Character() : this((MainForm)null) { }
-
-        public Character(MainForm mainForm) {
+        public Character() {
             name = "";
             gender = "";
             alignment = "";

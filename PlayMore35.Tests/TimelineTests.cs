@@ -200,7 +200,7 @@ namespace PlayMore35.Tests {
                 ))
             );
 
-            var character = new Character(null, null, characterJson);
+            var character = new Character(characterJson);
             Assert.IsNotNull(character.Timeline);
             Assert.AreEqual(42L, character.Timeline.CurrentRound);
             Assert.AreEqual(5L, character.Timeline.EncounterStartRound);

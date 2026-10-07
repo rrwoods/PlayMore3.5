@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +27,10 @@ namespace PlayMore35.Tests {
             var sessionInterfaceProps = typeof(ICharacterSession).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             Assert.IsFalse(sessionInterfaceProps.Any(p => p.Name == "Effects"), "ICharacterSession must not expose Effects property.");
             Assert.IsFalse(sessionInterfaceProps.Any(p => p.Name == "EquippedItems"), "ICharacterSession must not expose EquippedItems property.");
+
+            var charProp = typeof(ICharacterSession).GetProperty("Character");
+            Assert.AreEqual(typeof(IReadOnlyCharacter), charProp.PropertyType, "ICharacterSession.Character must be IReadOnlyCharacter.");
+            Assert.IsFalse(session.Character is Character, "session.Character must wrap in ReadOnlyCharacter and not expose mutable Character directly.");
 
             // Verify session implements ICharacterContext
             Assert.IsTrue(session is ICharacterContext, "CharacterSession must implement ICharacterContext.");
@@ -99,6 +103,24 @@ namespace PlayMore35.Tests {
             session.UnequipWeapon("Pack", true);
             Assert.IsNull(session.Character.equipped.PrimaryHandWeapon);
             Assert.AreEqual(1, session.Character.inventory["Pack"].weapons.Count);
+        }
+
+        [TestMethod]
+        public void CharacterSession_EquipmentLifecycle_AutomaticallyRecalculatesDerivedStats() {
+            var character = new Character();
+            character.inventory["Pack"] = new InventoryLocation();
+            var session = new CharacterSession(character, catalog);
+
+            int initialAc = session.GetStatistic(Constants.AC).Value;
+
+            session.AddArmor("Pack", "full plate", new List<string>());
+            var armorChoice = session.Character.inventory["Pack"].armor[0];
+
+            session.DonArmor("Pack", armorChoice);
+            Assert.AreEqual(initialAc + 8, session.GetStatistic(Constants.AC).Value, "Donning full plate must automatically recalculate AC (+8 armor bonus).");
+
+            session.UndonArmor("Pack");
+            Assert.AreEqual(initialAc, session.GetStatistic(Constants.AC).Value, "Undonning full plate must automatically recalculate AC back to base.");
         }
 
         [TestMethod]
