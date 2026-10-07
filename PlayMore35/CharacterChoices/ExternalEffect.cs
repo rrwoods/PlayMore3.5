@@ -28,8 +28,5 @@ namespace PlayMore35.CharacterChoices {
                 Params.AddRange(json["params"].Select(x => new ParameterDefinition((JObject)x)));
             }
         }
-
-        public ExternalEffect(JObject json, Character character) : this(json) {
-        }
     }
 }

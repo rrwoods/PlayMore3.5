@@ -35,13 +35,6 @@ namespace PlayMore35.Effects {
                 character.flagValues[name] = on;
             }
         }
-
-        public void BindCharacter(Character character) {
-            this.character = character;
-            if (character != null && character.flagValues.TryGetValue(Name, out bool val)) {
-                this.on = val;
-            }
-        }
     }
 }
 

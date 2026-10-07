@@ -133,9 +133,6 @@ namespace PlayMore35.CharacterChoices {
                 }
             }
         }
-
-        public CharacterClass(JObject json, Character character) : this(json) {
-        }
     }
 
     public class SubsystemFeature {

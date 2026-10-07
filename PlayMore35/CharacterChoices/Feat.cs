@@ -51,8 +51,5 @@ namespace PlayMore35.CharacterChoices {
                 NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
             }
         }
-
-        public Feat(JObject json, Character character) : this(json) {
-        }
     }
 }

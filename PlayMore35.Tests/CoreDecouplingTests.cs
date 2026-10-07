@@ -90,8 +90,7 @@ namespace PlayMore35.Tests {
                 ))
             );
 
-            var character = new Character();
-            var @class = new CharacterClass(json, character);
+            var @class = new CharacterClass(json);
             Assert.IsTrue(@class.Subsystems.ContainsKey("vestiges"));
             Assert.AreEqual(1, @class.Subsystems["vestiges"].Stats.Count);
             Assert.AreEqual("generic capacity", @class.Subsystems["vestiges"].Stats[0]);

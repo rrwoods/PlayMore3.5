@@ -32,13 +32,6 @@ namespace PlayMore35.Effects {
             this.character = character;
             character?.paramValues.TryGetValue(name, out parameterValue);
         }
-
-        public void BindCharacter(Character character) {
-            this.character = character;
-            if (character != null && character.paramValues.TryGetValue(Name, out int val)) {
-                this.parameterValue = val;
-            }
-        }
     }
 }
 
