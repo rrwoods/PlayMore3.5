@@ -212,6 +212,10 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
 - **Specific Feature Scaling**:
   - Savnok vestige DR scaling with Effective Binder Level.
   - Stunning Fist "per four levels" excluding non-class hit dice.
+- **Downtime & Character Option Text Categories**:
+  - Add "Downtime" or "Character Option" text effect category to support meta and out-of-combat feats (e.g. *Leadership*, *Improved Familiar*).
+- **Naberius Faster Ability Healing Scheduled Actions**:
+  - Convert Naberius's *Faster Ability Healing* from a passive text entry into scheduled sheet actions on the timeline.
 - **Content Creation & House Rules Layer**:
   - In-app authoring for new items, classes, feats, and races (building upon Tier 3 in-app effect authoring).
   - Separate house rules from core rules; ability to save/load distinct house-rule sets per campaign.
