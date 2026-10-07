@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 
@@ -26,10 +26,10 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            LabelStat(space, mainForm.controller, SPACE, SPACE, " ft.;", null, false);
-            LabelStat(reach, mainForm.controller, REACH, REACH, " ft.", null, false);
-            LabelStat(bab, mainForm.controller, "Base Atk", BASE_ATTACK_BONUS, ";", null);
-            LabelStat(grp, mainForm.controller, "Grp", GRAPPLE, "", GRAPPLE);
+            LabelStat(space, mainForm.Session, SPACE, SPACE, " ft.;", null, false);
+            LabelStat(reach, mainForm.Session, REACH, REACH, " ft.", null, false);
+            LabelStat(bab, mainForm.Session, "Base Atk", BASE_ATTACK_BONUS, ";", null);
+            LabelStat(grp, mainForm.Session, "Grp", GRAPPLE, "", GRAPPLE);
         }
     }
 }

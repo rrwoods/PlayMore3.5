@@ -1,4 +1,4 @@
-﻿using PlayMore35.CharacterChoices;
+using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using static PlayMore35.Global.FormUtils;
 
 namespace PlayMore35 {
     public partial class LevelDetailsDialog : Form {
-        private Controller controller;
+        private ICharacterSession session;
 
         private int levelIndex;
         private List<Label> slotNames = new List<Label>();
@@ -21,11 +21,11 @@ namespace PlayMore35 {
         private Dictionary<string, Label> choiceLabels = new Dictionary<string, Label>();
         private Dictionary<string, Control> featChoices = new Dictionary<string, Control>();
 
-        public LevelDetailsDialog(Controller controller) {
+        public LevelDetailsDialog(ICharacterSession session) {
             InitializeComponent();
-            this.controller = controller;
+            this.session = session;
 
-            foreach (string className in controller.ClassDefinitions.Keys.OrderBy(x => x)) {
+            foreach (string className in session.Catalog.Classes.Keys.OrderBy(x => x)) {
                 cboClass.Items.Add(className);
             }
         }
@@ -35,7 +35,7 @@ namespace PlayMore35 {
             this.levelIndex = levelIndex;
 
             Text = $"Level {levelIndex + 1}";
-            cboClass.SelectedItem = controller.Character.classLevels[levelIndex];
+            cboClass.SelectedItem = session.Character.classLevels[levelIndex];
             PrepareFeats();
         }
 
@@ -43,7 +43,7 @@ namespace PlayMore35 {
             ClearDynamicControls(this, feats);
             ClearDynamicControls(this, slotNames);
 
-            SortedDictionary<int, List<string>> featSlots = controller.GetFeatSlots();
+            SortedDictionary<int, List<string>> featSlots = session.GetFeatSlots();
             if (!featSlots.ContainsKey(levelIndex + 1)) {
                 return;
             }
@@ -59,11 +59,11 @@ namespace PlayMore35 {
                 foreach (string availableFeat in availableFeats) {
                     featBox.Items.Add(availableFeat);
                 }
-                if (controller.Character.feats.ContainsKey(featSlot)) {
-                    string featName = controller.Character.feats[featSlot];
+                if (session.Character.feats.ContainsKey(featSlot)) {
+                    string featName = session.Character.feats[featSlot];
                     featBox.SelectedItem = featName;
 
-                    PrepareFeatChoice(controller.FeatDefinitions[featName].ChoiceDescription, featSlot, featLeft);
+                    PrepareFeatChoice(session.Catalog.GetFeat(featName)?.ChoiceDescription ?? "", featSlot, featLeft);
                 }
                 featBox.SelectedValueChanged += SelectFeat(featSlot, featLeft);
                 feats.Add(featBox);
@@ -101,7 +101,7 @@ namespace PlayMore35 {
             choiceLabels[featSlot] = header;
             Controls.Add(header);
 
-            IEnumerable<string> choices = controller.ChoicesForKey(choiceDescription);
+            IEnumerable<string> choices = session.Catalog.ChoicesForKey(choiceDescription);
             Control choiceBox;
             if (choices.Any()) {
                 choiceBox = new ComboBox {
@@ -121,22 +121,22 @@ namespace PlayMore35 {
                     Tag = featSlot,
                 };
             }
-            if (controller.Character.featChoices.ContainsKey(featSlot)) {
-                choiceBox.Text = controller.Character.featChoices[featSlot];
+            if (session.Character.featChoices.ContainsKey(featSlot)) {
+                choiceBox.Text = session.Character.featChoices[featSlot];
             }
             featChoices[featSlot] = choiceBox;
             Controls.Add(choiceBox);
         }
 
         public void SelectClass(object sender, EventArgs e) {
-            controller.Character.classLevels[levelIndex] = cboClass.Text;
+            session.Character.classLevels[levelIndex] = cboClass.Text;
             PrepareFeats();
         }
 
         public EventHandler SelectFeat(string featSlot, int left) {
             return (object sender, EventArgs e) => {
                 PrepareFeatChoice(
-                    controller.FeatDefinitions[((Control)sender).Text].ChoiceDescription,
+                    session.Catalog.GetFeat(((Control)sender).Text)?.ChoiceDescription ?? "",
                     featSlot,
                     left
                 );

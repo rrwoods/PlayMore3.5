@@ -1,10 +1,12 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 
 using System.Windows.Forms;
 using System.Collections.Generic;
 using PlayMore35.Effects;
+
+using System.Linq;
 
 namespace PlayMore35 {
     internal class AbilityDisplay : TableLayoutPanel {
@@ -22,13 +24,14 @@ namespace PlayMore35 {
 
             string damageName = $"{ability} damage";
             damage = new LabeledField(damageName, mainForm);
-            ToolTipTextLabel(damage.txtValue, mainForm.controller.Effects.controllableParameters[damageName].Description);
+            var damageParam = mainForm.Session.GetControllableParameters().FirstOrDefault(p => p.Name == damageName);
+            ToolTipTextLabel(damage.txtValue, damageParam?.Description ?? "");
             damage.Controls.Remove(damage.lblName);
-
 
             string drainName = $"{ability} drain";
             drain = new LabeledField(drainName, mainForm);
-            ToolTipTextLabel(drain.txtValue, mainForm.controller.Effects.controllableParameters[drainName].Description);
+            var drainParam = mainForm.Session.GetControllableParameters().FirstOrDefault(p => p.Name == drainName);
+            ToolTipTextLabel(drain.txtValue, drainParam?.Description ?? "");
             drain.Controls.Remove(drain.lblName);
 
             Controls.Add(score, 0, 0);
@@ -65,19 +68,19 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            Controller controller = mainForm.controller;
+            ICharacterSession session = mainForm.Session;
             for (int i = 0; i < ABILITY_NAMES.Length; i++) {
                 string ability = ABILITY_NAMES[i];
-                LabelStat(abilities[i].score, controller, ability, $"{ability} score", "", null, false);
-                LabelStat(abilities[i].mod, controller, "(", $"{ability} modifier", " )", $"{ability} check");
+                LabelStat(abilities[i].score, session, ability, $"{ability} score", "", null, false);
+                LabelStat(abilities[i].mod, session, "(", $"{ability} modifier", " )", $"{ability} check");
 
                 string damageName = $"{ability} damage";
-                if (controller.Character.paramValues.ContainsKey(damageName)) {
-                    abilities[i].damage.Value = controller.Character.paramValues[damageName];
+                if (session.Character.paramValues.ContainsKey(damageName)) {
+                    abilities[i].damage.Value = session.Character.paramValues[damageName];
                 }
                 string drainName = $"{ability} drain";
-                if (controller.Character.paramValues.ContainsKey(drainName)) {
-                    abilities[i].drain.Value = controller.Character.paramValues[drainName];
+                if (session.Character.paramValues.ContainsKey(drainName)) {
+                    abilities[i].drain.Value = session.Character.paramValues[drainName];
                 }
 
                 checks[i].Update(textEffects);

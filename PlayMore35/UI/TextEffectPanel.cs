@@ -46,7 +46,7 @@ namespace PlayMore35 {
         private void Toggle_Click(object sender, EventArgs e) {
             CheckBox toggle = (CheckBox)sender;
             string flag = toggle.Text;
-            mainForm.controller.Effects.controllableFlags[flag].On = toggle.Checked;
+            mainForm.Session.SetFlag(flag, toggle.Checked);
             mainForm.RefreshEffects();
         }
 
@@ -62,17 +62,15 @@ namespace PlayMore35 {
             string category = (string)Tag;
             var effects = textEffects[category];
             bool any = false;
-            Controller controller = mainForm.controller;
+            ICharacterSession session = mainForm.Session;
 
             HashSet<string> inactiveFields = new HashSet<string>(fields.Keys);
-            EffectPool allEffects = controller.Effects;
-            Items.Equipped items = controller.EquippedItems;
-            foreach (var parameter in allEffects.controllableParameters) {
-                if (parameter.Value.Category != category) {
+            foreach (var parameter in session.GetControllableParameters()) {
+                if (parameter.Category != category) {
                     continue;
                 }
 
-                string paramName = parameter.Key;
+                string paramName = parameter.Name;
                 LabeledField field;
                 if (fields.ContainsKey(paramName)) {
                     inactiveFields.Remove(paramName);
@@ -84,11 +82,9 @@ namespace PlayMore35 {
                     Controls.Add(field);
                     SetFlowBreak(field, true);
                 }
-                if (controller.Character.paramValues.ContainsKey(paramName)) {
-                    field.Value = controller.Character.paramValues[paramName];
-                }
-                ToolTipTextLabel(field.lblName, parameter.Value.Description);
-                ToolTipTextLabel(field.txtValue, parameter.Value.Description);
+                field.Value = parameter.Value;
+                ToolTipTextLabel(field.lblName, parameter.Description);
+                ToolTipTextLabel(field.txtValue, parameter.Description);
                 any = true;
             }
             foreach (string inactive in inactiveFields) {
@@ -99,13 +95,12 @@ namespace PlayMore35 {
             HashSet<string> inactiveFlags = new HashSet<string>(flags.Keys);
             HashSet<string> inactiveUses = new HashSet<string>(usesLabels.Keys);
             HashSet<string> inactiveUsed = new HashSet<string>(usedFields.Keys);
-            foreach (var toggle in allEffects.controllableFlags) {
-                ControllableFlag flag = toggle.Value;
-                if (flag.Category != category || !flag.Show.On(allEffects, items)) {
+            foreach (var flag in session.GetControllableFlags()) {
+                if (flag.Category != category || !flag.IsVisible) {
                     continue;
                 }
 
-                string toggleName = toggle.Key;
+                string toggleName = flag.Name;
                 CheckBox flagBox;
                 Label usesLabel = null;
                 LabeledField usedField = null;
@@ -114,7 +109,7 @@ namespace PlayMore35 {
                     inactiveFlags.Remove(toggleName);
                     flagBox = flags[toggleName];
                     flagBox.Visible = true;
-                    flagBox.Checked = toggle.Value.On;
+                    flagBox.Checked = flag.IsActive;
                     
                     if (flag.Resource != null) {
                         inactiveUses.Remove(flag.Name);
@@ -133,11 +128,7 @@ namespace PlayMore35 {
                         Margin = new Padding(3, 0, 0, 0)
                     }.Initialize();
                     
-                    if (controller.Character.flagValues.ContainsKey(toggleName)) {
-                        bool value = controller.Character.flagValues[toggleName];
-                        flagBox.Checked = value;
-                        flag.On = value;
-                    }
+                    flagBox.Checked = flag.IsActive;
 
                     flagBox.Click += Toggle_Click;
                     flags[toggleName] = flagBox;
@@ -172,11 +163,8 @@ namespace PlayMore35 {
                             Text = $"Use {flag.Name}"
                         };
                         menuItem.Click += (s, e) => {
-                            useCharge.Perform(mainForm.controller);
-                            var req = getEffect.Perform(mainForm.controller);
-                            if (req == Global.TimelineRefreshRequirement.FullReload) {
-                                mainForm.controller.Reload();
-                            }
+                            session.PerformAction(useCharge);
+                            session.PerformAction(getEffect);
                             mainForm.RefreshEffects();
                         };
                         flagBox.ContextMenuStrip = new ContextMenuStrip();
@@ -185,11 +173,11 @@ namespace PlayMore35 {
                         SetFlowBreak(flagBox, true);
                     }
                 }
-                ToolTipTextLabel(flagBox, flag.Description.FillStatValues(allEffects, items));
+                ToolTipTextLabel(flagBox, flag.Description);
                 if (usesLabel != null && flag.Resource.RechargeTime.unit != AT_WILL) {
                     ToolTipTextLabel(usesLabel, string.Join("\n", flag.Resource.DynamicUsesExplanation));
-                    if (controller.Character.paramValues.ContainsKey(usedName)) {
-                        int used = controller.Character.paramValues[usedName];
+                    if (session.Character.paramValues.ContainsKey(usedName)) {
+                        int used = session.Character.paramValues[usedName];
                         usedField.Value = used;
                         UsedUpColor(usesLabel, used < flag.Resource.DynamicUses);
                         UsedUpColor(flagBox, used < flag.Resource.DynamicUses);
@@ -270,10 +258,7 @@ namespace PlayMore35 {
                                         Text = $"Use {name}"
                                     };
                                     menuItem.Click += (s, e) => {
-                                        var req = use.Perform(mainForm.controller);
-                                        if (req == Global.TimelineRefreshRequirement.FullReload) {
-                                            mainForm.controller.Reload();
-                                        }
+                                        session.PerformAction(use);
                                         mainForm.RefreshEffects();
                                     };
                                     effectLabel.ContextMenuStrip = new ContextMenuStrip();
@@ -288,8 +273,8 @@ namespace PlayMore35 {
                         ToolTipTextLabel(effectLabel, desc);
                         if (usesLabel != null && text.Resource.RechargeTime.unit != AT_WILL) {
                             ToolTipTextLabel(usesLabel, string.Join("\n", text.Resource.DynamicUsesExplanation));
-                            if (controller.Character.paramValues.ContainsKey(usedName)) {
-                                int used = controller.Character.paramValues[usedName];
+                            if (session.Character.paramValues.ContainsKey(usedName)) {
+                                int used = session.Character.paramValues[usedName];
                                 usedField.Value = used;
                                 UsedUpColor(usesLabel, used < text.Resource.DynamicUses);
                                 UsedUpColor(effectLabel, used < text.Resource.DynamicUses);

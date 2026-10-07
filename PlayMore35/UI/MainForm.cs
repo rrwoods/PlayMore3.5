@@ -16,6 +16,7 @@ using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 using static PlayMore35.Properties.Resources;
 using PlayMore35.Effects;
+using PlayMore35.Rules;
 
 namespace PlayMore35 {
     public partial class MainForm : Form {
@@ -79,7 +80,8 @@ namespace PlayMore35 {
 
         private AddItemDialog addItemDialog = new AddItemDialog();
         
-        public Controller controller = null;
+        private ICharacterSession session;
+        public ICharacterSession Session => session;
 
         public MainForm() {
             InitializeComponent();
@@ -104,19 +106,19 @@ namespace PlayMore35 {
         }
 
         private void Name_Leave(object sender, EventArgs e) {
-            controller.Character.name = txtName.Text;
+            session.Mutate(c => c.name = txtName.Text);
         }
 
         private void Alignment_Leave(object sender, EventArgs e) {
-            controller.Character.alignment = txtAlignment.Text;
+            session.Mutate(c => c.alignment = txtAlignment.Text);
         }
 
         private void Gender_Leave(object sender, EventArgs e) {
-            controller.Character.gender = txtGender.Text;
+            session.Mutate(c => c.gender = txtGender.Text);
         }
 
         private void Race_SelectedValueChanged(object sender, EventArgs e) {
-            controller.Character.race = cboRace.Text;
+            session.Mutate(c => c.race = cboRace.Text);
             DisplayRacialAbilityModifiers();
             DisplayTotalAbilityScores();
             HandleLanguages();
@@ -129,17 +131,17 @@ namespace PlayMore35 {
         }
 
         private void AssignAbilityScore(TextBox txt) {
-            try {
-                controller.Character.assignedAbilityScores[(string)txt.Tag] = int.Parse(txt.Text);
-            } catch (FormatException) {
-                controller.Character.assignedAbilityScores[(string)txt.Tag] = 0;
+            string scoreName = (string)txt.Tag;
+            if (int.TryParse(txt.Text, out int scoreValue)) {
+                session.Mutate(c => c.assignedAbilityScores[scoreName] = scoreValue);
+            } else {
+                session.Mutate(c => c.assignedAbilityScores[scoreName] = 0);
                 txt.Text = "";
             }
-            controller.Effects.AssignAbilityScores(controller.Character.assignedAbilityScores);
             DisplayTotalAbilityScores();
             HandleLanguages();
             DisplayTotalHp();
-            for (int i = 0; i < controller.Character.classLevels.Count(); i++) {
+            for (int i = 0; i < session.Character.classLevels.Count; i++) {
                 DisplaySkillPoints(i);
             }
         }
@@ -147,7 +149,7 @@ namespace PlayMore35 {
         private void DisplayRacialAbilityModifiers() {
             const string MODIFIER_FORMAT = "+#;–#;\"\"";
 
-            Race race = controller.RaceDefinitions[controller.Character.race];
+            Race race = session.Catalog.Races[session.Character.race];
             txtRacialStr.Text = race.Str.ToString(MODIFIER_FORMAT);
             txtRacialDex.Text = race.Dex.ToString(MODIFIER_FORMAT);
             txtRacialCon.Text = race.Con.ToString(MODIFIER_FORMAT);
@@ -157,25 +159,25 @@ namespace PlayMore35 {
         }
 
         private void DisplayTotalAbilityScores() {
-            Race race = controller.RaceDefinitions[controller.Character.race];
-            txtFinalStr.Text = "" + (controller.Character.assignedAbilityScores[STR] + race.Str);
-            txtFinalDex.Text = "" + (controller.Character.assignedAbilityScores[DEX] + race.Dex);
-            txtFinalCon.Text = "" + (controller.Character.assignedAbilityScores[CON] + race.Con);
-            txtFinalInt.Text = "" + (controller.Character.assignedAbilityScores[INT] + race.Int);
-            txtFinalWis.Text = "" + (controller.Character.assignedAbilityScores[WIS] + race.Wis);
-            txtFinalCha.Text = "" + (controller.Character.assignedAbilityScores[CHA] + race.Cha);
+            Race race = session.Catalog.Races[session.Character.race];
+            txtFinalStr.Text = "" + (session.Character.assignedAbilityScores[STR] + race.Str);
+            txtFinalDex.Text = "" + (session.Character.assignedAbilityScores[DEX] + race.Dex);
+            txtFinalCon.Text = "" + (session.Character.assignedAbilityScores[CON] + race.Con);
+            txtFinalInt.Text = "" + (session.Character.assignedAbilityScores[INT] + race.Int);
+            txtFinalWis.Text = "" + (session.Character.assignedAbilityScores[WIS] + race.Wis);
+            txtFinalCha.Text = "" + (session.Character.assignedAbilityScores[CHA] + race.Cha);
         }
 
         private EventHandler SelectBonusLanguage(int i) {
             return (object sender, EventArgs e) => {
-                controller.Character.bonusLanguages[i] = ((ComboBox)sender).Text;
+                session.Mutate(c => c.bonusLanguages[i] = ((ComboBox)sender).Text);
             };
         }
 
         private EventHandler SelectFeat(string slot) {
             return (object sender, EventArgs e) => {
                 ComboBox featBox = ((ComboBox)sender);
-                controller.Character.feats[slot] = featBox.Text;
+                session.Mutate(c => c.feats[slot] = featBox.Text);
                 featBox.Font = new Font(featBox.Font, FontStyle.Regular);
             };
         }
@@ -187,7 +189,7 @@ namespace PlayMore35 {
                 Left = left,
                 Top = lblSkill1.Top,
                 TextAlign = lblSkill1.TextAlign,
-                Text = Controller.ShortName(skill),
+                Text = ShortName(skill),
                 Tag = skill,
             };
             TOOLTIP.SetToolTip(skillName, skill);
@@ -214,7 +216,7 @@ namespace PlayMore35 {
             TextBox lastBox = null;
             for (
                 int i = 0, levelTop = txtRanksCrossClass.Top;
-                i < controller.Character.classLevels.Count();
+                i < session.Character.classLevels.Count;
                 i++, levelTop += levelBuffer
             ) {
                 TextBox ranksBox = new TextBox {
@@ -222,15 +224,15 @@ namespace PlayMore35 {
                     Left = left,
                     Size = txtRanksCrossClass.Size,
                     TextAlign = txtRanksCrossClass.TextAlign,
-                    BackColor = controller.IsClassSkill(skill, i)
+                    BackColor = session.IsClassSkill(skill, i)
                         ? txtRanksClass.BackColor
                         : txtRanksCrossClass.BackColor,
                 };
-                if (i < controller.Character.skillRanks[skill].Count) {
-                    int ranks = controller.Character.skillRanks[skill][i];
+                if (i < session.Character.skillRanks[skill].Count) {
+                    int ranks = session.Character.skillRanks[skill][i];
                     ranksBox.Text = ranks.ToString("#;#;\"\"");
                 } else {
-                    controller.Character.skillRanks[skill].Add(0);
+                    session.Mutate(c => c.skillRanks[skill].Add(0));
                 }
                 lastBox = ranksBox;
 
@@ -255,7 +257,7 @@ namespace PlayMore35 {
                 return;
             }
 
-            controller.Character.skillRanks[skill] = Enumerable.Repeat(0, controller.Character.classLevels.Count()).ToList();
+            session.Mutate(c => c.skillRanks[skill] = Enumerable.Repeat(0, c.classLevels.Count).ToList());
             AddSkillColumn(
                 skill,
                 skillNames.Any() ? skillNames.Last().Left + skillLabelOffset : cboAddSkill.Left
@@ -263,7 +265,7 @@ namespace PlayMore35 {
         }
 
         private void AddLevel_Click(object sender, EventArgs e) {
-            controller.AddLevel();
+            session.AddLevel();
             DisplayLevels();
             DisplayFeats();
             DisplayXp();
@@ -271,9 +273,9 @@ namespace PlayMore35 {
 
         private EventHandler SelectAbilityIncrement(int levelIndex) {
             return (object sender, EventArgs e) => {
-                controller.Character.abilityScoreIncrements[levelIndex + 1] = ((ComboBox)sender).Text;
+                session.Mutate(c => c.abilityScoreIncrements[levelIndex + 1] = ((ComboBox)sender).Text);
                 DisplayTotalHp();
-                for (int i = levelIndex; i < controller.Character.classLevels.Count; i++) {
+                for (int i = levelIndex; i < session.Character.classLevels.Count; i++) {
                     DisplaySkillPoints(i);
                 }
             };
@@ -281,7 +283,7 @@ namespace PlayMore35 {
 
         private EventHandler SelectClassLevel(int levelIndex) {
             return (object sender, EventArgs e) => {
-                controller.Character.classLevels[levelIndex] = ((ComboBox)sender).Text;
+                session.Mutate(c => c.classLevels[levelIndex] = ((ComboBox)sender).Text);
 
                 DisplaySkillPoints(levelIndex);
                 CheckSkillColors(levelIndex);
@@ -296,7 +298,7 @@ namespace PlayMore35 {
         }
 
         private void HitDieForLevel(TextBox box, int levelIndex) {
-            box.Text = "d" + controller.ClassDefinitions[controller.Character.classLevels[levelIndex]].HitDie;
+            box.Text = "d" + session.Catalog.Classes[session.Character.classLevels[levelIndex]].HitDie;
             box.Font = new Font(box.Font, FontStyle.Italic);
         }
 
@@ -304,10 +306,11 @@ namespace PlayMore35 {
             return (object sender, EventArgs e) => {
                 TextBox box = (TextBox)sender;
                 try {
-                    controller.Character.rolledHitDice[levelIndex] = int.Parse(box.Text);
+                    int roll = int.Parse(box.Text);
+                    session.Mutate(c => c.rolledHitDice[levelIndex] = roll);
                     box.Font = new Font(box.Font, FontStyle.Regular);
                 } catch (FormatException) {
-                    controller.Character.rolledHitDice[levelIndex] = 0;
+                    session.Mutate(c => c.rolledHitDice[levelIndex] = 0);
                     HitDieForLevel(box, levelIndex);
                 }
                 DisplayTotalHp();
@@ -315,12 +318,12 @@ namespace PlayMore35 {
         }
 
         private void CheckRanks(string skill, int levelIndex = 0) {
-            for (int i = levelIndex; i < controller.Character.classLevels.Count; i++) {
+            for (int i = levelIndex; i < session.Character.classLevels.Count; i++) {
                 TextBox ranksBox = skillRanks[skill][i];
-                if (controller.TooManyRanks(skill, i)) {
+                if (session.TooManyRanks(skill, i)) {
                     // Adding spaces around the text makes the strikethrough more apparent, and doesn't
                     // mess with the int.Parse at all!
-                    ranksBox.Text = $"  {controller.Character.skillRanks[skill][i]}  ";
+                    ranksBox.Text = $"  {session.Character.skillRanks[skill][i]}  ";
                     ranksBox.ForeColor = Color.Red;
                     ranksBox.Font = new Font(ranksBox.Font, FontStyle.Bold | FontStyle.Strikeout);
                 } else {
@@ -334,10 +337,11 @@ namespace PlayMore35 {
             return (object sender, EventArgs e) => {
                 TextBox ranksBox = ((TextBox)sender);
                 try {
-                    controller.Character.skillRanks[skill][levelIndex] = int.Parse(ranksBox.Text);
+                    int ranks = int.Parse(ranksBox.Text);
+                    session.Mutate(c => c.skillRanks[skill][levelIndex] = ranks);
                     CheckRanks(skill, levelIndex);
                 } catch (FormatException) {
-                    controller.Character.skillRanks[skill][levelIndex] = 0;
+                    session.Mutate(c => c.skillRanks[skill][levelIndex] = 0);
                     ranksBox.Text = "";
                 }
                 DisplaySkillPoints(levelIndex);
@@ -350,16 +354,16 @@ namespace PlayMore35 {
         }
 
         private void HandleLanguages() {
-            Race race = controller.RaceDefinitions[controller.Character.race];
+            Race race = session.Catalog.Races[session.Character.race];
             txtAutomaticLanguages.Text = string.Join(", ", race.AutomaticLanguages);
 
-            int numBonusLanguages = Math.Max(0, controller.GetStartingIntelligence() / 2 - 5);
+            int numBonusLanguages = Math.Max(0, session.GetStartingIntelligence() / 2 - 5);
             int curBonusLanguages = bonusLanguages.Count;
             int langBuffer = cboBonusLanguage.Top - txtAutomaticLanguages.Top;
             int langTop = cboBonusLanguage.Top + langBuffer * curBonusLanguages;
             for (int i = 0; i < curBonusLanguages; i++) {
                 bonusLanguages[i].Items.Clear();
-                foreach (string language in controller.RaceDefinitions[controller.Character.race].BonusLanguages) {
+                foreach (string language in session.Catalog.Races[session.Character.race].BonusLanguages) {
                     bonusLanguages[i].Items.Add(language);
                 }
             }
@@ -379,13 +383,13 @@ namespace PlayMore35 {
                     Top = langTop,
                     Left = cboBonusLanguage.Left
                 };
-                foreach (string language in controller.RaceDefinitions[controller.Character.race].BonusLanguages) {
+                foreach (string language in session.Catalog.Races[session.Character.race].BonusLanguages) {
                     box.Items.Add(language);
                 }
-                if (controller.Character.bonusLanguages.Count() > i) {
-                    box.Text = controller.Character.bonusLanguages[i];
+                if (session.Character.bonusLanguages.Count > i) {
+                    box.Text = session.Character.bonusLanguages[i];
                 } else {
-                    controller.Character.bonusLanguages.Add("");
+                    session.Mutate(c => c.bonusLanguages.Add(""));
                 }
 
                 box.SelectedValueChanged += SelectBonusLanguage(i);
@@ -395,9 +399,9 @@ namespace PlayMore35 {
 
                 langTop += langBuffer;
             }
-            int excess = controller.Character.bonusLanguages.Count - numBonusLanguages;
+            int excess = session.Character.bonusLanguages.Count - numBonusLanguages;
             if (excess > 0) {
-                controller.Character.bonusLanguages.RemoveRange(numBonusLanguages, excess);
+                session.Mutate(c => c.bonusLanguages.RemoveRange(numBonusLanguages, excess));
             }
             for (int i = curBonusLanguages - 1; i >= numBonusLanguages; i--) {
                 pagCharacter.Controls.Remove(bonusLanguages[i]);
@@ -415,7 +419,7 @@ namespace PlayMore35 {
             }
             ClearDynamicControls(pagCharacter, feats);
             int featRight = 0;
-            foreach (var level in controller.GetFeatSlots()) {
+            foreach (var level in session.GetFeatSlots()) {
                 int featTop = levels[level.Key - 1].Top;
                 int featLeft = cboFeat.Left;
                 foreach (string slot in level.Value) {
@@ -427,8 +431,8 @@ namespace PlayMore35 {
                         Size = cboFeat.Size,
                         Font = scala // why do i need to do this?
                     };
-                    if (controller.Character.feats.ContainsKey(slot)) {
-                        featBox.Text = controller.Character.feats[slot];
+                    if (session.Character.feats.ContainsKey(slot)) {
+                        featBox.Text = session.Character.feats[slot];
                         featBox.Font = new Font(featBox.Font, FontStyle.Regular);
                     } else {
                         featBox.Text = slot;
@@ -450,7 +454,7 @@ namespace PlayMore35 {
         }
 
         private void DisplayTotalHp() {
-            lblTotalHp.Text = "" + controller.BaseHp();
+            lblTotalHp.Text = "" + session.BaseHp();
         }
         
         private void AdjustHpAndSkills(int left) {
@@ -482,7 +486,7 @@ namespace PlayMore35 {
                 return;
             }
 
-            int remaining = controller.SkillPointsRemainingAtLevel(levelIndex);
+            int remaining = session.SkillPointsRemainingAtLevel(levelIndex);
             if (remaining > 1) {
                 skillPoints[levelIndex].Text = "" + remaining + " skill points remaining";
             } else if (remaining == 1) {
@@ -496,14 +500,14 @@ namespace PlayMore35 {
 
         private void CheckSkillColors(int levelIndex) {
             foreach (var skillRanks in skillRanks) {
-                skillRanks.Value[levelIndex].BackColor = controller.IsClassSkill(skillRanks.Key, levelIndex)
+                skillRanks.Value[levelIndex].BackColor = session.IsClassSkill(skillRanks.Key, levelIndex)
                     ? txtRanksClass.BackColor
                     : txtRanksCrossClass.BackColor;
             };
         }
 
         private void DisplaySkillRanks(string skill) {
-            totalSkillRanks[skill].Text = "" + controller.TotalSkillRanks(skill);
+            totalSkillRanks[skill].Text = "" + session.TotalSkillRanks(skill);
         }
 
         private EventHandler PopupLevelDetails(int levelIndex) {
@@ -511,11 +515,13 @@ namespace PlayMore35 {
                 levelDetailsDialog.PrepareLevel(levelIndex);
                 levelDetailsDialog.ShowDialog();
 
-                controller.Character.classLevels[levelIndex] = levelDetailsDialog.GetClass();
-                foreach (var feat in levelDetailsDialog.GetFeats()) {
-                    controller.Character.feats[feat.Key] = feat.Value;
-                }
-                controller.Character.featChoices = levelDetailsDialog.GetFeatChoices();
+                session.Mutate(c => {
+                    c.classLevels[levelIndex] = levelDetailsDialog.GetClass();
+                    foreach (var feat in levelDetailsDialog.GetFeats()) {
+                        c.feats[feat.Key] = feat.Value;
+                    }
+                    c.featChoices = levelDetailsDialog.GetFeatChoices();
+                });
 
                 DisplayLevels();
                 DisplayFeats();
@@ -542,14 +548,14 @@ namespace PlayMore35 {
             ClearDynamicControls(pagCharacter, skillPoints);
 
             int levelTop = cboClass.Top;
-            for (int i = 0; i < controller.Character.classLevels.Count; i++) {
-                string @class = controller.Character.classLevels[i];
+            for (int i = 0; i < session.Character.classLevels.Count; i++) {
+                string @class = session.Character.classLevels[i];
                 ComboBox level = new ComboBox {
                     Top = levelTop,
                     Left = cboClass.Left,
                     Size = cboClass.Size
                 };
-                foreach (string className in controller.ClassDefinitions.Keys.OrderBy(x => x)) {
+                foreach (string className in session.Catalog.Classes.Keys.OrderBy(x => x)) {
                     level.Items.Add(className);
                 }
                 level.Text = @class;
@@ -573,15 +579,15 @@ namespace PlayMore35 {
                     Size = txtRolledHp.Size,
                     TextAlign = txtRolledHp.TextAlign,
                 };
-                if (i < controller.Character.rolledHitDice.Count) {
-                    int roll = controller.Character.rolledHitDice[i];
+                if (i < session.Character.rolledHitDice.Count) {
+                    int roll = session.Character.rolledHitDice[i];
                     if (roll == 0) {
                         HitDieForLevel(rolledHp, i);
                     } else {
                         rolledHp.Text = "" + roll;
                     }
                 } else {
-                    controller.Character.rolledHitDice.Add(0);
+                    session.Mutate(c => c.rolledHitDice.Add(0));
                     HitDieForLevel(rolledHp, i);
                 }
 
@@ -609,8 +615,8 @@ namespace PlayMore35 {
                     foreach (string s in ABILITIES) {
                         increment.Items.Add(s);
                     }
-                    if (controller.Character.abilityScoreIncrements.ContainsKey(i + 1)) {
-                        increment.Text = controller.Character.abilityScoreIncrements[i + 1];
+                    if (session.Character.abilityScoreIncrements.ContainsKey(i + 1)) {
+                        increment.Text = session.Character.abilityScoreIncrements[i + 1];
                     }
                     increment.SelectedValueChanged += SelectAbilityIncrement(i);
                     increments.Add(increment);
@@ -624,7 +630,7 @@ namespace PlayMore35 {
             int skillLeft = cboAddSkill.Left;
             cboAddSkill.Left = skillLeft;
             int skillIndex = 0;
-            foreach (var skill in controller.Character.skillRanks) {
+            foreach (var skill in session.Character.skillRanks) {
                 AddSkillColumn(skill.Key, skillLeft);
 
                 skillIndex++;
@@ -638,8 +644,8 @@ namespace PlayMore35 {
         }
 
         private void DisplayXp() {
-            int xpNeeded = controller.Character.ExperienceToNextLevel();
-            int nextLevel = controller.Character.classLevels.Count + 1;
+            int xpNeeded = session.Character.ExperienceToNextLevel();
+            int nextLevel = session.Character.classLevels.Count + 1;
             btnAddLevel.Text = xpNeeded < 0
                 ? "Level Up!"
                 : $"{xpNeeded.ToString("#,###")} XP to level {nextLevel}";
@@ -647,7 +653,7 @@ namespace PlayMore35 {
             ClearDynamicControls(pagCharacter, sessionXps);
             ClearDynamicControls(pagCharacter, sessionDescriptions);
 
-            var sessions = controller.Character.sessions;
+            var sessions = session.Character.sessions;
             int sessionTop = lblSampleSession2.Top - ((sessions.Count - 1) * transactionBuffer);
             for (int i = 0; i < sessions.Count; i++) {
                 var (xp, description) = sessions[i];
@@ -691,12 +697,12 @@ namespace PlayMore35 {
                 txtSessionXp.Text = "";
             }
 
-            lblTotalXp.Text = controller.Character.TotalExperience().ToString("#,###;-#,###;0");
+            lblTotalXp.Text = session.Character.TotalExperience().ToString("#,###;-#,###;0");
         }
 
         private EventHandler DeleteSession(int i) {
             return (object sender, EventArgs e) => {
-                controller.Character.sessions.RemoveAt(i);
+                session.Mutate(c => c.sessions.RemoveAt(i));
                 DisplayXp();
             };
         }
@@ -704,7 +710,7 @@ namespace PlayMore35 {
         private void AddSession_Click(object sender, EventArgs e) {
             if (int.TryParse(txtSessionXp.Text, out int value)) {
                 txtSessionXp.BackColor = SystemColors.Window;
-                controller.Character.sessions.Add((value, txtSessionDesc.Text));
+                session.Mutate(c => c.sessions.Add((value, txtSessionDesc.Text)));
                 txtSessionDesc.Text = "";
                 txtSessionXp.Text = "";
                 txtSessionDesc.Focus();
@@ -723,16 +729,16 @@ namespace PlayMore35 {
         }
 
         private void DisplayCharacter() {
-            txtName.Text = controller.Character.name;
-            txtAlignment.Text = controller.Character.alignment;
-            txtGender.Text = controller.Character.gender;
+            txtName.Text = session.Character.name;
+            txtAlignment.Text = session.Character.alignment;
+            txtGender.Text = session.Character.gender;
 
-            txtAssignedStr.Text = "" + controller.Character.assignedAbilityScores[STR];
-            txtAssignedDex.Text = "" + controller.Character.assignedAbilityScores[DEX];
-            txtAssignedCon.Text = "" + controller.Character.assignedAbilityScores[CON];
-            txtAssignedInt.Text = "" + controller.Character.assignedAbilityScores[INT];
-            txtAssignedWis.Text = "" + controller.Character.assignedAbilityScores[WIS];
-            txtAssignedCha.Text = "" + controller.Character.assignedAbilityScores[CHA];
+            txtAssignedStr.Text = "" + session.Character.assignedAbilityScores[STR];
+            txtAssignedDex.Text = "" + session.Character.assignedAbilityScores[DEX];
+            txtAssignedCon.Text = "" + session.Character.assignedAbilityScores[CON];
+            txtAssignedInt.Text = "" + session.Character.assignedAbilityScores[INT];
+            txtAssignedWis.Text = "" + session.Character.assignedAbilityScores[WIS];
+            txtAssignedCha.Text = "" + session.Character.assignedAbilityScores[CHA];
 
             DisplayRacialAbilityModifiers();
             DisplayTotalAbilityScores();
@@ -744,13 +750,13 @@ namespace PlayMore35 {
             foreach (string skill in SKILLS_LIST) {
                 cboAddSkill.Items.Add(skill);
             }
-            foreach (string skill in controller.Character.skillRanks.Keys) {
+            foreach (string skill in session.Character.skillRanks.Keys) {
                 cboAddSkill.Items.Remove(skill);
             }
             DisplayFeats();
             DisplayXp();
 
-            cboRace.Text = controller.Character.race;
+            cboRace.Text = session.Character.race;
         }
 
         private void CharacterTab_Enter(object sender, EventArgs e) {
@@ -762,15 +768,17 @@ namespace PlayMore35 {
         }
 
         private void CharacterTab_Leave(object sender, EventArgs e) {
-            controller.Character.skillRanks = controller.Character.skillRanks
-                .Where(x => x.Value.Sum() > 0)
-                .ToDictionary(x => x.Key, x => x.Value);
+            session.Mutate(c => {
+                c.skillRanks = c.skillRanks
+                    .Where(x => x.Value.Sum() > 0)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            });
         }
 
         public void RefreshEffects() {
-            controller.ForceHiddenFlagsOff();
+            session.ForceHiddenFlagsOff();
 
-            Dictionary<string, List<Text>> textEffects = controller.Effects.GetTextEffects(controller.EquippedItems);
+            Dictionary<string, List<Text>> textEffects = session.GetTextEffects();
             foreach (DynamicPanel p in dynamicPanels) {
                 p.Update(textEffects);
             }
@@ -782,11 +790,11 @@ namespace PlayMore35 {
 
         private void RefreshWeight() {
             foreach (var weight in locationWeights) {
-                weight.Value.Text = $"Count weight ({controller.WeightAtLocation(weight.Key)} lbs.)";
+                weight.Value.Text = $"Count weight ({session.WeightAtLocation(weight.Key)} lbs.)";
             }
 
-            lblEquippedWeight.Text = $"Equipped weight: {controller.EquippedItems.EquippedWeight()} lbs.";
-            lblTotalWeight.Text = $"Total load: {controller.EquippedItems.TotalWeight()} lbs.";
+            lblEquippedWeight.Text = $"Equipped weight: {session.EquippedWeight} lbs.";
+            lblTotalWeight.Text = $"Total load: {session.TotalWeight} lbs.";
         }
 
         private void RemoveLocationGroup(string locationKey) {
@@ -814,7 +822,7 @@ namespace PlayMore35 {
             int locationLeft = grpSampleLocation.Left;
             int locationBuffer = grpSampleLocation2.Left - grpSampleLocation.Right;
             locationWidthBuffer = grpSampleLocation.Width - lstSampleItems.Width;
-            foreach (var location in controller.Character.inventory) {
+            foreach (var location in session.Character.inventory) {
                 GroupBox locationBox = AddLocationGroup(locationTop, locationLeft, location.Key, location.Value);
                 locationLeft += locationBox.Width + locationBuffer;
             }
@@ -834,21 +842,21 @@ namespace PlayMore35 {
                     foreach (object o in addItemDialog.lstWeaponProperties.SelectedItems) {
                         properties.Add((string)o);
                     }
-                    controller.AddWeapon(locationName, (string)addItemDialog.lstAddWeapon.SelectedItem, properties);
+                    session.AddWeapon(locationName, (string)addItemDialog.lstAddWeapon.SelectedItem, properties);
                 } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagArmor) {
                     List<string> properties = new List<string>();
                     foreach (object o in addItemDialog.lstArmorProperties.SelectedItems) {
                         properties.Add((string)o);
                     }
-                    controller.AddArmor(locationName, (string)addItemDialog.lstAddArmor.SelectedItem, properties);
+                    session.AddArmor(locationName, (string)addItemDialog.lstAddArmor.SelectedItem, properties);
                 } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagShields) {
                     List<string> properties = new List<string>();
                     foreach (object o in addItemDialog.lstShieldProperties.SelectedItems) {
                         properties.Add((string)o);
                     }
-                    controller.AddShield(locationName, (string)addItemDialog.lstAddShield.SelectedItem, properties);
+                    session.AddShield(locationName, (string)addItemDialog.lstAddShield.SelectedItem, properties);
                 } else if (addItemDialog.tabAddItem.SelectedTab == addItemDialog.pagItems) {
-                    controller.AddItem(locationName, (string)addItemDialog.lstAddItem.SelectedItem);
+                    session.AddItem(locationName, (string)addItemDialog.lstAddItem.SelectedItem);
                 }
                 
                 ListLocation(location, locationLists[locationName], locationGroups[locationName]);
@@ -858,7 +866,7 @@ namespace PlayMore35 {
 
         private EventHandler DeleteLocation(string locationName) {
             return (object sender, EventArgs e) => {
-                controller.RemoveLocation(locationName);
+                session.RemoveLocation(locationName);
                 RemoveLocationGroup(locationName);
             };
         }
@@ -869,8 +877,8 @@ namespace PlayMore35 {
                 if (!(locationList.SelectedItem is ItemDrag selected)) {
                     return;
                 }
-                controller.RemoveThing(locationName, selected.item);
-                ListLocation(controller.Character.inventory[locationName], locationList, locationGroups[locationName]);
+                session.RemoveThing(locationName, selected.item);
+                ListLocation(session.Character.inventory[locationName], locationList, locationGroups[locationName]);
             };
         }
 
@@ -944,7 +952,7 @@ namespace PlayMore35 {
 
         private EventHandler CountWeight_CheckedChanged(string location) {
             return (object sender, EventArgs e) => {
-                controller.CountWeight(location, ((CheckBox)sender).Checked);
+                session.CountWeight(location, ((CheckBox)sender).Checked);
                 RefreshEffects();
             };
         }
@@ -1007,21 +1015,21 @@ namespace PlayMore35 {
 
             if (draggingItemFrom is ListBox fromList) {
                 if (fromList == lstSlotless) {
-                    controller.UnequipSlotlessItem(targetList.Parent.Text, (string)item.item);
+                    session.UnequipSlotlessItem(targetList.Parent.Text, (string)item.item);
                 } else {
-                    controller.MoveItem(fromList.Parent.Text, to, item.item, numberDragging);
+                    session.MoveItem(fromList.Parent.Text, to, item.item, numberDragging);
                 }
             } else if (draggingItemFrom is Label fromSlot) {
                 if (fromSlot == txtPrimaryWeapon) {
-                    controller.UnequipWeapon(to, true);
+                    session.UnequipWeapon(to, true);
                 } else if (fromSlot == txtOffHandWeapon) {
-                    controller.UnequipWeapon(to, false);
+                    session.UnequipWeapon(to, false);
                 } else if (fromSlot == txtArmor) {
-                    controller.UndonArmor(to);
+                    session.UndonArmor(to);
                 } else if (fromSlot == txtShield) {
-                    controller.UnequipShield(to);
+                    session.UnequipShield(to);
                 } else {
-                    controller.UnequipItem(item.slot, to);
+                    session.UnequipItem(item.slot, to);
                 }
             }
 
@@ -1034,8 +1042,8 @@ namespace PlayMore35 {
             draggingItemFrom = (Control)sender;
             draggingItemFrom.DoDragDrop(new ItemDrag {
                 item = (sender == txtPrimaryWeapon)
-                    ? controller.Character.equipped.PrimaryHandWeapon
-                    : controller.Character.equipped.OffHandWeapon
+                    ? session.Character.equipped.PrimaryHandWeapon
+                    : session.Character.equipped.OffHandWeapon
             }, DragDropEffects.Move);
         }
 
@@ -1056,10 +1064,10 @@ namespace PlayMore35 {
                 ((draggingItemFrom == txtPrimaryWeapon) && (sender == txtOffHandWeapon)) ||
                 ((draggingItemFrom == txtOffHandWeapon) && (sender == txtPrimaryWeapon))
             ) {
-                controller.SwapWeapons();
+                session.SwapWeapons();
             } else {
                 bool primary = sender == txtPrimaryWeapon;
-                controller.EquipWeapon(draggingItemFrom.Parent.Text, primary, (WeaponChoice)item.item);
+                session.EquipWeapon(draggingItemFrom.Parent.Text, primary, (WeaponChoice)item.item);
             }
             draggingItemFrom = null;
             RefreshInventory();
@@ -1069,7 +1077,7 @@ namespace PlayMore35 {
         private void Armor_MouseDown(object sender, MouseEventArgs e) {
             draggingItemFrom = (Control)sender;
             draggingItemFrom.DoDragDrop(
-                new ItemDrag { item = controller.Character.equipped.DonnedArmor },
+                new ItemDrag { item = session.Character.equipped.DonnedArmor },
                 DragDropEffects.Move
             );
         }
@@ -1087,7 +1095,7 @@ namespace PlayMore35 {
                 return;
             }
 
-            controller.DonArmor(draggingItemFrom.Parent.Text, (ArmorChoice)item.item);
+            session.DonArmor(draggingItemFrom.Parent.Text, (ArmorChoice)item.item);
             draggingItemFrom = null;
             RefreshInventory();
         }
@@ -1096,7 +1104,7 @@ namespace PlayMore35 {
         private void Shield_MouseDown(object sender, MouseEventArgs e) {
             draggingItemFrom = (Control)sender;
             draggingItemFrom.DoDragDrop(
-                new ItemDrag { item = controller.Character.equipped.OffHandShield },
+                new ItemDrag { item = session.Character.equipped.OffHandShield },
                 DragDropEffects.Move
             );
         }
@@ -1114,7 +1122,7 @@ namespace PlayMore35 {
                 return;
             }
 
-            controller.EquipShield(draggingItemFrom.Parent.Text, armor);
+            session.EquipShield(draggingItemFrom.Parent.Text, armor);
             draggingItemFrom = null;
             RefreshInventory();
         }
@@ -1148,7 +1156,7 @@ namespace PlayMore35 {
             }
 
             string item = (string) (itemDrag.item);
-            controller.EquipItem(draggingItemFrom.Parent.Text, slot, item);
+            session.EquipItem(draggingItemFrom.Parent.Text, slot, item);
             draggingItemFrom = null;
             RefreshInventory();
         }
@@ -1186,13 +1194,13 @@ namespace PlayMore35 {
             }
 
             ListBox targetList = (ListBox)sender;
-            controller.EquipItem(draggingItemFrom.Parent.Text, Equipped.Slot.SLOTLESS, (string)item.item);
+            session.EquipItem(draggingItemFrom.Parent.Text, Equipped.Slot.SLOTLESS, (string)item.item);
             draggingItemFrom = null;
             RefreshInventory();
         }
 
         private void RefreshInventory() {
-            foreach (var location in controller.Character.inventory) {
+            foreach (var location in session.Character.inventory) {
                 ListLocation(location.Value, locationLists[location.Key], locationGroups[location.Key]);
             }
             RefreshEquipment();
@@ -1202,7 +1210,7 @@ namespace PlayMore35 {
             ClearDynamicControls(pagInventory, transactionAmounts);
             ClearDynamicControls(pagInventory, transactionDescriptions);
 
-            var transactions = controller.Character.transactions;
+            var transactions = session.Character.transactions;
             int firstTransaction = Math.Max(0, transactions.Count - MAX_TRANSACTIONS);
             int numTransactions = Math.Min(transactions.Count, MAX_TRANSACTIONS);
 
@@ -1219,7 +1227,7 @@ namespace PlayMore35 {
                     TextAlign = lblTransactionDescription1.TextAlign,
                     Text = description
                 };
-                transactionDescriptions.Add(descLabel);
+                sessionDescriptions.Add(descLabel);
                 pagInventory.Controls.Add(descLabel);
 
 
@@ -1249,12 +1257,12 @@ namespace PlayMore35 {
                 txtTransactionGp.Text = "";
             }
 
-            lblTotalGold.Text = controller.Character.TotalGold().ToString("#,###.##;-#,###.##;0");
+            lblTotalGold.Text = session.Character.TotalGold().ToString("#,###.##;-#,###.##;0");
         }
 
         private EventHandler DeleteTransaction(int i) {
             return (object sender, EventArgs e) => {
-                controller.Character.transactions.RemoveAt(i);
+                session.Mutate(c => c.transactions.RemoveAt(i));
                 DisplayGold();
             };
         }
@@ -1262,7 +1270,7 @@ namespace PlayMore35 {
         private void AddTransaction_Click(object sender, EventArgs e) {
             if (decimal.TryParse(txtTransactionGp.Text, out decimal value)) {
                 txtTransactionGp.BackColor = SystemColors.Window;
-                controller.Character.transactions.Add((value, txtTransactionDesc.Text));
+                session.Mutate(c => c.transactions.Add((value, txtTransactionDesc.Text)));
                 txtTransactionDesc.Text = "";
                 txtTransactionGp.Text = "";
                 txtTransactionDesc.Focus();
@@ -1282,7 +1290,7 @@ namespace PlayMore35 {
 
         private void AddLocation_Click(object sender, EventArgs e) {
             string newName = txtLocationName.Text;
-            if (newName == "" || controller.Character.inventory.ContainsKey(newName)) {
+            if (newName == "" || session.Character.inventory.ContainsKey(newName)) {
                 txtLocationName.BackColor = Color.Red;
                 return;
             }
@@ -1290,7 +1298,7 @@ namespace PlayMore35 {
             txtLocationName.BackColor = SystemColors.Window;
             txtLocationName.Text = "";
             InventoryLocation location = new InventoryLocation();
-            controller.Character.inventory[newName] = location;
+            session.Mutate(c => c.inventory[newName] = location);
             AddLocationGroup(this.Height / 2, this.Width / 2, newName, location);
         }
 
@@ -1308,7 +1316,7 @@ namespace PlayMore35 {
                 locationBox.Items.Add(new ItemDrag {
                     item = item.Key,
                     qty = item.Value,
-                    slot = controller.SlotForItem(item.Key)
+                    slot = session.SlotForItem(item.Key)
                 });
             }
         }
@@ -1323,7 +1331,7 @@ namespace PlayMore35 {
         }
 
         private void RefreshEquipment() {
-            EquippedChoices equipped = controller.Character.equipped;
+            EquippedChoices equipped = session.Character.equipped;
             txtPrimaryWeapon.Text = equipped.PrimaryHandWeapon?.FullName() ?? "";
             txtOffHandWeapon.Text = equipped.OffHandWeapon?.FullName() ?? "";
             txtArmor.Text = equipped.DonnedArmor?.FullName() ?? "";
@@ -1337,8 +1345,8 @@ namespace PlayMore35 {
                 }
             }
             lstSlotless.Items.Clear();
-            foreach (Item item in controller.EquippedItems.SlotlessItems) {
-                lstSlotless.Items.Add(new ItemDrag { item = item.ItemEffect.Name });
+            foreach (string itemName in session.Character.equipped.SlotlessItems) {
+                lstSlotless.Items.Add(new ItemDrag { item = itemName });
             }
             // XXX: why in the world does this need to be one higher????
             if (lstSlotless.Items.Count > 2) {
@@ -1349,18 +1357,18 @@ namespace PlayMore35 {
         }
         
         private void TabSwitch(object sender, TabControlEventArgs e) {
-            controller.Reload();
+            session.Recalculate();
             RefreshEffects();
         }
 
         // this is what happens when you click on a vestige
         private EventHandler ChooseVestige(int slotIndex, Vestige vestige) {
             return (object sender, EventArgs e) => {
-                var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
+                var pactEngine = session.Subsystems.Get<PactMagicEngine>();
                 if (vestige == null) {
                     pactEngine?.BindVestige(slotIndex, "", (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = "Good pact?";
-                    controller.Character.Timeline.Unschedule(new SheetAction().ClearSlot("vestige", slotIndex));
+                    session.Character.Timeline.Unschedule(new SheetAction().ClearSlot("vestige", slotIndex));
                 } else {
                     pactEngine?.BindVestige(slotIndex, vestige.Name, (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
@@ -1373,12 +1381,12 @@ namespace PlayMore35 {
             return (sender, e) => {
                 RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
-                var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
+                var pactEngine = session.Subsystems.Get<PactMagicEngine>();
                 pactEngine?.BindVestige(slotIndex, vestige.Name, bindingCheckSuccess ? PactState.GOOD_PACT : PactState.POOR_PACT);
-                controller.Character.Timeline.Schedule(new SheetAction().ClearSlot("vestige", slotIndex), "24 hours");
-                var result = controller.Character.Timeline.Advance(21);
+                session.Character.Timeline.Schedule(new SheetAction().ClearSlot("vestige", slotIndex), "24 hours");
+                var result = session.AdvanceTimeline(21);
                 if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
-                    controller.Reload();
+                    session.Recalculate();
                 }
                 if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
                     RefreshEffects();
@@ -1389,7 +1397,7 @@ namespace PlayMore35 {
 
         private EventHandler ChangePactState(int slotIndex) {
             return (object sender, EventArgs e) => {
-                var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
+                var pactEngine = session.Subsystems.Get<PactMagicEngine>();
                 pactEngine?.ChangePactState(slotIndex, (PactState)pactStates[slotIndex].SelectedIndex);
             };
         }
@@ -1406,12 +1414,12 @@ namespace PlayMore35 {
             vestigeChoices.Clear();
             ClearDynamicControls(pagVestiges, vestigePanels);
             
-            var pactEngine = controller.Subsystems.Get<PactMagicEngine>();
+            var pactEngine = session.Subsystems.Get<PactMagicEngine>();
             List<Vestige> availableVestiges = pactEngine?.AvailableVestiges().ToList() ?? new List<Vestige>();
-            int numVestiges = pactEngine?.SlotCount ?? controller.GetStatistic(NUM_VESTIGES).value;
+            int numVestiges = pactEngine?.SlotCount ?? session.GetStatistic(NUM_VESTIGES).Value;
 
             int vestigeLeft = pnlVestige1.Left;
-            string bindingCheck = $"1d20{controller.GetStatistic(BINDING_CHECK).value.ToString("+#;-#;\"\"")}";
+            string bindingCheck = $"1d20{session.GetStatistic(BINDING_CHECK).Value.ToString("+#;-#;\"\"")}";
             for (int i = 0; i < numVestiges; i++) {
                 Panel vestigePanel = new Panel {
                     Top = pnlVestige1.Top,
@@ -1507,15 +1515,15 @@ namespace PlayMore35 {
 
             addItemDialog.Font = scala;
 
-            controller = new Controller(new Character(this));
-            levelDetailsDialog = new LevelDetailsDialog(controller) {
+            session = new CharacterSession(new Character(this), new GameRulesCatalog());
+            levelDetailsDialog = new LevelDetailsDialog(session) {
                 Font = scala
             };
 
-            availableFeats = controller.FeatDefinitions.Keys.ToList();
+            availableFeats = session.Catalog.Feats.Keys.ToList();
             availableFeats.Sort();
 
-            List<string> availableRaces = controller.RaceDefinitions.Keys.ToList();
+            List<string> availableRaces = session.Catalog.Races.Keys.ToList();
             availableRaces.Sort();
             foreach (string race in availableRaces) {
                 cboRace.Items.Add(race);
@@ -1552,15 +1560,15 @@ namespace PlayMore35 {
 
             RefreshEffects();
 
-            controller.WeaponDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddWeapon.Items.Add(x));
-            controller.WeaponPropertyDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstWeaponProperties.Items.Add(x));
-            controller.ArmorDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddArmor.Items.Add(x));
-            controller.ShieldDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddShield.Items.Add(x));
-            controller.ArmorPropertyDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => {
+            session.Catalog.Weapons.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddWeapon.Items.Add(x));
+            session.Catalog.WeaponProperties.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstWeaponProperties.Items.Add(x));
+            session.Catalog.Armors.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddArmor.Items.Add(x));
+            session.Catalog.Shields.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddShield.Items.Add(x));
+            session.Catalog.ArmorProperties.Keys.OrderBy(x => x).ToList().ForEach(x => {
                 addItemDialog.lstArmorProperties.Items.Add(x);
                 addItemDialog.lstShieldProperties.Items.Add(x);
             });
-            controller.ItemDefinitions.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddItem.Items.Add(x));
+            session.Catalog.Items.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddItem.Items.Add(x));
         }
 
         private void RemoveSubsystemTabs() {
@@ -1568,7 +1576,7 @@ namespace PlayMore35 {
         }
 
         private void UpdateSubsystemTabs() {
-            bool hasVestiges = controller.Subsystems.Get<PactMagicEngine>()?.IsActive == true;
+            bool hasVestiges = session.Subsystems.Get<PactMagicEngine>()?.IsActive == true;
             bool currentlyShowing = tabMain.TabPages.Contains(pagVestiges);
 
             // What position do the subsystem tabs get added at.
@@ -1590,7 +1598,11 @@ namespace PlayMore35 {
                     return false;
                 }
                 using (StreamReader reader = new StreamReader(dialog.OpenFile())) {
-                    controller.Character = new Character(this, controller.Character, JObject.Parse(reader.ReadToEnd()));
+                    Character loadedCharacter = new Character(this, session.Character, JObject.Parse(reader.ReadToEnd()));
+                    session = new CharacterSession(loadedCharacter, session.Catalog);
+                    levelDetailsDialog = new LevelDetailsDialog(session) {
+                        Font = scala
+                    };
                     UpdateSubsystemTabs();
                 }
             }
@@ -1610,7 +1622,7 @@ namespace PlayMore35 {
                 FilterIndex = 1
             };
             if (saveCharacter.ShowDialog() == DialogResult.OK) {
-                File.WriteAllText(saveCharacter.FileName, controller.Character.ToJson().ToString());
+                File.WriteAllText(saveCharacter.FileName, session.Character.ToJson().ToString());
                 return true;
             }
             return false;
@@ -1621,13 +1633,13 @@ namespace PlayMore35 {
         }
 
         private void ConfigureAttackRoutines_Click(object sender, EventArgs e) {
-            if (controller?.Character == null) {
+            if (session?.Character == null) {
                 return;
             }
-            if (controller.Character.RoutinePreferences == null) {
-                controller.Character.RoutinePreferences = new AttackRoutinePreferences();
+            if (session.Character.RoutinePreferences == null) {
+                session.Character.RoutinePreferences = new AttackRoutinePreferences();
             }
-            using (var dialog = new ConfigureAttackRoutinesDialog(controller.Character.RoutinePreferences)) {
+            using (var dialog = new ConfigureAttackRoutinesDialog(session.Character.RoutinePreferences)) {
                 if (dialog.ShowDialog(this) == DialogResult.OK) {
                     RefreshEffects();
                 }

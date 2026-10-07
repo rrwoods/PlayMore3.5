@@ -16,9 +16,13 @@ namespace PlayMore35.Global {
         string CreatureType { get; }
         IReadOnlyList<string> SubTypes { get; }
         decimal TotalWeight { get; }
+        decimal EquippedWeight { get; }
         int LightLoad { get; }
         int MediumLoad { get; }
         int HeavyLoad { get; }
+
+        bool HasFlag(string flag);
+        TimelineRefreshRequirement PerformAction(SheetAction action);
 
         void Mutate(Action<Character> mutate);
         void Recalculate();
@@ -63,6 +67,9 @@ namespace PlayMore35.Global {
 
         TimelineAdvanceResult AdvanceTimeline(LengthOfTime duration);
         TimelineAdvanceResult AdvanceTimeline(long rounds);
+        TimelineAdvanceResult SetTime(DateTime time);
+        TimelineAdvanceResult StartCombat();
+        TimelineAdvanceResult EndCombat();
         void ClearSlot(string subsystem, int slotIndex);
 
         int GetSizeCategory();
@@ -73,5 +80,6 @@ namespace PlayMore35.Global {
         int SkillPointsRemainingAtLevel(int levelIndex);
         int TotalSkillRanks(string skill);
         SortedDictionary<int, List<string>> GetFeatSlots();
+        void AddLevel();
     }
 }

@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using PlayMore35.Effects;
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
@@ -23,16 +23,16 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            Controller controller = mainForm.controller;
-            (int baseValue, List<string> baseExpl) = controller.GetStatistic(BaseStatistic);
-            IEnumerable<Statistic> specials = controller.Effects.RelevantStatsWithTag(BaseStatistic, controller.EquippedItems);
+            ICharacterSession session = mainForm.Session;
+            StatView baseStat = session.GetStatistic(BaseStatistic);
+            int baseValue = baseStat.Value;
+            var baseExpl = baseStat.Explanation;
+            var specials = session.GetRelevantStats(BaseStatistic);
             bool any = false;
-            bool relevant =
-                specials.Any() ||
-                controller.Effects.GetStat(BaseStatistic).Relevant(controller.Effects, controller.EquippedItems);
+            bool relevant = specials.Any() || session.IsStatRelevant(BaseStatistic);
             bool shouldHideBase = HideBaseIfEquals == null
                 ? false
-                : baseValue == controller.GetStatistic(HideBaseIfEquals).value;
+                : baseValue == session.GetStatistic(HideBaseIfEquals).Value;
             if (relevant && !shouldHideBase) {
                 LabelStat(baseLabel, baseValue, baseExpl, (IndentBase ? INDENT : "") + BaseStatistic, BaseStatistic);
                 baseLabel.Visible = true;
@@ -42,11 +42,12 @@ namespace PlayMore35 {
             }
 
             HashSet<string> inactiveSpecials = new HashSet<string>(specialLabels.Keys);
-            foreach (Statistic special in specials) {
+            foreach (StatView special in specials) {
                 if (special.Name == INITIATIVE) {
                     continue; // don't show initiative under dexterity.
                 }
-                (int value, List<string> expl) = special.GetValue(controller.Effects, controller.EquippedItems);
+                int value = special.Value;
+                var expl = special.Explanation;
                 if (value == baseValue) {
                     continue;
                 }

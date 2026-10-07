@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 
@@ -24,18 +24,18 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            Controller controller = mainForm.controller;
-            if (controller.Effects.HasFlag("deafened", controller.EquippedItems)) {
+            ICharacterSession session = mainForm.Session;
+            if (session.HasFlag("deafened")) {
                 listen.Text = "Listen \u2014,";
                 ToolTipTextLabel(listen, "Defeaned");
             } else {
-                LabelStat(listen, controller, LISTEN, LISTEN, ",");
+                LabelStat(listen, session, LISTEN, LISTEN, ",");
             }
-            if (controller.Effects.HasFlag("blinded", controller.EquippedItems)) {
+            if (session.HasFlag("blinded")) {
                 spot.Text = "Spot \u2014";
                 ToolTipTextLabel(spot, "Blinded");
             } else {
-                LabelStat(spot, controller, SPOT, SPOT);
+                LabelStat(spot, session, SPOT, SPOT);
             }
         }
     }
