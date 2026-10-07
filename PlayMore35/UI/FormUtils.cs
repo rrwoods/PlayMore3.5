@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -52,15 +52,23 @@ namespace PlayMore35.Global {
             label.ContextMenuStrip.Items.Add(roll);
         }
 
-        public static void ToolTipStatLabel(Control label, List<string> explanation) {
-            TOOLTIP.SetToolTip(label, string.Join("\n", explanation));
+        public static string ShortName(string skill) {
+            if (skill == null) return "";
+            if (skill.Count() == 4) {
+                return skill;
+            }
+            return skill.Length >= 3 ? skill.Substring(0, 3) : skill;
+        }
+
+        public static void ToolTipStatLabel(Control label, IEnumerable<string> explanation) {
+            TOOLTIP.SetToolTip(label, explanation != null ? string.Join("\n", explanation) : "");
         }
 
         public static void ToolTipTextLabel(Control label, string description) {
             TOOLTIP.SetToolTip(label, description);
         }
 
-        public static Label LabelStat(Label label, int value, List<string> explanation, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
+        public static Label LabelStat(Label label, int value, IEnumerable<string> explanation, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
 
             label.Text = $"{prefix} {statValue}{postfix}";
@@ -80,6 +88,11 @@ namespace PlayMore35.Global {
             rollPrompt.SetRollDescription(description);
             rollPrompt.ShowDialog();
             return rollPrompt.RollResult();
+        }
+
+        public static Label LabelStat(Label label, ICharacterSession session, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
+            var statView = session.GetStatistic(stat);
+            return LabelStat(label, statView.Value, statView.Explanation, prefix, stat, postfix, rollPrefix, plus);
         }
 
         public static Label LabelStat(Label label, Controller controller, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {

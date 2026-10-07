@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using System;
 using System.Drawing;
 using System.Linq;
@@ -50,16 +50,16 @@ namespace PlayMore35 {
 
         private EventHandler CheckValue(string name, MainForm mainForm) {
             return (object sender, EventArgs e) => {
-                Controller controller = mainForm.controller;
                 TextBox txt = (TextBox)sender;
+                int value = 0;
                 if (!txt.Text.Any()) {
-                    controller.Effects.controllableParameters[name].Value = 0;
-                } else if (int.TryParse(txt.Text, out int value)) {
-                    controller.Effects.controllableParameters[name].Value = value;
+                    value = 0;
+                } else if (int.TryParse(txt.Text, out int parsed)) {
+                    value = parsed;
                 } else {
-                    controller.Effects.controllableParameters[name].Value = 0;
                     txt.Text = "";
                 }
+                mainForm.Session.SetParameter(name, value);
                 mainForm.RefreshEffects();
             };
         }

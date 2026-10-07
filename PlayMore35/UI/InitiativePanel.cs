@@ -1,4 +1,4 @@
-﻿using PlayMore35.Global;
+using PlayMore35.Global;
 using static PlayMore35.Global.FormUtils;
 using static PlayMore35.Effects.Constants;
 
@@ -16,7 +16,7 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            LabelStat(initiative, mainForm.controller, INITIATIVE, INITIATIVE);
+            LabelStat(initiative, mainForm.Session, INITIATIVE, INITIATIVE);
         }
     }
 }

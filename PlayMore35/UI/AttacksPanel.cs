@@ -99,8 +99,7 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            Controller controller = mainForm.controller;
-            var visibleRoutines = controller.GetVisibleRoutines();
+            var visibleRoutines = mainForm.Session.GetVisibleRoutines();
 
             var standardRoutines = visibleRoutines
                 .Where(r => r.ActionType == RoutineActionType.Standard)

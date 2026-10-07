@@ -26,6 +26,7 @@ namespace PlayMore35.Global {
         public string CreatureType => effects?.CreatureType ?? "";
         public IReadOnlyList<string> SubTypes => (effects?.SubTypes ?? new List<string>()).AsReadOnly();
         public decimal TotalWeight => equippedItems?.TotalWeight() ?? 0m;
+        public decimal EquippedWeight => equippedItems?.EquippedWeight() ?? 0m;
         public int LightLoad => GetStatistic(LIGHT_LOAD).Value;
         public int MediumLoad => GetStatistic(MEDIUM_LOAD).Value;
         public int HeavyLoad => GetStatistic(HEAVY_LOAD).Value;
@@ -712,6 +713,19 @@ namespace PlayMore35.Global {
             }
         }
 
+        public bool HasFlag(string flag) {
+            return effects?.HasFlag(flag, equippedItems) ?? false;
+        }
+
+        public TimelineRefreshRequirement PerformAction(SheetAction action) {
+            if (action == null) return TimelineRefreshRequirement.None;
+            var req = action.Perform(this);
+            if (req == TimelineRefreshRequirement.FullReload) {
+                Recalculate();
+            }
+            return req;
+        }
+
         public StatView GetStatistic(string name) {
             if (effects != null && effects.stats.TryGetValue(name, out var stat)) {
                 var (val, expl) = stat.GetValue(effects, equippedItems);
@@ -741,7 +755,7 @@ namespace PlayMore35.Global {
                 new ToggleView(
                     f.Name,
                     f.Category,
-                    f.Description,
+                    f.Description != null ? f.Description.FillStatValues(effects, equippedItems) : "",
                     f.On,
                     f.Show.On(effects, equippedItems),
                     f.Resource
@@ -790,10 +804,43 @@ namespace PlayMore35.Global {
             return result;
         }
 
+        public TimelineAdvanceResult SetTime(DateTime time) {
+            if (character.Timeline == null) return new TimelineAdvanceResult();
+            character.Timeline.Context = this;
+            var result = character.Timeline.SetTime(time, this);
+            Recalculate();
+            return result;
+        }
+
+        public TimelineAdvanceResult StartCombat() {
+            if (character.Timeline == null) return new TimelineAdvanceResult();
+            character.Timeline.Context = this;
+            var result = character.Timeline.StartCombat(this);
+            Recalculate();
+            return result;
+        }
+
+        public TimelineAdvanceResult EndCombat() {
+            if (character.Timeline == null) return new TimelineAdvanceResult();
+            character.Timeline.Context = this;
+            var result = character.Timeline.EndCombat(this);
+            Recalculate();
+            return result;
+        }
+
         public void ClearSlot(string subsystem, int slotIndex) {
             var slotted = subsystems.Get(subsystem) as ISlottedSubsystem;
             slotted?.ClearSlot(slotIndex);
             Recalculate();
+        }
+
+        public void AddLevel() {
+            Mutate(c => {
+                c.classLevels.Add(c.classLevels.DefaultIfEmpty(Character.DEFAULT_CLASS).Last());
+                foreach (var skill in c.skillRanks) {
+                    skill.Value.Add(0);
+                }
+            });
         }
     }
 }

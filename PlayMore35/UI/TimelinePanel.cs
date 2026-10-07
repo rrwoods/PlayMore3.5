@@ -44,11 +44,8 @@ namespace PlayMore35 {
         }
 
         private void Combat_Click(object sender, EventArgs e) {
-            var timeline = mainForm.controller.Character.Timeline;
-            var result = timeline.Combat ? timeline.EndCombat() : timeline.StartCombat();
-            if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
-                mainForm.controller.Reload();
-            }
+            var session = mainForm.Session;
+            var result = session.Timeline.Combat ? session.EndCombat() : session.StartCombat();
             if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
                 mainForm.RefreshEffects();
             }
@@ -56,10 +53,7 @@ namespace PlayMore35 {
         }
 
         private void NextRound_Click(object sender, EventArgs e) {
-            var result = mainForm.controller.Character.Timeline.Advance();
-            if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
-                mainForm.controller.Reload();
-            }
+            var result = mainForm.Session.AdvanceTimeline(1);
             if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
                 mainForm.RefreshEffects();
             }
@@ -67,16 +61,13 @@ namespace PlayMore35 {
         }
 
         private void SetTime_Click(object sender, EventArgs e) {
-            DateTime cur = mainForm.controller.Character.Timeline.CurrentTime;
+            DateTime cur = mainForm.Session.Timeline.CurrentTime;
             pickTimeDialog.dtpPicker.MinDate = cur;
             pickTimeDialog.dtpPicker.Value = cur;
             if (pickTimeDialog.ShowDialog() != DialogResult.OK) {
                 return;
             }
-            var result = mainForm.controller.Character.Timeline.SetTime(pickTimeDialog.dtpPicker.Value);
-            if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
-                mainForm.controller.Reload();
-            }
+            var result = mainForm.Session.SetTime(pickTimeDialog.dtpPicker.Value);
             if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
                 mainForm.RefreshEffects();
             }
@@ -84,7 +75,7 @@ namespace PlayMore35 {
         }
 
         public void RefreshTimeline() {
-            Timeline rounds = mainForm.controller.Character.Timeline;
+            Timeline rounds = mainForm.Session.Timeline;
 
             btnNextRound.Visible = rounds.Combat;
             btnSetTime.Visible = !rounds.Combat;
