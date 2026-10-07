@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
@@ -36,6 +36,7 @@ namespace PlayMore35.Items {
                 case RoutineCategory.PrimarySolo:
                 case RoutineCategory.TwoWeaponFighting:
                 case RoutineCategory.DoubleWeapon:
+                case RoutineCategory.ShieldBashSolo:
                 case RoutineCategory.ArmorSpikesSolo:
                     return true;
                 case RoutineCategory.OffHandShieldBash:

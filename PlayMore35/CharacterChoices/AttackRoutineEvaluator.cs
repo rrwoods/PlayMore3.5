@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
@@ -126,7 +126,7 @@ namespace PlayMore35.Items {
                 if (shieldStandard != null) {
                     routines.Add(new AttackRoutine(
                         RoutineActionType.Standard,
-                        RoutineCategory.PrimarySolo,
+                        RoutineCategory.ShieldBashSolo,
                         "Shield Bash Standard Attack",
                         Enumerable.Empty<Weapon>(),
                         new[] { shieldStandard }
@@ -135,7 +135,7 @@ namespace PlayMore35.Items {
                     if (shieldFull.Count > 1) {
                         routines.Add(new AttackRoutine(
                             RoutineActionType.FullAttack,
-                            RoutineCategory.PrimarySolo,
+                            RoutineCategory.ShieldBashSolo,
                             "Shield Bash Full Attack",
                             Enumerable.Empty<Weapon>(),
                             shieldFull

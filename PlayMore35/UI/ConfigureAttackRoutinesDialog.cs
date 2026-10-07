@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -46,8 +46,10 @@ namespace PlayMore35 {
                     return "Two-Weapon Fighting";
                 case RoutineCategory.DoubleWeapon:
                     return "Double Weapon";
+                case RoutineCategory.ShieldBashSolo:
+                    return "Single Shield Bash";
                 case RoutineCategory.OffHandShieldBash:
-                    return "Off-Hand Shield Bash";
+                    return "Full Attack with Shield Bash";
                 case RoutineCategory.ArmorSpikesSolo:
                     return "Armor Spikes (Solo)";
                 case RoutineCategory.ArmorSpikesTWF:

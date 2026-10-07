@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.Global;
@@ -44,6 +44,7 @@ namespace PlayMore35.Tests {
                 Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.PrimarySolo));
                 Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.TwoWeaponFighting));
                 Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.DoubleWeapon));
+                Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.ShieldBashSolo));
                 Assert.IsTrue(dialog.GetCategoryChecked(RoutineCategory.ArmorSpikesSolo));
                 Assert.IsFalse(dialog.GetCategoryChecked(RoutineCategory.OffHandShieldBash));
                 Assert.IsFalse(dialog.GetCategoryChecked(RoutineCategory.ArmorSpikesTWF));
@@ -52,6 +53,9 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Dialog_DisplayNames_AreHumanReadable() {
+            Assert.AreEqual("Full Attack with Shield Bash", ConfigureAttackRoutinesDialog.GetCategoryDisplayName(RoutineCategory.OffHandShieldBash));
+            Assert.AreEqual("Single Shield Bash", ConfigureAttackRoutinesDialog.GetCategoryDisplayName(RoutineCategory.ShieldBashSolo));
+
             foreach (RoutineCategory cat in (RoutineCategory[])Enum.GetValues(typeof(RoutineCategory))) {
                 string name = ConfigureAttackRoutinesDialog.GetCategoryDisplayName(cat);
                 Assert.IsFalse(string.IsNullOrWhiteSpace(name));
