@@ -100,6 +100,9 @@
     <Compile Include="Global\ICharacterContext.cs" />
     <Compile Include="Global\ICharacterSession.cs" />
     <Compile Include="Global\CharacterSession.cs" />
+    <Compile Include="Global\StatView.cs" />
+    <Compile Include="Global\ToggleView.cs" />
+    <Compile Include="Global\ParamView.cs" />
     <Compile Include="Global\Timeline.cs" />
     <Compile Include="Global\TimelineAdvanceResult.cs" />
     <Compile Include="Global\SheetAction.cs" />

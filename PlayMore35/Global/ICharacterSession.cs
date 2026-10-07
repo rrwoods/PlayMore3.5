@@ -1,15 +1,24 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 using PlayMore35.Rules;
+using PlayMore35.Subsystems;
 
 namespace PlayMore35.Global {
     public interface ICharacterSession {
         Character Character { get; }
         Timeline Timeline { get; }
         IRulesCatalog Catalog { get; }
+        SubsystemRegistry Subsystems { get; }
+
+        string CreatureType { get; }
+        IReadOnlyList<string> SubTypes { get; }
+        decimal TotalWeight { get; }
+        int LightLoad { get; }
+        int MediumLoad { get; }
+        int HeavyLoad { get; }
 
         void Mutate(Action<Character> mutate);
         void Recalculate();
@@ -42,6 +51,15 @@ namespace PlayMore35.Global {
         void SetFlag(string flagName, bool value);
         void SetParameter(string parameterName, int value);
         void ForceHiddenFlagsOff();
+
+        StatView GetStatistic(string name);
+        bool IsStatRelevant(string name);
+        IEnumerable<StatView> GetRelevantStats(string tag);
+        IEnumerable<ToggleView> GetControllableFlags();
+        IEnumerable<ParamView> GetControllableParameters();
+        IReadOnlyList<AttackRoutine> GetAllRoutines();
+        IReadOnlyList<AttackRoutine> GetVisibleRoutines();
+        Dictionary<string, List<Text>> GetTextEffects();
 
         TimelineAdvanceResult AdvanceTimeline(LengthOfTime duration);
         TimelineAdvanceResult AdvanceTimeline(long rounds);
