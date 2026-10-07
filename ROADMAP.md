@@ -234,15 +234,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Fix namespaces for controls and forms moved into the `UI/` folder.
 - **Dynamic Control Recycling**:
   - Eliminate `ClearDynamicControls` and implement the recycle pattern across all dynamic panels.
-- **`IJsonable` Overhaul**:
-  - Require non-constructor `FromJson` / `ReadJson` on empty default-constructed objects.
-  - Implement generic extension:
-    ```csharp
-    public static void FromJson<T>(this List<T> list, string keyName, JObject json) where T : IJsonable {
-        if (json[keyName] != null) {
-            list.AddRange(json[keyName].Select(x => new T().ReadJson(x)));
-        }
-    }
-    ```
+- **`IJsonable` Deserialization ([ADR-0008](docs/adr/0008-explicit-constructor-deserialization-and-schema-stability.md))**:
+  - Deliberately retained explicit constructor-based parsing (`new T(JObject)`) and static factory methods over parameterless mutating `ReadJson` methods or reflection frameworks to preserve domain encapsulation, construction invariants, and schema stability. Closed [#83](https://github.com/rrwoods/PlayMore3.5/issues/83) as wontfix.
 - **Unique Effect Identifiers**:
   - Remove effects by unique ID rather than name (avoiding accidental removal of unrelated same-named effects when swapping vestiges/items).
