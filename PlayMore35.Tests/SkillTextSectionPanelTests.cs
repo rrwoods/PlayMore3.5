@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -113,6 +113,49 @@ namespace PlayMore35.Tests {
                 panel.Update(textEffects);
                 Assert.AreEqual("Listen \u2014,", panel.SkillLabels[0].Text);
                 Assert.AreEqual("Spot \u2014", panel.SkillLabels[1].Text);
+            }
+        }
+
+        [TestMethod]
+        public void SkillTextSectionPanel_ExplorationPanel_UpdatesWithSurvivalSearchAndExplorationTextEffects() {
+            var panel = new SkillTextSectionPanel();
+            panel.Category = EXPLORATION;
+            panel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL, displayName: "Survival"));
+            panel.SkillDeclarations.Add(new SkillDeclaration(SEARCH, displayName: "Search"));
+
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+
+            using (var form = new MainForm()) {
+                form.Session = session;
+                panel.Initialize(form);
+
+                Assert.AreEqual("Exploration:", panel.HeaderLabel.Text);
+                Assert.AreEqual(2, panel.SkillLabels.Count);
+                Assert.AreEqual(EXPLORATION, panel.EffectsPanel.Tag);
+
+                // Give character Track and Endurance feats
+                session.Mutate(c => {
+                    c.feats["General 1"] = "Track";
+                    c.feats["General 3"] = "Endurance";
+                });
+
+                var textEffects = session.GetTextEffects();
+                Assert.IsTrue(textEffects.ContainsKey(EXPLORATION), "Exploration category must be present in text effects.");
+                Assert.IsTrue(textEffects[EXPLORATION].Any(t => t.Name == "Track"), "Track effect should be in Exploration.");
+                Assert.IsTrue(textEffects[EXPLORATION].Any(t => t.Name == "Endurance"), "Endurance effect should be in Exploration.");
+
+                panel.Update(textEffects);
+
+                // Verify single-row skill labels with commas
+                Assert.IsTrue(panel.SkillLabels[0].Text.StartsWith("Survival"));
+                Assert.IsTrue(panel.SkillLabels[0].Text.EndsWith(","));
+                Assert.IsTrue(panel.SkillLabels[1].Text.StartsWith("Search"));
+                Assert.IsFalse(panel.SkillLabels[1].Text.EndsWith(","));
+
+                // Verify effects panel is visible and contains the exploration text effects
+                Assert.IsTrue(panel.EffectsPanel.Visible, "Effects panel should be visible when character has exploration text effects.");
+                Assert.IsTrue(panel.Visible, "Exploration section panel should be visible.");
             }
         }
     }
