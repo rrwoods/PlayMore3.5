@@ -87,16 +87,16 @@ namespace PlayMore35 {
             InitializeComponent();
 
             explorationPanel.Category = EXPLORATION;
-            explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL, displayName: "Survival"));
-            explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SEARCH, displayName: "Search"));
+            explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL));
+            explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SEARCH));
 
             socialPanel.Category = SOCIAL;
-            socialPanel.SkillDeclarations.Add(new SkillDeclaration(DIPLOMACY, displayName: "Diplomacy"));
-            socialPanel.SkillDeclarations.Add(new SkillDeclaration(BLUFF, displayName: "Bluff"));
+            socialPanel.SkillDeclarations.Add(new SkillDeclaration(DIPLOMACY));
+            socialPanel.SkillDeclarations.Add(new SkillDeclaration(BLUFF));
 
             sensesPanel.Category = SENSES;
-            sensesPanel.SkillDeclarations.Add(new SkillDeclaration(LISTEN, displayName: "Listen", disableCondition: "deafened", disableReason: "Deafened"));
-            sensesPanel.SkillDeclarations.Add(new SkillDeclaration(SPOT, displayName: "Spot", disableCondition: "blinded", disableReason: "Blinded"));
+            sensesPanel.SkillDeclarations.Add(new SkillDeclaration(LISTEN, disableCondition: "deafened", disableReason: "Deafened"));
+            sensesPanel.SkillDeclarations.Add(new SkillDeclaration(SPOT, disableCondition: "blinded", disableReason: "Blinded"));
 
             IntPtr fontPtr = Marshal.AllocCoTaskMem(Scala_SansRegular_LF.Length);
             Marshal.Copy(Scala_SansRegular_LF, 0, fontPtr, Scala_SansRegular_LF.Length);
