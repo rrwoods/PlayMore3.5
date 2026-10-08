@@ -44,6 +44,11 @@ Prefer linear git history:
 When authoring pull request descriptions with Mermaid diagrams:
 - Always wrap Mermaid edge labels in double quotes (e.g. `-->|"Read/Write Mutation"|`). Unquoted slashes, brackets, or parentheses break GitHub's Mermaid parser.
 
+### Code architecture and test seams
+
+- **Preserve UI encapsulation**: Forms and presentation controls must not expose mutable state setters solely to satisfy unit test fixtures. Inject dependencies via constructor overloads (e.g. `MainForm(ICharacterSession session) : this()`) or test-visible factories.
+- **Prototype clean references**: When promoting code from a prototype exploring multiple design variants, never reference discarded variants in tickets or specifications. Prune all unselected options from descriptions and pointers upstream so the agent only encounters the chosen variant.
+
 ## Rules arbitration invariant
 
 Game rules (mechanics, formulas, stacking, prerequisites, modifiers, subsystem interactions, and `rules.json` entries) are strictly human-arbitrated. This invariant binds **all chat turns, grilling rounds, recommendations, planning, and code**:
