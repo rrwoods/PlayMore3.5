@@ -39,44 +39,22 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SkillTextSectionPanel_HeaderStyles_ConfigureControlsCorrectly() {
-            // Style 1: INTEGRATED
-            var panelA = new SkillTextSectionPanel("Senses", SkillTextSectionPanel.HeaderStyle.INTEGRATED,
+        public void SkillTextSectionPanel_InitializesControlsCorrectly() {
+            var panel = new SkillTextSectionPanel("Senses",
                 new SkillDeclaration(LISTEN, disableCondition: "deafened"),
                 new SkillDeclaration(SPOT, disableCondition: "blinded")
             );
-            panelA.Initialize(null);
+            panel.Initialize(null);
 
-            Assert.IsNotNull(panelA.HeaderLabel);
-            Assert.AreEqual("Senses:", panelA.HeaderLabel.Text);
-            Assert.AreEqual(2, panelA.SkillLabels.Count);
-            Assert.IsNotNull(panelA.EffectsPanel);
-
-            // Style 2: DEDICATED_ROW
-            var panelB = new SkillTextSectionPanel("Exploration", SkillTextSectionPanel.HeaderStyle.DEDICATED_ROW,
-                new SkillDeclaration(SURVIVAL),
-                new SkillDeclaration(SEARCH)
-            );
-            panelB.Initialize(null);
-
-            Assert.IsNotNull(panelB.HeaderLabel);
-            Assert.AreEqual("Exploration", panelB.HeaderLabel.Text);
-            Assert.AreEqual(2, panelB.SkillLabels.Count);
-
-            // Style 3: SKILLS_ONLY
-            var panelC = new SkillTextSectionPanel("Social", SkillTextSectionPanel.HeaderStyle.SKILLS_ONLY,
-                new SkillDeclaration(DIPLOMACY),
-                new SkillDeclaration(BLUFF)
-            );
-            panelC.Initialize(null);
-
-            Assert.IsNull(panelC.HeaderLabel);
-            Assert.AreEqual(2, panelC.SkillLabels.Count);
+            Assert.IsNotNull(panel.HeaderLabel);
+            Assert.AreEqual("Senses:", panel.HeaderLabel.Text);
+            Assert.AreEqual(2, panel.SkillLabels.Count);
+            Assert.IsNotNull(panel.EffectsPanel);
         }
 
         [TestMethod]
         public void SkillTextSectionPanel_Update_HandlesActiveAndDisabledConditions() {
-            var panel = new SkillTextSectionPanel("Senses", SkillTextSectionPanel.HeaderStyle.INTEGRATED,
+            var panel = new SkillTextSectionPanel("Senses",
                 new SkillDeclaration(LISTEN, disableCondition: "deafened"),
                 new SkillDeclaration(SPOT, disableCondition: "blinded")
             );
@@ -84,8 +62,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             var session = new CharacterSession(character, catalog);
 
-            using (var form = new MainForm()) {
-                form.Session = session;
+            using (var form = new MainForm(session)) {
                 panel.Initialize(form);
 
                 var textEffects = session.GetTextEffects();
@@ -127,8 +104,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             var session = new CharacterSession(character, catalog);
 
-            using (var form = new MainForm()) {
-                form.Session = session;
+            using (var form = new MainForm(session)) {
                 panel.Initialize(form);
 
                 Assert.AreEqual("Exploration:", panel.HeaderLabel.Text);
@@ -174,8 +150,7 @@ namespace PlayMore35.Tests {
             character.skillRanks[BLUFF] = new List<int> { 2 };
             var session = new CharacterSession(character, catalog);
 
-            using (var form = new MainForm()) {
-                form.Session = session;
+            using (var form = new MainForm(session)) {
                 panel.Initialize(form);
 
                 Assert.AreEqual("Social:", panel.HeaderLabel.Text);

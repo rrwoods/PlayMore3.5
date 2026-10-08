@@ -27,10 +27,12 @@ PlayMore35 is built around three foundational design principles:
 The application provides a combat-first interface organized around the natural flow of tabletop play:
 
 ### 1. Defenses, Vitals, & Combat Rolls
-The main **Stats** tab functions as your active combat sheet:
+The main **Stats** tab functions as your active combat sheet, organized into structured sections across its columns:
+- **Section 0 (Exploration & Social)**: Positioned prominently at the top of Column 0, displaying core character vitals alongside focused skill checks and relevant abilities: **Exploration** (Survival, Search) and **Social** (Diplomacy, Bluff).
+- **Section 1 (Before Combat & Senses)**: Situational readiness panels including refactored **Senses** (Listen and Spot checks, replacing the retired `ListenSpotPanel`), initiative, evade capabilities, and conditions.
 - **Armor Class & Defenses**: At-a-glance visibility into full Armor Class, Touch AC, and Flat-Footed AC, alongside Hit Points, damage reduction, and saving throws.
 - **Attack Routines**: Automatically computed standard and full-attack routines partitioned by action economy, with category-based visibility filtering (two-weapon fighting, double weapons, shield bashes, armor spikes) and interactive one-click rolls.
-- **Dynamic Panels**: Real-time panels for initiative, movement speeds, Spot and Listen checks, and active combat capabilities.
+- **Dynamic Panels**: Real-time panels for initiative, movement speeds, Senses, and active combat capabilities.
 
 ### 2. Situational Toggles & Attack Options
 Activate combat abilities and conditional buffs with a single click:

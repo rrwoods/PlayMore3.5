@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -23,14 +23,7 @@ namespace PlayMore35 {
     }
 
     public class SkillTextSectionPanel : DynamicPanel {
-        public enum HeaderStyle {
-            INTEGRATED,         // "Senses: Listen +5, Spot +5" on one row
-            DEDICATED_ROW,      // "Senses" on row 1, "   Listen +5, Spot +5" on row 2
-            SKILLS_ONLY         // "Listen +5, Spot +5" directly without category title
-        }
-
         public string Category { get; set; }
-        public HeaderStyle Style { get; set; } = HeaderStyle.INTEGRATED;
         public List<SkillDeclaration> SkillDeclarations { get; } = new List<SkillDeclaration>();
 
         private readonly List<Label> skillLabels = new List<Label>();
@@ -49,12 +42,6 @@ namespace PlayMore35 {
             SkillDeclarations.AddRange(skills);
         }
 
-        public SkillTextSectionPanel(string category, HeaderStyle style, params SkillDeclaration[] skills) {
-            Category = category;
-            Style = style;
-            SkillDeclarations.AddRange(skills);
-        }
-
         public override void Initialize(MainForm mainForm) {
             base.Initialize(mainForm);
             FlowDirection = FlowDirection.LeftToRight;
@@ -63,30 +50,18 @@ namespace PlayMore35 {
             Controls.Clear();
             skillLabels.Clear();
 
-            // 1. Header (if applicable)
-            if (Style == HeaderStyle.INTEGRATED) {
-                headerLabel = new Label {
-                    Text = $"{Category}:",
-                    AutoSize = true,
-                    Margin = new Padding(3, 3, 0, 3)
-                }.Initialize();
-                Controls.Add(headerLabel);
-            } else if (Style == HeaderStyle.DEDICATED_ROW) {
-                headerLabel = new Label {
-                    Text = Category,
-                    AutoSize = true,
-                }.Initialize();
-                Controls.Add(headerLabel);
-                SetFlowBreak(headerLabel, true);
-            }
+            // 1. Header (integrated style)
+            headerLabel = new Label {
+                Text = $"{Category}:",
+                AutoSize = true,
+                Margin = new Padding(3, 3, 0, 3)
+            }.Initialize();
+            Controls.Add(headerLabel);
 
             // 2. Skill labels on single line
             for (int i = 0; i < SkillDeclarations.Count; i++) {
                 var decl = SkillDeclarations[i];
                 var label = new Label().Initialize();
-                if (Style == HeaderStyle.DEDICATED_ROW && i == 0) {
-                    label.Margin = new Padding(12, 3, 3, 3);
-                }
                 skillLabels.Add(label);
                 Controls.Add(label);
             }
