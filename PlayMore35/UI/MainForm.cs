@@ -81,20 +81,20 @@ namespace PlayMore35 {
         private AddItemDialog addItemDialog = new AddItemDialog();
         
         private ICharacterSession session;
-        public ICharacterSession Session { get => session; set => session = value; }
+        public ICharacterSession Session => session;
 
         public MainForm() {
             InitializeComponent();
 
-            explorationPanel.Category = "Exploration";
+            explorationPanel.Category = EXPLORATION;
             explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL, displayName: "Survival"));
             explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SEARCH, displayName: "Search"));
 
-            socialPanel.Category = "Social";
+            socialPanel.Category = SOCIAL;
             socialPanel.SkillDeclarations.Add(new SkillDeclaration(DIPLOMACY, displayName: "Diplomacy"));
             socialPanel.SkillDeclarations.Add(new SkillDeclaration(BLUFF, displayName: "Bluff"));
 
-            sensesPanel.Category = "Senses";
+            sensesPanel.Category = SENSES;
             sensesPanel.SkillDeclarations.Add(new SkillDeclaration(LISTEN, displayName: "Listen", disableCondition: "deafened", disableReason: "Deafened"));
             sensesPanel.SkillDeclarations.Add(new SkillDeclaration(SPOT, displayName: "Spot", disableCondition: "blinded", disableReason: "Blinded"));
 
@@ -105,6 +105,10 @@ namespace PlayMore35 {
             AddFontMemResourceEx(fontPtr, (uint)Scala_SansRegular_LF.Length, IntPtr.Zero, ref dummy);
             Marshal.FreeCoTaskMem(fontPtr);
             scala = new Font(fonts.Families[0], 9.75F);
+        }
+
+        public MainForm(ICharacterSession session) : this() {
+            this.session = session;
         }
 
         public TabPage StatsTab() {
@@ -1526,7 +1530,7 @@ namespace PlayMore35 {
 
             addItemDialog.Font = scala;
 
-            session = new CharacterSession(new Character(), new GameRulesCatalog());
+            session = session ?? new CharacterSession(new Character(), new GameRulesCatalog());
             levelDetailsDialog = new LevelDetailsDialog(session) {
                 Font = scala
             };
