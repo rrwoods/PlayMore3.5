@@ -81,10 +81,14 @@ namespace PlayMore35 {
         private AddItemDialog addItemDialog = new AddItemDialog();
         
         private ICharacterSession session;
-        public ICharacterSession Session => session;
+        public ICharacterSession Session { get => session; set => session = value; }
 
         public MainForm() {
             InitializeComponent();
+
+            sensesPanel.Category = "Senses";
+            sensesPanel.SkillDeclarations.Add(new SkillDeclaration(LISTEN, displayName: "Listen", disableCondition: "deafened", disableReason: "Deafened"));
+            sensesPanel.SkillDeclarations.Add(new SkillDeclaration(SPOT, displayName: "Spot", disableCondition: "blinded", disableReason: "Blinded"));
 
             IntPtr fontPtr = Marshal.AllocCoTaskMem(Scala_SansRegular_LF.Length);
             Marshal.Copy(Scala_SansRegular_LF, 0, fontPtr, Scala_SansRegular_LF.Length);
@@ -1531,7 +1535,7 @@ namespace PlayMore35 {
             TOOLTIP.SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
 
             dynamicPanels = new List<DynamicPanel> {
-                descriptionPanel, initiativePanel, sensesPanel, listenSpotPanel, evadePanel, conditionPanel,
+                descriptionPanel, initiativePanel, sensesPanel, evadePanel, conditionPanel,
                 acPanel, acTextPanel, hpPanel, hpTextPanel, reactPanel, resistPanel, immunePanel, srPanel, savesPanel,
                 speedPanel, baseCombatPanel1, attacksPanel, atkOptionsPanel, defOptionsPanel, specialActionsPanel, actionsPanel,
                 abilityScoresPanel, sqPanel, skillsPanel, skillEffectsPanel,
