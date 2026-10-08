@@ -233,5 +233,40 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(textEffects[EXPLORATION].Any(t => t.Name == "Track"));
             Assert.IsTrue(textEffects[EXPLORATION].Any(t => t.Name == "Endurance"));
         }
+
+        [TestMethod]
+        public void VestigesCatalog_InfluenceCategories_MatchSection0Requirements() {
+            var provider = new ResourceSubsystemContentProvider();
+
+            var amon = provider.GetVestige("Amon");
+            Assert.IsNotNull(amon);
+            Assert.AreEqual(CONDITION, amon.Influence.Text[0].Category);
+
+            var aym = provider.GetVestige("Aym");
+            Assert.IsNotNull(aym);
+            Assert.AreEqual(SOCIAL, aym.Influence.Text[0].Category);
+
+            var leraje = provider.GetVestige("Leraje");
+            Assert.IsNotNull(leraje);
+            Assert.AreEqual(SOCIAL, leraje.Influence.Text[1].Category);
+
+            var naberius = provider.GetVestige("Naberius");
+            Assert.IsNotNull(naberius);
+            Assert.AreEqual(SOCIAL, naberius.Influence.Text[0].Category);
+
+            var ronove = provider.GetVestige("Ronove");
+            Assert.IsNotNull(ronove);
+            Assert.AreEqual(2, ronove.Influence.Text.Count);
+            Assert.AreEqual(SOCIAL, ronove.Influence.Text[0].Category);
+            Assert.AreEqual(CONDITION, ronove.Influence.Text[1].Category);
+
+            var haagenti = provider.GetVestige("Haagenti");
+            Assert.IsNotNull(haagenti);
+            Assert.AreEqual(SOCIAL, haagenti.Influence.Text[0].Category);
+
+            var malphas = provider.GetVestige("Malphas");
+            Assert.IsNotNull(malphas);
+            Assert.AreEqual(SOCIAL, malphas.Influence.Text[0].Category);
+        }
     }
 }

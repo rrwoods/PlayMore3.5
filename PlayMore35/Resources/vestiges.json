@@ -7,7 +7,7 @@
       "name": "Amon's influence",
       "text": [
         {
-          "category": "Special Qualities",
+          "category": "Condition",
           "text": "You must save against beneficial spells cast by worshippers of fire, sun, and law dieties."
         }
       ]
@@ -55,7 +55,7 @@
       "name": "Aym's influence",
       "text": [
         {
-          "category": "Special Qualities",
+          "category": "Social",
           "text": "You begrudge every coin or item of value that you or your group must give to another.\n\nYou must give a copper, silver, gold, or platinum piece to every dwarf you meet within 1 minute of learning their name."
         }
       ]
@@ -146,7 +146,7 @@
           "text": "You can't attack elves, half-elves, drow, or any other creature of elven blood."
         },
         {
-          "category": "Special Qualities",
+          "category": "Social",
           "text": "You are quiet and unassuming."
         }
       ]
@@ -224,7 +224,7 @@
       "name": "Naberius's influence",
       "text": [
         {
-          "category": "Special Qualities",
+          "category": "Social",
           "text": "Whenever you are presented with a pulpit, a stage, a talking stick, or any other place or object designed to give a speaker the floor, you must immediately seize the opportunity to speak, and do so for {{effective binder level}} round(s).  If another tries to take control of the discourse, you must shout them down or mock them."
         }
       ]
@@ -294,8 +294,12 @@
       "name": "Ronove's influence",
       "text": [
         {
-          "category": "Special Qualities",
-          "text": "You feel the constant need to prove your worth.\n\nYou can't consume food, beverages, or potions."
+          "category": "Social",
+          "text": "You feel the constant need to prove your worth."
+        },
+        {
+          "category": "Condition",
+          "text": "You can't consume food, beverages, or potions."
         }
       ]
     },
@@ -456,7 +460,7 @@
       "name": "Haagenti's influence",
       "text": [
         {
-          "category": "Special Qualities",
+          "category": "Social",
           "text": "You feel ashamed and occasionally bashful in the presence of beautiful creatures.\n\nYou must give deference to any creature you perceive as more attractive or charismatic than yourself.  This deference can be a bow, a salute, opening a door for the creature, not speaking until spoken to, or any other gesture that acknowledges the creature as superior to you.  You must constantly treat any such creature with respect."
         }
       ]
@@ -512,7 +516,7 @@
       "name": "Malphas's influence",
       "text": [
         {
-          "category": "Special Qualities",
+          "category": "Social",
           "text": "You fall in love too easily.  A kind word or friendly gesture can cause you to devote yourself entirely to another person.  Should that person reject your affection, your broken heart mends the moment another attractive person shows you some kindness."
         },
         {

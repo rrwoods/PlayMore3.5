@@ -6,6 +6,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
+using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
@@ -156,6 +157,77 @@ namespace PlayMore35.Tests {
                 // Verify effects panel is visible and contains the exploration text effects
                 Assert.IsTrue(panel.EffectsPanel.Visible, "Effects panel should be visible when character has exploration text effects.");
                 Assert.IsTrue(panel.Visible, "Exploration section panel should be visible.");
+            }
+        }
+
+        [TestMethod]
+        public void SkillTextSectionPanel_SocialPanel_UpdatesWithDiplomacyBluffAndVestigeInfluenceTextEffects() {
+            var panel = new SkillTextSectionPanel();
+            panel.Category = SOCIAL;
+            panel.SkillDeclarations.Add(new SkillDeclaration(DIPLOMACY, displayName: "Diplomacy"));
+            panel.SkillDeclarations.Add(new SkillDeclaration(BLUFF, displayName: "Bluff"));
+
+            var character = new Character();
+            character.classLevels[0] = "Binder";
+            character.assignedAbilityScores[CHA] = 14;
+            character.skillRanks[DIPLOMACY] = new List<int> { 4 };
+            character.skillRanks[BLUFF] = new List<int> { 2 };
+            var session = new CharacterSession(character, catalog);
+
+            using (var form = new MainForm()) {
+                form.Session = session;
+                panel.Initialize(form);
+
+                Assert.AreEqual("Social:", panel.HeaderLabel.Text);
+                Assert.AreEqual(2, panel.SkillLabels.Count);
+                Assert.AreEqual(SOCIAL, panel.EffectsPanel.Tag);
+
+                // Bind a vestige with Social influence (Aym) with poor pact so influence is contributed
+                var pactEngine = session.Subsystems.Get<PactMagicEngine>();
+                Assert.IsNotNull(pactEngine, "PactMagicEngine should be registered.");
+                Assert.IsTrue(pactEngine.IsActive, "PactMagicEngine should be active for Binder.");
+                pactEngine.BindVestige(0, "Aym", PactState.POOR_PACT);
+                session.Recalculate();
+
+                var textEffects = session.GetTextEffects();
+                Assert.IsTrue(textEffects.ContainsKey(SOCIAL), "Social category must be present in text effects.");
+                Assert.IsTrue(textEffects[SOCIAL].Any(t => t.Name == "Aym's influence"), "Aym's influence should be in Social.");
+
+                panel.Update(textEffects);
+
+                // Verify single-row skill labels with modifiers and commas
+                Assert.AreEqual("Diplomacy +6,", panel.SkillLabels[0].Text);
+                Assert.AreEqual("Bluff +4", panel.SkillLabels[1].Text);
+
+                // Verify effects panel is visible and contains vestige influence text effects indented
+                Assert.IsTrue(panel.EffectsPanel.Visible, "Effects panel should be visible when vestige influence is active.");
+                Assert.IsTrue(panel.Visible, "Social section panel should be visible.");
+            }
+        }
+
+        [TestMethod]
+        public void MainForm_Column0_StackingOrderMatchesSpec() {
+            using (var form = new MainForm()) {
+                var field = typeof(MainForm).GetField("floBeforeCombat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                Assert.IsNotNull(field, "floBeforeCombat field should exist.");
+                var floBeforeCombat = field.GetValue(form) as FlowLayoutPanel;
+                Assert.IsNotNull(floBeforeCombat, "floBeforeCombat should be a FlowLayoutPanel.");
+
+                var controlNames = floBeforeCombat.Controls.Cast<Control>().Select(c => c.Name).ToList();
+                var expectedOrder = new List<string> {
+                    "descriptionPanel",
+                    "explorationPanel",
+                    "socialPanel",
+                    "initiativePanel",
+                    "sensesPanel",
+                    "evadePanel",
+                    "conditionPanel"
+                };
+                CollectionAssert.AreEqual(expectedOrder, controlNames);
+
+                foreach (Control ctrl in floBeforeCombat.Controls) {
+                    Assert.AreEqual(307, ctrl.Width, $"Control {ctrl.Name} should have width 307px");
+                }
             }
         }
     }
