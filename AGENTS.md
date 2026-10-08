@@ -71,8 +71,10 @@ When authoring an implementation plan (`implementation_plan.md`), include planne
 ### Rules provenance gate
 
 Before running `git commit` or marking a PR ready for changes touching game rules:
+- **Applies to mechanics only**: Binds actual game rules logic (math formulas, stacking, prerequisites, modifiers, subsystem interactions, and `rules.json` entries). Does not apply to application presentation schema or UI layout categorization (e.g. Column 0 `Exploration` or `Social` section groupings).
+- **Never fabricate citations**: The agent is strictly prohibited from inventing or recalling sourcebook citations (titles, page numbers, quotes) from model memory to satisfy test comments or review gates. Citations must come exclusively from user-supplied primary sources in the plan or issue; if missing for an arbitrated rule, the agent must ask the user.
 - Audit all modified rules logic and `rules.json` entries against the user-supplied source quote in the plan or issue.
-- Verify that unit tests validating the rule cite the primary source (book and page) in test comments or names.
+- Verify that unit tests validating the rule cite the user-supplied primary source (book and page) in test comments or names.
 - Confirm that no unarbitrated mechanical assumptions or extrapolation crept into the implementation.
 
 ### Documentation gate
