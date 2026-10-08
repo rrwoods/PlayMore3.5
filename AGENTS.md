@@ -91,6 +91,6 @@ Before running `git commit` or marking a PR ready, audit changes against the ori
 
 Update repository documentation as appropriate:
 - `README.md`: When user-facing features, dashboard workflows, status matrix, or setup instructions change.
-- `ROADMAP.md`: When backlog items, progression tiers, or feature priorities are started, completed, or reordered.
+- `ROADMAP.md`: When backlog items, progression tiers, or feature priorities are started, completed, or reordered. When backlog items are completed, remove them from `ROADMAP.md` rather than marking them as completed in the text.
 - `GLOSSARY.md`: When domain language, rules concepts, or terminology are introduced, modified, or retired.
 - `VISION.md`: When product destination, architectural invariants, capabilities, or anti-goals shift.
