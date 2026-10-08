@@ -44,14 +44,18 @@ Prefer linear git history:
 When authoring pull request descriptions with Mermaid diagrams:
 - Always wrap Mermaid edge labels in double quotes (e.g. `-->|"Read/Write Mutation"|`). Unquoted slashes, brackets, or parentheses break GitHub's Mermaid parser.
 
-## Planning gates
+## Rules arbitration invariant
 
-### Rules arbitration gate
-
-When authoring an implementation plan (`implementation_plan.md`) or preparing to touch game rules (mechanics, formulas, stacking, prerequisites, modifiers, subsystems, or `rules.json`):
-- **Never extrapolate from model memory**: The agent is strictly prohibited from inventing, assuming, or remembering D&D 3.5e mechanics.
-- **Human arbitration required**: The agent must halt and require the user to provide an authoritative primary source (sourcebook title, page number, and a verbatim quote or screenshot extract of the rule text) before designing or writing code.
+Game rules (mechanics, formulas, stacking, prerequisites, modifiers, subsystem interactions, and `rules.json` entries) are strictly human-arbitrated. This invariant binds **all chat turns, grilling rounds, recommendations, planning, and code**:
+- **Never extrapolate from model memory**: The agent is strictly prohibited from inventing, assuming, remembering, or citing D&D 3.5e mechanics to justify an option, answer a question, or explain a design.
+- **Rules are not environmental facts**: The grilling principle "finding facts is your job" applies exclusively to the local environment and codebase (files, git history, tests), never to D&D 3.5e game rules.
+- **Conversational & grilling protocol**: When framing questions or recommendations in `/grilling`, `/wayfinder`, or general chat:
+  - Never assert unverified rules mechanics to justify a recommendation.
+  - If a decision or recommendation hinges on unverified rules mechanics, the recommended answer must either adopt a zero-assumption presentation baseline or explicitly state: `➡️ Recommendation: Defer until human arbitration provides the primary source citation for [Rule].`
+- **Human arbitration required**: The agent must halt and require the user to provide an authoritative primary source (sourcebook title, page number, and a verbatim quote or screenshot extract of the rule text) before designing or writing code touching rules.
 - **Plan provenance**: Every planned rules change must include a `Rules Provenance` table documenting the book, page, exact quote, and user confirmation before implementation can begin. See `docs/agents/rules-template.md`.
+
+## Planning gates
 
 ### Documentation gate
 
