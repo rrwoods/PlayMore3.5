@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,7 +7,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
+using PlayMore35.Items;
 using PlayMore35.Rules;
+using PlayMore35.Subsystems;
+using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -154,6 +157,81 @@ namespace PlayMore35.Tests {
                 var flags = catalog.CoreFlags;
                 Assert.IsTrue(flags.ContainsKey("charging"));
             });
+        }
+
+        [TestMethod]
+        public void Catalog_TextEffectCategories_ExistInConstants() {
+            var catalog = new GameRulesCatalog();
+            var provider = new ResourceSubsystemContentProvider();
+
+            // 1. Invariants: EXPLORATION and SOCIAL must be registered in Constants.TEXT_CATEGORIES
+            CollectionAssert.Contains(TEXT_CATEGORIES, EXPLORATION);
+            CollectionAssert.Contains(TEXT_CATEGORIES, SOCIAL);
+
+            // 2. Feats catalog: Track and Endurance benefit text effects must have Exploration category
+            var track = catalog.GetFeat("Track");
+            Assert.IsNotNull(track, "Track feat must be in catalog");
+            Assert.AreEqual(EXPLORATION, track.Benefit.Text[0].Category);
+
+            var endurance = catalog.GetFeat("Endurance");
+            Assert.IsNotNull(endurance, "Endurance feat must be in catalog");
+            Assert.AreEqual(2, endurance.Benefit.Text.Count, "Endurance text effects should be split into 2");
+            Assert.AreEqual(EXPLORATION, endurance.Benefit.Text[0].Category);
+            Assert.AreEqual(SQ, endurance.Benefit.Text[1].Category);
+
+            // 3. Known valid categories defined in Constants
+            var validCategories = new HashSet<string>(TEXT_CATEGORIES, StringComparer.OrdinalIgnoreCase) {
+                METAMAGIC,
+                MISC_CASTING,
+                ITEM_CREATION
+            };
+
+            // Assert all text categories loaded from feats.json exist in valid categories
+            foreach (var feat in catalog.Feats.Values) {
+                foreach (var text in feat.Benefit.Text) {
+                    Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown feat category: {text.Category}");
+                }
+            }
+
+            // Assert all text categories loaded from vestiges.json exist in valid categories
+            foreach (var vestige in provider.GetVestiges()) {
+                foreach (var text in vestige.Influence.Text) {
+                    Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown vestige influence category: {text.Category}");
+                }
+                foreach (var ability in vestige.Abilities) {
+                    foreach (var text in ability.Text) {
+                        Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown vestige ability category: {text.Category}");
+                    }
+                }
+            }
+
+            // Assert all text categories loaded from races.json exist in valid categories
+            foreach (var race in catalog.Races.Values) {
+                foreach (var effect in race.Effects) {
+                    foreach (var text in effect.Text) {
+                        Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown race category: {text.Category}");
+                    }
+                }
+            }
+
+            // Assert all text categories loaded from rules.json exist in valid categories
+            foreach (var effect in catalog.CoreEffects) {
+                foreach (var text in effect.Text) {
+                    Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown core effect category: {text.Category}");
+                }
+            }
+
+            // 4. Verify EffectPool produces only categories registered in Constants.TEXT_CATEGORIES
+            var pool = new EffectPool();
+            pool.GenerateFeatEffects(track, "");
+            pool.GenerateFeatEffects(endurance, "");
+            var textEffects = pool.GetTextEffects(new Equipped());
+            foreach (var category in textEffects.Keys) {
+                CollectionAssert.Contains(TEXT_CATEGORIES, category);
+            }
+            Assert.IsTrue(textEffects.ContainsKey(EXPLORATION));
+            Assert.IsTrue(textEffects[EXPLORATION].Any(t => t.Name == "Track"));
+            Assert.IsTrue(textEffects[EXPLORATION].Any(t => t.Name == "Endurance"));
         }
     }
 }

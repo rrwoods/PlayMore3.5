@@ -177,6 +177,7 @@ namespace PlayMore35 {
             this.actionsPanel = new PlayMore35.TextEffectPanel();
             this.floBeforeCombat = new System.Windows.Forms.FlowLayoutPanel();
             this.descriptionPanel = new PlayMore35.DescriptionPanel();
+            this.explorationPanel = new PlayMore35.SkillTextSectionPanel();
             this.initiativePanel = new PlayMore35.InitiativePanel();
             this.sensesPanel = new PlayMore35.SkillTextSectionPanel();
             this.evadePanel = new PlayMore35.TextEffectPanel();
@@ -1888,6 +1889,7 @@ namespace PlayMore35 {
             | System.Windows.Forms.AnchorStyles.Right)));
             this.floBeforeCombat.AutoScroll = true;
             this.floBeforeCombat.Controls.Add(this.descriptionPanel);
+            this.floBeforeCombat.Controls.Add(this.explorationPanel);
             this.floBeforeCombat.Controls.Add(this.initiativePanel);
             this.floBeforeCombat.Controls.Add(this.sensesPanel);
             this.floBeforeCombat.Controls.Add(this.evadePanel);
@@ -1905,6 +1907,14 @@ namespace PlayMore35 {
             this.descriptionPanel.Name = "descriptionPanel";
             this.descriptionPanel.Size = new System.Drawing.Size(307, 72);
             this.descriptionPanel.TabIndex = 2;
+            // 
+            // explorationPanel
+            // 
+            this.explorationPanel.Category = "Exploration";
+            this.explorationPanel.Location = new System.Drawing.Point(3, 81);
+            this.explorationPanel.Name = "explorationPanel";
+            this.explorationPanel.Size = new System.Drawing.Size(307, 23);
+            this.explorationPanel.TabIndex = 7;
             // 
             // initiativePanel
             // 
@@ -2239,6 +2249,7 @@ namespace PlayMore35 {
         private System.Windows.Forms.FlowLayoutPanel floEnemyTurn;
         private InitiativePanel initiativePanel;
         private DescriptionPanel descriptionPanel;
+        private SkillTextSectionPanel explorationPanel;
         private SkillTextSectionPanel sensesPanel;
         private TextEffectPanel evadePanel;
         private TextEffectPanel conditionPanel;

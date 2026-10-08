@@ -1,4 +1,4 @@
-﻿namespace PlayMore35.Effects {
+namespace PlayMore35.Effects {
     public class Constants {
         public static readonly string STR = "STR";
         public static readonly string DEX = "DEX";
@@ -234,6 +234,8 @@
         public static readonly string SHIELD_BONUS = "shield bonus";
         public static readonly string MAX_DEX_BONUS = "max DEX bonus";
 
+        public static readonly string EXPLORATION = "Exploration";
+        public static readonly string SOCIAL = "Social";
         public static readonly string LANGUAGES = "Languages";
         public static readonly string SENSES = "Senses";
         public static readonly string EVADE = "Evade";
@@ -255,7 +257,7 @@
         public static readonly string UNCATEGORIZED = "uncategorized";
         // Any category not in this list will be recategorized as "uncategorized", and have its category moved into the text.
         public static readonly string[] TEXT_CATEGORIES = {
-            LANGUAGES, SENSES, EVADE, AC, HP, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, DEF_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
+            EXPLORATION, SOCIAL, LANGUAGES, SENSES, EVADE, AC, HP, DR, REACT, RESIST, IMMUNE, SR, MOVEMENT, ACTIONS, ATK_OPTIONS, DEF_OPTIONS, SPECIAL_ACTIONS, SQ, SKILLS, CONDITION, UNCATEGORIZED
         };
         // future supported categories
         public static readonly string METAMAGIC = "Metamagic";

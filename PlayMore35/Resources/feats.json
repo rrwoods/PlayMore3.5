@@ -601,8 +601,12 @@
       ],
       "text": [
         {
+          "category": "Exploration",
+          "text": "You may sleep in light or medium armor without becoming fatigued."
+        },
+        {
           "category": "Special Qualities",
-          "text": "You may sleep in light or medium armor without becoming fatigued.\n\nYou get a +4 bonus on the following kinds of CON checks: to continue running, to avoid nonlethal damage from a forced march, to hold your breath, and to avoid nonlethal damage from starvation or thirst."
+          "text": "You get a +4 bonus on the following kinds of CON checks: to continue running, to avoid nonlethal damage from a forced march, to hold your breath, and to avoid nonlethal damage from starvation or thirst."
         }
       ]
     }
@@ -1917,7 +1921,7 @@
       "name": "Track",
       "text": [
         {
-          "category": "Special Qualities",
+          "category": "Exploration",
           "text": "You can find and follow tracks.  Check the Track feat."
         }
       ]
