@@ -11,11 +11,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.
 
 ### Immediate Core UX Priorities
-- **Section 0 Restructure (Exploration & Social)** (Completed: issues #104–#107, PR #108):
-  - Create Section 0 positioned above Section 1 for Exploration and Social.
-  - Move character vitals (name, gender, alignment, race, classes, levels, languages) to Section 0.
-  - Pick 1–3 relevant skills to display per section (e.g., Spot and Listen in Senses, Diplomacy/Gather Information in Section 0).
-  - Overall flow: Section 0 (Exploration/Social) $\to$ Section 1 (Before Combat / Senses / Evade / Initiative / Auras) $\to$ Section 2 (Enemy Turn: AC / HP / Saves / SR / Immunities / Reactions) $\to$ Section 3 (My Turn: Speeds / Base Combat / Attacks / Attack Options / Action Highlighter).
 - **Timestamped GP & XP Ledgers**:
   - Gold transactions and XP session logs record dual timestamps: in-game timeline dates and real-world calendar timestamps.
 
