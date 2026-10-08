@@ -65,6 +65,8 @@ Features required for the author's primary active character, alongside immediate
 ### Low-Priority Odric / Binder Mechanics
 - **[ODRIC] Vestige Special Requirements**:
   - Store and display special requirements for binding vestiges in the Pact Magic / vestiges interface (e.g. alignment constraints, environmental conditions, or situational binding penalties from *Tome of Magic*).
+- **[ODRIC] Vestige Influence Penalties & Defiance Tracking**:
+  - Model vestige influence requirements as directives rather than hard compulsions (*Tome of Magic* p. 10). Phrasing like "must" or "can't" functions as a law with penalties for violation; binders remain free-willed and can willingly choose to disobey ("cannot or will not").
 
 ---
 
@@ -220,6 +222,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - In-app authoring for new items, classes, feats, and races (building upon Tier 3 in-app effect authoring).
   - Separate house rules from core rules; ability to save/load distinct house-rule sets per campaign.
   - Combine core and extended data definitions (load core $\to$ load extended $\to$ save sorted).
+  - Contentious rules arbitration: allow users to configure campaign/DM preferences for ambiguous or contentious rules calls (e.g., vestige influence mandates vs. penalties).
 
 ### 4.5 Project Architecture & Sanity
 - **Deepen the Timeline & Sheet Action Module ([#74](https://github.com/rrwoods/PlayMore3.5/issues/74))**:
