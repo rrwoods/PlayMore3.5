@@ -10,13 +10,11 @@ using static PlayMore35.Global.FormUtils;
 namespace PlayMore35 {
     public class SkillDeclaration {
         public string Skill { get; }
-        public string DisplayName { get; }
         public string DisableCondition { get; }
         public string DisableReason { get; }
 
-        public SkillDeclaration(string skill, string displayName = null, string disableCondition = null, string disableReason = null) {
+        public SkillDeclaration(string skill, string disableCondition = null, string disableReason = null) {
             Skill = skill ?? throw new ArgumentNullException(nameof(skill));
-            DisplayName = displayName ?? skill;
             DisableCondition = disableCondition;
             DisableReason = disableReason ?? (disableCondition != null ? char.ToUpper(disableCondition[0]) + disableCondition.Substring(1) : null);
         }
@@ -88,11 +86,11 @@ namespace PlayMore35 {
                 string separator = isLast ? "" : ",";
 
                 if (!string.IsNullOrEmpty(decl.DisableCondition) && session.HasFlag(decl.DisableCondition)) {
-                    label.Text = $"{decl.DisplayName} \u2014{separator}";
+                    label.Text = $"{decl.Skill} \u2014{separator}";
                     ToolTipTextLabel(label, decl.DisableReason ?? "Disabled");
                     label.ContextMenuStrip = null;
                 } else {
-                    LabelStat(label, session, decl.DisplayName, decl.Skill, separator);
+                    LabelStat(label, session, decl.Skill, decl.Skill, separator);
                 }
             }
 

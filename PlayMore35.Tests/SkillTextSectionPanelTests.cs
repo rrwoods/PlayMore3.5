@@ -23,17 +23,16 @@ namespace PlayMore35.Tests {
         public void SkillDeclaration_InitializesCleanlyWithDefaults() {
             var decl1 = new SkillDeclaration("Survival");
             Assert.AreEqual("Survival", decl1.Skill);
-            Assert.AreEqual("Survival", decl1.DisplayName);
             Assert.IsNull(decl1.DisableCondition);
             Assert.IsNull(decl1.DisableReason);
 
-            var decl2 = new SkillDeclaration(LISTEN, "Listen", "deafened");
+            var decl2 = new SkillDeclaration(LISTEN, "deafened");
             Assert.AreEqual(LISTEN, decl2.Skill);
-            Assert.AreEqual("Listen", decl2.DisplayName);
             Assert.AreEqual("deafened", decl2.DisableCondition);
             Assert.AreEqual("Deafened", decl2.DisableReason);
 
-            var decl3 = new SkillDeclaration(SPOT, "Spot", "blinded", "Sightless");
+            var decl3 = new SkillDeclaration(SPOT, "blinded", "Sightless");
+            Assert.AreEqual(SPOT, decl3.Skill);
             Assert.AreEqual("blinded", decl3.DisableCondition);
             Assert.AreEqual("Sightless", decl3.DisableReason);
         }
@@ -98,8 +97,8 @@ namespace PlayMore35.Tests {
         public void SkillTextSectionPanel_ExplorationPanel_UpdatesWithSurvivalSearchAndExplorationTextEffects() {
             var panel = new SkillTextSectionPanel();
             panel.Category = EXPLORATION;
-            panel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL, displayName: "Survival"));
-            panel.SkillDeclarations.Add(new SkillDeclaration(SEARCH, displayName: "Search"));
+            panel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL));
+            panel.SkillDeclarations.Add(new SkillDeclaration(SEARCH));
 
             var character = new Character();
             var session = new CharacterSession(character, catalog);
@@ -140,8 +139,8 @@ namespace PlayMore35.Tests {
         public void SkillTextSectionPanel_SocialPanel_UpdatesWithDiplomacyBluffAndVestigeInfluenceTextEffects() {
             var panel = new SkillTextSectionPanel();
             panel.Category = SOCIAL;
-            panel.SkillDeclarations.Add(new SkillDeclaration(DIPLOMACY, displayName: "Diplomacy"));
-            panel.SkillDeclarations.Add(new SkillDeclaration(BLUFF, displayName: "Bluff"));
+            panel.SkillDeclarations.Add(new SkillDeclaration(DIPLOMACY));
+            panel.SkillDeclarations.Add(new SkillDeclaration(BLUFF));
 
             var character = new Character();
             character.classLevels[0] = "Binder";
