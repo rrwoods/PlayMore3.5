@@ -178,6 +178,7 @@ namespace PlayMore35 {
             this.floBeforeCombat = new System.Windows.Forms.FlowLayoutPanel();
             this.descriptionPanel = new PlayMore35.DescriptionPanel();
             this.explorationPanel = new PlayMore35.SkillTextSectionPanel();
+            this.socialPanel = new PlayMore35.SkillTextSectionPanel();
             this.initiativePanel = new PlayMore35.InitiativePanel();
             this.sensesPanel = new PlayMore35.SkillTextSectionPanel();
             this.evadePanel = new PlayMore35.TextEffectPanel();
@@ -1890,6 +1891,7 @@ namespace PlayMore35 {
             this.floBeforeCombat.AutoScroll = true;
             this.floBeforeCombat.Controls.Add(this.descriptionPanel);
             this.floBeforeCombat.Controls.Add(this.explorationPanel);
+            this.floBeforeCombat.Controls.Add(this.socialPanel);
             this.floBeforeCombat.Controls.Add(this.initiativePanel);
             this.floBeforeCombat.Controls.Add(this.sensesPanel);
             this.floBeforeCombat.Controls.Add(this.evadePanel);
@@ -1915,6 +1917,14 @@ namespace PlayMore35 {
             this.explorationPanel.Name = "explorationPanel";
             this.explorationPanel.Size = new System.Drawing.Size(307, 23);
             this.explorationPanel.TabIndex = 7;
+            // 
+            // socialPanel
+            // 
+            this.socialPanel.Category = "Social";
+            this.socialPanel.Location = new System.Drawing.Point(3, 110);
+            this.socialPanel.Name = "socialPanel";
+            this.socialPanel.Size = new System.Drawing.Size(307, 23);
+            this.socialPanel.TabIndex = 8;
             // 
             // initiativePanel
             // 
@@ -2250,6 +2260,7 @@ namespace PlayMore35 {
         private InitiativePanel initiativePanel;
         private DescriptionPanel descriptionPanel;
         private SkillTextSectionPanel explorationPanel;
+        private SkillTextSectionPanel socialPanel;
         private SkillTextSectionPanel sensesPanel;
         private TextEffectPanel evadePanel;
         private TextEffectPanel conditionPanel;

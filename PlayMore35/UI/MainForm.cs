@@ -90,6 +90,10 @@ namespace PlayMore35 {
             explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL, displayName: "Survival"));
             explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SEARCH, displayName: "Search"));
 
+            socialPanel.Category = "Social";
+            socialPanel.SkillDeclarations.Add(new SkillDeclaration(DIPLOMACY, displayName: "Diplomacy"));
+            socialPanel.SkillDeclarations.Add(new SkillDeclaration(BLUFF, displayName: "Bluff"));
+
             sensesPanel.Category = "Senses";
             sensesPanel.SkillDeclarations.Add(new SkillDeclaration(LISTEN, displayName: "Listen", disableCondition: "deafened", disableReason: "Deafened"));
             sensesPanel.SkillDeclarations.Add(new SkillDeclaration(SPOT, displayName: "Spot", disableCondition: "blinded", disableReason: "Blinded"));
@@ -1539,7 +1543,7 @@ namespace PlayMore35 {
             TOOLTIP.SetToolTip(lblRolledHp, "Die roll only (do not include CON bonus)");
 
             dynamicPanels = new List<DynamicPanel> {
-                descriptionPanel, explorationPanel, initiativePanel, sensesPanel, evadePanel, conditionPanel,
+                descriptionPanel, explorationPanel, socialPanel, initiativePanel, sensesPanel, evadePanel, conditionPanel,
                 acPanel, acTextPanel, hpPanel, hpTextPanel, reactPanel, resistPanel, immunePanel, srPanel, savesPanel,
                 speedPanel, baseCombatPanel1, attacksPanel, atkOptionsPanel, defOptionsPanel, specialActionsPanel, actionsPanel,
                 abilityScoresPanel, sqPanel, skillsPanel, skillEffectsPanel,
