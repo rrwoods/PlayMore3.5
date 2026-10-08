@@ -183,7 +183,7 @@
     <Compile Include="UI\AcPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="UI\ListenSpotPanel.cs">
+    <Compile Include="UI\SkillTextSectionPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="UI\InitiativePanel.cs">

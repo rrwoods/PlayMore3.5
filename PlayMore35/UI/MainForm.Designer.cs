@@ -178,8 +178,7 @@ namespace PlayMore35 {
             this.floBeforeCombat = new System.Windows.Forms.FlowLayoutPanel();
             this.descriptionPanel = new PlayMore35.DescriptionPanel();
             this.initiativePanel = new PlayMore35.InitiativePanel();
-            this.sensesPanel = new PlayMore35.TextEffectPanel();
-            this.listenSpotPanel = new PlayMore35.ListenSpotPanel();
+            this.sensesPanel = new PlayMore35.SkillTextSectionPanel();
             this.evadePanel = new PlayMore35.TextEffectPanel();
             this.conditionPanel = new PlayMore35.TextEffectPanel();
             this.floEnemyTurn = new System.Windows.Forms.FlowLayoutPanel();
@@ -1891,7 +1890,6 @@ namespace PlayMore35 {
             this.floBeforeCombat.Controls.Add(this.descriptionPanel);
             this.floBeforeCombat.Controls.Add(this.initiativePanel);
             this.floBeforeCombat.Controls.Add(this.sensesPanel);
-            this.floBeforeCombat.Controls.Add(this.listenSpotPanel);
             this.floBeforeCombat.Controls.Add(this.evadePanel);
             this.floBeforeCombat.Controls.Add(this.conditionPanel);
             this.floBeforeCombat.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
@@ -1917,19 +1915,11 @@ namespace PlayMore35 {
             // 
             // sensesPanel
             // 
-            this.sensesPanel.DisplayStyle = PlayMore35.TextEffectPanel.DisplayMode.MULTI_LINE_WITH_HEADER;
+            this.sensesPanel.Category = "Senses";
             this.sensesPanel.Location = new System.Drawing.Point(3, 114);
             this.sensesPanel.Name = "sensesPanel";
             this.sensesPanel.Size = new System.Drawing.Size(307, 55);
             this.sensesPanel.TabIndex = 3;
-            this.sensesPanel.Tag = "Senses";
-            // 
-            // listenSpotPanel
-            // 
-            this.listenSpotPanel.Location = new System.Drawing.Point(3, 175);
-            this.listenSpotPanel.Name = "listenSpotPanel";
-            this.listenSpotPanel.Size = new System.Drawing.Size(307, 23);
-            this.listenSpotPanel.TabIndex = 4;
             // 
             // evadePanel
             // 
@@ -2249,8 +2239,7 @@ namespace PlayMore35 {
         private System.Windows.Forms.FlowLayoutPanel floEnemyTurn;
         private InitiativePanel initiativePanel;
         private DescriptionPanel descriptionPanel;
-        private TextEffectPanel sensesPanel;
-        private ListenSpotPanel listenSpotPanel;
+        private SkillTextSectionPanel sensesPanel;
         private TextEffectPanel evadePanel;
         private TextEffectPanel conditionPanel;
         private AcPanel acPanel;
