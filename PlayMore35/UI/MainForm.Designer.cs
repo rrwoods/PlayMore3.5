@@ -39,6 +39,8 @@ namespace PlayMore35 {
             this.lblTotalXp = new System.Windows.Forms.Label();
             this.lblTotalXpHeader = new System.Windows.Forms.Label();
             this.btnAddSession = new System.Windows.Forms.Button();
+            this.ledgerXp = new PlayMore35.UI.TabularLedgerPanel();
+            this.dtpSessionDate = new PlayMore35.UI.DateOverridePicker();
             this.txtSessionDesc = new System.Windows.Forms.TextBox();
             this.txtSessionXp = new System.Windows.Forms.TextBox();
             this.cboAbilityIncrement = new System.Windows.Forms.ComboBox();
@@ -237,6 +239,8 @@ namespace PlayMore35 {
             this.pagCharacter.Controls.Add(this.lblSampleSession2);
             this.pagCharacter.Controls.Add(this.lblTotalXp);
             this.pagCharacter.Controls.Add(this.lblTotalXpHeader);
+            this.pagCharacter.Controls.Add(this.ledgerXp);
+            this.pagCharacter.Controls.Add(this.dtpSessionDate);
             this.pagCharacter.Controls.Add(this.btnAddSession);
             this.pagCharacter.Controls.Add(this.txtSessionDesc);
             this.pagCharacter.Controls.Add(this.txtSessionXp);
@@ -382,12 +386,30 @@ namespace PlayMore35 {
             this.lblSampleSession2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lblSampleSession2.Visible = false;
             // 
+            // ledgerXp
+            // 
+            this.ledgerXp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ledgerXp.AmountColumnHeader = "XP";
+            this.ledgerXp.Location = new System.Drawing.Point(775, 10);
+            this.ledgerXp.Name = "ledgerXp";
+            this.ledgerXp.Size = new System.Drawing.Size(500, 545);
+            this.ledgerXp.TabIndex = 107;
+            // 
+            // dtpSessionDate
+            // 
+            this.dtpSessionDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.dtpSessionDate.Location = new System.Drawing.Point(775, 565);
+            this.dtpSessionDate.Name = "dtpSessionDate";
+            this.dtpSessionDate.Size = new System.Drawing.Size(105, 17);
+            this.dtpSessionDate.TabIndex = 97;
+            // 
             // lblTotalXp
             // 
             this.lblTotalXp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTotalXp.Location = new System.Drawing.Point(1174, 593);
+            this.lblTotalXp.Location = new System.Drawing.Point(1166, 589);
             this.lblTotalXp.Name = "lblTotalXp";
-            this.lblTotalXp.Size = new System.Drawing.Size(68, 25);
+            this.lblTotalXp.Size = new System.Drawing.Size(78, 25);
             this.lblTotalXp.TabIndex = 102;
             this.lblTotalXp.Text = "0";
             this.lblTotalXp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -396,7 +418,7 @@ namespace PlayMore35 {
             // 
             this.lblTotalXpHeader.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lblTotalXpHeader.AutoSize = true;
-            this.lblTotalXpHeader.Location = new System.Drawing.Point(1065, 597);
+            this.lblTotalXpHeader.Location = new System.Drawing.Point(1065, 593);
             this.lblTotalXpHeader.Name = "lblTotalXpHeader";
             this.lblTotalXpHeader.Size = new System.Drawing.Size(103, 17);
             this.lblTotalXpHeader.TabIndex = 101;
@@ -405,7 +427,7 @@ namespace PlayMore35 {
             // btnAddSession
             // 
             this.btnAddSession.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddSession.Location = new System.Drawing.Point(1248, 565);
+            this.btnAddSession.Location = new System.Drawing.Point(1250, 561);
             this.btnAddSession.Name = "btnAddSession";
             this.btnAddSession.Size = new System.Drawing.Size(25, 25);
             this.btnAddSession.TabIndex = 100;
@@ -416,9 +438,9 @@ namespace PlayMore35 {
             // txtSessionDesc
             // 
             this.txtSessionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSessionDesc.Location = new System.Drawing.Point(862, 565);
+            this.txtSessionDesc.Location = new System.Drawing.Point(885, 561);
             this.txtSessionDesc.Name = "txtSessionDesc";
-            this.txtSessionDesc.Size = new System.Drawing.Size(306, 25);
+            this.txtSessionDesc.Size = new System.Drawing.Size(275, 25);
             this.txtSessionDesc.TabIndex = 98;
             this.txtSessionDesc.Text = "kill the kobold!";
             this.txtSessionDesc.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -426,9 +448,9 @@ namespace PlayMore35 {
             // txtSessionXp
             // 
             this.txtSessionXp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSessionXp.Location = new System.Drawing.Point(1174, 565);
+            this.txtSessionXp.Location = new System.Drawing.Point(1166, 561);
             this.txtSessionXp.Name = "txtSessionXp";
-            this.txtSessionXp.Size = new System.Drawing.Size(68, 25);
+            this.txtSessionXp.Size = new System.Drawing.Size(78, 25);
             this.txtSessionXp.TabIndex = 99;
             this.txtSessionXp.Text = "75";
             this.txtSessionXp.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -2264,6 +2286,8 @@ namespace PlayMore35 {
         private System.Windows.Forms.Button btnAddSession;
         private System.Windows.Forms.TextBox txtSessionDesc;
         private System.Windows.Forms.TextBox txtSessionXp;
+        private PlayMore35.UI.TabularLedgerPanel ledgerXp;
+        private PlayMore35.UI.DateOverridePicker dtpSessionDate;
         private System.Windows.Forms.Button btnAddItem;
         private System.Windows.Forms.TabPage pagVestiges;
         private System.Windows.Forms.Panel pnlVestige1;

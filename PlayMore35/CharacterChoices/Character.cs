@@ -33,7 +33,7 @@ namespace PlayMore35.CharacterChoices {
 
         public EquippedChoices equipped;
 
-        public List<(int xp, string description)> sessions;
+        public List<XpSessionEntry> sessions;
 
         public List<string> externalEffects;
         public Dictionary<string, ISubsystemState> Subsystems { get; set; } = new Dictionary<string, ISubsystemState>();
@@ -72,10 +72,7 @@ namespace PlayMore35.CharacterChoices {
                     inventory.Select(x => new JProperty(x.Key, x.Value.ToJson()))
                 )),
                 new JProperty("equipped", equipped.ToJson()),
-                new JProperty("sessions", new JArray(sessions.Select(x => new JObject(
-                    new JProperty("xp", x.xp),
-                    new JProperty("description", x.description)
-                )))),
+                new JProperty("sessions", new JArray(sessions.Select(x => x.ToJson()))),
                 new JProperty("effects", new JArray(externalEffects)),
                 new JProperty("subsystems", new JObject(Subsystems.Select(x => new JProperty(x.Key, x.Value.ToJson())))),
                 new JProperty("routine preferences", RoutinePreferences.ToJson()),
@@ -106,7 +103,7 @@ namespace PlayMore35.CharacterChoices {
             inventory = ((JObject)json["inventory"]).Properties()
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
             equipped = new EquippedChoices((JObject)json["equipped"]);
-            sessions = ((JArray)json["sessions"]).Select(x => ((int)x["xp"], (string)x["description"])).ToList();
+            sessions = ((JArray)json["sessions"]).Select(x => new XpSessionEntry((JObject)x)).OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList();
             externalEffects = ((JArray)json["effects"]).Select(x => (string)x).ToList();
             Subsystems = new Dictionary<string, ISubsystemState>();
             if (json["subsystems"] is JObject subObj) {
@@ -152,7 +149,7 @@ namespace PlayMore35.CharacterChoices {
             transactions = new List<GpTransaction>();
             inventory = new Dictionary<string, InventoryLocation>();
             equipped = new EquippedChoices();
-            sessions = new List<(int xp, string description)>();
+            sessions = new List<XpSessionEntry>();
 
             externalEffects = new List<string>();
             Subsystems = new Dictionary<string, ISubsystemState>();
@@ -213,7 +210,7 @@ namespace PlayMore35.CharacterChoices {
         }
 
         public int TotalExperience() {
-            return sessions.Select(x => x.xp).Sum();
+            return sessions.Sum(s => s.Xp);
         }
 
         // if this number is negative, the player is due to level up
