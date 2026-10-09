@@ -112,5 +112,108 @@ namespace PlayMore35.Tests {
             row.ContextMenuStrip.Items[0].PerformClick();
             Assert.AreSame(sessionEntry, deletedEntry);
         }
+
+        [TestMethod]
+        public void TabularLedgerPanel_EmptyLedger_AnchorsHeaderToBottom() {
+            var panel = new TabularLedgerPanel {
+                Size = new System.Drawing.Size(500, 500)
+            };
+            panel.SetEntries(
+                Array.Empty<GpTransaction>(),
+                t => t.GameTime,
+                t => t.RealDate,
+                t => t.Description,
+                t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                t => { }
+            );
+
+            Assert.AreEqual(0, panel.RowCount);
+            Assert.IsFalse(panel.IsOverflow);
+            Assert.AreEqual(500 - TabularLedgerPanel.HEADER_HEIGHT, panel.HeaderTop);
+            Assert.AreEqual(500, panel.BodyTop);
+        }
+
+        [TestMethod]
+        public void TabularLedgerPanel_FewEntries_AnchorsHeaderImmediatelyAboveFirstLineAtBottom() {
+            var panel = new TabularLedgerPanel {
+                Size = new System.Drawing.Size(500, 500)
+            };
+            var t1 = new GpTransaction(100m, "item 1", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9));
+            var t2 = new GpTransaction(50m, "item 2", new DateTime(2026, 10, 7), new DateTime(2026, 10, 9));
+
+            panel.SetEntries(
+                new[] { t1, t2 },
+                t => t.GameTime,
+                t => t.RealDate,
+                t => t.Description,
+                t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                t => { }
+            );
+
+            Assert.AreEqual(2, panel.RowCount);
+            Assert.IsFalse(panel.IsOverflow);
+            int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 2 * TabularLedgerPanel.ROW_HEIGHT;
+            int expectedHeaderTop = 500 - expectedContentHeight;
+            Assert.AreEqual(expectedHeaderTop, panel.HeaderTop);
+            Assert.AreEqual(expectedHeaderTop + TabularLedgerPanel.HEADER_HEIGHT, panel.BodyTop);
+        }
+
+        [TestMethod]
+        public void TabularLedgerPanel_OverflowingEntries_AnchorsHeaderToTop() {
+            var panel = new TabularLedgerPanel {
+                Size = new System.Drawing.Size(500, 200)
+            };
+            var items = Enumerable.Range(1, 15).Select(i =>
+                new GpTransaction(i * 10m, $"item {i}", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9))
+            ).ToList();
+
+            panel.SetEntries(
+                items,
+                t => t.GameTime,
+                t => t.RealDate,
+                t => t.Description,
+                t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                t => { }
+            );
+
+            Assert.AreEqual(15, panel.RowCount);
+            Assert.IsTrue(panel.IsOverflow);
+            Assert.AreEqual(0, panel.HeaderTop);
+            Assert.AreEqual(TabularLedgerPanel.HEADER_HEIGHT, panel.BodyTop);
+        }
+
+        [TestMethod]
+        public void TabularLedgerPanel_Columns_AlignWithBaselineCoordinates() {
+            var panel = new TabularLedgerPanel {
+                Size = new System.Drawing.Size(500, 500)
+            };
+            var t1 = new GpTransaction(100m, "starting gold", new DateTime(2026, 10, 6, 20, 11, 0), new DateTime(2026, 10, 9));
+            panel.SetEntries(
+                new[] { t1 },
+                t => t.GameTime,
+                t => t.RealDate,
+                t => t.Description,
+                t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                t => { }
+            );
+
+            var row = panel.GetRow(0);
+            var lblGameTime = row.Controls.Cast<Control>().First(c => c.Text == "2026-10-06 20:11");
+            var lblRealDate = row.Controls.Cast<Control>().First(c => c.Text == "2026-10-09");
+            var lblDesc = row.Controls.Cast<Control>().First(c => c.Text == "starting gold");
+            var lblAmount = row.Controls.Cast<Control>().First(c => c.Text == "+100");
+
+            Assert.AreEqual(0, lblGameTime.Left);
+            Assert.AreEqual(115, lblGameTime.Width);
+
+            Assert.AreEqual(120, lblRealDate.Left);
+            Assert.AreEqual(110, lblRealDate.Width);
+
+            Assert.AreEqual(235, lblDesc.Left);
+            Assert.AreEqual(150, lblDesc.Width);
+
+            Assert.AreEqual(391, lblAmount.Left);
+            Assert.AreEqual(78, lblAmount.Width);
+        }
     }
 }
