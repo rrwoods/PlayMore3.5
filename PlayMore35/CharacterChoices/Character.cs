@@ -27,7 +27,7 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<string, string> feats; // {feat slot -> feat name}
         public Dictionary<string, string> featChoices; // {feat slot -> choice} --- "choice" here is e.g. a weapon for Weapon Focus
 
-        public List<(decimal gp, string description)> transactions;
+        public List<GpTransaction> transactions;
         // All items available to the character that are not currently equipped
         public Dictionary<string, InventoryLocation> inventory;
 
@@ -67,10 +67,7 @@ namespace PlayMore35.CharacterChoices {
                 )),
                 new JProperty("feats", new JObject(feats.Select(x => new JProperty(x.Key, x.Value)))),
                 new JProperty("feat choices", new JObject(featChoices.Select(x => new JProperty(x.Key, x.Value)))),
-                new JProperty("transactions", new JArray(transactions.Select(x => new JObject(
-                    new JProperty("amount", x.gp),
-                    new JProperty("description", x.description)
-                )))),
+                new JProperty("transactions", new JArray(transactions.Select(x => x.ToJson()))),
                 new JProperty("inventory", new JObject(
                     inventory.Select(x => new JProperty(x.Key, x.Value.ToJson()))
                 )),
@@ -105,7 +102,7 @@ namespace PlayMore35.CharacterChoices {
             );
             feats = ((JObject)json["feats"]).Properties().ToDictionary(x => x.Name, x => (string)x.Value);
             featChoices = ((JObject)json["feat choices"]).Properties().ToDictionary(x => x.Name, x => (string)x.Value);
-            transactions = ((JArray)json["transactions"]).Select(x => ((decimal)x["amount"], (string)x["description"])).ToList();
+            transactions = ((JArray)json["transactions"]).Select(x => new GpTransaction((JObject)x)).OrderBy(t => t.GameTime).ThenBy(t => t.RealDate).ToList();
             inventory = ((JObject)json["inventory"]).Properties()
                 .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
             equipped = new EquippedChoices((JObject)json["equipped"]);
@@ -152,7 +149,7 @@ namespace PlayMore35.CharacterChoices {
             feats = new Dictionary<string, string>();
             featChoices = new Dictionary<string, string>();
 
-            transactions = new List<(decimal gp, string description)>();
+            transactions = new List<GpTransaction>();
             inventory = new Dictionary<string, InventoryLocation>();
             equipped = new EquippedChoices();
             sessions = new List<(int xp, string description)>();
@@ -212,7 +209,7 @@ namespace PlayMore35.CharacterChoices {
         }
 
         public decimal TotalGold() {
-            return transactions.Select(x => x.gp).Sum();
+            return transactions.Sum(x => x.Amount);
         }
 
         public int TotalExperience() {

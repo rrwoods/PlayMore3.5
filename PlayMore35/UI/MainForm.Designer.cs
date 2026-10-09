@@ -107,6 +107,8 @@ namespace PlayMore35 {
             this.optVestige2 = new System.Windows.Forms.RadioButton();
             this.optVestige1 = new System.Windows.Forms.RadioButton();
             this.pagInventory = new System.Windows.Forms.TabPage();
+            this.ledgerGold = new PlayMore35.UI.TabularLedgerPanel();
+            this.dtpTransactionDate = new PlayMore35.UI.DateOverridePicker();
             this.txtLocationName = new System.Windows.Forms.TextBox();
             this.btnAddLocation = new System.Windows.Forms.Button();
             this.lblTransactionAmount1 = new System.Windows.Forms.Label();
@@ -1075,6 +1077,8 @@ namespace PlayMore35 {
             // 
             // pagInventory
             // 
+            this.pagInventory.Controls.Add(this.ledgerGold);
+            this.pagInventory.Controls.Add(this.dtpTransactionDate);
             this.pagInventory.Controls.Add(this.txtLocationName);
             this.pagInventory.Controls.Add(this.btnAddLocation);
             this.pagInventory.Controls.Add(this.lblTransactionAmount1);
@@ -1132,10 +1136,28 @@ namespace PlayMore35 {
             this.pagInventory.Text = "Inventory";
             this.pagInventory.UseVisualStyleBackColor = true;
             // 
+            // ledgerGold
+            // 
+            this.ledgerGold.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ledgerGold.AmountColumnHeader = "Amount";
+            this.ledgerGold.Location = new System.Drawing.Point(775, 10);
+            this.ledgerGold.Name = "ledgerGold";
+            this.ledgerGold.Size = new System.Drawing.Size(500, 545);
+            this.ledgerGold.TabIndex = 64;
+            // 
+            // dtpTransactionDate
+            // 
+            this.dtpTransactionDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.dtpTransactionDate.Location = new System.Drawing.Point(775, 565);
+            this.dtpTransactionDate.Name = "dtpTransactionDate";
+            this.dtpTransactionDate.Size = new System.Drawing.Size(105, 17);
+            this.dtpTransactionDate.TabIndex = 54;
+            // 
             // txtLocationName
             // 
             this.txtLocationName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtLocationName.Location = new System.Drawing.Point(790, 562);
+            this.txtLocationName.Location = new System.Drawing.Point(580, 562);
             this.txtLocationName.Name = "txtLocationName";
             this.txtLocationName.Size = new System.Drawing.Size(171, 25);
             this.txtLocationName.TabIndex = 65;
@@ -1143,7 +1165,7 @@ namespace PlayMore35 {
             // btnAddLocation
             // 
             this.btnAddLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddLocation.Location = new System.Drawing.Point(790, 593);
+            this.btnAddLocation.Location = new System.Drawing.Point(580, 593);
             this.btnAddLocation.Name = "btnAddLocation";
             this.btnAddLocation.Size = new System.Drawing.Size(171, 23);
             this.btnAddLocation.TabIndex = 64;
@@ -1229,9 +1251,9 @@ namespace PlayMore35 {
             // txtTransactionDesc
             // 
             this.txtTransactionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTransactionDesc.Location = new System.Drawing.Point(1000, 561);
+            this.txtTransactionDesc.Location = new System.Drawing.Point(885, 561);
             this.txtTransactionDesc.Name = "txtTransactionDesc";
-            this.txtTransactionDesc.Size = new System.Drawing.Size(160, 25);
+            this.txtTransactionDesc.Size = new System.Drawing.Size(275, 25);
             this.txtTransactionDesc.TabIndex = 55;
             this.txtTransactionDesc.Text = "starting gold";
             this.txtTransactionDesc.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -2229,6 +2251,8 @@ namespace PlayMore35 {
         private System.Windows.Forms.Button btnAddTransaction;
         private System.Windows.Forms.TextBox txtTransactionDesc;
         private System.Windows.Forms.TextBox txtTransactionGp;
+        private PlayMore35.UI.TabularLedgerPanel ledgerGold;
+        private PlayMore35.UI.DateOverridePicker dtpTransactionDate;
         private System.Windows.Forms.TextBox txtLocationName;
         private System.Windows.Forms.Button btnAddLocation;
         private System.Windows.Forms.Label lblSampleXp1;

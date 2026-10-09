@@ -138,6 +138,7 @@
     <Compile Include="CharacterChoices\Character.cs" />
     <Compile Include="CharacterChoices\IReadOnlyCharacter.cs" />
     <Compile Include="CharacterChoices\ReadOnlyCharacter.cs" />
+    <Compile Include="CharacterChoices\GpTransaction.cs" />
     <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="CharacterChoices\AttackRoutine.cs" />
@@ -156,6 +157,9 @@
     <Compile Include="Effects\ExtraAttack.cs" />
     <Compile Include="Effects\ISubjectMatcher.cs" />
     <Compile Include="UI\FormUtils.cs" />
+    <Compile Include="UI\LedgerFormatters.cs" />
+    <Compile Include="UI\DateOverridePicker.cs" />
+    <Compile Include="UI\TabularLedgerPanel.cs" />
     <Compile Include="Global\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
@@ -25,7 +25,7 @@ namespace PlayMore35.CharacterChoices {
         public IReadOnlyDictionary<string, List<int>> skillRanks => character.skillRanks;
         public IReadOnlyDictionary<string, string> feats => character.feats;
         public IReadOnlyDictionary<string, string> featChoices => character.featChoices;
-        public IReadOnlyList<(decimal gp, string description)> transactions => character.transactions;
+        public IReadOnlyList<GpTransaction> transactions => character.transactions;
         public IReadOnlyDictionary<string, InventoryLocation> inventory => character.inventory;
         public EquippedChoices equipped => character.equipped;
         public IReadOnlyList<(int xp, string description)> sessions => character.sessions;
