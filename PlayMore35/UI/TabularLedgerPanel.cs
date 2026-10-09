@@ -26,6 +26,7 @@ namespace PlayMore35.UI {
         public int HeaderTop => headerPanel.Top;
         public int BodyTop => bodyPanel.Top;
         public bool IsOverflow => (HEADER_HEIGHT + rows.Count * ROW_HEIGHT) > ClientSize.Height;
+        public int VerticalScrollValue => bodyPanel.VerticalScroll.Value;
 
         public string AmountColumnHeader {
             get => lblHeaderAmount.Text;
@@ -104,6 +105,7 @@ namespace PlayMore35.UI {
         protected override void OnResize(EventArgs e) {
             base.OnResize(e);
             UpdateLayout();
+            ScrollToBottom();
         }
 
         public void UpdateLayout() {
@@ -208,6 +210,14 @@ namespace PlayMore35.UI {
 
             bodyPanel.ResumeLayout();
             UpdateLayout();
+            ScrollToBottom();
+        }
+
+        protected override void OnVisibleChanged(EventArgs e) {
+            base.OnVisibleChanged(e);
+            if (Visible) {
+                ScrollToBottom();
+            }
         }
 
         public void SelectRow(int index) {
@@ -230,6 +240,11 @@ namespace PlayMore35.UI {
             if (bodyPanel.Controls.Count > 0) {
                 var lastControl = bodyPanel.Controls[bodyPanel.Controls.Count - 1];
                 bodyPanel.ScrollControlIntoView(lastControl);
+            }
+            if (bodyPanel.AutoScroll) {
+                try {
+                    bodyPanel.AutoScrollPosition = new Point(0, Math.Max(0, bodyPanel.DisplayRectangle.Height));
+                } catch { }
             }
         }
     }
