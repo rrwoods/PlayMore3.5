@@ -161,7 +161,15 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(pactMagic);
             Assert.AreEqual(1, pactMagic.Slots.Count);
             Assert.AreEqual("Savnok", pactMagic.Slots[0].VestigeName);
-            Assert.AreEqual(PactState.GOOD_PACT, pactMagic.Slots[0].State);
+            Assert.AreEqual(PactState.POOR_PACT, pactMagic.Slots[0].State);
+
+            var pactEngine = session.Subsystems.Get<PactMagicEngine>();
+            Assert.IsNotNull(pactEngine, "PactMagicEngine should be registered.");
+            Assert.IsTrue(pactEngine.IsActive, "PactMagicEngine should be active for Binder.");
+            Assert.AreEqual(1, pactEngine.SlotCount);
+            Assert.AreEqual("Savnok", pactEngine.GetSlot(0)?.VestigeName);
+            Assert.AreEqual(PactState.POOR_PACT, pactEngine.GetSlot(0)?.State);
+            Assert.AreEqual("Savnok", pactEngine.CurrentVestige(0)?.Name);
 
             // Assert Equipment
             Assert.IsNotNull(session.Character.equipped.PrimaryHandWeapon);
@@ -204,6 +212,18 @@ namespace PlayMore35.Tests {
 
             foreach (var key in requiredKeys) {
                 Assert.IsNotNull(serialized[key], $"Serialized JSON must contain key '{key}'.");
+            }
+
+            var serializedTime = serialized["time"] as JObject;
+            Assert.IsNotNull(serializedTime);
+            if (serializedTime["scheduled actions"] is JObject scheduled) {
+                foreach (var prop in scheduled.Properties()) {
+                    if (prop.Value is JArray actions) {
+                        foreach (var act in actions) {
+                            Assert.IsNull(act["unbind"], "Serialized sheet actions should not include redundant unbind key.");
+                        }
+                    }
+                }
             }
 
             // Verify round-trip load

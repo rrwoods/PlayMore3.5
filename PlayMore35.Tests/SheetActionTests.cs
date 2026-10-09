@@ -152,5 +152,16 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(fatiguedFlag.On);
             Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, advanceResult.RefreshRequirement);
         }
+
+        [TestMethod]
+        public void SheetAction_ToJson_SerializesClearSlotWithoutRedundantUnbind() {
+            var action = new SheetAction()
+                .ClearSlot("vestige", 0);
+
+            var json = (JObject)action.ToJson();
+
+            Assert.IsNotNull(json["clear_slots"]);
+            Assert.IsNull(json["unbind"], "Serialized SheetAction must not contain redundant unbind key.");
+        }
     }
 }

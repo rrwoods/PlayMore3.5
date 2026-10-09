@@ -11,8 +11,9 @@ namespace PlayMore35.Subsystems.PactMagic {
     public class PactMagicEngine : ISlottedSubsystem {
         public const string SubsystemId = "pact_magic";
         private readonly ISubsystemContentProvider contentProvider;
-        private readonly SubsystemSlotGroup<PactSlot> slots;
+        private SubsystemSlotGroup<PactSlot> slots;
         private ICharacterContext context;
+        private bool stateLoaded = false;
 
         public PactMagicEngine(ISubsystemContentProvider contentProvider = null) {
             this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
@@ -39,18 +40,31 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         public void Initialize(ICharacterContext context) {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
-            if (context.Character != null) {
+            this.slots = new SubsystemSlotGroup<PactSlot>(() => {
+                if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
+                    return stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value;
+                }
+                return 0;
+            });
+            this.stateLoaded = false;
+            EnsureSlotsLoaded();
+        }
+
+        private void EnsureSlotsLoaded() {
+            if (stateLoaded) return;
+            if (context?.Character != null && slots.Capacity > 0) {
+                stateLoaded = true;
                 if (context.Character.Subsystems.TryGetValue(SubsystemId, out var state) && state is PactMagicState pactState) {
                     for (int i = 0; i < pactState.Slots.Count && i < slots.Capacity; i++) {
-                        slots[i] = pactState.Slots[i];
+                        slots[i] = new PactSlot(pactState.Slots[i].VestigeName, pactState.Slots[i].State);
                     }
-                } else {
-                    SyncState();
                 }
+                SyncState();
             }
         }
 
         public PactSlot GetSlot(int slotIndex) {
+            EnsureSlotsLoaded();
             if (slotIndex < 0 || slotIndex >= SlotCount) {
                 return null;
             }
@@ -63,6 +77,7 @@ namespace PlayMore35.Subsystems.PactMagic {
         }
 
         public void ClearSlot(int slotIndex) {
+            EnsureSlotsLoaded();
             if (slotIndex >= 0 && slotIndex < SlotCount) {
                 slots[slotIndex] = new PactSlot("", PactState.GOOD_PACT);
                 SyncState();
@@ -70,6 +85,7 @@ namespace PlayMore35.Subsystems.PactMagic {
         }
 
         public void BindVestige(int slotIndex, string vestigeName, PactState state = PactState.GOOD_PACT) {
+            EnsureSlotsLoaded();
             if (slotIndex >= 0 && slotIndex < SlotCount) {
                 slots[slotIndex] = new PactSlot(vestigeName ?? "", state);
                 SyncState();
@@ -77,6 +93,7 @@ namespace PlayMore35.Subsystems.PactMagic {
         }
 
         public void ChangePactState(int slotIndex, PactState state) {
+            EnsureSlotsLoaded();
             if (slotIndex >= 0 && slotIndex < SlotCount) {
                 var current = GetSlot(slotIndex);
                 current.State = state;

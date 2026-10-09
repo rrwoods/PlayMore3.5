@@ -577,8 +577,12 @@
       "name": "Savnok's influence",
       "text": [
         {
+          "category": "Social",
+          "text": "You are headstrong and recalcitrant.  Once you make up your mind about a particular issue, very little can change your thoughts on the matter."
+        },
+        {
           "category": "Actions",
-          "text": "You are headstrong and recalcitrant.  Once you make up your mind about a particular issue, very little can change your thoughts on the matter.\n\nAdditionally, whenever you use any item that improves your AC, you can't remove that protection for any reason."
+          "text": "Whenever you use any item that improves your AC, you can't remove that protection for any reason."
         }
       ]
     },

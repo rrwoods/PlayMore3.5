@@ -29,10 +29,6 @@ namespace PlayMore35.Global {
                     new JProperty("subsystem", s.subsystem),
                     new JProperty("slot", s.slotIndex)
                 )));
-                var vestigeSlots = slotsToClear.Where(s => s.subsystem == "vestige").Select(s => s.slotIndex).ToList();
-                if (vestigeSlots.Any()) {
-                    json.AddList("unbind", vestigeSlots);
-                }
             }
             json.AddList("after", actionsAfter);
             return json;

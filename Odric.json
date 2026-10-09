@@ -122,7 +122,7 @@
       "slots": [
         {
           "name": "Savnok",
-          "state": "GOOD_PACT"
+          "state": "POOR_PACT"
         }
       ]
     }
@@ -144,7 +144,8 @@
     "prone": false,
     "charging": false,
     "flat-footed": false,
-    "whirling frenzy": false
+    "whirling frenzy": false,
+    "standing on the ground": true
   },
   "parameter values": {
     "Move Ally used": 0,
@@ -166,9 +167,6 @@
               "subsystem": "vestige",
               "slot": 0
             }
-          ],
-          "unbind": [
-            0
           ]
         }
       ]

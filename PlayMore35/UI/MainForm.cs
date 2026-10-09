@@ -1388,6 +1388,8 @@ namespace PlayMore35 {
                     pactEngine?.BindVestige(slotIndex, vestige.Name, (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
                 }
+                session.Recalculate();
+                RefreshEffects();
             };
         }
 
@@ -1414,6 +1416,8 @@ namespace PlayMore35 {
             return (object sender, EventArgs e) => {
                 var pactEngine = session.Subsystems.Get<PactMagicEngine>();
                 pactEngine?.ChangePactState(slotIndex, (PactState)pactStates[slotIndex].SelectedIndex);
+                session.Recalculate();
+                RefreshEffects();
             };
         }
 
