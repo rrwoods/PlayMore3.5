@@ -1,0 +1,36 @@
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PlayMore35.UI;
+
+namespace PlayMore35.Tests {
+    [TestClass]
+    public class LedgerFormattersTests {
+        [TestMethod]
+        public void FormatGameTime_FormatsAsYearFirstMinuteResolution() {
+            var dt = new DateTime(2026, 10, 6, 20, 11, 45);
+            string formatted = LedgerFormatters.FormatGameTime(dt);
+            Assert.AreEqual("2026-10-06 20:11", formatted);
+        }
+
+        [TestMethod]
+        public void FormatRealDate_FormatsAsYearFirstDayResolution() {
+            var dt = new DateTime(2026, 10, 9, 15, 30, 0);
+            string formatted = LedgerFormatters.FormatRealDate(dt);
+            Assert.AreEqual("2026-10-09", formatted);
+        }
+
+        [TestMethod]
+        public void FormatGoldAmount_FormatsPositiveNegativeAndZeroAccurately() {
+            Assert.AreEqual("+100", LedgerFormatters.FormatGoldAmount(100m));
+            Assert.AreEqual("+100.5", LedgerFormatters.FormatGoldAmount(100.5m));
+            Assert.AreEqual("-45.25", LedgerFormatters.FormatGoldAmount(-45.25m));
+            Assert.AreEqual("0", LedgerFormatters.FormatGoldAmount(0m));
+        }
+
+        [TestMethod]
+        public void FormatTotalGold_FormatsCommaSeparated() {
+            Assert.AreEqual("1,250.5", LedgerFormatters.FormatTotalGold(1250.5m));
+            Assert.AreEqual("0", LedgerFormatters.FormatTotalGold(0m));
+        }
+    }
+}

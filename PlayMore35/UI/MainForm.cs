@@ -17,6 +17,7 @@ using static PlayMore35.Effects.Constants;
 using static PlayMore35.Properties.Resources;
 using PlayMore35.Effects;
 using PlayMore35.Rules;
+using PlayMore35.UI;
 
 namespace PlayMore35 {
     public partial class MainForm : Form {
@@ -29,12 +30,6 @@ namespace PlayMore35 {
 
         private int locationWidthBuffer;
         private int transactionBuffer;
-        // maximum number of gold transactions to display on inventory tab
-        // (this doesn't affect the number that are counted, only the number that are displayed)
-        private const int MAX_TRANSACTIONS = 100;
-
-        private List<Label> transactionDescriptions = new List<Label>();
-        private List<Label> transactionAmounts = new List<Label>();
 
         private List<Label> sessionDescriptions = new List<Label>();
         private List<Label> sessionXps = new List<Label>();
@@ -1221,75 +1216,42 @@ namespace PlayMore35 {
             RefreshEquipment();
         }
 
-        private void DisplayGold() {
-            ClearDynamicControls(pagInventory, transactionAmounts);
-            ClearDynamicControls(pagInventory, transactionDescriptions);
+        private void DisplayGold(bool scrollToBottom = false) {
+            var transactions = session.Character.transactions
+                .OrderBy(t => t.GameTime)
+                .ThenBy(t => t.RealDate)
+                .ToList();
 
-            var transactions = session.Character.transactions;
-            int firstTransaction = Math.Max(0, transactions.Count - MAX_TRANSACTIONS);
-            int numTransactions = Math.Min(transactions.Count, MAX_TRANSACTIONS);
+            ledgerGold.SetEntries(
+                transactions,
+                t => t.GameTime,
+                t => t.RealDate,
+                t => t.Description,
+                t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                t => {
+                    session.Mutate(c => c.transactions.Remove(t));
+                    DisplayGold();
+                }
+            );
 
-            int transactionTop = lblTransactionAmount2.Top - ((numTransactions - 1) * transactionBuffer);
-            for (int i = firstTransaction; i < transactions.Count; i++) {
-                var (gp, description) = transactions[i];
-
-                Label descLabel = new Label {
-                    Top = transactionTop,
-                    Left = lblTransactionDescription1.Left,
-                    Anchor = lblTransactionDescription1.Anchor,
-                    AutoSize = false,
-                    Size = lblTransactionDescription1.Size,
-                    TextAlign = lblTransactionDescription1.TextAlign,
-                    Text = description
-                };
-                sessionDescriptions.Add(descLabel);
-                pagInventory.Controls.Add(descLabel);
-
-
-                Label gpLabel = new Label {
-                    Top = transactionTop,
-                    Left = lblTransactionAmount1.Left,
-                    Anchor = lblTransactionAmount1.Anchor,
-                    AutoSize = false,
-                    Size = lblTransactionAmount1.Size,
-                    TextAlign = lblTransactionAmount1.TextAlign,
-                    Text = "" + gp
-                };
-                transactionAmounts.Add(gpLabel);
-                pagInventory.Controls.Add(gpLabel);
-
-                ContextMenuStrip deleteMenu = new ContextMenuStrip();
-                ToolStripMenuItem deleteTransaction = new ToolStripMenuItem($"Delete {description}");
-                deleteTransaction.Click += DeleteTransaction(i);
-                deleteMenu.Items.Add(deleteTransaction);
-                descLabel.ContextMenuStrip = deleteMenu;
-                gpLabel.ContextMenuStrip = deleteMenu;
-
-                transactionTop += transactionBuffer;
-            }
-            if (transactions.Any()) {
-                txtTransactionDesc.Text = "";
-                txtTransactionGp.Text = "";
+            if (scrollToBottom) {
+                ledgerGold.ScrollToBottom();
             }
 
-            lblTotalGold.Text = session.Character.TotalGold().ToString("#,###.##;-#,###.##;0");
-        }
-
-        private EventHandler DeleteTransaction(int i) {
-            return (object sender, EventArgs e) => {
-                session.Mutate(c => c.transactions.RemoveAt(i));
-                DisplayGold();
-            };
+            lblTotalGold.Text = LedgerFormatters.FormatTotalGold(session.Character.TotalGold());
         }
 
         private void AddTransaction_Click(object sender, EventArgs e) {
             if (decimal.TryParse(txtTransactionGp.Text, out decimal value)) {
                 txtTransactionGp.BackColor = SystemColors.Window;
-                session.Mutate(c => c.transactions.Add((value, txtTransactionDesc.Text)));
+                DateTime gameTime = session.Character.Timeline.CurrentTime;
+                DateTime realDate = dtpTransactionDate.SelectedDate;
+                session.Mutate(c => c.transactions.Add(new GpTransaction(value, txtTransactionDesc.Text, gameTime, realDate)));
                 txtTransactionDesc.Text = "";
                 txtTransactionGp.Text = "";
+                dtpTransactionDate.Reset();
                 txtTransactionDesc.Focus();
-                DisplayGold();
+                DisplayGold(scrollToBottom: true);
             } else {
                 txtTransactionGp.BackColor = Color.Red;
             }
