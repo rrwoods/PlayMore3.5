@@ -14,13 +14,16 @@ Features required for the author's primary active character, alongside immediate
 - **Timestamped GP & XP Ledgers**:
   - Gold transactions and XP session logs record dual timestamps: in-game timeline dates and real-world calendar timestamps.
 
-### Odric Level Progression
-
-#### Level 1–4: Baseline Mechanics & Bug Fixes
-- **Text-Appending Effects**: Support effects that append additional rules clauses or text to existing class features (e.g. feats/features that add clauses to Barbarian Rage / Whirling Frenzy).
+### Baseline Mechanics & Bug Fixes
 - **[BUG] Feat Choices Persistence**: Fix bug where feat choices persist across levels when clicking the `...` button (e.g. clicking level 4 first shows the weapon focus choice on all other levels; clicking level 1–3 blanks the weapon choice for level 4).
 - **[BUG] Level-Up Experience Threshold**: Fix UI display showing `"0 XP to level 4"`.
-- **[BUG] Ghost Touch Weapon Text**: Ensure ghost touch property text renders correctly in the attack/equipment summary.
+
+### Odric Level Progression
+
+### Level 1: Vestige defiance stacking
+- Vestige defiance shouldn't be a pact state, because each individual defiance of a vestige stacks the penalties.  For example, if you defy Naberious twice and Savnok once, you get three penalties.
+  - Convert the defiance tracking from a pact state to a per-Influence-effect parameter.  When the vestige unbinds, that parameter should also be reset to zero.
+  - The penalty effect should add up the values of all the influence defiance parameters.
 
 ### Level 5: Martial Maneuvers
 - **[ODRIC 5] Tome of Battle Maneuver System**:
@@ -77,7 +80,6 @@ Features required to support the other players in the active gaming group.
 - **Breath Weapon & Breath Effects**:
   - Breath weapon damage scaling and save DC calculation (10 + 1/2 level + CON modifier).
   - Breath effects modifying energy type or applying status conditions (e.g. *Frost Breath*, *Slow Breath*).
-  - *(Note: Warlock-specific Eldritch Blast shapes and essences are deferred to Tier 4).*
 
 ### Multi-Character Scoping & Isolation
 - **Strict Local Isolation**:
@@ -157,6 +159,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Rules-embedded situational bonuses (Hide bonuses while invisible).
   - Global skill effects: Effects affecting all skills (sickened, vestige defiance) should not trigger relevance for every skill; display centrally.
   - Space statistic (lookup table on creature size category).
+- **Text-Appending Effects**: Support effects that append additional rules clauses or text to existing text effects
 - **Epic Base Attack & Save Bonus Mechanics**:
   - D&D 3.5 epic progression rules (level > 20): Track "non-epic class levels" to determine which levels contribute toward standard base attack bonus and base save bonus progressions versus epic attack bonus and epic save bonus progressions.
 - **Esoteric Rules & Mechanics (Monkey Grip & Control Shape)**:
@@ -218,6 +221,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Separate house rules from core rules; ability to save/load distinct house-rule sets per campaign.
   - Combine core and extended data definitions (load core $\to$ load extended $\to$ save sorted).
   - Contentious rules arbitration: allow users to configure campaign/DM preferences for ambiguous or contentious rules calls (e.g., vestige influence mandates vs. penalties).
+- **[BUG] Ghost Touch Weapon Text**: Ensure ghost touch property text renders correctly in the attack/equipment summary.
 
 ### 4.5 Project Architecture & Sanity
 - **Deepen the Timeline & Sheet Action Module ([#74](https://github.com/rrwoods/PlayMore3.5/issues/74))**:
