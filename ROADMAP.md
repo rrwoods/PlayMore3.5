@@ -10,9 +10,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.
 
-### Immediate Core UX Priorities
-- **Timestamped GP & XP Ledgers**:
-  - Gold transactions and XP session logs record dual timestamps: in-game timeline dates and real-world calendar timestamps.
 
 ### Baseline Mechanics & Bug Fixes
 - **[BUG] Feat Choices Persistence**: Fix bug where feat choices persist across levels when clicking the `...` button (e.g. clicking level 4 first shows the weapon focus choice on all other levels; clicking level 1–3 blanks the weapon choice for level 4).
@@ -206,7 +203,6 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - View full item descriptions directly in the UI.
 - **Ledger Presentation & Aesthetic Refinements**:
   - Re-investigate ledger presentation aesthetics (e.g., moving one or both timestamps to tooltips, adding show/hide toggles, or configurable date/time formatting options).
-- *(Note: Timestamped GP and XP ledgers are prioritized in Tier 1).*
 
 ### 4.4 Content & Rules Data
 - **Elven Weapon Proficiencies**:
