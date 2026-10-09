@@ -129,3 +129,21 @@ _Avoid_: Stored item, unequipped gear, packed item
 **Inventory Location**:
 A designated storage container or partition (such as a backpack, belt pouch, or saddlebag) holding carried items.
 _Avoid_: Container, bag, storage bin
+
+### Ledgers & Progression
+
+**GP Transaction**:
+A recorded adjustment to a character's gold piece wealth, tracking amount, description, in-game timeline time, and real-world date.
+_Avoid_: Gold transaction, coin entry, money transfer
+
+**XP Session Log**:
+A recorded experience point grant or deduction associated with a play session, tracking amount, description, in-game timeline time, and real-world date.
+_Avoid_: XP transaction, session entry, XP grant
+
+**In-Game Time**:
+The fictional campaign date and time on a character's active timeline.
+_Avoid_: Clock time, game round time
+
+**Real-World Date**:
+The calendar date when a tabletop session or transaction took place in reality.
+_Avoid_: Wall clock time, session timestamp, real timestamp

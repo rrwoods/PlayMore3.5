@@ -204,6 +204,8 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
 - **Item Usability & Descriptions**:
   - Add no-effect name-only items to inventory locations without requiring full catalog definitions.
   - View full item descriptions directly in the UI.
+- **Ledger Presentation & Aesthetic Refinements**:
+  - Re-investigate ledger presentation aesthetics (e.g., moving one or both timestamps to tooltips, adding show/hide toggles, or configurable date/time formatting options).
 - *(Note: Timestamped GP and XP ledgers are prioritized in Tier 1).*
 
 ### 4.4 Content & Rules Data
@@ -244,3 +246,5 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Deliberately retained explicit constructor-based parsing (`new T(JObject)`) and static factory methods over parameterless mutating `ReadJson` methods or reflection frameworks to preserve domain encapsulation, construction invariants, and schema stability. Closed [#83](https://github.com/rrwoods/PlayMore3.5/issues/83) as wontfix.
 - **Unique Effect Identifiers**:
   - Remove effects by unique ID rather than name (avoiding accidental removal of unrelated same-named effects when swapping vestiges/items).
+- **Pre-1900 Timeline Dates**:
+  - Investigate ways of allowing in-game timeline dates before 1900 (addressing historical date limitations in .NET `DateTimePicker` controls and calendar date math).
