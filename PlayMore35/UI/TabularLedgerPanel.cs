@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -15,10 +15,17 @@ namespace PlayMore35.UI {
         private readonly List<LedgerRowControl> rows = new List<LedgerRowControl>();
         private LedgerRowControl selectedRow;
 
-        private const int COL_GAMETIME_WIDTH = 120;
-        private const int COL_REALDATE_WIDTH = 85;
-        private const int COL_AMOUNT_WIDTH = 75;
-        private const int ROW_HEIGHT = 20;
+        private const int COL_GAMETIME_WIDTH = 115;
+        private const int COL_REALDATE_WIDTH = 110;
+        private const int COL_DESC_LEFT = 235;
+        private const int COL_AMOUNT_WIDTH = 78;
+        private const int BASELINE_AMOUNT_LEFT = 391;
+        public const int HEADER_HEIGHT = 22;
+        public const int ROW_HEIGHT = 20;
+
+        public int HeaderTop => headerPanel.Top;
+        public int BodyTop => bodyPanel.Top;
+        public bool IsOverflow => (HEADER_HEIGHT + rows.Count * ROW_HEIGHT) > ClientSize.Height;
 
         public string AmountColumnHeader {
             get => lblHeaderAmount.Text;
@@ -40,8 +47,7 @@ namespace PlayMore35.UI {
             BorderStyle = BorderStyle.None;
 
             headerPanel = new Panel {
-                Dock = DockStyle.Top,
-                Height = 22,
+                Height = HEADER_HEIGHT,
                 BackColor = Color.Transparent,
                 BorderStyle = BorderStyle.None
             };
@@ -64,17 +70,17 @@ namespace PlayMore35.UI {
 
             lblHeaderDesc = new Label {
                 Text = "Description",
-                Location = new Point(COL_GAMETIME_WIDTH + COL_REALDATE_WIDTH + 10, 2),
-                Size = new Size(190, 18),
+                Location = new Point(COL_DESC_LEFT, 2),
+                Size = new Size(150, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font(Font, FontStyle.Bold)
             };
 
             lblHeaderAmount = new Label {
                 Text = "Amount",
-                Location = new Point(COL_GAMETIME_WIDTH + COL_REALDATE_WIDTH + 205, 2),
+                Location = new Point(BASELINE_AMOUNT_LEFT, 2),
                 Size = new Size(COL_AMOUNT_WIDTH, 18),
-                TextAlign = ContentAlignment.MiddleRight,
+                TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font(Font, FontStyle.Bold)
             };
 
@@ -84,34 +90,81 @@ namespace PlayMore35.UI {
             headerPanel.Controls.Add(lblHeaderAmount);
 
             bodyPanel = new Panel {
-                Dock = DockStyle.Fill,
-                AutoScroll = true,
+                AutoScroll = false,
                 BackColor = Color.Transparent,
                 BorderStyle = BorderStyle.None
             };
 
             Controls.Add(bodyPanel);
             Controls.Add(headerPanel);
+
+            UpdateLayout();
         }
 
         protected override void OnResize(EventArgs e) {
             base.OnResize(e);
-            AdjustColumns();
+            UpdateLayout();
         }
 
-        private void AdjustColumns() {
-            int availableWidth = Width - (SystemInformation.VerticalScrollBarWidth + 10);
-            int descWidth = availableWidth - (COL_GAMETIME_WIDTH + COL_REALDATE_WIDTH + COL_AMOUNT_WIDTH + 15);
-            if (descWidth < 100) descWidth = 100;
+        public void UpdateLayout() {
+            int contentHeight = HEADER_HEIGHT + rows.Count * ROW_HEIGHT;
+            int totalHeight = Math.Max(0, ClientSize.Height);
+            int totalWidth = Math.Max(0, ClientSize.Width);
+            bool isOverflow = contentHeight > totalHeight;
+
+            headerPanel.SuspendLayout();
+            bodyPanel.SuspendLayout();
+            SuspendLayout();
+
+            if (isOverflow) {
+                headerPanel.Location = new Point(0, 0);
+                headerPanel.Size = new Size(totalWidth, HEADER_HEIGHT);
+
+                bodyPanel.Location = new Point(0, HEADER_HEIGHT);
+                bodyPanel.Size = new Size(totalWidth, Math.Max(0, totalHeight - HEADER_HEIGHT));
+                bodyPanel.AutoScroll = true;
+            } else {
+                int headerTop = Math.Max(0, totalHeight - contentHeight);
+                headerPanel.Location = new Point(0, headerTop);
+                headerPanel.Size = new Size(totalWidth, HEADER_HEIGHT);
+
+                int bodyTop = headerTop + HEADER_HEIGHT;
+                bodyPanel.Location = new Point(0, bodyTop);
+                bodyPanel.Size = new Size(totalWidth, Math.Max(0, rows.Count * ROW_HEIGHT));
+                bodyPanel.AutoScroll = false;
+            }
+
+            AdjustColumns(isOverflow);
+
+            headerPanel.ResumeLayout();
+            bodyPanel.ResumeLayout();
+            ResumeLayout();
+        }
+
+        private void AdjustColumns(bool isOverflow) {
+            int totalWidth = ClientSize.Width;
+            int extraWidth = Math.Max(0, totalWidth - 500);
+
+            int amountLeft = BASELINE_AMOUNT_LEFT + extraWidth;
+            if (isOverflow) {
+                int scrollBarReserved = SystemInformation.VerticalScrollBarWidth + 10;
+                int maxAmountLeft = totalWidth - scrollBarReserved - COL_AMOUNT_WIDTH;
+                if (amountLeft > maxAmountLeft) {
+                    amountLeft = Math.Max(COL_DESC_LEFT + 80, maxAmountLeft);
+                }
+            }
+
+            int descWidth = Math.Max(80, amountLeft - COL_DESC_LEFT - 6);
 
             lblHeaderDesc.Width = descWidth;
-            lblHeaderAmount.Left = COL_GAMETIME_WIDTH + COL_REALDATE_WIDTH + 10 + descWidth + 5;
+            lblHeaderAmount.Left = amountLeft;
+            lblHeaderAmount.Width = COL_AMOUNT_WIDTH;
 
-            bodyPanel.SuspendLayout();
+            int rowWidth = isOverflow ? Math.Max(totalWidth, amountLeft + COL_AMOUNT_WIDTH + 5) : totalWidth;
             foreach (var row in rows) {
-                row.AdjustLayout(descWidth, lblHeaderAmount.Left);
+                row.Width = rowWidth;
+                row.AdjustLayout(descWidth, amountLeft);
             }
-            bodyPanel.ResumeLayout();
         }
 
         public void SetEntries<T>(
@@ -128,11 +181,6 @@ namespace PlayMore35.UI {
             selectedRow = null;
 
             int currentY = 0;
-            int availableWidth = Width - (SystemInformation.VerticalScrollBarWidth + 10);
-            int descWidth = availableWidth - (COL_GAMETIME_WIDTH + COL_REALDATE_WIDTH + COL_AMOUNT_WIDTH + 15);
-            if (descWidth < 100) descWidth = 100;
-            int amountLeft = COL_GAMETIME_WIDTH + COL_REALDATE_WIDTH + 10 + descWidth + 5;
-
             foreach (var item in items) {
                 var row = new LedgerRowControl(
                     LedgerFormatters.FormatGameTime(getGameTime(item)),
@@ -141,11 +189,8 @@ namespace PlayMore35.UI {
                     getAmountText(item)
                 ) {
                     Location = new Point(0, currentY),
-                    Width = Math.Max(Width, amountLeft + COL_AMOUNT_WIDTH + 5),
-                    Height = ROW_HEIGHT,
-                    Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+                    Height = ROW_HEIGHT
                 };
-                row.AdjustLayout(descWidth, amountLeft);
 
                 string desc = getDescription(item);
                 var contextMenu = new ContextMenuStrip();
@@ -162,6 +207,7 @@ namespace PlayMore35.UI {
             }
 
             bodyPanel.ResumeLayout();
+            UpdateLayout();
         }
 
         public void SelectRow(int index) {
@@ -223,32 +269,32 @@ namespace PlayMore35.UI {
             lblGameTime = new Label {
                 Text = gameTime,
                 Location = new Point(0, 1),
-                Size = new Size(120, 18),
+                Size = new Size(115, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
             lblRealDate = new Label {
                 Text = realDate,
-                Location = new Point(125, 1),
-                Size = new Size(85, 18),
+                Location = new Point(120, 1),
+                Size = new Size(110, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
             lblDescription = new Label {
                 Text = description,
-                Location = new Point(215, 1),
-                Size = new Size(190, 18),
+                Location = new Point(235, 1),
+                Size = new Size(150, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
             lblAmount = new Label {
                 Text = amount,
-                Location = new Point(410, 1),
-                Size = new Size(75, 18),
-                TextAlign = ContentAlignment.MiddleRight,
+                Location = new Point(391, 1),
+                Size = new Size(78, 18),
+                TextAlign = ContentAlignment.MiddleCenter,
                 BackColor = Color.Transparent
             };
 

@@ -399,9 +399,9 @@ namespace PlayMore35 {
             // dtpSessionDate
             // 
             this.dtpSessionDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.dtpSessionDate.Location = new System.Drawing.Point(775, 565);
+            this.dtpSessionDate.Location = new System.Drawing.Point(895, 565);
             this.dtpSessionDate.Name = "dtpSessionDate";
-            this.dtpSessionDate.Size = new System.Drawing.Size(105, 17);
+            this.dtpSessionDate.Size = new System.Drawing.Size(110, 17);
             this.dtpSessionDate.TabIndex = 97;
             // 
             // lblTotalXp
@@ -438,9 +438,9 @@ namespace PlayMore35 {
             // txtSessionDesc
             // 
             this.txtSessionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSessionDesc.Location = new System.Drawing.Point(885, 561);
+            this.txtSessionDesc.Location = new System.Drawing.Point(1010, 561);
             this.txtSessionDesc.Name = "txtSessionDesc";
-            this.txtSessionDesc.Size = new System.Drawing.Size(275, 25);
+            this.txtSessionDesc.Size = new System.Drawing.Size(150, 25);
             this.txtSessionDesc.TabIndex = 98;
             this.txtSessionDesc.Text = "kill the kobold!";
             this.txtSessionDesc.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -1171,9 +1171,9 @@ namespace PlayMore35 {
             // dtpTransactionDate
             // 
             this.dtpTransactionDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.dtpTransactionDate.Location = new System.Drawing.Point(775, 565);
+            this.dtpTransactionDate.Location = new System.Drawing.Point(895, 565);
             this.dtpTransactionDate.Name = "dtpTransactionDate";
-            this.dtpTransactionDate.Size = new System.Drawing.Size(105, 17);
+            this.dtpTransactionDate.Size = new System.Drawing.Size(110, 17);
             this.dtpTransactionDate.TabIndex = 54;
             // 
             // txtLocationName
@@ -1273,9 +1273,9 @@ namespace PlayMore35 {
             // txtTransactionDesc
             // 
             this.txtTransactionDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTransactionDesc.Location = new System.Drawing.Point(885, 561);
+            this.txtTransactionDesc.Location = new System.Drawing.Point(1010, 561);
             this.txtTransactionDesc.Name = "txtTransactionDesc";
-            this.txtTransactionDesc.Size = new System.Drawing.Size(275, 25);
+            this.txtTransactionDesc.Size = new System.Drawing.Size(150, 25);
             this.txtTransactionDesc.TabIndex = 55;
             this.txtTransactionDesc.Text = "starting gold";
             this.txtTransactionDesc.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
