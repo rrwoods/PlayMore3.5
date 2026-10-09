@@ -183,6 +183,34 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
+        public void TabularLedgerPanel_OverflowingEntries_DefaultScrollAnchoredToBottom() {
+            using (var form = new Form()) {
+                var panel = new TabularLedgerPanel {
+                    Size = new System.Drawing.Size(500, 200)
+                };
+                form.Controls.Add(panel);
+                form.Show();
+
+                var items = Enumerable.Range(1, 25).Select(i =>
+                    new GpTransaction(i * 10m, $"item {i}", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9))
+                ).ToList();
+
+                panel.SetEntries(
+                    items,
+                    t => t.GameTime,
+                    t => t.RealDate,
+                    t => t.Description,
+                    t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                    t => { }
+                );
+                Application.DoEvents();
+
+                // Default scroll position after SetEntries should be greater than 0 (anchored to bottom)
+                Assert.IsTrue(panel.VerticalScrollValue > 0, $"Default scroll position was {panel.VerticalScrollValue}, expected > 0.");
+            }
+        }
+
+        [TestMethod]
         public void TabularLedgerPanel_Columns_AlignWithBaselineCoordinates() {
             var panel = new TabularLedgerPanel {
                 Size = new System.Drawing.Size(500, 500)

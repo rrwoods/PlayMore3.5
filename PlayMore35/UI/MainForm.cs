@@ -650,7 +650,7 @@ namespace PlayMore35 {
             }
         }
 
-        private void DisplayXp(bool scrollToBottom = false) {
+        private void DisplayXp(bool scrollToBottom = true) {
             int xpNeeded = session.Character.ExperienceToNextLevel();
             int nextLevel = session.Character.classLevels.Count + 1;
             btnAddLevel.Text = xpNeeded < 0
@@ -1183,7 +1183,7 @@ namespace PlayMore35 {
             RefreshEquipment();
         }
 
-        private void DisplayGold(bool scrollToBottom = false) {
+        private void DisplayGold(bool scrollToBottom = true) {
             var transactions = session.Character.transactions
                 .OrderBy(t => t.GameTime)
                 .ThenBy(t => t.RealDate)

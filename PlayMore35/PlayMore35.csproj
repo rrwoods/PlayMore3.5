@@ -159,8 +159,12 @@
     <Compile Include="Effects\ISubjectMatcher.cs" />
     <Compile Include="UI\FormUtils.cs" />
     <Compile Include="UI\LedgerFormatters.cs" />
-    <Compile Include="UI\DateOverridePicker.cs" />
-    <Compile Include="UI\TabularLedgerPanel.cs" />
+    <Compile Include="UI\DateOverridePicker.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\TabularLedgerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Global\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />
