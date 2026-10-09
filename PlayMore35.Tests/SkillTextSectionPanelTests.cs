@@ -204,5 +204,20 @@ namespace PlayMore35.Tests {
                 }
             }
         }
+
+        [TestMethod]
+        public void SkillTextSectionPanel_HeaderAndSkillLabels_TopMarginsAligned() {
+            var panel = new SkillTextSectionPanel("Exploration",
+                new SkillDeclaration(SURVIVAL),
+                new SkillDeclaration(SEARCH)
+            );
+            panel.Initialize(null);
+
+            Assert.AreEqual(new Padding(3, 0, 0, 0), panel.HeaderLabel.Margin);
+            Assert.AreEqual(0, panel.HeaderLabel.Margin.Top);
+            foreach (var label in panel.SkillLabels) {
+                Assert.AreEqual(panel.HeaderLabel.Margin.Top, label.Margin.Top);
+            }
+        }
     }
 }

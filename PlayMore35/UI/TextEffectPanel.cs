@@ -137,14 +137,17 @@ namespace PlayMore35 {
 
                     if (flag.HasResource) {
                         usesLabel = new Label {
-                            Text = flag.ResourceDescription
+                            Text = flag.ResourceDescription,
+                            Margin = new Padding(3, 1, 3, 0)
                         }.Initialize();
                         usesLabels[flag.Name] = usesLabel;
                         Controls.Add(usesLabel);
 
                         SheetAction useCharge = new SheetAction().AdjustParam(usedName, 1);
                         if (!flag.IsAtWill) {
-                            usedField = new LabeledField(usedName, mainForm, "used");
+                            usedField = new LabeledField(usedName, mainForm, "used") {
+                                Margin = new Padding(0, 1, 0, 0)
+                            };
                             usedFields[flag.Name] = usedField;
                             Controls.Add(usedField);
                             SetFlowBreak(usedField, true);

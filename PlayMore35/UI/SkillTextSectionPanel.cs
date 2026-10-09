@@ -52,7 +52,7 @@ namespace PlayMore35 {
             headerLabel = new Label {
                 Text = $"{Category}:",
                 AutoSize = true,
-                Margin = new Padding(3, 3, 0, 3)
+                Margin = new Padding(3, 0, 0, 0)
             }.Initialize();
             Controls.Add(headerLabel);
 
