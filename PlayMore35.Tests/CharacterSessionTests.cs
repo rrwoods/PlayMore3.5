@@ -183,5 +183,50 @@ namespace PlayMore35.Tests {
             Assert.AreSame(txTieAll1, sorted[3], "Identical game and real times must preserve insertion order.");
             Assert.AreSame(txTieAll2, sorted[4], "Identical game and real times must preserve insertion order.");
         }
+
+        [TestMethod]
+        public void CharacterSession_Sessions_MutationsRecomputeTotalExperience() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+
+            Assert.AreEqual(0, session.Character.TotalExperience());
+
+            var s1 = new XpSessionEntry(300, "session 1", new DateTime(2026, 10, 6, 12, 0, 0), new DateTime(2026, 10, 9));
+            session.Mutate(c => c.sessions.Add(s1));
+            Assert.AreEqual(300, session.Character.TotalExperience());
+
+            var s2 = new XpSessionEntry(500, "session 2", new DateTime(2026, 10, 6, 13, 0, 0), new DateTime(2026, 10, 9));
+            session.Mutate(c => c.sessions.Add(s2));
+            Assert.AreEqual(800, session.Character.TotalExperience());
+
+            session.Mutate(c => c.sessions.Remove(s2));
+            Assert.AreEqual(300, session.Character.TotalExperience());
+        }
+
+        [TestMethod]
+        public void CharacterSession_Sessions_OrderedChronologicallyByGameTimeThenRealDate() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+
+            var tLateGame = new DateTime(2026, 10, 6, 20, 0, 0);
+            var tEarlyGame = new DateTime(2026, 10, 5, 10, 0, 0);
+            var dLateReal = new DateTime(2026, 10, 9);
+            var dEarlyReal = new DateTime(2026, 10, 8);
+
+            var sLate = new XpSessionEntry(100, "late game session", tLateGame, dLateReal);
+            var sEarly = new XpSessionEntry(50, "early game session", tEarlyGame, dEarlyReal);
+            var sTieGameEarlyReal = new XpSessionEntry(25, "tie game early real", tLateGame, dEarlyReal);
+            var sTieAll1 = new XpSessionEntry(10, "tie identical 1", tLateGame, dLateReal);
+            var sTieAll2 = new XpSessionEntry(15, "tie identical 2", tLateGame, dLateReal);
+
+            var list = new List<XpSessionEntry> { sLate, sEarly, sTieGameEarlyReal, sTieAll1, sTieAll2 };
+            var sorted = list.OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList();
+
+            Assert.AreSame(sEarly, sorted[0], "Early game time must come first.");
+            Assert.AreSame(sTieGameEarlyReal, sorted[1], "When game time ties, earlier real date must come first.");
+            Assert.AreSame(sLate, sorted[2], "Later real date comes after earlier real date.");
+            Assert.AreSame(sTieAll1, sorted[3], "Identical game and real times must preserve insertion order.");
+            Assert.AreSame(sTieAll2, sorted[4], "Identical game and real times must preserve insertion order.");
+        }
     }
 }

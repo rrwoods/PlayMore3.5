@@ -31,9 +31,6 @@ namespace PlayMore35 {
         private int locationWidthBuffer;
         private int transactionBuffer;
 
-        private List<Label> sessionDescriptions = new List<Label>();
-        private List<Label> sessionXps = new List<Label>();
-
         private List<Label> bonusLabels = new List<Label>();
         private List<ComboBox> bonusLanguages = new List<ComboBox>();
 
@@ -653,78 +650,48 @@ namespace PlayMore35 {
             }
         }
 
-        private void DisplayXp() {
+        private void DisplayXp(bool scrollToBottom = false) {
             int xpNeeded = session.Character.ExperienceToNextLevel();
             int nextLevel = session.Character.classLevels.Count + 1;
             btnAddLevel.Text = xpNeeded < 0
                 ? "Level Up!"
                 : $"{xpNeeded.ToString("#,###")} XP to level {nextLevel}";
 
-            ClearDynamicControls(pagCharacter, sessionXps);
-            ClearDynamicControls(pagCharacter, sessionDescriptions);
+            var sessions = session.Character.sessions
+                .OrderBy(s => s.GameTime)
+                .ThenBy(s => s.RealDate)
+                .ToList();
 
-            var sessions = session.Character.sessions;
-            int sessionTop = lblSampleSession2.Top - ((sessions.Count - 1) * transactionBuffer);
-            for (int i = 0; i < sessions.Count; i++) {
-                var (xp, description) = sessions[i];
+            ledgerXp.SetEntries(
+                sessions,
+                s => s.GameTime,
+                s => s.RealDate,
+                s => s.Description,
+                s => LedgerFormatters.FormatXpAmount(s.Xp),
+                s => {
+                    session.Mutate(c => c.sessions.Remove(s));
+                    DisplayXp();
+                }
+            );
 
-                Label descLabel = new Label {
-                    Top = sessionTop,
-                    Left = lblSampleSession1.Left,
-                    Anchor = lblSampleSession1.Anchor,
-                    AutoSize = false,
-                    Size = lblSampleSession1.Size,
-                    TextAlign = lblSampleSession1.TextAlign,
-                    Text = description
-                };
-                sessionDescriptions.Add(descLabel);
-                pagCharacter.Controls.Add(descLabel);
-
-
-                Label xpLabel = new Label {
-                    Top = sessionTop,
-                    Left = lblSampleXp1.Left,
-                    Anchor = lblSampleXp1.Anchor,
-                    AutoSize = false,
-                    Size = lblSampleXp1.Size,
-                    TextAlign = lblSampleXp1.TextAlign,
-                    Text = "" + xp
-                };
-                sessionXps.Add(xpLabel);
-                pagCharacter.Controls.Add(xpLabel);
-
-                ContextMenuStrip deleteMenu = new ContextMenuStrip();
-                ToolStripMenuItem deleteSession = new ToolStripMenuItem($"Delete {description}");
-                deleteSession.Click += DeleteSession(i);
-                deleteMenu.Items.Add(deleteSession);
-                descLabel.ContextMenuStrip = deleteMenu;
-                xpLabel.ContextMenuStrip = deleteMenu;
-
-                sessionTop += transactionBuffer;
-            }
-            if (sessions.Any()) {
-                txtSessionDesc.Text = "";
-                txtSessionXp.Text = "";
+            if (scrollToBottom) {
+                ledgerXp.ScrollToBottom();
             }
 
-            lblTotalXp.Text = session.Character.TotalExperience().ToString("#,###;-#,###;0");
-        }
-
-        private EventHandler DeleteSession(int i) {
-            return (object sender, EventArgs e) => {
-                session.Mutate(c => c.sessions.RemoveAt(i));
-                DisplayXp();
-            };
+            lblTotalXp.Text = LedgerFormatters.FormatTotalXp(session.Character.TotalExperience());
         }
 
         private void AddSession_Click(object sender, EventArgs e) {
             if (int.TryParse(txtSessionXp.Text, out int value)) {
                 txtSessionXp.BackColor = SystemColors.Window;
-                session.Mutate(c => c.sessions.Add((value, txtSessionDesc.Text)));
+                DateTime gameTime = session.Character.Timeline.CurrentTime;
+                DateTime realDate = dtpSessionDate.SelectedDate;
+                session.Mutate(c => c.sessions.Add(new XpSessionEntry(value, txtSessionDesc.Text, gameTime, realDate)));
                 txtSessionDesc.Text = "";
                 txtSessionXp.Text = "";
+                dtpSessionDate.Reset();
                 txtSessionDesc.Focus();
-                DisplayXp();
+                DisplayXp(scrollToBottom: true);
             } else {
                 txtSessionXp.BackColor = Color.Red;
             }

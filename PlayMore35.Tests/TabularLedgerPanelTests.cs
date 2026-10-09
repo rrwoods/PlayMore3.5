@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -89,21 +89,16 @@ namespace PlayMore35.Tests {
                 AmountColumnHeader = "XP"
             };
 
-            var sessionEntry = new {
-                Xp = 1000,
-                Description = "Session 1 - Dungeon Crawl",
-                GameTime = new DateTime(2026, 10, 6, 20, 0, 0),
-                RealDate = new DateTime(2026, 10, 9)
-            };
+            var sessionEntry = new XpSessionEntry(1000, "Session 1 - Dungeon Crawl", new DateTime(2026, 10, 6, 20, 0, 0), new DateTime(2026, 10, 9));
 
-            string deletedDesc = null;
+            XpSessionEntry deletedEntry = null;
             panel.SetEntries(
                 new[] { sessionEntry },
                 s => s.GameTime,
                 s => s.RealDate,
                 s => s.Description,
                 s => LedgerFormatters.FormatXpAmount(s.Xp),
-                s => deletedDesc = s.Description
+                s => deletedEntry = s
             );
 
             Assert.AreEqual("XP", panel.AmountColumnHeader);
@@ -115,7 +110,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Delete Session 1 - Dungeon Crawl", row.ContextMenuStrip.Items[0].Text);
 
             row.ContextMenuStrip.Items[0].PerformClick();
-            Assert.AreEqual("Session 1 - Dungeon Crawl", deletedDesc);
+            Assert.AreSame(sessionEntry, deletedEntry);
         }
     }
 }

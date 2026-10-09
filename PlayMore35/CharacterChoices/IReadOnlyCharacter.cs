@@ -21,7 +21,7 @@ namespace PlayMore35.CharacterChoices {
         IReadOnlyList<GpTransaction> transactions { get; }
         IReadOnlyDictionary<string, InventoryLocation> inventory { get; }
         EquippedChoices equipped { get; }
-        IReadOnlyList<(int xp, string description)> sessions { get; }
+        IReadOnlyList<XpSessionEntry> sessions { get; }
         IReadOnlyList<string> externalEffects { get; }
         IReadOnlyDictionary<string, ISubsystemState> Subsystems { get; }
         IReadOnlyDictionary<string, bool> flagValues { get; }

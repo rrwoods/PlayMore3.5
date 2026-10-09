@@ -28,7 +28,7 @@ namespace PlayMore35.CharacterChoices {
         public IReadOnlyList<GpTransaction> transactions => character.transactions;
         public IReadOnlyDictionary<string, InventoryLocation> inventory => character.inventory;
         public EquippedChoices equipped => character.equipped;
-        public IReadOnlyList<(int xp, string description)> sessions => character.sessions;
+        public IReadOnlyList<XpSessionEntry> sessions => character.sessions;
         public IReadOnlyList<string> externalEffects => character.externalEffects;
         public IReadOnlyDictionary<string, ISubsystemState> Subsystems => character.Subsystems;
         public IReadOnlyDictionary<string, bool> flagValues => character.flagValues;
