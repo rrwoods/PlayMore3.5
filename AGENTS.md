@@ -22,15 +22,6 @@ C# architecture, WinForms layout and `Designer.cs` conventions, `.csproj` `<SubT
 
 ## Formatting and conventions
 
-### Line endings
-
-All text files in this repository (including `*.md`, `*.cs`, `*.csv`, and `*.ps1`) must use Windows CRLF (`\r\n`) line endings as configured in `.gitattributes`. The Git `pre-commit` hook (`scripts/install-hooks.ps1`) automatically runs `scripts/check-crlf.ps1 -Fix` and `dotnet test` on `git commit`, so you do not need to run `scripts/check-crlf.ps1 -Fix` manually before committing.
-
-To install or update the Git hooks (`pre-commit` and `commit-msg`):
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/install-hooks.ps1
-```
-
 ### Git conventions
 
 Prefer linear git history:
