@@ -44,6 +44,7 @@ namespace PlayMore35.UI {
 
         public TabularLedgerPanel() {
             DoubleBuffered = true;
+            ResizeRedraw = true;
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.None;
 
@@ -105,7 +106,9 @@ namespace PlayMore35.UI {
         protected override void OnResize(EventArgs e) {
             base.OnResize(e);
             UpdateLayout();
-            ScrollToBottom();
+            if (IsOverflow) {
+                ScrollToBottom();
+            }
         }
 
         public void UpdateLayout() {
@@ -113,6 +116,11 @@ namespace PlayMore35.UI {
             int totalHeight = Math.Max(0, ClientSize.Height);
             int totalWidth = Math.Max(0, ClientSize.Width);
             bool isOverflow = contentHeight > totalHeight;
+
+            if (!isOverflow && bodyPanel.AutoScroll) {
+                bodyPanel.AutoScrollPosition = new Point(0, 0);
+                bodyPanel.AutoScroll = false;
+            }
 
             headerPanel.SuspendLayout();
             bodyPanel.SuspendLayout();
@@ -138,9 +146,19 @@ namespace PlayMore35.UI {
 
             AdjustColumns(isOverflow);
 
-            headerPanel.ResumeLayout();
-            bodyPanel.ResumeLayout();
-            ResumeLayout();
+            headerPanel.ResumeLayout(true);
+            bodyPanel.ResumeLayout(true);
+
+            int scrollY = isOverflow ? bodyPanel.DisplayRectangle.Y : 0;
+            for (int i = 0; i < rows.Count; i++) {
+                rows[i].Location = new Point(0, i * ROW_HEIGHT + scrollY);
+            }
+
+            ResumeLayout(true);
+
+            headerPanel.Invalidate(true);
+            bodyPanel.Invalidate(true);
+            Invalidate(true);
         }
 
         private void AdjustColumns(bool isOverflow) {
@@ -162,7 +180,9 @@ namespace PlayMore35.UI {
             lblHeaderAmount.Left = amountLeft;
             lblHeaderAmount.Width = COL_AMOUNT_WIDTH;
 
-            int rowWidth = isOverflow ? Math.Max(totalWidth, amountLeft + COL_AMOUNT_WIDTH + 5) : totalWidth;
+            int rowWidth = isOverflow
+                ? Math.Max(0, totalWidth - SystemInformation.VerticalScrollBarWidth)
+                : totalWidth;
             foreach (var row in rows) {
                 row.Width = rowWidth;
                 row.AdjustLayout(descWidth, amountLeft);
@@ -177,6 +197,11 @@ namespace PlayMore35.UI {
             Func<T, string> getAmountText,
             Action<T> onDelete
         ) {
+            if (bodyPanel.AutoScroll) {
+                bodyPanel.AutoScrollPosition = new Point(0, 0);
+                bodyPanel.AutoScroll = false;
+            }
+
             bodyPanel.SuspendLayout();
             bodyPanel.Controls.Clear();
             rows.Clear();
@@ -208,7 +233,7 @@ namespace PlayMore35.UI {
                 currentY += ROW_HEIGHT;
             }
 
-            bodyPanel.ResumeLayout();
+            bodyPanel.ResumeLayout(true);
             UpdateLayout();
             ScrollToBottom();
         }
@@ -216,6 +241,7 @@ namespace PlayMore35.UI {
         protected override void OnVisibleChanged(EventArgs e) {
             base.OnVisibleChanged(e);
             if (Visible) {
+                UpdateLayout();
                 ScrollToBottom();
             }
         }
@@ -237,14 +263,17 @@ namespace PlayMore35.UI {
         }
 
         public void ScrollToBottom() {
-            if (bodyPanel.Controls.Count > 0) {
-                var lastControl = bodyPanel.Controls[bodyPanel.Controls.Count - 1];
-                bodyPanel.ScrollControlIntoView(lastControl);
+            if (!IsOverflow || !bodyPanel.AutoScroll || bodyPanel.Controls.Count == 0) {
+                return;
             }
-            if (bodyPanel.AutoScroll) {
-                try {
-                    bodyPanel.AutoScrollPosition = new Point(0, Math.Max(0, bodyPanel.DisplayRectangle.Height));
-                } catch { }
+            var lastControl = bodyPanel.Controls[bodyPanel.Controls.Count - 1];
+            bodyPanel.ScrollControlIntoView(lastControl);
+            try {
+                bodyPanel.AutoScrollPosition = new Point(0, Math.Max(0, bodyPanel.DisplayRectangle.Height));
+            } catch { }
+            int scrollY = bodyPanel.DisplayRectangle.Y;
+            for (int i = 0; i < rows.Count; i++) {
+                rows[i].Location = new Point(0, i * ROW_HEIGHT + scrollY);
             }
         }
     }
