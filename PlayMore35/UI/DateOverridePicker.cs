@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace PlayMore35.UI {
     public class DateOverridePicker : LinkLabel {
+        public static readonly Color DefaultTextColor = SystemColors.HotTrack;
+        public static readonly Color OverriddenTextColor = Color.Chocolate;
+
         private DateTime selectedDate;
 
         public event EventHandler DateChanged;
@@ -26,9 +29,7 @@ namespace PlayMore35.UI {
             AutoSize = true;
             Cursor = Cursors.Hand;
             LinkBehavior = LinkBehavior.HoverUnderline;
-            LinkColor = SystemColors.HotTrack;
             ActiveLinkColor = SystemColors.Highlight;
-            VisitedLinkColor = SystemColors.HotTrack;
             selectedDate = DateTime.Today;
             UpdateText();
         }
@@ -77,6 +78,16 @@ namespace PlayMore35.UI {
 
         private void UpdateText() {
             Text = $"[Date: {selectedDate:yyyy-MM-dd}]";
+            bool isOverridden = selectedDate != DateTime.Today;
+            Color targetColor = isOverridden ? OverriddenTextColor : DefaultTextColor;
+            LinkColor = targetColor;
+            VisitedLinkColor = targetColor;
+            ForeColor = targetColor;
+
+            FontStyle targetStyle = isOverridden ? FontStyle.Italic : FontStyle.Regular;
+            if (Font.Style != targetStyle) {
+                Font = new Font(Font, targetStyle);
+            }
         }
     }
 }
