@@ -16,20 +16,19 @@ Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root). See `doc
 
 Product destination, architectural invariants, capability frontiers, and anti-goals: see `VISION.md`.
 
+### Coding standards
+
+C# architecture, WinForms layout and `Designer.cs` conventions, `.csproj` `<SubType>` rules, and testing practices: see `CODING_STANDARDS.md`.
+
 ## Formatting and conventions
 
 ### Line endings
 
-All text files in this repository (including `*.md`, `*.cs`, `*.csv`, and `*.ps1`) must use Windows CRLF (`\r\n`) line endings as configured in `.gitattributes`. When creating or editing files, always ensure CRLF line endings are used.
+All text files in this repository (including `*.md`, `*.cs`, `*.csv`, and `*.ps1`) must use Windows CRLF (`\r\n`) line endings as configured in `.gitattributes`. The Git `pre-commit` hook (`scripts/install-hooks.ps1`) automatically runs `scripts/check-crlf.ps1 -Fix` and `dotnet test` on `git commit`, so you do not need to run `scripts/check-crlf.ps1 -Fix` manually before committing.
 
-To verify line endings across the repository:
+To install or update the Git hooks (`pre-commit` and `commit-msg`):
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/check-crlf.ps1
-```
-
-To automatically fix any non-CRLF line endings:
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/check-crlf.ps1 -Fix
+powershell -ExecutionPolicy Bypass -File scripts/install-hooks.ps1
 ```
 
 ### Git conventions
@@ -46,7 +45,7 @@ When authoring pull request descriptions with Mermaid diagrams:
 
 ### Code architecture and test seams
 
-- **Preserve UI encapsulation**: Forms and presentation controls must not expose mutable state setters solely to satisfy unit test fixtures. Inject dependencies via constructor overloads (e.g. `MainForm(ICharacterSession session) : this()`) or test-visible factories.
+- See `CODING_STANDARDS.md` for UI encapsulation, WinForms layout, `.csproj` `<SubType>`, and test performance rules.
 - **Prototype clean references**: When promoting code from a prototype exploring multiple design variants, never reference discarded variants in tickets or specifications. Prune all unselected options from descriptions and pointers upstream so the agent only encounters the chosen variant.
 
 ## Rules arbitration invariant
@@ -60,32 +59,10 @@ Game rules (mechanics, formulas, stacking, prerequisites, modifiers, subsystem i
 - **Human arbitration required**: The agent must halt and require the user to provide an authoritative primary source (sourcebook title, page number, and a verbatim quote or screenshot extract of the rule text) before designing or writing code touching rules.
 - **Plan provenance**: Every planned rules change must include a `Rules Provenance` table documenting the book, page, exact quote, and user confirmation before implementation can begin. See `docs/agents/rules-template.md`.
 
-## Planning gates
+## Planning and pre-commit gates
 
-### Documentation gate
-
-When authoring an implementation plan (`implementation_plan.md`), include planned repository documentation updates under `Proposed Changes` following the [Documentation checklist](#documentation-checklist).
-
-## Pre-commit gates
-
-### Rules provenance gate
-
-Before running `git commit` or marking a PR ready for changes touching game rules:
-- **Applies to mechanics only**: Binds actual game rules logic (math formulas, stacking, prerequisites, modifiers, subsystem interactions, and `rules.json` entries). Does not apply to application presentation schema or UI layout categorization (e.g. Column 0 `Exploration` or `Social` section groupings).
-- **Never fabricate citations**: The agent is strictly prohibited from inventing or recalling sourcebook citations (titles, page numbers, quotes) from model memory to satisfy test comments or review gates. Citations must come exclusively from user-supplied primary sources in the plan or issue; if missing for an arbitrated rule, the agent must ask the user.
-- Audit all modified rules logic and `rules.json` entries against the user-supplied source quote in the plan or issue.
-- Verify that unit tests validating the rule cite the user-supplied primary source (book and page) in test comments or names.
-- Confirm that no unarbitrated mechanical assumptions or extrapolation crept into the implementation.
-
-### Documentation gate
-
-Before running `git commit`, inspect staged changes and update repository documentation following the [Documentation checklist](#documentation-checklist).
-
-### Scope gate
-
-Before running `git commit` or marking a PR ready, audit changes against the originating issue or specification:
-- Check the diff against the issue's **Out of Scope** and **Anti-goals**. If any JSON fallback, adapter shim, or deprecated forwarding constructor was introduced, flag it as a hard violation.
-- Verify that no shims, compatibility layers, or features explicitly marked **Out of Scope** or **Anti-goals** were introduced.
+- **Rules provenance and scope gates**: Before committing or marking a PR ready, verify rules provenance and anti-shim scope compliance per `CODING_STANDARDS.md`.
+- **Documentation gate**: When authoring an `implementation_plan.md` or before running `git commit`, update repository documentation following the [Documentation checklist](#documentation-checklist).
 
 ## Documentation checklist
 
