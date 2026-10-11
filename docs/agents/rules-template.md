@@ -1,10 +1,10 @@
-﻿# Rules Template & Rubric
+# Rules Template & Rubric
 
 How to specify, arbitrate, and verify D&D 3.5e game rules in PlayMore35.
 
 ## The arbitration rule
 
-The agent is strictly prohibited from inventing, extrapolating, or remembering game rules from model memory. The human maintainer is the sole arbiter of rules awareness.
+Game rules are **Domain Specifications**, not **Environmental Facts** (see `GLOSSARY.md`). Game rules originate exclusively from human-verified primary sources. Treat model pretraining as blind to 3.5e mechanics; all rules awareness enters the engine through human arbitration.
 
 A rules-bearing issue or task cannot be marked `ready-for-agent` without a verified primary source citation provided or confirmed by the human.
 
@@ -21,7 +21,7 @@ Brief description of the rule or capability being modeled in PlayMore35.
 ---
 
 ## 2. Rules Provenance (Mandatory Gate for ready-for-agent)
-> The agent MUST NOT implement or plan this issue without this section filled and verified by the human arbiter.
+> Complete and verify this section with the human arbiter before planning or implementing this issue.
 
 - **Primary Source**: `<Sourcebook Name>` (e.g., *Player's Handbook 3.5*, *Complete Warrior*, *Rules Compendium*)
 - **Page Number(s)**: `p. <Number>`

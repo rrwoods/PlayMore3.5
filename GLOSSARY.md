@@ -44,6 +44,14 @@ _Avoid_: Mod, patch, variant hack
 A configurable systemic game constant or calculation formula (such as the death threshold) modeled as a first-class Statistic that may be customized by house rules.
 _Avoid_: Engine constant, setting, hardcoding
 
+**Environmental Fact**:
+Observable ground truth discovered through repository tools and local inspection (codebase, test suites, git history, committed `rules.json`, directory structure). Finding environmental facts is exclusively the agent's job.
+_Avoid_: Model pretraining memory, world knowledge, unverified assumption
+
+**Domain Specification**:
+Definitive 3.5e game rules mechanics, formulas, stacking constraints, and table fiat arbitrated exclusively by the human maintainer via authoritative primary source citations.
+_Avoid_: Environmental fact, agent fact, recalled rule
+
 **Character State**:
 The personal saved data of a player character, including permanent choices, current inventory, and transient combat effects.
 _Avoid_: Character build, profile, sheet state

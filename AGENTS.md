@@ -41,19 +41,47 @@ When authoring pull request descriptions with Mermaid diagrams:
 
 ## Rules arbitration invariant
 
-Game rules (mechanics, formulas, stacking, prerequisites, modifiers, subsystem interactions, and `rules.json` entries) are strictly human-arbitrated. This invariant binds **all chat turns, grilling rounds, recommendations, planning, and code**:
-- **Never extrapolate from model memory**: The agent is strictly prohibited from inventing, assuming, remembering, or citing D&D 3.5e mechanics to justify an option, answer a question, or explain a design.
-- **Rules are not environmental facts**: The grilling principle "finding facts is your job" applies exclusively to the local environment and codebase (files, git history, tests), never to D&D 3.5e game rules.
-- **Conversational & grilling protocol**: When framing questions or recommendations in `/grilling`, `/wayfinder`, or general chat:
-  - Never assert unverified rules mechanics to justify a recommendation.
-  - If a decision or recommendation hinges on unverified rules mechanics, the recommended answer must either adopt a zero-assumption presentation baseline or explicitly state: `➡️ Recommendation: Defer until human arbitration provides the primary source citation for [Rule].`
-- **Human arbitration required**: The agent must halt and require the user to provide an authoritative primary source (sourcebook title, page number, and a verbatim quote or screenshot extract of the rule text) before designing or writing code touching rules.
-- **Plan provenance**: Every planned rules change must include a `Rules Provenance` table documenting the book, page, exact quote, and user confirmation before implementation can begin. See `docs/agents/rules-template.md`.
+D&D 3.5e game rules are **Domain Specifications**, not **Environmental Facts** (see `GLOSSARY.md`). This invariant binds **all chat turns, grilling rounds, recommendations, planning, and code**:
+- **Environmental Facts vs. Domain Specifications**: Finding environmental facts (codebase, test suites, git history, committed `rules.json`, directory structure) is exclusively the agent's job using read tools. Domain specifications (mechanics, formulas, stacking, prerequisites, modifiers, subsystem interactions) are external requirements arbitrated exclusively by the human maintainer via primary source citations. Treat model pretraining as blind to 3.5e mechanics: derive rules exclusively from verified repository sources.
+- **Positive grilling & conversational protocol**: When framing frontier questions and recommendations in `/grilling`, `/wayfinder`, or general chat:
+  - Focus questions on **engine representation and software architecture** (data modeling in `rules.json`, class hierarchies, seams, non-blocking warning badges).
+  - If a decision or recommendation hinges on game mechanics not yet cited in the repository, use this explicit positive recommendation token:
+    `➡️ Recommendation: Defer until human arbitration provides the primary source citation for [Rule].`
+  - When researching rules, search local committed repository files (`rules.json`, committed tests, `docs/`). If absent from the environment, request human arbitration using `docs/agents/rules-template.md`.
+- **Phase boundary enforcement**: Enforce rules provenance at phase gates rather than relying on in-flight self-interception:
+  - **Spec Gate (`/to-spec`)**: A rules-bearing task cannot be marked `ready-for-agent` without Section 2 (Rules Provenance) completed with sourcebook, page number, and verbatim quote confirmed by the maintainer.
+  - **TDD Gate (`/tdd`)**: Every unit test verifying a game rule must cite the primary source in a comment directly above the test method (`// Source: <Sourcebook Name>, p. <Number>`).
+  - **Review Gate (`/code-review`)**: The Spec axis review audits modified rules logic and `rules.json` entries strictly against the user-supplied primary source quote. Any unverified mechanics or extrapolation are flagged as a hard Spec failure.
 
 ## Planning and pre-commit gates
 
 - **Rules provenance and scope gates**: Before committing or marking a PR ready, verify rules provenance and anti-shim scope compliance per `CODING_STANDARDS.md`.
 - **Documentation gate**: When authoring an `implementation_plan.md` or before running `git commit`, update repository documentation following the [Documentation checklist](#documentation-checklist).
+
+### Documentation gate
+
+When authoring an implementation plan (`implementation_plan.md`), include planned repository documentation updates under `Proposed Changes` following the [Documentation checklist](#documentation-checklist).
+
+## Pre-commit gates
+
+### Rules provenance gate
+
+Before running `git commit` or marking a PR ready for changes touching game rules:
+- **Applies to mechanics only**: Binds actual game rules logic (math formulas, stacking, prerequisites, modifiers, subsystem interactions, and `rules.json` entries). Does not apply to application presentation schema or UI layout categorization (e.g. Column 0 `Exploration` or `Social` section groupings).
+- **Primary source provenance**: Citations come exclusively from user-supplied primary sources in the plan or issue. When a citation is needed for test comments or review gates, transcribe the exact book, page, and quote verified by the maintainer. If a citation is missing, pause and request the source from the user before proceeding.
+- Audit all modified rules logic and `rules.json` entries against the user-supplied source quote in the plan or issue.
+- Verify that unit tests validating the rule cite the user-supplied primary source (book and page) in test comments or names.
+- Confirm that no unarbitrated mechanical assumptions or extrapolation crept into the implementation.
+
+### Documentation gate
+
+Before running `git commit`, inspect staged changes and update repository documentation following the [Documentation checklist](#documentation-checklist).
+
+### Scope gate
+
+Before running `git commit` or marking a PR ready, audit changes against the originating issue or specification:
+- Check the diff against the issue's **Out of Scope** and **Anti-goals**. If any JSON fallback, adapter shim, or deprecated forwarding constructor was introduced, flag it as a hard violation.
+- Verify that no shims, compatibility layers, or features explicitly marked **Out of Scope** or **Anti-goals** were introduced.
 
 ## Documentation checklist
 
