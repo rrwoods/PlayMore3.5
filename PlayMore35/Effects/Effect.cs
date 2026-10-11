@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
+using PlayMore35.Global;
 using PlayMore35.Items;
 using static PlayMore35.Effects.Constants;
 
@@ -13,6 +14,7 @@ namespace PlayMore35.Effects {
         }
 
         public string Name { get; private set; }
+        public string Parameter { get; set; } = "";
         public IToggle Toggle = AlwaysOn.Instance;
 
         private readonly List<Alterer<ExtraAttack, Attack>> ExtraAttacks = new List<Alterer<ExtraAttack, Attack>>();
@@ -39,6 +41,7 @@ namespace PlayMore35.Effects {
 
         private readonly List<string> Flags = new List<string>();
         public readonly List<Text> Text = new List<Text>();
+        public readonly List<SheetAction> associatedAction = new List<SheetAction>();
 
         public override string ToString() {
             return Name;
@@ -46,6 +49,9 @@ namespace PlayMore35.Effects {
 
         public JToken ToJson() {
             JObject json = new JObject(new JProperty("name", Name));
+            if (!string.IsNullOrEmpty(Parameter)) {
+                json.Add("parameter", Parameter);
+            }
             if (Toggle != AlwaysOn.Instance) {
                 json.Add("active", Toggle.ToJson());
             }
@@ -76,11 +82,15 @@ namespace PlayMore35.Effects {
             }
             json.AddList("flags", Flags);
             json.AddList("text", Text);
+            json.AddList("actions", associatedAction);
             return json;
         }
 
         public Effect(JObject json) {
             Name = (string)json["name"];
+            if (json["parameter"] != null) {
+                Parameter = (string)json["parameter"];
+            }
             if (json["active"] != null) {
                 Toggle = Effects.Toggle.FromJson(json["active"]);
             }
@@ -172,10 +182,14 @@ namespace PlayMore35.Effects {
             if (json["text"] != null) {
                 Text.AddRange(json["text"].Select(x => new Text((JObject)x)));
             }
+            if (json["actions"] != null) {
+                associatedAction.AddRange(json["actions"].Select(x => new SheetAction((JObject)x)));
+            }
         }
 
         public Effect ApplyChoice(string choice) {
             Effect copy = new Effect(Name) {
+                Parameter = string.IsNullOrEmpty(Parameter) ? "" : Parameter.Replace("$", choice),
                 Toggle = Toggle
             };
 
@@ -199,8 +213,19 @@ namespace PlayMore35.Effects {
 
             copy.Flags.AddRange(Flags.Select(x => x.Replace("$", choice)));
             copy.Text.AddRange(Text.Select(x => x.ApplyChoice(choice)));
+            copy.associatedAction.AddRange(associatedAction);
 
             return copy;
+        }
+
+        public Effect SetParameter(string parameter) {
+            Parameter = parameter;
+            return this;
+        }
+
+        public Effect AddAction(SheetAction action) {
+            associatedAction.Add(action);
+            return this;
         }
 
         public Effect SetToggle(IToggle toggle) {

@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace PlayMore35.Global {
     public class SheetAction : IJsonable {
+        public string Name { get; set; } = null;
         string duration = null; // null for instantaneous, effect will not be reversed
         private readonly List<string> flagsToSet = new List<string>();
         private readonly List<string> flagsToClear = new List<string>();
@@ -16,6 +17,9 @@ namespace PlayMore35.Global {
 
         public JToken ToJson() {
             JObject json = new JObject();
+            if (!string.IsNullOrEmpty(Name)) {
+                json["name"] = Name;
+            }
             if (duration != null) {
                 json["duration"] = duration;
             }
@@ -35,6 +39,9 @@ namespace PlayMore35.Global {
         }
 
         public SheetAction(JObject json) {
+            if (json["name"] != null) {
+                Name = (string)json["name"];
+            }
             if (json["duration"] != null) {
                 duration = (string)json["duration"];
             }
@@ -165,7 +172,8 @@ namespace PlayMore35.Global {
         }
 
         public bool Matches(SheetAction action) {
-            return duration == action.duration &&
+            return Name == action.Name &&
+                   duration == action.duration &&
                    flagsToSet.SequenceEqual(action.flagsToSet) &&
                    flagsToClear.SequenceEqual(action.flagsToClear) &&
                    paramsToAdjust.Count == action.paramsToAdjust.Count && !paramsToAdjust.Except(action.paramsToAdjust).Any() &&

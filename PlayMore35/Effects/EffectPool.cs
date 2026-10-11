@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
+using PlayMore35.Global;
 using PlayMore35.Items;
 
 using static PlayMore35.Effects.Constants;
@@ -88,8 +89,21 @@ namespace PlayMore35.Effects {
             return stats.Values.Where(x => x.HasTag(tag) && x.Relevant(this, items));
         }
 
+        private void RegisterEffectParameter(Effect effect, Character character) {
+            if (effect != null && !string.IsNullOrEmpty(effect.Parameter)) {
+                string paramName = $"{effect.Name} {effect.Parameter}";
+                if (!controllableParameters.ContainsKey(paramName) || character != null) {
+                    controllableParameters[paramName] = new ControllableParameter(paramName, character) {
+                        Category = "",
+                        Description = "",
+                    };
+                }
+            }
+        }
+
         public void AddEffect(Effect effect) {
             effects.Add(effect);
+            RegisterEffectParameter(effect, character);
         }
 
         public IEnumerable<Effect> Effects => effects;
@@ -101,6 +115,7 @@ namespace PlayMore35.Effects {
         public void ReplaceEffect(Effect effect) {
             RemoveEffect(effect.Name);
             effects.Add(effect);
+            RegisterEffectParameter(effect, character);
         }
 
         private IEnumerable<Effect> AllEffects(Equipped items) {
@@ -172,6 +187,13 @@ namespace PlayMore35.Effects {
             foreach (Effect e in AllEffects(items).Where(x => x.Toggle.On(this, items))) {
                 foreach (Text text in e.Text) {
                     Text filled = text.FillStatValues(this, items, e.Name);
+                    if (!string.IsNullOrEmpty(e.Parameter)) {
+                        filled.ParameterName = $"{e.Name} {e.Parameter}";
+                        filled.ParameterLabel = e.Parameter;
+                    }
+                    if (e.associatedAction.Any()) {
+                        filled.associatedAction = new List<SheetAction>(e.associatedAction);
+                    }
                     string category = allText.ContainsKey(text.Category) ? text.Category : UNCATEGORIZED;
                     allText[category].Add(filled);
                 }
@@ -303,6 +325,7 @@ namespace PlayMore35.Effects {
             AddEffect(baseUses);
 
             foreach (Effect e in effects) {
+                RegisterEffectParameter(e, character);
                 foreach (Text text in e.Text) {
                     if (GenerateUses(text.Resource, e.Name, baseUses, character)) {
                         break;
