@@ -24,6 +24,13 @@ namespace PlayMore35.Global {
             controls.Clear();
         }
 
+        public static void ClearDynamicControls<K, T>(Control container, Dictionary<K, T> controls) where T : Control {
+            foreach (var entry in controls) {
+                container.Controls.Remove(entry.Value);
+            }
+            controls.Clear();
+        }
+
         public static void ClearDynamicControls<K, T>(Control container, Dictionary<K, List<T>> controls) where T : Control {
             foreach (var category in controls) {
                 foreach (Control control in category.Value) {

@@ -42,6 +42,8 @@ namespace PlayMore35 {
         private void PrepareFeats() {
             ClearDynamicControls(this, feats);
             ClearDynamicControls(this, slotNames);
+            ClearDynamicControls(this, choiceLabels);
+            ClearDynamicControls(this, featChoices);
 
             SortedDictionary<int, List<string>> featSlots = session.GetFeatSlots();
             if (!featSlots.ContainsKey(levelIndex + 1)) {
@@ -155,6 +157,24 @@ namespace PlayMore35 {
 
         public Dictionary<string, string> GetFeatChoices() {
             return featChoices.ToDictionary(x => x.Key, x => x.Value.Text);
+        }
+
+        public void SaveChanges() {
+            session.Mutate(c => {
+                c.classLevels[levelIndex] = GetClass();
+                foreach (var feat in GetFeats()) {
+                    c.feats[feat.Key] = feat.Value;
+                }
+                foreach (ComboBox featBox in feats) {
+                    string slot = (string)featBox.Tag;
+                    if (!featChoices.ContainsKey(slot)) {
+                        c.featChoices.Remove(slot);
+                    }
+                }
+                foreach (var featChoice in GetFeatChoices()) {
+                    c.featChoices[featChoice.Key] = featChoice.Value;
+                }
+            });
         }
     }
 }

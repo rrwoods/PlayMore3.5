@@ -528,14 +528,7 @@ namespace PlayMore35 {
             return (object sender, EventArgs e) => {
                 levelDetailsDialog.PrepareLevel(levelIndex);
                 levelDetailsDialog.ShowDialog();
-
-                session.Mutate(c => {
-                    c.classLevels[levelIndex] = levelDetailsDialog.GetClass();
-                    foreach (var feat in levelDetailsDialog.GetFeats()) {
-                        c.feats[feat.Key] = feat.Value;
-                    }
-                    c.featChoices = levelDetailsDialog.GetFeatChoices();
-                });
+                levelDetailsDialog.SaveChanges();
 
                 DisplayLevels();
                 DisplayFeats();
