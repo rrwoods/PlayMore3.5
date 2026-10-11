@@ -459,5 +459,63 @@ namespace PlayMore35.Tests {
                 Assert.IsTrue(btnAddLocation.Right < ledgerGold.Left, "btnAddLocation must not overlap ledgerGold.");
             }
         }
+
+        [TestMethod]
+        public void TabularLedgerPanel_UpdateVerticalBounds_PositionsBelowMinTopAndClampsToThreeRowMinimum() {
+            var panel = new TabularLedgerPanel();
+
+            // Plenty of vertical room (152 to 555 = 403px >= 82px)
+            panel.UpdateVerticalBounds(minTop: 152, bottom: 555);
+            Assert.AreEqual(152, panel.Top);
+            Assert.AreEqual(403, panel.Height);
+            Assert.AreEqual(555, panel.Bottom);
+
+            // Constrained vertical room (741 to 555 = -186px < 82px): clamps to 82px (header 22 + 3 * 20 rows)
+            panel.UpdateVerticalBounds(minTop: 741, bottom: 555);
+            Assert.AreEqual(82, panel.Height);
+            Assert.AreEqual(473, panel.Top);
+            Assert.AreEqual(555, panel.Bottom);
+        }
+
+        [TestMethod]
+        public void MainForm_CharacterTab_XpLedgerDoesNotCoverClassLevelRowsAndKeepsThreeRowMinimumHeight() {
+            var catalog = new PlayMore35.Rules.GameRulesCatalog();
+            var character = new Character { race = "dream dwarf" };
+            for (int i = 1; i < 19; i++) {
+                character.classLevels.Add("Fighter");
+                character.rolledHitDice.Add(10);
+            }
+            var session = new PlayMore35.Global.CharacterSession(character, catalog);
+
+            using (var form = new MainForm(session)) {
+                form.Show();
+                Application.DoEvents();
+
+                var ledgerXp = (TabularLedgerPanel)form.Controls.Find("ledgerXp", true).First();
+                var btnAddLevel = (Button)form.Controls.Find("btnAddLevel", true).First();
+                var txtSessionDesc = (TextBox)form.Controls.Find("txtSessionDesc", true).First();
+
+                // Click Add Level to reach 20 levels and render level rows (btnAddLevel.Top = 694)
+                btnAddLevel.PerformClick();
+                Application.DoEvents();
+
+                Assert.AreEqual(694, btnAddLevel.Top);
+
+                // At default window height (txtSessionDesc.Top = 561, bottom = 555), 20 levels exceed 555,
+                // so ledgerXp clamps to the 3-row minimum height (82px).
+                Assert.AreEqual(82, ledgerXp.Height);
+                Assert.AreEqual(txtSessionDesc.Top - 6, ledgerXp.Bottom);
+
+                // When the window is tall enough to show all 20 class level rows plus the ledger (e.g. screenshot size),
+                // ledgerXp starts at btnAddLevel.Top (741) so no class level row or skill column is covered.
+                form.ClientSize = new System.Drawing.Size(1600, 950);
+                Application.DoEvents();
+
+                Assert.AreEqual(btnAddLevel.Top, ledgerXp.Top);
+                Assert.AreEqual(txtSessionDesc.Top - 6, ledgerXp.Bottom);
+                Assert.IsTrue(ledgerXp.Height > 82);
+            }
+        }
     }
 }
+

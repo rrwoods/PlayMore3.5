@@ -79,6 +79,8 @@ namespace PlayMore35 {
             InitializeComponent();
 
             ledgerXp.AlignInputControls(dtpSessionDate, txtSessionDesc, txtSessionXp, btnAddSession);
+            UpdateXpLedgerBounds();
+            pagCharacter.Resize += (s, e) => UpdateXpLedgerBounds();
             ledgerGold.AlignInputControls(dtpTransactionDate, txtTransactionDesc, txtTransactionGp, btnAddTransaction);
             txtLocationName.Left = ledgerGold.Left - txtLocationName.Width - 24;
             btnAddLocation.Left = txtLocationName.Left;
@@ -638,6 +640,7 @@ namespace PlayMore35 {
                 levelTop += levelBuffer;
             }
             btnAddLevel.Top = levelTop;
+            UpdateXpLedgerBounds();
 
             int skillLeft = cboAddSkill.Left;
             cboAddSkill.Left = skillLeft;
@@ -653,6 +656,10 @@ namespace PlayMore35 {
             foreach (Label skill in skillNames) {
                 DisplaySkillRanks((string)skill.Tag);
             }
+        }
+
+        private void UpdateXpLedgerBounds() {
+            ledgerXp.UpdateVerticalBounds(btnAddLevel.Top, txtSessionDesc.Top - 6);
         }
 
         private void DisplayXp(bool scrollToBottom = true) {
@@ -1448,6 +1455,7 @@ namespace PlayMore35 {
 
         private void MainForm_Load(object sender, EventArgs e) {
             Font = scala;
+            UpdateXpLedgerBounds();
 
             Rollable(lblTestRoll, "testing...", "1d7");
 

@@ -26,6 +26,7 @@ namespace PlayMore35.UI {
         public const int BASELINE_WIDTH = BASELINE_AMOUNT_LEFT + COL_AMOUNT_WIDTH + 31;
         public const int HEADER_HEIGHT = 22;
         public const int ROW_HEIGHT = 20;
+        public const int MIN_THREE_ROW_HEIGHT = HEADER_HEIGHT + 3 * ROW_HEIGHT;
 
         public int HeaderTop => headerPanel.Top;
         public int BodyTop => bodyPanel.Top;
@@ -57,6 +58,12 @@ namespace PlayMore35.UI {
 
             amountInput.Left = Left + BASELINE_AMOUNT_LEFT;
             amountInput.Width = COL_AMOUNT_WIDTH;
+        }
+
+        public void UpdateVerticalBounds(int minTop, int bottom) {
+            int height = Math.Max(MIN_THREE_ROW_HEIGHT, bottom - minTop);
+            int top = bottom - height;
+            SetBounds(Left, top, Width, height);
         }
 
         public TabularLedgerPanel() {

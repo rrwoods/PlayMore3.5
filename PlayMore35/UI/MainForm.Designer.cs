@@ -388,12 +388,11 @@ namespace PlayMore35 {
             // 
             // ledgerXp
             // 
-            this.ledgerXp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ledgerXp.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.ledgerXp.AmountColumnHeader = "XP";
-            this.ledgerXp.Location = new System.Drawing.Point(625, 10);
+            this.ledgerXp.Location = new System.Drawing.Point(625, 152);
             this.ledgerXp.Name = "ledgerXp";
-            this.ledgerXp.Size = new System.Drawing.Size(650, 545);
+            this.ledgerXp.Size = new System.Drawing.Size(650, 403);
             this.ledgerXp.TabIndex = 107;
             // 
             // dtpSessionDate
