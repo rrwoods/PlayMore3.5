@@ -392,7 +392,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void TabularLedgerPanel_Columns_AlignWithBaselineCoordinates() {
             var panel = new TabularLedgerPanel {
-                Size = new System.Drawing.Size(500, 500)
+                Size = new System.Drawing.Size(TabularLedgerPanel.BASELINE_WIDTH, 500)
             };
             var t1 = new GpTransaction(100m, "starting gold", new DateTime(2026, 10, 6, 20, 11, 0), new DateTime(2026, 10, 9));
             panel.SetEntries(
@@ -410,17 +410,54 @@ namespace PlayMore35.Tests {
             var lblDesc = row.Controls.Cast<Control>().First(c => c.Text == "starting gold");
             var lblAmount = row.Controls.Cast<Control>().First(c => c.Text == "+100");
 
-            Assert.AreEqual(0, lblGameTime.Left);
-            Assert.AreEqual(115, lblGameTime.Width);
+            Assert.AreEqual(TabularLedgerPanel.COL_GAMETIME_LEFT, lblGameTime.Left);
+            Assert.AreEqual(TabularLedgerPanel.COL_GAMETIME_WIDTH, lblGameTime.Width);
 
-            Assert.AreEqual(120, lblRealDate.Left);
-            Assert.AreEqual(110, lblRealDate.Width);
+            Assert.AreEqual(TabularLedgerPanel.COL_REALDATE_LEFT, lblRealDate.Left);
+            Assert.AreEqual(TabularLedgerPanel.COL_REALDATE_WIDTH, lblRealDate.Width);
 
-            Assert.AreEqual(235, lblDesc.Left);
-            Assert.AreEqual(150, lblDesc.Width);
+            Assert.AreEqual(TabularLedgerPanel.COL_DESC_LEFT, lblDesc.Left);
+            Assert.AreEqual(TabularLedgerPanel.COL_DESC_WIDTH, lblDesc.Width);
 
-            Assert.AreEqual(391, lblAmount.Left);
-            Assert.AreEqual(78, lblAmount.Width);
+            Assert.AreEqual(TabularLedgerPanel.BASELINE_AMOUNT_LEFT, lblAmount.Left);
+            Assert.AreEqual(TabularLedgerPanel.COL_AMOUNT_WIDTH, lblAmount.Width);
+        }
+
+        [TestMethod]
+        public void MainForm_LedgerColumns_AlignWithInputControlsAndDoNotOverlapSiblings() {
+            using (var form = new MainForm()) {
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                Control GetField(string name) => (Control)typeof(MainForm).GetField(name, flags).GetValue(form);
+
+                var ledgerXp = (TabularLedgerPanel)GetField("ledgerXp");
+                var dtpSessionDate = GetField("dtpSessionDate");
+                var txtSessionDesc = GetField("txtSessionDesc");
+                var txtSessionXp = GetField("txtSessionXp");
+
+                Assert.AreEqual(TabularLedgerPanel.BASELINE_WIDTH, ledgerXp.Width);
+                Assert.AreEqual(ledgerXp.Left + TabularLedgerPanel.COL_REALDATE_LEFT, dtpSessionDate.Left);
+                Assert.AreEqual(ledgerXp.Left + TabularLedgerPanel.COL_DESC_LEFT, txtSessionDesc.Left);
+                Assert.AreEqual(TabularLedgerPanel.COL_DESC_WIDTH, txtSessionDesc.Width);
+                Assert.AreEqual(ledgerXp.Left + TabularLedgerPanel.BASELINE_AMOUNT_LEFT, txtSessionXp.Left);
+                Assert.AreEqual(TabularLedgerPanel.COL_AMOUNT_WIDTH, txtSessionXp.Width);
+
+                var ledgerGold = (TabularLedgerPanel)GetField("ledgerGold");
+                var dtpTransactionDate = GetField("dtpTransactionDate");
+                var txtTransactionDesc = GetField("txtTransactionDesc");
+                var txtTransactionGp = GetField("txtTransactionGp");
+                var txtLocationName = GetField("txtLocationName");
+                var btnAddLocation = GetField("btnAddLocation");
+
+                Assert.AreEqual(TabularLedgerPanel.BASELINE_WIDTH, ledgerGold.Width);
+                Assert.AreEqual(ledgerGold.Left + TabularLedgerPanel.COL_REALDATE_LEFT, dtpTransactionDate.Left);
+                Assert.AreEqual(ledgerGold.Left + TabularLedgerPanel.COL_DESC_LEFT, txtTransactionDesc.Left);
+                Assert.AreEqual(TabularLedgerPanel.COL_DESC_WIDTH, txtTransactionDesc.Width);
+                Assert.AreEqual(ledgerGold.Left + TabularLedgerPanel.BASELINE_AMOUNT_LEFT, txtTransactionGp.Left);
+                Assert.AreEqual(TabularLedgerPanel.COL_AMOUNT_WIDTH, txtTransactionGp.Width);
+
+                Assert.IsTrue(txtLocationName.Right < ledgerGold.Left, "txtLocationName must not overlap ledgerGold.");
+                Assert.IsTrue(btnAddLocation.Right < ledgerGold.Left, "btnAddLocation must not overlap ledgerGold.");
+            }
         }
     }
 }

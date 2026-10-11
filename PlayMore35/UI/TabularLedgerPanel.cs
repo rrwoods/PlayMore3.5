@@ -15,11 +15,15 @@ namespace PlayMore35.UI {
         private readonly List<LedgerRowControl> rows = new List<LedgerRowControl>();
         private LedgerRowControl selectedRow;
 
-        private const int COL_GAMETIME_WIDTH = 115;
-        private const int COL_REALDATE_WIDTH = 110;
-        private const int COL_DESC_LEFT = 235;
-        private const int COL_AMOUNT_WIDTH = 78;
-        private const int BASELINE_AMOUNT_LEFT = 391;
+        public const int COL_GAMETIME_LEFT = 0;
+        public const int COL_GAMETIME_WIDTH = 115;
+        public const int COL_REALDATE_LEFT = COL_GAMETIME_LEFT + COL_GAMETIME_WIDTH + 5;
+        public const int COL_REALDATE_WIDTH = 110;
+        public const int COL_DESC_LEFT = COL_REALDATE_LEFT + COL_REALDATE_WIDTH + 5;
+        public const int COL_DESC_WIDTH = 300;
+        public const int COL_AMOUNT_WIDTH = 78;
+        public const int BASELINE_AMOUNT_LEFT = COL_DESC_LEFT + COL_DESC_WIDTH + 6;
+        public const int BASELINE_WIDTH = BASELINE_AMOUNT_LEFT + COL_AMOUNT_WIDTH + 31;
         public const int HEADER_HEIGHT = 22;
         public const int ROW_HEIGHT = 20;
 
@@ -42,6 +46,19 @@ namespace PlayMore35.UI {
             return null;
         }
 
+        public void AlignInputControls(Control datePicker, Control descInput, Control amountInput, Control addButton) {
+            Width = BASELINE_WIDTH;
+            Left = addButton.Right - BASELINE_WIDTH;
+
+            datePicker.Left = Left + COL_REALDATE_LEFT;
+
+            descInput.Left = Left + COL_DESC_LEFT;
+            descInput.Width = COL_DESC_WIDTH;
+
+            amountInput.Left = Left + BASELINE_AMOUNT_LEFT;
+            amountInput.Width = COL_AMOUNT_WIDTH;
+        }
+
         public TabularLedgerPanel() {
             DoubleBuffered = true;
             ResizeRedraw = true;
@@ -56,7 +73,7 @@ namespace PlayMore35.UI {
 
             lblHeaderGameTime = new Label {
                 Text = "In-Game Time",
-                Location = new Point(0, 2),
+                Location = new Point(COL_GAMETIME_LEFT, 2),
                 Size = new Size(COL_GAMETIME_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font(Font, FontStyle.Bold)
@@ -64,7 +81,7 @@ namespace PlayMore35.UI {
 
             lblHeaderRealDate = new Label {
                 Text = "Real Date",
-                Location = new Point(COL_GAMETIME_WIDTH + 5, 2),
+                Location = new Point(COL_REALDATE_LEFT, 2),
                 Size = new Size(COL_REALDATE_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font(Font, FontStyle.Bold)
@@ -73,7 +90,7 @@ namespace PlayMore35.UI {
             lblHeaderDesc = new Label {
                 Text = "Description",
                 Location = new Point(COL_DESC_LEFT, 2),
-                Size = new Size(150, 18),
+                Size = new Size(COL_DESC_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font(Font, FontStyle.Bold)
             };
@@ -163,18 +180,18 @@ namespace PlayMore35.UI {
 
         private void AdjustColumns(bool isOverflow) {
             int totalWidth = ClientSize.Width;
-            int extraWidth = Math.Max(0, totalWidth - 500);
+            int extraWidth = Math.Max(0, totalWidth - BASELINE_WIDTH);
 
             int amountLeft = BASELINE_AMOUNT_LEFT + extraWidth;
             if (isOverflow) {
                 int scrollBarReserved = SystemInformation.VerticalScrollBarWidth + 10;
                 int maxAmountLeft = totalWidth - scrollBarReserved - COL_AMOUNT_WIDTH;
                 if (amountLeft > maxAmountLeft) {
-                    amountLeft = Math.Max(COL_DESC_LEFT + 80, maxAmountLeft);
+                    amountLeft = Math.Max(COL_DESC_LEFT + COL_DESC_WIDTH + 6, maxAmountLeft);
                 }
             }
 
-            int descWidth = Math.Max(80, amountLeft - COL_DESC_LEFT - 6);
+            int descWidth = Math.Max(COL_DESC_WIDTH, amountLeft - COL_DESC_LEFT - 6);
 
             lblHeaderDesc.Width = descWidth;
             lblHeaderAmount.Left = amountLeft;
@@ -312,32 +329,32 @@ namespace PlayMore35.UI {
 
             lblGameTime = new Label {
                 Text = gameTime,
-                Location = new Point(0, 1),
-                Size = new Size(115, 18),
+                Location = new Point(TabularLedgerPanel.COL_GAMETIME_LEFT, 1),
+                Size = new Size(TabularLedgerPanel.COL_GAMETIME_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
             lblRealDate = new Label {
                 Text = realDate,
-                Location = new Point(120, 1),
-                Size = new Size(110, 18),
+                Location = new Point(TabularLedgerPanel.COL_REALDATE_LEFT, 1),
+                Size = new Size(TabularLedgerPanel.COL_REALDATE_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
             lblDescription = new Label {
                 Text = description,
-                Location = new Point(235, 1),
-                Size = new Size(150, 18),
+                Location = new Point(TabularLedgerPanel.COL_DESC_LEFT, 1),
+                Size = new Size(TabularLedgerPanel.COL_DESC_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
             lblAmount = new Label {
                 Text = amount,
-                Location = new Point(391, 1),
-                Size = new Size(78, 18),
+                Location = new Point(TabularLedgerPanel.BASELINE_AMOUNT_LEFT, 1),
+                Size = new Size(TabularLedgerPanel.COL_AMOUNT_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleCenter,
                 BackColor = Color.Transparent
             };
