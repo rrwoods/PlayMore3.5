@@ -55,7 +55,7 @@ namespace PlayMore35 {
         private List<List<RadioButton>> vestigeChoices = new List<List<RadioButton>>();
         private int vestigePanelBuffer, vestigeChoiceBuffer;
 
-        private List<DynamicPanel> dynamicPanels;
+        private List<DynamicPanel> dynamicPanels = new List<DynamicPanel>();
 
         private List<Label> slotBoxes;
 

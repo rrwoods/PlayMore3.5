@@ -167,5 +167,52 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Sur", FormUtils.ShortName("Survival"));
             Assert.AreEqual("", FormUtils.ShortName(null));
         }
+
+        [TestMethod]
+        public void CharacterSession_EffectWithInlineParameterAndAssociatedActions_RegistersParameterAndProjectsToTextEffects() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+            var context = (ICharacterContext)session;
+
+            var action = new SheetAction { Name = "Increment Stacks" }
+                .AdjustParam("Custom Condition stacks", 1);
+            var effect = new Effect("Custom Condition")
+                .SetParameter("stacks")
+                .AddAction(action)
+                .AddText(SOCIAL, "Social effect description.")
+                .AddText(ACTIONS, "Actions effect description.");
+
+            context.Effects.AddEffect(effect);
+            context.Effects.GenerateUses(context.EquippedItems, character);
+
+            var paramView = session.GetControllableParameters().FirstOrDefault(p => p.Name == "Custom Condition stacks");
+            Assert.IsNotNull(paramView, "EffectPool should register ControllableParameter for '<Effect.Name> <Effect.Parameter>'.");
+            Assert.AreEqual("", paramView.Category, "Inline Effect parameter should have empty Category so it is not duplicated at top of category panels.");
+            Assert.AreEqual(0, paramView.Value);
+
+            var textEffects = session.GetTextEffects();
+            var socialText = textEffects[SOCIAL].FirstOrDefault(t => t.Name == "Custom Condition");
+            var actionsText = textEffects[ACTIONS].FirstOrDefault(t => t.Name == "Custom Condition");
+
+            Assert.IsNotNull(socialText);
+            Assert.AreEqual("Custom Condition stacks", socialText.ParameterName);
+            Assert.AreEqual("stacks", socialText.ParameterLabel);
+            Assert.AreEqual(1, socialText.associatedAction.Count);
+            Assert.AreEqual("Increment Stacks", socialText.associatedAction[0].Name);
+
+            Assert.IsNotNull(actionsText);
+            Assert.AreEqual("Custom Condition stacks", actionsText.ParameterName);
+            Assert.AreEqual("stacks", actionsText.ParameterLabel);
+            Assert.AreEqual(1, actionsText.associatedAction.Count);
+            Assert.AreEqual("Increment Stacks", actionsText.associatedAction[0].Name);
+
+            // Execute associatedAction through Session.PerformAction
+            session.PerformAction(socialText.associatedAction[0]);
+
+            var updatedParam = session.GetControllableParameters().First(p => p.Name == "Custom Condition stacks");
+            Assert.AreEqual(1, updatedParam.Value);
+            Assert.AreEqual(1, session.Character.paramValues["Custom Condition stacks"]);
+        }
     }
 }
+

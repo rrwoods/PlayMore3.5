@@ -163,5 +163,54 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(json["clear_slots"]);
             Assert.IsNull(json["unbind"], "Serialized SheetAction must not contain redundant unbind key.");
         }
+
+        [TestMethod]
+        public void SheetAction_Name_RoundTripsThroughJsonAndMatches() {
+            var namedAction = new SheetAction { Name = "Custom Action" }
+                .AdjustParam("TestParam", 1);
+
+            var json = (JObject)namedAction.ToJson();
+            Assert.AreEqual("Custom Action", (string)json["name"]);
+
+            var deserialized = new SheetAction(json);
+            Assert.AreEqual("Custom Action", deserialized.Name);
+            Assert.IsTrue(namedAction.Matches(deserialized));
+
+            var differentlyNamed = new SheetAction { Name = "Other Action" }
+                .AdjustParam("TestParam", 1);
+            Assert.IsFalse(namedAction.Matches(differentlyNamed));
+
+            var unnamedAction = new SheetAction().AdjustParam("TestParam", 1);
+            var unnamedJson = (JObject)unnamedAction.ToJson();
+            Assert.IsNull(unnamedJson["name"]);
+            Assert.IsFalse(namedAction.Matches(unnamedAction));
+        }
+
+        [TestMethod]
+        public void Effect_ParameterAndAssociatedActions_RoundTripThroughJsonAndApplyChoice() {
+            var action = new SheetAction { Name = "Trigger Counter" }
+                .AdjustParam("Test Effect counter", 1);
+            var effect = new Effect("Test Effect") {
+                Parameter = "counter ($)"
+            };
+            effect.associatedAction.Add(action);
+            effect.AddText("Actions", "A test effect with $.");
+
+            var json = (JObject)effect.ToJson();
+            Assert.AreEqual("counter ($)", (string)json["parameter"]);
+            Assert.IsNotNull(json["actions"]);
+
+            var deserialized = new Effect(json);
+            Assert.AreEqual("counter ($)", deserialized.Parameter);
+            Assert.AreEqual(1, deserialized.associatedAction.Count);
+            Assert.AreEqual("Trigger Counter", deserialized.associatedAction[0].Name);
+            Assert.IsTrue(action.Matches(deserialized.associatedAction[0]));
+
+            var applied = deserialized.ApplyChoice("alpha");
+            Assert.AreEqual("counter (alpha)", applied.Parameter);
+            Assert.AreEqual(1, applied.associatedAction.Count);
+            Assert.IsTrue(action.Matches(applied.associatedAction[0]));
+        }
     }
 }
+

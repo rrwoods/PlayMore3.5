@@ -18,6 +18,7 @@ namespace PlayMore35 {
 
         private readonly Dictionary<string, Label> usesLabels = new Dictionary<string, Label>();
         private readonly Dictionary<string, LabeledField> usedFields = new Dictionary<string, LabeledField>();
+        private readonly Dictionary<string, LabeledField> paramFields = new Dictionary<string, LabeledField>();
 
         private Label header;
 
@@ -95,6 +96,7 @@ namespace PlayMore35 {
             HashSet<string> inactiveFlags = new HashSet<string>(flags.Keys);
             HashSet<string> inactiveUses = new HashSet<string>(usesLabels.Keys);
             HashSet<string> inactiveUsed = new HashSet<string>(usedFields.Keys);
+            HashSet<string> inactiveParams = new HashSet<string>(paramFields.Keys);
             var parameters = session.GetControllableParameters().GroupBy(p => p.Name).ToDictionary(g => g.Key, g => g.First().Value);
             foreach (var flag in session.GetControllableFlags()) {
                 if (flag.Category != category || !flag.IsVisible) {
@@ -215,6 +217,7 @@ namespace PlayMore35 {
                         Label effectLabel;
                         Label usesLabel = null;
                         LabeledField usedField = null;
+                        LabeledField paramField = null;
                         string usedName = $"{name} used";
                         if (effectLabels.ContainsKey(name)) {
                             inactiveLabels.Remove(name);
@@ -249,7 +252,6 @@ namespace PlayMore35 {
                                     usedField = new LabeledField(usedName, mainForm, "used");
                                     usedFields[name] = usedField;
                                     Controls.Add(usedField);
-                                    SetFlowBreak(usedField, true);
                                     SheetAction use = new SheetAction().AdjustParam(usedName, 1);
                                     if (!text.Resource.RechargeTime.quantity.IsSingleOne()) {
                                         use.AndThen(new SheetAction()
@@ -261,18 +263,61 @@ namespace PlayMore35 {
                                         Text = $"Use {name}"
                                     };
                                     menuItem.Click += (s, e) => {
-                                        session.PerformAction(use);
+                                        mainForm.Session.PerformAction(use);
                                         mainForm.RefreshEffects();
                                     };
                                     effectLabel.ContextMenuStrip = new ContextMenuStrip();
                                     effectLabel.ContextMenuStrip.Items.Add(menuItem);
-                                } else {
-                                    SetFlowBreak(usesLabel, true);
                                 }
-                            } else {
-                                SetFlowBreak(effectLabel, true);
+                            }
+
+                            if (text.associatedAction != null && text.associatedAction.Any()) {
+                                if (effectLabel.ContextMenuStrip == null) {
+                                    effectLabel.ContextMenuStrip = new ContextMenuStrip();
+                                }
+                                foreach (SheetAction action in text.associatedAction) {
+                                    SheetAction capturedAction = action;
+                                    ToolStripMenuItem actionItem = new ToolStripMenuItem {
+                                        Text = !string.IsNullOrEmpty(capturedAction.Name) ? capturedAction.Name : $"Use {name}"
+                                    };
+                                    actionItem.Click += (s, e) => {
+                                        mainForm.Session.PerformAction(capturedAction);
+                                        mainForm.RefreshEffects();
+                                    };
+                                    effectLabel.ContextMenuStrip.Items.Add(actionItem);
+                                }
                             }
                         }
+
+                        if (!string.IsNullOrEmpty(text.ParameterName)) {
+                            if (paramFields.ContainsKey(name)) {
+                                inactiveParams.Remove(name);
+                                paramField = paramFields[name];
+                                paramField.Visible = true;
+                            } else {
+                                paramField = new LabeledField(text.ParameterName, mainForm, text.ParameterLabel);
+                                paramFields[name] = paramField;
+                                Controls.Add(paramField);
+                            }
+                            paramField.Value = parameters.TryGetValue(text.ParameterName, out int paramVal) ? paramVal : 0;
+                        }
+
+                        if (paramField != null) {
+                            SetFlowBreak(effectLabel, false);
+                            if (usesLabel != null) SetFlowBreak(usesLabel, false);
+                            if (usedField != null) SetFlowBreak(usedField, false);
+                            SetFlowBreak(paramField, true);
+                        } else if (usedField != null) {
+                            SetFlowBreak(effectLabel, false);
+                            SetFlowBreak(usesLabel, false);
+                            SetFlowBreak(usedField, true);
+                        } else if (usesLabel != null) {
+                            SetFlowBreak(effectLabel, false);
+                            SetFlowBreak(usesLabel, true);
+                        } else {
+                            SetFlowBreak(effectLabel, true);
+                        }
+
                         ToolTipTextLabel(effectLabel, desc);
                         if (usesLabel != null && text.Resource.RechargeTime.unit != AT_WILL) {
                             ToolTipTextLabel(usesLabel, string.Join("\n", text.Resource.DynamicUsesExplanation));
@@ -295,6 +340,9 @@ namespace PlayMore35 {
             }
             foreach (string name in inactiveUsed) {
                 usedFields[name].Visible = false;
+            }
+            foreach (string name in inactiveParams) {
+                paramFields[name].Visible = false;
             }
 
             Visible = any;

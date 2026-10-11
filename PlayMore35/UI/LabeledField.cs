@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace PlayMore35 {
-    class LabeledField : FlowLayoutPanel {
+    public class LabeledField : FlowLayoutPanel {
         public Label lblName;
         public TextBox txtValue;
 

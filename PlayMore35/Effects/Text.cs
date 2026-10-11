@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
+using PlayMore35.Global;
 using PlayMore35.Items;
 using System.Collections.Generic;
 using static PlayMore35.Effects.Constants;
@@ -7,6 +8,9 @@ namespace PlayMore35.Effects {
     public class Text : IJsonable {
         // not serialized; only populated when shipping effects over to the UI.
         public string Name = "";
+        public string ParameterName = "";
+        public string ParameterLabel = "";
+        public List<SheetAction> associatedAction = new List<SheetAction>();
 
         public string Category = "";
         public string Description = "";
@@ -39,6 +43,11 @@ namespace PlayMore35.Effects {
 
         public Text(Text copy) {
             Name = copy.Name;
+            ParameterName = copy.ParameterName;
+            ParameterLabel = copy.ParameterLabel;
+            associatedAction = copy.associatedAction != null
+                ? new List<SheetAction>(copy.associatedAction)
+                : new List<SheetAction>();
             Category = copy.Category;
             Description = copy.Description;
             Resource = copy.Resource;
