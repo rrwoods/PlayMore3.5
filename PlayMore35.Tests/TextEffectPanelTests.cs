@@ -162,6 +162,59 @@ namespace PlayMore35.Tests {
                 Assert.AreSame(actionsField, actionsPanel.Controls.OfType<LabeledField>().Single(f => f.lblName.Text == "counter"), "Actions panel should recycle its LabeledField.");
             }
         }
+
+        [TestMethod]
+        public void TextEffectPanel_RecycledEffectLabel_UpdatesContextMenuStripWhenAssociatedActionsChange() {
+            var panel = new TextEffectPanel {
+                Tag = SOCIAL,
+                DisplayStyle = TextEffectPanel.DisplayMode.MULTI_LINE_WITHOUT_HEADER
+            };
+
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+            var context = (ICharacterContext)session;
+
+            var initialAction = new SheetAction { Name = "Initial Action" }
+                .AdjustParam("Recycled Aura stacks", 1);
+
+            var initialEffect = new Effect("Recycled Aura")
+                .SetParameter("stacks")
+                .AddAction(initialAction)
+                .AddText(SOCIAL, "Initial social description.");
+
+            context.Effects.AddEffect(initialEffect);
+            context.Effects.GenerateUses(context.EquippedItems, character);
+
+            using (var form = new MainForm(session)) {
+                panel.Initialize(form);
+                panel.Update(session.GetTextEffects());
+
+                var effectLabel = panel.Controls.OfType<Label>().Single(l => l.Text == FormUtils.INDENT + "Recycled Aura");
+                Assert.IsNotNull(effectLabel.ContextMenuStrip);
+                Assert.AreEqual(1, effectLabel.ContextMenuStrip.Items.Count);
+                Assert.AreEqual("Initial Action", effectLabel.ContextMenuStrip.Items[0].Text);
+
+                var updatedEffect = new Effect("Recycled Aura")
+                    .SetParameter("stacks")
+                    .AddAction(new SheetAction { Name = "Updated Action 1" }.AdjustParam("Recycled Aura stacks", 2))
+                    .AddAction(new SheetAction { Name = "Updated Action 2" }.AdjustParam("Recycled Aura stacks", 5))
+                    .AddText(SOCIAL, "Updated social description.");
+
+                context.Effects.ReplaceEffect(updatedEffect);
+                panel.Update(session.GetTextEffects());
+
+                var recycledLabel = panel.Controls.OfType<Label>().Single(l => l.Text == FormUtils.INDENT + "Recycled Aura");
+                Assert.AreSame(effectLabel, recycledLabel, "Effect label should be recycled.");
+                Assert.IsNotNull(recycledLabel.ContextMenuStrip);
+                Assert.AreEqual(2, recycledLabel.ContextMenuStrip.Items.Count);
+                Assert.AreEqual("Updated Action 1", recycledLabel.ContextMenuStrip.Items[0].Text);
+                Assert.AreEqual("Updated Action 2", recycledLabel.ContextMenuStrip.Items[1].Text);
+
+                recycledLabel.ContextMenuStrip.Items[1].PerformClick();
+                panel.Update(session.GetTextEffects());
+                Assert.AreEqual(5, session.Character.paramValues["Recycled Aura stacks"]);
+            }
+        }
     }
 }
 

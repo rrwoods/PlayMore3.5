@@ -59,6 +59,48 @@ namespace PlayMore35 {
             }
         }
 
+        private ToolStripMenuItem CreateActionMenuItem(string text, SheetAction action) {
+            ToolStripMenuItem menuItem = new ToolStripMenuItem {
+                Text = text
+            };
+            menuItem.Click += (s, e) => {
+                mainForm.Session.PerformAction(action);
+                mainForm.RefreshEffects();
+            };
+            return menuItem;
+        }
+
+        private void UpdateEffectContextMenu(Label effectLabel, Text text, string usedName) {
+            List<ToolStripMenuItem> items = new List<ToolStripMenuItem>();
+            if (text.Resource != null && text.Resource.RechargeTime.unit != AT_WILL) {
+                SheetAction use = new SheetAction().AdjustParam(usedName, 1);
+                if (!text.Resource.RechargeTime.quantity.IsSingleOne()) {
+                    use.AndThen(new SheetAction()
+                        .Duration(text.Resource.RechargeTime.ToString())
+                        .AndThen(new SheetAction().AdjustParam(usedName, -1))
+                    );
+                }
+                items.Add(CreateActionMenuItem($"Use {text.Name}", use));
+            }
+
+            if (text.associatedAction != null && text.associatedAction.Any()) {
+                foreach (SheetAction action in text.associatedAction) {
+                    string actionText = !string.IsNullOrEmpty(action.Name) ? action.Name : $"Use {text.Name}";
+                    items.Add(CreateActionMenuItem(actionText, action));
+                }
+            }
+
+            if (items.Any()) {
+                if (effectLabel.ContextMenuStrip == null) {
+                    effectLabel.ContextMenuStrip = new ContextMenuStrip();
+                }
+                effectLabel.ContextMenuStrip.Items.Clear();
+                effectLabel.ContextMenuStrip.Items.AddRange(items.ToArray());
+            } else if (effectLabel.ContextMenuStrip != null) {
+                effectLabel.ContextMenuStrip.Items.Clear();
+            }
+        }
+
         public override void Update(Dictionary<string, List<Text>> textEffects) {
             string category = (string)Tag;
             var effects = textEffects[category];
@@ -252,42 +294,11 @@ namespace PlayMore35 {
                                     usedField = new LabeledField(usedName, mainForm, "used");
                                     usedFields[name] = usedField;
                                     Controls.Add(usedField);
-                                    SheetAction use = new SheetAction().AdjustParam(usedName, 1);
-                                    if (!text.Resource.RechargeTime.quantity.IsSingleOne()) {
-                                        use.AndThen(new SheetAction()
-                                            .Duration(text.Resource.RechargeTime.ToString())
-                                            .AndThen(new SheetAction().AdjustParam(usedName, -1))
-                                        );
-                                    }
-                                    ToolStripMenuItem menuItem = new ToolStripMenuItem {
-                                        Text = $"Use {name}"
-                                    };
-                                    menuItem.Click += (s, e) => {
-                                        mainForm.Session.PerformAction(use);
-                                        mainForm.RefreshEffects();
-                                    };
-                                    effectLabel.ContextMenuStrip = new ContextMenuStrip();
-                                    effectLabel.ContextMenuStrip.Items.Add(menuItem);
-                                }
-                            }
-
-                            if (text.associatedAction != null && text.associatedAction.Any()) {
-                                if (effectLabel.ContextMenuStrip == null) {
-                                    effectLabel.ContextMenuStrip = new ContextMenuStrip();
-                                }
-                                foreach (SheetAction action in text.associatedAction) {
-                                    SheetAction capturedAction = action;
-                                    ToolStripMenuItem actionItem = new ToolStripMenuItem {
-                                        Text = !string.IsNullOrEmpty(capturedAction.Name) ? capturedAction.Name : $"Use {name}"
-                                    };
-                                    actionItem.Click += (s, e) => {
-                                        mainForm.Session.PerformAction(capturedAction);
-                                        mainForm.RefreshEffects();
-                                    };
-                                    effectLabel.ContextMenuStrip.Items.Add(actionItem);
                                 }
                             }
                         }
+
+                        UpdateEffectContextMenu(effectLabel, text, usedName);
 
                         if (!string.IsNullOrEmpty(text.ParameterName)) {
                             if (paramFields.ContainsKey(name)) {

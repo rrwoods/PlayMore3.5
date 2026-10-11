@@ -31,7 +31,7 @@ namespace PlayMore35.CharacterChoices {
             if (!Influence.associatedAction.Any()) {
                 Influence.associatedAction.Add(
                     new SheetAction { Name = $"Defy {Influence.Name}" }
-                        .AdjustParam($"{Influence.Name} defied", 1)
+                        .AdjustParam(Influence.ParameterName, 1)
                 );
             }
             Abilities = ((JArray)json["abilities"]).Select(x => new Effect((JObject)x)).ToList();
