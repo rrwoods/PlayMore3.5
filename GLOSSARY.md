@@ -86,6 +86,10 @@ _Avoid_: Bonus type, category, bonus category
 A conditional state or switch that determines whether an effect or modifier is currently active.
 _Avoid_: Switch, flag, condition
 
+**Controllable Parameter**:
+A user-editable numeric counter or input on the character sheet (such as damage taken, Power Attack investment, ability uses expended, or vestige defiance count) that feeds dynamically into effect and modifier evaluations.
+_Avoid_: Rule parameter, stat input, counter
+
 **Timeline**:
 The sequential progression of combat rounds and game time that advances the duration of active effects and conditions.
 _Avoid_: Clock, round manager
@@ -123,6 +127,10 @@ _Avoid_: Bind slot, maneuver slot, slot
 **Resource Pool**:
 A quantitative allocation of consumable or replenishable subsystem units (such as spell slots per day, power points, or readied martial maneuvers).
 _Avoid_: Resource, pool, spell pool
+
+**Vestige Influence**:
+A personality quirk and behavioral requirement imposed by a bound vestige during a poor pact, whose defiance incurs cumulative penalties until the pact ends.
+_Avoid_: Bad pact effect, vestige penalty, pact flaw
 
 ### Inventory & Equipment
 

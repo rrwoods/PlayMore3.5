@@ -10,12 +10,17 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.
 
+### BUG:  Whirling Frenzy "after" effect sets fatigued flag, but it should instead increment fatigue level by 1.
+- This doesn't need a diagnosis but fixing it might be complicated.
+
 ### Odric Level Progression
 
 ### Level 1: Vestige defiance stacking
 - Vestige defiance shouldn't be a pact state, because each individual defiance of a vestige stacks the penalties.  For example, if you defy Naberious twice and Savnok once, you get three penalties.
   - Convert the defiance tracking from a pact state to a per-Influence-effect parameter.  When the vestige unbinds, that parameter should also be reset to zero.
   - The penalty effect should add up the values of all the influence defiance parameters.
+- Source:  Tome of Magic p10 (emphasis mine)
+  - "While under the influence of a vestige, you must adhere to its requirements to the best of your ability. If you are conscious and free-willed, and you encounter a situation in which you cannot or will not refrain from a prohibited action or perform a required one, you take a –1 penalty on attack rolls, saving throws, and checks until that vestige leaves you. If you are influenced by more than one vestige, you must act according to all their influences. If you fail to fulfill the requirements of more than one vestige **or disobey a single vestige more than once**, the penalties stack."
 
 ### Level 5: Martial Maneuvers
 - **[ODRIC 5] Tome of Battle Maneuver System**:
