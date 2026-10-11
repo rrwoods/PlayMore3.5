@@ -10,7 +10,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.
 
-
 ### Odric Level Progression
 
 ### Level 1: Vestige defiance stacking
@@ -58,6 +57,22 @@ Features required for the author's primary active character, alongside immediate
   - Store and display special requirements for binding vestiges in the Pact Magic / vestiges interface (e.g. alignment constraints, environmental conditions, or situational binding penalties from *Tome of Magic*).
 - **[ODRIC] Vestige Influence Penalties & Defiance Tracking**:
   - Model vestige influence requirements as directives rather than hard compulsions (*Tome of Magic* p. 10). Phrasing like "must" or "can't" functions as a law with penalties for violation; binders remain free-willed and can willingly choose to disobey ("cannot or will not").
+
+---
+
+## Tier 1.5: "Easy" UX
+
+Anything in this tier that turns out not to be easy should be deferred.
+
+- **Action Highlighter**:
+  - Provide checkboxes for remaining turn actions (standard, move, swift).
+  - Highlight usable abilities and attacks (single attack if standard available, full attack if full-round available, etc.) without hard locking.  Gray out non-usable ones.
+- **Chain of calculation**:
+  - When hovering a stat on the stats page, highlight other stats it affects in one color and stats affecting it in another.  E.g., when hovering Wisdom modifier, highlight Listen and Spot in the first color and Wisdom score in the second color.
+- **Vestige description tooltips**:
+  - When hovering a vestige on the Vestiges tab, I want to know its special requirements (if any), its influence, and its effects.
+- **Encumbrance and Carrying Capacity visibility**:
+  - Show the player what their weight limits are, and their current load category
 
 ---
 
@@ -161,12 +176,6 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
 
 ### 4.2 Dashboard & Combat UX
 *(Note: Section 0 restructuring is prioritized in Tier 1).*
-- **Action Highlighter**:
-  - Provide checkboxes for remaining turn actions (standard, move, swift).
-  - Highlight usable abilities and attacks (single attack if standard available, full attack if full-round available, etc.) without hard locking.
-- **Automated Attack Permutations**:
-  - Automatically calculate valid attack permutations (single attack, full iterative routine, two-handed grip, TWF combinations) with a sensible baseline initially visible.
-  - Combined attack and damage workflow: show roll damage button after attack roll (deferred with RollServer).
 - **Roll Button Feedback**:
   - Provide feedback if the roll button is clicked and no incoming Roll20 request is listening on `RollServer`. Alternatively, avoid presenting or enable/disable the roll button based on active incoming listener availability.
 - **Comprehensive Effects View**:
