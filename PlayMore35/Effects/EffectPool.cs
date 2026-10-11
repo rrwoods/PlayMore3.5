@@ -90,8 +90,8 @@ namespace PlayMore35.Effects {
         }
 
         private void RegisterEffectParameter(Effect effect, Character character) {
-            if (effect != null && !string.IsNullOrEmpty(effect.Parameter)) {
-                string paramName = $"{effect.Name} {effect.Parameter}";
+            if (effect != null && !string.IsNullOrEmpty(effect.ParameterName)) {
+                string paramName = effect.ParameterName;
                 if (!controllableParameters.ContainsKey(paramName) || character != null) {
                     controllableParameters[paramName] = new ControllableParameter(paramName, character) {
                         Category = "",
@@ -187,8 +187,8 @@ namespace PlayMore35.Effects {
             foreach (Effect e in AllEffects(items).Where(x => x.Toggle.On(this, items))) {
                 foreach (Text text in e.Text) {
                     Text filled = text.FillStatValues(this, items, e.Name);
-                    if (!string.IsNullOrEmpty(e.Parameter)) {
-                        filled.ParameterName = $"{e.Name} {e.Parameter}";
+                    if (!string.IsNullOrEmpty(e.ParameterName)) {
+                        filled.ParameterName = e.ParameterName;
                         filled.ParameterLabel = e.Parameter;
                     }
                     if (e.associatedAction.Any()) {

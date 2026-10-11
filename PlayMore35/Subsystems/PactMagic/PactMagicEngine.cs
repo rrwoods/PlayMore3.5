@@ -80,7 +80,7 @@ namespace PlayMore35.Subsystems.PactMagic {
             if (string.IsNullOrEmpty(vestigeName)) return;
             var vestige = contentProvider.GetVestige(vestigeName);
             if (vestige?.Influence == null) return;
-            string paramKey = $"{vestige.Influence.Name} defied";
+            string paramKey = vestige.Influence.ParameterName;
             if (context?.Character?.paramValues != null) {
                 context.Character.paramValues[paramKey] = 0;
             }
@@ -166,7 +166,7 @@ namespace PlayMore35.Subsystems.PactMagic {
 
                 if (slot.State == PactState.POOR_PACT && vestige.Influence != null) {
                     pool.AddEffect(vestige.Influence);
-                    string paramKey = $"{vestige.Influence.Name} defied";
+                    string paramKey = vestige.Influence.ParameterName;
                     if (!pool.controllableParameters.ContainsKey(paramKey) || context?.Character != null) {
                         pool.controllableParameters[paramKey] = new ControllableParameter(paramKey, context?.Character) {
                             Category = "",

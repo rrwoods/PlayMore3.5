@@ -15,6 +15,7 @@ namespace PlayMore35.Effects {
 
         public string Name { get; private set; }
         public string Parameter { get; set; } = "";
+        public string ParameterName => string.IsNullOrEmpty(Parameter) ? "" : $"{Name} {Parameter}";
         public IToggle Toggle = AlwaysOn.Instance;
 
         private readonly List<Alterer<ExtraAttack, Attack>> ExtraAttacks = new List<Alterer<ExtraAttack, Attack>>();
