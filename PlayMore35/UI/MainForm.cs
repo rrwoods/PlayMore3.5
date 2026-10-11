@@ -1398,7 +1398,6 @@ namespace PlayMore35 {
                 };
                 state.Items.Add("Good pact");
                 state.Items.Add("Poor pact");
-                state.Items.Add("Defied");
                 state.SelectedIndex = (int) (pactEngine?.GetSlot(i)?.State ?? PactState.GOOD_PACT);
                 state.Click += ChangePactState(i);
                 pactStates.Add(state);

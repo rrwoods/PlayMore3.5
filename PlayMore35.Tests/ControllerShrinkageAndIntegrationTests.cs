@@ -63,6 +63,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, vestigeProperties.Count, $"Expected 0 bespoke vestige properties on CharacterSession, but found: {string.Join(", ", vestigeProperties)}");
         }
 
+        // Source: Tome of Magic, p. 10
         [TestMethod]
         public void Subsystem_FullBindingLifecycle_WithTimelineAdvanceAndReload() {
             var vestige = CreateTestVestige("Aym", 1, 15);
@@ -89,22 +90,23 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be active in EffectPool.");
             Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Good Pact should not contribute influence effect.");
 
-            // Override pact state to Poor Pact
+            // Override pact state to Poor Pact and defy once
             engine.ChangePactState(0, PactState.POOR_PACT);
             session.Recalculate();
             Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should still be active in EffectPool.");
             Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Poor Pact should contribute influence effect.");
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"), "Poor Pact should contribute Vestige defiance effect.");
 
-            // Override pact state to Defied
-            engine.ChangePactState(0, PactState.DEFIED);
-            session.Recalculate();
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Defied pact retains ability effects.");
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Defied pact does not contribute influence effects.");
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Defied Aym"), "Defied pact contributes -1 penalties effect.");
+            int baseSaves = session.GetStatistic(FORT_SAVES).Value;
+            session.PerformAction(vestige.Influence.associatedAction.Single());
+            Assert.AreEqual(1, session.Character.paramValues["Aym Influence Effect defied"]);
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence Effect"), "Defied influence remains active.");
+            Assert.AreEqual(baseSaves - 1, session.GetStatistic(FORT_SAVES).Value);
 
             // Re-bind with Good Pact and schedule 24-hour expiration on timeline
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
             session.Recalculate();
+            Assert.AreEqual(0, session.Character.paramValues["Aym Influence Effect defied"], "Rebinding resets defiance parameter to 0.");
             Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"));
 
             session.Timeline.Schedule(new SheetAction().ClearSlot("vestige", 0), "24 hours");

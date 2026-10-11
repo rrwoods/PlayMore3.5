@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
+using PlayMore35.Global;
 
 namespace PlayMore35.CharacterChoices {
     public class Vestige : IJsonable {
@@ -26,6 +27,13 @@ namespace PlayMore35.CharacterChoices {
             Level = (int)json["level"];
             BindingDc = (int)json["binding DC"];
             Influence = new Effect((JObject)json["influence"]);
+            Influence.Parameter = "defied";
+            if (!Influence.associatedAction.Any()) {
+                Influence.associatedAction.Add(
+                    new SheetAction { Name = $"Defy {Influence.Name}" }
+                        .AdjustParam($"{Influence.Name} defied", 1)
+                );
+            }
             Abilities = ((JArray)json["abilities"]).Select(x => new Effect((JObject)x)).ToList();
         }
     }
