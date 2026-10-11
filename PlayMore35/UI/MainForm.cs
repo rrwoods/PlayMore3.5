@@ -658,7 +658,7 @@ namespace PlayMore35 {
         private void DisplayXp(bool scrollToBottom = true) {
             int xpNeeded = session.Character.ExperienceToNextLevel();
             int nextLevel = session.Character.classLevels.Count + 1;
-            btnAddLevel.Text = xpNeeded < 0
+            btnAddLevel.Text = xpNeeded <= 0
                 ? "Level Up!"
                 : $"{xpNeeded.ToString("#,###")} XP to level {nextLevel}";
 

@@ -13,7 +13,6 @@ Features required for the author's primary active character, alongside immediate
 
 ### Baseline Mechanics & Bug Fixes
 - **[BUG] Feat Choices Persistence**: Fix bug where feat choices persist across levels when clicking the `...` button (e.g. clicking level 4 first shows the weapon focus choice on all other levels; clicking level 1–3 blanks the weapon choice for level 4).
-- **[BUG] Level-Up Experience Threshold**: Fix UI display showing `"0 XP to level 4"`.
 
 ### Odric Level Progression
 
