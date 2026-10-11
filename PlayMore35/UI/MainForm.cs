@@ -78,6 +78,11 @@ namespace PlayMore35 {
         public MainForm() {
             InitializeComponent();
 
+            ledgerXp.AlignInputControls(dtpSessionDate, txtSessionDesc, txtSessionXp, btnAddSession);
+            ledgerGold.AlignInputControls(dtpTransactionDate, txtTransactionDesc, txtTransactionGp, btnAddTransaction);
+            txtLocationName.Left = ledgerGold.Left - txtLocationName.Width - 24;
+            btnAddLocation.Left = txtLocationName.Left;
+
             explorationPanel.Category = EXPLORATION;
             explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SURVIVAL));
             explorationPanel.SkillDeclarations.Add(new SkillDeclaration(SEARCH));

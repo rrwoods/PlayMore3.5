@@ -1,4 +1,4 @@
-﻿# Coding Standards
+# Coding Standards
 
 ## Code Architecture and Test Seams
 
@@ -9,7 +9,6 @@
 
 - **`ScrollableControl` layout resets**: Before calling `Controls.Clear()` or toggling `AutoScroll` inside `SuspendLayout()`, explicitly reset `AutoScrollPosition = Point.Empty` and `AutoScroll = false`. Otherwise, WinForms offsets newly added child control coordinates relative to the negative `DisplayRectangle.Y` scroll position, causing rows to drift out of bounds when `AutoScroll` is later disabled.
 - **Sibling bounds and Z-order in `*.Designer.cs`**: When placing or resizing controls on a `TabPage` or `Panel`, verify bounding-box coordinates (`Location` and `Size`) against sibling controls on the same parent and check `Controls.Add(...)` Z-order so top-anchored or expanding panels are not occluded.
-- **Column and input alignment**: Align custom tabular/header column X-coordinates and widths (`DateOverridePicker`, `TabularLedgerPanel` columns) directly with the X-coordinates of their corresponding input controls (`dtp*`, `txt*Desc`, `txt*Amount`).
 - **Navigating `*.Designer.cs`**: `MainForm.Designer.cs` separates control initialization from field declarations by ~1,800 lines. Run `git grep -n "this.<controlName>" -- PlayMore35/UI/MainForm.Designer.cs` first to locate exact line numbers rather than reading the file in sequential slices.
 - **`.csproj` `<SubType>` metadata**: Every `Form`, `UserControl`, or `Component` file added to `PlayMore35/PlayMore35.csproj` must include the matching `<SubType>` child element (`Form`, `UserControl`, or `Component`) so Visual Studio does not dirty the project file on open (enforced by `BaselineTests.PlayMore35Csproj_WinFormsTypesHaveExpectedSubType`).
 
