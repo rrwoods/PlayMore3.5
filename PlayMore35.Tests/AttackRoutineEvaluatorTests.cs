@@ -163,5 +163,40 @@ namespace PlayMore35.Tests {
             var spikesTwf = routines.FirstOrDefault(r => r.Category == RoutineCategory.ArmorSpikesTWF);
             Assert.IsNotNull(spikesTwf, "Armor spikes TWF routine must exist");
         }
+
+        // Source: Player's Handbook 3.5, p. 143, p. 160
+        [TestMethod]
+        public void EvaluateRoutines_MorningstarAndDagger_GeneratesMeleeAndThrownFullAttackRoutine() {
+            var session = CreateSessionWithFighter(1, strScore: 14);
+            session.Mutate(c => {
+                c.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "morningstar" };
+                c.equipped.OffHandWeapon = new WeaponChoice { Name = "dagger" };
+            });
+
+            var visibleRoutines = session.GetVisibleRoutines();
+
+            var meleeAndMelee = visibleRoutines.FirstOrDefault(r =>
+                r.ActionType == RoutineActionType.FullAttack &&
+                r.Category == RoutineCategory.TwoWeaponFighting &&
+                r.Attacks.Count == 2 &&
+                r.Attacks[0].WeaponName == "morningstar" &&
+                r.Attacks[0].Range == Weapon.Range.MELEE &&
+                r.Attacks[1].WeaponName == "dagger" &&
+                r.Attacks[1].Range == Weapon.Range.MELEE
+            );
+            Assert.IsNotNull(meleeAndMelee, "Expected a visible Full Attack TWF routine with melee morningstar and melee dagger");
+
+            var meleeAndThrown = visibleRoutines.FirstOrDefault(r =>
+                r.ActionType == RoutineActionType.FullAttack &&
+                r.Category == RoutineCategory.TwoWeaponFighting &&
+                r.Attacks.Count == 2 &&
+                r.Attacks[0].WeaponName == "morningstar" &&
+                r.Attacks[0].Range == Weapon.Range.MELEE &&
+                r.Attacks[1].WeaponName == "dagger" &&
+                r.Attacks[1].Range == Weapon.Range.THROWN
+            );
+            Assert.IsNotNull(meleeAndThrown, "Expected a visible Full Attack TWF routine with melee morningstar and thrown dagger");
+            Assert.AreEqual(10, meleeAndThrown.Attacks[1].RangeIncrement);
+        }
     }
 }

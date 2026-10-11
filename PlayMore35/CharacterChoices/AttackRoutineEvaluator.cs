@@ -74,6 +74,31 @@ namespace PlayMore35.Items {
             return result;
         }
 
+        private static List<Attack> GetTwfWeaponAttacks(
+            EffectPool rules,
+            Equipped items,
+            Weapon weapon,
+            Weapon.Hand hand,
+            int wpnSizeCategory,
+            int sizeDiscrepancy,
+            int twfPenalty
+        ) {
+            var attacks = new List<Attack>();
+            if (weapon.Melee != null) {
+                var melee = Attack.Melee(rules, items, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty);
+                if (melee != null) attacks.Add(melee);
+            }
+            if (weapon.Projectile != null) {
+                var proj = Attack.Projectile(rules, items, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty);
+                if (proj != null) attacks.Add(proj);
+            }
+            if (weapon.CanBeThrown()) {
+                var thrown = Attack.Thrown(rules, items, weapon, hand, wpnSizeCategory, sizeDiscrepancy, twfPenalty);
+                if (thrown != null) attacks.Add(thrown);
+            }
+            return attacks;
+        }
+
         public static List<AttackRoutine> EvaluateRoutines(EffectPool rules, Equipped items, int sizeDiscrepancy = 0) {
             var routines = new List<AttackRoutine>();
             if (rules == null || items == null) {
@@ -283,25 +308,32 @@ namespace PlayMore35.Items {
 
                         // Armor spikes TWF with two-handed/single weapon
                         if (spikesAvailable) {
-                            Attack primaryForSpikes = null;
+                            var primaryForSpikesList = new List<Attack>();
                             if (primary.Melee != null) {
-                                primaryForSpikes = Attack.Melee(rules, items, primary, Weapon.Hand.TWO_HANDED_TWF, priSizeCategory, priSizeDiscrepancy, -4);
-                            } else if (primary.Projectile != null) {
-                                primaryForSpikes = Attack.Projectile(rules, items, primary, Weapon.Hand.TWO_HANDED_TWF, priSizeCategory, priSizeDiscrepancy, -4);
-                            } else if (primary.CanBeThrown()) {
-                                primaryForSpikes = Attack.Thrown(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, -4);
+                                var melee = Attack.Melee(rules, items, primary, Weapon.Hand.TWO_HANDED_TWF, priSizeCategory, priSizeDiscrepancy, -4);
+                                if (melee != null) primaryForSpikesList.Add(melee);
+                            }
+                            if (primary.Projectile != null) {
+                                var proj = Attack.Projectile(rules, items, primary, Weapon.Hand.TWO_HANDED_TWF, priSizeCategory, priSizeDiscrepancy, -4);
+                                if (proj != null) primaryForSpikesList.Add(proj);
+                            }
+                            if (primary.CanBeThrown()) {
+                                var thrown = Attack.Thrown(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, -4);
+                                if (thrown != null) primaryForSpikesList.Add(thrown);
                             }
 
-                            if (primaryForSpikes != null) {
-                                Attack spikesTwf = Attack.ArmorSpikes(rules, items, Weapon.Hand.OFF_HAND_TWF, armSizeCategory, -8);
-                                var twfWithSpikes = BuildProgressionTierAttacks(rules, items, primaryForSpikes, spikesTwf);
-                                routines.Add(new AttackRoutine(
-                                    RoutineActionType.FullAttack,
-                                    RoutineCategory.ArmorSpikesTWF,
-                                    $"{primary.Name} + Armor Spikes Full Attack",
-                                    new[] { primary },
-                                    twfWithSpikes
-                                ));
+                            Attack spikesTwf = Attack.ArmorSpikes(rules, items, Weapon.Hand.OFF_HAND_TWF, armSizeCategory, -8);
+                            if (spikesTwf != null) {
+                                foreach (var primaryForSpikes in primaryForSpikesList) {
+                                    var twfWithSpikes = BuildProgressionTierAttacks(rules, items, primaryForSpikes, spikesTwf);
+                                    routines.Add(new AttackRoutine(
+                                        RoutineActionType.FullAttack,
+                                        RoutineCategory.ArmorSpikesTWF,
+                                        $"{primary.Name} + Armor Spikes Full Attack",
+                                        new[] { primary },
+                                        twfWithSpikes
+                                    ));
+                                }
                             }
                         }
                     } else if (priEffort < Weapon.Effort.TWO_HANDED) {
@@ -385,27 +417,20 @@ namespace PlayMore35.Items {
                                 int twfPri = offEffort == Weapon.Effort.LIGHT ? -4 : -6;
                                 int twfOff = offEffort == Weapon.Effort.LIGHT ? -8 : -10;
 
-                                Attack priTwf = primary.Melee != null
-                                    ? Attack.Melee(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri)
-                                    : (primary.Projectile != null
-                                        ? Attack.Projectile(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri)
-                                        : Attack.Thrown(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri));
+                                var priTwfAttacks = GetTwfWeaponAttacks(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri);
+                                var offTwfAttacks = GetTwfWeaponAttacks(rules, items, offHand, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, twfOff);
 
-                                Attack offTwf = offHand.Melee != null
-                                    ? Attack.Melee(rules, items, offHand, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, twfOff)
-                                    : (offHand.Projectile != null
-                                        ? Attack.Projectile(rules, items, offHand, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, twfOff)
-                                        : Attack.Thrown(rules, items, offHand, Weapon.Hand.OFF_HAND_TWF, offSizeCategory, offSizeDiscrepancy, twfOff));
-
-                                if (priTwf != null && offTwf != null) {
-                                    var twfAttacks = BuildProgressionTierAttacks(rules, items, priTwf, offTwf);
-                                    routines.Add(new AttackRoutine(
-                                        RoutineActionType.FullAttack,
-                                        RoutineCategory.TwoWeaponFighting,
-                                        $"{primary.Name} / {offHand.Name} Full Attack",
-                                        new[] { primary, offHand },
-                                        twfAttacks
-                                    ));
+                                foreach (var priTwf in priTwfAttacks) {
+                                    foreach (var offTwf in offTwfAttacks) {
+                                        var twfAttacks = BuildProgressionTierAttacks(rules, items, priTwf, offTwf);
+                                        routines.Add(new AttackRoutine(
+                                            RoutineActionType.FullAttack,
+                                            RoutineCategory.TwoWeaponFighting,
+                                            $"{primary.Name} / {offHand.Name} Full Attack",
+                                            new[] { primary, offHand },
+                                            twfAttacks
+                                        ));
+                                    }
                                 }
                             }
                         }
@@ -416,43 +441,37 @@ namespace PlayMore35.Items {
                             int twfPri = offEffort == Weapon.Effort.LIGHT ? -4 : -6;
                             int twfOff = offEffort == Weapon.Effort.LIGHT ? -8 : -10;
 
-                            Attack priTwf = primary.Melee != null
-                                ? Attack.Melee(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri)
-                                : (primary.Projectile != null
-                                    ? Attack.Projectile(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri)
-                                    : Attack.Thrown(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri));
-
+                            var priTwfAttacks = GetTwfWeaponAttacks(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, twfPri);
                             Attack shieldTwf = Attack.ShieldBash(rules, items, Weapon.Hand.OFF_HAND_TWF, shSizeCategory, shSizeDiscrepancy, twfOff);
-                            if (priTwf != null && shieldTwf != null) {
-                                var shieldTwfAttacks = BuildProgressionTierAttacks(rules, items, priTwf, shieldTwf);
-                                routines.Add(new AttackRoutine(
-                                    RoutineActionType.FullAttack,
-                                    RoutineCategory.OffHandShieldBash,
-                                    $"{primary.Name} / Shield Bash Full Attack",
-                                    new[] { primary },
-                                    shieldTwfAttacks
-                                ));
+                            if (shieldTwf != null) {
+                                foreach (var priTwf in priTwfAttacks) {
+                                    var shieldTwfAttacks = BuildProgressionTierAttacks(rules, items, priTwf, shieldTwf);
+                                    routines.Add(new AttackRoutine(
+                                        RoutineActionType.FullAttack,
+                                        RoutineCategory.OffHandShieldBash,
+                                        $"{primary.Name} / Shield Bash Full Attack",
+                                        new[] { primary },
+                                        shieldTwfAttacks
+                                    ));
+                                }
                             }
                         }
 
                         // TWF with Armor Spikes
                         if (spikesAvailable) {
-                            Attack priTwf = primary.Melee != null
-                                ? Attack.Melee(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, -4)
-                                : (primary.Projectile != null
-                                    ? Attack.Projectile(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, -4)
-                                    : Attack.Thrown(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, -4));
-
+                            var priTwfAttacks = GetTwfWeaponAttacks(rules, items, primary, Weapon.Hand.PRIMARY_HAND_TWF, priSizeCategory, priSizeDiscrepancy, -4);
                             Attack spikesTwf = Attack.ArmorSpikes(rules, items, Weapon.Hand.OFF_HAND_TWF, armSizeCategory, -8);
-                            if (priTwf != null && spikesTwf != null) {
-                                var spikesTwfAttacks = BuildProgressionTierAttacks(rules, items, priTwf, spikesTwf);
-                                routines.Add(new AttackRoutine(
-                                    RoutineActionType.FullAttack,
-                                    RoutineCategory.ArmorSpikesTWF,
-                                    $"{primary.Name} / Armor Spikes Full Attack",
-                                    new[] { primary },
-                                    spikesTwfAttacks
-                                ));
+                            if (spikesTwf != null) {
+                                foreach (var priTwf in priTwfAttacks) {
+                                    var spikesTwfAttacks = BuildProgressionTierAttacks(rules, items, priTwf, spikesTwf);
+                                    routines.Add(new AttackRoutine(
+                                        RoutineActionType.FullAttack,
+                                        RoutineCategory.ArmorSpikesTWF,
+                                        $"{primary.Name} / Armor Spikes Full Attack",
+                                        new[] { primary },
+                                        spikesTwfAttacks
+                                    ));
+                                }
                             }
                         }
                     }
