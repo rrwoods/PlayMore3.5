@@ -76,9 +76,24 @@ namespace PlayMore35.Subsystems.PactMagic {
             return slot;
         }
 
+        private void ResetDefiance(string vestigeName) {
+            if (string.IsNullOrEmpty(vestigeName)) return;
+            var vestige = contentProvider.GetVestige(vestigeName);
+            if (vestige?.Influence == null) return;
+            string paramKey = $"{vestige.Influence.Name} defied";
+            if (context?.Character?.paramValues != null) {
+                context.Character.paramValues[paramKey] = 0;
+            }
+            if (context?.Effects?.controllableParameters != null &&
+                context.Effects.controllableParameters.TryGetValue(paramKey, out var param)) {
+                param.Value = 0;
+            }
+        }
+
         public void ClearSlot(int slotIndex) {
             EnsureSlotsLoaded();
             if (slotIndex >= 0 && slotIndex < SlotCount) {
+                ResetDefiance(GetSlot(slotIndex)?.VestigeName);
                 slots[slotIndex] = new PactSlot("", PactState.GOOD_PACT);
                 SyncState();
             }
@@ -87,6 +102,8 @@ namespace PlayMore35.Subsystems.PactMagic {
         public void BindVestige(int slotIndex, string vestigeName, PactState state = PactState.GOOD_PACT) {
             EnsureSlotsLoaded();
             if (slotIndex >= 0 && slotIndex < SlotCount) {
+                ResetDefiance(GetSlot(slotIndex)?.VestigeName);
+                ResetDefiance(vestigeName);
                 slots[slotIndex] = new PactSlot(vestigeName ?? "", state);
                 SyncState();
             }
@@ -96,6 +113,9 @@ namespace PlayMore35.Subsystems.PactMagic {
             EnsureSlotsLoaded();
             if (slotIndex >= 0 && slotIndex < SlotCount) {
                 var current = GetSlot(slotIndex);
+                if (state == PactState.GOOD_PACT) {
+                    ResetDefiance(current?.VestigeName);
+                }
                 current.State = state;
                 SyncState();
             }
@@ -136,6 +156,7 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
             if (pool == null) return;
+            List<string> defianceParams = new List<string>();
             for (int i = 0; i < SlotCount; i++) {
                 var slot = GetSlot(i);
                 if (slot == null || string.IsNullOrEmpty(slot.VestigeName)) continue;
@@ -143,15 +164,16 @@ namespace PlayMore35.Subsystems.PactMagic {
                 var vestige = contentProvider.GetVestige(slot.VestigeName);
                 if (vestige == null) continue;
 
-                if (slot.State == PactState.POOR_PACT) {
+                if (slot.State == PactState.POOR_PACT && vestige.Influence != null) {
                     pool.AddEffect(vestige.Influence);
-                } else if (slot.State == PactState.DEFIED) {
-                    pool.AddEffect(new Effect($"Defied {vestige.Name}")
-                        .AddAttackModifier(AttackMatcher.ALL, new Modifier(-1, UNTYPED))
-                        .AddModifier(ALL_SAVES, new Modifier(-1, UNTYPED))
-                        .AddModifier(ABILITY_CHECKS, new Modifier(-1, UNTYPED))
-                        .AddModifier(ALL_SKILLS, new Modifier(-1, UNTYPED))
-                    );
+                    string paramKey = $"{vestige.Influence.Name} defied";
+                    if (!pool.controllableParameters.ContainsKey(paramKey) || context?.Character != null) {
+                        pool.controllableParameters[paramKey] = new ControllableParameter(paramKey, context?.Character) {
+                            Category = "",
+                            Description = ""
+                        };
+                    }
+                    defianceParams.Add(paramKey);
                 }
 
                 if (vestige.Abilities != null) {
@@ -159,6 +181,23 @@ namespace PlayMore35.Subsystems.PactMagic {
                         pool.AddEffect(ability);
                     }
                 }
+            }
+
+            if (defianceParams.Any()) {
+                Modifier CreateDefianceModifier() {
+                    Modifier mod = new Modifier(UNTYPED);
+                    foreach (string paramKey in defianceParams) {
+                        mod.AddAmount(new MultiplyAmount(-1, new ControllableAmount(paramKey)));
+                    }
+                    return mod;
+                }
+
+                pool.AddEffect(new Effect("Vestige defiance")
+                    .AddAttackModifier(AttackMatcher.ALL, CreateDefianceModifier())
+                    .AddModifier(ALL_SAVES, CreateDefianceModifier())
+                    .AddModifier(ABILITY_CHECKS, CreateDefianceModifier())
+                    .AddModifier(ALL_SKILLS, CreateDefianceModifier())
+                );
             }
         }
 

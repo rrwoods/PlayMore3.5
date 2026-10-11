@@ -1058,8 +1058,7 @@ namespace PlayMore35 {
             this.lstPactState.ItemHeight = 17;
             this.lstPactState.Items.AddRange(new object[] {
             "Good pact",
-            "Poor pact",
-            "Defied"});
+            "Poor pact"});
             this.lstPactState.Location = new System.Drawing.Point(6, 23);
             this.lstPactState.Name = "lstPactState";
             this.lstPactState.Size = new System.Drawing.Size(179, 55);

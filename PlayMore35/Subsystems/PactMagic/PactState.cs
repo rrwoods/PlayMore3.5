@@ -1,7 +1,6 @@
-﻿namespace PlayMore35.Subsystems.PactMagic {
+namespace PlayMore35.Subsystems.PactMagic {
     public enum PactState {
         GOOD_PACT,
-        POOR_PACT,
-        DEFIED
+        POOR_PACT
     }
 }
