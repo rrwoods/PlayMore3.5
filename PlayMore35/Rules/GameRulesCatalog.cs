@@ -38,14 +38,9 @@ namespace PlayMore35.Rules {
         private static readonly IReadOnlyList<string> crossbows = new string[] { "hand crossbow", "light crossbow" };
 
         public GameRulesCatalog(string customSaveDir = null) {
-            if (customSaveDir != null) {
-                saveDir = customSaveDir;
-            } else {
-                string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                saveDir = $@"{documentsPath}\PlayMore3.5";
-            }
+            saveDir = customSaveDir;
 
-            if (!Directory.Exists(saveDir)) {
+            if (saveDir != null && !Directory.Exists(saveDir)) {
                 Directory.CreateDirectory(saveDir);
             }
 
@@ -144,12 +139,16 @@ namespace PlayMore35.Rules {
 
         private JToken GetResource(byte[] resource, string altFilename) {
             string json;
-            string savePath = $@"{saveDir}\{altFilename}";
-            if (File.Exists(savePath)) {
-                json = File.ReadAllText(savePath);
+            if (saveDir != null) {
+                string savePath = Path.Combine(saveDir, altFilename);
+                if (File.Exists(savePath)) {
+                    json = File.ReadAllText(savePath);
+                } else {
+                    json = Encoding.UTF8.GetString(resource);
+                    File.WriteAllText(savePath, json);
+                }
             } else {
                 json = Encoding.UTF8.GetString(resource);
-                File.WriteAllText(savePath, json);
             }
             return JToken.Parse(json);
         }

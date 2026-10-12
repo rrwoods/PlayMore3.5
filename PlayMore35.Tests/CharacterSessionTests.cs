@@ -228,5 +228,108 @@ namespace PlayMore35.Tests {
             Assert.AreSame(sTieAll1, sorted[3], "Identical game and real times must preserve insertion order.");
             Assert.AreSame(sTieAll2, sorted[4], "Identical game and real times must preserve insertion order.");
         }
+
+        // Source: System Reference Document 3.5, Condition Summary — Fatigued (https://www.d20srd.org/srd/conditionSummary.htm#fatigued)
+        [TestMethod]
+        public void WhirlingFrenzy_AfterEffect_IncrementsFatigueLevelByOne_AndRevertsAtEncounterEnd() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+            session.Mutate(c => {
+                c.race = "human";
+                c.classLevels.Clear();
+                c.classLevels.Add("Barbarian");
+                c.assignedAbilityScores["STR"] = 14;
+                c.assignedAbilityScores["DEX"] = 12;
+                c.assignedAbilityScores["CON"] = 14;
+                c.assignedAbilityScores["INT"] = 10;
+                c.assignedAbilityScores["WIS"] = 10;
+                c.assignedAbilityScores["CHA"] = 10;
+            });
+
+            Assert.AreEqual(0, session.GetStatistic("Fatigue level").Value);
+            Assert.AreEqual(14, session.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(12, session.GetStatistic(Constants.DEX_SCORE).Value);
+
+            session.StartCombat();
+
+            var frenzyFlag = session.GetControllableFlags().First(f => f.Name == "whirling frenzy");
+            var frenzyAction = new SheetAction().SetFlag(frenzyFlag.Name).Duration(frenzyFlag.EffectDuration);
+            if (frenzyFlag.ActionAfter != null) {
+                frenzyAction.AndThen(frenzyFlag.ActionAfter);
+            }
+            session.PerformAction(frenzyAction);
+
+            Assert.IsTrue(session.HasFlag("whirling frenzy"));
+            Assert.AreEqual(18, session.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(0, session.GetStatistic("Fatigue level").Value);
+
+            // Advance 5 rounds so frenzy expires and after-effect triggers
+            session.AdvanceTimeline(5);
+
+            Assert.IsFalse(session.HasFlag("whirling frenzy"));
+            Assert.AreEqual(1, session.GetStatistic("Fatigue level").Value);
+            Assert.AreEqual(12, session.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(10, session.GetStatistic(Constants.DEX_SCORE).Value);
+            Assert.IsTrue(session.HasFlag("Can't run or charge"));
+
+            // End combat reverts the encounter duration fatigue
+            session.EndCombat();
+
+            Assert.AreEqual(0, session.GetStatistic("Fatigue level").Value);
+            Assert.AreEqual(14, session.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(12, session.GetStatistic(Constants.DEX_SCORE).Value);
+            Assert.IsFalse(session.HasFlag("Can't run or charge"));
+        }
+
+        // Source: System Reference Document 3.5, Condition Summary — Fatigued (https://www.d20srd.org/srd/conditionSummary.htm#fatigued)
+        // Source: System Reference Document 3.5, Condition Summary — Exhausted (https://www.d20srd.org/srd/conditionSummary.htm#exhausted)
+        [TestMethod]
+        public void WhirlingFrenzy_AfterEffect_StacksWithExistingFatiguedToExhausted() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+            session.Mutate(c => {
+                c.race = "human";
+                c.classLevels.Clear();
+                c.classLevels.Add("Barbarian");
+                c.assignedAbilityScores["STR"] = 14;
+                c.assignedAbilityScores["DEX"] = 12;
+                c.assignedAbilityScores["CON"] = 14;
+                c.assignedAbilityScores["INT"] = 10;
+                c.assignedAbilityScores["WIS"] = 10;
+                c.assignedAbilityScores["CHA"] = 10;
+            });
+
+            // Character is already fatigued via manual condition flag
+            session.SetFlag("fatigued", true);
+            Assert.AreEqual(1, session.GetStatistic("Fatigue level").Value);
+            Assert.AreEqual(12, session.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(10, session.GetStatistic(Constants.DEX_SCORE).Value);
+
+            session.StartCombat();
+
+            var frenzyFlag = session.GetControllableFlags().First(f => f.Name == "whirling frenzy");
+            var frenzyAction = new SheetAction().SetFlag(frenzyFlag.Name).Duration(frenzyFlag.EffectDuration);
+            if (frenzyFlag.ActionAfter != null) {
+                frenzyAction.AndThen(frenzyFlag.ActionAfter);
+            }
+            session.PerformAction(frenzyAction);
+
+            // Advance 5 rounds so frenzy expires and after-effect increments fatigue level from 1 to 2
+            session.AdvanceTimeline(5);
+
+            Assert.IsFalse(session.HasFlag("whirling frenzy"));
+            Assert.AreEqual(2, session.GetStatistic("Fatigue level").Value);
+            // Exhausted: -6 penalty to STR and DEX
+            Assert.AreEqual(8, session.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(6, session.GetStatistic(Constants.DEX_SCORE).Value);
+            Assert.IsTrue(session.HasFlag("Can't run or charge"));
+
+            // End combat reverts only the encounter-duration increment (-1), leaving manual fatigued (+1) intact
+            session.EndCombat();
+
+            Assert.AreEqual(1, session.GetStatistic("Fatigue level").Value);
+            Assert.AreEqual(12, session.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(10, session.GetStatistic(Constants.DEX_SCORE).Value);
+        }
     }
 }

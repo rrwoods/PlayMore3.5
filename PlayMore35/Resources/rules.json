@@ -4880,6 +4880,21 @@
       ]
     },
     {
+      "name": "fatigue",
+      "parameter": "effects",
+      "modifiers": [
+        {
+          "affects": "Fatigue level",
+          "mod": {
+            "type": "untyped",
+            "amounts": [
+              { "controllable": "fatigue effects" }
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "fatigued checked",
       "active": { "flag": "fatigued" },
       "modifiers": [

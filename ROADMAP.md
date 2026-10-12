@@ -10,9 +10,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.
 
-### BUG:  Whirling Frenzy "after" effect sets fatigued flag, but it should instead increment fatigue level by 1.
-- This doesn't need a diagnosis but fixing it might be complicated.
-
 ### Odric Level Progression
 
 ### Level 5: Martial Maneuvers

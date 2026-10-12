@@ -34,7 +34,7 @@
             "recharge": "day",
             "duration": "{{frenzy duration}} rounds",
             "after": {
-              "set": [ "fatigued" ],
+              "adjust": { "fatigue effects": 1 },
               "duration": "encounter"
             }
           }
