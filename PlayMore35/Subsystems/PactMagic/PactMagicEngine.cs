@@ -166,14 +166,7 @@ namespace PlayMore35.Subsystems.PactMagic {
 
                 if (slot.State == PactState.POOR_PACT && vestige.Influence != null) {
                     pool.AddEffect(vestige.Influence);
-                    string paramKey = vestige.Influence.ParameterName;
-                    if (!pool.controllableParameters.ContainsKey(paramKey) || context?.Character != null) {
-                        pool.controllableParameters[paramKey] = new ControllableParameter(paramKey, context?.Character) {
-                            Category = "",
-                            Description = ""
-                        };
-                    }
-                    defianceParams.Add(paramKey);
+                    defianceParams.Add(vestige.Influence.ParameterName);
                 }
 
                 if (vestige.Abilities != null) {

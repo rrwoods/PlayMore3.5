@@ -30,7 +30,7 @@ namespace PlayMore35.Tests {
         private (MockCharacterContext context, Timeline timeline, EffectPool effects) CreateTestContext() {
             var timeline = new Timeline();
             var character = new Character { Timeline = timeline };
-            var effects = new EffectPool();
+            var effects = new EffectPool(character);
             var context = new MockCharacterContext {
                 Character = character,
                 Effects = effects,

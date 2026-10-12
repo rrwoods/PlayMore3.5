@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
 
@@ -58,6 +58,19 @@ namespace PlayMore35.Items {
             }
 
             return all;
+        }
+
+        public void ContributeEffects(EffectPool pool) {
+            if (pool == null) return;
+            foreach (Effect effect in GetGlobalEffects()) {
+                pool.AddEffect(effect);
+            }
+            var activeSlottedItems = DonnedArmor == null
+                ? SlottedItems.Values
+                : SlottedItems.Where(x => x.Key != Slot.BODY).Select(x => x.Value);
+            foreach (Item item in activeSlottedItems.Concat(SlotlessItems)) {
+                item.NewFlags.ForEach(x => pool.AddFlag(x));
+            }
         }
     }
 }

@@ -32,7 +32,7 @@ namespace PlayMore35.Tests {
             var timeline = new Timeline();
             character.Timeline = timeline;
 
-            var effects = new EffectPool();
+            var effects = new EffectPool(character);
             var flag = new ControllableFlag("TestFlag", character);
             var param = new ControllableParameter("TestParam", character);
 

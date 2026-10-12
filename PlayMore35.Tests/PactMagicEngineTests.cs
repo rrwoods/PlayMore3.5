@@ -15,11 +15,16 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class PactMagicEngineTests {
         private class TestContext : ICharacterContext {
-            public Character Character { get; set; } = new Character();
-            public EffectPool Effects { get; set; } = new EffectPool();
+            public Character Character { get; set; }
+            public EffectPool Effects { get; set; }
             public Equipped EquippedItems { get; set; } = new Equipped();
             public Timeline Timeline => Character?.Timeline;
             public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
+
+            public TestContext() {
+                Character = new Character();
+                Effects = new EffectPool(Character);
+            }
 
             public void ClearSlot(string subsystem, int slotIndex) {
                 var slotted = Subsystems.Get(subsystem) as ISlottedSubsystem;
@@ -105,7 +110,7 @@ namespace PlayMore35.Tests {
             Assert.IsFalse(engine.IsActive);
 
             // Set number of vestiges = 1 -> active
-            context.Effects = new EffectPool();
+            context.Effects = new EffectPool(context.Character);
             SetStat(context.Effects, NUM_VESTIGES, 1);
             Assert.IsTrue(engine.IsActive);
         }
@@ -174,7 +179,7 @@ namespace PlayMore35.Tests {
 
             // 1. Good Pact: contributes granted abilities only
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
-            var pool = new EffectPool();
+            var pool = new EffectPool(context.Character);
             SetStat(pool, NUM_VESTIGES, 1);
             SetStat(pool, "Armor Class", 10);
             SetStat(pool, ALL_SAVES, 2);
@@ -189,7 +194,7 @@ namespace PlayMore35.Tests {
 
             // 2. Poor Pact (0 defiances): contributes granted abilities + influence + Vestige defiance (0 penalty)
             engine.ChangePactState(0, PactState.POOR_PACT);
-            pool = new EffectPool();
+            pool = new EffectPool(context.Character);
             SetStat(pool, NUM_VESTIGES, 1);
             SetStat(pool, "Armor Class", 10);
             SetStat(pool, ALL_SAVES, 2);
