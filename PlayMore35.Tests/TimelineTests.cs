@@ -95,7 +95,7 @@ namespace PlayMore35.Tests {
             var timeline = new Timeline(json);
             var character = new Character { Timeline = timeline };
 
-            var effects = new EffectPool();
+            var effects = new EffectPool(character);
             var roundParam = new ControllableParameter("round_res", character);
             var minParam = new ControllableParameter("min_res", character);
             var hourParam = new ControllableParameter("hour_res", character);

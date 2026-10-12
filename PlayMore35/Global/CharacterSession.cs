@@ -181,9 +181,9 @@ namespace PlayMore35.Global {
 
         public void Recalculate() {
             equippedItems = equippedItems ?? new Equipped();
-            effects = new EffectPool();
-            effects.ReadJson(catalog.CoreRulesJson, character);
-            effects.GenerateCharacterEffects(character);
+            effects = new EffectPool(character);
+            effects.ReadJson(catalog.CoreRulesJson);
+            effects.GenerateCharacterEffects();
 
             Race race = catalog.GetRace(character.race);
             if (race != null) {
@@ -202,7 +202,7 @@ namespace PlayMore35.Global {
                         }
                         if (level < @class.Flags.Count) {
                             foreach (FlagDefinition flag in @class.Flags[level]) {
-                                effects.controllableFlags[flag.Name] = new ControllableFlag(flag, character);
+                                effects.AddFlag(flag);
                             }
                         }
                     }
@@ -252,24 +252,16 @@ namespace PlayMore35.Global {
                 Item item = catalog.GetItem(itemRef.Value);
                 if (item != null) {
                     equippedItems.SlottedItems[itemRef.Key] = item;
-                    item.NewFlags.ForEach(x => effects.controllableFlags[x.Name] = new ControllableFlag(x, character));
                 }
             }
             foreach (string itemName in character.equipped.SlotlessItems) {
                 Item item = catalog.GetItem(itemName);
                 if (item != null) {
                     equippedItems.SlotlessItems.Add(item);
-                    item.NewFlags.ForEach(x => effects.controllableFlags[x.Name] = new ControllableFlag(x, character));
                 }
             }
 
-            effects.GenerateUses(equippedItems, character);
-
-            foreach (var param in effects.controllableParameters.ToList()) {
-                if (character.paramValues.ContainsKey(param.Key)) {
-                    param.Value.Value = character.paramValues[param.Key];
-                }
-            }
+            equippedItems.ContributeEffects(effects);
 
             ComputeWeight();
         }

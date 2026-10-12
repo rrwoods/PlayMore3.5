@@ -14,11 +14,16 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class CoreDecouplingTests {
         private class TestContextWithSlottedSubsystem : ICharacterContext {
-            public Character Character { get; set; } = new Character();
-            public EffectPool Effects { get; set; } = new EffectPool();
+            public Character Character { get; set; }
+            public EffectPool Effects { get; set; }
             public Equipped EquippedItems { get; set; } = new Equipped();
             public Timeline Timeline => Character?.Timeline;
             public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
+
+            public TestContextWithSlottedSubsystem() {
+                Character = new Character();
+                Effects = new EffectPool(Character);
+            }
 
             public void ClearSlot(string subsystem, int slotIndex) {
                 var slotted = Subsystems.Get(subsystem) as ISlottedSubsystem;
@@ -95,7 +100,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, @class.Subsystems["vestiges"].Stats.Count);
             Assert.AreEqual("generic capacity", @class.Subsystems["vestiges"].Stats[0]);
 
-            var pool = new EffectPool();
+            var pool = new EffectPool(new Character());
             pool.GenerateClassEffects(@class, 1);
             Assert.IsTrue(pool.stats.ContainsKey("generic capacity"));
             Assert.IsTrue(pool.Effects.Any(e => e.Name == "generic feature effect"));

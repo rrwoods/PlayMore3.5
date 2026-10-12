@@ -222,7 +222,7 @@ namespace PlayMore35.Tests {
             }
 
             // 4. Verify EffectPool produces only categories registered in Constants.TEXT_CATEGORIES
-            var pool = new EffectPool();
+            var pool = new EffectPool(new Character());
             pool.GenerateFeatEffects(track, "");
             pool.GenerateFeatEffects(endurance, "");
             var textEffects = pool.GetTextEffects(new Equipped());

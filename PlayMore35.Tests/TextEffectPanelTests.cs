@@ -72,7 +72,6 @@ namespace PlayMore35.Tests {
                 .AddText(SOCIAL, "Aura social description.");
 
             context.Effects.AddEffect(effect);
-            context.Effects.GenerateUses(context.EquippedItems, character);
 
             using (var form = new MainForm(session)) {
                 panel.Initialize(form);
@@ -133,7 +132,6 @@ namespace PlayMore35.Tests {
                 .AddText(ACTIONS, "Actions part.");
 
             context.Effects.AddEffect(effect);
-            context.Effects.GenerateUses(context.EquippedItems, character);
 
             using (var form = new MainForm(session)) {
                 socialPanel.Initialize(form);
@@ -183,7 +181,6 @@ namespace PlayMore35.Tests {
                 .AddText(SOCIAL, "Initial social description.");
 
             context.Effects.AddEffect(initialEffect);
-            context.Effects.GenerateUses(context.EquippedItems, character);
 
             using (var form = new MainForm(session)) {
                 panel.Initialize(form);

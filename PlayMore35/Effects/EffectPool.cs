@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -20,6 +21,8 @@ namespace PlayMore35.Effects {
         public readonly Dictionary<string, ControllableParameter> controllableParameters = new Dictionary<string, ControllableParameter>();
         public readonly Dictionary<string, List<ControllableParameter>> resettableParameters;
         private readonly List<Effect> effects = new List<Effect>();
+        private readonly Character character;
+        private readonly Effect baseUses = new Effect("base uses");
 
         public string CreatureType { get; private set; } = "";
         public List<string> SubTypes { get; private set; } = new List<string>();
@@ -34,14 +37,7 @@ namespace PlayMore35.Effects {
             );
         }
 
-        private Character character;
-
         public void ReadJson(JToken json) {
-            ReadJson(json, this.character);
-        }
-
-        public void ReadJson(JToken json, Character character) {
-            this.character = character;
             foreach (JProperty featSlot in json["feats"]) {
                 featSlots[featSlot.Name] = (int)featSlot.Value;
             }
@@ -53,8 +49,7 @@ namespace PlayMore35.Effects {
                 AddEffect(new Effect(token));
             }
             foreach (JObject token in json["flags"]) {
-                ControllableFlag flag = new ControllableFlag(token, character);
-                controllableFlags[flag.Name] = flag;
+                AddFlag(new ControllableFlag(token, character));
             }
             foreach (JObject token in json["parameters"]) {
                 ControllableParameter parameter = new ControllableParameter(token, character);
@@ -62,9 +57,11 @@ namespace PlayMore35.Effects {
             }
         }
 
-        public EffectPool() {
+        public EffectPool(Character character) {
+            this.character = character ?? throw new ArgumentNullException(nameof(character));
             resettableParameters = LengthOfTime.UNIT_ROUNDS.Keys.ToDictionary(k => k, k => new List<ControllableParameter>());
             resettableParameters["encounter"] = new List<ControllableParameter>();
+            effects.Add(baseUses);
         }
 
         public void AddStat(Statistic stat) {
@@ -89,10 +86,10 @@ namespace PlayMore35.Effects {
             return stats.Values.Where(x => x.HasTag(tag) && x.Relevant(this, items));
         }
 
-        private void RegisterEffectParameter(Effect effect, Character character) {
+        private void RegisterEffectParameter(Effect effect) {
             if (effect != null && !string.IsNullOrEmpty(effect.ParameterName)) {
                 string paramName = effect.ParameterName;
-                if (!controllableParameters.ContainsKey(paramName) || character != null) {
+                if (!controllableParameters.ContainsKey(paramName)) {
                     controllableParameters[paramName] = new ControllableParameter(paramName, character) {
                         Category = "",
                         Description = "",
@@ -101,75 +98,123 @@ namespace PlayMore35.Effects {
             }
         }
 
+        private bool RegisterResourceUses(ActionResource resource, string name) {
+            string statName = $"{name} uses";
+            if (stats.ContainsKey(statName)) {
+                return true;
+            }
+            if (resource == null || resource.RechargeTime.unit == AT_WILL) {
+                return false;
+            }
+            
+            if (resource.StaticUses != 0) {
+                baseUses.AddModifier(statName, new Modifier(resource.StaticUses, BASE));
+            }
+            AddStat(new Statistic(statName));
+
+            string usedName = $"{name} used";
+            ControllableParameter usedParam = new ControllableParameter(usedName, character) {
+                Category = "",
+                Description = "",
+            };
+            controllableParameters[usedName] = usedParam;
+            if (resource.RechargeTime.unit != "ever" && resource.RechargeTime.quantity.IsSingleOne()) {
+                resettableParameters[resource.RechargeTime.unit].Add(usedParam);
+            }
+            return true;
+        }
+
         public void AddEffect(Effect effect) {
+            if (effect == null) return;
             effects.Add(effect);
-            RegisterEffectParameter(effect, character);
+            RegisterEffectParameter(effect);
+            foreach (Text text in effect.Text) {
+                if (RegisterResourceUses(text.Resource, effect.Name)) {
+                    break;
+                }
+            }
         }
 
         public IEnumerable<Effect> Effects => effects;
 
         public void RemoveEffect(string effect) {
+            var removedParams = effects
+                .Where(x => x.Name == effect && !string.IsNullOrEmpty(x.ParameterName))
+                .Select(x => x.ParameterName)
+                .Distinct()
+                .ToList();
             effects.RemoveAll(x => x.Name == effect);
+            foreach (string paramName in removedParams) {
+                if (!effects.Any(x => x.ParameterName == paramName)) {
+                    controllableParameters.Remove(paramName);
+                }
+            }
         }
 
         public void ReplaceEffect(Effect effect) {
             RemoveEffect(effect.Name);
-            effects.Add(effect);
-            RegisterEffectParameter(effect, character);
+            AddEffect(effect);
         }
 
-        private IEnumerable<Effect> AllEffects(Equipped items) {
-            return (items != null) ? effects.Concat(items.GetGlobalEffects()) : effects;
+        public void AddFlag(ControllableFlag flag) {
+            if (flag == null) return;
+            controllableFlags[flag.Name] = flag;
+            RegisterResourceUses(flag.Resource, flag.Name);
+        }
+
+        public void AddFlag(FlagDefinition def) {
+            if (def == null) return;
+            AddFlag(def as ControllableFlag ?? new ControllableFlag(def, character));
         }
 
         public IEnumerable<ExtraAttack> GetExtraAttacks(Equipped items, Attack affecting) {
-            return AllEffects(items).SelectMany(x => x.GetExtraAttacks(this, items, affecting));
+            return effects.SelectMany(x => x.GetExtraAttacks(this, items, affecting));
         }
 
         public IEnumerable<Modifier> GetAttackModifiers(Equipped items, Attack affecting) {
-            return AllEffects(items).SelectMany(x => x.GetAttackModifiers(this, items, affecting));
+            return effects.SelectMany(x => x.GetAttackModifiers(this, items, affecting));
         }
 
         public IEnumerable<Modifier> GetDamageModifiers(Equipped items, Attack affecting) {
-            return AllEffects(items).SelectMany(x => x.GetDamageModifiers(this, items, affecting));
+            return effects.SelectMany(x => x.GetDamageModifiers(this, items, affecting));
         }
 
         public IEnumerable<Modifier> GetModifiers(Equipped items, Statistic affecting) {
-            return AllEffects(items).SelectMany(x => x.GetModifiers(this, items, affecting));
+            return effects.SelectMany(x => x.GetModifiers(this, items, affecting));
         }
 
         public IEnumerable<Multiplier> GetMultipliers(Equipped items, Statistic affecting) {
-            return AllEffects(items).SelectMany(x => x.GetMultipliers(this, items, affecting));
+            return effects.SelectMany(x => x.GetMultipliers(this, items, affecting));
         }
 
         public IEnumerable<DiceGroup> GetExtraDice(Equipped items, Attack affecting) {
-            return AllEffects(items).SelectMany(x => x.GetExtraDice(this, items, affecting));
+            return effects.SelectMany(x => x.GetExtraDice(this, items, affecting));
         }
 
         public IEnumerable<Modifier> GetThreatModifiers(Equipped items, Attack affecting) {
-            return AllEffects(items).SelectMany(x => x.GetThreatModifiers(this, items, affecting));
+            return effects.SelectMany(x => x.GetThreatModifiers(this, items, affecting));
         }
 
         public IEnumerable<Multiplier> GetRangeMultipliers(Equipped items, Attack affecting) {
-            return AllEffects(items).SelectMany(x => x.GetRangeMultipliers(this, items, affecting));
+            return effects.SelectMany(x => x.GetRangeMultipliers(this, items, affecting));
         }
 
         public bool Familiar(Equipped items, string weapon) {
-            return AllEffects(items)
+            return effects
                 .SelectMany(x => x.WeaponFamiliarity)
                 .Any(x => x == weapon);
         }
 
         public bool Proficient(Equipped items, Attack attack) {
-            return AllEffects(items).Select(x => x.Proficient(this, items, attack)).Contains(true);
+            return effects.Select(x => x.Proficient(this, items, attack)).Contains(true);
         }
 
         public bool ProficientWithArmor(Equipped items) {
-            return AllEffects(items).Select(x => x.ProficientWithArmor(this, items)).Contains(true);
+            return effects.Select(x => x.ProficientWithArmor(this, items)).Contains(true);
         }
 
         public bool ProficientWithShield(Equipped items) {
-            return AllEffects(items).Select(x => x.ProficientWithShield(this, items)).Contains(true);
+            return effects.Select(x => x.ProficientWithShield(this, items)).Contains(true);
         }
 
         public bool HasFlag(string flag, Equipped items) {
@@ -184,7 +229,7 @@ namespace PlayMore35.Effects {
         public Dictionary<string, List<Text>> GetTextEffects(Equipped items) {
             var allText = TEXT_CATEGORIES.ToDictionary(x => x, x => new List<Text>());
 
-            foreach (Effect e in AllEffects(items).Where(x => x.Toggle.On(this, items))) {
+            foreach (Effect e in effects.Where(x => x.Toggle.On(this, items))) {
                 foreach (Text text in e.Text) {
                     Text filled = text.FillStatValues(this, items, e.Name);
                     if (!string.IsNullOrEmpty(e.ParameterName)) {
@@ -228,15 +273,14 @@ namespace PlayMore35.Effects {
         }
 
         // Set up effects inherent to the character only.  Effects from items regenerated moment to moment.
-        public void GenerateCharacterEffects(Character choices) {
-            this.character = choices;
-            AssignAbilityScores(choices.assignedAbilityScores);
-            foreach (var ability in choices.abilityScoreIncrements) {
+        public void GenerateCharacterEffects() {
+            AssignAbilityScores(character.assignedAbilityScores);
+            foreach (var ability in character.abilityScoreIncrements) {
                 AddEffect(new Effect("Level")
                     .AddModifier(ability.Value + " score", new Modifier(+1, ABILITY_MODIFIER))
                 );
             }
-            int numHd = choices.rolledHitDice.Count();
+            int numHd = character.rolledHitDice.Count();
             AddEffect(new Effect("Hit dice")
                 .AddModifier(TOTAL_HD, new Modifier(numHd, BASE))
             );
@@ -247,25 +291,25 @@ namespace PlayMore35.Effects {
                 string hdName = $"Level {i+1} hit die";
                 AddStat(new Statistic(hdName, stats[CON_MODIFIER]).Minimum(1));
                 AddEffect(new Effect(hdName)
-                    .AddModifier(hdName, new Modifier(choices.rolledHitDice[i], BASE))
+                    .AddModifier(hdName, new Modifier(character.rolledHitDice[i], BASE))
                 );
                 AddEffect(new Effect(hdName)
                     .AddModifier(MAX_HP, new Modifier(hdName, BASE))
                 );
             }
-            foreach (var skill in choices.skillRanks) {
+            foreach (var skill in character.skillRanks) {
                 AddEffect(new Effect(skill.Key + RANKS)
                     .AddModifier(skill.Key + RANKS, new Modifier(skill.Value.Sum(), BASE))
                 );
             }
 
-            foreach (string language in choices.bonusLanguages) {
+            foreach (string language in character.bonusLanguages) {
                 AddEffect(new Effect("Bonus language").AddText(LANGUAGES, language));
             }
         }
 
         public void GenerateExternalEffect(ExternalEffect effect) {
-            effect.Flags.ForEach(x => controllableFlags[x.Name] = new ControllableFlag(x, character));
+            effect.Flags.ForEach(x => AddFlag(x));
             effect.Params.ForEach(x => controllableParameters[x.Name] = new ControllableParameter(x, character));
             AddEffect(effect.Effect);
         }
@@ -290,55 +334,8 @@ namespace PlayMore35.Effects {
             }
             AddEffect(effect);
             race.Effects.ForEach(x => AddEffect(x));
-            race.Flags.ForEach(x => controllableFlags[x.Name] = new ControllableFlag(x, character));
+            race.Flags.ForEach(x => AddFlag(x));
             AddStats(race.NewStats);
-        }
-
-        public bool GenerateUses(ActionResource resource, string name, Effect baseUses, Character character) {
-            string statName = $"{name} uses";
-            if (stats.ContainsKey(statName)) {
-                return true;
-            }
-            if (resource == null || resource.RechargeTime.unit == AT_WILL) {
-                return false;
-            }
-            
-            if (resource.StaticUses != 0) {
-                baseUses.AddModifier(statName, new Modifier(resource.StaticUses, BASE));
-            }
-            AddStat(new Statistic(statName));
-
-            string usedName = $"{name} used";
-            ControllableParameter usedParam = new ControllableParameter(usedName, character) {
-                Category = "",
-                Description = "",
-            };
-            controllableParameters[usedName] = usedParam;
-            if (resource.RechargeTime.unit != "ever" && resource.RechargeTime.quantity.IsSingleOne()) {
-                resettableParameters[resource.RechargeTime.unit].Add(usedParam);
-            }
-            return true;
-        }
-
-        public void GenerateUses(IEnumerable<Effect> effects, Character character) {
-            Effect baseUses = new Effect("base uses");
-            AddEffect(baseUses);
-
-            foreach (Effect e in effects) {
-                RegisterEffectParameter(e, character);
-                foreach (Text text in e.Text) {
-                    if (GenerateUses(text.Resource, e.Name, baseUses, character)) {
-                        break;
-                    }
-                }
-            }
-            foreach (ControllableFlag flag in controllableFlags.Values) {
-                GenerateUses(flag.Resource, flag.Name, baseUses, character);
-            }
-        }
-
-        public void GenerateUses(Equipped items, Character character) {
-            GenerateUses(AllEffects(items), character);
         }
 
         private int BaseSaveBonus(CharacterClass.BonusProgression prog, int level) {
@@ -417,7 +414,7 @@ namespace PlayMore35.Effects {
                 benefit = benefit.ApplyChoice(choice);
             }
             AddEffect(benefit);
-            feat.Flags.ForEach(x => controllableFlags[x.Name] = new ControllableFlag(x, character));
+            feat.Flags.ForEach(x => AddFlag(x));
             feat.Parameters.ForEach(x => controllableParameters[x.Name] = new ControllableParameter(x, character));
             AddStats(feat.NewStats);
         }

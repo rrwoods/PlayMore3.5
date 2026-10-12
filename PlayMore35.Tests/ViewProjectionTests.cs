@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
+using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Effects;
 using static PlayMore35.Effects.Constants;
@@ -183,7 +186,6 @@ namespace PlayMore35.Tests {
                 .AddText(ACTIONS, "Actions effect description.");
 
             context.Effects.AddEffect(effect);
-            context.Effects.GenerateUses(context.EquippedItems, character);
 
             var paramView = session.GetControllableParameters().FirstOrDefault(p => p.Name == "Custom Condition stacks");
             Assert.IsNotNull(paramView, "EffectPool should register ControllableParameter for '<Effect.Name> <Effect.Parameter>'.");
@@ -213,6 +215,105 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, updatedParam.Value);
             Assert.AreEqual(1, session.Character.paramValues["Custom Condition stacks"]);
         }
+
+        [TestMethod]
+        public void EffectPool_Constructor_ThrowsArgumentNullExceptionWhenCharacterIsNull() {
+            Assert.ThrowsException<ArgumentNullException>(() => new EffectPool(null));
+        }
+
+        [TestMethod]
+        public void EffectPool_AddEffect_AutomaticallyRegistersInlineParameterAndResourceUses() {
+            var character = new Character();
+            character.paramValues["Test Ability stacks"] = 2;
+            character.paramValues["Test Ability used"] = 1;
+            var pool = new EffectPool(character);
+
+            var resourceJson = new JObject {
+                ["action"] = "swift",
+                ["recharge"] = "day",
+                ["uses"] = 3
+            };
+            var effect = new Effect("Test Ability")
+                .SetParameter("stacks");
+            effect.Text.Add(new Text {
+                Category = ACTIONS,
+                Description = "Daily ability.",
+                Resource = new ActionResource(resourceJson)
+            });
+
+            pool.AddEffect(effect);
+
+            Assert.IsTrue(pool.controllableParameters.ContainsKey("Test Ability stacks"));
+            Assert.AreEqual(2, pool.controllableParameters["Test Ability stacks"].Value);
+
+            Assert.IsTrue(pool.stats.ContainsKey("Test Ability uses"));
+            Assert.AreEqual(3, pool.GetStat("Test Ability uses").GetValue(pool, new Equipped()).value);
+
+            Assert.IsTrue(pool.controllableParameters.ContainsKey("Test Ability used"));
+            Assert.AreEqual(1, pool.controllableParameters["Test Ability used"].Value);
+            CollectionAssert.Contains(pool.resettableParameters["day"], pool.controllableParameters["Test Ability used"]);
+
+            // Removing the effect removes orphaned inline ParameterName
+            pool.RemoveEffect("Test Ability");
+            Assert.IsFalse(pool.controllableParameters.ContainsKey("Test Ability stacks"));
+        }
+
+        [TestMethod]
+        public void Equipped_ContributeEffects_PushesItemEffectsAndFlagsRespectingDonnedArmorOverride() {
+            var character = new Character();
+            var pool = new EffectPool(character);
+            pool.AddStat(new Statistic(AC));
+
+            var slotlessItem = new Item {
+                ItemSlot = Equipped.Slot.SLOTLESS,
+                ItemEffect = new Effect("Slotless Ward").AddModifier(AC, new Modifier(1, "deflection")),
+                NewFlags = new List<FlagDefinition> {
+                    new FlagDefinition("Slotless Flag", "Misc", "Slotless flag desc", AlwaysOn.Instance, null)
+                }
+            };
+            var neckItem = new Item {
+                ItemSlot = Equipped.Slot.NECK,
+                ItemEffect = new Effect("Amulet of Health").AddModifier(AC, new Modifier(2, "natural armor")),
+                NewFlags = new List<FlagDefinition> {
+                    new FlagDefinition("Neck Flag", "Misc", "Neck flag desc", AlwaysOn.Instance, null)
+                }
+            };
+            var bodyItem = new Item {
+                ItemSlot = Equipped.Slot.BODY,
+                ItemEffect = new Effect("Magic Robe").AddModifier(AC, new Modifier(4, "armor")),
+                NewFlags = new List<FlagDefinition> {
+                    new FlagDefinition("Robe Flag", "Misc", "Robe flag desc", AlwaysOn.Instance, null)
+                }
+            };
+
+            var equipped = new Equipped();
+            equipped.SlotlessItems.Add(slotlessItem);
+            equipped.SlottedItems[Equipped.Slot.NECK] = neckItem;
+            equipped.SlottedItems[Equipped.Slot.BODY] = bodyItem;
+
+            // Without DonnedArmor, Slot.BODY item effect and flag are contributed
+            equipped.ContributeEffects(pool);
+            Assert.AreEqual(7, pool.GetStat(AC).GetValue(pool, equipped).value);
+            Assert.IsTrue(pool.controllableFlags.ContainsKey("Slotless Flag"));
+            Assert.IsTrue(pool.controllableFlags.ContainsKey("Neck Flag"));
+            Assert.IsTrue(pool.controllableFlags.ContainsKey("Robe Flag"));
+
+            // With DonnedArmor, Slot.BODY item effect and flag are overridden by DonnedArmor
+            var poolWithArmor = new EffectPool(character);
+            poolWithArmor.AddStat(new Statistic(AC));
+            var donnedArmor = new Armor(catalog.GetArmor("full plate"));
+            donnedArmor.Properties.Add(new ArmorProperty("warding") {
+                GlobalEffect = new Effect("Armor Warding").AddModifier(AC, new Modifier(5, "insight"))
+            });
+            equipped.DonnedArmor = donnedArmor;
+            equipped.ContributeEffects(poolWithArmor);
+
+            Assert.AreEqual(8, poolWithArmor.GetStat(AC).GetValue(poolWithArmor, equipped).value); // +1 deflection +2 natural +5 insight (Slot.BODY +4 excluded)
+            Assert.IsTrue(poolWithArmor.controllableFlags.ContainsKey("Slotless Flag"));
+            Assert.IsTrue(poolWithArmor.controllableFlags.ContainsKey("Neck Flag"));
+            Assert.IsFalse(poolWithArmor.controllableFlags.ContainsKey("Robe Flag"));
+        }
     }
 }
+
 

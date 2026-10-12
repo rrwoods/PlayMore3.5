@@ -39,7 +39,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             var context = new TestCharacterContext {
                 Character = character,
-                Effects = new EffectPool(),
+                Effects = new EffectPool(character),
                 EquippedItems = new Equipped()
             };
 
