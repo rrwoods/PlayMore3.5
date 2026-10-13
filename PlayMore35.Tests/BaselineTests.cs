@@ -18,13 +18,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void PlayMore35Csproj_WinFormsTypesHaveExpectedSubType() {
-            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "PlayMore35", "PlayMore35.csproj"))) {
-                dir = dir.Parent;
-            }
-            Assert.IsNotNull(dir, "Could not locate PlayMore35/PlayMore35.csproj from test base directory.");
-
-            var csprojPath = Path.Combine(dir.FullName, "PlayMore35", "PlayMore35.csproj");
+            var csprojPath = Path.Combine(TestEnvironment.FindRepoRoot(), "PlayMore35", "PlayMore35.csproj");
             var doc = new XmlDocument();
             doc.Load(csprojPath);
 

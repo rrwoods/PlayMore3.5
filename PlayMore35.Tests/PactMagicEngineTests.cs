@@ -427,15 +427,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void OdricJson_LoadsScheduledUnbindVestigeAction_Correctly() {
-            PactMagicEngine.RegisterActionParsers();
-
-            var dir = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            while (dir != null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "Odric.json"))) {
-                dir = dir.Parent;
-            }
-            Assert.IsNotNull(dir, "Could not locate Odric.json in ancestor directories.");
-
-            var path = System.IO.Path.Combine(dir.FullName, "Odric.json");
+            var path = TestEnvironment.FindOdricJsonPath();
             var json = JObject.Parse(System.IO.File.ReadAllText(path));
             var character = new Character(json);
 

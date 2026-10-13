@@ -230,18 +230,9 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(action.Matches(applied.associatedAction[0]));
         }
 
-        private static string FindRepoRoot() {
-            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Odric.json"))) {
-                dir = dir.Parent;
-            }
-            Assert.IsNotNull(dir, "Could not locate Odric.json in repository root.");
-            return dir.FullName;
-        }
-
         [TestMethod]
         public void Odric_StandaloneDeserialization_DeserializesUnbindVestigeActionWithoutSessionOrRegistration() {
-            var odricPath = Path.Combine(FindRepoRoot(), "Odric.json");
+            var odricPath = TestEnvironment.FindOdricJsonPath();
             var json = JObject.Parse(File.ReadAllText(odricPath));
 
             var character = new Character(json);

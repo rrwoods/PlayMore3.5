@@ -21,16 +21,6 @@ namespace PlayMore35.Tests {
             catalog = new GameRulesCatalog();
         }
 
-        private static string FindOdricJsonPath() {
-            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            while (dir != null) {
-                var filePath = Path.Combine(dir.FullName, "Odric.json");
-                if (File.Exists(filePath)) return filePath;
-                dir = dir.Parent;
-            }
-            throw new FileNotFoundException("Could not find Odric.json in ancestor directories.");
-        }
-
         [TestMethod]
         public void MultiSessionIsolation_MultipleSessionsShareSingleCatalog_EncounterTrackerSimulation() {
             // Simulate Encounter Tracker: multiple distinct characters sharing a single static/singleton IRulesCatalog
@@ -133,7 +123,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void OdricJson_BackwardsCompatibility_LoadsAndRecalculatesAccurately() {
-            string odricPath = FindOdricJsonPath();
+            string odricPath = TestEnvironment.FindOdricJsonPath();
             string jsonText = File.ReadAllText(odricPath);
             JObject jObj = JObject.Parse(jsonText);
 
@@ -195,7 +185,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void OdricJson_BackwardsCompatibility_SerializesCleanly() {
-            string odricPath = FindOdricJsonPath();
+            string odricPath = TestEnvironment.FindOdricJsonPath();
             string jsonText = File.ReadAllText(odricPath);
             JObject jObj = JObject.Parse(jsonText);
 
