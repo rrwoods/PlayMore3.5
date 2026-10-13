@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -11,19 +11,10 @@ using PlayMore35.Rules;
 namespace PlayMore35.Tests {
     [TestClass]
     public class LevelDetailsDialogTests {
-        private static string FindRepoRoot() {
-            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Odric.json"))) {
-                dir = dir.Parent;
-            }
-            Assert.IsNotNull(dir, "Could not locate Odric.json in repository root.");
-            return dir.FullName;
-        }
-
         private static ICharacterSession LoadOdricSession() {
             var catalog = new GameRulesCatalog();
             FormUtils.availableFeats = catalog.Feats.Keys.OrderBy(x => x).ToList();
-            var odricPath = Path.Combine(FindRepoRoot(), "Odric.json");
+            var odricPath = TestEnvironment.FindOdricJsonPath();
             var character = new Character(JObject.Parse(File.ReadAllText(odricPath)));
             return new CharacterSession(character, catalog);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,22 +11,10 @@ namespace PlayMore35.Tests
     {
         public const int MaxLinesPerRulesFile = 300;
 
-        private static string FindRepositoryRoot()
-        {
-            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "PlayMore35.sln")))
-            {
-                dir = dir.Parent;
-            }
-
-            Assert.IsNotNull(dir, "Could not locate repository root containing PlayMore35.sln.");
-            return dir.FullName;
-        }
-
         [TestMethod]
         public void RulesLibraryFiles_DoNotExceedMaxLineThreshold()
         {
-            string repoRoot = FindRepositoryRoot();
+            string repoRoot = TestEnvironment.FindRepoRoot();
             string rulesDir = Path.Combine(repoRoot, "docs", "rules");
             Assert.IsTrue(Directory.Exists(rulesDir), $"Expected rules library directory at '{rulesDir}'.");
 
@@ -55,7 +43,7 @@ namespace PlayMore35.Tests
         [TestMethod]
         public void ContentResourceJsonFiles_HaveMatchingCitationFileOrDirectory()
         {
-            string repoRoot = FindRepositoryRoot();
+            string repoRoot = TestEnvironment.FindRepoRoot();
             string resourcesDir = Path.Combine(repoRoot, "PlayMore35", "Resources");
             string contentRulesDir = Path.Combine(repoRoot, "docs", "rules", "content");
 

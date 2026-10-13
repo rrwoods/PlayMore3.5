@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -135,7 +135,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void OdricJson_LoadsAndSavesWithSessionsSchema() {
-            string odricPath = FindOdricJsonPath();
+            string odricPath = TestEnvironment.FindOdricJsonPath();
             string jsonText = System.IO.File.ReadAllText(odricPath);
             JObject json = JObject.Parse(jsonText);
 
@@ -226,16 +226,6 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(0, ledger.RowCount);
                 Assert.AreEqual(0, session.Character.TotalExperience());
             }
-        }
-
-        private static string FindOdricJsonPath() {
-            var dir = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            while (dir != null) {
-                var filePath = System.IO.Path.Combine(dir.FullName, "Odric.json");
-                if (System.IO.File.Exists(filePath)) return filePath;
-                dir = dir.Parent;
-            }
-            throw new System.IO.FileNotFoundException("Could not find Odric.json in ancestor directories.");
         }
     }
 }
