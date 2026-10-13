@@ -12,6 +12,15 @@ Features required for the author's primary active character, alongside immediate
 
 ### Odric Level Progression
 
+### Subsystem Delegation Refactor (Prerequisite to Level 5)
+- **Align Subsystem Code with ADR-0006**:
+  - Bring existing subsystem implementation in line with the updated ADR-0006 (*Modular Subsystem Engines and Delegation Architecture*) and `docs/agents/subsystems.md` before implementing subsequent subsystems.
+  - Slices:
+    1. **Purge `ISlottedSubsystem`**: Remove `ISlottedSubsystem.cs` and update `PactMagicEngine` to implement only `ISubsystemEngine`, managing slots via internal delegation.
+    2. **Decouple Timeline & SheetAction Slot Expiration**: Replace global slotted dispatch in `SheetAction.Perform` and `CharacterSession.ClearSlot` with direct routing to `PactMagicEngine`, eliminating cross-subsystem slot assumptions.
+    3. **Retire Speculative Single-Subsystem Abstractions**: Retire unused `ResourcePool.cs` and keep `SubsystemSlotGroup<TSlot>` internal to Pact Magic until a second implemented subsystem justifies shared extraction.
+    4. **Align Test Suite**: Update `PactMagicEngineTests`, `SheetActionTests`, `ControllerShrinkageAndIntegrationTests`, and `SubsystemEngineTests` to verify `PactMagicEngine` and `SheetAction` without `ISlottedSubsystem`.
+
 ### Level 5: Martial Maneuvers
 - **[ODRIC 5] Tome of Battle Maneuver System**:
   - Support martial maneuver progression (Swordsage, Crusader, Warblade).
@@ -226,9 +235,8 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Decouple `Rounds` and `SheetAction` from `MainForm` into a headless, in-process module.
   - Enables headless unit testing and unblocks the synchronized combat clock for the Encounter Tracker.
   - Slices: [#78](https://github.com/rrwoods/PlayMore3.5/issues/78) (Test harness & context seam), [#79](https://github.com/rrwoods/PlayMore3.5/issues/79) (Timeline core & result contract), [#80](https://github.com/rrwoods/PlayMore3.5/issues/80) (SheetAction & generic slots), [#81](https://github.com/rrwoods/PlayMore3.5/issues/81) (Combat transitions & UI rewiring).
-- **Deepen the Subsystems & Resource Pools Module ([#75](https://github.com/rrwoods/PlayMore3.5/issues/75))**:
-  - Consolidate Pact Magic, Tome of Battle Maneuvers, Spellcasting, and Invocations behind a uniform effect-in-slot and resource pool interface.
-  - Slices: [#84](https://github.com/rrwoods/PlayMore3.5/issues/84) (Core abstractions & domain primitives), [#85](https://github.com/rrwoods/PlayMore3.5/issues/85) (Pact Magic engine & persistence), [#86](https://github.com/rrwoods/PlayMore3.5/issues/86) (Core models decoupling), [#87](https://github.com/rrwoods/PlayMore3.5/issues/87) (UI rewiring & Controller shrinkage).
+- **Modular Subsystem Engines & Delegation Refactor ([#75](https://github.com/rrwoods/PlayMore3.5/issues/75))**:
+  - Restructure subsystems around independent engines with internal delegation rather than global slot/resource interfaces (see Tier 1 prerequisite to Level 5, `docs/adr/0006-unified-subsystems-and-resource-pools.md`, and `docs/agents/subsystems.md`).
 - **Deepen the Attack Routine Evaluation Module ([#76](https://github.com/rrwoods/PlayMore3.5/issues/76))**:
   - Encapsulate combinatorial weapon-hand pairing, TWF penalties, and iterative attack progressions behind an evaluator interface.
 - **Deepen the Character Engine Module ([#77](https://github.com/rrwoods/PlayMore3.5/issues/77))**:

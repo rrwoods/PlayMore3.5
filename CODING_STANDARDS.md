@@ -5,6 +5,14 @@
 - **Preserve UI encapsulation**: Forms and presentation controls must not expose mutable state setters solely to satisfy unit test fixtures. Inject dependencies via constructor overloads (e.g. `MainForm(ICharacterSession session) : this()`) or test-visible factories.
 - **Explicit constructor deserialization and schema stability (No shims)**: Domain types implement `IJsonable` with explicit `new Type(JObject)` constructors. Never introduce JSON fallbacks, adapter shims, or deprecated forwarding constructors (see `docs/adr/0008-explicit-constructor-deserialization-and-schema-stability.md`).
 
+## Subsystem Architecture
+
+- **Minimal host lifecycle seam (`ISubsystemEngine`)**: Subsystem engines implement `ISubsystemEngine` solely for `CharacterSession` host lifecycle and dynamic effect contribution (`Id`, `IsActive`, `Initialize`, `ContributeEffects`). Never introduce mechanical sub-interfaces beneath it (such as `ISlottedSubsystem`).
+- **Delegation over inheritance**: Subsystem engines manage internal mechanics (such as slotting, resource expenditure, and access validation) by delegating to composed objects, never via class inheritance or engine interface inheritance.
+- **Rule-of-Two extraction (Just-in-Time delegation)**: Prefactor or extract a shared delegate only when an already-implemented subsystem and the subsystem currently being implemented both require the identical mechanic.
+- **Native domain vocabulary**: Subsystem engines, state models, and UI controls speak their canonical D&D 3.5e terminology for the User, Verb, and Subsystem Element (e.g. `BindVestige`, `InitiateManeuver`, `ReadyManeuver`, `ShapeSoulmeld`, `CastSpell`).
+- **Immutable catalog loading via `IRulesCatalog`**: Load subsystem content definitions (`vestiges.json`, `maneuvers.json`, `spells.json`) via `IRulesCatalog` to share immutable data across sessions without redundant file parsing (see `docs/agents/subsystems.md`).
+
 ## WinForms and `Designer.cs` Layout
 
 - **`ScrollableControl` layout resets**: Before calling `Controls.Clear()` or toggling `AutoScroll` inside `SuspendLayout()`, explicitly reset `AutoScrollPosition = Point.Empty` and `AutoScroll = false`. Otherwise, WinForms offsets newly added child control coordinates relative to the negative `DisplayRectangle.Y` scroll position, causing rows to drift out of bounds when `AutoScroll` is later disabled.

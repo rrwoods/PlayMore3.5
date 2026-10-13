@@ -120,12 +120,24 @@ _Avoid_: Action tracker, action lock, turn budget
 An encapsulated magic or martial discipline (such as Pact Magic, Martial Maneuvers, Vancian Spellcasting, or Meldshaping) governed by specialized preparation, selection, or recovery mechanics.
 _Avoid_: System, subsystem engine, magic system
 
+**Subsystem Element**:
+A discrete catalogable unit within a subsystem (such as a spell, martial maneuver, psionic power, vestige, soulmeld, invocation, mystery, or utterance) that a character can learn, prepare, ready, bind, shape, or activate. May be shortened to *Element* when the subsystem context is clear.
+_Avoid_: Subsystem thing, subsystem ability, subsystem option, subsystem feature
+
+**Progression Access**:
+Eligibility for subsystem elements acquired through a character's class progression and governed by level caps or class and discipline lists.
+_Avoid_: Class access, standard access, normal progression
+
+**Non-Progression Access**:
+Eligibility for specific subsystem elements granted outside normal class progression (such as via feats or special class features) that bypasses or modifies standard class or discipline restrictions.
+_Avoid_: Exception grant, direct grant, bonus access
+
 **Subsystem Slot**:
-A discrete assignment receptacle within a subsystem (such as a vestige bind slot or readied maneuver slot) holding an active configuration or ability.
+A discrete assignment receptacle within a subsystem (such as a vestige bind slot or readied maneuver slot) holding an assigned subsystem element.
 _Avoid_: Bind slot, maneuver slot, slot
 
 **Resource Pool**:
-A quantitative allocation of consumable or replenishable subsystem units (such as spell slots per day, power points, or readied martial maneuvers).
+A quantitative allocation of consumable or replenishable subsystem units (such as spell slots per day, power points, or essentia).
 _Avoid_: Resource, pool, spell pool
 
 **Vestige Influence**:

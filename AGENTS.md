@@ -10,7 +10,7 @@ Canonical triage roles mapped to matching labels (`needs-triage`, `needs-info`, 
 
 ### Domain docs
 
-Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root) for project and engine vocabulary, plus progressively disclosed 3.5e rules and content citations in `docs/rules/`. See `docs/agents/domain.md` and `docs/agents/rules-template.md`.
+Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root) for project and engine vocabulary, plus progressively disclosed 3.5e rules and content citations in `docs/rules/`. See `docs/agents/domain.md`, `docs/agents/rules-template.md`, and `docs/agents/subsystems.md`.
 
 ### Product vision
 
