@@ -6,7 +6,10 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.PactMagic;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -61,8 +64,6 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SheetAction_RegisterParser_AndFromJson_DispatchesPolymorphicActions() {
-            PactMagicEngine.RegisterActionParsers();
-
             var vestigeJson = new JObject(
                 new JProperty("name", "Unbind Slot 1"),
                 new JProperty("unbind_vestige", 1)
@@ -85,8 +86,6 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void UnbindVestigeAction_SerializesAndPerforms_DirectlyOnPactMagicEngine() {
-            PactMagicEngine.RegisterActionParsers();
-
             var action = new UnbindVestigeAction(2);
             var json = (JObject)action.ToJson();
 
@@ -229,6 +228,58 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("counter (alpha)", applied.Parameter);
             Assert.AreEqual(1, applied.associatedAction.Count);
             Assert.IsTrue(action.Matches(applied.associatedAction[0]));
+        }
+
+        private static string FindRepoRoot() {
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Odric.json"))) {
+                dir = dir.Parent;
+            }
+            Assert.IsNotNull(dir, "Could not locate Odric.json in repository root.");
+            return dir.FullName;
+        }
+
+        [TestMethod]
+        public void Odric_StandaloneDeserialization_DeserializesUnbindVestigeActionWithoutSessionOrRegistration() {
+            var odricPath = Path.Combine(FindRepoRoot(), "Odric.json");
+            var json = JObject.Parse(File.ReadAllText(odricPath));
+
+            var character = new Character(json);
+
+            var scheduledActions = character.Timeline.ScheduledActions.Values.SelectMany(x => x).ToList();
+            var unbindAction = scheduledActions.OfType<UnbindVestigeAction>().FirstOrDefault();
+
+            Assert.IsNotNull(unbindAction, "Scheduled unbind_vestige action in Odric.json should deserialize as UnbindVestigeAction.");
+            Assert.AreEqual(0, unbindAction.SlotIndex);
+            Assert.AreEqual("Unbind vestige slot 0", unbindAction.Name);
+        }
+
+        [TestMethod]
+        public void Timeline_StandaloneDeserialization_DeserializesUnbindVestigeActionWithoutSessionOrRegistration() {
+            var timelineJson = new JObject(
+                new JProperty("round zero", "2026-10-06T20:11:30.0000000"),
+                new JProperty("encounter start time", "2026-10-06T20:12:00.0000000"),
+                new JProperty("encounter start round", 5),
+                new JProperty("current round", 10),
+                new JProperty("combat", false),
+                new JProperty("scheduled actions", new JObject(
+                    new JProperty("15", new JArray(
+                        new JObject(
+                            new JProperty("name", "Unbind vestige slot 0"),
+                            new JProperty("unbind_vestige", 0)
+                        )
+                    ))
+                )),
+                new JProperty("encounter actions", new JArray())
+            );
+
+            var timeline = new Timeline(timelineJson);
+
+            var actions = timeline.ScheduledActions[15];
+            Assert.AreEqual(1, actions.Count);
+            Assert.IsInstanceOfType(actions[0], typeof(UnbindVestigeAction));
+            var unbind = (UnbindVestigeAction)actions[0];
+            Assert.AreEqual(0, unbind.SlotIndex);
         }
     }
 }
