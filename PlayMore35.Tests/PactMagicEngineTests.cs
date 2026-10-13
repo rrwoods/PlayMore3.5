@@ -427,6 +427,8 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void OdricJson_LoadsScheduledUnbindVestigeAction_Correctly() {
+            PactMagicEngine.RegisterActionParsers();
+
             var dir = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while (dir != null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "Odric.json"))) {
                 dir = dir.Parent;
@@ -439,7 +441,18 @@ namespace PlayMore35.Tests {
 
             Assert.IsNotNull(character.Timeline);
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
-            Assert.IsNotNull(session.Subsystems.Get<PactMagicEngine>());
+            var engine = session.Subsystems.Get<PactMagicEngine>();
+            Assert.IsNotNull(engine);
+            Assert.AreEqual("Savnok", engine.CurrentVestige(0)?.Name);
+
+            // Advance timeline to scheduled unbind round (43214 - 28835 = 14379 rounds)
+            var advanceResult = session.AdvanceTimeline(new LengthOfTime("14379 rounds"));
+            Assert.AreEqual(TimelineRefreshRequirement.FullReload, advanceResult.RefreshRequirement);
+            Assert.AreEqual(1, advanceResult.ExpiredActions.Count);
+            Assert.IsInstanceOfType(advanceResult.ExpiredActions[0], typeof(UnbindVestigeAction));
+            var unbindAction = (UnbindVestigeAction)advanceResult.ExpiredActions[0];
+            Assert.AreEqual(0, unbindAction.SlotIndex);
+            Assert.IsNull(engine.CurrentVestige(0));
         }
     }
 }

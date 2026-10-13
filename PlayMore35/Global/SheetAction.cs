@@ -14,10 +14,6 @@ namespace PlayMore35.Global {
             }
         }
 
-        public static void ClearParsers() {
-            parsers.Clear();
-        }
-
         public static SheetAction FromJson(JObject json) {
             if (json == null) return null;
             foreach (var parser in parsers) {

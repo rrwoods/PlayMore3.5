@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
@@ -43,6 +44,25 @@ namespace PlayMore35.Tests {
             Assert.IsNull(registry.Get("nonexistent"));
             var unregistered = new SubsystemRegistry();
             Assert.IsNull(unregistered.Get<FakeFirstSubsystem>());
+        }
+
+        [TestMethod]
+        public void SubsystemRegistry_ReRegistration_ReplacesExistingEngineInAllAndGet() {
+            var registry = new SubsystemRegistry();
+            var first = new FakeFirstSubsystem();
+            var replacement = new FakeFirstSubsystem();
+
+            registry.Register(first, "custom-alias");
+            Assert.AreSame(first, registry.Get<FakeFirstSubsystem>());
+            Assert.AreSame(first, registry.Get("fake-first"));
+            Assert.AreSame(first, registry.Get("custom-alias"));
+
+            registry.Register(replacement, "custom-alias");
+            Assert.AreSame(replacement, registry.Get<FakeFirstSubsystem>());
+            Assert.AreSame(replacement, registry.Get("fake-first"));
+            Assert.AreSame(replacement, registry.Get("custom-alias"));
+            Assert.AreEqual(1, registry.All.Count());
+            Assert.AreSame(replacement, registry.All.Single());
         }
 
         [TestMethod]

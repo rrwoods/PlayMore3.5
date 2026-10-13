@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems.PactMagic {
@@ -19,8 +19,7 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         public override TimelineRefreshRequirement Perform(ICharacterContext context) {
             base.Perform(context);
-            var engine = context?.Subsystems?.Get<PactMagicEngine>()
-                ?? context?.Subsystems?.Get(PactMagicEngine.SubsystemId) as PactMagicEngine;
+            var engine = context?.Subsystems?.Get<PactMagicEngine>();
             engine?.UnbindVestige(SlotIndex);
             return TimelineRefreshRequirement.FullReload;
         }

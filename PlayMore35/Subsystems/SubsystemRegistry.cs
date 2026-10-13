@@ -18,6 +18,9 @@ namespace PlayMore35.Subsystems {
                 enginesById[engine.Id] = engine;
             }
             if (!string.IsNullOrEmpty(alias)) {
+                if (enginesById.TryGetValue(alias, out var existingAlias)) {
+                    engines.Remove(existingAlias);
+                }
                 enginesById[alias] = engine;
             }
             if (!engines.Contains(engine)) {
