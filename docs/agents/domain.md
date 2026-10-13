@@ -17,10 +17,14 @@ Single-context repo (most repos):
 ```
 /
 ├── GLOSSARY.md
-├── docs/adr/
-│   ├── 0001-event-sourced-orders.md
-│   └── 0002-postgres-for-write-model.md
-└── src/
+├── docs/
+│   ├── adr/
+│   │   ├── 0001-enable-dont-enforce.md
+│   │   └── ...
+│   └── rules/
+│       ├── mechanics/                  ← systemic 3.5e rules (disclosed on demand)
+│       └── content/                    ← specific 3.5e content mirroring Resources/*.json
+└── PlayMore35/
 ```
 
 Multi-context repo (presence of `GLOSSARY-MAP.md` at the root):
@@ -38,11 +42,13 @@ Multi-context repo (presence of `GLOSSARY-MAP.md` at the root):
         └── docs/adr/
 ```
 
-## Use the glossary's vocabulary
+## Use the glossary's vocabulary (and keep 3.5e rules in `docs/rules/`)
 
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `GLOSSARY.md`. Don't drift to synonyms the glossary explicitly avoids.
+When your output names a project or engine domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `GLOSSARY.md`. Don't drift to synonyms the glossary explicitly avoids.
 
-If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
+Keep `GLOSSARY.md` bounded to **project and engine domain concepts** (*Live Companion*, *Statistic*, *Effect*, *Modifier*, *Subsystem*, *Character Session*). Specific D&D 3.5e game rules and content citations belong in `docs/rules/` (`docs/rules/mechanics/` and `docs/rules/content/`) and are loaded via **progressive disclosure** only when a task touches that mechanic or content item (see `docs/agents/rules-template.md`).
+
+If an engine/project concept you need isn't in `GLOSSARY.md` yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
 
 ## Flag ADR conflicts
 

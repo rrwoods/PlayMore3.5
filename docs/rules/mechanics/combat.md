@@ -1,0 +1,29 @@
+﻿# Combat
+
+- [ ] **Initiative**: TODO
+- [ ] **Armor Class (Base AC, Touch AC, Flat-Footed AC)**: TODO
+- [ ] **Natural Armor**: TODO
+- [ ] **Base Attack Bonus and Iterative Attacks (Second, Third, Fourth Iterative Attacks)**: TODO
+- [ ] **Attack Rolls (Melee and Ranged)**: TODO
+- [ ] **Damage Rolls and Minimum Damage**: TODO
+- [ ] **Strength Modifiers to Damage (One-Handed, Two-Handed 1.5x, Off-Hand 0.5x, Bow/Thrown)**: TODO
+- [ ] **Critical Hits (Threat Range and Critical Multiplier)**: TODO
+- [ ] **Two-Weapon Fighting (Primary/Off-Hand Penalties, Light Off-Hand Weapon, Double Weapons)**: TODO
+- [ ] **Crossbow Handedness Penalties (Light and Heavy Crossbow One-Handed)**: TODO
+- [ ] **Size Modifiers (AC/Attack Size Modifier, Special Size Modifier, Hide Size Modifier)**: TODO
+- [ ] **Space and Reach by Size**: TODO
+- [ ] **Action Types (Standard, Move, Full-Round, Swift, Immediate, Free, Non-Action)**: TODO
+- [ ] **Attacks of Opportunity**: TODO
+- [ ] **Charging**: TODO
+- [ ] **Fighting Defensively**: TODO
+- [ ] **Total Defense**: TODO
+- [ ] **Flanking**: TODO
+- [ ] **Prone**: TODO
+- [ ] **Grapple Checks**: TODO
+- [ ] **Bull Rush**: TODO
+- [ ] **Disarm**: TODO
+- [ ] **Feint**: TODO
+- [ ] **Overrun**: TODO
+- [ ] **Sunder**: TODO
+- [ ] **Trip**: TODO
+- [ ] **Turn / Rebuke Undead**: TODO

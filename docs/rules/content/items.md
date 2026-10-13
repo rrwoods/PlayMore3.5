@@ -1,0 +1,28 @@
+﻿# Items
+
+- [ ] **panic button**: TODO
+- [ ] **marbles**: TODO
+- [ ] **defoliator**: TODO
+- [ ] **fur clothing**: TODO
+- [ ] **flour pouch**: TODO
+- [ ] **cold weather outfit**: TODO
+- [ ] **flint and steel**: TODO
+- [ ] **empty flask**: TODO
+- [ ] **potion of cure light wounds**: TODO
+- [ ] **insectbane candle**: TODO
+- [ ] **clearwater tablet**: TODO
+- [ ] **collapsible pole**: TODO
+- [ ] **silk rope**: TODO
+- [ ] **tent**: TODO
+- [ ] **bedroll**: TODO
+- [ ] **saddlebags**: TODO
+- [ ] **mule**: TODO
+- [ ] **pack saddle**: TODO
+- [ ] **piton**: TODO
+- [ ] **hammer**: TODO
+- [ ] **sunrod**: TODO
+- [ ] **fast torch**: TODO
+- [ ] **anklet of translocation**: TODO
+- [ ] **torc of displacement and Con +2**: TODO
+- [ ] **safewing emblem**: TODO
+- [ ] **ring of "spell storing"**: TODO

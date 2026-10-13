@@ -45,11 +45,11 @@ A configurable systemic game constant or calculation formula (such as the death 
 _Avoid_: Engine constant, setting, hardcoding
 
 **Environmental Fact**:
-Observable ground truth discovered through repository tools and local inspection (codebase, test suites, git history, committed `rules.json`, directory structure). Finding environmental facts is exclusively the agent's job.
-_Avoid_: Model pretraining memory, world knowledge, unverified assumption
+Observable ground truth discovered through local inspection of the repository, including committed source code, tests, rules data, and previously arbitrated citations recorded in the rules library. Finding environmental facts is exclusively the agent's job.
+_Avoid_: Model pretraining memory, world knowledge, unverified assumption, unpopulated TODO stub
 
 **Domain Specification**:
-Definitive 3.5e game rules mechanics, formulas, stacking constraints, and table fiat arbitrated exclusively by the human maintainer via authoritative primary source citations.
+Definitive 3.5e game rules mechanics, content definitions, formulas, stacking constraints, and table fiat not yet recorded with a verified citation in the repository, arbitrated exclusively by the human maintainer via authoritative primary sources.
 _Avoid_: Environmental fact, agent fact, recalled rule
 
 **Character State**:
