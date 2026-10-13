@@ -17,6 +17,11 @@ namespace PlayMore35.Subsystems.PactMagic {
             }
         }
 
+        public static SheetAction TryParse(JObject json) {
+            if (json == null) return null;
+            return json["unbind_vestige"] != null ? new UnbindVestigeAction(json) : null;
+        }
+
         public override TimelineRefreshRequirement Perform(ICharacterContext context) {
             base.Perform(context);
             var engine = context?.Subsystems?.Get<PactMagicEngine>();

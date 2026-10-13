@@ -20,7 +20,7 @@ namespace PlayMore35.Subsystems.PactMagic {
         }
 
         public static void RegisterActionParsers() {
-            SheetAction.RegisterParser(json => json["unbind_vestige"] != null ? new UnbindVestigeAction(json) : null);
+            SheetAction.RegisterParser(UnbindVestigeAction.TryParse);
         }
 
         public PactMagicEngine(ISubsystemContentProvider contentProvider = null) {

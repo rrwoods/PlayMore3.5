@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
+using PlayMore35.Subsystems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,14 @@ using System.Linq;
 namespace PlayMore35.Global {
     public class SheetAction : IJsonable {
         private static readonly List<Func<JObject, SheetAction>> parsers = new List<Func<JObject, SheetAction>>();
+        private static bool defaultParsersRegistered = false;
+
+        private static void EnsureDefaultParsers() {
+            if (!defaultParsersRegistered) {
+                defaultParsersRegistered = true;
+                SubsystemRegistry.RegisterDefaultActionParsers();
+            }
+        }
 
         public static void RegisterParser(Func<JObject, SheetAction> parser) {
             if (parser != null && !parsers.Contains(parser)) {
@@ -16,6 +25,7 @@ namespace PlayMore35.Global {
 
         public static SheetAction FromJson(JObject json) {
             if (json == null) return null;
+            EnsureDefaultParsers();
             foreach (var parser in parsers) {
                 var action = parser(json);
                 if (action != null) return action;

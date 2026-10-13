@@ -19,6 +19,11 @@ namespace PlayMore35.Global {
         private Dictionary<long, List<SheetAction>> scheduledActions = new Dictionary<long, List<SheetAction>>();
         private List<SheetAction> encounterActions = new List<SheetAction>();
 
+        public IReadOnlyDictionary<long, IReadOnlyList<SheetAction>> ScheduledActions =>
+            scheduledActions.ToDictionary(k => k.Key, v => (IReadOnlyList<SheetAction>)v.Value.AsReadOnly());
+
+        public IReadOnlyList<SheetAction> EncounterActions => encounterActions.AsReadOnly();
+
         public JToken ToJson() {
             return new JObject(
                 new JProperty("round zero", RoundZero.ToString("O")),
