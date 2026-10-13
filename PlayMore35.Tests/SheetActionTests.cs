@@ -5,6 +5,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.PactMagic;
 using System.Collections.Generic;
 
 namespace PlayMore35.Tests {
@@ -16,12 +17,6 @@ namespace PlayMore35.Tests {
             public Equipped EquippedItems { get; set; }
             public Timeline Timeline => Character?.Timeline;
             public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
-
-            public readonly List<(string subsystem, int slotIndex)> ClearedSlots = new List<(string, int)>();
-
-            public void ClearSlot(string subsystem, int slotIndex) {
-                ClearedSlots.Add((subsystem, slotIndex));
-            }
 
             public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
             public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
@@ -65,35 +60,68 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SheetAction_ClearSlot_InvokesGenericSlotClearance() {
-            var (context, _, _) = CreateTestContext();
+        public void SheetAction_RegisterParser_AndFromJson_DispatchesPolymorphicActions() {
+            PactMagicEngine.RegisterActionParsers();
 
-            var action = new SheetAction()
-                .ClearSlot("vestige", 1);
+            var vestigeJson = new JObject(
+                new JProperty("name", "Unbind Slot 1"),
+                new JProperty("unbind_vestige", 1)
+            );
+            var parsed = SheetAction.FromJson(vestigeJson);
 
-            var requirement = action.Perform(context);
+            Assert.IsInstanceOfType(parsed, typeof(UnbindVestigeAction));
+            var unbindAction = (UnbindVestigeAction)parsed;
+            Assert.AreEqual(1, unbindAction.SlotIndex);
+            Assert.AreEqual("Unbind Slot 1", unbindAction.Name);
 
-            Assert.AreEqual(1, context.ClearedSlots.Count);
-            Assert.AreEqual("vestige", context.ClearedSlots[0].subsystem);
-            Assert.AreEqual(1, context.ClearedSlots[0].slotIndex);
-            Assert.AreEqual(TimelineRefreshRequirement.FullReload, requirement);
+            var standardJson = new JObject(
+                new JProperty("name", "Standard Action"),
+                new JProperty("set", new JArray("SomeFlag"))
+            );
+            var parsedStandard = SheetAction.FromJson(standardJson);
+            Assert.IsInstanceOfType(parsedStandard, typeof(SheetAction));
+            Assert.IsNotInstanceOfType(parsedStandard, typeof(UnbindVestigeAction));
         }
 
         [TestMethod]
-        public void SheetAction_DeserializesLegacyUnbindJson_IntoGenericClearSlot() {
+        public void UnbindVestigeAction_SerializesAndPerforms_DirectlyOnPactMagicEngine() {
+            PactMagicEngine.RegisterActionParsers();
+
+            var action = new UnbindVestigeAction(2);
+            var json = (JObject)action.ToJson();
+
+            Assert.AreEqual(2, (int)json["unbind_vestige"]);
+
+            var deserialized = SheetAction.FromJson(json);
+            Assert.IsInstanceOfType(deserialized, typeof(UnbindVestigeAction));
+            Assert.IsTrue(action.Matches(deserialized));
+
             var (context, _, _) = CreateTestContext();
+            var engine = new PactMagicEngine();
+            context.Subsystems.Register(engine);
+            engine.Initialize(context);
 
-            var json = new JObject(
-                new JProperty("unbind", new JArray(0, 2))
-            );
-            var action = new SheetAction(json);
+            var req = deserialized.Perform(context);
+            Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
+        }
 
-            var requirement = action.Perform(context);
+        [TestMethod]
+        public void UnbindVestigeAction_MatchesAndDefaultName_BehavesCorrectly() {
+            var actionSlot0 = new UnbindVestigeAction(0);
+            var actionSlot1 = new UnbindVestigeAction(1);
+            var standardAction = new SheetAction { Name = "Unbind vestige slot 0" };
 
-            Assert.AreEqual(2, context.ClearedSlots.Count);
-            Assert.AreEqual(("vestige", 0), context.ClearedSlots[0]);
-            Assert.AreEqual(("vestige", 2), context.ClearedSlots[1]);
-            Assert.AreEqual(TimelineRefreshRequirement.FullReload, requirement);
+            Assert.IsTrue(actionSlot0.Matches(new UnbindVestigeAction(0)));
+            Assert.IsFalse(actionSlot0.Matches(actionSlot1));
+            Assert.IsFalse(actionSlot0.Matches(standardAction));
+            Assert.IsFalse(actionSlot0.Matches(null));
+
+            var jsonWithoutName = new JObject(new JProperty("unbind_vestige", 3));
+            var parsed = new UnbindVestigeAction(jsonWithoutName);
+            Assert.AreEqual("Unbind vestige slot 3", parsed.Name);
+            Assert.AreEqual(3, parsed.SlotIndex);
+
+            Assert.IsNull(SheetAction.FromJson(null));
         }
 
         [TestMethod]
@@ -153,16 +181,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, advanceResult.RefreshRequirement);
         }
 
-        [TestMethod]
-        public void SheetAction_ToJson_SerializesClearSlotWithoutRedundantUnbind() {
-            var action = new SheetAction()
-                .ClearSlot("vestige", 0);
 
-            var json = (JObject)action.ToJson();
-
-            Assert.IsNotNull(json["clear_slots"]);
-            Assert.IsNull(json["unbind"], "Serialized SheetAction must not contain redundant unbind key.");
-        }
 
         [TestMethod]
         public void SheetAction_Name_RoundTripsThroughJsonAndMatches() {

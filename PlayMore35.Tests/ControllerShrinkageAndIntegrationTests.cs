@@ -109,7 +109,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, session.Character.paramValues["Aym Influence Effect defied"], "Rebinding resets defiance parameter to 0.");
             Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"));
 
-            session.Timeline.Schedule(new SheetAction().ClearSlot("vestige", 0), "24 hours");
+            session.Timeline.Schedule(new UnbindVestigeAction(0), "24 hours");
 
             // Advance timeline by 24 hours (86,400 seconds)
             var result = session.AdvanceTimeline(new LengthOfTime("24 hours"));
@@ -124,7 +124,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void CharacterSession_ClearSlot_RoutesToPactMagicEngine() {
+        public void PactMagicEngine_UnbindVestige_ResetsDefianceAndSlots() {
             var vestige = CreateTestVestige("Aym", 1, 15);
             var contentProvider = new TestContentProvider(vestige);
             var engine = new PactMagicEngine(contentProvider);
@@ -141,13 +141,9 @@ namespace PlayMore35.Tests {
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
             Assert.AreEqual("Aym", engine.CurrentVestige(0)?.Name);
 
-            // ClearSlot using alias
-            session.ClearSlot("vestige", 0);
-            Assert.IsNull(engine.CurrentVestige(0));
-
-            // Rebind and clear using canonical ID
-            engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
-            session.ClearSlot(PactMagicEngine.SubsystemId, 0);
+            // Unbind directly on engine
+            session.Subsystems.Get<PactMagicEngine>().UnbindVestige(0);
+            session.Recalculate();
             Assert.IsNull(engine.CurrentVestige(0));
         }
     }

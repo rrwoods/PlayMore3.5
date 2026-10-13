@@ -8,12 +8,20 @@ using PlayMore35.Items;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Subsystems.PactMagic {
-    public class PactMagicEngine : ISlottedSubsystem {
+    public class PactMagicEngine : ISubsystemEngine {
         public const string SubsystemId = "pact_magic";
         private readonly ISubsystemContentProvider contentProvider;
         private SubsystemSlotGroup<PactSlot> slots;
         private ICharacterContext context;
         private bool stateLoaded = false;
+
+        static PactMagicEngine() {
+            RegisterActionParsers();
+        }
+
+        public static void RegisterActionParsers() {
+            SheetAction.RegisterParser(json => json["unbind_vestige"] != null ? new UnbindVestigeAction(json) : null);
+        }
 
         public PactMagicEngine(ISubsystemContentProvider contentProvider = null) {
             this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
@@ -39,6 +47,7 @@ namespace PlayMore35.Subsystems.PactMagic {
         public int SlotCount => slots.Capacity;
 
         public void Initialize(ICharacterContext context) {
+            RegisterActionParsers();
             this.context = context ?? throw new ArgumentNullException(nameof(context));
             this.slots = new SubsystemSlotGroup<PactSlot>(() => {
                 if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
@@ -90,7 +99,7 @@ namespace PlayMore35.Subsystems.PactMagic {
             }
         }
 
-        public void ClearSlot(int slotIndex) {
+        public void UnbindVestige(int slotIndex) {
             EnsureSlotsLoaded();
             if (slotIndex >= 0 && slotIndex < SlotCount) {
                 ResetDefiance(GetSlot(slotIndex)?.VestigeName);

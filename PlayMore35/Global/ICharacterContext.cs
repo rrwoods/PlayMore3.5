@@ -11,7 +11,6 @@ namespace PlayMore35.Global {
         Equipped EquippedItems { get; }
         Timeline Timeline { get; }
         SubsystemRegistry Subsystems { get; }
-        void ClearSlot(string subsystem, int slotIndex);
         List<AttackRoutine> GetAllRoutines();
         List<AttackRoutine> GetVisibleRoutines();
     }

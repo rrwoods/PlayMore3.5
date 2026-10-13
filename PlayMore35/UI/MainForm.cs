@@ -1317,7 +1317,7 @@ namespace PlayMore35 {
                 if (vestige == null) {
                     pactEngine?.BindVestige(slotIndex, "", (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = "Good pact?";
-                    session.Character.Timeline.Unschedule(new SheetAction().ClearSlot("vestige", slotIndex));
+                    session.Character.Timeline.Unschedule(new UnbindVestigeAction(slotIndex));
                 } else {
                     pactEngine?.BindVestige(slotIndex, vestige.Name, (PactState) pactStates[slotIndex].SelectedIndex);
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
@@ -1334,7 +1334,7 @@ namespace PlayMore35 {
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
                 var pactEngine = session.Subsystems.Get<PactMagicEngine>();
                 pactEngine?.BindVestige(slotIndex, vestige.Name, bindingCheckSuccess ? PactState.GOOD_PACT : PactState.POOR_PACT);
-                session.Character.Timeline.Schedule(new SheetAction().ClearSlot("vestige", slotIndex), "24 hours");
+                session.Character.Timeline.Schedule(new UnbindVestigeAction(slotIndex), "24 hours");
                 var result = session.AdvanceTimeline(21);
                 if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
                     session.Recalculate();

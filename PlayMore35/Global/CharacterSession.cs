@@ -38,7 +38,6 @@ namespace PlayMore35.Global {
         Equipped ICharacterContext.EquippedItems => equippedItems;
         Timeline ICharacterContext.Timeline => Timeline;
         SubsystemRegistry ICharacterContext.Subsystems => subsystems;
-        void ICharacterContext.ClearSlot(string subsystem, int slotIndex) => ClearSlot(subsystem, slotIndex);
 
         List<AttackRoutine> ICharacterContext.GetAllRoutines() => GetAllRoutines().ToList();
         List<AttackRoutine> ICharacterContext.GetVisibleRoutines() => GetVisibleRoutines().ToList();
@@ -795,12 +794,6 @@ namespace PlayMore35.Global {
             var result = character.Timeline.EndCombat(this);
             Recalculate();
             return result;
-        }
-
-        public void ClearSlot(string subsystem, int slotIndex) {
-            var slotted = subsystems.Get(subsystem) as ISlottedSubsystem;
-            slotted?.ClearSlot(slotIndex);
-            Recalculate();
         }
 
         public void AddLevel() {

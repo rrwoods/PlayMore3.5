@@ -17,12 +17,6 @@ namespace PlayMore35.Tests {
             public Timeline Timeline => Character?.Timeline;
             public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
 
-            public readonly List<(string subsystem, int slotIndex)> ClearedSlots = new List<(string, int)>();
-
-            public void ClearSlot(string subsystem, int slotIndex) {
-                ClearedSlots.Add((subsystem, slotIndex));
-            }
-
             public List<AttackRoutine> GetAllRoutines() {
                 return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
             }
@@ -47,12 +41,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(context.Effects);
             Assert.IsNotNull(context.EquippedItems);
             Assert.IsNotNull(context.Timeline);
-
-            context.ClearSlot("vestige", 0);
-
-            Assert.AreEqual(1, context.ClearedSlots.Count);
-            Assert.AreEqual("vestige", context.ClearedSlots[0].subsystem);
-            Assert.AreEqual(0, context.ClearedSlots[0].slotIndex);
+            Assert.IsNotNull(context.Subsystems);
         }
     }
 }

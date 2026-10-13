@@ -162,12 +162,8 @@
     "scheduled actions": {
       "43214": [
         {
-          "clear_slots": [
-            {
-              "subsystem": "vestige",
-              "slot": 0
-            }
-          ]
+          "name": "Unbind vestige slot 0",
+          "unbind_vestige": 0
         }
       ]
     },

@@ -184,7 +184,7 @@ namespace PlayMore35.Effects {
                 Text.AddRange(json["text"].Select(x => new Text((JObject)x)));
             }
             if (json["actions"] != null) {
-                associatedAction.AddRange(json["actions"].Select(x => new SheetAction((JObject)x)));
+                associatedAction.AddRange(json["actions"].Select(x => SheetAction.FromJson((JObject)x)));
             }
         }
 

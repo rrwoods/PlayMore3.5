@@ -25,11 +25,6 @@ namespace PlayMore35.Tests {
                 Effects = new EffectPool(Character);
             }
 
-            public void ClearSlot(string subsystem, int slotIndex) {
-                var slotted = Subsystems.Get(subsystem) as ISlottedSubsystem;
-                slotted?.ClearSlot(slotIndex);
-            }
-
             public List<AttackRoutine> GetAllRoutines() {
                 return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
             }
@@ -38,19 +33,6 @@ namespace PlayMore35.Tests {
                 var all = GetAllRoutines();
                 var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
                 return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
-            }
-        }
-
-        private class SpySlottedSubsystem : ISlottedSubsystem {
-            public string Id => "spy-slotted";
-            public bool IsActive => true;
-            public int SlotCount => 2;
-            public List<int> ClearedSlots { get; } = new List<int>();
-
-            public void Initialize(ICharacterContext context) { }
-            public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
-            public void ClearSlot(int slotIndex) {
-                ClearedSlots.Add(slotIndex);
             }
         }
 
@@ -107,16 +89,22 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SheetAction_ClearSlot_DispatchesThroughSlottedSubsystem() {
+        public void UnbindVestigeAction_DispatchesThroughPactMagicEngine() {
             var context = new TestContextWithSlottedSubsystem();
-            var spy = new SpySlottedSubsystem();
-            context.Subsystems.Register(spy, "vestige");
+            var engine = new PactMagicEngine();
+            context.Subsystems.Register(engine, "vestige");
 
-            var action = new SheetAction().ClearSlot("vestige", 1);
+            context.Effects.AddStat(new Statistic(Constants.NUM_VESTIGES));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(Constants.NUM_VESTIGES, new Modifier(1, Constants.UNTYPED)));
+            engine.Initialize(context);
+
+            engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
+            Assert.AreEqual("Aym", engine.CurrentVestige(0)?.Name);
+
+            var action = new UnbindVestigeAction(0);
             action.Perform(context);
 
-            Assert.AreEqual(1, spy.ClearedSlots.Count);
-            Assert.AreEqual(1, spy.ClearedSlots[0]);
+            Assert.IsNull(engine.CurrentVestige(0));
         }
 
         [TestMethod]

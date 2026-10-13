@@ -12,6 +12,9 @@ namespace PlayMore35.Subsystems {
         public void Register(ISubsystemEngine engine, string alias = null) {
             if (engine == null) throw new ArgumentNullException(nameof(engine));
             if (!string.IsNullOrEmpty(engine.Id)) {
+                if (enginesById.TryGetValue(engine.Id, out var existing)) {
+                    engines.Remove(existing);
+                }
                 enginesById[engine.Id] = engine;
             }
             if (!string.IsNullOrEmpty(alias)) {

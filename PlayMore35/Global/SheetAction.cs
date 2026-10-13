@@ -1,21 +1,40 @@
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
-using PlayMore35.Subsystems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace PlayMore35.Global {
     public class SheetAction : IJsonable {
+        private static readonly List<Func<JObject, SheetAction>> parsers = new List<Func<JObject, SheetAction>>();
+
+        public static void RegisterParser(Func<JObject, SheetAction> parser) {
+            if (parser != null && !parsers.Contains(parser)) {
+                parsers.Add(parser);
+            }
+        }
+
+        public static void ClearParsers() {
+            parsers.Clear();
+        }
+
+        public static SheetAction FromJson(JObject json) {
+            if (json == null) return null;
+            foreach (var parser in parsers) {
+                var action = parser(json);
+                if (action != null) return action;
+            }
+            return new SheetAction(json);
+        }
+
         public string Name { get; set; } = null;
         string duration = null; // null for instantaneous, effect will not be reversed
         private readonly List<string> flagsToSet = new List<string>();
         private readonly List<string> flagsToClear = new List<string>();
         private readonly Dictionary<string, int> paramsToAdjust = new Dictionary<string, int>();
-        private readonly List<(string subsystem, int slotIndex)> slotsToClear = new List<(string, int)>();
         List<SheetAction> actionsAfter = new List<SheetAction>(); // actions to fire at the end of the duration
 
-        public JToken ToJson() {
+        public virtual JToken ToJson() {
             JObject json = new JObject();
             if (!string.IsNullOrEmpty(Name)) {
                 json["name"] = Name;
@@ -27,12 +46,6 @@ namespace PlayMore35.Global {
             json.AddList("clear", flagsToClear);
             if (paramsToAdjust.Any()) {
                 json["adjust"] = new JObject(paramsToAdjust.Select(x => new JProperty(x.Key, x.Value)));
-            }
-            if (slotsToClear.Any()) {
-                json["clear_slots"] = new JArray(slotsToClear.Select(s => new JObject(
-                    new JProperty("subsystem", s.subsystem),
-                    new JProperty("slot", s.slotIndex)
-                )));
             }
             json.AddList("after", actionsAfter);
             return json;
@@ -51,23 +64,14 @@ namespace PlayMore35.Global {
                 paramsToAdjust = ((JObject)json["adjust"]).Properties()
                     .ToDictionary(x => x.Name, x => int.Parse((string)x.Value));
             }
-            if (json["clear_slots"] != null) {
-                foreach (var token in (JArray)json["clear_slots"]) {
-                    ClearSlot((string)token["subsystem"], (int)token["slot"]);
-                }
-            } else if (json["unbind"] != null) {
-                foreach (var token in (JArray)json["unbind"]) {
-                    ClearSlot("vestige", (int)token);
-                }
-            }
             if (json["after"] != null) {
-                actionsAfter.AddRange(json["after"].Select(x => new SheetAction((JObject)x)));
+                actionsAfter.AddRange(json["after"].Select(x => SheetAction.FromJson((JObject)x)));
             }
         }
 
         public SheetAction() { }
 
-        private SheetAction Revert() {
+        protected virtual SheetAction Revert() {
             SheetAction revert = new SheetAction();
             revert.flagsToSet.AddRange(flagsToClear);
             revert.flagsToClear.AddRange(flagsToSet);
@@ -93,15 +97,6 @@ namespace PlayMore35.Global {
             return this;
         }
 
-        public SheetAction ClearSlot(string subsystem, int slotIndex) {
-            slotsToClear.Add((subsystem, slotIndex));
-            return this;
-        }
-
-        public SheetAction UnbindSlot(int slot) {
-            return ClearSlot("vestige", slot);
-        }
-
         public SheetAction Duration(string duration) {
             this.duration = duration;
             return this;
@@ -112,10 +107,10 @@ namespace PlayMore35.Global {
             return this;
         }
 
-        public TimelineRefreshRequirement Perform(ICharacterContext context) {
+        public virtual TimelineRefreshRequirement Perform(ICharacterContext context) {
             TimelineRefreshRequirement requirement = TimelineRefreshRequirement.None;
 
-            if (duration == "encounter" && !context.Timeline.Combat) {
+            if (duration == "encounter" && context != null && !context.Timeline.Combat) {
                 foreach (var after in actionsAfter) {
                     var req = after.Perform(context);
                     if (req > requirement) requirement = req;
@@ -123,7 +118,7 @@ namespace PlayMore35.Global {
                 return requirement;
             }
 
-            var effects = context.Effects;
+            var effects = context?.Effects;
             if (effects != null) {
                 flagsToSet.ForEach(x => {
                     if (effects.controllableFlags.ContainsKey(x)) {
@@ -148,36 +143,25 @@ namespace PlayMore35.Global {
                 }
             }
 
-            foreach (var slot in slotsToClear) {
-                var slotted = context.Subsystems?.Get(slot.subsystem) as ISlottedSubsystem
-                    ?? (slot.subsystem == "vestige" ? context.Subsystems?.Get<ISlottedSubsystem>() : null);
-                if (slotted != null) {
-                    slotted.ClearSlot(slot.slotIndex);
-                } else {
-                    context.ClearSlot(slot.subsystem, slot.slotIndex);
-                }
-                requirement = TimelineRefreshRequirement.FullReload;
-            }
-
             if (duration == null) {
                 foreach (var after in actionsAfter) {
                     var req = after.Perform(context);
                     if (req > requirement) requirement = req;
                 }
-            } else {
+            } else if (context != null) {
                 context.Timeline.Schedule(Revert(), duration, context);
             }
 
             return requirement;
         }
 
-        public bool Matches(SheetAction action) {
+        public virtual bool Matches(SheetAction action) {
+            if (action == null) return false;
             return Name == action.Name &&
                    duration == action.duration &&
                    flagsToSet.SequenceEqual(action.flagsToSet) &&
                    flagsToClear.SequenceEqual(action.flagsToClear) &&
                    paramsToAdjust.Count == action.paramsToAdjust.Count && !paramsToAdjust.Except(action.paramsToAdjust).Any() &&
-                   slotsToClear.SequenceEqual(action.slotsToClear) &&
                    actionsAfter.Count == action.actionsAfter.Count && (actionsAfter.Zip(action.actionsAfter, (x, y) => x.Matches(y)).All(x => x));
         }
     }

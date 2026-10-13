@@ -46,11 +46,11 @@ namespace PlayMore35.Global {
                 if (json["scheduled actions"] != null) {
                     foreach (JProperty sched in json["scheduled actions"]) {
                         scheduledActions[long.Parse(sched.Name)] =
-                            ((JArray)sched.Value).Select(x => new SheetAction((JObject)x)).ToList();
+                            ((JArray)sched.Value).Select(x => SheetAction.FromJson((JObject)x)).ToList();
                     }
                 }
                 if (json["encounter actions"] != null) {
-                    encounterActions.AddRange(json["encounter actions"].Select(x => new SheetAction((JObject)x)));
+                    encounterActions.AddRange(json["encounter actions"].Select(x => SheetAction.FromJson((JObject)x)));
                 }
             }
         }

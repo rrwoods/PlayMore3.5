@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -24,11 +25,6 @@ namespace PlayMore35.Tests {
             public TestContext() {
                 Character = new Character();
                 Effects = new EffectPool(Character);
-            }
-
-            public void ClearSlot(string subsystem, int slotIndex) {
-                var slotted = Subsystems.Get(subsystem) as ISlottedSubsystem;
-                slotted?.ClearSlot(slotIndex);
             }
 
             public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
@@ -143,8 +139,8 @@ namespace PlayMore35.Tests {
             engine.ChangePactState(0, PactState.POOR_PACT);
             Assert.AreEqual(PactState.POOR_PACT, engine.GetSlot(0).State);
 
-            // Clear slot 0
-            engine.ClearSlot(0);
+            // Unbind vestige slot 0
+            engine.UnbindVestige(0);
             Assert.AreEqual("", engine.GetSlot(0).VestigeName);
             Assert.IsNull(engine.CurrentVestige(0));
         }
@@ -332,11 +328,12 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, session.GetControllableParameters().First(p => p.Name == "Savnok's influence defied").Value);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
 
-            // 3. ClearSlot resets defiance count to 0
+            // 3. UnbindVestige resets defiance count to 0
             session.SetParameter("Savnok's influence defied", 2);
             Assert.AreEqual(baseFort - 2, session.GetStatistic(FORT_SAVES).Value);
 
-            session.ClearSlot("vestige", 0);
+            pactEngine.UnbindVestige(0);
+            session.Recalculate();
             Assert.AreEqual(0, session.Character.paramValues["Savnok's influence defied"]);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
 
@@ -346,7 +343,7 @@ namespace PlayMore35.Tests {
             session.SetParameter("Naberius's influence defied", 2);
             Assert.AreEqual(baseFort - 2, session.GetStatistic(FORT_SAVES).Value);
 
-            session.Timeline.Schedule(new SheetAction().ClearSlot("vestige", 0), "24 hours");
+            session.Timeline.Schedule(new UnbindVestigeAction(0), "24 hours");
             session.AdvanceTimeline(new LengthOfTime("24 hours"));
 
             Assert.IsNull(pactEngine.CurrentVestige(0));
@@ -426,6 +423,23 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(PactState.GOOD_PACT, restoredPact.Slots[0].State);
             Assert.AreEqual("Ronove", restoredPact.Slots[1].VestigeName);
             Assert.AreEqual(PactState.POOR_PACT, restoredPact.Slots[1].State);
+        }
+
+        [TestMethod]
+        public void OdricJson_LoadsScheduledUnbindVestigeAction_Correctly() {
+            var dir = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            while (dir != null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "Odric.json"))) {
+                dir = dir.Parent;
+            }
+            Assert.IsNotNull(dir, "Could not locate Odric.json in ancestor directories.");
+
+            var path = System.IO.Path.Combine(dir.FullName, "Odric.json");
+            var json = JObject.Parse(System.IO.File.ReadAllText(path));
+            var character = new Character(json);
+
+            Assert.IsNotNull(character.Timeline);
+            var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
+            Assert.IsNotNull(session.Subsystems.Get<PactMagicEngine>());
         }
     }
 }

@@ -70,7 +70,6 @@ namespace PlayMore35.Global {
         TimelineAdvanceResult SetTime(DateTime time);
         TimelineAdvanceResult StartCombat();
         TimelineAdvanceResult EndCombat();
-        void ClearSlot(string subsystem, int slotIndex);
 
         int GetSizeCategory();
         int GetStartingIntelligence();

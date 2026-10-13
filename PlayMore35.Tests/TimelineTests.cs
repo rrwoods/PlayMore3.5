@@ -18,12 +18,6 @@ namespace PlayMore35.Tests {
             public Timeline Timeline => Character?.Timeline;
             public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
 
-            public readonly List<(string subsystem, int slotIndex)> ClearedSlots = new List<(string, int)>();
-
-            public void ClearSlot(string subsystem, int slotIndex) {
-                ClearedSlots.Add((subsystem, slotIndex));
-            }
-
             public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
             public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
         }

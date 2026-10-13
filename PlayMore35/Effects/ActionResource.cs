@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,7 +54,7 @@ namespace PlayMore35.Effects {
                 Duration = (string)json["duration"];
             }
             if (json["after"] != null) {
-                ActionAfter = new SheetAction((JObject)json["after"]);
+                ActionAfter = SheetAction.FromJson((JObject)json["after"]);
             }
         }
 

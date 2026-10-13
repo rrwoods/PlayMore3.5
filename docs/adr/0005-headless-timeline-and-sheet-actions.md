@@ -1,4 +1,4 @@
-﻿# Headless Timeline and Sheet Actions
+# Headless Timeline and Sheet Actions
 
 ## Context
 In previous iterations, tracking time progression (`Rounds`) and executing timed duration reversions (`SheetAction`) were directly coupled to the Windows Forms graphical interface (`MainForm`). Action expiration and round ticks called UI refresh and reload methods directly, requiring `Character` to take `MainForm` in its constructor. This prevented headless automated testing (leading to the deletion of unit tests) and made it impossible to run multiple character timelines concurrently within an Encounter Tracker. An earlier attempt using an observer pattern (`RoundObserver`) had been discarded due to polymorphic serialization complexity and conflating view repaints with domain state scheduling.
@@ -8,7 +8,7 @@ We decouple the `Timeline` and `SheetAction` engine completely from the presenta
 1. `Timeline` operates as a headless domain module managing combat rounds, timestamps, cadence threshold resets, and scheduled action queues.
 2. `Timeline.Advance()`, `StartCombat()`, and `EndCombat()` return a deterministic `TimelineAdvanceResult` indicating whether state changed and the degree of recalculation required (`TimelineRefreshRequirement`: `None`, `RecomputeDerived`, or `FullReload`).
 3. `SheetAction.Perform()` executes against an `ICharacterContext` seam without reference to UI classes.
-4. `SheetAction` uses generic slot clearance (`ClearSlot(subsystem, slotIndex)`), with transparent backward-compatible deserialization for legacy `"unbind"` vestige data.
+4. `SheetAction` supports subsystem-specific actions via decoupled derived classes (`UnbindVestigeAction`) registered into `SheetAction.FromJson`, superseding earlier generic slot clearance (`ClearSlot(subsystem, slotIndex)`) per ADR-0006.
 
 ## Consequences
 - Enables automated headless unit testing for time advancement, duration expiration, and condition reversion without instantiating Windows Forms.

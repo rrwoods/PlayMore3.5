@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace PlayMore35.Subsystems {
-    public class SubsystemSlotGroup<TSlot> {
+namespace PlayMore35.Subsystems.PactMagic {
+    internal class SubsystemSlotGroup<TSlot> {
         private readonly Func<int> capacityProvider;
         private readonly List<TSlot> slots = new List<TSlot>();
 

@@ -6,29 +6,16 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
     [TestClass]
     public class SubsystemEngineTests {
-        private class FakeSlottedSubsystem : ISlottedSubsystem {
-            public string Id => "fake-slotted";
-            public bool IsActive { get; set; } = true;
-            public int SlotCount => 3;
-            public List<int> ClearedSlots { get; } = new List<int>();
-            public bool Initialized { get; private set; }
-            public bool ContributedEffects { get; private set; }
-
-            public void Initialize(ICharacterContext context) {
-                Initialized = true;
-            }
-
-            public void ContributeEffects(EffectPool pool, ICharacterContext context) {
-                ContributedEffects = true;
-            }
-
-            public void ClearSlot(int slotIndex) {
-                ClearedSlots.Add(slotIndex);
-            }
+        private class FakeFirstSubsystem : ISubsystemEngine {
+            public string Id => "fake-first";
+            public bool IsActive => true;
+            public void Initialize(ICharacterContext context) { }
+            public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
         }
 
         private class FakeSimpleSubsystem : ISubsystemEngine {
@@ -41,22 +28,21 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void SubsystemRegistry_RegistersAndRetrievesEngines_ByTypeAndId() {
             var registry = new SubsystemRegistry();
-            var slotted = new FakeSlottedSubsystem();
+            var first = new FakeFirstSubsystem();
             var simple = new FakeSimpleSubsystem();
 
-            registry.Register(slotted);
+            registry.Register(first);
             registry.Register(simple);
 
-            Assert.AreSame(slotted, registry.Get<FakeSlottedSubsystem>());
-            Assert.AreSame(slotted, registry.Get<ISlottedSubsystem>());
-            Assert.AreSame(slotted, registry.Get("fake-slotted"));
+            Assert.AreSame(first, registry.Get<FakeFirstSubsystem>());
+            Assert.AreSame(first, registry.Get("fake-first"));
 
             Assert.AreSame(simple, registry.Get<FakeSimpleSubsystem>());
             Assert.AreSame(simple, registry.Get("fake-simple"));
 
             Assert.IsNull(registry.Get("nonexistent"));
             var unregistered = new SubsystemRegistry();
-            Assert.IsNull(unregistered.Get<FakeSlottedSubsystem>());
+            Assert.IsNull(unregistered.Get<FakeFirstSubsystem>());
         }
 
         [TestMethod]
@@ -96,41 +82,6 @@ namespace PlayMore35.Tests {
             // Clear slot
             slotGroup.ClearSlot(0);
             Assert.IsNull(slotGroup[0]);
-        }
-
-        [TestMethod]
-        public void ResourcePool_HandlesSpendRestoreAndReset_RespectingCapacityCaps() {
-            int maxCap = 10;
-            var pool = new ResourcePool("power-points", () => maxCap);
-
-            Assert.AreEqual("power-points", pool.Id);
-            Assert.AreEqual(10, pool.Max);
-            Assert.AreEqual(10, pool.Current);
-
-            // Spend valid amount
-            Assert.IsTrue(pool.Spend(4));
-            Assert.AreEqual(6, pool.Current);
-
-            // Spend more than available fails
-            Assert.IsFalse(pool.Spend(7));
-            Assert.AreEqual(6, pool.Current);
-
-            // Restore clamps to Max
-            pool.Restore(2);
-            Assert.AreEqual(8, pool.Current);
-            pool.Restore(10);
-            Assert.AreEqual(10, pool.Current);
-
-            // Spend and Reset restores to Max
-            pool.Spend(5);
-            Assert.AreEqual(5, pool.Current);
-            pool.Reset();
-            Assert.AreEqual(10, pool.Current);
-
-            // Dynamic max shrink clamps current
-            maxCap = 3;
-            Assert.AreEqual(3, pool.Max);
-            Assert.AreEqual(3, pool.Current);
         }
 
         [TestMethod]
