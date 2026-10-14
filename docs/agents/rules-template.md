@@ -61,6 +61,13 @@ Every `.md` file under `docs/rules/` is capped at **300 lines** (enforced by `Ru
 
 When an ability modifies an underlying system mechanic via an explicit formula (such as adjusting an effective level, bonus, or progression parameter), execute the full mechanical pipeline for every evaluation. Never replace the rule's explicit calculation with an informal pattern or mental shortcut induced from a few sample cases.
 
+### Positive grilling & conversational protocol
+
+When framing frontier questions and recommendations in `/grilling`, `/wayfinder`, or general chat:
+- Focus questions on **engine representation and software architecture** (data modeling in `rules.json`, class hierarchies, seams, non-blocking warning badges).
+- If a decision or recommendation hinges on a game rule that is still a `TODO` or absent in `docs/rules/`, use this explicit positive recommendation token:
+  `➡️ Recommendation: Defer until human arbitration provides the primary source citation for [Rule].`
+
 ## Issue / Spec template
 
 Use this template when creating GitHub issues or drafting specs for rules, statistics, subsystems, feats, classes, or modifiers:
@@ -125,3 +132,10 @@ Use this checklist during triage, planning, and code review:
 | **Planning** | **Zero Extrapolation** | Implementation plan (`implementation_plan.md`) includes a `Rules Provenance` section reproducing the verified quote from `docs/rules/`. No mechanics are assumed from memory. Apply explicit modifier formulas; never substitute shortcuts induced from sample cases. |
 | **Coding** | **Fidelity, Citations & Line Cap** | Code strictly models the quoted text. Unit tests cite book and page in comments. Updated `docs/rules/` files pass `RulesLibraryStructureTests` ($\le 300$ lines). |
 | **Review** | **Spec Axis Review** | `/code-review` verifies the diff adheres strictly to the quoted text without unauthorized feature creep and that any newly arbitrated citation is persisted in `docs/rules/`. |
+
+### Phase boundary enforcement
+
+Enforce rules provenance at phase gates rather than relying on in-flight self-interception:
+- **Spec Gate (`/to-spec`)**: A rules-bearing task cannot be marked `ready-for-agent` without Section 2 (Rules Provenance) completed with sourcebook, page number, and verbatim quote (either retrieved from a populated `docs/rules/` entry or newly confirmed by the maintainer and written to `docs/rules/`).
+- **TDD Gate (`/tdd`)**: Every unit test verifying a game rule must cite the primary source in a comment directly above the test method (`// Source: <Sourcebook Name>, p. <Number>`). If the citation is missing from `docs/rules/`, pause and request the source from the user before proceeding.
+- **Review & Pre-commit Gate (`/code-review`, `git commit`)**: Audit all modified rules logic and `PlayMore35/Resources/*.json` entries strictly against the verified primary source quote in `docs/rules/` or the issue. Confirm that unit tests cite the primary source, that newly arbitrated citations were written to `docs/rules/`, and that no unarbitrated mechanical assumptions crept into the implementation.
