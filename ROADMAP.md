@@ -12,15 +12,6 @@ Features required for the author's primary active character, alongside immediate
 
 ### Odric Level Progression
 
-### Subsystem Delegation Refactor (Prerequisite to Level 5)
-- **Align Subsystem Code with ADR-0006**:
-  - Bring existing subsystem implementation in line with the updated ADR-0006 (*Modular Subsystem Engines and Delegation Architecture*) and `docs/agents/subsystems.md` before implementing subsequent subsystems.
-  - Slices:
-    1. **Purge `ISlottedSubsystem`**: Remove `ISlottedSubsystem.cs` and update `PactMagicEngine` to implement only `ISubsystemEngine`, managing slots via internal delegation.
-    2. **Decouple Timeline & SheetAction Slot Expiration**: Replace global slotted dispatch in `SheetAction.Perform` and `CharacterSession.ClearSlot` with direct routing to `PactMagicEngine`, eliminating cross-subsystem slot assumptions.
-    3. **Retire Speculative Single-Subsystem Abstractions**: Retire unused `ResourcePool.cs` and keep `SubsystemSlotGroup<TSlot>` internal to Pact Magic until a second implemented subsystem justifies shared extraction.
-    4. **Align Test Suite**: Update `PactMagicEngineTests`, `SheetActionTests`, `ControllerShrinkageAndIntegrationTests`, and `SubsystemEngineTests` to verify `PactMagicEngine` and `SheetAction` without `ISlottedSubsystem`.
-
 ### Level 5: Martial Maneuvers
 - **[ODRIC 5] Tome of Battle Maneuver System**:
   - Support martial maneuver progression (Swordsage, Crusader, Warblade).
