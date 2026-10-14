@@ -60,8 +60,12 @@ Features required for the author's primary active character, alongside immediate
 Anything in this tier that turns out not to be easy should be deferred.
 
 - **Action Highlighter**:
-  - Provide checkboxes for remaining turn actions (standard, move, swift).
+  - Track the player's available actions (default to standard + move + swift at the start of each turn, if no effects are granting extra actions).
   - Highlight usable abilities and attacks (single attack if standard available, full attack if full-round available, etc.) without hard locking.  Gray out non-usable ones.
+  - Provide a "use" menu item on the right click menu for every UI item that represents an action the player can take (including attacks) (some actions already have this).  Clicking this menu item consumes the associated action.
+  - Instead of "next round", have an "end turn" and "begin turn" button (round counters tick down at start of turn).
+  - Highlight immediate actions when it's not the player's turn.
+  - Using an immediate action consumes the *upcoming turn's swift action*.
 - **Chain of calculation**:
   - When hovering a stat on the stats page, highlight other stats it affects in one color and stats affecting it in another.  E.g., when hovering Wisdom modifier, highlight Listen and Spot in the first color and Wisdom score in the second color.
 - **Vestige description tooltips**:
