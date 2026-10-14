@@ -12,6 +12,10 @@ Canonical triage roles mapped to matching labels (`needs-triage`, `needs-info`, 
 
 Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root) for project and engine vocabulary, plus progressively disclosed 3.5e rules and content citations in `docs/rules/`. See `docs/agents/domain.md`, `docs/agents/rules-template.md`, and `docs/agents/subsystems.md`.
 
+### Sourcebooks and PDF extraction
+
+Consulting rules in primary source PDFs (environment, PyMuPDF, image rendering, and scratch scripts): see `docs/agents/sourcebooks.md`.
+
 ### Product vision
 
 Product destination, architectural invariants, capability frontiers, and anti-goals: see `VISION.md`.
@@ -44,7 +48,8 @@ When authoring pull request descriptions with Mermaid diagrams:
 Unrecorded D&D 3.5e game rules are **Domain Specifications**, while verified citations recorded in `docs/rules/` are **Environmental Facts** (see `GLOSSARY.md`). This invariant binds **all chat turns, grilling rounds, recommendations, planning, and code**:
 - **Applies to mechanics and game content only**: Binds actual game rules logic and content definitions (math formulas, stacking, prerequisites, modifiers, subsystem interactions, and `PlayMore35/Resources/*.json` entries). Does not apply to application presentation schema or UI layout categorization (e.g. Column 0 `Exploration` or `Social` section groupings).
 - **Progressive disclosure lookup (`docs/rules/`)**: Load only the specific file(s) relevant to the mechanic or content under discussion:
-  - **Systemic mechanics** (`rules.json` and engine subsystems): `docs/rules/mechanics/<topic>.md` (`abilities-and-saves.md`, `skills.md`, `combat.md`, `health-and-conditions.md`, `equipment-and-encumbrance.md`, `progression.md`, `stacking-and-modifiers.md`, `pact-magic.md`).
+  - **Core systemic mechanics** (`rules.json` and core engine): `docs/rules/mechanics/<topic>.md` (`abilities-and-saves.md`, `skills.md`, `combat.md`, `health-and-conditions.md`, `equipment-and-encumbrance.md`, `progression.md`, `stacking-and-modifiers.md`).
+  - **Subsystem mechanics** (modular magic and martial systems): `docs/rules/subsystems/<subsystem>.md` (`pact-magic.md`, `maneuvers.md`, etc.).
   - **Specific content** (1:1 mirror of `PlayMore35/Resources/<stem>.json`): `docs/rules/content/<stem>.md` or, once split, `docs/rules/content/<stem>/` (such as `docs/rules/content/classes/<class>.md`).
 - **Two-state resolution & write-back**:
   - **Populated citation in `docs/rules/`**: Counts as an **Environmental Fact**. Use it directly without re-asking the human.
@@ -65,7 +70,7 @@ Before committing or marking a PR ready:
 - **Rules provenance gate**: Verify rules provenance for any changes touching game mechanics per [Rules arbitration invariant](#rules-arbitration-invariant).
 - **Scope gate**: Audit the diff against the originating issue's **Out of Scope** and **Anti-goals** and `CODING_STANDARDS.md`. Flag any JSON fallback, adapter shim, compatibility layer, or deprecated forwarding constructor as a hard violation.
 - **Documentation gate**: When authoring an `implementation_plan.md` (include under `Proposed Changes`) or before running `git commit`, inspect changes and update repository documentation as appropriate:
-  - `docs/rules/`: When a game rule or content item is arbitrated, replace its `TODO` stub or add the citation in `docs/rules/mechanics/` or `docs/rules/content/`. When new mechanics or content entries are added without immediate citation, add a `- [ ] **<Name>**: TODO` stub to the matching file.
+  - `docs/rules/`: When a game rule or content item is arbitrated, replace its `TODO` stub or add the citation in `docs/rules/mechanics/`, `docs/rules/subsystems/`, or `docs/rules/content/`. When new mechanics or content entries are added without immediate citation, add a `- [ ] **<Name>**: TODO` stub to the matching file.
   - `README.md`: When user-facing features, dashboard workflows, status matrix, or setup instructions change.
   - `ROADMAP.md`: When backlog items, progression tiers, or feature priorities are started, completed, or reordered. When backlog items are completed, remove them from `ROADMAP.md` rather than marking them as completed in the text.
   - `GLOSSARY.md`: When project/engine domain language or architectural concepts are introduced, modified, or retired (keep specific 3.5e rules and game content in `docs/rules/`, never `GLOSSARY.md`).

@@ -57,6 +57,10 @@ Every `.md` file under `docs/rules/` is capped at **300 lines** (enforced by `Ru
 - When recording a citation pushes a file over 300 lines (or `RulesLibraryStructureTests` fails), **pause and initiate a `/grilling` session** with the human maintainer to decide the subgrouping(s).
 - Once the subgrouping is agreed upon, replace `<stem>.md` with the directory `<stem>/` containing the agreed sub-files.
 
+### Explicit modifier formulas over induced shortcuts
+
+When an ability modifies an underlying system mechanic via an explicit formula (such as adjusting an effective level, bonus, or progression parameter), execute the full mechanical pipeline for every evaluation. Never replace the rule's explicit calculation with an informal pattern or mental shortcut induced from a few sample cases.
+
 ## Issue / Spec template
 
 Use this template when creating GitHub issues or drafting specs for rules, statistics, subsystems, feats, classes, or modifiers:
@@ -118,6 +122,6 @@ Use this checklist during triage, planning, and code review:
 | Stage | Check | Pass Criteria |
 | :--- | :--- | :--- |
 | **Lookup / Triage** | **Source Verified & Recorded** | Check `docs/rules/` first. If `TODO` or missing, obtain exact sourcebook, page number, and quote from the human (or label `needs-info`) and record it in `docs/rules/`. |
-| **Planning** | **Zero Extrapolation** | Implementation plan (`implementation_plan.md`) includes a `Rules Provenance` section reproducing the verified quote from `docs/rules/`. No mechanics are assumed from memory. |
+| **Planning** | **Zero Extrapolation** | Implementation plan (`implementation_plan.md`) includes a `Rules Provenance` section reproducing the verified quote from `docs/rules/`. No mechanics are assumed from memory. Apply explicit modifier formulas; never substitute shortcuts induced from sample cases. |
 | **Coding** | **Fidelity, Citations & Line Cap** | Code strictly models the quoted text. Unit tests cite book and page in comments. Updated `docs/rules/` files pass `RulesLibraryStructureTests` ($\le 300$ lines). |
 | **Review** | **Spec Axis Review** | `/code-review` verifies the diff adheres strictly to the quoted text without unauthorized feature creep and that any newly arbitrated citation is persisted in `docs/rules/`. |
