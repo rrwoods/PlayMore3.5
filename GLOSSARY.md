@@ -144,6 +144,18 @@ _Avoid_: Resource, pool, spell pool
 A personality quirk and behavioral requirement imposed by a bound vestige during a poor pact, whose defiance incurs cumulative penalties until the pact ends.
 _Avoid_: Bad pact effect, vestige penalty, pact flaw
 
+**Sublime Way**:
+The martial combat subsystem encompassing maneuvers and stances, classified into nine disciplines and accessed through initiator level.
+_Avoid_: Blade magic, combat magic, sword spells
+
+**Maneuver**:
+A discrete extraordinary or supernatural combat action (boost, counter, or strike) initiated by a martial adept and temporarily expended until recovered.
+_Avoid_: Spell, combat trick, special attack
+
+**Stance**:
+A continuous martial combat posture initiated as a swift action that provides ongoing benefits until replaced or rendered helpless; counts as a maneuver solely for prerequisites and level access.
+_Avoid_: Maneuver, mode, aura, sustained spell
+
 ### Inventory & Equipment
 
 **Equipped Item**:

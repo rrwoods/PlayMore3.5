@@ -36,6 +36,8 @@ Prefer linear git history:
 - Rebase working branches onto the target base branch (`git rebase <base>`) rather than creating merge commits.
 - Integrate branch commits via fast-forward merges (`git merge --ff-only <branch>`). Avoid `--no-ff` merge commits where possible.
 - When a task graph has a single active frontier (strictly sequential dependencies), work directly on the branch without creating extra worktree indirection. Still dispatch an implementer subagent per ticket (inheriting the workspace) to keep the orchestrator's context window lean.
+- **Synchronous commit execution**: Set `WaitMsBeforeAsync: 10000` when executing `git commit` so pre-commit test hooks complete synchronously.
+- **Reactive wakeup on background tasks**: When a command runs as an asynchronous background task, immediately yield the turn without querying `manage_task status`. Rely exclusively on the system's reactive wakeup message to resume execution.
 
 ### Pull requests
 

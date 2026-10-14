@@ -61,6 +61,13 @@ Every `.md` file under `docs/rules/` is capped at **300 lines** (enforced by `Ru
 
 When an ability modifies an underlying system mechanic via an explicit formula (such as adjusting an effective level, bonus, or progression parameter), execute the full mechanical pipeline for every evaluation. Never replace the rule's explicit calculation with an informal pattern or mental shortcut induced from a few sample cases.
 
+### Rules library authoring style
+
+When writing or updating reference documents in `docs/rules/`:
+- **Positive, direct statements**: State the active rule and formula directly, citing the primary sourcebook and page. Record verified mechanical facts; omit discarded options, sourcebook typos, and conversational arbitration numbering.
+- **Pure mechanics**: Restrict content to actionable mechanics: data properties, formulas, action types, prerequisite trees, associated skills or weapons, and stacking rules. Omit narrative flavor summaries.
+- **Subsystem-specific scope**: Only document universal mechanics when a subsystem explicitly modifies or overrides baseline behavior. Rely on canonical core mechanics files (`docs/rules/mechanics/`) for standard action economy and combat rules.
+
 ### Positive grilling & conversational protocol
 
 When framing frontier questions and recommendations in `/grilling`, `/wayfinder`, or general chat:
