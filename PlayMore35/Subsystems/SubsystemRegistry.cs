@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using PlayMore35.Global;
 using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemRegistry {
         public static void RegisterDefaultActionParsers() {
-            PactMagicEngine.RegisterActionParsers();
+            SheetAction.RegisterParser(UnbindVestigeAction.TryParse);
         }
 
         private readonly List<ISubsystemEngine> engines = new List<ISubsystemEngine>();
