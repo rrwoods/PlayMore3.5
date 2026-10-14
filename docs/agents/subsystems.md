@@ -1,4 +1,4 @@
-﻿# Subsystem Design and Implementation Guidelines
+# Subsystem Design and Implementation Guidelines
 
 Guidelines and architectural principles for implementing D&D 3.5e magic and martial subsystems in PlayMore35.
 
@@ -56,7 +56,7 @@ PlayMore35 encompasses diverse magic and martial systems across published 3.5e s
 | **Incarnum** | *Magic of Incarnum* | Meldshaper | Shapes | Soulmeld | Body slot mapping, chakra binds, essentia capacity caps, dynamic essentia investment and reallocation. |
 | **Invocations** | *Complete Arcane* / *Dragon Magic* | Invoker | Invokes | Invocation | Grade categorization (least, lesser, greater, dark), at-will execution, 24-hour sustained self-buff toggles. |
 
-*(Note: Other subsystems, such as Words of Creation or Tainted Magic, follow these same guidelines if introduced).*
+*(Note: Other subsystems follow these same guidelines if introduced).*
 
 ---
 
@@ -85,18 +85,3 @@ Prefactor or extract a shared delegate only when an already-implemented subsyste
 ### 3.4 Non-Progression Access
 - **Feat grants**: Feats grant subsystem access independently of class progression—for example, *Martial Study* grants a maneuver of any discipline within initiator level limits; *Shape Soulmeld* grants access to any class's soulmeld; and *Wild Talent* grants a power point pool without manifester class levels.
 - **Class exception features**: Features like Beguiler's *Advanced Learning* grant access to out-of-list spells meeting specific school and level constraints.
-
----
-
-## 4. Implementation Path: Aligning Code with ADR-0006
-
-Because PlayMore35 currently implements one subsystem (Pact Magic), the following roadmap item brings the codebase into alignment with ADR-0006 before subsequent subsystems are built:
-
-1. **Retire `ISlottedSubsystem`**:
-   - `ISlottedSubsystem` imposes a 1D flat slot interface (`SlotCount`, `ClearSlot(int slotIndex)`) onto `ISubsystemEngine`.
-   - Reverse this in code by having `PactMagicEngine` manage its slots via an internal delegate. Timeline slot expiration (`SheetAction`) should target engine-specific or delegate operations rather than relying on a global interface.
-2. **Retire Unused `ResourcePool`**:
-   - `PlayMore35.Subsystems.ResourcePool` was created speculatively and currently has zero production callers.
-   - When a resource-spending subsystem (such as Psionics or Spontaneous Casting) is implemented alongside a second consumer, extract a shared resource delegate just-in-time.
-3. **Migrate Content Provider into `IRulesCatalog`**:
-   - Replace `ISubsystemContentProvider` (which hardcodes vestige lookups) by registering vestige definitions directly into `IRulesCatalog` alongside weapons, feats, and spells.
