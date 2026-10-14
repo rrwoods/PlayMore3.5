@@ -16,7 +16,6 @@ Features required for the author's primary active character, alongside immediate
 - **[ODRIC 5] Tome of Battle Maneuver System**:
   - Citation prerequisites:
     - Cite all the rules for maneuvers via class-based progression (Martial Study can come later).
-    - While we're here, after writing the pact magic rules citations, have an agent check the implementation against the cited rules.
   - Support martial maneuver progression (Swordsage, Crusader, Warblade).
   - Maneuver preparation and readied/expended tracking: initiating a maneuver expends it until recovered.
   - Active stance effects that project bonuses and capabilities while toggled on.
@@ -58,7 +57,7 @@ Features required for the author's primary active character, alongside immediate
 
 ---
 
-## Tier 1.5: "Easy" UX
+## Tier 1.5: "Easy" UX and other intermediate tasks
 
 Anything in this tier that turns out not to be easy should be deferred.
 
@@ -71,8 +70,17 @@ Anything in this tier that turns out not to be easy should be deferred.
   - Using an immediate action consumes the *upcoming turn's swift action*.
 - **Chain of calculation**:
   - When hovering a stat on the stats page, highlight other stats it affects in one color and stats affecting it in another.  E.g., when hovering Wisdom modifier, highlight Listen and Spot in the first color and Wisdom score in the second color.
-- **Vestige description tooltips**:
+- **Rounding out Pact Magic**: (each of these is one separate task)
   - When hovering a vestige on the Vestiges tab, I want to know its special requirements (if any), its influence, and its effects.
+  - Rushed binding (Tome of Magic p10) (take -10 on the binding check to perform it as a single full-round action)
+  - Vestige signs
+  - The rest of the binder class (including Suppress Sign)
+  - Include {{vestige save DC}} in relevant Vestige abilities
+  - 24 hr pact irrevocability (adhering to enable-don't-enforce)
+  - Fully document every vestige in the game, in docs/rules/content/vestiges.md (including Zceryll).
+  - Fully document all of binder's statistics and class features.
+  - Fully implement binder's class features.
+
 - **Encumbrance and Carrying Capacity visibility**:
   - Show the player what their weight limits are, and their current load category
 
