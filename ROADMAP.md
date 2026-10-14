@@ -14,6 +14,9 @@ Features required for the author's primary active character, alongside immediate
 
 ### Level 5: Martial Maneuvers
 - **[ODRIC 5] Tome of Battle Maneuver System**:
+  - Citation prerequisites:
+    - Cite all the rules for maneuvers via class-based progression (Martial Study can come later).
+    - While we're here, after writing the pact magic rules citations, have an agent check the implementation against the cited rules.
   - Support martial maneuver progression (Swordsage, Crusader, Warblade).
   - Maneuver preparation and readied/expended tracking: initiating a maneuver expends it until recovered.
   - Active stance effects that project bonuses and capabilities while toggled on.

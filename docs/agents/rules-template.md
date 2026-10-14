@@ -17,18 +17,25 @@ docs/rules/
 │   ├── combat.md
 │   ├── equipment-and-encumbrance.md
 │   ├── health-and-conditions.md
-│   ├── pact-magic.md
 │   ├── progression.md
 │   ├── skills.md
 │   └── stacking-and-modifiers.md
-└── content/                            ← 1:1 mirror of PlayMore35/Resources/<stem>.json
+├── subsystems/                         ← Subsystem rules (e.g. spellcasting, manifesting, etc)
+│   ├── spellcasting.md (not yet present)
+│   ├── manifesting.md (not yet present)
+│   ├── maneuvers.md
+│   ├── pact-magic.md
+│   ├── truenaming.md (not yet present)
+│   ├── mysteries.md (not yet present)
+│   ├── meldshaping.md (not yet present)
+│   ├── invocations.md (not yet present)
+└── content/                            ← 1:1 mirror of PlayMore35/Resources/<stem>.json (excluding external.json)
     ├── armor.md
     ├── armorProperties.md
-    ├── classes/                        ← Split per class from day one
+    ├── classes/
     │   ├── barbarian.md
     │   ├── binder.md
     │   └── fighter.md
-    ├── external.md
     ├── feats.md
     ├── items.md
     ├── races.md
