@@ -8,25 +8,46 @@ using System.Linq;
 namespace PlayMore35.Global {
     public class SheetAction : IJsonable {
         private static readonly List<Func<JObject, SheetAction>> parsers = new List<Func<JObject, SheetAction>>();
+        private static readonly object parserLock = new object();
         private static bool defaultParsersRegistered = false;
 
         private static void EnsureDefaultParsers() {
             if (!defaultParsersRegistered) {
-                defaultParsersRegistered = true;
-                SubsystemRegistry.RegisterDefaultActionParsers();
+                lock (parserLock) {
+                    if (!defaultParsersRegistered) {
+                        defaultParsersRegistered = true;
+                        SubsystemRegistry.RegisterDefaultActionParsers();
+                    }
+                }
             }
         }
 
         public static void RegisterParser(Func<JObject, SheetAction> parser) {
-            if (parser != null && !parsers.Contains(parser)) {
-                parsers.Add(parser);
+            if (parser != null) {
+                lock (parserLock) {
+                    if (!parsers.Contains(parser)) {
+                        parsers.Add(parser);
+                    }
+                }
+            }
+        }
+
+        public static void ResetParsersForTesting() {
+            lock (parserLock) {
+                parsers.Clear();
+                defaultParsersRegistered = false;
+                EnsureDefaultParsers();
             }
         }
 
         public static SheetAction FromJson(JObject json) {
             if (json == null) return null;
             EnsureDefaultParsers();
-            foreach (var parser in parsers) {
+            List<Func<JObject, SheetAction>> parsersSnapshot;
+            lock (parserLock) {
+                parsersSnapshot = new List<Func<JObject, SheetAction>>(parsers);
+            }
+            foreach (var parser in parsersSnapshot) {
                 var action = parser(json);
                 if (action != null) return action;
             }

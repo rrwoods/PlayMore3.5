@@ -15,14 +15,6 @@ namespace PlayMore35.Subsystems.PactMagic {
         private ICharacterContext context;
         private bool stateLoaded = false;
 
-        static PactMagicEngine() {
-            RegisterActionParsers();
-        }
-
-        public static void RegisterActionParsers() {
-            SheetAction.RegisterParser(UnbindVestigeAction.TryParse);
-        }
-
         public PactMagicEngine(ISubsystemContentProvider contentProvider = null) {
             this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
             this.slots = new SubsystemSlotGroup<PactSlot>(() => {
@@ -47,7 +39,6 @@ namespace PlayMore35.Subsystems.PactMagic {
         public int SlotCount => slots.Capacity;
 
         public void Initialize(ICharacterContext context) {
-            RegisterActionParsers();
             this.context = context ?? throw new ArgumentNullException(nameof(context));
             this.slots = new SubsystemSlotGroup<PactSlot>(() => {
                 if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
