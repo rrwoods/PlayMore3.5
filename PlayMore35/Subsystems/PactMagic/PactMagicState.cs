@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems.PactMagic {
-    public class PactMagicState : ISubsystemState {
-        public string SubsystemId => PactMagicEngine.SubsystemId;
+    public class PactMagicState : IJsonable {
         public List<PactSlot> Slots { get; set; } = new List<PactSlot>();
 
         public JToken ToJson() {

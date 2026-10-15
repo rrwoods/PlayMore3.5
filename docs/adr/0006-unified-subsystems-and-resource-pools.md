@@ -26,8 +26,8 @@ We structure subsystems around independent engines that plug into the character 
    - Immutable subsystem content definitions (`vestiges.json`, `maneuvers.json`, `spells.json`) load via `IRulesCatalog`, sharing thread-safe catalog data across concurrent character sessions and encounter tracking without redundant file parsing.
 
 6. **Decoupled Character State Persistence**:
-   - `Character` persists subsystem state modularly in `Dictionary<string, ISubsystemState> Subsystems` serialized under a `"subsystems"` JSON container.
-   - Each subsystem engine owns its strongly typed state document implementing `ISubsystemState` and `IJsonable` with explicit constructor deserialization.
+   - `Character` persists subsystem state modularly in `Dictionary<string, IJsonable> Subsystems` serialized under a `"subsystems"` JSON container.
+   - Each subsystem engine owns its strongly typed state document implementing `IJsonable` with explicit constructor deserialization.
 
 7. **Statistic-Driven Activation and Advisory Validation**:
    - Subsystem availability is derived dynamically from character statistics (such as `number of vestiges > 0` or `readied maneuvers > 0`).

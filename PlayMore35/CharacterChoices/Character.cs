@@ -36,7 +36,7 @@ namespace PlayMore35.CharacterChoices {
         public List<XpSessionEntry> sessions;
 
         public List<string> externalEffects;
-        public Dictionary<string, ISubsystemState> Subsystems { get; set; } = new Dictionary<string, ISubsystemState>();
+        public Dictionary<string, IJsonable> Subsystems { get; set; } = new Dictionary<string, IJsonable>();
 
         // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
         // These are for saving and loading ONLY!
@@ -105,7 +105,7 @@ namespace PlayMore35.CharacterChoices {
             equipped = new EquippedChoices((JObject)json["equipped"]);
             sessions = ((JArray)json["sessions"]).Select(x => new XpSessionEntry((JObject)x)).OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList();
             externalEffects = ((JArray)json["effects"]).Select(x => (string)x).ToList();
-            Subsystems = new Dictionary<string, ISubsystemState>();
+            Subsystems = new Dictionary<string, IJsonable>();
             if (json["subsystems"] is JObject subObj) {
                 foreach (var prop in subObj.Properties()) {
                     if (prop.Name == PactMagicEngine.SubsystemId && prop.Value is JObject pactJson) {
@@ -152,7 +152,7 @@ namespace PlayMore35.CharacterChoices {
             sessions = new List<XpSessionEntry>();
 
             externalEffects = new List<string>();
-            Subsystems = new Dictionary<string, ISubsystemState>();
+            Subsystems = new Dictionary<string, IJsonable>();
 
             flagValues = new Dictionary<string, bool>();
             paramValues = new Dictionary<string, int>();
