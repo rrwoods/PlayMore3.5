@@ -123,11 +123,11 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
             ICharacterContext context = session;
 
-            Assert.AreEqual(16, session.GetStatValue(Constants.STR_SCORE));
+            Assert.AreEqual(16, ((ICharacterContext)session).GetStatValue(Constants.STR_SCORE));
             Assert.AreEqual(16, context.GetStatValue(Constants.STR_SCORE));
             Assert.AreEqual(16, context.GetStatistic(Constants.STR_SCORE).Value);
             Assert.AreEqual(50, context.GetStatValue("MissingStat", 50));
-            Assert.AreEqual(50, session.GetStatValue("MissingStat", 50));
+            Assert.AreEqual(50, ((ICharacterContext)session).GetStatValue("MissingStat", 50));
         }
     }
 }
