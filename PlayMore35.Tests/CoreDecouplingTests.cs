@@ -34,6 +34,9 @@ namespace PlayMore35.Tests {
                 var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
                 return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
             }
+
+            public StatView GetStatistic(string name) => Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
+            public int GetStatValue(string name, int defaultValue = 0) => Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
         }
 
         [TestMethod]
