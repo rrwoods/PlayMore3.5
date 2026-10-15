@@ -7,7 +7,6 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -102,6 +101,75 @@ namespace PlayMore35.Tests {
             // Clear slot
             slotGroup.ClearSlot(0);
             Assert.IsNull(slotGroup[0]);
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_FixedCapacity_InitializesAndSetsSlots() {
+            var slotGroup = new SubsystemSlotGroup<string>(3);
+
+            Assert.AreEqual(3, slotGroup.Capacity);
+            Assert.AreEqual(3, slotGroup.Slots.Count);
+
+            slotGroup[0] = "Alpha";
+            slotGroup[1] = "Beta";
+            slotGroup[2] = "Gamma";
+
+            Assert.AreEqual("Alpha", slotGroup[0]);
+            Assert.AreEqual("Beta", slotGroup[1]);
+            Assert.AreEqual("Gamma", slotGroup[2]);
+
+            var items = slotGroup.Slots;
+            Assert.AreEqual("Alpha", items[0]);
+            Assert.AreEqual("Beta", items[1]);
+            Assert.AreEqual("Gamma", items[2]);
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_ClearSlot_ResetsSpecificSlotToDefault() {
+            var slotGroup = new SubsystemSlotGroup<string>(3);
+            slotGroup[0] = "One";
+            slotGroup[1] = "Two";
+            slotGroup[2] = "Three";
+
+            slotGroup.ClearSlot(1);
+
+            Assert.AreEqual("One", slotGroup[0]);
+            Assert.IsNull(slotGroup[1]);
+            Assert.AreEqual("Three", slotGroup[2]);
+
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.ClearSlot(-1));
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.ClearSlot(3));
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_ClearAll_ResetsAllSlotsToDefault() {
+            var slotGroup = new SubsystemSlotGroup<string>(3);
+            slotGroup[0] = "First";
+            slotGroup[1] = "Second";
+            slotGroup[2] = "Third";
+
+            slotGroup.ClearAll();
+
+            Assert.AreEqual(3, slotGroup.Slots.Count);
+            Assert.IsNull(slotGroup[0]);
+            Assert.IsNull(slotGroup[1]);
+            Assert.IsNull(slotGroup[2]);
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_NegativeCapacity_ClampsToZero() {
+            var slotGroup = new SubsystemSlotGroup<int>(() => -5);
+
+            Assert.AreEqual(0, slotGroup.Capacity);
+            Assert.AreEqual(0, slotGroup.Slots.Count);
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => {
+                var _ = slotGroup[0];
+            });
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_NullCapacityProvider_ThrowsArgumentNullException() {
+            Assert.ThrowsException<ArgumentNullException>(() => new SubsystemSlotGroup<string>((Func<int>)null));
         }
 
         [TestMethod]
