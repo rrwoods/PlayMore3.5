@@ -101,6 +101,37 @@ namespace PlayMore35 {
             }
         }
 
+        private void UpdateFlagContextMenu(CheckBox flagBox, ToggleView flag, string usedName) {
+            if (flag.HasResource) {
+                SheetAction useCharge = new SheetAction().AdjustParam(usedName, 1);
+                if (!flag.IsAtWill && !string.IsNullOrEmpty(flag.RechargeDuration)) {
+                    useCharge.Duration(flag.RechargeDuration);
+                }
+
+                SheetAction getEffect = new SheetAction().SetFlag(flag.Name).Duration(flag.EffectDuration);
+                if (flag.ActionAfter != null) {
+                    getEffect.AndThen(flag.ActionAfter);
+                }
+
+                ToolStripMenuItem menuItem = new ToolStripMenuItem {
+                    Text = $"Use {flag.Name}"
+                };
+                menuItem.Click += (s, e) => {
+                    mainForm.Session.PerformAction(useCharge);
+                    mainForm.Session.PerformAction(getEffect);
+                    mainForm.RefreshEffects();
+                };
+
+                if (flagBox.ContextMenuStrip == null) {
+                    flagBox.ContextMenuStrip = new ContextMenuStrip();
+                }
+                flagBox.ContextMenuStrip.Items.Clear();
+                flagBox.ContextMenuStrip.Items.Add(menuItem);
+            } else if (flagBox.ContextMenuStrip != null) {
+                flagBox.ContextMenuStrip.Items.Clear();
+            }
+        }
+
         public override void Update(Dictionary<string, List<Text>> textEffects) {
             string category = (string)Tag;
             var effects = textEffects[category];
@@ -187,7 +218,6 @@ namespace PlayMore35 {
                         usesLabels[flag.Name] = usesLabel;
                         Controls.Add(usesLabel);
 
-                        SheetAction useCharge = new SheetAction().AdjustParam(usedName, 1);
                         if (!flag.IsAtWill) {
                             usedField = new LabeledField(usedName, mainForm, "used") {
                                 Margin = new Padding(0, 1, 0, 0)
@@ -195,32 +225,14 @@ namespace PlayMore35 {
                             usedFields[flag.Name] = usedField;
                             Controls.Add(usedField);
                             SetFlowBreak(usedField, true);
-                            if (!string.IsNullOrEmpty(flag.RechargeDuration)) {
-                                useCharge.Duration(flag.RechargeDuration);
-                            }
                         } else {
                             SetFlowBreak(usesLabel, true);
                         }
-
-                        SheetAction getEffect = new SheetAction().SetFlag(flag.Name).Duration(flag.EffectDuration);
-                        if (flag.ActionAfter != null) {
-                            getEffect.AndThen(flag.ActionAfter);
-                        }
-
-                        ToolStripMenuItem menuItem = new ToolStripMenuItem {
-                            Text = $"Use {flag.Name}"
-                        };
-                        menuItem.Click += (s, e) => {
-                            session.PerformAction(useCharge);
-                            session.PerformAction(getEffect);
-                            mainForm.RefreshEffects();
-                        };
-                        flagBox.ContextMenuStrip = new ContextMenuStrip();
-                        flagBox.ContextMenuStrip.Items.Add(menuItem);
                     } else {
                         SetFlowBreak(flagBox, true);
                     }
                 }
+                UpdateFlagContextMenu(flagBox, flag, usedName);
                 ToolTipTextLabel(flagBox, flag.Description);
                 if (usesLabel != null && !flag.IsAtWill) {
                     ToolTipTextLabel(usesLabel, string.Join("\n", flag.UsesExplanation));

@@ -212,6 +212,86 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(5, session.Character.paramValues["Recycled Aura stacks"]);
             }
         }
+        [TestMethod]
+        public void TextEffectPanel_FlagWithResource_WhenSessionChanges_ContextMenuOperatesOnCurrentSession() {
+            var panel = new TextEffectPanel {
+                Tag = ATK_OPTIONS,
+                DisplayStyle = TextEffectPanel.DisplayMode.MULTI_LINE_WITHOUT_HEADER
+            };
+
+            var char1 = new Character();
+            char1.classLevels[0] = "Barbarian";
+            var session1 = new CharacterSession(char1, catalog);
+
+            var char2 = new Character();
+            char2.classLevels[0] = "Barbarian";
+            var session2 = new CharacterSession(char2, catalog);
+
+            using (var form = new MainForm(session1)) {
+                panel.Initialize(form);
+                panel.Update(session1.GetTextEffects());
+
+                var flagBox = panel.Controls.OfType<CheckBox>().First(c => c.Text == "whirling frenzy");
+                var menuItem = flagBox.ContextMenuStrip.Items.Cast<ToolStripItem>().First(i => i.Text == "Use whirling frenzy");
+
+                typeof(MainForm).GetField("session", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    .SetValue(form, session2);
+                panel.Update(session2.GetTextEffects());
+
+                menuItem.PerformClick();
+
+                Assert.IsFalse(session1.HasFlag("whirling frenzy"), "Old session should not be modified");
+                Assert.IsTrue(session2.HasFlag("whirling frenzy"), "New session should enter whirling frenzy");
+                Assert.AreEqual(1, session2.Character.paramValues["whirling frenzy used"], "New session should have 1 used charge");
+            }
+        }
+
+        [TestMethod]
+        public void MainForm_LoadOdricAfterDefaultCharacter_WhirlingFrenzyContextMenuOperatesOnOdric() {
+            using (var form = new MainForm()) {
+                form.Show();
+                Application.DoEvents();
+
+                // On default character, whirling frenzy is present in atkOptionsPanel
+                var atkOptionsPanel = (TextEffectPanel)form.Controls.Find("atkOptionsPanel", true).First();
+                var defaultFlagBox = atkOptionsPanel.Controls.OfType<CheckBox>().FirstOrDefault(c => c.Text == "whirling frenzy");
+                Assert.IsNotNull(defaultFlagBox, "whirling frenzy should exist on default character");
+
+                // Right click "Use whirling frenzy" on default character works
+                var defaultMenuItem = defaultFlagBox.ContextMenuStrip.Items.Cast<ToolStripItem>().FirstOrDefault(i => i.Text == "Use whirling frenzy");
+                Assert.IsNotNull(defaultMenuItem, "'Use whirling frenzy' context menu item should exist");
+                defaultMenuItem.PerformClick();
+                Application.DoEvents();
+
+                Assert.IsTrue(form.Session.HasFlag("whirling frenzy"), "Default character should enter whirling frenzy");
+                Assert.AreEqual(1, form.Session.Character.paramValues["whirling frenzy used"], "Default character should have 1 used charge");
+                var defaultSession = form.Session;
+
+                // Now load Odric.json
+                string odricPath = TestEnvironment.FindOdricJsonPath();
+                form.LoadCharacter(odricPath);
+                Application.DoEvents();
+
+                // Odric should start without whirling frenzy active and 0 uses
+                Assert.IsFalse(form.Session.HasFlag("whirling frenzy"), "Odric should not be in whirling frenzy initially");
+                Assert.AreEqual(0, form.Session.Character.paramValues["whirling frenzy used"], "Odric should have 0 whirling frenzy uses initially");
+
+                var odricFlagBox = atkOptionsPanel.Controls.OfType<CheckBox>().FirstOrDefault(c => c.Text == "whirling frenzy");
+                Assert.IsNotNull(odricFlagBox, "whirling frenzy should exist on Odric");
+                var odricMenuItem = odricFlagBox.ContextMenuStrip.Items.Cast<ToolStripItem>().FirstOrDefault(i => i.Text == "Use whirling frenzy");
+                Assert.IsNotNull(odricMenuItem, "'Use whirling frenzy' context menu item should exist on Odric");
+
+                // Use whirling frenzy on Odric
+                odricMenuItem.PerformClick();
+                Application.DoEvents();
+
+                // Verify defaultSession is untouched
+                Assert.AreEqual(1, defaultSession.Character.paramValues["whirling frenzy used"], "Default session should not be mutated when acting on Odric");
+
+                Assert.IsTrue(form.Session.HasFlag("whirling frenzy"), "Odric should enter whirling frenzy when 'Use whirling frenzy' is clicked");
+                Assert.AreEqual(1, form.Session.Character.paramValues["whirling frenzy used"], "Odric should have 1 used charge after 'Use whirling frenzy'");
+            }
+        }
     }
 }
 

@@ -1544,25 +1544,30 @@ namespace PlayMore35 {
             }
         }
 
+        public bool LoadCharacter(string filePath) {
+            using (StreamReader reader = new StreamReader(filePath)) {
+                Character loadedCharacter = new Character(JObject.Parse(reader.ReadToEnd()));
+                session = new CharacterSession(loadedCharacter, session.Catalog);
+                levelDetailsDialog = new LevelDetailsDialog(session) {
+                    Font = scala
+                };
+                UpdateSubsystemTabs();
+            }
+            DisplayCharacter();
+            InitializeInventory();
+            timelinePanel.RefreshTimeline();
+            RefreshEffects();
+            return true;
+        }
+
         private bool LoadCharacter() {
             using (OpenFileDialog dialog = new OpenFileDialog()) {
                 dialog.InitialDirectory = "c:\\";
                 if (dialog.ShowDialog() != DialogResult.OK) {
                     return false;
                 }
-                using (StreamReader reader = new StreamReader(dialog.OpenFile())) {
-                    Character loadedCharacter = new Character(JObject.Parse(reader.ReadToEnd()));
-                    session = new CharacterSession(loadedCharacter, session.Catalog);
-                    levelDetailsDialog = new LevelDetailsDialog(session) {
-                        Font = scala
-                    };
-                    UpdateSubsystemTabs();
-                }
+                return LoadCharacter(dialog.FileName);
             }
-            DisplayCharacter();
-            InitializeInventory();
-            timelinePanel.RefreshTimeline();
-            return true;
         }
 
         private void LoadCharacter_Click(object sender, EventArgs e) {
