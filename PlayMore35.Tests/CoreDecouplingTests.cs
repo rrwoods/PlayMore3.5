@@ -13,30 +13,16 @@ using PlayMore35.Subsystems.PactMagic;
 namespace PlayMore35.Tests {
     [TestClass]
     public class CoreDecouplingTests {
-        private class TestContextWithSlottedSubsystem : ICharacterContext {
-            public Character Character { get; set; }
-            public EffectPool Effects { get; set; }
-            public Equipped EquippedItems { get; set; } = new Equipped();
-            public Timeline Timeline => Character?.Timeline;
-            public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
-
-            public TestContextWithSlottedSubsystem() {
-                Character = new Character();
-                Effects = new EffectPool(Character);
-            }
-
-            public List<AttackRoutine> GetAllRoutines() {
+        private class TestContextWithSlottedSubsystem : FakeCharacterContext {
+            public override List<AttackRoutine> GetAllRoutines() {
                 return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
             }
 
-            public List<AttackRoutine> GetVisibleRoutines() {
+            public override List<AttackRoutine> GetVisibleRoutines() {
                 var all = GetAllRoutines();
                 var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
                 return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
             }
-
-            public StatView GetStatistic(string name) => Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
-            public int GetStatValue(string name, int defaultValue = 0) => Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
         }
 
         [TestMethod]

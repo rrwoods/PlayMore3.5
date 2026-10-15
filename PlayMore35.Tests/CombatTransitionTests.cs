@@ -10,29 +10,11 @@ using System.Collections.Generic;
 namespace PlayMore35.Tests {
     [TestClass]
     public class CombatTransitionTests {
-        private class MockCharacterContext : ICharacterContext {
-            public Character Character { get; set; }
-            public EffectPool Effects { get; set; }
-            public Equipped EquippedItems { get; set; }
-            public Timeline Timeline => Character?.Timeline;
-            public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
-
-            public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
-            public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
-            public StatView GetStatistic(string name) => Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
-            public int GetStatValue(string name, int defaultValue = 0) => Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
-        }
-
-        private (MockCharacterContext context, Timeline timeline, EffectPool effects) CreateTestContext() {
+        private (FakeCharacterContext context, Timeline timeline, EffectPool effects) CreateTestContext() {
             var timeline = new Timeline();
             var character = new Character { Timeline = timeline };
             var effects = new EffectPool(character);
-            var context = new MockCharacterContext {
-                Character = character,
-                Effects = effects,
-                EquippedItems = new Equipped()
-            };
-            timeline.Context = context;
+            var context = new FakeCharacterContext(character, effects, new Equipped());
             return (context, timeline, effects);
         }
 

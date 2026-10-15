@@ -10,29 +10,15 @@ using System.Linq;
 namespace PlayMore35.Tests {
     [TestClass]
     public class CharacterContextTests {
-        private class TestCharacterContext : ICharacterContext {
-            public Character Character { get; set; }
-            public EffectPool Effects { get; set; }
-            public Equipped EquippedItems { get; set; }
-            public Timeline Timeline => Character?.Timeline;
-            public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
-
-            public List<AttackRoutine> GetAllRoutines() {
+        private class TestCharacterContext : FakeCharacterContext {
+            public override List<AttackRoutine> GetAllRoutines() {
                 return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
             }
 
-            public List<AttackRoutine> GetVisibleRoutines() {
+            public override List<AttackRoutine> GetVisibleRoutines() {
                 var all = GetAllRoutines();
                 var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
                 return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
-            }
-
-            public StatView GetStatistic(string name) {
-                return Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
-            }
-
-            public int GetStatValue(string name, int defaultValue = 0) {
-                return Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
             }
         }
 

@@ -14,20 +14,7 @@ using System.Linq;
 namespace PlayMore35.Tests {
     [TestClass]
     public class SheetActionTests {
-        private class MockCharacterContext : ICharacterContext {
-            public Character Character { get; set; }
-            public EffectPool Effects { get; set; }
-            public Equipped EquippedItems { get; set; }
-            public Timeline Timeline => Character?.Timeline;
-            public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
-
-            public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
-            public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
-            public StatView GetStatistic(string name) => Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
-            public int GetStatValue(string name, int defaultValue = 0) => Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
-        }
-
-        private (MockCharacterContext context, ControllableFlag flag, ControllableParameter param) CreateTestContext() {
+        private (FakeCharacterContext context, ControllableFlag flag, ControllableParameter param) CreateTestContext() {
             var character = new Character();
             var timeline = new Timeline();
             character.Timeline = timeline;
@@ -39,13 +26,7 @@ namespace PlayMore35.Tests {
             effects.controllableFlags["TestFlag"] = flag;
             effects.controllableParameters["TestParam"] = param;
 
-            var context = new MockCharacterContext {
-                Character = character,
-                Effects = effects,
-                EquippedItems = new Equipped()
-            };
-            timeline.Context = context;
-
+            var context = new FakeCharacterContext(character, effects, new Equipped());
             return (context, flag, param);
         }
 

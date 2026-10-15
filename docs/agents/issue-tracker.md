@@ -4,8 +4,7 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 ## Conventions
 
-- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
-- **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
+- **Read an issue**: `gh issue view <number> --json number,title,body,labels,comments`.
 - **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
@@ -31,7 +30,7 @@ Create a GitHub issue.
 
 ## When a skill says "fetch the relevant ticket"
 
-Run `gh issue view <number> --comments`.
+Run `gh issue view <number> --json number,title,body,labels,comments`.
 
 ## Wayfinding operations
 
@@ -47,7 +46,7 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 ## Shell and CLI conventions
 
 - **PowerShell quoting**: Always quote string literals with special shell characters (e.g. `--add-assignee "@me"`).
-- **Avoid pipeline stalls**: Avoid wrapping `gh` commands in complex PowerShell subexpression pipelines (e.g. `(gh issue view ...) -split ...`), which stall on stream buffering in Windows. Prefer direct `--json` and `--jq` queries, or redirect to a temporary file.
+- **Avoid pipeline stalls**: Avoid wrapping `gh` commands in complex PowerShell subexpression pipelines (e.g. `(gh issue view ...) -split ...`), which stall on stream buffering in Windows. Prefer direct `--json` and `--jq` queries, or redirect to a temporary file. On Windows, bare `gh issue view <n> --comments` can output empty content due to pager stream buffering; always specify `--json number,title,body,labels,comments` when reading issues.
 
 ## Prototype reference clean-up
 

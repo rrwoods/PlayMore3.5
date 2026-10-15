@@ -15,23 +15,6 @@ using static PlayMore35.Effects.Constants;
 namespace PlayMore35.Tests {
     [TestClass]
     public class PactMagicEngineTests {
-        private class TestContext : ICharacterContext {
-            public Character Character { get; set; }
-            public EffectPool Effects { get; set; }
-            public Equipped EquippedItems { get; set; } = new Equipped();
-            public Timeline Timeline => Character?.Timeline;
-            public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
-
-            public TestContext() {
-                Character = new Character();
-                Effects = new EffectPool(Character);
-            }
-
-            public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
-            public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
-            public StatView GetStatistic(string name) => Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
-            public int GetStatValue(string name, int defaultValue = 0) => Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
-        }
 
         private class TestContentProvider : ISubsystemContentProvider {
             private readonly Dictionary<string, Vestige> vestiges;
@@ -96,7 +79,7 @@ namespace PlayMore35.Tests {
             var vestige = CreateTestVestige("Aym");
             var contentProvider = new TestContentProvider(vestige);
             var engine = new PactMagicEngine(contentProvider);
-            var context = new TestContext();
+            var context = new FakeCharacterContext();
 
             engine.Initialize(context);
 
@@ -119,7 +102,7 @@ namespace PlayMore35.Tests {
             var vestigeB = CreateTestVestige("Ronove", 1, 15);
             var contentProvider = new TestContentProvider(vestigeA, vestigeB);
             var engine = new PactMagicEngine(contentProvider);
-            var context = new TestContext();
+            var context = new FakeCharacterContext();
 
             SetStat(context.Effects, NUM_VESTIGES, 2);
             engine.Initialize(context);
@@ -152,7 +135,7 @@ namespace PlayMore35.Tests {
             var vestige = CreateTestVestige("Aym", 1, 20);
             var contentProvider = new TestContentProvider(vestige);
             var engine = new PactMagicEngine(contentProvider);
-            var context = new TestContext();
+            var context = new FakeCharacterContext();
 
             SetStat(context.Effects, NUM_VESTIGES, 1);
             SetStat(context.Effects, BINDING_CHECK, 5);
@@ -168,7 +151,7 @@ namespace PlayMore35.Tests {
             var vestige = CreateTestVestige("Aym", 1, 15);
             var contentProvider = new TestContentProvider(vestige);
             var engine = new PactMagicEngine(contentProvider);
-            var context = new TestContext();
+            var context = new FakeCharacterContext();
 
             SetStat(context.Effects, NUM_VESTIGES, 1);
             SetStat(context.Effects, "Armor Class", 10);

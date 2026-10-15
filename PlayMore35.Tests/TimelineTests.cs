@@ -11,18 +11,6 @@ using System.Collections.Generic;
 namespace PlayMore35.Tests {
     [TestClass]
     public class TimelineTests {
-        private class MockCharacterContext : ICharacterContext {
-            public Character Character { get; set; }
-            public EffectPool Effects { get; set; }
-            public Equipped EquippedItems { get; set; }
-            public Timeline Timeline => Character?.Timeline;
-            public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
-
-            public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
-            public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
-            public StatView GetStatistic(string name) => Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
-            public int GetStatValue(string name, int defaultValue = 0) => Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
-        }
 
         [TestMethod]
         public void Advance_IncrementsCurrentRound_AndProjectsCalendarDate() {
@@ -110,11 +98,7 @@ namespace PlayMore35.Tests {
             effects.resettableParameters["day"].Add(dayParam);
             effects.resettableParameters["week"].Add(weekParam);
 
-            var context = new MockCharacterContext {
-                Character = character,
-                Effects = effects,
-                EquippedItems = new Equipped()
-            };
+            var context = new FakeCharacterContext(character, effects, new Equipped());
             timeline.Context = context;
 
             // 1. Advance 1 round (6s) -> only round parameter resets
