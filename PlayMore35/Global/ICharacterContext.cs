@@ -13,5 +13,7 @@ namespace PlayMore35.Global {
         SubsystemRegistry Subsystems { get; }
         List<AttackRoutine> GetAllRoutines();
         List<AttackRoutine> GetVisibleRoutines();
+        StatView GetStatistic(string name);
+        int GetStatValue(string name, int defaultValue = 0);
     }
 }

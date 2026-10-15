@@ -695,11 +695,11 @@ namespace PlayMore35.Global {
         }
 
         public StatView GetStatistic(string name) {
-            if (effects != null && effects.stats.TryGetValue(name, out var stat)) {
-                var (val, expl) = stat.GetValue(effects, equippedItems);
-                return new StatView(name, val, expl.AsReadOnly());
-            }
-            return new StatView(name, 0);
+            return effects?.GetStatistic(name, equippedItems) ?? new StatView(name ?? "", 0);
+        }
+
+        public int GetStatValue(string name, int defaultValue = 0) {
+            return effects?.GetStatValue(name, equippedItems, defaultValue) ?? defaultValue;
         }
 
         public bool IsStatRelevant(string name) {

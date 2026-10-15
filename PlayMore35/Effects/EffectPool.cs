@@ -82,6 +82,21 @@ namespace PlayMore35.Effects {
             return stats[name];
         }
 
+        public StatView GetStatistic(string name, Equipped items) {
+            if (name != null && stats.TryGetValue(name, out var stat)) {
+                var (val, expl) = stat.GetValue(this, items ?? new Equipped());
+                return new StatView(name, val, expl.AsReadOnly());
+            }
+            return new StatView(name ?? "", 0);
+        }
+
+        public int GetStatValue(string name, Equipped items, int defaultValue = 0) {
+            if (name != null && stats.TryGetValue(name, out var stat)) {
+                return stat.GetValue(this, items ?? new Equipped()).value;
+            }
+            return defaultValue;
+        }
+
         public IEnumerable<Statistic> RelevantStatsWithTag(string tag, Equipped items) {
             return stats.Values.Where(x => x.HasTag(tag) && x.Relevant(this, items));
         }

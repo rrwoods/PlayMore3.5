@@ -20,6 +20,8 @@ namespace PlayMore35.Tests {
 
             public List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
             public List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
+            public StatView GetStatistic(string name) => Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
+            public int GetStatValue(string name, int defaultValue = 0) => Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
         }
 
         [TestMethod]

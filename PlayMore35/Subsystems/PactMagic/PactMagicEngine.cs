@@ -18,35 +18,18 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         public PactMagicEngine(ISubsystemContentProvider contentProvider = null) {
             this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
-            this.slots = new SubsystemSlotGroup<PactSlot>(() => {
-                if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
-                    return stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value;
-                }
-                return 0;
-            });
+            this.slots = new SubsystemSlotGroup<PactSlot>(() => context?.GetStatValue(NUM_VESTIGES, 0) ?? 0);
         }
 
         public string Id => SubsystemId;
 
-        public bool IsActive {
-            get {
-                if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
-                    return stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value > 0;
-                }
-                return false;
-            }
-        }
+        public bool IsActive => context?.GetStatValue(NUM_VESTIGES, 0) > 0;
 
         public int SlotCount => slots.Capacity;
 
         public void Initialize(ICharacterContext context) {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
-            this.slots = new SubsystemSlotGroup<PactSlot>(() => {
-                if (context?.Effects?.stats?.TryGetValue(NUM_VESTIGES, out var stat) == true) {
-                    return stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value;
-                }
-                return 0;
-            });
+            this.slots = new SubsystemSlotGroup<PactSlot>(() => context.GetStatValue(NUM_VESTIGES, 0));
             this.stateLoaded = false;
             EnsureSlotsLoaded();
         }
@@ -134,10 +117,7 @@ namespace PlayMore35.Subsystems.PactMagic {
             if (!IsActive) {
                 return Enumerable.Empty<Vestige>();
             }
-            int maxLevel = 0;
-            if (context?.Effects?.stats?.TryGetValue(MAX_VESTIGE_LEVEL, out var stat) == true) {
-                maxLevel = stat.GetValue(context.Effects, context.EquippedItems ?? new Equipped()).value;
-            }
+            int maxLevel = context?.GetStatValue(MAX_VESTIGE_LEVEL, 0) ?? 0;
             return contentProvider.GetVestiges()
                 .Where(v => v.Level <= maxLevel)
                 .OrderBy(v => v.Name);
@@ -149,10 +129,9 @@ namespace PlayMore35.Subsystems.PactMagic {
         }
 
         public (int bonus, List<string> explanation) GetBindingCheckBonus() {
-            if (context?.Effects?.stats?.TryGetValue(BINDING_CHECK, out var stat) == true) {
-                return stat.GetValue(context.Effects, context.EquippedItems);
-            }
-            return (0, new List<string>());
+            if (context == null) return (0, new List<string>());
+            var stat = context.GetStatistic(BINDING_CHECK);
+            return (stat.Value, stat.Explanation.ToList());
         }
 
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
