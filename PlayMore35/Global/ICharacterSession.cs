@@ -57,7 +57,6 @@ namespace PlayMore35.Global {
         void ForceHiddenFlagsOff();
 
         StatView GetStatistic(string name);
-        int GetStatValue(string name, int defaultValue = 0);
         bool IsStatRelevant(string name);
         IEnumerable<StatView> GetRelevantStats(string tag);
         IEnumerable<ToggleView> GetControllableFlags();

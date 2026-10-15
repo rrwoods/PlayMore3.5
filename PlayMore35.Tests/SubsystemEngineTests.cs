@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
@@ -208,5 +209,30 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(session.Subsystems.Get<PactMagicEngine>());
             Assert.IsNotNull(session.Subsystems.Get("vestige"));
         }
+
+        [TestMethod]
+        public void ActionParserSeam_SerializedSubsystemActions_DeserializeIntoStronglyTypedRepresentations() {
+            var original = new UnbindVestigeAction(0);
+            var serialized = (JObject)original.ToJson();
+
+            var deserialized = SheetAction.FromJson(serialized);
+
+            Assert.IsNotNull(deserialized);
+            Assert.IsInstanceOfType(deserialized, typeof(UnbindVestigeAction));
+            var unbindAction = (UnbindVestigeAction)deserialized;
+            Assert.AreEqual(0, unbindAction.SlotIndex);
+            Assert.AreEqual("Unbind vestige slot 0", unbindAction.Name);
+            Assert.IsTrue(original.Matches(deserialized));
+
+            var directJson = new JObject(
+                new JProperty("name", "Custom Unbind"),
+                new JProperty("unbind_vestige", 2)
+            );
+            var parsedDirect = SheetAction.FromJson(directJson);
+            Assert.IsInstanceOfType(parsedDirect, typeof(UnbindVestigeAction));
+            Assert.AreEqual(2, ((UnbindVestigeAction)parsedDirect).SlotIndex);
+            Assert.AreEqual("Custom Unbind", parsedDirect.Name);
+        }
     }
 }
+
