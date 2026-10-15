@@ -10,6 +10,12 @@ namespace PlayMore35.Subsystems {
             SheetAction.RegisterParser(UnbindVestigeAction.TryParse);
         }
 
+        public static SubsystemRegistry CreateDefault() {
+            var registry = new SubsystemRegistry();
+            registry.Register(new PactMagicEngine(), "vestige");
+            return registry;
+        }
+
         private readonly List<ISubsystemEngine> engines = new List<ISubsystemEngine>();
         private readonly Dictionary<string, ISubsystemEngine> enginesById = new Dictionary<string, ISubsystemEngine>(StringComparer.OrdinalIgnoreCase);
 

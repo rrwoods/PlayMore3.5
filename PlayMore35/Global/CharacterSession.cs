@@ -6,7 +6,6 @@ using PlayMore35.Effects;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Global {
@@ -16,7 +15,7 @@ namespace PlayMore35.Global {
         private readonly IRulesCatalog catalog;
         private EffectPool effects;
         private Equipped equippedItems;
-        private readonly SubsystemRegistry subsystems = new SubsystemRegistry();
+        private readonly SubsystemRegistry subsystems = SubsystemRegistry.CreateDefault();
         private int normalSizeCategory;
 
         public IReadOnlyCharacter Character => readOnlyCharacter;
@@ -57,7 +56,6 @@ namespace PlayMore35.Global {
                 }
             }
 
-            subsystems.Register(new PactMagicEngine(), "vestige");
             foreach (var engine in subsystems.All) {
                 engine.Initialize(this);
             }

@@ -7,6 +7,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -62,6 +63,25 @@ namespace PlayMore35.Tests {
             Assert.AreSame(replacement, registry.Get("custom-alias"));
             Assert.AreEqual(1, registry.All.Count());
             Assert.AreSame(replacement, registry.All.Single());
+        }
+
+        [TestMethod]
+        public void SubsystemRegistry_CreateDefault_RegistersStandardEngines() {
+            var registry = SubsystemRegistry.CreateDefault();
+            var engine = registry.Get<PactMagicEngine>();
+            Assert.IsNotNull(engine);
+            Assert.AreSame(engine, registry.Get("pact_magic"));
+            Assert.AreSame(engine, registry.Get("vestige"));
+            CollectionAssert.Contains(registry.All.ToList(), engine);
+        }
+
+        [TestMethod]
+        public void SubsystemRegistry_NewInstance_RemainsEmptyForTestIsolation() {
+            var registry = new SubsystemRegistry();
+            Assert.AreEqual(0, registry.All.Count());
+            Assert.IsNull(registry.Get<PactMagicEngine>());
+            Assert.IsNull(registry.Get("pact_magic"));
+            Assert.IsNull(registry.Get("vestige"));
         }
 
         [TestMethod]
@@ -180,6 +200,13 @@ namespace PlayMore35.Tests {
 
             ICharacterContext context = session;
             Assert.IsNotNull(context.Subsystems);
+        }
+
+        [TestMethod]
+        public void CharacterSession_InitializesSubsystemsWithDefaults() {
+            var session = new CharacterSession(new Character(), new PlayMore35.Rules.GameRulesCatalog());
+            Assert.IsNotNull(session.Subsystems.Get<PactMagicEngine>());
+            Assert.IsNotNull(session.Subsystems.Get("vestige"));
         }
     }
 }
