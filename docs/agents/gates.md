@@ -1,4 +1,4 @@
-﻿# Planning and Pre-commit Gates
+# Planning and Pre-commit Gates
 
 Checklists and verification gates enforced before planning, committing code, or marking pull requests ready.
 
@@ -19,7 +19,7 @@ Audit the diff against the originating issue's **Out of Scope** and **Anti-goals
 ### 3. Documentation gate
 
 When authoring an `implementation_plan.md` (include under `Proposed Changes`) or before running `git commit`, inspect changes and update repository documentation as appropriate:
-- **`docs/rules/`**: When a game rule or content item is arbitrated, replace its `TODO` stub or add the citation in `docs/rules/mechanics/`, `docs/rules/subsystems/`, or `docs/rules/content/`. When new mechanics or content entries are added without immediate citation, add a `- [ ] **<Name>**: TODO` stub to the matching file.
+- **`docs/rules/`**: When a game rule or content item is arbitrated, replace its Rules Skeleton or add the citation in `docs/rules/mechanics/`, `docs/rules/subsystems/`, or `docs/rules/content/`. When new mechanics or content entries are added without immediate citation, add an unarbitrated Rules Skeleton per the schemas in `docs/agents/rules-template.md` to the matching file.
 - **`README.md`**: When user-facing features, dashboard workflows, status matrix, or setup instructions change.
 - **`ROADMAP.md`**: When backlog items, progression tiers, or feature priorities are started, completed, or reordered. When backlog items are completed, remove them from `ROADMAP.md` rather than marking them as completed in the text.
 - **`GLOSSARY.md`**: When project/engine domain language or architectural concepts are introduced, modified, or retired (keep specific 3.5e rules and game content in `docs/rules/`, never `GLOSSARY.md`).

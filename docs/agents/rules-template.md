@@ -28,16 +28,29 @@ docs/rules/
 │   ├── truenaming.md (not yet present)
 │   ├── mysteries.md (not yet present)
 │   ├── meldshaping.md (not yet present)
-│   ├── invocations.md (not yet present)
+│   └── invocations.md (not yet present)
 └── content/                            ← 1:1 mirror of PlayMore35/Resources/<stem>.json (excluding external.json)
     ├── armor.md
     ├── armorProperties.md
-    ├── classes/
+    ├── classes/                        ← Reference entries & progression tables for classes
     │   ├── barbarian.md
     │   ├── binder.md
-    │   └── fighter.md
-    ├── feats.md
+    │   ├── crusader.md
+    │   ├── fighter.md
+    │   ├── swordsage.md
+    │   └── warblade.md
+    ├── feats/                          ← Partitioned feat reference files (e.g. feats-a-i.md, feats-i-z.md)
     ├── items.md
+    ├── maneuvers/                      ← Discipline-partitioned 6-field maneuver reference entries
+    │   ├── desert-wind.md
+    │   ├── devoted-spirit.md
+    │   ├── diamond-mind.md
+    │   ├── iron-heart.md
+    │   ├── setting-sun.md
+    │   ├── shadow-hand.md
+    │   ├── stone-dragon.md
+    │   ├── tiger-claw.md
+    │   └── white-raven.md
     ├── races.md
     ├── shields.md
     ├── vestiges.md
@@ -48,8 +61,8 @@ docs/rules/
 ### Two-state lookup & write-back workflow
 
 When inspecting a target file in `docs/rules/`:
-1. **Populated citation**: The entry contains a verified sourcebook, page number, and rule text/ruling. Treat it as an **Environmental Fact** and use it directly without re-asking the human.
-2. **`TODO` stub (`- [ ] **<Name>**: TODO`) or absent entry**: The entry is still an unarbitrated **Domain Specification**. Request human arbitration using the template below. Once the human provides or confirms the citation, **immediately replace the `TODO` stub (or add the entry) in `docs/rules/`** so future sessions never have to ask again.
+1. **Populated citation (Reference Entry)**: The entry contains a verified sourcebook, page number, and mechanical facts without checklist syntax. Treat it as an **Environmental Fact** and use it directly without re-asking the human.
+2. **Rules Skeleton (unarbitrated placeholder) or absent entry**: The entry is an unarbitrated **Domain Specification** awaiting human arbitration (formatted as a compact unarbitrated stub schema or a maneuver schema skeleton with `TODO` values). Request human arbitration using the template below. Once the human provides or confirms the citation, **immediately replace the Rules Skeleton (or add the entry) in `docs/rules/` as a fully populated Reference Entry** so future sessions never have to ask again.
 
 ### 300-line growth threshold & splitting protocol
 
@@ -64,15 +77,63 @@ When an ability modifies an underlying system mechanic via an explicit formula (
 ### Rules library authoring style
 
 When writing or updating reference documents in `docs/rules/`:
-- **Positive, direct statements**: State the active rule and formula directly, citing the primary sourcebook and page. Record verified mechanical facts; omit discarded options, sourcebook typos, and conversational arbitration numbering.
-- **Pure mechanics**: Restrict content to actionable mechanics: data properties, formulas, action types, prerequisite trees, associated skills or weapons, and stacking rules. Omit narrative flavor summaries.
+- **Positive reference entry format**: Author entries as positive, structured reference documentation (**Reference Entries** and **Rules Skeletons** per `GLOSSARY.md` and ADR-0011). State active rules, formulas, and data properties directly, citing the primary sourcebook and page.
+- **Retirement of task-list checklist syntax**: Task-list checklist syntax (`- [ ]`) is strictly retired across `docs/rules/`. Rules documentation serves purely as reference facts and schemas, not as an in-file task tracker. Use markdown section headings (`### <Name>`) and structured field lists instead of checkbox items.
+- **Pure mechanics**: Restrict content to actionable mechanics: data properties, formulas, action types, prerequisite trees, associated skills or weapons, and stacking rules. Omit narrative flavor summaries to keep entries concise and files strictly within the 300-line cap.
 - **Subsystem-specific scope**: Only document universal mechanics when a subsystem explicitly modifies or overrides baseline behavior. Rely on canonical core mechanics files (`docs/rules/mechanics/`) for standard action economy and combat rules.
+
+### Rules reference schemas
+
+#### 1. 6-field Maneuver Reference Schema
+
+Martial maneuvers and stances in `docs/rules/content/maneuvers/` follow a dedicated 6-field reference entry:
+
+```markdown
+### <Name>
+- **Source**: *Tome of Battle*, p. <Page>
+- **Discipline**: <Discipline> (<Strike | Boost | Counter | Stance | Other>) [<Descriptor>]
+- **Level**: <Class> <Level>
+- **Initiation Action**: <Action>
+- **Prerequisites**: <Prerequisites>
+- **Mechanics**: <Range, target, duration, and mechanical gameplay rules text>
+```
+
+Field specifications:
+- **Source**: Primary source citation (*Tome of Battle*, page number).
+- **Discipline**: Martial discipline name, maneuver type in parentheses, and optional descriptor in square brackets.
+- **Level**: Initiator class or classes and level (e.g. `Crusader 1, Warblade 1`).
+- **Initiation Action**: Action economy cost (e.g. `1 standard action`, `1 swift action`, `1 immediate action`).
+- **Prerequisites**: Minimum maneuvers known or prerequisite conditions (e.g. `None`, `1 Desert Wind maneuver`).
+- **Mechanics**: Range, target, duration, and mechanical gameplay rules text are integrated directly into `Mechanics`. Narrative flavor text is strictly excluded to keep entries concise and within file length caps.
+
+Unarbitrated maneuver skeletons preserve this full 6-field schema with `TODO` values:
+```markdown
+### <Name>
+- **Source**: TODO
+- **Discipline**: <Discipline> (<Strike | Boost | Counter | Stance | Other>)
+- **Level**: <Class> <Level>
+- **Initiation Action**: TODO
+- **Prerequisites**: TODO
+- **Mechanics**: TODO
+```
+
+#### 2. Compact Unarbitrated Stub Schema (General Rules Skeleton)
+
+For general content catalogs awaiting arbitration (such as feats, items, equipment, and classes), use the compact unarbitrated stub schema:
+
+```markdown
+### <Name>
+- **Status**: Unarbitrated Domain Specification
+- **Source**: TODO
+```
+
+When human arbitration confirms the primary source and mechanics, replace the Rules Skeleton with the full structured Reference Entry for that content type (citing the primary sourcebook and page, and detailing actionable Environmental Facts).
 
 ### Positive grilling & conversational protocol
 
 When framing frontier questions and recommendations in `/grilling`, `/wayfinder`, or general chat:
 - Focus questions on **engine representation and software architecture** (data modeling in `rules.json`, class hierarchies, seams, non-blocking warning badges).
-- If a decision or recommendation hinges on a game rule that is still a `TODO` or absent in `docs/rules/`, use this explicit positive recommendation token:
+- If a decision or recommendation hinges on a game rule that is still an unarbitrated Rules Skeleton or absent in `docs/rules/`, use this explicit positive recommendation token:
   `➡️ Recommendation: Defer until human arbitration provides the primary source citation for [Rule].`
 
 ## Issue / Spec template
@@ -88,7 +149,7 @@ Brief description of the rule or capability being modeled in PlayMore35.
 ---
 
 ## 2. Rules Provenance (Mandatory Gate for ready-for-agent)
-> Check `docs/rules/` first. If already populated, copy or link the verified citation here. If marked `TODO` or absent, verify this section with the human arbiter and write the citation into `docs/rules/`.
+> Check `docs/rules/` first. If already populated, copy or link the verified citation here. If marked with an unarbitrated Rules Skeleton or absent, verify this section with the human arbiter and write the citation into `docs/rules/`.
 
 - **Rules Library Target**: `<e.g., docs/rules/mechanics/combat.md or docs/rules/content/feats.md>`
 - **Primary Source**: `<Sourcebook Name>` (e.g., *Player's Handbook 3.5*, *Complete Warrior*, *Rules Compendium*)
@@ -135,7 +196,7 @@ Use this checklist during triage, planning, and code review:
 
 | Stage | Check | Pass Criteria |
 | :--- | :--- | :--- |
-| **Lookup / Triage** | **Source Verified & Recorded** | Check `docs/rules/` first. If `TODO` or missing, obtain exact sourcebook, page number, and quote from the human (or label `needs-info`) and record it in `docs/rules/`. |
+| **Lookup / Triage** | **Source Verified & Recorded** | Check `docs/rules/` first. If an unarbitrated Rules Skeleton or missing, obtain exact sourcebook, page number, and quote from the human (or label `needs-info`) and record it in `docs/rules/`. |
 | **Planning** | **Zero Extrapolation** | Implementation plan (`implementation_plan.md`) includes a `Rules Provenance` section reproducing the verified quote from `docs/rules/`. No mechanics are assumed from memory. Apply explicit modifier formulas; never substitute shortcuts induced from sample cases. |
 | **Coding** | **Fidelity, Citations & Line Cap** | Code strictly models the quoted text. Unit tests cite book and page in comments. Updated `docs/rules/` files pass `RulesLibraryStructureTests` ($\le 300$ lines). |
 | **Review** | **Spec Axis Review** | `/code-review` verifies the diff adheres strictly to the quoted text without unauthorized feature creep and that any newly arbitrated citation is persisted in `docs/rules/`. |
