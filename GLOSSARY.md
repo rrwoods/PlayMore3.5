@@ -52,6 +52,14 @@ _Avoid_: Model pretraining memory, world knowledge, unverified assumption, unpop
 Definitive 3.5e game rules mechanics, content definitions, formulas, stacking constraints, and table fiat not yet recorded with a verified citation in the repository, arbitrated exclusively by the human maintainer via authoritative primary sources.
 _Avoid_: Environmental fact, agent fact, recalled rule
 
+**Rules Skeleton**:
+A structured placeholder entry in `docs/rules/` defining the required metadata fields for an unarbitrated domain specification before human verification.
+_Avoid_: Checklist stub, TODO checkbox, rules stub
+
+**Reference Entry**:
+A fully populated, verified mechanical entry in `docs/rules/` providing complete environmental facts without task tracking syntax.
+_Avoid_: Checked item, populated stub, rule entry
+
 **Character State**:
 The personal saved data of a player character, including permanent choices, current inventory, and transient combat effects.
 _Avoid_: Character build, profile, sheet state
