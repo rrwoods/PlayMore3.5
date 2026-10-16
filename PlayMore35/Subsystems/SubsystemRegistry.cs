@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Global;
+using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemRegistry {
         public static void RegisterDefaultActionParsers() {
             SheetAction.RegisterParser(UnbindVestigeAction.TryParse);
+            SheetAction.RegisterParser(ManeuverSheetAction.TryParse);
         }
 
         public static SubsystemRegistry CreateDefault() {
