@@ -21,7 +21,7 @@ namespace PlayMore35.Subsystems {
         private Dictionary<string, Vestige> EnsureVestigeCache() {
             if (vestigeCache == null) {
                 byte[] bytes = vestigeAccessor();
-                string json = Encoding.UTF8.GetString(bytes);
+                string json = Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF');
                 var array = JArray.Parse(json);
                 vestigeCache = array.Select(x => new Vestige((JObject)x)).ToDictionary(x => x.Name, x => x);
             }
@@ -31,7 +31,7 @@ namespace PlayMore35.Subsystems {
         private Dictionary<string, Maneuver> EnsureManeuverCache() {
             if (maneuverCache == null) {
                 byte[] bytes = maneuverAccessor();
-                string json = Encoding.UTF8.GetString(bytes);
+                string json = Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF');
                 var array = JArray.Parse(json);
                 maneuverCache = array.Select(x => new Maneuver((JObject)x)).ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
             }

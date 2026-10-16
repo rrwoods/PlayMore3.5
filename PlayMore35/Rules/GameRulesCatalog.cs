@@ -152,11 +152,11 @@ namespace PlayMore35.Rules {
                 if (File.Exists(savePath)) {
                     json = File.ReadAllText(savePath);
                 } else {
-                    json = Encoding.UTF8.GetString(resource);
+                    json = Encoding.UTF8.GetString(resource).TrimStart('\uFEFF');
                     File.WriteAllText(savePath, json);
                 }
             } else {
-                json = Encoding.UTF8.GetString(resource);
+                json = Encoding.UTF8.GetString(resource).TrimStart('\uFEFF');
             }
             return JToken.Parse(json);
         }
