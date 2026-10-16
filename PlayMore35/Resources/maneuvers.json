@@ -24,7 +24,7 @@
         "name": "Wind Stride",
         "modifiers": [
           {
-            "affects": "Speed",
+            "affects": "Land speed",
             "mod": {
               "type": "enhancement",
               "amounts": [ { "fixed": 10 } ]

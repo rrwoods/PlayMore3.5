@@ -8,6 +8,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
@@ -74,6 +75,12 @@ namespace PlayMore35.Tests {
             Assert.AreSame(engine, registry.Get("pact_magic"));
             Assert.AreSame(engine, registry.Get("vestige"));
             CollectionAssert.Contains(registry.All.ToList(), engine);
+
+            var maneuverEngine = registry.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(maneuverEngine);
+            Assert.AreSame(maneuverEngine, registry.Get("martial_maneuvers"));
+            Assert.AreSame(maneuverEngine, registry.Get("maneuver"));
+            CollectionAssert.Contains(registry.All.ToList(), maneuverEngine);
         }
 
         [TestMethod]
@@ -83,6 +90,9 @@ namespace PlayMore35.Tests {
             Assert.IsNull(registry.Get<PactMagicEngine>());
             Assert.IsNull(registry.Get("pact_magic"));
             Assert.IsNull(registry.Get("vestige"));
+            Assert.IsNull(registry.Get<MartialManeuverEngine>());
+            Assert.IsNull(registry.Get("martial_maneuvers"));
+            Assert.IsNull(registry.Get("maneuver"));
         }
 
         [TestMethod]

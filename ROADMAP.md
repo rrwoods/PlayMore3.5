@@ -12,12 +12,6 @@ Features required for the author's primary active character, alongside immediate
 
 ### Odric Level Progression
 
-### Level 5: Martial Maneuvers
-- **[ODRIC 5] Tome of Battle Maneuver System**:
-  - Support martial maneuver progression (Swordsage, Crusader, Warblade).
-  - Maneuver preparation and readied/expended tracking: initiating a maneuver expends it until recovered.
-  - Active stance effects that project bonuses and capabilities while toggled on.
-  - Subsystem interaction with character actions and initiator level calculations.
 
 ### Level 7: Traditional Spellcasting
 - **[ODRIC 7] Vancian Spellcasting System**:
