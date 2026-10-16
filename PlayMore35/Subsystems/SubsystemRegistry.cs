@@ -15,6 +15,7 @@ namespace PlayMore35.Subsystems {
         public static SubsystemRegistry CreateDefault() {
             var registry = new SubsystemRegistry();
             registry.Register(new PactMagicEngine(), "vestige");
+            registry.Register(new MartialManeuverEngine(), "maneuver");
             return registry;
         }
 

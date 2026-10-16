@@ -7,6 +7,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.CharacterChoices {
@@ -110,8 +111,8 @@ namespace PlayMore35.CharacterChoices {
                 foreach (var prop in subObj.Properties()) {
                     if (prop.Name == PactMagicEngine.SubsystemId && prop.Value is JObject pactJson) {
                         Subsystems[prop.Name] = PactMagicState.FromJson(pactJson);
-                    } else if (prop.Name == PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine.SubsystemId && prop.Value is JObject maneuverJson) {
-                        Subsystems[prop.Name] = new PlayMore35.Subsystems.Maneuvers.MartialManeuverState(maneuverJson);
+                    } else if (prop.Name == MartialManeuverEngine.SubsystemId && prop.Value is JObject maneuverJson) {
+                        Subsystems[prop.Name] = new MartialManeuverState(maneuverJson);
                     }
                 }
             }
