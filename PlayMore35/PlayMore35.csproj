@@ -116,6 +116,7 @@
     <Compile Include="Subsystems\PactMagic\PactMagicState.cs" />
     <Compile Include="Subsystems\PactMagic\PactMagicEngine.cs" />
     <Compile Include="Subsystems\PactMagic\UnbindVestigeAction.cs" />
+    <Compile Include="Subsystems\Maneuvers\Maneuver.cs" />
     <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -301,6 +302,7 @@
     <None Include="Resources\rules.json" />
     <None Include="Resources\feats.json" />
     <None Include="Resources\vestiges.json" />
+    <None Include="Resources\maneuvers.json" />
     <None Include="Resources\weaponProperties.json" />
     <None Include="Resources\weapons.json" />
   </ItemGroup>

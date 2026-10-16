@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
+using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Rules {
@@ -24,6 +25,7 @@ namespace PlayMore35.Rules {
         public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; }
         public IReadOnlyDictionary<string, Item> Items { get; }
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; }
+        public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots { get; }
         public IReadOnlyList<Statistic> CoreStats { get; }
@@ -135,6 +137,12 @@ namespace PlayMore35.Rules {
                 .Select(x => new ExternalEffect((JObject)x))
                 .ToDictionary(x => x.Effect.Name);
             ExternalEffects = new ReadOnlyDictionary<string, ExternalEffect>(external);
+
+            // 10. Maneuvers
+            var maneuvers = GetResource(Properties.Resources.maneuvers, "maneuvers.json")
+                .Select(x => new Maneuver((JObject)x))
+                .ToDictionary(x => x.Name);
+            Maneuvers = new ReadOnlyDictionary<string, Maneuver>(maneuvers);
         }
 
         private JToken GetResource(byte[] resource, string altFilename) {
@@ -183,6 +191,8 @@ namespace PlayMore35.Rules {
         public Item GetItem(string name) => FindEntity(Items, name, x => x.ItemEffect?.Name);
 
         public ExternalEffect GetExternalEffect(string name) => FindEntity(ExternalEffects, name, x => x.Effect?.Name);
+
+        public Maneuver GetManeuver(string name) => FindEntity(Maneuvers, name, x => x.Name);
 
         public IEnumerable<string> ChoicesForKey(string choiceDescription) {
             switch (choiceDescription) {

@@ -28,6 +28,10 @@ namespace PlayMore35.Tests {
             public Vestige GetVestige(string name) {
                 return vestiges.TryGetValue(name, out var v) ? v : null;
             }
+
+            public IEnumerable<PlayMore35.Subsystems.Maneuvers.Maneuver> GetManeuvers() => Enumerable.Empty<PlayMore35.Subsystems.Maneuvers.Maneuver>();
+
+            public PlayMore35.Subsystems.Maneuvers.Maneuver GetManeuver(string name) => null;
         }
 
         private static Vestige CreateTestVestige(string name, int level = 1, int dc = 15) {

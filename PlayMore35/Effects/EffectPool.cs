@@ -371,6 +371,10 @@ namespace PlayMore35.Effects {
             AddEffect(new Effect($"{@class.Name} level")
                 .AddModifier($"{@class.Name} level", new Modifier(level, BASE))
             );
+            AddStat(new Statistic(CHARACTER_LEVEL));
+            AddEffect(new Effect($"{@class.Name} character level contribution")
+                .AddModifier(CHARACTER_LEVEL, new Modifier(level, UNTYPED))
+            );
             int baseAttackBonus = 0;
             switch (@class.BaseAttackBonus) {
                 case CharacterClass.BonusProgression.NONE:

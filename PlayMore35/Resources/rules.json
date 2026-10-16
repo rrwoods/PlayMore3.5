@@ -159,6 +159,9 @@
       "name": "Total hit dice"
     },
     {
+      "name": "character level"
+    },
+    {
       "name": "Maximum hit points"
     },
     {
