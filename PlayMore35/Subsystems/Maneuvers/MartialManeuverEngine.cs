@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
@@ -206,6 +206,151 @@ namespace PlayMore35.Subsystems.Maneuvers {
                         foreach (var effect in maneuver.Effects) {
                             pool.AddEffect(effect);
                         }
+                    }
+                }
+            }
+        }
+
+        // Source: Tome of Battle, p. 38
+        public void ReadyManeuver(string source, int slotIndex) {
+            var src = GetSource(source);
+            var slot = src?.GetKnownSlot(slotIndex);
+            if (slot != null && slot.State == ManeuverState.Unreadied) {
+                if (string.Equals(source, "Crusader", StringComparison.OrdinalIgnoreCase)) {
+                    slot.State = ManeuverState.Withheld;
+                } else {
+                    slot.State = ManeuverState.Available;
+                }
+                src.SyncToSaved();
+            }
+        }
+
+        // Source: Tome of Battle, p. 38
+        public void UnreadyManeuver(string source, int slotIndex) {
+            var src = GetSource(source);
+            var slot = src?.GetKnownSlot(slotIndex);
+            if (slot != null && slot.State != ManeuverState.Unreadied) {
+                slot.State = ManeuverState.Unreadied;
+                src.SyncToSaved();
+            }
+        }
+
+        // Source: Tome of Battle, p. 38
+        public bool InitiateManeuver(string source, int slotIndex, bool throwOnInvalid = false) {
+            var src = GetSource(source);
+            var slot = src?.GetKnownSlot(slotIndex);
+            if (slot == null || slot.State != ManeuverState.Available) {
+                if (throwOnInvalid) {
+                    throw new InvalidOperationException($"Maneuver slot {slotIndex} in source '{source}' is not Available.");
+                }
+                return false;
+            }
+
+            slot.State = ManeuverState.Expended;
+            src.SyncToSaved();
+            return true;
+        }
+
+        // Source: Tome of Battle, p. 40
+        public void RecoverWarblade(string source = "Warblade") {
+            var src = GetSource(source);
+            if (src?.Known == null) return;
+            foreach (var slot in src.Known.Slots) {
+                if (slot != null && slot.State == ManeuverState.Expended) {
+                    slot.State = ManeuverState.Available;
+                }
+            }
+            src.SyncToSaved();
+        }
+
+        // Source: Tome of Battle, p. 40
+        public void RecoverSwordsage(string source, int slotIndex) {
+            var src = GetSource(source);
+            var slot = src?.GetKnownSlot(slotIndex);
+            if (slot != null && slot.State == ManeuverState.Expended) {
+                slot.State = ManeuverState.Available;
+                src.SyncToSaved();
+            }
+        }
+
+        // Source: Tome of Battle, p. 40
+        public void RecoverSwordsage(int slotIndex, string source = "Swordsage") {
+            RecoverSwordsage(source, slotIndex);
+        }
+
+        // Source: Tome of Battle, pp. 38, 40
+        public void DealCrusader(string source = "Crusader", Random rng = null) {
+            var src = GetSource(source);
+            if (src == null) return;
+
+            var readied = src.ReadiedManeuvers.ToList();
+            if (readied.Count == 0) return;
+
+            string lower = (source ?? "").ToLowerInvariant();
+            int k = context?.GetStatValue($"maneuvers granted:{lower}", 2) ?? 2;
+            if (k <= 0) k = 2;
+
+            foreach (var slot in readied) {
+                slot.State = ManeuverState.Withheld;
+            }
+
+            rng = rng ?? new Random();
+            var shuffled = readied.ToList();
+            for (int i = shuffled.Count - 1; i > 0; i--) {
+                int j = rng.Next(i + 1);
+                var temp = shuffled[i];
+                shuffled[i] = shuffled[j];
+                shuffled[j] = temp;
+            }
+
+            int grantCount = Math.Min(k, shuffled.Count);
+            for (int i = 0; i < grantCount; i++) {
+                shuffled[i].State = ManeuverState.Available;
+            }
+
+            src.SyncToSaved();
+        }
+
+        // Source: Tome of Battle, pp. 38, 40
+        public void DealCrusader(Random rng) => DealCrusader("Crusader", rng);
+
+        // Source: Tome of Battle, p. 38
+        public void AdvanceCrusaderTurn(string source = "Crusader", Random rng = null) {
+            var src = GetSource(source);
+            if (src == null) return;
+
+            rng = rng ?? new Random();
+            var withheldSlots = src.Known?.Slots?.Where(s => s != null && s.State == ManeuverState.Withheld).ToList()
+                                ?? src.ReadiedManeuvers.Where(s => s.State == ManeuverState.Withheld).ToList();
+
+            if (withheldSlots.Count > 0) {
+                int pickIndex = rng.Next(withheldSlots.Count);
+                withheldSlots[pickIndex].State = ManeuverState.Available;
+                src.SyncToSaved();
+            } else {
+                DealCrusader(source, rng);
+            }
+        }
+
+        // Source: Tome of Battle, p. 38
+        public void AdvanceCrusaderTurn(Random rng) => AdvanceCrusaderTurn("Crusader", rng);
+
+        // Source: Tome of Battle, pp. 38, 40
+        public void ResetEncounter(Random rng = null) {
+            var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
+            foreach (var sourceKey in allSources) {
+                if (!state.Sources.ContainsKey(sourceKey)) continue;
+                var src = state.Sources[sourceKey];
+                if (string.Equals(sourceKey, "Crusader", StringComparison.OrdinalIgnoreCase)) {
+                    DealCrusader(sourceKey, rng);
+                } else {
+                    if (src.Known != null) {
+                        foreach (var slot in src.Known.Slots) {
+                            if (slot != null && slot.IsReadied) {
+                                slot.State = ManeuverState.Available;
+                            }
+                        }
+                        src.SyncToSaved();
                     }
                 }
             }
