@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -153,6 +153,9 @@
   </data>
   <data name="vestiges" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\vestiges.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="maneuvers" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\maneuvers.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="external" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\external.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

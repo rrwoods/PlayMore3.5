@@ -1,0 +1,934 @@
+﻿[
+  {
+    "name": "Flame's Blessing",
+    "discipline": "Desert Wind",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain fire resistance based on your ranks in Tumble.",
+    "effects": []
+  },
+  {
+    "name": "Wind Stride",
+    "discipline": "Desert Wind",
+    "level": 1,
+    "type": "Boost",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain a +10-foot enhancement bonus to your land speed until the end of your current turn.",
+    "effects": [
+      {
+        "name": "Wind Stride",
+        "modifiers": [
+          {
+            "affects": "Speed",
+            "mod": {
+              "type": "enhancement",
+              "amounts": [ { "fixed": 10 } ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Blistering Flourish",
+    "discipline": "Desert Wind",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack; if it hits, foes within 30 feet are dazzled for 1 minute (Fortitude negates).",
+    "effects": []
+  },
+  {
+    "name": "Burning Blade",
+    "discipline": "Desert Wind",
+    "level": 1,
+    "type": "Boost",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Your melee attacks deal an extra 1d6 fire damage + 1 point per initiator level until the end of your turn.",
+    "effects": []
+  },
+  {
+    "name": "Fire Riposte",
+    "discipline": "Desert Wind",
+    "level": 2,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "1 Desert Wind maneuver",
+    "prerequisiteCount": 1,
+    "description": "When damaged by a melee or natural attack, counterattack with a touch attack dealing 4d6 fire damage.",
+    "effects": []
+  },
+  {
+    "name": "Dragon's Flame",
+    "discipline": "Desert Wind",
+    "level": 5,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "2 Desert Wind maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Unleash a 30-foot cone of fire dealing 6d6 fire damage (Reflex half).",
+    "effects": []
+  },
+  {
+    "name": "Salamander Charge",
+    "discipline": "Desert Wind",
+    "level": 7,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "3 Desert Wind maneuvers",
+    "prerequisiteCount": 3,
+    "description": "Charge an opponent and leave a wall of fire in every square you move through.",
+    "effects": []
+  },
+  {
+    "name": "Inferno Blast",
+    "discipline": "Desert Wind",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "5 Desert Wind maneuvers",
+    "prerequisiteCount": 5,
+    "description": "Unleash an explosion of fire in a 60-foot burst centered on you, dealing 100 points of fire damage (Reflex half).",
+    "effects": []
+  },
+  {
+    "name": "Iron Guard's Glare",
+    "discipline": "Devoted Spirit",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Foes you threaten take a -4 penalty on attack rolls against your allies.",
+    "effects": []
+  },
+  {
+    "name": "Martial Spirit",
+    "discipline": "Devoted Spirit",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Whenever you hit an opponent in melee, you or an ally within 30 feet heals 2 hit points.",
+    "effects": []
+  },
+  {
+    "name": "Crusader's Strike",
+    "discipline": "Devoted Spirit",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack against an opponent of different alignment; if it hits, you or an ally within 10 feet heals 1d6 + initiator level (max +5) hp.",
+    "effects": []
+  },
+  {
+    "name": "Shield Block",
+    "discipline": "Devoted Spirit",
+    "level": 2,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Grant an adjacent ally a bonus to AC equal to your shield bonus + 4 against one attack.",
+    "effects": []
+  },
+  {
+    "name": "Thicket of Blades",
+    "discipline": "Devoted Spirit",
+    "level": 3,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "1 Devoted Spirit maneuver",
+    "prerequisiteCount": 1,
+    "description": "Any opponent you threaten who takes a 5-foot step provokes an attack of opportunity from you.",
+    "effects": []
+  },
+  {
+    "name": "Revitalizing Strike",
+    "discipline": "Devoted Spirit",
+    "level": 3,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "1 Devoted Spirit maneuver",
+    "prerequisiteCount": 1,
+    "description": "Successful melee attack heals you or an ally within 10 feet for 3d6 + initiator level (max +10) hp.",
+    "effects": []
+  },
+  {
+    "name": "Divine Surge",
+    "discipline": "Devoted Spirit",
+    "level": 4,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "1 Devoted Spirit maneuver",
+    "prerequisiteCount": 1,
+    "description": "Make a single melee attack dealing an extra 8d8 points of damage.",
+    "effects": []
+  },
+  {
+    "name": "Rallying Strike",
+    "discipline": "Devoted Spirit",
+    "level": 6,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "2 Devoted Spirit maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Successful melee attack heals you and all allies within 30 feet for 3d6 + initiator level (max +15) hp.",
+    "effects": []
+  },
+  {
+    "name": "Strike of Righteous Vitality",
+    "discipline": "Devoted Spirit",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "3 Devoted Spirit maneuvers",
+    "prerequisiteCount": 3,
+    "description": "Successful melee attack bestows the benefit of a heal spell on you or an ally within 10 feet.",
+    "effects": []
+  },
+  {
+    "name": "Stance of Clarity",
+    "discipline": "Diamond Mind",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Designate a single melee opponent; gain a +2 insight bonus to AC against that foe, and take a -2 penalty to AC against all others.",
+    "effects": []
+  },
+  {
+    "name": "Moment of Perfect Mind",
+    "discipline": "Diamond Mind",
+    "level": 1,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a Concentration check in place of a Will save.",
+    "effects": []
+  },
+  {
+    "name": "Sapphire Nightmare Blade",
+    "discipline": "Diamond Mind",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a Concentration check against target's AC; if successful, target is flat-footed and you deal +1d6 damage.",
+    "effects": []
+  },
+  {
+    "name": "Action Before Thought",
+    "discipline": "Diamond Mind",
+    "level": 2,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a Concentration check in place of a Reflex save.",
+    "effects": []
+  },
+  {
+    "name": "Emerald Razor",
+    "discipline": "Diamond Mind",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "1 Diamond Mind maneuver",
+    "prerequisiteCount": 1,
+    "description": "Make a single melee attack as a touch attack.",
+    "effects": []
+  },
+  {
+    "name": "Mind Over Body",
+    "discipline": "Diamond Mind",
+    "level": 3,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a Concentration check in place of a Fortitude save.",
+    "effects": []
+  },
+  {
+    "name": "Pearl of Black Doubt",
+    "discipline": "Diamond Mind",
+    "level": 3,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "1 Diamond Mind maneuver",
+    "prerequisiteCount": 1,
+    "description": "Each time an opponent misses you with a melee attack, gain a cumulative +2 dodge bonus to AC until the start of your next turn.",
+    "effects": []
+  },
+  {
+    "name": "Ruby Nightmare Blade",
+    "discipline": "Diamond Mind",
+    "level": 4,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "2 Diamond Mind maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Make a Concentration check against target's AC; if successful, you deal double normal damage.",
+    "effects": []
+  },
+  {
+    "name": "Diamond Nightmare Blade",
+    "discipline": "Diamond Mind",
+    "level": 8,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "3 Diamond Mind maneuvers",
+    "prerequisiteCount": 3,
+    "description": "Make a Concentration check against target's AC; if successful, you deal quadruple normal damage.",
+    "effects": []
+  },
+  {
+    "name": "Time Stands Still",
+    "discipline": "Diamond Mind",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "4 Diamond Mind maneuvers",
+    "prerequisiteCount": 4,
+    "description": "Make two full attack actions at your full base attack bonus.",
+    "effects": []
+  },
+  {
+    "name": "Punishing Stance",
+    "discipline": "Iron Heart",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Deal an extra 1d6 points of damage on melee attacks, but take a -2 penalty to AC.",
+    "effects": [
+      {
+        "name": "Punishing Stance",
+        "modifiers": [
+          {
+            "affects": "AC",
+            "mod": {
+              "type": "untyped",
+              "amounts": [ { "fixed": -2 } ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Steely Strike",
+    "discipline": "Iron Heart",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain a +4 bonus on one melee attack; other enemies gain a +4 bonus on attack rolls against you for 1 round.",
+    "effects": []
+  },
+  {
+    "name": "Steel Wind",
+    "discipline": "Iron Heart",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack against two different opponents you threaten.",
+    "effects": []
+  },
+  {
+    "name": "Disarming Strike",
+    "discipline": "Iron Heart",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack; if it hits, make a free disarm attempt that does not provoke attacks of opportunity.",
+    "effects": []
+  },
+  {
+    "name": "Wall of Blades",
+    "discipline": "Iron Heart",
+    "level": 2,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack roll in place of your Armor Class against one incoming melee or ranged attack.",
+    "effects": []
+  },
+  {
+    "name": "Iron Heart Surge",
+    "discipline": "Iron Heart",
+    "level": 3,
+    "type": "Other",
+    "actionType": "standard",
+    "prerequisites": "1 Iron Heart maneuver",
+    "prerequisiteCount": 1,
+    "description": "End one harmful spell, effect, or condition currently affecting you and gain a +2 morale bonus on attack rolls until the end of your next turn.",
+    "effects": [
+      {
+        "name": "Iron Heart Surge",
+        "modifiers": [
+          {
+            "affects": "Attack rolls",
+            "mod": {
+              "type": "morale",
+              "amounts": [ { "fixed": 2 } ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Lightning Recovery",
+    "discipline": "Iron Heart",
+    "level": 4,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "2 Iron Heart maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Reroll a missed melee attack roll with a +2 bonus.",
+    "effects": []
+  },
+  {
+    "name": "Iron Heart Focus",
+    "discipline": "Iron Heart",
+    "level": 5,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "2 Iron Heart maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Reroll a saving throw you just failed.",
+    "effects": []
+  },
+  {
+    "name": "Supreme Blade Parry",
+    "discipline": "Iron Heart",
+    "level": 8,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "3 Iron Heart maneuvers",
+    "prerequisiteCount": 3,
+    "description": "Gain damage reduction 5/- against all weapon attacks while you maintain this stance.",
+    "effects": []
+  },
+  {
+    "name": "Strike of Perfect Clarity",
+    "discipline": "Iron Heart",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "4 Iron Heart maneuvers",
+    "prerequisiteCount": 4,
+    "description": "Make a single melee attack dealing an extra 100 points of damage on a hit.",
+    "effects": []
+  },
+  {
+    "name": "Step of the Wind",
+    "discipline": "Setting Sun",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Ignore movement penalties for difficult terrain; gain +2 on attack rolls and +4 dodge bonus to AC against foes in difficult terrain.",
+    "effects": []
+  },
+  {
+    "name": "Mighty Throw",
+    "discipline": "Setting Sun",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a trip attack without provoking attacks of opportunity; if successful, throw the foe up to 10 feet away.",
+    "effects": []
+  },
+  {
+    "name": "Counter Charge",
+    "discipline": "Setting Sun",
+    "level": 1,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Oppose a charging opponent with an opposed Strength or Dexterity check; if successful, redirect their charge path.",
+    "effects": []
+  },
+  {
+    "name": "Baffling Defense",
+    "discipline": "Setting Sun",
+    "level": 2,
+    "type": "Counter",
+    "actionType": "immediate",
+    "prerequisites": "1 Setting Sun maneuver",
+    "prerequisiteCount": 1,
+    "description": "Make a Sense Motive check in place of your Armor Class against one incoming melee attack.",
+    "effects": []
+  },
+  {
+    "name": "Clever Positioning",
+    "discipline": "Setting Sun",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack; if it hits, target must make a Reflex save or swap spaces with you.",
+    "effects": []
+  },
+  {
+    "name": "Giant Killing Style",
+    "discipline": "Setting Sun",
+    "level": 3,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "1 Setting Sun maneuver",
+    "prerequisiteCount": 1,
+    "description": "Gain a +2 bonus on attack rolls and +4 bonus on damage rolls against opponents larger than you.",
+    "effects": []
+  },
+  {
+    "name": "Tornado Throw",
+    "discipline": "Setting Sun",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "5 Setting Sun maneuvers",
+    "prerequisiteCount": 5,
+    "description": "Move up to triple your speed; for every 10 feet moved, you can trip and throw a foe, dealing damage based on distance.",
+    "effects": []
+  },
+  {
+    "name": "Child of Shadow",
+    "discipline": "Shadow Hand",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "If you move at least 10 feet during your turn, you gain concealment (20% miss chance) until the start of your next turn.",
+    "effects": []
+  },
+  {
+    "name": "Island of Blades",
+    "discipline": "Shadow Hand",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "You and an adjacent ally flank any opponent you both threaten, regardless of positioning.",
+    "effects": []
+  },
+  {
+    "name": "Clinging Shadow Strike",
+    "discipline": "Shadow Hand",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Melee attack deals an extra 1d6 damage, and target takes a 20% miss chance on all attacks for 1 round (Fortitude negates).",
+    "effects": []
+  },
+  {
+    "name": "Shadow Blade Technique",
+    "discipline": "Shadow Hand",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Roll two d20s on attack; select higher for normal damage, or lower for an extra 1d6 cold damage.",
+    "effects": []
+  },
+  {
+    "name": "Shadow Jaunt",
+    "discipline": "Shadow Hand",
+    "level": 2,
+    "type": "Other",
+    "actionType": "standard",
+    "prerequisites": "1 Shadow Hand maneuver",
+    "prerequisiteCount": 1,
+    "description": "Teleport up to 50 feet to any unoccupied square you have line of sight and line of effect to.",
+    "effects": []
+  },
+  {
+    "name": "Cloak of Deception",
+    "discipline": "Shadow Hand",
+    "level": 2,
+    "type": "Boost",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Turn greater invisible until the end of your current turn.",
+    "effects": []
+  },
+  {
+    "name": "Assassin's Stance",
+    "discipline": "Shadow Hand",
+    "level": 3,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "1 Shadow Hand maneuver",
+    "prerequisiteCount": 1,
+    "description": "Gain sneak attack +2d6 (or increase existing sneak attack by +2d6).",
+    "effects": []
+  },
+  {
+    "name": "Shadow Stride",
+    "discipline": "Shadow Hand",
+    "level": 6,
+    "type": "Other",
+    "actionType": "move",
+    "prerequisites": "2 Shadow Hand maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Teleport up to 50 feet as a move action.",
+    "effects": []
+  },
+  {
+    "name": "Five-Shadow Creeping Ice Enervation Strike",
+    "discipline": "Shadow Hand",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "5 Shadow Hand maneuvers",
+    "prerequisiteCount": 5,
+    "description": "Melee attack deals +15d6 damage and inflicts ability damage and speed penalties.",
+    "effects": []
+  },
+  {
+    "name": "Stonefoot Stance",
+    "discipline": "Stone Dragon",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain a +2 bonus on Strength checks and +2 dodge bonus to AC against larger opponents while on the ground.",
+    "effects": []
+  },
+  {
+    "name": "Charging Minotaur",
+    "discipline": "Stone Dragon",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Charging bull rush does not provoke attacks of opportunity and deals 2d6 + Strength modifier damage.",
+    "effects": []
+  },
+  {
+    "name": "Stone Bones",
+    "discipline": "Stone Dragon",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack; if it hits, gain damage reduction 5/adamantine until the start of your next turn.",
+    "effects": []
+  },
+  {
+    "name": "Mountain Hammer",
+    "discipline": "Stone Dragon",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack dealing an extra 2d6 points of damage and overcoming all damage reduction and hardness.",
+    "effects": []
+  },
+  {
+    "name": "Roots of the Mountain",
+    "discipline": "Stone Dragon",
+    "level": 3,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain a +2 bonus to AC, +10 bonus against bull rush/trip/overrun, and foes cannot tumble past you while on the ground.",
+    "effects": []
+  },
+  {
+    "name": "Bonesplitting Strike",
+    "discipline": "Stone Dragon",
+    "level": 4,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "2 Stone Dragon maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Make a melee attack dealing 2 points of Constitution damage on a hit.",
+    "effects": []
+  },
+  {
+    "name": "Elder Mountain Hammer",
+    "discipline": "Stone Dragon",
+    "level": 5,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "2 Stone Dragon maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Make a melee attack dealing an extra 6d6 points of damage and overcoming all damage reduction and hardness.",
+    "effects": []
+  },
+  {
+    "name": "Immortal Mountain Stance",
+    "discipline": "Stone Dragon",
+    "level": 8,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "3 Stone Dragon maneuvers",
+    "prerequisiteCount": 3,
+    "description": "Gain damage reduction 10/- while on the ground.",
+    "effects": []
+  },
+  {
+    "name": "Mountain Tombstone Strike",
+    "discipline": "Stone Dragon",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack dealing 2d6 points of Constitution damage on a hit.",
+    "effects": []
+  },
+  {
+    "name": "Blood in the Water",
+    "discipline": "Tiger Claw",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain a cumulative +1 bonus on attack and damage rolls whenever you confirm a critical hit.",
+    "effects": []
+  },
+  {
+    "name": "Hunter's Sense",
+    "discipline": "Tiger Claw",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain the scent special ability while maintaining this stance.",
+    "effects": []
+  },
+  {
+    "name": "Wolf Fang Strike",
+    "discipline": "Tiger Claw",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Attack with two weapons against a single opponent with a -2 penalty on each attack roll.",
+    "effects": []
+  },
+  {
+    "name": "Sudden Leap",
+    "discipline": "Tiger Claw",
+    "level": 1,
+    "type": "Boost",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a Jump check to move up to the distance jumped as a swift action.",
+    "effects": []
+  },
+  {
+    "name": "Claw at the Moon",
+    "discipline": "Tiger Claw",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a Jump check against target's AC; if successful, deal an extra 2d6 points of damage.",
+    "effects": []
+  },
+  {
+    "name": "Rabid Wolf Strike",
+    "discipline": "Tiger Claw",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Gain a +4 bonus on one attack roll and deal an extra 2d6 points of damage, but take a -4 penalty to AC for 1 round.",
+    "effects": []
+  },
+  {
+    "name": "Soaring Raptor Strike",
+    "discipline": "Tiger Claw",
+    "level": 3,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "1 Tiger Claw maneuver",
+    "prerequisiteCount": 1,
+    "description": "Attack a larger foe with a +4 bonus and deal an extra 6d6 points of damage.",
+    "effects": []
+  },
+  {
+    "name": "Death From Above",
+    "discipline": "Tiger Claw",
+    "level": 4,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "1 Tiger Claw maneuver",
+    "prerequisiteCount": 1,
+    "description": "Make a DC 20 Jump check to treat the target as flat-footed and deal an extra 4d6 points of damage.",
+    "effects": []
+  },
+  {
+    "name": "Feral Death Blow",
+    "discipline": "Tiger Claw",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "4 Tiger Claw maneuvers",
+    "prerequisiteCount": 4,
+    "description": "Make a Jump check against target's AC; if successful, target must make a Fortitude save (DC 19 + Str) or die, and you deal an extra 20d6 damage.",
+    "effects": []
+  },
+  {
+    "name": "Bolstering Voice",
+    "discipline": "White Raven",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Allies within 60 feet gain a +2 morale bonus on Will saves, or +4 against fear effects.",
+    "effects": [
+      {
+        "name": "Bolstering Voice",
+        "modifiers": [
+          {
+            "affects": "Will saves",
+            "mod": {
+              "type": "morale",
+              "amounts": [ { "fixed": 2 } ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Leading the Charge",
+    "discipline": "White Raven",
+    "level": 1,
+    "type": "Stance",
+    "actionType": "swift",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Allies within 60 feet deal bonus damage on charge attacks equal to your initiator level.",
+    "effects": []
+  },
+  {
+    "name": "Douse the Flames",
+    "discipline": "White Raven",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack; if it hits, the target cannot make attacks of opportunity for 1 round.",
+    "effects": []
+  },
+  {
+    "name": "Leading the Attack",
+    "discipline": "White Raven",
+    "level": 1,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a melee attack; if it hits, all allies gain a +4 morale bonus on attack rolls against that target for 1 round.",
+    "effects": []
+  },
+  {
+    "name": "Tactical Strike",
+    "discipline": "White Raven",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "standard",
+    "prerequisites": "1 White Raven maneuver",
+    "prerequisiteCount": 1,
+    "description": "Make a melee attack dealing an extra 2d6 points of damage; all adjacent allies can immediately make a 5-foot step.",
+    "effects": []
+  },
+  {
+    "name": "Battle Leader's Charge",
+    "discipline": "White Raven",
+    "level": 2,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "",
+    "prerequisiteCount": 0,
+    "description": "Make a charge attack that does not provoke attacks of opportunity and deals an extra 10 points of damage.",
+    "effects": []
+  },
+  {
+    "name": "White Raven Tactics",
+    "discipline": "White Raven",
+    "level": 3,
+    "type": "Boost",
+    "actionType": "swift",
+    "prerequisites": "1 White Raven maneuver",
+    "prerequisiteCount": 1,
+    "description": "Target ally within 10 feet acts on your initiative count minus 1.",
+    "effects": []
+  },
+  {
+    "name": "Lions Roar",
+    "discipline": "White Raven",
+    "level": 6,
+    "type": "Boost",
+    "actionType": "swift",
+    "prerequisites": "2 White Raven maneuvers",
+    "prerequisiteCount": 2,
+    "description": "Upon reducing an opponent to 0 hp or less, grant all allies within 60 feet a +5 morale bonus on damage rolls for 1 round.",
+    "effects": []
+  },
+  {
+    "name": "War Master's Charge",
+    "discipline": "White Raven",
+    "level": 9,
+    "type": "Strike",
+    "actionType": "full-round",
+    "prerequisites": "4 White Raven maneuvers",
+    "prerequisiteCount": 4,
+    "description": "You and all allies within 30 feet charge target; you deal +50 damage, allies deal +25 damage, and target is stunned.",
+    "effects": []
+  }
+]

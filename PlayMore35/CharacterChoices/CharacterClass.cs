@@ -71,11 +71,22 @@ namespace PlayMore35.CharacterChoices {
                 json["bonus feats"] = new JObject(BonusFeats.Select(x => new JProperty(x.Key, x.Value)));
             }
 
+            var subsObj = new JObject();
             foreach (var kvp in Subsystems) {
-                json[kvp.Key] = new JObject(
-                    new JProperty("stats", new JArray(kvp.Value.Stats)),
-                    new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
-                );
+                if (kvp.Key == "vestiges") {
+                    json["vestiges"] = new JObject(
+                        new JProperty("stats", new JArray(kvp.Value.Stats)),
+                        new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
+                    );
+                } else {
+                    subsObj[kvp.Key] = new JObject(
+                        new JProperty("stats", new JArray(kvp.Value.Stats)),
+                        new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
+                    );
+                }
+            }
+            if (subsObj.Count > 0) {
+                json["subsystems"] = subsObj;
             }
 
             return json;
@@ -120,6 +131,12 @@ namespace PlayMore35.CharacterChoices {
                 Subsystems["vestiges"] = new SubsystemFeature {
                     Stats = json["vestiges"]["stats"].Select(x => (string)x).ToList(),
                     Effects = json["vestiges"]["effects"].Select(x => new Effect((JObject)x)).ToList()
+                };
+            }
+            if (json["martial_maneuvers"] != null && !Subsystems.ContainsKey("martial_maneuvers")) {
+                Subsystems["martial_maneuvers"] = new SubsystemFeature {
+                    Stats = json["martial_maneuvers"]["stats"] != null ? json["martial_maneuvers"]["stats"].Select(x => (string)x).ToList() : new List<string>(),
+                    Effects = json["martial_maneuvers"]["effects"] != null ? json["martial_maneuvers"]["effects"].Select(x => new Effect((JObject)x)).ToList() : new List<Effect>()
                 };
             }
             if (json["subsystems"] is JObject subsJson) {

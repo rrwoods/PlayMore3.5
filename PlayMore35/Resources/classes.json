@@ -369,5 +369,682 @@
         }
       ]
     }
+  },
+  {
+    "name": "Warblade",
+    "prerequisites": "",
+    "hit die": 12,
+    "class skills": [
+      "Balance",
+      "Climb",
+      "Concentration",
+      "Craft",
+      "Diplomacy",
+      "Intimidate",
+      "Jump",
+      "Knowledge (history)",
+      "Knowledge (local)",
+      "Martial Lore",
+      "Swim",
+      "Tumble"
+    ],
+    "skill points": 4,
+    "base attack bonus": "FAST",
+    "base fort save": "FAST",
+    "base ref save": "SLOW",
+    "base will save": "SLOW",
+    "weapon proficiencies": [ { "proficiency": [ "SIMPLE", "MARTIAL" ] } ],
+    "armor proficiencies": [ "LIGHT", "MEDIUM" ],
+    "shield proficiencies": [ "normal" ],
+    "class features": [
+      [], [], [], [], [],
+      [], [], [], [], [],
+      [], [], [], [], [],
+      [], [], [], [], []
+    ],
+    "subsystems": {
+      "martial_maneuvers": {
+        "stats": [
+          "initiator level:warblade",
+          "other levels:warblade",
+          "maneuvers known:warblade",
+          "maneuvers readied:warblade",
+          "stances known:warblade",
+          "max maneuver level:warblade"
+        ],
+        "effects": [
+          {
+            "name": "other levels:warblade",
+            "modifiers": [
+              {
+                "affects": "other levels:warblade",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "stat value": "character level" },
+                    {
+                      "multiply": {
+                        "variable": { "stat value": "Warblade level" },
+                        "scalar": -1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "initiator level:warblade",
+            "modifiers": [
+              {
+                "affects": "initiator level:warblade",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "stat value": "Warblade level" },
+                    {
+                      "multiply": {
+                        "variable": { "stat value": "other levels:warblade" },
+                        "scalar": 0.5
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "maneuvers known:warblade",
+            "modifiers": [
+              {
+                "affects": "maneuvers known:warblade",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Warblade level" },
+                        "table": {
+                          "0": 0,
+                          "1": 3,
+                          "2": 4,
+                          "3": 5,
+                          "4": 5,
+                          "5": 6,
+                          "6": 6,
+                          "7": 7,
+                          "8": 7,
+                          "9": 8,
+                          "10": 8,
+                          "11": 9,
+                          "12": 9,
+                          "13": 10,
+                          "14": 10,
+                          "15": 11,
+                          "16": 11,
+                          "17": 12,
+                          "18": 12,
+                          "19": 13,
+                          "20": 13
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "maneuvers readied:warblade",
+            "modifiers": [
+              {
+                "affects": "maneuvers readied:warblade",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Warblade level" },
+                        "table": {
+                          "0": 0,
+                          "1": 3,
+                          "4": 4,
+                          "10": 5,
+                          "15": 6,
+                          "20": 7
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "stances known:warblade",
+            "modifiers": [
+              {
+                "affects": "stances known:warblade",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Warblade level" },
+                        "table": {
+                          "0": 0,
+                          "1": 1,
+                          "4": 2,
+                          "10": 3,
+                          "16": 4
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "max maneuver level:warblade",
+            "modifiers": [
+              {
+                "affects": "max maneuver level:warblade",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "initiator level:warblade" },
+                        "table": {
+                          "0": 0,
+                          "1": 1,
+                          "3": 2,
+                          "5": 3,
+                          "7": 4,
+                          "9": 5,
+                          "11": 6,
+                          "13": 7,
+                          "15": 8,
+                          "17": 9
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Crusader",
+    "prerequisites": "",
+    "hit die": 10,
+    "class skills": [
+      "Balance",
+      "Concentration",
+      "Craft",
+      "Diplomacy",
+      "Intimidate",
+      "Knowledge (history)",
+      "Knowledge (religion)",
+      "Martial Lore",
+      "Ride"
+    ],
+    "skill points": 2,
+    "base attack bonus": "FAST",
+    "base fort save": "FAST",
+    "base ref save": "SLOW",
+    "base will save": "SLOW",
+    "weapon proficiencies": [ { "proficiency": [ "SIMPLE", "MARTIAL" ] } ],
+    "armor proficiencies": [ "LIGHT", "MEDIUM", "HEAVY" ],
+    "shield proficiencies": [ "normal", "tower" ],
+    "class features": [
+      [], [], [], [], [],
+      [], [], [], [], [],
+      [], [], [], [], [],
+      [], [], [], [], []
+    ],
+    "subsystems": {
+      "martial_maneuvers": {
+        "stats": [
+          "initiator level:crusader",
+          "other levels:crusader",
+          "maneuvers known:crusader",
+          "maneuvers readied:crusader",
+          "stances known:crusader",
+          "max maneuver level:crusader",
+          "maneuvers granted:crusader"
+        ],
+        "effects": [
+          {
+            "name": "other levels:crusader",
+            "modifiers": [
+              {
+                "affects": "other levels:crusader",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "stat value": "character level" },
+                    {
+                      "multiply": {
+                        "variable": { "stat value": "Crusader level" },
+                        "scalar": -1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "initiator level:crusader",
+            "modifiers": [
+              {
+                "affects": "initiator level:crusader",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "stat value": "Crusader level" },
+                    {
+                      "multiply": {
+                        "variable": { "stat value": "other levels:crusader" },
+                        "scalar": 0.5
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "maneuvers known:crusader",
+            "modifiers": [
+              {
+                "affects": "maneuvers known:crusader",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Crusader level" },
+                        "table": {
+                          "0": 0,
+                          "1": 5,
+                          "3": 6,
+                          "5": 7,
+                          "7": 8,
+                          "9": 9,
+                          "11": 10,
+                          "13": 11,
+                          "15": 12,
+                          "17": 13,
+                          "19": 14
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "maneuvers readied:crusader",
+            "modifiers": [
+              {
+                "affects": "maneuvers readied:crusader",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Crusader level" },
+                        "table": {
+                          "0": 0,
+                          "1": 5,
+                          "10": 6,
+                          "20": 7
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "maneuvers granted:crusader",
+            "modifiers": [
+              {
+                "affects": "maneuvers granted:crusader",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Crusader level" },
+                        "table": {
+                          "0": 0,
+                          "1": 2,
+                          "5": 3,
+                          "11": 4,
+                          "20": 5
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "stances known:crusader",
+            "modifiers": [
+              {
+                "affects": "stances known:crusader",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Crusader level" },
+                        "table": {
+                          "0": 0,
+                          "1": 1,
+                          "8": 2,
+                          "14": 3,
+                          "20": 4
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "max maneuver level:crusader",
+            "modifiers": [
+              {
+                "affects": "max maneuver level:crusader",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "initiator level:crusader" },
+                        "table": {
+                          "0": 0,
+                          "1": 1,
+                          "3": 2,
+                          "5": 3,
+                          "7": 4,
+                          "9": 5,
+                          "11": 6,
+                          "13": 7,
+                          "15": 8,
+                          "17": 9
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "Swordsage",
+    "prerequisites": "",
+    "hit die": 8,
+    "class skills": [
+      "Balance",
+      "Climb",
+      "Concentration",
+      "Craft",
+      "Heal",
+      "Hide",
+      "Intimidate",
+      "Jump",
+      "Knowledge (history)",
+      "Knowledge (local)",
+      "Knowledge (nature)",
+      "Knowledge (nobility and royalty)",
+      "Knowledge (religion)",
+      "Martial Lore",
+      "Move Silently",
+      "Profession",
+      "Ride",
+      "Sense Motive",
+      "Swim",
+      "Tumble"
+    ],
+    "skill points": 6,
+    "base attack bonus": "MEDIUM",
+    "base fort save": "SLOW",
+    "base ref save": "FAST",
+    "base will save": "FAST",
+    "weapon proficiencies": [ { "proficiency": [ "SIMPLE", "MARTIAL" ] } ],
+    "armor proficiencies": [ "LIGHT" ],
+    "shield proficiencies": [],
+    "class features": [
+      [], [], [], [], [],
+      [], [], [], [], [],
+      [], [], [], [], [],
+      [], [], [], [], []
+    ],
+    "subsystems": {
+      "martial_maneuvers": {
+        "stats": [
+          "initiator level:swordsage",
+          "other levels:swordsage",
+          "maneuvers known:swordsage",
+          "maneuvers readied:swordsage",
+          "stances known:swordsage",
+          "max maneuver level:swordsage"
+        ],
+        "effects": [
+          {
+            "name": "other levels:swordsage",
+            "modifiers": [
+              {
+                "affects": "other levels:swordsage",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "stat value": "character level" },
+                    {
+                      "multiply": {
+                        "variable": { "stat value": "Swordsage level" },
+                        "scalar": -1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "initiator level:swordsage",
+            "modifiers": [
+              {
+                "affects": "initiator level:swordsage",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "stat value": "Swordsage level" },
+                    {
+                      "multiply": {
+                        "variable": { "stat value": "other levels:swordsage" },
+                        "scalar": 0.5
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "maneuvers known:swordsage",
+            "modifiers": [
+              {
+                "affects": "maneuvers known:swordsage",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Swordsage level" },
+                        "table": {
+                          "0": 0,
+                          "1": 6,
+                          "2": 7,
+                          "3": 8,
+                          "4": 9,
+                          "5": 10,
+                          "6": 11,
+                          "7": 12,
+                          "8": 13,
+                          "9": 14,
+                          "10": 15,
+                          "11": 16,
+                          "12": 17,
+                          "13": 18,
+                          "14": 19,
+                          "15": 20,
+                          "16": 21,
+                          "17": 22,
+                          "18": 23,
+                          "19": 24,
+                          "20": 25
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "maneuvers readied:swordsage",
+            "modifiers": [
+              {
+                "affects": "maneuvers readied:swordsage",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Swordsage level" },
+                        "table": {
+                          "0": 0,
+                          "1": 4,
+                          "3": 5,
+                          "5": 6,
+                          "8": 7,
+                          "11": 8,
+                          "14": 9,
+                          "17": 10,
+                          "20": 11
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "stances known:swordsage",
+            "modifiers": [
+              {
+                "affects": "stances known:swordsage",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "Swordsage level" },
+                        "table": {
+                          "0": 0,
+                          "1": 1,
+                          "2": 2,
+                          "5": 3,
+                          "9": 4,
+                          "14": 5,
+                          "20": 6
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "max maneuver level:swordsage",
+            "modifiers": [
+              {
+                "affects": "max maneuver level:swordsage",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": { "stat value": "initiator level:swordsage" },
+                        "table": {
+                          "0": 0,
+                          "1": 1,
+                          "3": 2,
+                          "5": 3,
+                          "7": 4,
+                          "9": 5,
+                          "11": 6,
+                          "13": 7,
+                          "15": 8,
+                          "17": 9
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 ]

@@ -1176,6 +1176,150 @@
     }
   },
   {
+    "prerequisites": "One martial maneuver",
+    "stats": [
+      { "name": "initiator level:feats" },
+      { "name": "maneuvers known:feats" },
+      { "name": "maneuvers readied:feats" },
+      { "name": "stances known:feats" },
+      { "name": "max maneuver level:feats" }
+    ],
+    "benefit": {
+      "name": "Martial Stance",
+      "text": [
+        {
+          "category": "Special Qualities",
+          "text": "You have mastered the fundamental fighting stance of a martial discipline, gaining the ability to adopt a single martial stance."
+        }
+      ],
+      "modifiers": [
+        {
+          "affects": "initiator level:feats",
+          "mod": {
+            "type": "feat",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": { "stat value": "character level" },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "stances known:feats",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 1 } ]
+          }
+        },
+        {
+          "affects": "max maneuver level:feats",
+          "mod": {
+            "type": "feat",
+            "amounts": [
+              {
+                "lookup": {
+                  "value": { "stat value": "initiator level:feats" },
+                  "table": {
+                    "0": 0,
+                    "1": 1,
+                    "3": 2,
+                    "5": 3,
+                    "7": 4,
+                    "9": 5,
+                    "11": 6,
+                    "13": 7,
+                    "15": 8,
+                    "17": 9
+                  },
+                  "miss adjust": -1,
+                  "miss factor": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "stats": [
+      { "name": "initiator level:feats" },
+      { "name": "maneuvers known:feats" },
+      { "name": "maneuvers readied:feats" },
+      { "name": "stances known:feats" },
+      { "name": "max maneuver level:feats" }
+    ],
+    "benefit": {
+      "name": "Martial Study",
+      "text": [
+        {
+          "category": "Special Qualities",
+          "text": "By learning the basic principles of a martial discipline, you gain the ability to initiate a single martial maneuver."
+        }
+      ],
+      "modifiers": [
+        {
+          "affects": "initiator level:feats",
+          "mod": {
+            "type": "feat",
+            "amounts": [
+              {
+                "multiply": {
+                  "variable": { "stat value": "character level" },
+                  "scalar": 0.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "affects": "maneuvers known:feats",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 1 } ]
+          }
+        },
+        {
+          "affects": "maneuvers readied:feats",
+          "mod": {
+            "type": "untyped",
+            "amounts": [ { "fixed": 1 } ]
+          }
+        },
+        {
+          "affects": "max maneuver level:feats",
+          "mod": {
+            "type": "feat",
+            "amounts": [
+              {
+                "lookup": {
+                  "value": { "stat value": "initiator level:feats" },
+                  "table": {
+                    "0": 0,
+                    "1": 1,
+                    "3": 2,
+                    "5": 3,
+                    "7": 4,
+                    "9": 5,
+                    "11": 6,
+                    "13": 7,
+                    "15": 8,
+                    "17": 9
+                  },
+                  "miss adjust": -1,
+                  "miss factor": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
     "choice": "martial weapon",
     "benefit": {
       "name": "Martial Weapon Proficiency",

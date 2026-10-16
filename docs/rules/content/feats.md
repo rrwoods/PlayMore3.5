@@ -1,4 +1,4 @@
-﻿# Feats
+# Feats
 
 - [ ] **Acrobatic**: TODO
 - [ ] **Agile**: TODO
@@ -63,6 +63,8 @@
 - [ ] **Lightning Reflexes**: TODO
 - [ ] **Magical Aptitude**: TODO
 - [ ] **Manyshot**: TODO
+- [x] **Martial Stance**: *Tome of Battle*, p. 52
+- [x] **Martial Study**: *Tome of Battle*, p. 52
 - [ ] **Martial Weapon Proficiency**: TODO
 - [ ] **Maximize Spell**: TODO
 - [ ] **Mobility**: TODO
