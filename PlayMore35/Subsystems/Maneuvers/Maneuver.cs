@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -34,7 +34,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             if (json["type"] != null) {
                 Type = (ManeuverType)Enum.Parse(typeof(ManeuverType), (string)json["type"], true);
             }
-            ActionType = (string)(json["actionType"] ?? json["action"] ?? "");
+            ActionType = (string)(json["actionType"] ?? "");
             Prerequisites = (string)(json["prerequisites"] ?? "");
             if (json["prerequisiteCount"] != null) {
                 PrerequisiteCount = (int)json["prerequisiteCount"];

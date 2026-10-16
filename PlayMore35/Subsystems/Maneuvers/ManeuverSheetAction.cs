@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
@@ -16,7 +16,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public ManeuverSheetAction(JObject json) : base(json) {
             if (json == null) throw new ArgumentNullException(nameof(json));
-            ManeuverName = (string)(json["maneuver_action"] ?? json["maneuver"] ?? "");
+            ManeuverName = (string)(json["maneuver_action"] ?? "");
             Source = (string)(json["source"] ?? "");
             if (string.IsNullOrEmpty(Name)) {
                 Name = !string.IsNullOrEmpty(Source) ? $"{ManeuverName} ({Source})" : ManeuverName;
@@ -25,7 +25,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public static SheetAction TryParse(JObject json) {
             if (json == null) return null;
-            return (json["maneuver_action"] != null || json["maneuver"] != null)
+            return json["maneuver_action"] != null
                 ? new ManeuverSheetAction(json)
                 : null;
         }

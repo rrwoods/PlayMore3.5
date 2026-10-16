@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -48,12 +48,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
             if (json["known"] is JArray knownArr) {
                 foreach (var token in knownArr) {
-                    if (token is JObject obj) {
-                        savedKnown.Add(new KnownManeuverSlot(obj));
-                    }
-                }
-            } else if (json["maneuvers"] is JArray maneuversArr) {
-                foreach (var token in maneuversArr) {
                     if (token is JObject obj) {
                         savedKnown.Add(new KnownManeuverSlot(obj));
                     }
@@ -224,6 +218,34 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 EnsureLoaded();
                 return Stances?.Slots?.Where(s => s != null && s.IsActive) ?? Enumerable.Empty<StanceSlot>();
             }
+        }
+
+        public IEnumerable<string> AllKnownManeuverNames() {
+            EnsureLoaded();
+            var slots = (Known != null && Known.Capacity > 0) ? Known.Slots : (IReadOnlyList<KnownManeuverSlot>)savedKnown;
+            return slots?
+                .Where(s => s != null && !string.IsNullOrWhiteSpace(s.ManeuverName))
+                .Select(s => s.ManeuverName)
+                ?? Enumerable.Empty<string>();
+        }
+
+        public IEnumerable<string> AllStanceNames() {
+            EnsureLoaded();
+            var slots = (Stances != null && Stances.Capacity > 0) ? Stances.Slots : (IReadOnlyList<StanceSlot>)savedStances;
+            return slots?
+                .Where(s => s != null && !string.IsNullOrWhiteSpace(s.StanceName))
+                .Select(s => s.StanceName)
+                ?? Enumerable.Empty<string>();
+        }
+
+        public bool HasManeuver(string maneuverName) {
+            if (string.IsNullOrWhiteSpace(maneuverName)) return false;
+            return AllKnownManeuverNames().Any(name => string.Equals(name, maneuverName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool HasStance(string stanceName) {
+            if (string.IsNullOrWhiteSpace(stanceName)) return false;
+            return AllStanceNames().Any(name => string.Equals(name, stanceName, StringComparison.OrdinalIgnoreCase));
         }
 
         public JToken ToJson() {

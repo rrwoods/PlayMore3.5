@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
@@ -16,7 +16,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public KnownManeuverSlot(JObject json) {
             if (json == null) throw new ArgumentNullException(nameof(json));
-            ManeuverName = (string)(json["name"] ?? json["maneuverName"] ?? "");
+            ManeuverName = (string)(json["name"] ?? "");
             string stateStr = (string)json["state"];
             if (!string.IsNullOrEmpty(stateStr) && Enum.TryParse<ManeuverState>(stateStr, true, out var parsedState)) {
                 State = parsedState;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
@@ -14,8 +14,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public StanceSlot(JObject json) {
             if (json == null) throw new ArgumentNullException(nameof(json));
-            StanceName = (string)(json["name"] ?? json["stanceName"] ?? "");
-            IsActive = (bool)(json["isActive"] ?? json["active"] ?? false);
+            StanceName = (string)(json["name"] ?? "");
+            IsActive = (bool)(json["isActive"] ?? false);
         }
 
         public JToken ToJson() {
