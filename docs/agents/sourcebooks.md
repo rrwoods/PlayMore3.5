@@ -1,4 +1,4 @@
-﻿# Sourcebooks and PDF Extraction
+# Sourcebooks and PDF Extraction
 
 Guidelines and tooling for agents consulting D&D 3.5e primary source PDFs.
 
@@ -62,3 +62,18 @@ When the PDF consists of scanned raster images without a usable text layer:
 Printed folio page numbers in 3.5e books rarely align with 1-indexed PDF page numbers due to covers, title pages, and tables of contents:
 - Calibrate the offset first by scanning headers/footers or searching for a known chapter or section heading in the first 10–20 pages.
 - Verify the physical page header/footer before extracting extended passages to ensure the citations record accurate book page numbers.
+
+## 6. Primary Source Maneuver Extraction Tooling
+
+Martial maneuvers and stances from *Tome of Battle* are extracted directly from primary source text into discipline reference files (`docs/rules/content/maneuvers/<discipline>.md`) using `tools/extract_maneuvers.py`.
+
+### 6.1 Execution
+Run the extraction tool using the dedicated `dnd_pdf` Python environment:
+```powershell
+& "C:\Users\rickr\Envs\dnd_pdf\Scripts\python.exe" tools/extract_maneuvers.py
+```
+
+### 6.2 Arguments
+- `--pdf <path>`: Path to the *Tome of Battle* PDF (defaults to `C:/Users/rickr/Documents/D&D notes/resources/books/Tome of Battle - Book of Nine Swords.pdf`).
+- `--output <dir>`: Target output directory (defaults to `docs/rules/content/maneuvers`).
+
