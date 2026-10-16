@@ -131,6 +131,100 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(restored.GetStanceSlot(0).IsActive);
         }
 
+        [TestMethod]
+        public void ManeuverSourceState_HelperMethods_ReturnManeuversAndStances() {
+            var src = new ManeuverSourceState(2, 2);
+            src.SetKnownSlot(0, new KnownManeuverSlot("Steel Strike", ManeuverState.Available));
+            src.SetKnownSlot(1, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Unreadied));
+            src.SetStanceSlot(0, new StanceSlot("Punishing Stance", true));
+
+            Assert.IsTrue(src.HasManeuver("Steel Strike"));
+            Assert.IsTrue(src.HasManeuver("Iron Heart Surge"));
+            Assert.IsFalse(src.HasManeuver("Nonexistent"));
+            Assert.IsTrue(src.HasStance("Punishing Stance"));
+            Assert.IsFalse(src.HasStance("Nonexistent"));
+
+            var allKnown = src.AllKnownManeuverNames().ToList();
+            Assert.AreEqual(2, allKnown.Count);
+            Assert.IsTrue(allKnown.Contains("Steel Strike"));
+            Assert.IsTrue(allKnown.Contains("Iron Heart Surge"));
+
+            var allStances = src.AllStanceNames().ToList();
+            Assert.AreEqual(1, allStances.Count);
+            Assert.IsTrue(allStances.Contains("Punishing Stance"));
+        }
+
+        [TestMethod]
+        public void Subsystems_Maneuvers_RejectsNonCanonicalJsonPropertiesWithoutFallback() {
+            // Maneuver: actionType is canonical, action is non-canonical fallback
+            var badManeuverJson = new JObject(
+                new JProperty("name", "Test Strike"),
+                new JProperty("action", "standard")
+            );
+            var maneuver = new Maneuver(badManeuverJson);
+            Assert.AreEqual("", maneuver.ActionType);
+
+            var canonicalManeuverJson = new JObject(
+                new JProperty("name", "Test Strike"),
+                new JProperty("actionType", "standard")
+            );
+            var canManeuver = new Maneuver(canonicalManeuverJson);
+            Assert.AreEqual("standard", canManeuver.ActionType);
+
+            // KnownManeuverSlot: name is canonical, maneuverName is non-canonical fallback
+            var badSlotJson = new JObject(new JProperty("maneuverName", "Steel Strike"));
+            var slot = new KnownManeuverSlot(badSlotJson);
+            Assert.AreEqual("", slot.ManeuverName);
+
+            // StanceSlot: name & isActive are canonical, stanceName & active are non-canonical
+            var badStanceJson = new JObject(
+                new JProperty("stanceName", "Punishing Stance"),
+                new JProperty("active", true)
+            );
+            var stance = new StanceSlot(badStanceJson);
+            Assert.AreEqual("", stance.StanceName);
+            Assert.IsFalse(stance.IsActive);
+
+            // ManeuverSourceState: known is canonical, maneuvers is non-canonical fallback
+            var badSourceJson = new JObject(
+                new JProperty("maneuvers", new JArray(new JObject(new JProperty("name", "Steel Strike"))))
+            );
+            var source = new ManeuverSourceState(badSourceJson);
+            Assert.AreEqual(0, source.Known.Capacity);
+            Assert.AreEqual(0, source.AllKnownManeuverNames().Count());
+
+            // ManeuverSheetAction: maneuver_action is canonical, maneuver is non-canonical fallback
+            var badActionJson = new JObject(
+                new JProperty("maneuver", "Steel Strike"),
+                new JProperty("source", "Warblade")
+            );
+            Assert.IsNull(ManeuverSheetAction.TryParse(badActionJson));
+            var badAction = new ManeuverSheetAction(badActionJson);
+            Assert.AreEqual("", badAction.ManeuverName);
+
+            // CharacterClass: subsystems.martial_maneuvers is canonical, root martial_maneuvers is non-canonical fallback
+            var classJson = new JObject(
+                new JProperty("name", "TestClass"),
+                new JProperty("prerequisites", ""),
+                new JProperty("hit die", 8),
+                new JProperty("class skills", new JArray()),
+                new JProperty("skill points", 2),
+                new JProperty("base attack bonus", "SLOW"),
+                new JProperty("base fort save", "SLOW"),
+                new JProperty("base ref save", "SLOW"),
+                new JProperty("base will save", "SLOW"),
+                new JProperty("weapon proficiencies", new JArray()),
+                new JProperty("armor proficiencies", new JArray()),
+                new JProperty("shield proficiencies", new JArray()),
+                new JProperty("class features", new JArray()),
+                new JProperty("martial_maneuvers", new JObject(
+                    new JProperty("stats", new JArray("maneuvers known:testclass"))
+                ))
+            );
+            var cClass = new CharacterClass(classJson);
+            Assert.IsFalse(cClass.Subsystems.ContainsKey("martial_maneuvers"));
+        }
+
         // Source: Tome of Battle, p. 40
         [TestMethod]
         public void MartialManeuverState_PreservesSourceIsolation_AndRoundTripsJson() {
@@ -308,6 +402,28 @@ namespace PlayMore35.Tests {
             // Total readied is 2, capacity is 1
             var warnings = engine.ValidateManeuver("Steel Strike", "Warblade");
             Assert.IsTrue(warnings.Any(w => w.Contains("Readied maneuvers count (2) exceeds readied capacity (1)")));
+        }
+
+        // Source: Tome of Battle, p. 38
+        [TestMethod]
+        public void ValidateManeuver_WarnsWhenReadiedCountBelowCapacity() {
+            var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
+            var m2 = CreateManeuver("Steely Strike", "Iron Heart", 1);
+            var content = new TestManeuverContentProvider(m1, m2);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "maneuvers known:warblade", 2);
+            SetStat(context.Effects, "maneuvers readied:warblade", 2);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetKnownSlot(0, new KnownManeuverSlot("Steel Strike", ManeuverState.Available));
+            warblade.SetKnownSlot(1, new KnownManeuverSlot("Steely Strike", ManeuverState.Unreadied));
+
+            // Total readied is 1, capacity is 2
+            var warnings = engine.ValidateManeuver("Steel Strike", "Warblade");
+            Assert.IsTrue(warnings.Any(w => w.Contains("Readied maneuvers count (1) is below readied capacity (2) for Warblade.")));
         }
 
         // Source: Tome of Battle, p. 38
@@ -659,6 +775,48 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
         }
 
+        // Source: Tome of Battle, pp. 5, 38, 40, 43
+        [TestMethod]
+        public void AdoptStance_CapsConcurrentActiveStancesAtTwo_WhenDualStancePermitted() {
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "stances known:warblade", 3);
+            SetStat(context.Effects, "dual stance", 1);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance"));
+            warblade.SetStanceSlot(1, new StanceSlot("Blood in the Water"));
+            warblade.SetStanceSlot(2, new StanceSlot("Hunter's Sense"));
+
+            // Adopt stance 0
+            engine.AdoptStance("Warblade", 0);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+
+            // Adopt stance 1 -> both active
+            engine.AdoptStance("Warblade", 1);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
+            Assert.IsFalse(warblade.GetStanceSlot(2).IsActive);
+
+            // Adopt stance 2 -> oldest (stance 0) is deactivated, stances 1 and 2 remain active
+            engine.AdoptStance("Warblade", 2);
+            Assert.IsFalse(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
+            Assert.IsTrue(warblade.GetStanceSlot(2).IsActive);
+
+            // Adopt stance 0 again -> oldest (stance 1) is deactivated, stances 2 and 0 remain active
+            engine.AdoptStance("Warblade", 0);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsFalse(warblade.GetStanceSlot(1).IsActive);
+            Assert.IsTrue(warblade.GetStanceSlot(2).IsActive);
+        }
+
         // Source: Tome of Battle, pp. 5, 38, 43
         [TestMethod]
         public void ContributeEffects_ProjectsActiveStanceModifiers_AndIgnoresInactiveStances() {
@@ -789,17 +947,15 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Swordsage", mAction.Source);
             Assert.IsTrue(action.Matches(deserialized));
 
-            // Also test alternate "maneuver" key
+            // Non-canonical "maneuver" key is rejected (ADR-0008: no JSON fallbacks)
             var altJson = new JObject(
                 new JProperty("maneuver", "Fire Riposte"),
                 new JProperty("source", "Desert Wind"),
                 new JProperty("duration", "1 round")
             );
             var altDeserialized = SheetAction.FromJson(altJson);
-            Assert.IsInstanceOfType(altDeserialized, typeof(ManeuverSheetAction));
-            var altAction = (ManeuverSheetAction)altDeserialized;
-            Assert.AreEqual("Fire Riposte", altAction.ManeuverName);
-            Assert.AreEqual("Desert Wind", altAction.Source);
+            Assert.IsNotInstanceOfType(altDeserialized, typeof(ManeuverSheetAction));
+            Assert.IsNull(ManeuverSheetAction.TryParse(altJson));
         }
     }
 }

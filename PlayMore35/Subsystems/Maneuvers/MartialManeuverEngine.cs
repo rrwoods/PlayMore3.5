@@ -125,26 +125,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             foreach (var kvp in state.Sources) {
                 if (!string.Equals(kvp.Key, source, StringComparison.OrdinalIgnoreCase)) {
                     var otherSource = kvp.Value;
-                    bool alreadyLearned = false;
-                    if (otherSource.Known != null) {
-                        for (int i = 0; i < otherSource.Known.Capacity; i++) {
-                            var s = otherSource.Known[i];
-                            if (s != null && string.Equals(s.ManeuverName, maneuverName, StringComparison.OrdinalIgnoreCase)) {
-                                alreadyLearned = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!alreadyLearned && otherSource.Stances != null) {
-                        for (int i = 0; i < otherSource.Stances.Capacity; i++) {
-                            var s = otherSource.Stances[i];
-                            if (s != null && string.Equals(s.StanceName, maneuverName, StringComparison.OrdinalIgnoreCase)) {
-                                alreadyLearned = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (alreadyLearned) {
+                    if (otherSource.HasManeuver(maneuverName) || otherSource.HasStance(maneuverName)) {
                         warnings.Add($"Maneuver '{maneuverName}' is already learned under source '{kvp.Key}'.");
                     }
                 }
@@ -157,6 +138,9 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 if (readiedCount > maxReadied) {
                     warnings.Add($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {source}.");
                 }
+                if (readiedCount < maxReadied) {
+                    warnings.Add($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {source}.");
+                }
             }
 
             return warnings;
@@ -166,28 +150,20 @@ namespace PlayMore35.Subsystems.Maneuvers {
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var src in state.Sources.Values) {
-                if (src.Known != null) {
-                    for (int i = 0; i < src.Known.Capacity; i++) {
-                        var slot = src.Known[i];
-                        if (slot != null && !string.IsNullOrEmpty(slot.ManeuverName) &&
-                            !string.Equals(slot.ManeuverName, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
-                            var m = contentProvider.GetManeuver(slot.ManeuverName);
-                            if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
-                                distinctKnown.Add(slot.ManeuverName);
-                            }
+                foreach (var name in src.AllKnownManeuverNames()) {
+                    if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
+                        var m = contentProvider.GetManeuver(name);
+                        if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
+                            distinctKnown.Add(name);
                         }
                     }
                 }
 
-                if (src.Stances != null) {
-                    for (int i = 0; i < src.Stances.Capacity; i++) {
-                        var slot = src.Stances[i];
-                        if (slot != null && !string.IsNullOrEmpty(slot.StanceName) &&
-                            !string.Equals(slot.StanceName, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
-                            var m = contentProvider.GetManeuver(slot.StanceName);
-                            if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
-                                distinctKnown.Add(slot.StanceName);
-                            }
+                foreach (var name in src.AllStanceNames()) {
+                    if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
+                        var m = contentProvider.GetManeuver(name);
+                        if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
+                            distinctKnown.Add(name);
                         }
                     }
                 }
@@ -213,32 +189,29 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
             if (ctx?.Timeline?.ScheduledActions != null) {
                 foreach (var actionList in ctx.Timeline.ScheduledActions.Values) {
-                    foreach (var action in actionList.OfType<ManeuverSheetAction>()) {
-                        if (string.IsNullOrEmpty(action.ManeuverName)) continue;
-                        var maneuver = contentProvider.GetManeuver(action.ManeuverName);
-                        if (maneuver?.Effects != null) {
-                            foreach (var effect in maneuver.Effects) {
-                                pool.AddEffect(effect);
-                            }
-                        }
-                    }
+                    ContributeManeuverActions(pool, actionList);
                 }
             }
 
             if (ctx?.Timeline?.EncounterActions != null) {
-                foreach (var action in ctx.Timeline.EncounterActions.OfType<ManeuverSheetAction>()) {
-                    if (string.IsNullOrEmpty(action.ManeuverName)) continue;
-                    var maneuver = contentProvider.GetManeuver(action.ManeuverName);
-                    if (maneuver?.Effects != null) {
-                        foreach (var effect in maneuver.Effects) {
-                            pool.AddEffect(effect);
-                        }
+                ContributeManeuverActions(pool, ctx.Timeline.EncounterActions);
+            }
+        }
+
+        private void ContributeManeuverActions(EffectPool pool, IEnumerable<SheetAction> actions) {
+            if (actions == null) return;
+            foreach (var action in actions.OfType<ManeuverSheetAction>()) {
+                if (string.IsNullOrEmpty(action.ManeuverName)) continue;
+                var maneuver = contentProvider.GetManeuver(action.ManeuverName);
+                if (maneuver?.Effects != null) {
+                    foreach (var effect in maneuver.Effects) {
+                        pool.AddEffect(effect);
                     }
                 }
             }
         }
 
-        // Source: Tome of Battle, pp. 5, 38, 43
+        // Source: Tome of Battle, pp. 5, 38, 40, 43
         public void AdoptStance(string source, int slotIndex) {
             var src = GetSource(source);
             var slot = src?.GetStanceSlot(slotIndex);
@@ -247,7 +220,29 @@ namespace PlayMore35.Subsystems.Maneuvers {
             bool dualStance = (context?.GetStatValue("dual stance", 0) ?? 0) > 0;
             if (!dualStance) {
                 ExitAllStances();
+            } else {
+                var activeStances = new List<(ManeuverSourceState Source, StanceSlot Slot)>();
+                var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
+                foreach (var sourceKey in allSources) {
+                    if (!state.Sources.ContainsKey(sourceKey)) continue;
+                    var sState = state.Sources[sourceKey];
+                    if (sState.Stances != null) {
+                        foreach (var s in sState.Stances.Slots) {
+                            if (s != null && s.IsActive && s != slot) {
+                                activeStances.Add((sState, s));
+                            }
+                        }
+                    }
+                }
+
+                while (activeStances.Count >= 2) {
+                    var oldest = activeStances[0];
+                    oldest.Slot.IsActive = false;
+                    oldest.Source.SyncToSaved();
+                    activeStances.RemoveAt(0);
+                }
             }
+
             slot.IsActive = true;
             src.SyncToSaved();
         }

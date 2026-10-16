@@ -133,12 +133,6 @@ namespace PlayMore35.CharacterChoices {
                     Effects = json["vestiges"]["effects"].Select(x => new Effect((JObject)x)).ToList()
                 };
             }
-            if (json["martial_maneuvers"] != null && !Subsystems.ContainsKey("martial_maneuvers")) {
-                Subsystems["martial_maneuvers"] = new SubsystemFeature {
-                    Stats = json["martial_maneuvers"]["stats"] != null ? json["martial_maneuvers"]["stats"].Select(x => (string)x).ToList() : new List<string>(),
-                    Effects = json["martial_maneuvers"]["effects"] != null ? json["martial_maneuvers"]["effects"].Select(x => new Effect((JObject)x)).ToList() : new List<Effect>()
-                };
-            }
             if (json["subsystems"] is JObject subsJson) {
                 foreach (var prop in subsJson.Properties()) {
                     if (prop.Value is JObject sObj) {
