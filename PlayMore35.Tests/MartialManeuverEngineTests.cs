@@ -589,5 +589,217 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(ManeuverState.Unreadied, crusader.GetKnownSlot(0).State);
             Assert.IsFalse(crusader.GetKnownSlot(0).IsReadied);
         }
+
+        // Source: Tome of Battle, pp. 5, 38, 43
+        [TestMethod]
+        public void AdoptStance_SetsActive_AndClearsOtherStances_WhenDualStanceNotPermitted() {
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "stances known:warblade", 2);
+            SetStat(context.Effects, "stances known:swordsage", 1);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance"));
+            warblade.SetStanceSlot(1, new StanceSlot("Blood in the Water"));
+
+            var swordsage = engine.GetSource("Swordsage");
+            swordsage.SetStanceSlot(0, new StanceSlot("Hunter's Sense"));
+
+            // Adopt warblade stance 0
+            engine.AdoptStance("Warblade", 0);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsFalse(warblade.GetStanceSlot(1).IsActive);
+            Assert.IsFalse(swordsage.GetStanceSlot(0).IsActive);
+
+            // Switch to swordsage stance 0 -> warblade stance 0 is cleared
+            engine.AdoptStance("Swordsage", 0);
+            Assert.IsFalse(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsTrue(swordsage.GetStanceSlot(0).IsActive);
+
+            // Exit single stance
+            engine.ExitStance("Swordsage", 0);
+            Assert.IsFalse(swordsage.GetStanceSlot(0).IsActive);
+
+            // Adopt again, then ExitAllStances
+            engine.AdoptStance("Warblade", 1);
+            Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
+            engine.ExitAllStances();
+            Assert.IsFalse(warblade.GetStanceSlot(1).IsActive);
+        }
+
+        // Source: Tome of Battle, pp. 5, 38, 43
+        [TestMethod]
+        public void AdoptStance_PreservesBothActiveStances_WhenDualStancePermitted() {
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
+            var content = new TestManeuverContentProvider(stance1, stance2);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "stances known:warblade", 2);
+            SetStat(context.Effects, "dual stance", 1);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance"));
+            warblade.SetStanceSlot(1, new StanceSlot("Blood in the Water"));
+
+            engine.AdoptStance("Warblade", 0);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+
+            // Adopting second stance with dual stance does not clear first stance
+            engine.AdoptStance("Warblade", 1);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
+        }
+
+        // Source: Tome of Battle, pp. 5, 38, 43
+        [TestMethod]
+        public void ContributeEffects_ProjectsActiveStanceModifiers_AndIgnoresInactiveStances() {
+            var stanceEffect = new Effect("Punishing Stance Effect")
+                .AddModifier("AC", new Modifier(-2, UNTYPED));
+            var stance = new Maneuver {
+                Name = "Punishing Stance",
+                Discipline = "Iron Heart",
+                Level = 1,
+                Type = ManeuverType.Stance,
+                Effects = new List<Effect> { stanceEffect }
+            };
+            var content = new TestManeuverContentProvider(stance);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "stances known:warblade", 1);
+            SetStat(context.Effects, "AC", 15);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance", isActive: false));
+
+            // While inactive, ContributeEffects does not add stance modifier
+            var pool = new EffectPool(context.Character);
+            SetStat(pool, "AC", 15);
+            engine.ContributeEffects(pool, context);
+            Assert.AreEqual(15, pool.GetStatValue("AC", null));
+
+            // When adopted / active, ContributeEffects applies the -2 penalty
+            engine.AdoptStance("Warblade", 0);
+            var activePool = new EffectPool(context.Character);
+            SetStat(activePool, "AC", 15);
+            engine.ContributeEffects(activePool, context);
+            Assert.AreEqual(13, activePool.GetStatValue("AC", null));
+        }
+
+        // Source: Tome of Battle, pp. 42-45
+        [TestMethod]
+        public void InitiateManeuver_SchedulesSheetActionForBoostAndCounter_AndExpiresOnTimelineAdvance() {
+            var boostEffect = new Effect("Wind Stride Effect")
+                .AddModifier("Speed", new Modifier(10, ENHANCEMENT));
+            var boost = new Maneuver {
+                Name = "Wind Stride",
+                Discipline = "Desert Wind",
+                Level = 1,
+                Type = ManeuverType.Boost,
+                Effects = new List<Effect> { boostEffect }
+            };
+            var counter = CreateManeuver("Fire Riposte", "Desert Wind", 2, ManeuverType.Counter);
+            var strike = CreateManeuver("Steel Strike", "Iron Heart", 1, ManeuverType.Strike);
+            var content = new TestManeuverContentProvider(boost, counter, strike);
+
+            var engine = new MartialManeuverEngine(content);
+            var character = new Character();
+            var timeline = new Timeline();
+            character.Timeline = timeline;
+            var context = new FakeCharacterContext(character);
+            SetStat(context.Effects, "maneuvers known:warblade", 3);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetKnownSlot(0, new KnownManeuverSlot("Wind Stride", ManeuverState.Available));
+            warblade.SetKnownSlot(1, new KnownManeuverSlot("Fire Riposte", ManeuverState.Available));
+            warblade.SetKnownSlot(2, new KnownManeuverSlot("Steel Strike", ManeuverState.Available));
+
+            // 1. Strike transitions to Expended without scheduling timeline action
+            bool strikeInitiated = engine.InitiateManeuver("Warblade", 2);
+            Assert.IsTrue(strikeInitiated);
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(2).State);
+            Assert.AreEqual(0, timeline.ScheduledActions.Count);
+
+            // 2. Boost transitions to Expended and schedules ManeuverSheetAction on Timeline
+            bool boostInitiated = engine.InitiateManeuver("Warblade", 0);
+            Assert.IsTrue(boostInitiated);
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(0).State);
+            Assert.AreEqual(1, timeline.ScheduledActions.Count);
+            Assert.IsTrue(timeline.ScheduledActions.ContainsKey(1));
+            var scheduledAction = timeline.ScheduledActions[1][0] as ManeuverSheetAction;
+            Assert.IsNotNull(scheduledAction);
+            Assert.AreEqual("Wind Stride", scheduledAction.ManeuverName);
+            Assert.AreEqual("Warblade", scheduledAction.Source);
+
+            // 3. ContributeEffects projects temporary boost effect into EffectPool
+            var pool = new EffectPool(character);
+            SetStat(pool, "Speed", 30);
+            engine.ContributeEffects(pool, context);
+            Assert.AreEqual(40, pool.GetStatValue("Speed", null));
+
+            // 4. Counter transitions to Expended and schedules ManeuverSheetAction
+            bool counterInitiated = engine.InitiateManeuver("Warblade", 1);
+            Assert.IsTrue(counterInitiated);
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(1).State);
+            Assert.AreEqual(2, timeline.ScheduledActions[1].Count);
+
+            // 5. Timeline advances 1 round: actions expire, returning RecomputeDerived, removed from ScheduledActions
+            var advanceResult = timeline.Advance(1, context);
+            Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, advanceResult.RefreshRequirement);
+            Assert.AreEqual(0, timeline.ScheduledActions.Count);
+            Assert.AreEqual(2, advanceResult.ExpiredActions.Count);
+
+            // 6. ContributeEffects after expiration no longer applies boost effect
+            var postExpirationPool = new EffectPool(character);
+            SetStat(postExpirationPool, "Speed", 30);
+            engine.ContributeEffects(postExpirationPool, context);
+            Assert.AreEqual(30, postExpirationPool.GetStatValue("Speed", null));
+
+            // 7. Maneuver slot remains Expended (does not un-expend)
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(0).State);
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(1).State);
+        }
+
+        // Source: Tome of Battle, p. 38
+        [TestMethod]
+        public void ManeuverSheetAction_SerializesAndRoundTripsViaFromJson() {
+            var action = new ManeuverSheetAction("Wind Stride", "Swordsage", "1 round");
+            var json = (JObject)action.ToJson();
+
+            Assert.AreEqual("Wind Stride", (string)json["maneuver_action"]);
+            Assert.AreEqual("Swordsage", (string)json["source"]);
+            Assert.AreEqual("1 round", (string)json["duration"]);
+            Assert.AreEqual("Wind Stride (Swordsage)", (string)json["name"]);
+
+            var deserialized = SheetAction.FromJson(json);
+            Assert.IsInstanceOfType(deserialized, typeof(ManeuverSheetAction));
+            var mAction = (ManeuverSheetAction)deserialized;
+            Assert.AreEqual("Wind Stride", mAction.ManeuverName);
+            Assert.AreEqual("Swordsage", mAction.Source);
+            Assert.IsTrue(action.Matches(deserialized));
+
+            // Also test alternate "maneuver" key
+            var altJson = new JObject(
+                new JProperty("maneuver", "Fire Riposte"),
+                new JProperty("source", "Desert Wind"),
+                new JProperty("duration", "1 round")
+            );
+            var altDeserialized = SheetAction.FromJson(altJson);
+            Assert.IsInstanceOfType(altDeserialized, typeof(ManeuverSheetAction));
+            var altAction = (ManeuverSheetAction)altDeserialized;
+            Assert.AreEqual("Fire Riposte", altAction.ManeuverName);
+            Assert.AreEqual("Desert Wind", altAction.Source);
+        }
     }
 }

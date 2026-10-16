@@ -5,6 +5,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.Subsystems.PactMagic;
 using System;
 using System.Collections.Generic;
@@ -63,6 +64,17 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, unbindAction.SlotIndex);
             Assert.AreEqual("Unbind Slot 1", unbindAction.Name);
 
+            var maneuverJson = new JObject(
+                new JProperty("name", "Wind Stride (Swordsage)"),
+                new JProperty("maneuver_action", "Wind Stride"),
+                new JProperty("source", "Swordsage")
+            );
+            var parsedManeuver = SheetAction.FromJson(maneuverJson);
+            Assert.IsInstanceOfType(parsedManeuver, typeof(ManeuverSheetAction));
+            var mAction = (ManeuverSheetAction)parsedManeuver;
+            Assert.AreEqual("Wind Stride", mAction.ManeuverName);
+            Assert.AreEqual("Swordsage", mAction.Source);
+
             var standardJson = new JObject(
                 new JProperty("name", "Standard Action"),
                 new JProperty("set", new JArray("SomeFlag"))
@@ -70,6 +82,7 @@ namespace PlayMore35.Tests {
             var parsedStandard = SheetAction.FromJson(standardJson);
             Assert.IsInstanceOfType(parsedStandard, typeof(SheetAction));
             Assert.IsNotInstanceOfType(parsedStandard, typeof(UnbindVestigeAction));
+            Assert.IsNotInstanceOfType(parsedStandard, typeof(ManeuverSheetAction));
         }
 
         private class CustomTestAction : SheetAction {

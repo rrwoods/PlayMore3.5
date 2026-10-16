@@ -197,7 +197,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
         }
 
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
-            if (pool == null || context == null) return;
+            if (pool == null) return;
+            var ctx = context ?? this.context;
             foreach (var source in state.Sources.Values) {
                 foreach (var stance in source.ActiveStances) {
                     if (string.IsNullOrEmpty(stance.StanceName)) continue;
@@ -206,6 +207,77 @@ namespace PlayMore35.Subsystems.Maneuvers {
                         foreach (var effect in maneuver.Effects) {
                             pool.AddEffect(effect);
                         }
+                    }
+                }
+            }
+
+            if (ctx?.Timeline?.ScheduledActions != null) {
+                foreach (var actionList in ctx.Timeline.ScheduledActions.Values) {
+                    foreach (var action in actionList.OfType<ManeuverSheetAction>()) {
+                        if (string.IsNullOrEmpty(action.ManeuverName)) continue;
+                        var maneuver = contentProvider.GetManeuver(action.ManeuverName);
+                        if (maneuver?.Effects != null) {
+                            foreach (var effect in maneuver.Effects) {
+                                pool.AddEffect(effect);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (ctx?.Timeline?.EncounterActions != null) {
+                foreach (var action in ctx.Timeline.EncounterActions.OfType<ManeuverSheetAction>()) {
+                    if (string.IsNullOrEmpty(action.ManeuverName)) continue;
+                    var maneuver = contentProvider.GetManeuver(action.ManeuverName);
+                    if (maneuver?.Effects != null) {
+                        foreach (var effect in maneuver.Effects) {
+                            pool.AddEffect(effect);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Source: Tome of Battle, pp. 5, 38, 43
+        public void AdoptStance(string source, int slotIndex) {
+            var src = GetSource(source);
+            var slot = src?.GetStanceSlot(slotIndex);
+            if (slot == null) return;
+
+            bool dualStance = (context?.GetStatValue("dual stance", 0) ?? 0) > 0;
+            if (!dualStance) {
+                ExitAllStances();
+            }
+            slot.IsActive = true;
+            src.SyncToSaved();
+        }
+
+        // Source: Tome of Battle, pp. 5, 38, 43
+        public void ExitStance(string source, int slotIndex) {
+            var src = GetSource(source);
+            var slot = src?.GetStanceSlot(slotIndex);
+            if (slot != null && slot.IsActive) {
+                slot.IsActive = false;
+                src.SyncToSaved();
+            }
+        }
+
+        // Source: Tome of Battle, pp. 5, 38, 43
+        public void ExitAllStances() {
+            var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
+            foreach (var sourceKey in allSources) {
+                if (!state.Sources.ContainsKey(sourceKey)) continue;
+                var src = state.Sources[sourceKey];
+                if (src.Stances != null) {
+                    bool changed = false;
+                    foreach (var slot in src.Stances.Slots) {
+                        if (slot != null && slot.IsActive) {
+                            slot.IsActive = false;
+                            changed = true;
+                        }
+                    }
+                    if (changed) {
+                        src.SyncToSaved();
                     }
                 }
             }
@@ -235,7 +307,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
         }
 
-        // Source: Tome of Battle, p. 38
+        // Source: Tome of Battle, pp. 38, 42-45
         public bool InitiateManeuver(string source, int slotIndex, bool throwOnInvalid = false) {
             var src = GetSource(source);
             var slot = src?.GetKnownSlot(slotIndex);
@@ -248,6 +320,14 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
             slot.State = ManeuverState.Expended;
             src.SyncToSaved();
+
+            var maneuver = !string.IsNullOrEmpty(slot.ManeuverName) ? contentProvider.GetManeuver(slot.ManeuverName) : null;
+            if (maneuver != null && (maneuver.Type == ManeuverType.Boost || maneuver.Type == ManeuverType.Counter)) {
+                if (context?.Timeline != null) {
+                    context.Timeline.Schedule(new ManeuverSheetAction(maneuver.Name, source, "1 round"), "1 round", context);
+                }
+            }
+
             return true;
         }
 

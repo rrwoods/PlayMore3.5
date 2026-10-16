@@ -123,6 +123,7 @@
     <Compile Include="Subsystems\Maneuvers\ManeuverSourceState.cs" />
     <Compile Include="Subsystems\Maneuvers\MartialManeuverState.cs" />
     <Compile Include="Subsystems\Maneuvers\MartialManeuverEngine.cs" />
+    <Compile Include="Subsystems\Maneuvers\ManeuverSheetAction.cs" />
     <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>
