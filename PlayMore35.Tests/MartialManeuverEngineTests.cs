@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -336,6 +336,258 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(ManeuverState.Available, restoredState.Sources["Warblade"].GetKnownSlot(0).State);
             Assert.AreEqual("Punishing Stance", restoredState.Sources["Warblade"].GetStanceSlot(0).StanceName);
             Assert.IsTrue(restoredState.Sources["Warblade"].GetStanceSlot(0).IsActive);
+        }
+
+        // Source: Tome of Battle, p. 38
+        [TestMethod]
+        public void InitiateManeuver_TransitionsAvailableToExpended_AndRejectsNonAvailable() {
+            var engine = new MartialManeuverEngine();
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetKnownSlot(0, new KnownManeuverSlot("Steel Strike", ManeuverState.Available));
+            warblade.SetKnownSlot(1, new KnownManeuverSlot("Disarming Strike", ManeuverState.Expended));
+            warblade.SetKnownSlot(2, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Unreadied));
+            warblade.SetKnownSlot(3, new KnownManeuverSlot("Wall of Blades", ManeuverState.Withheld));
+
+            // Available succeeds and transitions to Expended
+            bool success0 = engine.InitiateManeuver("Warblade", 0);
+            Assert.IsTrue(success0);
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(0).State);
+
+            // Expended rejects
+            bool success1 = engine.InitiateManeuver("Warblade", 1);
+            Assert.IsFalse(success1);
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(1).State);
+
+            // Unreadied rejects
+            bool success2 = engine.InitiateManeuver("Warblade", 2);
+            Assert.IsFalse(success2);
+            Assert.AreEqual(ManeuverState.Unreadied, warblade.GetKnownSlot(2).State);
+
+            // Withheld rejects
+            bool success3 = engine.InitiateManeuver("Warblade", 3);
+            Assert.IsFalse(success3);
+            Assert.AreEqual(ManeuverState.Withheld, warblade.GetKnownSlot(3).State);
+
+            // throwOnInvalid throws InvalidOperationException when not Available
+            Assert.ThrowsException<InvalidOperationException>(() => engine.InitiateManeuver("Warblade", 0, throwOnInvalid: true));
+        }
+
+        // Source: Tome of Battle, p. 40
+        [TestMethod]
+        public void RecoverWarblade_RecoversAllExpendedManeuvers_PreservingUnreadied() {
+            var engine = new MartialManeuverEngine();
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetKnownSlot(0, new KnownManeuverSlot("Steel Strike", ManeuverState.Expended));
+            warblade.SetKnownSlot(1, new KnownManeuverSlot("Disarming Strike", ManeuverState.Expended));
+            warblade.SetKnownSlot(2, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Unreadied));
+
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Expended));
+
+            engine.RecoverWarblade("Warblade");
+
+            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(0).State);
+            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(1).State);
+            Assert.AreEqual(ManeuverState.Unreadied, warblade.GetKnownSlot(2).State);
+
+            // Crusader expended slot is unaffected (source isolation)
+            Assert.AreEqual(ManeuverState.Expended, crusader.GetKnownSlot(0).State);
+        }
+
+        // Source: Tome of Battle, p. 40
+        [TestMethod]
+        public void RecoverSwordsage_RecoversSingleChosenManeuver() {
+            var engine = new MartialManeuverEngine();
+            var swordsage = engine.GetSource("Swordsage");
+            swordsage.SetKnownSlot(0, new KnownManeuverSlot("Burning Blade", ManeuverState.Expended));
+            swordsage.SetKnownSlot(1, new KnownManeuverSlot("Flistering Flourish", ManeuverState.Expended));
+            swordsage.SetKnownSlot(2, new KnownManeuverSlot("Shadow Jaunt", ManeuverState.Unreadied));
+
+            engine.RecoverSwordsage("Swordsage", 0);
+
+            Assert.AreEqual(ManeuverState.Available, swordsage.GetKnownSlot(0).State);
+            Assert.AreEqual(ManeuverState.Expended, swordsage.GetKnownSlot(1).State);
+            Assert.AreEqual(ManeuverState.Unreadied, swordsage.GetKnownSlot(2).State);
+
+            // Attempting to recover unreadied slot does not alter its state
+            engine.RecoverSwordsage("Swordsage", 2);
+            Assert.AreEqual(ManeuverState.Unreadied, swordsage.GetKnownSlot(2).State);
+        }
+
+        // Source: Tome of Battle, pp. 38, 40
+        [TestMethod]
+        public void DealCrusader_DealsGrantedManeuversAvailable_AndRemainderWithheld() {
+            var engine = new MartialManeuverEngine();
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "maneuvers known:crusader", 6);
+            SetStat(context.Effects, "maneuvers granted:crusader", 2);
+            engine.Initialize(context);
+
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(1, new KnownManeuverSlot("Vanguard Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(2, new KnownManeuverSlot("Stone Bones", ManeuverState.Expended));
+            crusader.SetKnownSlot(3, new KnownManeuverSlot("Charging Minotaur", ManeuverState.Expended));
+            crusader.SetKnownSlot(4, new KnownManeuverSlot("Leading the Attack", ManeuverState.Expended));
+            crusader.SetKnownSlot(5, new KnownManeuverSlot("Mountain Hammer", ManeuverState.Unreadied));
+
+            engine.DealCrusader("Crusader", new Random(42));
+
+            var readied = crusader.ReadiedManeuvers.ToList();
+            Assert.AreEqual(5, readied.Count);
+
+            int availableCount = readied.Count(s => s.State == ManeuverState.Available);
+            int withheldCount = readied.Count(s => s.State == ManeuverState.Withheld);
+
+            Assert.AreEqual(2, availableCount);
+            Assert.AreEqual(3, withheldCount);
+            Assert.AreEqual(ManeuverState.Unreadied, crusader.GetKnownSlot(5).State);
+        }
+
+        // Source: Tome of Battle, p. 38
+        [TestMethod]
+        public void AdvanceCrusaderTurn_GrantsOneWithheldManeuver_EachTurn() {
+            var engine = new MartialManeuverEngine();
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "maneuvers known:crusader", 5);
+            SetStat(context.Effects, "maneuvers granted:crusader", 2);
+            engine.Initialize(context);
+
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(1, new KnownManeuverSlot("Vanguard Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(2, new KnownManeuverSlot("Stone Bones", ManeuverState.Expended));
+            crusader.SetKnownSlot(3, new KnownManeuverSlot("Charging Minotaur", ManeuverState.Expended));
+            crusader.SetKnownSlot(4, new KnownManeuverSlot("Leading the Attack", ManeuverState.Expended));
+
+            // Deal hand: 2 Available, 3 Withheld
+            engine.DealCrusader("Crusader", new Random(42));
+            Assert.AreEqual(2, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Available));
+            Assert.AreEqual(3, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Withheld));
+
+            // Turn 1 advance grants 1 withheld maneuver
+            engine.AdvanceCrusaderTurn("Crusader", new Random(1));
+            Assert.AreEqual(3, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Available));
+            Assert.AreEqual(2, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Withheld));
+
+            // Turn 2 advance grants another withheld maneuver
+            engine.AdvanceCrusaderTurn("Crusader", new Random(1));
+            Assert.AreEqual(4, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Available));
+            Assert.AreEqual(1, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Withheld));
+
+            // Turn 3 advance grants final withheld maneuver
+            engine.AdvanceCrusaderTurn("Crusader", new Random(1));
+            Assert.AreEqual(5, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Available));
+            Assert.AreEqual(0, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Withheld));
+        }
+
+        // Source: Tome of Battle, p. 38
+        [TestMethod]
+        public void AdvanceCrusaderTurn_ReshufflesDeck_WhenWithheldPoolIsEmpty() {
+            var engine = new MartialManeuverEngine();
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "maneuvers known:crusader", 5);
+            SetStat(context.Effects, "maneuvers granted:crusader", 2);
+            engine.Initialize(context);
+
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(1, new KnownManeuverSlot("Vanguard Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(2, new KnownManeuverSlot("Stone Bones", ManeuverState.Expended));
+            crusader.SetKnownSlot(3, new KnownManeuverSlot("Charging Minotaur", ManeuverState.Available));
+            crusader.SetKnownSlot(4, new KnownManeuverSlot("Leading the Attack", ManeuverState.Available));
+
+            // Pool currently has 0 withheld maneuvers
+            Assert.AreEqual(0, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Withheld));
+
+            // Advancing from empty withheld pool triggers deck reshuffle: 2 Available, 3 Withheld
+            engine.AdvanceCrusaderTurn("Crusader", new Random(42));
+
+            Assert.AreEqual(2, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Available));
+            Assert.AreEqual(3, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Withheld));
+            Assert.AreEqual(0, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Expended));
+        }
+
+        // Source: Tome of Battle, pp. 38, 40
+        [TestMethod]
+        public void ResetEncounter_RestoresReadiedManeuversAcrossAllSources_AndRedealsCrusader() {
+            var engine = new MartialManeuverEngine();
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "maneuvers known:warblade", 2);
+            SetStat(context.Effects, "maneuvers known:swordsage", 2);
+            SetStat(context.Effects, "maneuvers known:feats", 1);
+            SetStat(context.Effects, "maneuvers known:crusader", 6);
+            SetStat(context.Effects, "maneuvers granted:crusader", 2);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetKnownSlot(0, new KnownManeuverSlot("Steel Strike", ManeuverState.Expended));
+            warblade.SetKnownSlot(1, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Unreadied));
+
+            var swordsage = engine.GetSource("Swordsage");
+            swordsage.SetKnownSlot(0, new KnownManeuverSlot("Burning Blade", ManeuverState.Expended));
+            swordsage.SetKnownSlot(1, new KnownManeuverSlot("Shadow Jaunt", ManeuverState.Available));
+
+            var feats = engine.GetSource("Feats");
+            feats.SetKnownSlot(0, new KnownManeuverSlot("Moment of Perfect Mind", ManeuverState.Expended));
+
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(1, new KnownManeuverSlot("Vanguard Strike", ManeuverState.Expended));
+            crusader.SetKnownSlot(2, new KnownManeuverSlot("Stone Bones", ManeuverState.Expended));
+            crusader.SetKnownSlot(3, new KnownManeuverSlot("Charging Minotaur", ManeuverState.Expended));
+            crusader.SetKnownSlot(4, new KnownManeuverSlot("Leading the Attack", ManeuverState.Expended));
+            crusader.SetKnownSlot(5, new KnownManeuverSlot("Mountain Hammer", ManeuverState.Unreadied));
+
+            engine.ResetEncounter(new Random(42));
+
+            // Warblade: Expended -> Available, Unreadied -> Unreadied
+            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(0).State);
+            Assert.AreEqual(ManeuverState.Unreadied, warblade.GetKnownSlot(1).State);
+
+            // Swordsage: Expended -> Available, Available -> Available
+            Assert.AreEqual(ManeuverState.Available, swordsage.GetKnownSlot(0).State);
+            Assert.AreEqual(ManeuverState.Available, swordsage.GetKnownSlot(1).State);
+
+            // Feats: Expended -> Available
+            Assert.AreEqual(ManeuverState.Available, feats.GetKnownSlot(0).State);
+
+            // Crusader: re-deals 5 readied into 2 Available, 3 Withheld; slot 5 remains Unreadied
+            Assert.AreEqual(2, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Available));
+            Assert.AreEqual(3, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Withheld));
+            Assert.AreEqual(0, crusader.ReadiedManeuvers.Count(s => s.State == ManeuverState.Expended));
+            Assert.AreEqual(ManeuverState.Unreadied, crusader.GetKnownSlot(5).State);
+        }
+
+        // Source: Tome of Battle, p. 38
+        [TestMethod]
+        public void ReadyManeuver_AndUnreadyManeuver_TransitionsSlotLifecycle() {
+            var engine = new MartialManeuverEngine();
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetKnownSlot(0, new KnownManeuverSlot("Steel Strike", ManeuverState.Unreadied));
+
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Unreadied));
+
+            // Ready warblade maneuver -> becomes Available
+            engine.ReadyManeuver("Warblade", 0);
+            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(0).State);
+            Assert.IsTrue(warblade.GetKnownSlot(0).IsReadied);
+
+            // Unready warblade maneuver -> returns to Unreadied
+            engine.UnreadyManeuver("Warblade", 0);
+            Assert.AreEqual(ManeuverState.Unreadied, warblade.GetKnownSlot(0).State);
+            Assert.IsFalse(warblade.GetKnownSlot(0).IsReadied);
+
+            // Ready crusader maneuver -> becomes Withheld
+            engine.ReadyManeuver("Crusader", 0);
+            Assert.AreEqual(ManeuverState.Withheld, crusader.GetKnownSlot(0).State);
+            Assert.IsTrue(crusader.GetKnownSlot(0).IsReadied);
+
+            // Unready crusader maneuver -> returns to Unreadied
+            engine.UnreadyManeuver("Crusader", 0);
+            Assert.AreEqual(ManeuverState.Unreadied, crusader.GetKnownSlot(0).State);
+            Assert.IsFalse(crusader.GetKnownSlot(0).IsReadied);
         }
     }
 }
