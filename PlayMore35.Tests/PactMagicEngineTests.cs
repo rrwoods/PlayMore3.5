@@ -431,5 +431,39 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, unbindAction.SlotIndex);
             Assert.IsNull(engine.CurrentVestige(0));
         }
+
+        [TestMethod]
+        public void PactMagicEngine_SlotLevelValidation_ReflectsVestigeLevelAndMaxVestigeLevel() {
+            var vestige1 = CreateTestVestige("Aym", 1, 15);
+            var vestige2 = CreateTestVestige("Savnok", 2, 15);
+            var contentProvider = new TestContentProvider(vestige1, vestige2);
+            var engine = new PactMagicEngine(contentProvider);
+            var context = new FakeCharacterContext();
+
+            SetStat(context.Effects, NUM_VESTIGES, 2);
+            SetStat(context.Effects, MAX_VESTIGE_LEVEL, 1);
+            engine.Initialize(context);
+
+            // Empty slots are valid
+            Assert.IsTrue(engine.IsSlotLevelValid(0));
+            Assert.IsTrue(engine.IsSlotLevelValid(1));
+
+            // Slot 0: Level 1 vestige is valid
+            engine.BindVestige(0, "Aym");
+            Assert.IsTrue(engine.IsSlotLevelValid(0));
+
+            // Slot 1: Level 2 vestige is bound without exception (Enable, Don't Enforce)
+            engine.BindVestige(1, "Savnok");
+            Assert.AreEqual("Savnok", engine.GetSlot(1).VestigeName);
+            Assert.IsFalse(engine.IsSlotLevelValid(1));
+
+            // Dynamically increase max vestige level to 2
+            SetStat(context.Effects, MAX_VESTIGE_LEVEL, 2);
+            Assert.IsTrue(engine.IsSlotLevelValid(1));
+
+            // Unbind resets to valid
+            engine.UnbindVestige(1);
+            Assert.IsTrue(engine.IsSlotLevelValid(1));
+        }
     }
 }
