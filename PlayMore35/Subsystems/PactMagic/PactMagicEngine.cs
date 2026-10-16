@@ -18,7 +18,11 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         public PactMagicEngine(ISubsystemContentProvider contentProvider = null) {
             this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
-            this.slots = new SubsystemSlotGroup<PactSlot>(() => context?.GetStatValue(NUM_VESTIGES, 0) ?? 0);
+            this.slots = new SubsystemSlotGroup<PactSlot>(
+                () => context?.GetStatValue(NUM_VESTIGES, 0) ?? 0,
+                () => context?.GetStatValue(MAX_VESTIGE_LEVEL, 0) ?? int.MaxValue,
+                slot => contentProvider.GetVestige(slot?.VestigeName)?.Level ?? 0
+            );
         }
 
         public string Id => SubsystemId;
@@ -27,9 +31,18 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         public int SlotCount => slots.Capacity;
 
+        public bool IsSlotLevelValid(int slotIndex) {
+            EnsureSlotsLoaded();
+            return slots.IsSlotLevelValid(slotIndex);
+        }
+
         public void Initialize(ICharacterContext context) {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
-            this.slots = new SubsystemSlotGroup<PactSlot>(() => context.GetStatValue(NUM_VESTIGES, 0));
+            this.slots = new SubsystemSlotGroup<PactSlot>(
+                () => context.GetStatValue(NUM_VESTIGES, 0),
+                () => context?.GetStatValue(MAX_VESTIGE_LEVEL, 0) ?? int.MaxValue,
+                slot => contentProvider.GetVestige(slot?.VestigeName)?.Level ?? 0
+            );
             this.stateLoaded = false;
             EnsureSlotsLoaded();
         }

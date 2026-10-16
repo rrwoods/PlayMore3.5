@@ -233,6 +233,107 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(2, ((UnbindVestigeAction)parsedDirect).SlotIndex);
             Assert.AreEqual("Custom Unbind", parsedDirect.Name);
         }
+
+        private class TestSlottedElement {
+            public string Name { get; set; }
+            public int Level { get; set; }
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_DefaultMaxLevel_IsIntMaxValue_WhenNoProviderSupplied() {
+            var slotGroup = new SubsystemSlotGroup<string>(3);
+            Assert.AreEqual(int.MaxValue, slotGroup.MaxLevel);
+
+            var dynamicSlotGroup = new SubsystemSlotGroup<string>(() => 3);
+            Assert.AreEqual(int.MaxValue, dynamicSlotGroup.MaxLevel);
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_IsSlotLevelValid_ReturnsTrue_WhenNoProviderOrSelectorSupplied() {
+            var slotGroup = new SubsystemSlotGroup<string>(2);
+            slotGroup[0] = "HighLevelThing";
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(1));
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_IsSlotLevelValid_ValidatesLevelAgainstMaxLevel() {
+            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
+                fixedCapacity: 3,
+                maxLevelProvider: () => 3,
+                levelSelector: e => e?.Level ?? 0
+            );
+
+            Assert.AreEqual(3, slotGroup.MaxLevel);
+
+            // Empty slot returns true
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
+
+            // Slotted element <= MaxLevel returns true
+            slotGroup[0] = new TestSlottedElement { Name = "Valid", Level = 3 };
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
+
+            // Slotted element < MaxLevel returns true
+            slotGroup[1] = new TestSlottedElement { Name = "Low", Level = 1 };
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(1));
+
+            // Slotted element > MaxLevel returns false
+            slotGroup[2] = new TestSlottedElement { Name = "High", Level = 4 };
+            Assert.IsFalse(slotGroup.IsSlotLevelValid(2));
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_OutOfLevelAssignment_PreservesEnableDontEnforceWithoutThrowing() {
+            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
+                fixedCapacity: 2,
+                maxLevelProvider: () => 1,
+                levelSelector: e => e?.Level ?? 0
+            );
+
+            var overleveled = new TestSlottedElement { Name = "Overleveled", Level = 9 };
+
+            // ADR-0001: Assignment must not throw or clamp
+            slotGroup[0] = overleveled;
+            Assert.AreSame(overleveled, slotGroup[0]);
+            Assert.IsFalse(slotGroup.IsSlotLevelValid(0));
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_EvaluatesLevelProviderDynamically() {
+            int currentMaxLevel = 2;
+            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
+                capacityProvider: () => 2,
+                maxLevelProvider: () => currentMaxLevel,
+                levelSelector: e => e?.Level ?? 0
+            );
+
+            slotGroup[0] = new TestSlottedElement { Name = "Item", Level = 3 };
+
+            Assert.AreEqual(2, slotGroup.MaxLevel);
+            Assert.IsFalse(slotGroup.IsSlotLevelValid(0));
+
+            // Dynamic progression increases MaxLevel
+            currentMaxLevel = 3;
+            Assert.AreEqual(3, slotGroup.MaxLevel);
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
+
+            // Dynamic regression decreases MaxLevel
+            currentMaxLevel = 1;
+            Assert.AreEqual(1, slotGroup.MaxLevel);
+            Assert.IsFalse(slotGroup.IsSlotLevelValid(0));
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_IsSlotLevelValid_OutOfRangeSlotIndex_ThrowsArgumentOutOfRangeException() {
+            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
+                fixedCapacity: 2,
+                maxLevelProvider: () => 3,
+                levelSelector: e => e?.Level ?? 0
+            );
+
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.IsSlotLevelValid(-1));
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.IsSlotLevelValid(2));
+        }
     }
 }
 
