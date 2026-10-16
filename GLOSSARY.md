@@ -156,6 +156,38 @@ _Avoid_: Spell, combat trick, special attack
 A continuous martial combat posture initiated as a swift action that provides ongoing benefits until replaced or rendered helpless; counts as a maneuver solely for prerequisites and level access.
 _Avoid_: Maneuver, mode, aura, sustained spell
 
+**Maneuvers Known**:
+The permanent repertoire of Sublime Way martial maneuvers learned through class progression or feats, eligible for preparation into readied slots.
+_Avoid_: Known slots, maneuver deck, spellbook
+
+**Readied Maneuver**:
+A known maneuver assigned to a dedicated subsystem slot during out-of-combat preparation, available for tactical initiation in combat.
+_Avoid_: Prepared spell, memorized maneuver
+
+**Granted Maneuver**:
+A readied Crusader maneuver randomly dealt from the withheld deck into the active combat hand, available for immediate initiation.
+_Avoid_: Drawn card, active maneuver, readied slot
+
+**Withheld Maneuver**:
+A readied Crusader maneuver currently remaining in the draw deck that cannot be initiated until dealt into the granted hand.
+_Avoid_: Deck card, unready maneuver
+
+**Expended Maneuver**:
+A readied maneuver that has been initiated in combat and rendered unavailable until refreshed through a recovery routine or encounter reset.
+_Avoid_: Spent card, tapped maneuver, exhausted slot
+
+**Initiator Source**:
+The class or feat origin of a character's Sublime Way capabilities (such as Warblade, Crusader, Swordsage, or Feats), governing progression access, initiator level, and recovery routines.
+_Avoid_: Adept class, class partition, maneuver group
+
+**Maneuver State**:
+The current in-combat lifecycle condition of a known martial maneuver: Unreadied, Withheld, Available, or Expended.
+_Avoid_: Maneuver status, card state
+
+**Maneuver Type**:
+The mechanical category of a Sublime Way martial power: Strike, Boost, Counter, Stance, or Other.
+_Avoid_: Action type, maneuver category
+
 ### Inventory & Equipment
 
 **Equipped Item**:
