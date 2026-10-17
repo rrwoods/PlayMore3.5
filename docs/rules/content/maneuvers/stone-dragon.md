@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Adamantine Bones
 - **Source**: *Tome of Battle*, p. 81
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 8, Swordsage 8, Warblade 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Stone Dragon maneuvers
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Ancient Mountain Hammer
 - **Source**: *Tome of Battle*, p. 81
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 7, Swordsage 7, Warblade 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Stone Dragon maneuvers
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Bonecrusher
 - **Source**: *Tome of Battle*, p. 81
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 3, Swordsage 3, Warblade 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Bonesplitting Strike
 - **Source**: *Tome of Battle*, p. 81
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 4, Swordsage 4, Warblade 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Stone Dragon maneuvers
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Boulder Roll
 - **Source**: *Tome of Battle*, p. 81
-- **Discipline**: Stone Dragon (Boost)
+- **Type**: Boost
 - **Level**: Crusader 4, Swordsage 4, Warblade 4
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: None
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Charging Minotaur
 - **Source**: *Tome of Battle*, p. 81
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 1, Swordsage 1, Warblade 1
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: None
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Colossus Strike
 - **Source**: *Tome of Battle*, p. 82
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 7, Swordsage 7, Warblade 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Stone Dragon maneuvers
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Crushing Vise
 - **Source**: *Tome of Battle*, p. 82
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 6, Swordsage 6, Warblade 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Crushing Weight of the Mountain
 - **Source**: *Tome of Battle*, p. 82
-- **Discipline**: Stone Dragon (Stance)
+- **Type**: Stance
 - **Level**: Crusader 3, Swordsage 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Stone Dragon maneuver
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Earthstrike Quake
 - **Source**: *Tome of Battle*, p. 82
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 8, Swordsage 8, Warblade 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Stone Dragon maneuvers
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Elder Mountain Hammer
 - **Source**: *Tome of Battle*, p. 82
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 5, Swordsage 5, Warblade 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Stone Dragon maneuvers
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Giant's Stance
 - **Source**: *Tome of Battle*, p. 83
-- **Discipline**: Stone Dragon (Stance)
+- **Type**: Stance
 - **Level**: Crusader 5, Swordsage 5, Warblade 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Stone Dragon maneuvers
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Iron Bones
 - **Source**: *Tome of Battle*, p. 83
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 6, Swordsage 6, Warblade 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Stone Dragon maneuvers
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Irresistible Mountain Strike
 - **Source**: *Tome of Battle*, p. 83
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 6, Swordsage 6, Warblade 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mountain Avalanche
 - **Source**: *Tome of Battle*, p. 84
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 5, Swordsage 5, Warblade 5
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two Stone Dragon maneuvers
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mountain Hammer
 - **Source**: *Tome of Battle*, p. 84
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 2, Swordsage 2, Warblade 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mountain Tombstone Strike
 - **Source**: *Tome of Battle*, p. 84
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 9, Swordsage 9, Warblade 9
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Overwhelming Mountain Strike
 - **Source**: *Tome of Battle*, p. 84
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 4, Swordsage 4, Warblade 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Roots of the Mountain
 - **Source**: *Tome of Battle*, p. 84
-- **Discipline**: Stone Dragon (Stance)
+- **Type**: Stance
 - **Level**: Crusader 3, Swordsage 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stone Bones
 - **Source**: *Tome of Battle*, p. 84
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 1, Swordsage 1, Warblade 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -164,7 +164,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stone Dragon's Fury
 - **Source**: *Tome of Battle*, p. 85
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 3, Swordsage 3, Warblade 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Stone Dragon maneuver
@@ -172,7 +172,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stone Vise
 - **Source**: *Tome of Battle*, p. 85
-- **Discipline**: Stone Dragon (Strike)
+- **Type**: Strike
 - **Level**: Crusader 2, Swordsage 2, Warblade 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -180,7 +180,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stonefoot Stance
 - **Source**: *Tome of Battle*, p. 85
-- **Discipline**: Stone Dragon (Stance)
+- **Type**: Stance
 - **Level**: Crusader 1, Swordsage 1, Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -188,7 +188,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Strength of Stone
 - **Source**: *Tome of Battle*, p. 85
-- **Discipline**: Stone Dragon (Stance)
+- **Type**: Stance
 - **Level**: Crusader 8, Swordsage 8, Warblade 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Stone Dragon maneuvers

@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Aura of Chaos
 - **Source**: *Tome of Battle*, p. 57
-- **Discipline**: Devoted Spirit (Stance) [Chaos]
+- **Type**: Stance [Chaos]
 - **Level**: Crusader 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Aura of Perfect Order
 - **Source**: *Tome of Battle*, p. 57
-- **Discipline**: Devoted Spirit (Stance) [Law]
+- **Type**: Stance [Law]
 - **Level**: Crusader 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Aura of Triumph
 - **Source**: *Tome of Battle*, p. 57
-- **Discipline**: Devoted Spirit (Stance) [Good]
+- **Type**: Stance [Good]
 - **Level**: Crusader 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Aura of Tyranny
 - **Source**: *Tome of Battle*, p. 57
-- **Discipline**: Devoted Spirit (Stance) [Evil]
+- **Type**: Stance [Evil]
 - **Level**: Crusader 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Castigating Strike
 - **Source**: *Tome of Battle*, p. 57
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Crusader's Strike
 - **Source**: *Tome of Battle*, p. 58
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Daunting Strike
 - **Source**: *Tome of Battle*, p. 58
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Devoted Spirit maneuver
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Defensive Rebuke
 - **Source**: *Tome of Battle*, p. 58
-- **Discipline**: Devoted Spirit (Boost)
+- **Type**: Boost
 - **Level**: Crusader 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Devoted Spirit maneuver
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Divine Surge
 - **Source**: *Tome of Battle*, p. 58
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Devoted Spirit maneuver
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Divine Surge, Greater
 - **Source**: *Tome of Battle*, p. 58
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 8
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Doom Charge
 - **Source**: *Tome of Battle*, p. 58
-- **Discipline**: Devoted Spirit (Strike) [Evil]
+- **Type**: Strike [Evil]
 - **Level**: Crusader 5
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: One Devoted Spirit maneuver, evil alignment
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Entangling Blade
 - **Source**: *Tome of Battle*, p. 58
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Devoted Spirit maneuver
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Foehammer
 - **Source**: *Tome of Battle*, p. 59
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Immortal Fortitude
 - **Source**: *Tome of Battle*, p. 59
-- **Discipline**: Devoted Spirit (Stance)
+- **Type**: Stance
 - **Level**: Crusader 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Devoted Spirit maneuvers
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Iron Guard's Glare
 - **Source**: *Tome of Battle*, p. 59
-- **Discipline**: Devoted Spirit (Stance)
+- **Type**: Stance
 - **Level**: Crusader 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Law Bearer
 - **Source**: *Tome of Battle*, p. 59
-- **Discipline**: Devoted Spirit (Strike) [Law]
+- **Type**: Strike [Law]
 - **Level**: Crusader 5
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: One Devoted Spirit maneuver, lawful alignment
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Martial Spirit
 - **Source**: *Tome of Battle*, p. 60
-- **Discipline**: Devoted Spirit (Stance)
+- **Type**: Stance
 - **Level**: Crusader 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Radiant Charge
 - **Source**: *Tome of Battle*, p. 60
-- **Discipline**: Devoted Spirit (Strike) [Good]
+- **Type**: Strike [Good]
 - **Level**: Crusader 5
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: One Devoted Spirit maneuver, good alignment
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Rallying Strike
 - **Source**: *Tome of Battle*, p. 60
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Revitalizing Strike
 - **Source**: *Tome of Battle*, p. 60
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Devoted Spirit maneuver
@@ -164,7 +164,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shield Block
 - **Source**: *Tome of Battle*, p. 60
-- **Discipline**: Devoted Spirit (Counter)
+- **Type**: Counter
 - **Level**: Crusader 2
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
@@ -172,7 +172,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shield Counter
 - **Source**: *Tome of Battle*, p. 60
-- **Discipline**: Devoted Spirit (Counter)
+- **Type**: Counter
 - **Level**: Crusader 7
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Devoted Spirit maneuvers
@@ -180,7 +180,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Strike of Righteous Vitality
 - **Source**: *Tome of Battle*, p. 60
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 9
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Devoted Spirit maneuvers
@@ -188,7 +188,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Thicket of Blades
 - **Source**: *Tome of Battle*, p. 61
-- **Discipline**: Devoted Spirit (Stance)
+- **Type**: Stance
 - **Level**: Crusader 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Devoted Spirit maneuver
@@ -196,7 +196,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Tide of Chaos
 - **Source**: *Tome of Battle*, p. 61
-- **Discipline**: Devoted Spirit (Strike) [Chaos]
+- **Type**: Strike [Chaos]
 - **Level**: Crusader 5
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: One Devoted Spirit maneuver, chaotic alignment
@@ -204,7 +204,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Vanguard Strike
 - **Source**: *Tome of Battle*, p. 62
-- **Discipline**: Devoted Spirit (Strike)
+- **Type**: Strike
 - **Level**: Crusader 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None

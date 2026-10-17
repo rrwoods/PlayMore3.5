@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Baffling Defense
 - **Source**: *Tome of Battle*, p. 70
-- **Discipline**: Setting Sun (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: One Setting Sun maneuver
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Ballista Throw
 - **Source**: *Tome of Battle*, p. 70
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Setting Sun maneuvers
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Clever Positioning
 - **Source**: *Tome of Battle*, p. 70
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Comet Throw
 - **Source**: *Tome of Battle*, p. 71
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Setting Sun maneuver
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Counter Charge
 - **Source**: *Tome of Battle*, p. 71
-- **Discipline**: Setting Sun (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Devastating Throw
 - **Source**: *Tome of Battle*, p. 71
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Setting Sun maneuver
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Feigned Opening
 - **Source**: *Tome of Battle*, p. 72
-- **Discipline**: Setting Sun (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Setting Sun maneuver
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Fool's Strike
 - **Source**: *Tome of Battle*, p. 72
-- **Discipline**: Setting Sun (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 8
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Three Setting Sun maneuvers
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Ghostly Defense
 - **Source**: *Tome of Battle*, p. 72
-- **Discipline**: Setting Sun (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Setting Sun maneuvers
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Giant Killing Style
 - **Source**: *Tome of Battle*, p. 72
-- **Discipline**: Setting Sun (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Setting Sun maneuver
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Hydra Slaying Strike
 - **Source**: *Tome of Battle*, p. 73
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Setting Sun maneuvers
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mighty Throw
 - **Source**: *Tome of Battle*, p. 73
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mirrored Pursuit
 - **Source**: *Tome of Battle*, p. 73
-- **Discipline**: Setting Sun (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Setting Sun maneuvers
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Scorpion Parry
 - **Source**: *Tome of Battle*, p. 73
-- **Discipline**: Setting Sun (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Setting Sun maneuvers
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shifting Defense
 - **Source**: *Tome of Battle*, p. 73
-- **Discipline**: Setting Sun (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Setting Sun maneuvers
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Soaring Throw
 - **Source**: *Tome of Battle*, p. 73
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Setting Sun maneuvers
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stalking Shadow
 - **Source**: *Tome of Battle*, p. 74
-- **Discipline**: Setting Sun (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Setting Sun maneuvers
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Step of the Wind
 - **Source**: *Tome of Battle*, p. 74
-- **Discipline**: Setting Sun (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Strike of the Broken Shield
 - **Source**: *Tome of Battle*, p. 74
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Setting Sun maneuvers
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Tornado Throw
 - **Source**: *Tome of Battle*, p. 75
-- **Discipline**: Setting Sun (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 9
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Five Setting Sun maneuvers

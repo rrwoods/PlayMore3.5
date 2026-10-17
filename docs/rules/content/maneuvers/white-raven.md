@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Battle Leader's Charge
 - **Source**: *Tome of Battle*, p. 90
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 2, Warblade 2
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: One White Raven maneuver
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Bolstering Voice
 - **Source**: *Tome of Battle*, p. 90
-- **Discipline**: White Raven (Stance)
+- **Type**: Stance
 - **Level**: Crusader 1, Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Clarion Call
 - **Source**: *Tome of Battle*, p. 91
-- **Discipline**: White Raven (Boost)
+- **Type**: Boost
 - **Level**: Crusader 7, Warblade 7
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three White Raven maneuvers
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Covering Strike
 - **Source**: *Tome of Battle*, p. 91
-- **Discipline**: White Raven (Boost)
+- **Type**: Boost
 - **Level**: Crusader 4, Warblade 4
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One White Raven maneuver
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Douse the Flames
 - **Source**: *Tome of Battle*, p. 91
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 1, Warblade 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Flanking Maneuver
 - **Source**: *Tome of Battle*, p. 91
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 5, Warblade 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two White Raven maneuvers
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Leading the Attack
 - **Source**: *Tome of Battle*, p. 91
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 1, Warblade 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Leading the Charge
 - **Source**: *Tome of Battle*, p. 92
-- **Discipline**: White Raven (Stance)
+- **Type**: Stance
 - **Level**: Crusader 1, Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Lion's Roar
 - **Source**: *Tome of Battle*, p. 92
-- **Discipline**: White Raven (Boost)
+- **Type**: Boost
 - **Level**: Crusader 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One White Raven maneuver
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Order Forged From Chaos
 - **Source**: *Tome of Battle*, p. 93
-- **Discipline**: White Raven (Other)
+- **Type**: Other
 - **Level**: Crusader 6, Warblade 6
 - **Initiation Action**: 1 move action
 - **Prerequisites**: Two White Raven maneuvers
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Press the Advantage
 - **Source**: *Tome of Battle*, p. 93
-- **Discipline**: White Raven (Stance)
+- **Type**: Stance
 - **Level**: Crusader 5, Warblade 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two White Raven maneuvers
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Swarm Tactics
 - **Source**: *Tome of Battle*, p. 93
-- **Discipline**: White Raven (Stance)
+- **Type**: Stance
 - **Level**: Crusader 8, Warblade 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One White Raven maneuver
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Swarming Assault
 - **Source**: *Tome of Battle*, p. 93
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 7, Warblade 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three White Raven maneuvers
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Tactical Strike
 - **Source**: *Tome of Battle*, p. 93
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 2, Warblade 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One White Raven maneuver
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Tactics of the Wolf
 - **Source**: *Tome of Battle*, p. 93
-- **Discipline**: White Raven (Stance)
+- **Type**: Stance
 - **Level**: Crusader 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One White Raven maneuver
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### War Leader's Charge
 - **Source**: *Tome of Battle*, p. 93
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 6, Warblade 6
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two White Raven maneuvers
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### War Master's Charge
 - **Source**: *Tome of Battle*, p. 94
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 9, Warblade 9
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Four White Raven maneuvers
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### White Raven Hammer
 - **Source**: *Tome of Battle*, p. 94
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 8, Warblade 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three White Raven maneuvers
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### White Raven Strike
 - **Source**: *Tome of Battle*, p. 94
-- **Discipline**: White Raven (Strike)
+- **Type**: Strike
 - **Level**: Crusader 4, Warblade 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One White Raven maneuver
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### White Raven Tactics
 - **Source**: *Tome of Battle*, p. 94
-- **Discipline**: White Raven (Boost)
+- **Type**: Boost
 - **Level**: Crusader 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One White Raven maneuver

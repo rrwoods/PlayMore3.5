@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Absolute Steel
 - **Source**: *Tome of Battle*, p. 66
-- **Discipline**: Iron Heart (Stance)
+- **Type**: Stance
 - **Level**: Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Iron Heart maneuver
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Adamantine Hurricane
 - **Source**: *Tome of Battle*, p. 66
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Iron Heart maneuvers
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Dancing Blade Form
 - **Source**: *Tome of Battle*, p. 67
-- **Discipline**: Iron Heart (Stance)
+- **Type**: Stance
 - **Level**: Warblade 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Dazing Strike
 - **Source**: *Tome of Battle*, p. 67
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Disarming Strike
 - **Source**: *Tome of Battle*, p. 67
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Exorcism of Steel
 - **Source**: *Tome of Battle*, p. 67
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 3
 - **Initiation Action**: Standard action
 - **Prerequisites**: One Iron Heart maneuver
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Finishing Move
 - **Source**: *Tome of Battle*, p. 67
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Iron Heart maneuvers
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Iron Heart Endurance
 - **Source**: *Tome of Battle*, p. 68
-- **Discipline**: Iron Heart (Boost)
+- **Type**: Boost
 - **Level**: Warblade 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Iron Heart Focus
 - **Source**: *Tome of Battle*, p. 68
-- **Discipline**: Iron Heart (Counter)
+- **Type**: Counter
 - **Level**: Warblade 5
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Lightning Recovery
 - **Source**: *Tome of Battle*, p. 68
-- **Discipline**: Iron Heart (Counter)
+- **Type**: Counter
 - **Level**: Warblade 4
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Lightning Throw
 - **Source**: *Tome of Battle*, p. 68
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Manticore Parry
 - **Source**: *Tome of Battle*, p. 69
-- **Discipline**: Iron Heart (Counter)
+- **Type**: Counter
 - **Level**: Warblade 6
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mithral Tornado
 - **Source**: *Tome of Battle*, p. 69
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Iron Heart maneuvers
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Punishing Stance
 - **Source**: *Tome of Battle*, p. 69
-- **Discipline**: Iron Heart (Stance)
+- **Type**: Stance
 - **Level**: Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Scything Blade
 - **Source**: *Tome of Battle*, p. 69
-- **Discipline**: Iron Heart (Boost)
+- **Type**: Boost
 - **Level**: Warblade 7
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Iron Heart maneuvers
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Steel Wind
 - **Source**: *Tome of Battle*, p. 69
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Steely Strike
 - **Source**: *Tome of Battle*, p. 69
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Strike of Perfect Clarity
 - **Source**: *Tome of Battle*, p. 70
-- **Discipline**: Iron Heart (Strike)
+- **Type**: Strike
 - **Level**: Warblade 9
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Four Iron Heart maneuvers
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Supreme Blade Parry
 - **Source**: *Tome of Battle*, p. 70
-- **Discipline**: Iron Heart (Stance)
+- **Type**: Stance
 - **Level**: Warblade 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Iron Heart maneuvers
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Wall of Blades
 - **Source**: *Tome of Battle*, p. 70
-- **Discipline**: Iron Heart (Counter)
+- **Type**: Counter
 - **Level**: Warblade 2
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None

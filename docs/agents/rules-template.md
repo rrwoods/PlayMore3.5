@@ -47,7 +47,7 @@ Martial maneuvers and stances in `docs/rules/content/maneuvers/` follow a dedica
 ```markdown
 ### <Name>
 - **Source**: *Tome of Battle*, p. <Page>
-- **Discipline**: <Discipline> (<Strike | Boost | Counter | Stance | Other>) [<Descriptor>]
+- **Type**: <Strike | Boost | Counter | Stance | Other> [<Descriptor>]
 - **Level**: <Class> <Level>
 - **Initiation Action**: <Action>
 - **Prerequisites**: <Prerequisites>
@@ -56,22 +56,11 @@ Martial maneuvers and stances in `docs/rules/content/maneuvers/` follow a dedica
 
 Field specifications:
 - **Source**: Primary source citation (*Tome of Battle*, page number).
-- **Discipline**: Martial discipline name, maneuver type in parentheses, and optional descriptor in square brackets.
+- **Type**: Maneuver type in parentheses, and optional descriptor in square brackets.
 - **Level**: Initiator class or classes and level (e.g. `Crusader 1, Warblade 1`).
 - **Initiation Action**: Action economy cost (e.g. `1 standard action`, `1 swift action`, `1 immediate action`).
 - **Prerequisites**: Minimum maneuvers known or prerequisite conditions (e.g. `None`, `1 Desert Wind maneuver`).
 - **Mechanics**: Range, target, duration, and mechanical gameplay rules text are integrated directly into `Mechanics`. Narrative flavor text is strictly excluded to keep entries concise and within file length caps.
-
-Unarbitrated maneuver skeletons preserve this full 6-field schema with `TODO` values:
-```markdown
-### <Name>
-- **Source**: TODO
-- **Discipline**: <Discipline> (<Strike | Boost | Counter | Stance | Other>)
-- **Level**: <Class> <Level>
-- **Initiation Action**: TODO
-- **Prerequisites**: TODO
-- **Mechanics**: TODO
-```
 
 #### 2. Compact Unarbitrated Stub Schema (General Rules Skeleton)
 

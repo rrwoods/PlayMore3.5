@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Blistering Flourish (Su)
 - **Source**: *Tome of Battle*, p. 52
-- **Discipline**: Desert Wind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Burning Blade (Su)
 - **Source**: *Tome of Battle*, p. 52
-- **Discipline**: Desert Wind (Boost) [Fire]
+- **Type**: Boost [Fire]
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Burning Brand (Su)
 - **Source**: *Tome of Battle*, p. 52
-- **Discipline**: Desert Wind (Boost) [Fire]
+- **Type**: Boost [Fire]
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Death Mark (Su)
 - **Source**: *Tome of Battle*, p. 52
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Desert Tempest
 - **Source**: *Tome of Battle*, p. 52
-- **Discipline**: Desert Wind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Distracting Ember (Su)
 - **Source**: *Tome of Battle*, p. 52
-- **Discipline**: Desert Wind (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Dragon's Flame (Su)
 - **Source**: *Tome of Battle*, p. 53
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Fan the Flames (Su)
 - **Source**: *Tome of Battle*, p. 53
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Desert Wind maneuver
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Fiery Assault (Su)
 - **Source**: *Tome of Battle*, p. 53
-- **Discipline**: Desert Wind (Stance) [Fire]
+- **Type**: Stance [Fire]
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Fire Riposte (Su)
 - **Source**: *Tome of Battle*, p. 53
-- **Discipline**: Desert Wind (Counter) [Fire]
+- **Type**: Counter [Fire]
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: One Desert Wind maneuver
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Firesnake (Su)
 - **Source**: *Tome of Battle*, p. 53
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Flame's Blessing (Su)
 - **Source**: *Tome of Battle*, p. 53
-- **Discipline**: Desert Wind (Stance) [Fire]
+- **Type**: Stance [Fire]
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Flashing Sun
 - **Source**: *Tome of Battle*, p. 54
-- **Discipline**: Desert Wind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: One Desert Wind maneuver
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Hatchling's Flame (Su)
 - **Source**: *Tome of Battle*, p. 54
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Desert Wind maneuver
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Holocaust Cloak (Su)
 - **Source**: *Tome of Battle*, p. 54
-- **Discipline**: Desert Wind (Stance) [Fire]
+- **Type**: Stance [Fire]
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Desert Wind maneuver
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Inferno Blade (Su)
 - **Source**: *Tome of Battle*, p. 54
-- **Discipline**: Desert Wind (Boost) [Fire]
+- **Type**: Boost [Fire]
 - **Level**: Swordsage 7
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Inferno Blast (Su)
 - **Source**: *Tome of Battle*, p. 55
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 9
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Five Desert Wind maneuvers
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Leaping Flame (Su)
 - **Source**: *Tome of Battle*, p. 55
-- **Discipline**: Desert Wind (Counter) [Teleport]
+- **Type**: Counter [Teleport]
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Lingering Inferno (Su)
 - **Source**: *Tome of Battle*, p. 55
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Ring of Fire (Su)
 - **Source**: *Tome of Battle*, p. 55
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -164,7 +164,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Rising Phoenix (Su)
 - **Source**: *Tome of Battle*, p. 55
-- **Discipline**: Desert Wind (Stance) [Fire]
+- **Type**: Stance [Fire]
 - **Level**: Swordsage 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Desert Wind maneuvers
@@ -172,7 +172,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Salamander Charge (Su)
 - **Source**: *Tome of Battle*, p. 55
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 7
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Three Desert Wind maneuvers
@@ -180,7 +180,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Searing Blade (Su)
 - **Source**: *Tome of Battle*, p. 56
-- **Discipline**: Desert Wind (Boost) [Fire]
+- **Type**: Boost [Fire]
 - **Level**: Swordsage 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Desert Wind maneuvers
@@ -188,7 +188,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Searing Charge (Su)
 - **Source**: *Tome of Battle*, p. 56
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 4
 - **Initiation Action**: 1 full round
 - **Prerequisites**: One Desert Wind maneuver
@@ -196,7 +196,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Wind Stride
 - **Source**: *Tome of Battle*, p. 56
-- **Discipline**: Desert Wind (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -204,7 +204,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Wyrm's Flame (Su)
 - **Source**: *Tome of Battle*, p. 56
-- **Discipline**: Desert Wind (Strike) [Fire]
+- **Type**: Strike [Fire]
 - **Level**: Swordsage 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Desert Wind maneuvers
@@ -212,7 +212,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Zephyr Dance
 - **Source**: *Tome of Battle*, p. 57
-- **Discipline**: Desert Wind (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: One Desert Wind maneuver

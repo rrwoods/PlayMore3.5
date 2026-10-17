@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Blood in the Water
 - **Source**: *Tome of Battle*, p. 86
-- **Discipline**: Tiger Claw (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 1, Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Tiger Claw maneuver
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Claw at the Moon
 - **Source**: *Tome of Battle*, p. 86
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 2, Warblade 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Dancing Mongoose
 - **Source**: *Tome of Battle*, p. 86
-- **Discipline**: Tiger Claw (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 5, Warblade 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Death from Above
 - **Source**: *Tome of Battle*, p. 86
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4, Warblade 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Tiger Claw maneuver
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Feral Death Blow
 - **Source**: *Tome of Battle*, p. 87
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 9, Warblade 9
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Four Tiger Claw maneuvers
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Flesh Ripper
 - **Source**: *Tome of Battle*, p. 87
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 3, Warblade 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Fountain of Blood
 - **Source**: *Tome of Battle*, p. 87
-- **Discipline**: Tiger Claw (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 4, Warblade 4
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Girallon Windmill Flesh Rip
 - **Source**: *Tome of Battle*, p. 87
-- **Discipline**: Tiger Claw (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 8, Warblade 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Tiger Claw maneuvers
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Hamstring Attack
 - **Source**: *Tome of Battle*, p. 88
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 7, Warblade 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Tiger Claw maneuvers
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Hunter's Sense
 - **Source**: *Tome of Battle*, p. 88
-- **Discipline**: Tiger Claw (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 1, Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Tiger Claw maneuver
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Leaping Dragon Stance
 - **Source**: *Tome of Battle*, p. 88
-- **Discipline**: Tiger Claw (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Tiger Claw maneuver
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Pouncing Charge
 - **Source**: *Tome of Battle*, p. 88
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 5, Warblade 5
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Prey On the Weak
 - **Source**: *Tome of Battle*, p. 88
-- **Discipline**: Tiger Claw (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 7, Warblade 7
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Rabid Bear Strike
 - **Source**: *Tome of Battle*, p. 88
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6, Warblade 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Rabid Wolf Strike
 - **Source**: *Tome of Battle*, p. 88
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 2, Warblade 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Raging Mongoose
 - **Source**: *Tome of Battle*, p. 89
-- **Discipline**: Tiger Claw (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 8, Warblade 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Tiger Claw maneuvers
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Soaring Raptor Strike
 - **Source**: *Tome of Battle*, p. 89
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 3, Warblade 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Tiger Claw maneuver
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Sudden Leap
 - **Source**: *Tome of Battle*, p. 89
-- **Discipline**: Tiger Claw (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 1, Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Tiger Claw maneuver
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Swooping Dragon Strike
 - **Source**: *Tome of Battle*, p. 89
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 7, Warblade 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Tiger Claw maneuvers
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Wolf Climbs the Mountain
 - **Source**: *Tome of Battle*, p. 89
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6, Warblade 6
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -164,7 +164,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Wolf Fang Strike
 - **Source**: *Tome of Battle*, p. 90
-- **Discipline**: Tiger Claw (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 1, Warblade 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -172,7 +172,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Wolf Pack Tactics
 - **Source**: *Tome of Battle*, p. 90
-- **Discipline**: Tiger Claw (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 8, Warblade 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Tiger Claw maneuvers
@@ -180,7 +180,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Wolverine Stance
 - **Source**: *Tome of Battle*, p. 90
-- **Discipline**: Tiger Claw (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Tiger Claw maneuver

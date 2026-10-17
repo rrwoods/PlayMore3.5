@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Action Before Thought
 - **Source**: *Tome of Battle*, p. 62
-- **Discipline**: Diamond Mind (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 2, Warblade 2
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Avalanche of Blades
 - **Source**: *Tome of Battle*, p. 62
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 7, Warblade 7
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Three Diamond Mind maneuvers
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Bounding Assault
 - **Source**: *Tome of Battle*, p. 62
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4, Warblade 4
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Two Diamond Mind maneuvers
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Diamond Defense
 - **Source**: *Tome of Battle*, p. 62
-- **Discipline**: Diamond Mind (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 8, Warblade 8
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Diamond Nightmare Blade
 - **Source**: *Tome of Battle*, p. 62
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 8, Warblade 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Diamond Mind maneuvers
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Disrupting Blow
 - **Source**: *Tome of Battle*, p. 63
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 5, Warblade 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Diamond Mind maneuvers
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Emerald Razor
 - **Source**: *Tome of Battle*, p. 63
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 2, Warblade 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Diamond Mind maneuver
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Hearing the Air
 - **Source**: *Tome of Battle*, p. 63
-- **Discipline**: Diamond Mind (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 5, Warblade 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Diamond Mind maneuvers
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Insightful Strike
 - **Source**: *Tome of Battle*, p. 63
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 3, Warblade 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Insightful Strike, Greater
 - **Source**: *Tome of Battle*, p. 64
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6, Warblade 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Diamond Mind maneuvers
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mind Over Body
 - **Source**: *Tome of Battle*, p. 64
-- **Discipline**: Diamond Mind (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 3, Warblade 3
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Mind Strike
 - **Source**: *Tome of Battle*, p. 64
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4, Warblade 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Diamond Mind maneuvers
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Moment of Alacrity
 - **Source**: *Tome of Battle*, p. 64
-- **Discipline**: Diamond Mind (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 6, Warblade 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Diamond Mind maneuvers
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Moment of Perfect Mind
 - **Source**: *Tome of Battle*, p. 64
-- **Discipline**: Diamond Mind (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 1, Warblade 1
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Pearl of Black Doubt
 - **Source**: *Tome of Battle*, p. 64
-- **Discipline**: Diamond Mind (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 3, Warblade 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Diamond Mind maneuver
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Quicksilver Motion
 - **Source**: *Tome of Battle*, p. 65
-- **Discipline**: Diamond Mind (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 7, Warblade 7
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Diamond Mind maneuvers
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Rapid Counter
 - **Source**: *Tome of Battle*, p. 65
-- **Discipline**: Diamond Mind (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 5, Warblade 5
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Ruby Nightmare Blade
 - **Source**: *Tome of Battle*, p. 65
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4, Warblade 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Diamond Mind maneuvers
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Sapphire Nightmare Blade
 - **Source**: *Tome of Battle*, p. 65
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 1, Warblade 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stance of Alacrity
 - **Source**: *Tome of Battle*, p. 65
-- **Discipline**: Diamond Mind (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 8, Warblade 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Diamond Mind maneuvers
@@ -164,7 +164,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stance of Clarity
 - **Source**: *Tome of Battle*, p. 66
-- **Discipline**: Diamond Mind (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 1, Warblade 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -172,7 +172,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Time Stands Still
 - **Source**: *Tome of Battle*, p. 66
-- **Discipline**: Diamond Mind (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 9, Warblade 9
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: Four Diamond Mind maneuvers

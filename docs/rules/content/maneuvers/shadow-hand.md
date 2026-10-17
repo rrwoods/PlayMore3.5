@@ -4,7 +4,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Assassin's Stance
 - **Source**: *Tome of Battle*, p. 75
-- **Discipline**: Shadow Hand (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Shadow Hand maneuver
@@ -12,7 +12,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Balance On the Sky
 - **Source**: *Tome of Battle*, p. 75
-- **Discipline**: Shadow Hand (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Shadow Hand maneuvers
@@ -20,7 +20,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Bloodletting Strike
 - **Source**: *Tome of Battle*, p. 75
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Shadow Hand maneuvers
@@ -28,7 +28,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Child of Shadow
 - **Source**: *Tome of Battle*, p. 76
-- **Discipline**: Shadow Hand (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -36,7 +36,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Clinging Shadow Strike
 - **Source**: *Tome of Battle*, p. 76
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -44,7 +44,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Cloak of Deception
 - **Source**: *Tome of Battle*, p. 76
-- **Discipline**: Shadow Hand (Boost)
+- **Type**: Boost
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -52,7 +52,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Dance of the Spider
 - **Source**: *Tome of Battle*, p. 76
-- **Discipline**: Shadow Hand (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -60,7 +60,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Drain Vitality
 - **Source**: *Tome of Battle*, p. 77
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Shadow Hand maneuver
@@ -68,7 +68,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Enervating Shadow Strike
 - **Source**: *Tome of Battle*, p. 77
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Shadow Hand maneuvers
@@ -76,7 +76,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Five-Shadow Creeping Ice Enervation Strike
 - **Source**: *Tome of Battle*, p. 77
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 9
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Five Shadow Hand maneuvers
@@ -84,7 +84,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Ghost Blade
 - **Source**: *Tome of Battle*, p. 77
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Shadow Hand maneuvers
@@ -92,7 +92,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Hand of Death
 - **Source**: *Tome of Battle*, p. 77
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -100,7 +100,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Island of Blades
 - **Source**: *Tome of Battle*, p. 78
-- **Discipline**: Shadow Hand (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
@@ -108,7 +108,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Obscuring Shadow Veil
 - **Source**: *Tome of Battle*, p. 78
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Shadow Hand maneuvers
@@ -116,7 +116,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### One With Shadow
 - **Source**: *Tome of Battle*, p. 78
-- **Discipline**: Shadow Hand (Counter)
+- **Type**: Counter
 - **Level**: Swordsage 8
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Three Shadow Hand maneuvers
@@ -124,7 +124,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shadow Blade Technique
 - **Source**: *Tome of Battle*, p. 78
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -132,7 +132,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shadow Garrote
 - **Source**: *Tome of Battle*, p. 78
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -140,7 +140,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shadow Jaunt
 - **Source**: *Tome of Battle*, p. 79
-- **Discipline**: Shadow Hand (Other) [Teleportation]
+- **Type**: Other [Teleportation]
 - **Level**: Swordsage 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -148,7 +148,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shadow Noose
 - **Source**: *Tome of Battle*, p. 79
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
@@ -156,7 +156,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Shadow Stride
 - **Source**: *Tome of Battle*, p. 80
-- **Discipline**: Shadow Hand (Other) [Teleportation]
+- **Type**: Other [Teleportation]
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: None
@@ -164,7 +164,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Stalker in the Night
 - **Source**: *Tome of Battle*, p. 80
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 6
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: None
@@ -172,7 +172,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Step of the Dancing Moth
 - **Source**: *Tome of Battle*, p. 80
-- **Discipline**: Shadow Hand (Stance)
+- **Type**: Stance
 - **Level**: Swordsage 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Shadow Hand maneuvers
@@ -180,7 +180,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 
 ### Strength Draining Strike
 - **Source**: *Tome of Battle*, p. 80
-- **Discipline**: Shadow Hand (Strike)
+- **Type**: Strike
 - **Level**: Swordsage 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Shadow Hand maneuver
