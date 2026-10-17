@@ -6,6 +6,15 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ---
 
+## Tier 0: Important and Immediate Consequences of Recently-Implemented Features
+
+### Martial Study while having martial adept levels (Tome of Battle p. 32)
+- A character with martial adept levels who takes Martial Study adds the learned maneuver to their maneuvers known for one of their martial adept classes.
+- A character who takes Martial Study and then later takes martial adept levels DOES NOT get to do this; the Martial Study maneuver remains a feat-sourced maneuver known (with no recovery method).
+- Currently, PlayMore3.5 has no way of meaningfully distinguishing between these two situations, so we will need a prefactoring to allow various level-based sources (like feats and class levels) to know the level at which they were acquired, or some other way of determining the ordering here.
+
+---
+
 ## Tier 1: Odric & Core UX Priorities
 
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.

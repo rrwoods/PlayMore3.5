@@ -452,7 +452,6 @@
           "maneuvers known:warblade",
           "maneuvers readied:warblade",
           "stances known:warblade",
-          "max maneuver level:warblade",
           "active stances"
         ],
         "effects": [
@@ -593,38 +592,6 @@
                 }
               }
             ]
-          },
-          {
-            "name": "max maneuver level:warblade",
-            "modifiers": [
-              {
-                "affects": "max maneuver level:warblade",
-                "mod": {
-                  "type": "untyped",
-                  "amounts": [
-                    {
-                      "lookup": {
-                        "value": { "stat value": "initiator level:warblade" },
-                        "table": {
-                          "0": 0,
-                          "1": 1,
-                          "3": 2,
-                          "5": 3,
-                          "7": 4,
-                          "9": 5,
-                          "11": 6,
-                          "13": 7,
-                          "15": 8,
-                          "17": 9
-                        },
-                        "miss adjust": -1,
-                        "miss factor": 1
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
           }
         ]
       }
@@ -696,7 +663,6 @@
           "maneuvers known:crusader",
           "maneuvers readied:crusader",
           "stances known:crusader",
-          "max maneuver level:crusader",
           "maneuvers granted:crusader",
           "active stances"
         ],
@@ -853,38 +819,6 @@
                 }
               }
             ]
-          },
-          {
-            "name": "max maneuver level:crusader",
-            "modifiers": [
-              {
-                "affects": "max maneuver level:crusader",
-                "mod": {
-                  "type": "untyped",
-                  "amounts": [
-                    {
-                      "lookup": {
-                        "value": { "stat value": "initiator level:crusader" },
-                        "table": {
-                          "0": 0,
-                          "1": 1,
-                          "3": 2,
-                          "5": 3,
-                          "7": 4,
-                          "9": 5,
-                          "11": 6,
-                          "13": 7,
-                          "15": 8,
-                          "17": 9
-                        },
-                        "miss adjust": -1,
-                        "miss factor": 1
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
           }
         ]
       }
@@ -967,7 +901,6 @@
           "maneuvers known:swordsage",
           "maneuvers readied:swordsage",
           "stances known:swordsage",
-          "max maneuver level:swordsage",
           "active stances"
         ],
         "effects": [
@@ -1104,38 +1037,6 @@
                           "9": 4,
                           "14": 5,
                           "20": 6
-                        },
-                        "miss adjust": -1,
-                        "miss factor": 1
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "name": "max maneuver level:swordsage",
-            "modifiers": [
-              {
-                "affects": "max maneuver level:swordsage",
-                "mod": {
-                  "type": "untyped",
-                  "amounts": [
-                    {
-                      "lookup": {
-                        "value": { "stat value": "initiator level:swordsage" },
-                        "table": {
-                          "0": 0,
-                          "1": 1,
-                          "3": 2,
-                          "5": 3,
-                          "7": 4,
-                          "9": 5,
-                          "11": 6,
-                          "13": 7,
-                          "15": 8,
-                          "17": 9
                         },
                         "miss adjust": -1,
                         "miss factor": 1

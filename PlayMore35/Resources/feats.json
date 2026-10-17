@@ -1178,6 +1178,7 @@
   {
     "prerequisites": "One martial maneuver",
     "stats": [
+      { "name": "initiator level:feats" },
       { "name": "stances known:feats" },
       { "name": "active stances" }
     ],
@@ -1190,6 +1191,26 @@
         }
       ],
       "modifiers": [
+        {
+          "affects": "initiator level:feats",
+          "dysfunction": "martial-study-minimum-il",
+          "mod": {
+            "type": "internal",
+            "amounts": [
+              {
+                "largest": [
+                  { "fixed": 1 },
+                  {
+                    "multiply": {
+                      "variable": { "stat value": "character level" },
+                      "scalar": 0.5
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
         {
           "affects": "stances known:feats",
           "mod": {
@@ -1212,8 +1233,7 @@
       { "name": "initiator level:feats" },
       { "name": "maneuvers known:feats" },
       { "name": "maneuvers readied:feats" },
-      { "name": "stances known:feats" },
-      { "name": "max maneuver level:feats" }
+      { "name": "stances known:feats" }
     ],
     "benefit": {
       "name": "Martial Study",
@@ -1226,14 +1246,20 @@
       "modifiers": [
         {
           "affects": "initiator level:feats",
+          "dysfunction": "martial-study-minimum-il",
           "mod": {
-            "type": "feat",
+            "type": "internal",
             "amounts": [
               {
-                "multiply": {
-                  "variable": { "stat value": "character level" },
-                  "scalar": 0.5
-                }
+                "largest": [
+                  { "fixed": 1 },
+                  {
+                    "multiply": {
+                      "variable": { "stat value": "character level" },
+                      "scalar": 0.5
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -1250,33 +1276,6 @@
           "mod": {
             "type": "untyped",
             "amounts": [ { "fixed": 1 } ]
-          }
-        },
-        {
-          "affects": "max maneuver level:feats",
-          "mod": {
-            "type": "feat",
-            "amounts": [
-              {
-                "lookup": {
-                  "value": { "stat value": "initiator level:feats" },
-                  "table": {
-                    "0": 0,
-                    "1": 1,
-                    "3": 2,
-                    "5": 3,
-                    "7": 4,
-                    "9": 5,
-                    "11": 6,
-                    "13": 7,
-                    "15": 8,
-                    "17": 9
-                  },
-                  "miss adjust": -1,
-                  "miss factor": 1
-                }
-              }
-            ]
           }
         }
       ]

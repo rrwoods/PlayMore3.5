@@ -40,6 +40,10 @@ _Avoid_: Base system, engine defaults
 Table-specific or campaign-specific modifications and homebrew definitions that override or extend core rules.
 _Avoid_: Mod, patch, variant hack
 
+**Rules Dysfunction**:
+A mechanical contradiction, dead end, or unplayable edge case in official 3.5e rules-as-written (such as *Martial Study* granting an Initiator Level of 0 at character level 1) resolved by an explicit, human-approved correction that will be individually toggleable under future house rule settings.
+_Avoid_: Bug, errata hack, balance patch, homebrew rule
+
 **Rule Parameter**:
 A configurable systemic game constant or calculation formula (such as the death threshold) modeled as a first-class Statistic that may be customized by house rules.
 _Avoid_: Engine constant, setting, hardcoding

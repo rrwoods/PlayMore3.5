@@ -54,6 +54,8 @@
     $$\text{IL} = \text{Martial Adept Class Level}$$
   - **Non-adept classes**:
     $$\text{IL} = \left\lfloor\frac{\text{Character Level}}{2}\right\rfloor$$
+    - **Rules Dysfunction & Human-Approved Correction** (`dysfunction:martial-study-minimum-il`):
+      Under strict rules-as-written, a 1st-level non-adept taking *Martial Study* receives $\lfloor 1 / 2 \rfloor = 0$ initiator level, leaving them with $\text{Max Maneuver Level} = 0$ and unable to select or initiate any 1st-level maneuver. PlayMore35 applies a human-approved correction setting $\text{IL}_{\text{feats}} = \max(1, \lfloor\text{Character Level} / 2\rfloor)$ using non-stacking modifier type `internal` on both *Martial Study* and *Martial Stance*.
   - **Multiclass martial adept** (calculated independently for each martial adept class):
     $$\text{IL}_{\text{class}} = \text{Class Level} + \left\lfloor\frac{1}{2} \sum \text{Other Class Levels}\right\rfloor + \text{Prestige Class Levels}$$
 - **Maneuver & Stance Level Gating**:

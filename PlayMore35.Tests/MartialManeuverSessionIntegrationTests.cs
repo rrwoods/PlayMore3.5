@@ -64,7 +64,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(6, session.GetStatistic("maneuvers known:warblade").Value);
             Assert.AreEqual(4, session.GetStatistic("maneuvers readied:warblade").Value);
             Assert.AreEqual(2, session.GetStatistic("stances known:warblade").Value);
-            Assert.AreEqual(3, session.GetStatistic("max maneuver level:warblade").Value);
+            Assert.AreEqual(3, session.GetStatistic("max maneuver level:warblade").Value, string.Join("; ", session.GetStatistic("max maneuver level:warblade").Explanation));
 
             var engine = session.Subsystems.Get<MartialManeuverEngine>();
             Assert.IsNotNull(engine);

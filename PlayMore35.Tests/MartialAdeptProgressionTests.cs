@@ -46,6 +46,11 @@ namespace PlayMore35.Tests {
                     }
                 }
 
+                var engine = new MartialManeuverEngine();
+                var ctx = new FakeCharacterContext(effects: pool, catalog: catalog);
+                engine.Initialize(ctx);
+                engine.ContributeEffects(pool, ctx);
+
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:warblade", null), $"Warblade level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:warblade", null), $"Warblade level {lvl} known");
                 Assert.AreEqual(expectedReadied[lvl - 1], pool.GetStatValue("maneuvers readied:warblade", null), $"Warblade level {lvl} readied");
@@ -83,6 +88,11 @@ namespace PlayMore35.Tests {
                     }
                 }
 
+                var engine = new MartialManeuverEngine();
+                var ctx = new FakeCharacterContext(effects: pool, catalog: catalog);
+                engine.Initialize(ctx);
+                engine.ContributeEffects(pool, ctx);
+
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:crusader", null), $"Crusader level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:crusader", null), $"Crusader level {lvl} known");
                 Assert.AreEqual(expectedReadied[lvl - 1], pool.GetStatValue("maneuvers readied:crusader", null), $"Crusader level {lvl} readied");
@@ -118,6 +128,11 @@ namespace PlayMore35.Tests {
                         pool.AddEffect(f);
                     }
                 }
+
+                var engine = new MartialManeuverEngine();
+                var ctx = new FakeCharacterContext(effects: pool, catalog: catalog);
+                engine.Initialize(ctx);
+                engine.ContributeEffects(pool, ctx);
 
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:swordsage", null), $"Swordsage level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:swordsage", null), $"Swordsage level {lvl} known");
@@ -198,6 +213,51 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.GetStatValue("maneuvers known:feats", 0));
             Assert.AreEqual(1, session.GetStatValue("maneuvers readied:feats", 0));
             Assert.AreEqual(0, session.GetStatValue("stances known:feats", 0));
+        }
+
+        // Source: Tome of Battle, pp. 39, 52 (Rules dysfunction fix: Martial Study grants at least IL 1 at level 1)
+        [TestMethod]
+        public void Feats_MartialStudy_Level1Character_ResolvesDysfunctionAndActivatesEngine() {
+            var character = new Character();
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Study";
+
+            var session = new CharacterSession(character, catalog);
+
+            Assert.AreEqual(1, session.GetStatValue("character level", 0));
+            // Dysfunction fix: max(1, floor(1 / 2)) = 1
+            Assert.AreEqual(1, session.GetStatValue("initiator level:feats", 0));
+            Assert.AreEqual(1, session.GetStatValue("max maneuver level:feats", 0));
+            Assert.AreEqual(1, session.GetStatValue("maneuvers known:feats", 0));
+            Assert.AreEqual(1, session.GetStatValue("maneuvers readied:feats", 0));
+
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+            Assert.IsTrue(engine.IsActive, "MartialManeuverEngine must be active for level 1 character with Martial Study.");
+        }
+
+        // Source: Tome of Battle, pp. 39, 52; ADR-0012
+        [TestMethod]
+        public void Feats_MartialStudyAndMartialStance_Level1_InternalBonusDoesNotStack() {
+            var character = new Character();
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Study";
+            character.feats["Human Bonus"] = "Martial Stance";
+
+            var session = new CharacterSession(character, catalog);
+
+            Assert.AreEqual(1, session.GetStatValue("character level", 0));
+            // Both feats grant IL 1 with type "internal"; internal bonus does not stack
+            Assert.AreEqual(1, session.GetStatValue("initiator level:feats", 0));
+            Assert.AreEqual(1, session.GetStatValue("max maneuver level:feats", 0));
+            Assert.AreEqual(1, session.GetStatValue("maneuvers known:feats", 0));
+            Assert.AreEqual(1, session.GetStatValue("stances known:feats", 0));
+
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+            Assert.IsTrue(engine.IsActive);
         }
 
         // Source: Tome of Battle, pp. 39, 52 (Martial Study and Martial Stance Feats on Level 6 Character)

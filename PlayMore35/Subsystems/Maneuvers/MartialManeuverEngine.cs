@@ -11,12 +11,25 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public const string ACTIVE_STANCES = "active stances";
         public static readonly string[] StandardSources = new[] { "Warblade", "Crusader", "Swordsage", "Feats" };
 
-        public static string InitiatorLevelStat(string source = null) {
+        public static string InitiatorLevelStat(string source) {
             if (string.IsNullOrWhiteSpace(source)) {
-                return "initiator level";
+                throw new ArgumentException("Source cannot be null or whitespace.", nameof(source));
             }
             return $"initiator level:{source.Trim().ToLowerInvariant()}";
         }
+
+        private static readonly Dictionary<int, int> MaxManeuverLevelLookupTable = new Dictionary<int, int> {
+            { 0, 0 },
+            { 1, 1 },
+            { 3, 2 },
+            { 5, 3 },
+            { 7, 4 },
+            { 9, 5 },
+            { 11, 6 },
+            { 13, 7 },
+            { 15, 8 },
+            { 17, 9 }
+        };
 
         private IRulesCatalog catalog;
         private ICharacterContext context;
@@ -38,19 +51,10 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public bool IsActive {
             get {
                 if (context == null) return false;
-                if (context.GetStatValue(InitiatorLevelStat(), 0) > 0 ||
-                    context.GetStatValue("maneuvers known", 0) > 0 ||
-                    context.GetStatValue("stances known", 0) > 0 ||
-                    context.GetStatValue(ACTIVE_STANCES, 0) > 0) {
-                    return true;
-                }
 
                 var allSources = GetAllSources();
                 foreach (var source in allSources) {
-                    string lower = source.ToLowerInvariant();
-                    if (context.GetStatValue(InitiatorLevelStat(source), 0) > 0 ||
-                        context.GetStatValue($"maneuvers known:{lower}", 0) > 0 ||
-                        context.GetStatValue($"stances known:{lower}", 0) > 0) {
+                    if (context.GetStatValue(InitiatorLevelStat(source), 0) > 0) {
                         return true;
                     }
                 }
@@ -361,6 +365,21 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
             if (pool == null) return;
             var ctx = context ?? this.context;
+
+            if (ctx != null) {
+                foreach (var source in GetAllSources()) {
+                    if (ctx.GetStatValue(InitiatorLevelStat(source), 0) > 0) {
+                        string lower = source.Trim().ToLowerInvariant();
+                        string statName = $"max maneuver level:{lower}";
+                        pool.AddStat(new Statistic(statName));
+                        var maxLevelEffect = new Effect(statName);
+                        var lookupAmount = new LookupAmount(InitiatorLevelStat(source), MaxManeuverLevelLookupTable, -1, 1);
+                        maxLevelEffect.AddModifier(statName, new Modifier(lookupAmount, ModifierTypes.INTERNAL));
+                        pool.AddEffect(maxLevelEffect);
+                    }
+                }
+            }
+
             foreach (var stance in GetAllActiveStances()) {
                 if (string.IsNullOrEmpty(stance.StanceName)) continue;
                 var maneuver = catalog.GetManeuver(stance.StanceName);

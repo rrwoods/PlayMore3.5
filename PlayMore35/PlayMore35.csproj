@@ -217,6 +217,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Effects\Constants.cs" />
+    <Compile Include="Effects\ModifierTypes.cs" />
     <Compile Include="CharacterChoices\Armor.cs" />
     <Compile Include="CharacterChoices\ArmorProperty.cs" />
     <Compile Include="CharacterChoices\Attack.cs" />
