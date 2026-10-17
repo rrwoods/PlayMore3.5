@@ -344,6 +344,30 @@ namespace PlayMore35.Tests {
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.IsSlotLevelValid(-1));
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.IsSlotLevelValid(2));
         }
+
+        // Source: Tome of Battle, pp. 37–46
+        [TestMethod]
+        public void ResourceSubsystemContentProvider_CanLoadFullManeuverCatalog_AndResolveAllNineDisciplines() {
+            var provider = new ResourceSubsystemContentProvider();
+            var maneuvers = provider.GetManeuvers().ToList();
+
+            Assert.IsTrue(maneuvers.Count >= 190, $"Expected at least 190 maneuvers, got {maneuvers.Count}");
+
+            string[] disciplines = {
+                "Desert Wind", "Devoted Spirit", "Diamond Mind",
+                "Iron Heart", "Setting Sun", "Shadow Hand",
+                "Stone Dragon", "Tiger Claw", "White Raven"
+            };
+
+            foreach (var disc in disciplines) {
+                var discManeuvers = maneuvers.Where(m => m.Discipline == disc).ToList();
+                Assert.IsTrue(discManeuvers.Count >= 15, $"Discipline '{disc}' should have at least 15 maneuvers, found {discManeuvers.Count}");
+                var first = discManeuvers.First();
+                var fetched = provider.GetManeuver(first.Name);
+                Assert.IsNotNull(fetched, $"Failed to fetch maneuver '{first.Name}' via provider");
+                Assert.AreEqual(first.Name, fetched.Name);
+            }
+        }
     }
 }
 

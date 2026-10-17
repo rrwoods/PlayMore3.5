@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -206,7 +207,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ManeuversCatalog_LoadsAllDisciplinesAndAllManeuverTypes() {
             var maneuvers = catalog.Maneuvers.Values.ToList();
-            Assert.IsTrue(maneuvers.Count >= 30, $"Catalog should contain core maneuvers, found: {maneuvers.Count}");
+            Assert.IsTrue(maneuvers.Count >= 190, $"Catalog should contain complete maneuvers, found: {maneuvers.Count}");
 
             string[] expectedDisciplines = {
                 "Desert Wind", "Devoted Spirit", "Diamond Mind",
@@ -232,12 +233,50 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(3, ihSurge.Level);
         }
 
+        // Source: Tome of Battle, pp. 37–95 (Complete Maneuvers Catalog Deserialization and Integrity)
+        [TestMethod]
+        public void ManeuversCatalog_AllEntriesDeserializeValidly_AndMatchSchema() {
+            var maneuvers = catalog.Maneuvers.Values.ToList();
+            Assert.IsTrue(maneuvers.Count >= 190, $"Expected full ~190+ maneuver catalog, found: {maneuvers.Count}");
+
+            var validDisciplines = new HashSet<string> {
+                "Desert Wind", "Devoted Spirit", "Diamond Mind",
+                "Iron Heart", "Setting Sun", "Shadow Hand",
+                "Stone Dragon", "Tiger Claw", "White Raven"
+            };
+            var validActionTypes = new HashSet<string> {
+                "standard", "swift", "immediate", "full-round", "move"
+            };
+
+            foreach (var m in maneuvers) {
+                Assert.IsFalse(string.IsNullOrWhiteSpace(m.Name), "Maneuver name must not be empty.");
+                Assert.IsTrue(validDisciplines.Contains(m.Discipline), $"Maneuver '{m.Name}' has invalid discipline '{m.Discipline}'.");
+                Assert.IsTrue(m.Level >= 1 && m.Level <= 9, $"Maneuver '{m.Name}' level {m.Level} must be between 1 and 9.");
+                Assert.IsTrue(Enum.IsDefined(typeof(ManeuverType), m.Type), $"Maneuver '{m.Name}' has invalid type '{m.Type}'.");
+                Assert.IsTrue(validActionTypes.Contains(m.ActionType), $"Maneuver '{m.Name}' has invalid action type '{m.ActionType}'.");
+                Assert.IsTrue(m.PrerequisiteCount >= 0, $"Maneuver '{m.Name}' has negative prerequisite count {m.PrerequisiteCount}.");
+                Assert.IsFalse(string.IsNullOrWhiteSpace(m.Description), $"Maneuver '{m.Name}' must have non-empty description.");
+
+                if (m.PrerequisiteCount == 0) {
+                    Assert.IsTrue(string.IsNullOrEmpty(m.Prerequisites), $"Maneuver '{m.Name}' with count 0 should have empty prerequisites string.");
+                } else {
+                    Assert.IsTrue(m.Prerequisites.StartsWith(m.PrerequisiteCount.ToString()),
+                        $"Maneuver '{m.Name}' prerequisite string '{m.Prerequisites}' should start with count {m.PrerequisiteCount}.");
+                }
+            }
+
+            foreach (var disc in validDisciplines) {
+                int count = maneuvers.Count(m => m.Discipline == disc);
+                Assert.IsTrue(count >= 15, $"Discipline '{disc}' should have at least 15 maneuvers, found {count}.");
+            }
+        }
+
         // Source: Tome of Battle, pp. 37–46
         [TestMethod]
         public void ResourceSubsystemContentProvider_LoadsManeuversCatalogCleanly() {
             var provider = new ResourceSubsystemContentProvider();
             var all = provider.GetManeuvers().ToList();
-            Assert.IsTrue(all.Count >= 30);
+            Assert.IsTrue(all.Count >= 190);
 
             var strike = provider.GetManeuver("Steely Strike");
             Assert.IsNotNull(strike);

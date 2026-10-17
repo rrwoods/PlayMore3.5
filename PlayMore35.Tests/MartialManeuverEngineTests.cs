@@ -957,5 +957,125 @@ namespace PlayMore35.Tests {
             Assert.IsNotInstanceOfType(altDeserialized, typeof(ManeuverSheetAction));
             Assert.IsNull(ManeuverSheetAction.TryParse(altJson));
         }
+
+        // Source: Tome of Battle, pp. 38, 43, 56, 66, 73, 85, 90
+        [TestMethod]
+        public void MartialManeuverEngine_FullCatalogStanceActivation_ModifiesStatsAcrossClasses() {
+            var content = new ResourceSubsystemContentProvider();
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+
+            SetStat(context.Effects, "stances known:warblade", 2);
+            SetStat(context.Effects, "stances known:swordsage", 1);
+            SetStat(context.Effects, "stances known:crusader", 1);
+            SetStat(context.Effects, "AC", 15);
+            SetStat(context.Effects, "Land speed", 30);
+            SetStat(context.Effects, "Listen", 4);
+            SetStat(context.Effects, "Will saves", 3);
+
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance", isActive: false));
+            warblade.SetStanceSlot(1, new StanceSlot("Absolute Steel", isActive: false));
+
+            var swordsage = engine.GetSource("Swordsage");
+            swordsage.SetStanceSlot(0, new StanceSlot("Hearing the Air", isActive: false));
+
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetStanceSlot(0, new StanceSlot("Bolstering Voice", isActive: false));
+
+            // While stances are inactive, base stats are unchanged
+            var baselinePool = new EffectPool(context.Character);
+            SetStat(baselinePool, "AC", 15);
+            SetStat(baselinePool, "Land speed", 30);
+            SetStat(baselinePool, "Listen", 4);
+            SetStat(baselinePool, "Will saves", 3);
+            engine.ContributeEffects(baselinePool, context);
+            Assert.AreEqual(15, baselinePool.GetStatValue("AC", null));
+            Assert.AreEqual(30, baselinePool.GetStatValue("Land speed", null));
+            Assert.AreEqual(4, baselinePool.GetStatValue("Listen", null));
+            Assert.AreEqual(3, baselinePool.GetStatValue("Will saves", null));
+
+            // Warblade activates Punishing Stance (-2 AC)
+            engine.AdoptStance("Warblade", 0);
+            var wbPool = new EffectPool(context.Character);
+            SetStat(wbPool, "AC", 15);
+            SetStat(wbPool, "Land speed", 30);
+            engine.ContributeEffects(wbPool, context);
+            Assert.AreEqual(13, wbPool.GetStatValue("AC", null));
+
+            // Warblade switches to Absolute Steel (+10 Land speed)
+            engine.AdoptStance("Warblade", 1);
+            var wbSpeedPool = new EffectPool(context.Character);
+            SetStat(wbSpeedPool, "AC", 15);
+            SetStat(wbSpeedPool, "Land speed", 30);
+            engine.ContributeEffects(wbSpeedPool, context);
+            Assert.AreEqual(15, wbSpeedPool.GetStatValue("AC", null));
+            Assert.AreEqual(40, wbSpeedPool.GetStatValue("Land speed", null));
+
+            // Swordsage activates Hearing the Air (+5 Listen)
+            engine.AdoptStance("Swordsage", 0);
+            var ssPool = new EffectPool(context.Character);
+            SetStat(ssPool, "Listen", 4);
+            engine.ContributeEffects(ssPool, context);
+            Assert.AreEqual(9, ssPool.GetStatValue("Listen", null));
+
+            // Crusader activates Bolstering Voice (+2 Will saves)
+            engine.AdoptStance("Crusader", 0);
+            var crPool = new EffectPool(context.Character);
+            SetStat(crPool, "Will saves", 3);
+            engine.ContributeEffects(crPool, context);
+            Assert.AreEqual(5, crPool.GetStatValue("Will saves", null));
+        }
+
+        // Source: Tome of Battle, pp. 38–40
+        [TestMethod]
+        public void MartialManeuverEngine_FullCatalogRecovery_OperatesAcrossCrusaderSwordsageAndWarblade() {
+            var content = new ResourceSubsystemContentProvider();
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+
+            SetStat(context.Effects, "maneuvers known:warblade", 2);
+            SetStat(context.Effects, "maneuvers readied:warblade", 2);
+            SetStat(context.Effects, "maneuvers known:swordsage", 2);
+            SetStat(context.Effects, "maneuvers readied:swordsage", 2);
+            SetStat(context.Effects, "maneuvers known:crusader", 3);
+            SetStat(context.Effects, "maneuvers readied:crusader", 3);
+            SetStat(context.Effects, "maneuvers granted:crusader", 2);
+
+            engine.Initialize(context);
+
+            // 1. Warblade: initiate and recover via swift flourish
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetKnownSlot(0, new KnownManeuverSlot("Steel Wind", ManeuverState.Available));
+            warblade.SetKnownSlot(1, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Available));
+
+            engine.InitiateManeuver("Warblade", 0);
+            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(0).State);
+            engine.RecoverWarblade("Warblade");
+            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(0).State);
+
+            // 2. Swordsage: initiate and recover via targeted full-round meditation
+            var swordsage = engine.GetSource("Swordsage");
+            swordsage.SetKnownSlot(0, new KnownManeuverSlot("Fire Riposte", ManeuverState.Available));
+            swordsage.SetKnownSlot(1, new KnownManeuverSlot("Burning Blade", ManeuverState.Available));
+
+            engine.InitiateManeuver("Swordsage", 0);
+            Assert.AreEqual(ManeuverState.Expended, swordsage.GetKnownSlot(0).State);
+            engine.RecoverSwordsage("Swordsage", 0);
+            Assert.AreEqual(ManeuverState.Available, swordsage.GetKnownSlot(0).State);
+
+            // 3. Crusader: deal deck, initiate available maneuver, and advance turn to draw withheld
+            var crusader = engine.GetSource("Crusader");
+            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Available));
+            crusader.SetKnownSlot(1, new KnownManeuverSlot("Shield Block", ManeuverState.Available));
+            crusader.SetKnownSlot(2, new KnownManeuverSlot("Revitalizing Strike", ManeuverState.Withheld));
+
+            engine.InitiateManeuver("Crusader", 0);
+            Assert.AreEqual(ManeuverState.Expended, crusader.GetKnownSlot(0).State);
+            engine.AdvanceCrusaderTurn("Crusader", new Random(42));
+            Assert.AreEqual(ManeuverState.Available, crusader.GetKnownSlot(2).State);
+        }
     }
 }
