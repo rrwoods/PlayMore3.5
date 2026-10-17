@@ -37,12 +37,18 @@
 - **Source**: TODO
 
 ### Martial Stance
-- **Status**: Unarbitrated Domain Specification
+- **Status**: Verified Reference Entry
 - **Source**: *Tome of Battle*, p. 52
+- **Prerequisites**: One martial maneuver.
+- **Benefit**: You gain the ability to learn a martial stance from any discipline you have access to through maneuvers.
+- **Rules Dysfunction & Human-Approved Correction** (`dysfunction:martial-study-minimum-il`): Grants `initiator level:feats` using non-stacking `internal` bonus type ($\max(1, \lfloor\text{Character Level} / 2\rfloor)$) so that an adept or non-adept acquiring the feat has an active initiator level.
 
 ### Martial Study
-- **Status**: Unarbitrated Domain Specification
+- **Status**: Verified Reference Entry
 - **Source**: *Tome of Battle*, p. 52
+- **Benefit**: By learning the basic principles of a martial discipline, you gain the ability to initiate a single martial maneuver.
+- **Rules Dysfunction & Human-Approved Correction** (`dysfunction:martial-study-minimum-il`):
+  Under strict rules-as-written, a 1st-level non-adept taking *Martial Study* receives $\lfloor 1 / 2 \rfloor = 0$ initiator level, leaving them with $\text{Max Maneuver Level} = 0$ and unable to select or initiate any 1st-level maneuver. PlayMore35 applies a human-approved correction setting $\text{IL}_{\text{feats}} = \max(1, \lfloor\text{Character Level} / 2\rfloor)$ using non-stacking modifier type `internal`.
 
 ### Martial Weapon Proficiency
 - **Status**: Unarbitrated Domain Specification

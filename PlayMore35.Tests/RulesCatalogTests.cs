@@ -358,5 +358,42 @@ namespace PlayMore35.Tests {
             engine.BindVestige(0, "Test Vestige");
             Assert.AreEqual("Test Vestige", engine.CurrentVestige(0)?.Name);
         }
+
+        [TestMethod]
+        public void Catalog_AllModifiers_UseValidModifierTypes() {
+            var resourceFiles = new Dictionary<string, byte[]> {
+                { "armor.json", Properties.Resources.armor },
+                { "armorProperties.json", Properties.Resources.armorProperties },
+                { "classes.json", Properties.Resources.classes },
+                { "external.json", Properties.Resources.external },
+                { "feats.json", Properties.Resources.feats },
+                { "items.json", Properties.Resources.items },
+                { "maneuvers.json", Properties.Resources.maneuvers },
+                { "races.json", Properties.Resources.races },
+                { "rules.json", Properties.Resources.rules },
+                { "shields.json", Properties.Resources.shields },
+                { "vestiges.json", Properties.Resources.vestiges },
+                { "weaponProperties.json", Properties.Resources.weaponProperties },
+                { "weapons.json", Properties.Resources.weapons }
+            };
+
+            int checkedModifiers = 0;
+            var invalid = new List<string>();
+            foreach (var kvp in resourceFiles) {
+                if (kvp.Value == null || kvp.Value.Length == 0) continue;
+                var json = JToken.Parse(System.Text.Encoding.UTF8.GetString(kvp.Value));
+                foreach (var token in json.SelectTokens("$..[?(@.amounts)]")) {
+                    if (token is JObject obj && obj["type"] != null) {
+                        string modType = (string)obj["type"];
+                        if (!ModifierTypes.IsValid(modType)) {
+                            invalid.Add($"{kvp.Key}: {modType}");
+                        }
+                        checkedModifiers++;
+                    }
+                }
+            }
+            Assert.AreEqual(0, invalid.Count, $"Invalid modifier types found: {string.Join(", ", invalid)}");
+            Assert.IsTrue(checkedModifiers > 0, "Should have verified at least one modifier in the catalog.");
+        }
     }
 }

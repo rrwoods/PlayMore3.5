@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -133,9 +134,9 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("initiator level:crusader", MartialManeuverEngine.InitiatorLevelStat("crusader"));
             Assert.AreEqual("initiator level:swordsage", MartialManeuverEngine.InitiatorLevelStat("SWORDSAGE"));
             Assert.AreEqual("initiator level:feats", MartialManeuverEngine.InitiatorLevelStat("  feats  "));
-            Assert.AreEqual("initiator level", MartialManeuverEngine.InitiatorLevelStat(null));
-            Assert.AreEqual("initiator level", MartialManeuverEngine.InitiatorLevelStat(""));
-            Assert.AreEqual("initiator level", MartialManeuverEngine.InitiatorLevelStat("   "));
+            Assert.ThrowsException<ArgumentException>(() => MartialManeuverEngine.InitiatorLevelStat(null));
+            Assert.ThrowsException<ArgumentException>(() => MartialManeuverEngine.InitiatorLevelStat(""));
+            Assert.ThrowsException<ArgumentException>(() => MartialManeuverEngine.InitiatorLevelStat("   "));
         }
 
         [TestMethod]

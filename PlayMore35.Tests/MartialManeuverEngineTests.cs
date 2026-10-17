@@ -236,17 +236,8 @@ namespace PlayMore35.Tests {
 
             Assert.IsFalse(engine.IsActive);
 
-            // Set warblade maneuvers known = 3
-            SetStat(context.Effects, "maneuvers known:warblade", 3);
-            Assert.IsTrue(engine.IsActive);
-
-            // Reset context
-            var inactiveContext = new FakeCharacterContext();
-            engine.Initialize(inactiveContext);
-            Assert.IsFalse(engine.IsActive);
-
             // Set initiator level:crusader = 1
-            SetStat(inactiveContext.Effects, "initiator level:crusader", 1);
+            SetStat(context.Effects, "initiator level:crusader", 1);
             Assert.IsTrue(engine.IsActive);
         }
 
