@@ -11,6 +11,10 @@ using static PlayMore35.Effects.Constants;
 namespace PlayMore35.Subsystems.PactMagic {
     public class PactMagicEngine : ISubsystemEngine {
         public const string SubsystemId = "pact_magic";
+        public const string NUM_VESTIGES = "number of vestiges";
+        public const string BINDING_CHECK = "binding check";
+        public const string MAX_VESTIGE_LEVEL = "maximum vestige level";
+        public const string EFFECTIVE_BINDER_LEVEL = "effective binder level";
         private readonly ISubsystemContentProvider contentProvider;
         private SubsystemSlotGroup<PactSlot> slots;
         private ICharacterContext context;

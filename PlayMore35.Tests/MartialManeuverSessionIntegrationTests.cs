@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -77,7 +77,7 @@ namespace PlayMore35.Tests {
 
             var session = new CharacterSession(character, catalog);
 
-            Assert.AreEqual(5, session.GetStatistic("initiator level:warblade").Value);
+            Assert.AreEqual(5, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("warblade")).Value);
             Assert.AreEqual(6, session.GetStatistic("maneuvers known:warblade").Value);
             Assert.AreEqual(4, session.GetStatistic("maneuvers readied:warblade").Value);
             Assert.AreEqual(2, session.GetStatistic("stances known:warblade").Value);
@@ -108,11 +108,11 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(6, session.GetStatistic("character level").Value);
 
             // Warblade IL: 4 + floor(0.5 * 2) = 5 -> Max maneuver level: ceil(5 / 2) = 3
-            Assert.AreEqual(5, session.GetStatistic("initiator level:warblade").Value);
+            Assert.AreEqual(5, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("warblade")).Value);
             Assert.AreEqual(3, session.GetStatistic("max maneuver level:warblade").Value);
 
             // Crusader IL: 2 + floor(0.5 * 4) = 4 -> Max maneuver level: ceil(4 / 2) = 2
-            Assert.AreEqual(4, session.GetStatistic("initiator level:crusader").Value);
+            Assert.AreEqual(4, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("crusader")).Value);
             Assert.AreEqual(2, session.GetStatistic("max maneuver level:crusader").Value);
 
             var engine = session.Subsystems.Get<MartialManeuverEngine>();
@@ -137,7 +137,7 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(4, session.GetStatistic("character level").Value);
             // Feat IL: floor(4 / 2) = 2
-            Assert.AreEqual(2, session.GetStatistic("initiator level:feats").Value);
+            Assert.AreEqual(2, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("feats")).Value);
             Assert.AreEqual(1, session.GetStatistic("max maneuver level:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("maneuvers known:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("maneuvers readied:feats").Value);

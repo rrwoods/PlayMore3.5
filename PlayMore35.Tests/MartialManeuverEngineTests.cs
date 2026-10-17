@@ -759,7 +759,7 @@ namespace PlayMore35.Tests {
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
             SetStat(context.Effects, "stances known:warblade", 2);
-            SetStat(context.Effects, "active stances", 2);
+            SetStat(context.Effects, MartialManeuverEngine.ACTIVE_STANCES, 2);
             engine.Initialize(context);
 
             var warblade = engine.GetSource("Warblade");
@@ -786,7 +786,7 @@ namespace PlayMore35.Tests {
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
             SetStat(context.Effects, "stances known:warblade", 3);
-            SetStat(context.Effects, "active stances", 2);
+            SetStat(context.Effects, MartialManeuverEngine.ACTIVE_STANCES, 2);
             engine.Initialize(context);
 
             var warblade = engine.GetSource("Warblade");
@@ -828,7 +828,7 @@ namespace PlayMore35.Tests {
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
             SetStat(context.Effects, "stances known:warblade", 3);
-            SetStat(context.Effects, "active stances", 2);
+            SetStat(context.Effects, MartialManeuverEngine.ACTIVE_STANCES, 2);
             engine.Initialize(context);
 
             var warblade = engine.GetSource("Warblade");
@@ -860,7 +860,7 @@ namespace PlayMore35.Tests {
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
             SetStat(context.Effects, "stances known:warblade", 3);
-            SetStat(context.Effects, "active stances", 2);
+            SetStat(context.Effects, MartialManeuverEngine.ACTIVE_STANCES, 2);
             engine.Initialize(context);
 
             var warblade = engine.GetSource("Warblade");
@@ -888,7 +888,7 @@ namespace PlayMore35.Tests {
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
             SetStat(context.Effects, "stances known:warblade", 2);
-            SetStat(context.Effects, "active stances", 1);
+            SetStat(context.Effects, MartialManeuverEngine.ACTIVE_STANCES, 1);
             engine.Initialize(context);
 
             var warblade = engine.GetSource("Warblade");
