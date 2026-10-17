@@ -34,6 +34,10 @@ When an ability modifies an underlying system mechanic via an explicit formula (
 
 When writing or updating reference documents in `docs/rules/`:
 - **Positive reference entry format**: Author entries as positive, structured reference documentation (**Reference Entries** and **Rules Skeletons** per `GLOSSARY.md` and ADR-0011). State active rules, formulas, and data properties directly, citing the primary sourcebook and page.
+- **Tabletop vocabulary domain**: Write `docs/rules/` exclusively in the language of the sourcebooks and tabletop play. Describe how rules operate for characters and players (in-game choices, action economy, eligibility, and official 3.5e bonus types). Reserve software constructs—such as engine stat keys, C# types, and internal engine modifier categories—for resource catalogs and source code.
+- **Deconstruct branching benefits**: Structure multi-part or conditional mechanics as dedicated sub-bullets under `- **Benefit**:`, isolating distinct prerequisites, conditions (such as adept vs. non-adept), and secondary outcomes (such as skill grants or recovery limits).
+- **Complete operative mechanics**: Detail the full mechanical gameplay rules so the entry is a self-contained rules reference, capturing all operational consequences rather than relying on brief summaries.
+- **Paired dysfunction templating**: When documenting rules dysfunctions, provide both the `- **Rules Dysfunction** (<tag>)` field detailing the contradiction in rules-as-written and the `- **Human-Approved Correction**` field detailing the human table ruling.
 - **Retirement of task-list checklist syntax**: Task-list checklist syntax (`- [ ]`) is strictly retired across `docs/rules/`. Rules documentation serves purely as reference facts and schemas, not as an in-file task tracker. Use markdown section headings (`### <Name>`) and structured field lists instead of checkbox items.
 - **Pure mechanics**: Restrict content to actionable mechanics: data properties, formulas, action types, prerequisite trees, associated skills or weapons, and stacking rules. Omit narrative flavor summaries to keep entries concise and files strictly within the 300-line cap.
 - **Subsystem-specific scope**: Only document universal mechanics when a subsystem explicitly modifies or overrides baseline behavior. Rely on canonical core mechanics files (`docs/rules/mechanics/`) for standard action economy and combat rules.
@@ -62,7 +66,28 @@ Field specifications:
 - **Prerequisites**: Minimum maneuvers known or prerequisite conditions (e.g. `None`, `1 Desert Wind maneuver`).
 - **Mechanics**: Range, target, duration, and mechanical gameplay rules text are integrated directly into `Mechanics`. Narrative flavor text is strictly excluded to keep entries concise and within file length caps.
 
-#### 2. Compact Unarbitrated Stub Schema (General Rules Skeleton)
+#### 2. Feat Reference Schema
+
+Feats in `docs/rules/content/feats/` follow this structured reference format:
+
+```markdown
+### <Name>
+- **Status**: Verified Reference Entry
+- **Source**: *<Sourcebook>*, p. <Page>
+- **Prerequisites**: <Prerequisites, or omit if None>
+- **Benefit**:
+  - <Operative mechanical rules in tabletop language>
+  - <If conditional or multi-part (e.g. adept vs. non-adept, secondary grants), use structured sub-bullets>
+```
+
+When a feat involves a rules dysfunction, append the two-part dysfunction fields directly beneath `Benefit`:
+
+```markdown
+- **Rules Dysfunction** (`dysfunction:<id>`): <State the contradiction, omission, or deadlock in rules-as-written.>
+- **Human-Approved Correction**: <State the human-approved table ruling in plain tabletop language.>
+```
+
+#### 3. Compact Unarbitrated Stub Schema (General Rules Skeleton)
 
 For general content catalogs awaiting arbitration (such as feats, items, equipment, and classes), use the compact unarbitrated stub schema:
 
@@ -152,5 +177,6 @@ Use this checklist during triage, planning, and code review:
 
 Enforce rules provenance at phase gates rather than relying on in-flight self-interception:
 - **Spec Gate (`/to-spec`)**: A rules-bearing task cannot be marked `ready-for-agent` without Section 2 (Rules Provenance) completed with sourcebook, page number, and verbatim quote (either retrieved from a populated `docs/rules/` entry or newly confirmed by the maintainer and written to `docs/rules/`).
+- **Modifier Types Integrity Gate**: When implementing an ability or catalog entry whose primary source specifies a bonus type missing from `ModifierTypes.All`, pause and request human arbitration: present the primary source citation, its verbatim stacking text, and propose adding the type to `PlayMore35.Effects.ModifierTypes` and `docs/rules/mechanics/stacking-and-modifiers.md`.
 - **TDD Gate (`/tdd`)**: Every unit test verifying a game rule must cite the primary source in a comment directly above the test method (`// Source: <Sourcebook Name>, p. <Number>`). If the citation is missing from `docs/rules/`, pause and request the source from the user before proceeding.
 - **Review & Pre-commit Gate (`/code-review`, `git commit`)**: Audit all modified rules logic and `PlayMore35/Resources/*.json` entries strictly against the verified primary source quote in `docs/rules/` or the issue. Confirm that unit tests cite the primary source, that newly arbitrated citations were written to `docs/rules/`, and that no unarbitrated mechanical assumptions crept into the implementation.

@@ -13,6 +13,11 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - A character who takes Martial Study and then later takes martial adept levels DOES NOT get to do this; the Martial Study maneuver remains a feat-sourced maneuver known (with no recovery method).
 - Currently, PlayMore3.5 has no way of meaningfully distinguishing between these two situations, so we will need a prefactoring to allow various level-based sources (like feats and class levels) to know the level at which they were acquired, or some other way of determining the ordering here.
 
+### Martial Study grants a class skill
+- Martial Study says "the key skill for the discipline of the chosen maneuver becomes a class skill for all your classes".  This requires two new capabilities.
+- Effects in .json-defined catalogs need to be able to determine the discipline of a maneuver choice, and the key skill for that discipline.  This functionality must reside the manuever subsystem to keep from leaking subsystem-specific rules into the core rules logic.
+- Effects in .json-defined catalogs need to be able to set class skills, starting at a specific level.
+
 ---
 
 ## Tier 1: Odric & Core UX Priorities
