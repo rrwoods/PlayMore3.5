@@ -70,12 +70,10 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            var warblade = engine.GetSource("Warblade");
-            Assert.IsNotNull(warblade);
-            Assert.AreEqual(6, warblade.Known.Capacity);
-            Assert.AreEqual(2, warblade.Stances.Capacity);
-            Assert.AreEqual(3, warblade.Known.MaxLevel);
-            Assert.AreEqual(3, warblade.Stances.MaxLevel);
+            Assert.AreEqual(6, engine.GetKnownCapacity("Warblade"));
+            Assert.AreEqual(2, engine.GetStanceCapacity("Warblade"));
+            Assert.AreEqual(3, engine.GetKnownMaxLevel("Warblade"));
+            Assert.AreEqual(3, engine.GetStanceMaxLevel("Warblade"));
         }
 
         // Source: Tome of Battle, p. 39
@@ -102,10 +100,8 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            var warblade = engine.GetSource("Warblade");
-            var crusader = engine.GetSource("Crusader");
-            Assert.AreEqual(3, warblade.Known.MaxLevel);
-            Assert.AreEqual(2, crusader.Known.MaxLevel);
+            Assert.AreEqual(3, engine.GetKnownMaxLevel("Warblade"));
+            Assert.AreEqual(2, engine.GetKnownMaxLevel("Crusader"));
         }
 
         // Source: Tome of Battle, pp. 39, 52
@@ -129,9 +125,8 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            var feats = engine.GetSource("Feats");
-            Assert.AreEqual(1, feats.Known.Capacity);
-            Assert.AreEqual(1, feats.Known.MaxLevel);
+            Assert.AreEqual(1, engine.GetKnownCapacity("Feats"));
+            Assert.AreEqual(1, engine.GetKnownMaxLevel("Feats"));
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43, 69
@@ -149,8 +144,7 @@ namespace PlayMore35.Tests {
             // Baseline AC: 10 (no armor, 0 DEX mod)
             Assert.AreEqual(10, session.GetStatistic("AC").Value);
 
-            var warblade = engine.GetSource("Warblade");
-            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance", isActive: false));
+            engine.SetStanceSlot("Warblade", 0, new StanceSlot("Punishing Stance", isActive: false));
             session.Recalculate();
 
             // Inactive stance: AC remains 10
@@ -159,13 +153,13 @@ namespace PlayMore35.Tests {
             // Adopt Punishing Stance (-2 penalty to AC)
             engine.AdoptStance("Warblade", 0);
             session.Recalculate();
-            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsTrue(engine.GetStanceSlot("Warblade", 0).IsActive);
             Assert.AreEqual(8, session.GetStatistic("AC").Value);
 
             // Exit stance: AC returns to baseline 10
             engine.ExitStance("Warblade", 0);
             session.Recalculate();
-            Assert.IsFalse(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsFalse(engine.GetStanceSlot("Warblade", 0).IsActive);
             Assert.AreEqual(10, session.GetStatistic("AC").Value);
         }
 
@@ -202,8 +196,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(6, standardRoutine.Attacks[0].AttackBonus.bonus);
 
             // Set up stance slot and adopt Stance of the Aggressor
-            var warblade = customEngine.GetSource("Warblade");
-            warblade.SetStanceSlot(0, new StanceSlot("Stance of the Aggressor"));
+            customEngine.SetStanceSlot("Warblade", 0, new StanceSlot("Stance of the Aggressor"));
             customEngine.AdoptStance("Warblade", 0);
             session.Recalculate();
 
@@ -240,24 +233,23 @@ namespace PlayMore35.Tests {
             // Initial land speed
             Assert.AreEqual(30, session.GetStatistic("Land speed").Value);
 
-            var warblade = engine.GetSource("Warblade");
             // Slot 0: Wind Stride (+10 enhancement bonus to Land speed for 1 round)
-            warblade.SetKnownSlot(0, new KnownManeuverSlot("Wind Stride", ManeuverState.Unreadied));
+            engine.SetKnownSlot("Warblade", 0, new KnownManeuverSlot("Wind Stride", ManeuverState.Unreadied));
             // Slot 1: Steely Strike
-            warblade.SetKnownSlot(1, new KnownManeuverSlot("Steely Strike", ManeuverState.Unreadied));
+            engine.SetKnownSlot("Warblade", 1, new KnownManeuverSlot("Steely Strike", ManeuverState.Unreadied));
 
             // Ready maneuvers
             engine.ReadyManeuver("Warblade", 0);
             engine.ReadyManeuver("Warblade", 1);
-            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(0).State);
-            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(1).State);
+            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 0).State);
+            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 1).State);
 
             session.StartCombat();
 
             // Initiate Wind Stride (Boost)
             bool boostInitiated = engine.InitiateManeuver("Warblade", 0);
             Assert.IsTrue(boostInitiated);
-            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(0).State);
+            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", 0).State);
 
             // Dynamic recalculation applies boost modifier to Land speed
             session.Recalculate();
@@ -271,17 +263,17 @@ namespace PlayMore35.Tests {
 
             // Land speed returns to baseline 30, but slot remains Expended
             Assert.AreEqual(30, session.GetStatistic("Land speed").Value);
-            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(0).State);
+            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", 0).State);
 
             // Initiate Steely Strike (Strike)
             bool strikeInitiated = engine.InitiateManeuver("Warblade", 1);
             Assert.IsTrue(strikeInitiated);
-            Assert.AreEqual(ManeuverState.Expended, warblade.GetKnownSlot(1).State);
+            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", 1).State);
 
             // Warblade Swift Recovery restores all expended maneuvers
             engine.RecoverWarblade("Warblade");
-            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(0).State);
-            Assert.AreEqual(ManeuverState.Available, warblade.GetKnownSlot(1).State);
+            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 0).State);
+            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 1).State);
         }
 
         // Source: Tome of Battle, p. 38
@@ -295,11 +287,10 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
             var engine = session.Subsystems.Get<MartialManeuverEngine>();
 
-            var warblade = engine.GetSource("Warblade");
-            warblade.SetKnownSlot(0, new KnownManeuverSlot("Wind Stride", ManeuverState.Available));
-            warblade.SetKnownSlot(1, new KnownManeuverSlot("Steely Strike", ManeuverState.Expended));
-            warblade.SetKnownSlot(2, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Unreadied));
-            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance", isActive: true));
+            engine.SetKnownSlot("Warblade", 0, new KnownManeuverSlot("Wind Stride", ManeuverState.Available));
+            engine.SetKnownSlot("Warblade", 1, new KnownManeuverSlot("Steely Strike", ManeuverState.Expended));
+            engine.SetKnownSlot("Warblade", 2, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Unreadied));
+            engine.SetStanceSlot("Warblade", 0, new StanceSlot("Punishing Stance", isActive: true));
 
             session.Recalculate();
             Assert.AreEqual(8, session.GetStatistic("AC").Value); // 10 - 2 from active Punishing Stance
@@ -322,22 +313,21 @@ namespace PlayMore35.Tests {
             // Verify active stance effect is immediately active
             Assert.AreEqual(8, restoredSession.GetStatistic("AC").Value);
 
-            var restoredWarblade = restoredEngine.GetSource("Warblade");
-            Assert.AreEqual(ManeuverState.Available, restoredWarblade.GetKnownSlot(0).State);
-            Assert.AreEqual("Wind Stride", restoredWarblade.GetKnownSlot(0).ManeuverName);
+            Assert.AreEqual(ManeuverState.Available, restoredEngine.GetKnownSlot("Warblade", 0).State);
+            Assert.AreEqual("Wind Stride", restoredEngine.GetKnownSlot("Warblade", 0).ManeuverName);
 
-            Assert.AreEqual(ManeuverState.Expended, restoredWarblade.GetKnownSlot(1).State);
-            Assert.AreEqual("Steely Strike", restoredWarblade.GetKnownSlot(1).ManeuverName);
+            Assert.AreEqual(ManeuverState.Expended, restoredEngine.GetKnownSlot("Warblade", 1).State);
+            Assert.AreEqual("Steely Strike", restoredEngine.GetKnownSlot("Warblade", 1).ManeuverName);
 
-            Assert.AreEqual(ManeuverState.Unreadied, restoredWarblade.GetKnownSlot(2).State);
-            Assert.AreEqual("Iron Heart Surge", restoredWarblade.GetKnownSlot(2).ManeuverName);
+            Assert.AreEqual(ManeuverState.Unreadied, restoredEngine.GetKnownSlot("Warblade", 2).State);
+            Assert.AreEqual("Iron Heart Surge", restoredEngine.GetKnownSlot("Warblade", 2).ManeuverName);
 
-            Assert.AreEqual("Punishing Stance", restoredWarblade.GetStanceSlot(0).StanceName);
-            Assert.IsTrue(restoredWarblade.GetStanceSlot(0).IsActive);
+            Assert.AreEqual("Punishing Stance", restoredEngine.GetStanceSlot("Warblade", 0).StanceName);
+            Assert.IsTrue(restoredEngine.GetStanceSlot("Warblade", 0).IsActive);
 
             // Recovery on restored engine works cleanly
             restoredEngine.RecoverWarblade("Warblade");
-            Assert.AreEqual(ManeuverState.Available, restoredWarblade.GetKnownSlot(1).State);
+            Assert.AreEqual(ManeuverState.Available, restoredEngine.GetKnownSlot("Warblade", 1).State);
         }
 
         // Source: Tome of Battle, pp. 38, 40
@@ -355,41 +345,40 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(5, session.GetStatistic("maneuvers readied:crusader").Value);
             Assert.AreEqual(2, session.GetStatistic("maneuvers granted:crusader").Value);
 
-            var crusader = engine.GetSource("Crusader");
-            crusader.SetKnownSlot(0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Withheld));
-            crusader.SetKnownSlot(1, new KnownManeuverSlot("Leading the Attack", ManeuverState.Withheld));
-            crusader.SetKnownSlot(2, new KnownManeuverSlot("Douse the Flames", ManeuverState.Withheld));
-            crusader.SetKnownSlot(3, new KnownManeuverSlot("Martial Spirit", ManeuverState.Withheld));
-            crusader.SetKnownSlot(4, new KnownManeuverSlot("Shield Block", ManeuverState.Withheld));
+            engine.SetKnownSlot("Crusader", 0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Withheld));
+            engine.SetKnownSlot("Crusader", 1, new KnownManeuverSlot("Leading the Attack", ManeuverState.Withheld));
+            engine.SetKnownSlot("Crusader", 2, new KnownManeuverSlot("Douse the Flames", ManeuverState.Withheld));
+            engine.SetKnownSlot("Crusader", 3, new KnownManeuverSlot("Martial Spirit", ManeuverState.Withheld));
+            engine.SetKnownSlot("Crusader", 4, new KnownManeuverSlot("Shield Block", ManeuverState.Withheld));
 
             // Fixed seed RNG for deterministic dealing
             var rng = new Random(42);
             engine.DealCrusader("Crusader", rng);
 
             // Exactly 2 granted (Available), 3 Withheld
-            int availableCount = crusader.Known.Slots.Count(s => s.State == ManeuverState.Available);
-            int withheldCount = crusader.Known.Slots.Count(s => s.State == ManeuverState.Withheld);
+            int availableCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Available);
+            int withheldCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Withheld);
             Assert.AreEqual(2, availableCount);
             Assert.AreEqual(3, withheldCount);
 
             // Initiate one available maneuver
-            int availableIndex = crusader.Known.Slots.ToList().FindIndex(s => s.State == ManeuverState.Available);
+            int availableIndex = engine.GetKnownSlots("Crusader").ToList().FindIndex(s => s != null && s.State == ManeuverState.Available);
             bool initiated = engine.InitiateManeuver("Crusader", availableIndex);
             Assert.IsTrue(initiated);
-            Assert.AreEqual(ManeuverState.Expended, crusader.GetKnownSlot(availableIndex).State);
+            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Crusader", availableIndex).State);
 
             // Advance Crusader turn: 1 Withheld becomes Available
             engine.AdvanceCrusaderTurn("Crusader", rng);
-            int newAvailableCount = crusader.Known.Slots.Count(s => s.State == ManeuverState.Available);
+            int newAvailableCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Available);
             Assert.AreEqual(2, newAvailableCount); // 1 unexpended + 1 newly granted
-            int newWithheldCount = crusader.Known.Slots.Count(s => s.State == ManeuverState.Withheld);
+            int newWithheldCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Withheld);
             Assert.AreEqual(2, newWithheldCount);
 
             // Reset encounter: reshuffles and redeals fresh hand of 2 available
             engine.ResetEncounter(rng);
-            Assert.AreEqual(2, crusader.Known.Slots.Count(s => s.State == ManeuverState.Available));
-            Assert.AreEqual(3, crusader.Known.Slots.Count(s => s.State == ManeuverState.Withheld));
-            Assert.AreEqual(0, crusader.Known.Slots.Count(s => s.State == ManeuverState.Expended));
+            Assert.AreEqual(2, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Available));
+            Assert.AreEqual(3, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Withheld));
+            Assert.AreEqual(0, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Expended));
         }
     }
 }

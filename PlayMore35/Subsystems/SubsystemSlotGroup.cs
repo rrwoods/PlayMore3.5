@@ -6,16 +6,17 @@ namespace PlayMore35.Subsystems {
         private readonly Func<int> capacityProvider;
         private readonly Func<int> maxLevelProvider;
         private readonly Func<TSlot, int> levelSelector;
-        private readonly List<TSlot> slots = new List<TSlot>();
+        private readonly IList<TSlot> slots;
 
-        public SubsystemSlotGroup(Func<int> capacityProvider, Func<int> maxLevelProvider = null, Func<TSlot, int> levelSelector = null) {
+        public SubsystemSlotGroup(Func<int> capacityProvider, Func<int> maxLevelProvider = null, Func<TSlot, int> levelSelector = null, IList<TSlot> storage = null) {
             this.capacityProvider = capacityProvider ?? throw new ArgumentNullException(nameof(capacityProvider));
             this.maxLevelProvider = maxLevelProvider;
             this.levelSelector = levelSelector;
+            this.slots = storage ?? new List<TSlot>();
         }
 
-        public SubsystemSlotGroup(int fixedCapacity, Func<int> maxLevelProvider = null, Func<TSlot, int> levelSelector = null)
-            : this(() => fixedCapacity, maxLevelProvider, levelSelector) {
+        public SubsystemSlotGroup(int fixedCapacity, Func<int> maxLevelProvider = null, Func<TSlot, int> levelSelector = null, IList<TSlot> storage = null)
+            : this(() => fixedCapacity, maxLevelProvider, levelSelector, storage) {
         }
 
         public int Capacity => Math.Max(0, capacityProvider());
