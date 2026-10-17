@@ -1,4 +1,4 @@
-﻿# Maneuvers and the Sublime Way
+# Maneuvers and the Sublime Way
 
 ## 1. Overview and Core Concepts
 - **Primary Source**: *Tome of Battle: The Book of Nine Swords*, pp. 5, 37–38
@@ -42,7 +42,7 @@
   - Adopted or switched as a **swift action** (*Tome of Battle*, pp. 5, 38, 43).
   - Provides a continuous, ongoing combat benefit as long as it is maintained (*Tome of Battle*, p. 43).
   - Duration is indefinite; ends immediately if the character is rendered **helpless** (*Tome of Battle*, p. 43).
-  - Only one stance can be active at a time (unless a high-level class feature explicitly allows two) (*Tome of Battle*, p. 40).
+  - Only one stance can be active at a time, unless modified by a class feature such as Warblade 20 **Stance Mastery (Ex)** which allows two stances active simultaneously and permits initiating or changing one or both stances with a single swift action (*Tome of Battle*, pp. 23, 40).
   - A stance **counts as a maneuver** solely for the purpose of meeting prerequisites (e.g. "two Iron Heart maneuvers") and level gating for acquisition (*Tome of Battle*, pp. 43–44). For all other mechanical purposes and contexts, a stance is **not** a maneuver (it is never readied, never expended, and cannot be initiated as a strike/boost/counter).
 
 ---

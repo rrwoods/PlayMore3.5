@@ -749,9 +749,9 @@ namespace PlayMore35.Tests {
             Assert.IsFalse(warblade.GetStanceSlot(1).IsActive);
         }
 
-        // Source: Tome of Battle, pp. 5, 38, 43
+        // Source: Tome of Battle, pp. 5, 23, 38, 43
         [TestMethod]
-        public void AdoptStance_PreservesBothActiveStances_WhenDualStancePermitted() {
+        public void AdoptStance_PreservesBothActiveStances_WhenActiveStancesIsTwo() {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
             var content = new TestManeuverContentProvider(stance1, stance2);
@@ -759,7 +759,7 @@ namespace PlayMore35.Tests {
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
             SetStat(context.Effects, "stances known:warblade", 2);
-            SetStat(context.Effects, "dual stance", 1);
+            SetStat(context.Effects, "active stances", 2);
             engine.Initialize(context);
 
             var warblade = engine.GetSource("Warblade");
@@ -769,15 +769,15 @@ namespace PlayMore35.Tests {
             engine.AdoptStance("Warblade", 0);
             Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
 
-            // Adopting second stance with dual stance does not clear first stance
+            // Adopting second stance with active stances = 2 does not clear first stance
             engine.AdoptStance("Warblade", 1);
             Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
             Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
         }
 
-        // Source: Tome of Battle, pp. 5, 38, 40, 43
+        // Source: Tome of Battle, pp. 5, 23, 38, 40, 43
         [TestMethod]
-        public void AdoptStance_CapsConcurrentActiveStancesAtTwo_WhenDualStancePermitted() {
+        public void AdoptStance_CapsConcurrentActiveStancesAtTwo_UsingOldestFallback_WhenNoTargetSpecified() {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
             var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
@@ -786,7 +786,7 @@ namespace PlayMore35.Tests {
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
             SetStat(context.Effects, "stances known:warblade", 3);
-            SetStat(context.Effects, "dual stance", 1);
+            SetStat(context.Effects, "active stances", 2);
             engine.Initialize(context);
 
             var warblade = engine.GetSource("Warblade");
@@ -815,6 +815,92 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
             Assert.IsFalse(warblade.GetStanceSlot(1).IsActive);
             Assert.IsTrue(warblade.GetStanceSlot(2).IsActive);
+        }
+
+        // Source: Tome of Battle, p. 23
+        [TestMethod]
+        public void AdoptStance_WithExplicitReplacementTarget_ReplacesSpecifiedStance_WhenAtCapacity() {
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "stances known:warblade", 3);
+            SetStat(context.Effects, "active stances", 2);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance"));
+            warblade.SetStanceSlot(1, new StanceSlot("Blood in the Water"));
+            warblade.SetStanceSlot(2, new StanceSlot("Hunter's Sense"));
+
+            // Adopt stances 0 and 1
+            engine.AdoptStance("Warblade", 0);
+            engine.AdoptStance("Warblade", 1);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
+
+            // Adopt stance 2, explicitly choosing to replace stance 1 (rather than oldest stance 0)
+            engine.AdoptStance("Warblade", 2, "Warblade", 1);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive, "Stance 0 should remain active");
+            Assert.IsFalse(warblade.GetStanceSlot(1).IsActive, "Stance 1 was explicitly replaced");
+            Assert.IsTrue(warblade.GetStanceSlot(2).IsActive, "Stance 2 should now be active");
+        }
+
+        // Source: Tome of Battle, p. 23
+        [TestMethod]
+        public void AdoptStances_AdoptsBothStancesSimultaneously_ClearingPrevious() {
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "stances known:warblade", 3);
+            SetStat(context.Effects, "active stances", 2);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance"));
+            warblade.SetStanceSlot(1, new StanceSlot("Blood in the Water"));
+            warblade.SetStanceSlot(2, new StanceSlot("Hunter's Sense"));
+
+            // Start in stance 2
+            engine.AdoptStance("Warblade", 2);
+            Assert.IsTrue(warblade.GetStanceSlot(2).IsActive);
+
+            // Change both stances simultaneously in a single swift action
+            engine.AdoptStances("Warblade", 0, "Warblade", 1);
+            Assert.IsTrue(warblade.GetStanceSlot(0).IsActive);
+            Assert.IsTrue(warblade.GetStanceSlot(1).IsActive);
+            Assert.IsFalse(warblade.GetStanceSlot(2).IsActive);
+        }
+
+        // Source: ADR-0001
+        [TestMethod]
+        public void ValidateStances_WarnsWhenActiveStancesExceedsCapacity() {
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var content = new TestManeuverContentProvider(stance1);
+
+            var engine = new MartialManeuverEngine(content);
+            var context = new FakeCharacterContext();
+            SetStat(context.Effects, "stances known:warblade", 2);
+            SetStat(context.Effects, "active stances", 1);
+            engine.Initialize(context);
+
+            var warblade = engine.GetSource("Warblade");
+            warblade.SetStanceSlot(0, new StanceSlot("Punishing Stance", true));
+            warblade.SetStanceSlot(1, new StanceSlot("Blood in the Water", true));
+
+            // Two active stances with active stances capacity of 1
+            var warnings = engine.ValidateStances();
+            Assert.IsTrue(warnings.Any(w => w.Contains("Active stances count (2) exceeds active stances capacity (1)")));
+
+            var maneuverWarnings = engine.ValidateManeuver("Punishing Stance", "Warblade");
+            Assert.IsTrue(maneuverWarnings.Any(w => w.Contains("Active stances count (2) exceeds active stances capacity (1)")));
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43

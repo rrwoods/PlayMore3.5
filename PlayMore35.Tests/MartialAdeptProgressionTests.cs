@@ -40,12 +40,19 @@ namespace PlayMore35.Tests {
             for (int lvl = 1; lvl <= 20; lvl++) {
                 var pool = new EffectPool(new Character());
                 pool.GenerateClassEffects(warblade, lvl);
+                for (int i = 0; i < lvl && i < warblade.ClassFeatures.Count; i++) {
+                    foreach (var f in warblade.ClassFeatures[i]) {
+                        pool.AddEffect(f);
+                    }
+                }
 
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:warblade", null), $"Warblade level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:warblade", null), $"Warblade level {lvl} known");
                 Assert.AreEqual(expectedReadied[lvl - 1], pool.GetStatValue("maneuvers readied:warblade", null), $"Warblade level {lvl} readied");
                 Assert.AreEqual(expectedStances[lvl - 1], pool.GetStatValue("stances known:warblade", null), $"Warblade level {lvl} stances");
                 Assert.AreEqual(expectedMaxLevel[lvl - 1], pool.GetStatValue("max maneuver level:warblade", null), $"Warblade level {lvl} max maneuver level");
+                int expectedActive = (lvl == 20) ? 2 : 1;
+                Assert.AreEqual(expectedActive, pool.GetStatValue("active stances", null), $"Warblade level {lvl} active stances");
             }
         }
 
@@ -70,6 +77,11 @@ namespace PlayMore35.Tests {
             for (int lvl = 1; lvl <= 20; lvl++) {
                 var pool = new EffectPool(new Character());
                 pool.GenerateClassEffects(crusader, lvl);
+                for (int i = 0; i < lvl && i < crusader.ClassFeatures.Count; i++) {
+                    foreach (var f in crusader.ClassFeatures[i]) {
+                        pool.AddEffect(f);
+                    }
+                }
 
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:crusader", null), $"Crusader level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:crusader", null), $"Crusader level {lvl} known");
@@ -77,6 +89,7 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(expectedGranted[lvl - 1], pool.GetStatValue("maneuvers granted:crusader", null), $"Crusader level {lvl} granted");
                 Assert.AreEqual(expectedStances[lvl - 1], pool.GetStatValue("stances known:crusader", null), $"Crusader level {lvl} stances");
                 Assert.AreEqual(expectedMaxLevel[lvl - 1], pool.GetStatValue("max maneuver level:crusader", null), $"Crusader level {lvl} max maneuver level");
+                Assert.AreEqual(1, pool.GetStatValue("active stances", null), $"Crusader level {lvl} active stances");
             }
         }
 
@@ -100,12 +113,18 @@ namespace PlayMore35.Tests {
             for (int lvl = 1; lvl <= 20; lvl++) {
                 var pool = new EffectPool(new Character());
                 pool.GenerateClassEffects(swordsage, lvl);
+                for (int i = 0; i < lvl && i < swordsage.ClassFeatures.Count; i++) {
+                    foreach (var f in swordsage.ClassFeatures[i]) {
+                        pool.AddEffect(f);
+                    }
+                }
 
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:swordsage", null), $"Swordsage level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:swordsage", null), $"Swordsage level {lvl} known");
                 Assert.AreEqual(expectedReadied[lvl - 1], pool.GetStatValue("maneuvers readied:swordsage", null), $"Swordsage level {lvl} readied");
                 Assert.AreEqual(expectedStances[lvl - 1], pool.GetStatValue("stances known:swordsage", null), $"Swordsage level {lvl} stances");
                 Assert.AreEqual(expectedMaxLevel[lvl - 1], pool.GetStatValue("max maneuver level:swordsage", null), $"Swordsage level {lvl} max maneuver level");
+                Assert.AreEqual(1, pool.GetStatValue("active stances", null), $"Swordsage level {lvl} active stances");
             }
         }
 
@@ -321,6 +340,36 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(original.Description, restored.Description);
             Assert.AreEqual(1, restored.Effects.Count);
             Assert.AreEqual("Custom Strike Effect", restored.Effects[0].Name);
+        }
+
+        // Source: Tome of Battle, pp. 23, 38; ADR-0010
+        [TestMethod]
+        public void ActiveStances_EvaluatesCorrectly_AcrossNonAdept_Multiclass_AndFeat() {
+            // 1. Non-adept (Fighter) has 0 active stances
+            var fighterChar = new Character();
+            for (int i = 0; i < 5; i++) fighterChar.classLevels.Add("Fighter");
+            var nonAdeptSession = new CharacterSession(fighterChar, catalog);
+            Assert.AreEqual(0, nonAdeptSession.GetStatValue("active stances", 0), "Non-adept should evaluate to 0 active stances");
+
+            // 2. Multiclass Warblade 1 / Swordsage 1 evaluates to 1 active stance (INTERNAL non-stacking bonuses overlap)
+            var multiChar = new Character();
+            multiChar.classLevels.Add("Warblade");
+            multiChar.classLevels.Add("Swordsage");
+            var multiSession = new CharacterSession(multiChar, catalog);
+            Assert.AreEqual(1, multiSession.GetStatValue("active stances", 0), "Multiclass adepts should overlap to 1 active stance");
+
+            // 3. Warblade 20 evaluates to 2 active stances (Stance Mastery untyped bonus stacks)
+            var wb20Char = new Character();
+            for (int i = 0; i < 20; i++) wb20Char.classLevels.Add("Warblade");
+            var wb20Session = new CharacterSession(wb20Char, catalog);
+            Assert.AreEqual(2, wb20Session.GetStatValue("active stances", 0), "Warblade 20 should have 2 active stances");
+
+            // 4. Martial Stance feat grants 1 active stance
+            var martialStance = catalog.GetFeat("Martial Stance");
+            Assert.IsNotNull(martialStance, "Martial Stance feat must be in catalog");
+            var featPool = new EffectPool(new Character());
+            featPool.GenerateFeatEffects(martialStance, "");
+            Assert.AreEqual(1, featPool.GetStatValue("active stances", null), "Martial Stance feat should grant 1 active stance");
         }
     }
 }

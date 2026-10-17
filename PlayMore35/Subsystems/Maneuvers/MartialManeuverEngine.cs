@@ -27,7 +27,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 if (context == null) return false;
                 if (context.GetStatValue("initiator level", 0) > 0 ||
                     context.GetStatValue("maneuvers known", 0) > 0 ||
-                    context.GetStatValue("stances known", 0) > 0) {
+                    context.GetStatValue("stances known", 0) > 0 ||
+                    context.GetStatValue(Constants.ACTIVE_STANCES, 0) > 0) {
                     return true;
                 }
 
@@ -143,6 +144,21 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 }
             }
 
+            // 5. Active stances capacity check
+            if (maneuver != null && maneuver.Type == ManeuverType.Stance) {
+                warnings.AddRange(ValidateStances());
+            }
+
+            return warnings;
+        }
+
+        public List<string> ValidateStances() {
+            var warnings = new List<string>();
+            int totalActiveStances = state.Sources.Values.Sum(s => s.ActiveStances.Count());
+            int maxActiveStances = context?.GetStatValue(Constants.ACTIVE_STANCES, 0) ?? 0;
+            if (totalActiveStances > maxActiveStances) {
+                warnings.Add($"Active stances count ({totalActiveStances}) exceeds active stances capacity ({maxActiveStances}).");
+            }
             return warnings;
         }
 
@@ -211,31 +227,45 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
         }
 
-        // Source: Tome of Battle, pp. 5, 38, 40, 43
-        public void AdoptStance(string source, int slotIndex) {
+        // Source: Tome of Battle, pp. 5, 23, 38, 40, 43
+        public void AdoptStance(string source, int slotIndex, string replaceSource = null, int? replaceSlotIndex = null) {
             var src = GetSource(source);
             var slot = src?.GetStanceSlot(slotIndex);
             if (slot == null) return;
 
-            bool dualStance = (context?.GetStatValue("dual stance", 0) ?? 0) > 0;
-            if (!dualStance) {
+            int maxActive = context?.GetStatValue(Constants.ACTIVE_STANCES, 1) ?? 1;
+
+            if (maxActive <= 1) {
                 ExitAllStances();
             } else {
-                var activeStances = new List<(ManeuverSourceState Source, StanceSlot Slot)>();
+                var activeStances = new List<(ManeuverSourceState Source, StanceSlot Slot, string SourceKey, int SlotIndex)>();
                 var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
                 foreach (var sourceKey in allSources) {
                     if (!state.Sources.ContainsKey(sourceKey)) continue;
                     var sState = state.Sources[sourceKey];
                     if (sState.Stances != null) {
-                        foreach (var s in sState.Stances.Slots) {
+                        for (int i = 0; i < sState.Stances.Slots.Count; i++) {
+                            var s = sState.Stances.Slots[i];
                             if (s != null && s.IsActive && s != slot) {
-                                activeStances.Add((sState, s));
+                                activeStances.Add((sState, s, sourceKey, i));
                             }
                         }
                     }
                 }
 
-                while (activeStances.Count >= 2) {
+                // If caller specified an explicit replacement target, deactivate it
+                if (!string.IsNullOrEmpty(replaceSource) && replaceSlotIndex.HasValue) {
+                    var target = activeStances.FirstOrDefault(a =>
+                        string.Equals(a.SourceKey, replaceSource, StringComparison.OrdinalIgnoreCase) &&
+                        a.SlotIndex == replaceSlotIndex.Value);
+                    if (target.Slot != null) {
+                        target.Slot.IsActive = false;
+                        target.Source.SyncToSaved();
+                        activeStances.Remove(target);
+                    }
+                }
+
+                while (activeStances.Count >= maxActive) {
                     var oldest = activeStances[0];
                     oldest.Slot.IsActive = false;
                     oldest.Source.SyncToSaved();
@@ -245,6 +275,27 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
             slot.IsActive = true;
             src.SyncToSaved();
+        }
+
+        // Source: Tome of Battle, p. 23
+        public void AdoptStances(string source1, int slotIndex1, string source2, int slotIndex2) {
+            var src1 = GetSource(source1);
+            var slot1 = src1?.GetStanceSlot(slotIndex1);
+            var src2 = GetSource(source2);
+            var slot2 = src2?.GetStanceSlot(slotIndex2);
+
+            if (slot1 == null && slot2 == null) return;
+
+            ExitAllStances();
+
+            if (slot1 != null) {
+                slot1.IsActive = true;
+                src1.SyncToSaved();
+            }
+            if (slot2 != null && slot2 != slot1) {
+                slot2.IsActive = true;
+                src2.SyncToSaved();
+            }
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43

@@ -174,6 +174,7 @@ namespace PlayMore35.Effects {
         public static readonly string SACRED = "sacred";
         public static readonly string SHIELD = "shield";
         public static readonly string SIZE = "size";
+        public static readonly string INTERNAL = "internal";
         public static readonly string UNTYPED = "untyped"; // no type listed in explainer
         public static readonly string BASE = "base"; // "bonus" type for the base number for a statistic, no type listed
         public static readonly string ABILITY_MODIFIER = "ability modifier"; // listed after base with no type
@@ -308,5 +309,6 @@ namespace PlayMore35.Effects {
         public static readonly string INITIATOR_LEVEL_CRUSADER = "initiator level:crusader";
         public static readonly string INITIATOR_LEVEL_SWORDSAGE = "initiator level:swordsage";
         public static readonly string INITIATOR_LEVEL_FEATS = "initiator level:feats";
+        public static readonly string ACTIVE_STANCES = "active stances";
     }
 }

@@ -397,10 +397,52 @@
     "armor proficiencies": [ "LIGHT", "MEDIUM" ],
     "shield proficiencies": [ "normal" ],
     "class features": [
-      [], [], [], [], [],
-      [], [], [], [], [],
-      [], [], [], [], [],
-      [], [], [], [], []
+      [
+        {
+          "name": "active stances:warblade",
+          "modifiers": [
+            {
+              "affects": "active stances",
+              "mod": {
+                "type": "internal",
+                "amounts": [ { "fixed": 1 } ]
+              }
+            }
+          ]
+        }
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [
+        {
+          "name": "stance mastery",
+          "modifiers": [
+            {
+              "affects": "active stances",
+              "mod": {
+                "type": "untyped",
+                "amounts": [ { "fixed": 1 } ]
+              }
+            }
+          ]
+        }
+      ]
     ],
     "subsystems": {
       "martial_maneuvers": {
@@ -410,7 +452,8 @@
           "maneuvers known:warblade",
           "maneuvers readied:warblade",
           "stances known:warblade",
-          "max maneuver level:warblade"
+          "max maneuver level:warblade",
+          "active stances"
         ],
         "effects": [
           {
@@ -611,10 +654,39 @@
     "armor proficiencies": [ "LIGHT", "MEDIUM", "HEAVY" ],
     "shield proficiencies": [ "normal", "tower" ],
     "class features": [
-      [], [], [], [], [],
-      [], [], [], [], [],
-      [], [], [], [], [],
-      [], [], [], [], []
+      [
+        {
+          "name": "active stances:crusader",
+          "modifiers": [
+            {
+              "affects": "active stances",
+              "mod": {
+                "type": "internal",
+                "amounts": [{ "fixed": 1 }]
+              }
+            }
+          ]
+        }
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
     ],
     "subsystems": {
       "martial_maneuvers": {
@@ -625,7 +697,8 @@
           "maneuvers readied:crusader",
           "stances known:crusader",
           "max maneuver level:crusader",
-          "maneuvers granted:crusader"
+          "maneuvers granted:crusader",
+          "active stances"
         ],
         "effects": [
           {
@@ -852,10 +925,39 @@
     "armor proficiencies": [ "LIGHT" ],
     "shield proficiencies": [],
     "class features": [
-      [], [], [], [], [],
-      [], [], [], [], [],
-      [], [], [], [], [],
-      [], [], [], [], []
+      [
+        {
+          "name": "active stances:swordsage",
+          "modifiers": [
+            {
+              "affects": "active stances",
+              "mod": {
+                "type": "internal",
+                "amounts": [ { "fixed": 1 } ]
+              }
+            }
+          ]
+        }
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
     ],
     "subsystems": {
       "martial_maneuvers": {
@@ -865,7 +967,8 @@
           "maneuvers known:swordsage",
           "maneuvers readied:swordsage",
           "stances known:swordsage",
-          "max maneuver level:swordsage"
+          "max maneuver level:swordsage",
+          "active stances"
         ],
         "effects": [
           {

@@ -10,6 +10,10 @@
   },
   "stats": [
     {
+      "name": "active stances",
+      "min": 0
+    },
+    {
       "name": "STR score",
       "min": 0
     },

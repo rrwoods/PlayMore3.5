@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,6 +28,7 @@ namespace PlayMore35.Effects {
             PROFANE,
             ALCHEMICAL,
             CIRCUMSTANCE,
+            INTERNAL,
             //UNTYPED,
         };
 
