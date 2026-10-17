@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Rules;
 
 namespace PlayMore35.Subsystems.Maneuvers {
     public class MartialManeuverEngine : ISubsystemEngine {
@@ -17,7 +18,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             return $"initiator level:{source.Trim().ToLowerInvariant()}";
         }
 
-        private readonly ISubsystemContentProvider contentProvider;
+        private IRulesCatalog catalog;
         private ICharacterContext context;
         private MartialManeuverState state;
 
@@ -25,8 +26,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public MartialManeuverState State => state;
 
-        public MartialManeuverEngine(ISubsystemContentProvider contentProvider = null, MartialManeuverState state = null) {
-            this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
+        public MartialManeuverEngine(IRulesCatalog catalog = null, MartialManeuverState state = null) {
+            this.catalog = catalog ?? new GameRulesCatalog();
             this.state = state ?? new MartialManeuverState();
         }
 
@@ -56,6 +57,9 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public void Initialize(ICharacterContext context) {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            if (context.Catalog != null) {
+                this.catalog = context.Catalog;
+            }
             if (context.Character != null) {
                 if (context.Character.Subsystems.TryGetValue(SubsystemId, out var existingState) && existingState is MartialManeuverState mState) {
                     this.state = mState;
@@ -90,13 +94,13 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 () => context?.GetStatValue($"max maneuver level:{lower}", 0) ?? int.MaxValue,
                 slot => {
                     if (slot == null || string.IsNullOrEmpty(slot.ManeuverName)) return 0;
-                    return contentProvider.GetManeuver(slot.ManeuverName)?.Level ?? 0;
+                    return catalog.GetManeuver(slot.ManeuverName)?.Level ?? 0;
                 },
                 () => context?.GetStatValue($"stances known:{lower}", 0) ?? 0,
                 () => context?.GetStatValue($"max maneuver level:{lower}", 0) ?? int.MaxValue,
                 slot => {
                     if (slot == null || string.IsNullOrEmpty(slot.StanceName)) return 0;
-                    return contentProvider.GetManeuver(slot.StanceName)?.Level ?? 0;
+                    return catalog.GetManeuver(slot.StanceName)?.Level ?? 0;
                 }
             );
         }
@@ -107,7 +111,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 return warnings;
             }
 
-            var maneuver = contentProvider.GetManeuver(maneuverName);
+            var maneuver = catalog.GetManeuver(maneuverName);
             if (maneuver == null) {
                 warnings.Add($"Maneuver '{maneuverName}' is not recognized in the rules catalog.");
                 return warnings;
@@ -176,7 +180,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             foreach (var src in state.Sources.Values) {
                 foreach (var name in src.AllKnownManeuverNames()) {
                     if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
-                        var m = contentProvider.GetManeuver(name);
+                        var m = catalog.GetManeuver(name);
                         if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
                             distinctKnown.Add(name);
                         }
@@ -185,7 +189,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
                 foreach (var name in src.AllStanceNames()) {
                     if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
-                        var m = contentProvider.GetManeuver(name);
+                        var m = catalog.GetManeuver(name);
                         if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
                             distinctKnown.Add(name);
                         }
@@ -202,7 +206,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             foreach (var source in state.Sources.Values) {
                 foreach (var stance in source.ActiveStances) {
                     if (string.IsNullOrEmpty(stance.StanceName)) continue;
-                    var maneuver = contentProvider.GetManeuver(stance.StanceName);
+                    var maneuver = catalog.GetManeuver(stance.StanceName);
                     if (maneuver?.Effects != null) {
                         foreach (var effect in maneuver.Effects) {
                             pool.AddEffect(effect);
@@ -226,7 +230,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             if (actions == null) return;
             foreach (var action in actions.OfType<ManeuverSheetAction>()) {
                 if (string.IsNullOrEmpty(action.ManeuverName)) continue;
-                var maneuver = contentProvider.GetManeuver(action.ManeuverName);
+                var maneuver = catalog.GetManeuver(action.ManeuverName);
                 if (maneuver?.Effects != null) {
                     foreach (var effect in maneuver.Effects) {
                         pool.AddEffect(effect);
@@ -375,7 +379,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             slot.State = ManeuverState.Expended;
             src.SyncToSaved();
 
-            var maneuver = !string.IsNullOrEmpty(slot.ManeuverName) ? contentProvider.GetManeuver(slot.ManeuverName) : null;
+            var maneuver = !string.IsNullOrEmpty(slot.ManeuverName) ? catalog.GetManeuver(slot.ManeuverName) : null;
             if (maneuver != null && (maneuver.Type == ManeuverType.Boost || maneuver.Type == ManeuverType.Counter)) {
                 if (context?.Timeline != null) {
                     context.Timeline.Schedule(new ManeuverSheetAction(maneuver.Name, source, "1 round"), "1 round", context);

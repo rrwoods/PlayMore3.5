@@ -108,8 +108,6 @@
     <Compile Include="Global\SheetAction.cs" />
     <Compile Include="Subsystems\ISubsystemEngine.cs" />
     <Compile Include="Subsystems\SubsystemRegistry.cs" />
-    <Compile Include="Subsystems\ISubsystemContentProvider.cs" />
-    <Compile Include="Subsystems\ResourceSubsystemContentProvider.cs" />
     <Compile Include="Subsystems\SubsystemSlotGroup.cs" />
     <Compile Include="Subsystems\PactMagic\PactState.cs" />
     <Compile Include="Subsystems\PactMagic\PactSlot.cs" />

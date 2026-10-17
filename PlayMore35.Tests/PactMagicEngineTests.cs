@@ -8,6 +8,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
@@ -16,24 +17,6 @@ using static PlayMore35.Subsystems.PactMagic.PactMagicEngine;
 namespace PlayMore35.Tests {
     [TestClass]
     public class PactMagicEngineTests {
-
-        private class TestContentProvider : ISubsystemContentProvider {
-            private readonly Dictionary<string, Vestige> vestiges;
-
-            public TestContentProvider(params Vestige[] list) {
-                vestiges = list.ToDictionary(v => v.Name, v => v);
-            }
-
-            public IEnumerable<Vestige> GetVestiges() => vestiges.Values;
-
-            public Vestige GetVestige(string name) {
-                return vestiges.TryGetValue(name, out var v) ? v : null;
-            }
-
-            public IEnumerable<PlayMore35.Subsystems.Maneuvers.Maneuver> GetManeuvers() => Enumerable.Empty<PlayMore35.Subsystems.Maneuvers.Maneuver>();
-
-            public PlayMore35.Subsystems.Maneuvers.Maneuver GetManeuver(string name) => null;
-        }
 
         private static Vestige CreateTestVestige(string name, int level = 1, int dc = 15) {
             var ability = new Effect($"{name} Granted Armor")
@@ -82,7 +65,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void PactMagicEngine_IsActive_WhenNumberOfVestigesExceedsZero() {
             var vestige = CreateTestVestige("Aym");
-            var contentProvider = new TestContentProvider(vestige);
+            var contentProvider = new FakeRulesCatalog(vestige);
             var engine = new PactMagicEngine(contentProvider);
             var context = new FakeCharacterContext();
 
@@ -105,7 +88,7 @@ namespace PlayMore35.Tests {
         public void PactMagicEngine_BindingAndSlotClamping_UsesSubsystemSlotGroup() {
             var vestigeA = CreateTestVestige("Aym", 1, 15);
             var vestigeB = CreateTestVestige("Ronove", 1, 15);
-            var contentProvider = new TestContentProvider(vestigeA, vestigeB);
+            var contentProvider = new FakeRulesCatalog(vestigeA, vestigeB);
             var engine = new PactMagicEngine(contentProvider);
             var context = new FakeCharacterContext();
 
@@ -138,7 +121,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void PactMagicEngine_BindingDc_AndCheckBonus_CalculatedCorrectly() {
             var vestige = CreateTestVestige("Aym", 1, 20);
-            var contentProvider = new TestContentProvider(vestige);
+            var contentProvider = new FakeRulesCatalog(vestige);
             var engine = new PactMagicEngine(contentProvider);
             var context = new FakeCharacterContext();
 
@@ -154,7 +137,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void PactMagicEngine_ContributeEffects_AddsAbilitiesInfluenceAndDefianceDebuffs() {
             var vestige = CreateTestVestige("Aym", 1, 15);
-            var contentProvider = new TestContentProvider(vestige);
+            var contentProvider = new FakeRulesCatalog(vestige);
             var engine = new PactMagicEngine(contentProvider);
             var context = new FakeCharacterContext();
 
@@ -441,7 +424,7 @@ namespace PlayMore35.Tests {
         public void PactMagicEngine_SlotLevelValidation_ReflectsVestigeLevelAndMaxVestigeLevel() {
             var vestige1 = CreateTestVestige("Aym", 1, 15);
             var vestige2 = CreateTestVestige("Savnok", 2, 15);
-            var contentProvider = new TestContentProvider(vestige1, vestige2);
+            var contentProvider = new FakeRulesCatalog(vestige1, vestige2);
             var engine = new PactMagicEngine(contentProvider);
             var context = new FakeCharacterContext();
 

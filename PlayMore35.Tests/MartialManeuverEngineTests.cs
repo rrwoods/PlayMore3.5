@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
@@ -13,24 +14,6 @@ using static PlayMore35.Effects.Constants;
 namespace PlayMore35.Tests {
     [TestClass]
     public class MartialManeuverEngineTests {
-
-        private class TestManeuverContentProvider : ISubsystemContentProvider {
-            private readonly Dictionary<string, Maneuver> maneuvers;
-
-            public TestManeuverContentProvider(params Maneuver[] list) {
-                maneuvers = list.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);
-            }
-
-            public IEnumerable<Vestige> GetVestiges() => Enumerable.Empty<Vestige>();
-            public Vestige GetVestige(string name) => null;
-
-            public IEnumerable<Maneuver> GetManeuvers() => maneuvers.Values;
-
-            public Maneuver GetManeuver(string name) {
-                if (string.IsNullOrEmpty(name)) return null;
-                return maneuvers.TryGetValue(name, out var m) ? m : null;
-            }
-        }
 
         private static Maneuver CreateManeuver(string name, string discipline, int level, ManeuverType type = ManeuverType.Strike, int prereqCount = 0) {
             return new Maneuver {
@@ -275,7 +258,7 @@ namespace PlayMore35.Tests {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
             var m2 = CreateManeuver("Iron Heart Surge", "Iron Heart", 3);
             var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var content = new TestManeuverContentProvider(m1, m2, stance);
+            var content = new FakeRulesCatalog(m1, m2, stance);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -304,7 +287,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateManeuver_WarnsWhenLevelExceedsMaxManeuverLevel() {
             var m3 = CreateManeuver("Iron Heart Surge", "Iron Heart", 3);
-            var content = new TestManeuverContentProvider(m3);
+            var content = new FakeRulesCatalog(m3);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -320,7 +303,7 @@ namespace PlayMore35.Tests {
         public void ValidateManeuver_WarnsWhenDisciplinePrerequisitesUnmet() {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
             var m2 = CreateManeuver("Disarming Strike", "Iron Heart", 2, ManeuverType.Strike, prereqCount: 1);
-            var content = new TestManeuverContentProvider(m1, m2);
+            var content = new FakeRulesCatalog(m1, m2);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -345,7 +328,7 @@ namespace PlayMore35.Tests {
         public void ValidateManeuver_StancesCountTowardDisciplinePrerequisites() {
             var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var m2 = CreateManeuver("Disarming Strike", "Iron Heart", 2, ManeuverType.Strike, prereqCount: 1);
-            var content = new TestManeuverContentProvider(stance, m2);
+            var content = new FakeRulesCatalog(stance, m2);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -366,7 +349,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateManeuver_WarnsWhenLearnedUnderAnotherSource() {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
-            var content = new TestManeuverContentProvider(m1);
+            var content = new FakeRulesCatalog(m1);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -387,7 +370,7 @@ namespace PlayMore35.Tests {
         public void ValidateManeuver_WarnsWhenReadiedCountExceedsCapacity() {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
             var m2 = CreateManeuver("Steely Strike", "Iron Heart", 1);
-            var content = new TestManeuverContentProvider(m1, m2);
+            var content = new FakeRulesCatalog(m1, m2);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -409,7 +392,7 @@ namespace PlayMore35.Tests {
         public void ValidateManeuver_WarnsWhenReadiedCountBelowCapacity() {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
             var m2 = CreateManeuver("Steely Strike", "Iron Heart", 1);
-            var content = new TestManeuverContentProvider(m1, m2);
+            var content = new FakeRulesCatalog(m1, m2);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -712,7 +695,7 @@ namespace PlayMore35.Tests {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
             var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
-            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+            var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -754,7 +737,7 @@ namespace PlayMore35.Tests {
         public void AdoptStance_PreservesBothActiveStances_WhenActiveStancesIsTwo() {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
-            var content = new TestManeuverContentProvider(stance1, stance2);
+            var content = new FakeRulesCatalog(stance1, stance2);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -781,7 +764,7 @@ namespace PlayMore35.Tests {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
             var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
-            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+            var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -823,7 +806,7 @@ namespace PlayMore35.Tests {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
             var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
-            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+            var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -855,7 +838,7 @@ namespace PlayMore35.Tests {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
             var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
             var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
-            var content = new TestManeuverContentProvider(stance1, stance2, stance3);
+            var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -883,7 +866,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateStances_WarnsWhenActiveStancesExceedsCapacity() {
             var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var content = new TestManeuverContentProvider(stance1);
+            var content = new FakeRulesCatalog(stance1);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -915,7 +898,7 @@ namespace PlayMore35.Tests {
                 Type = ManeuverType.Stance,
                 Effects = new List<Effect> { stanceEffect }
             };
-            var content = new TestManeuverContentProvider(stance);
+            var content = new FakeRulesCatalog(stance);
 
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
@@ -954,7 +937,7 @@ namespace PlayMore35.Tests {
             };
             var counter = CreateManeuver("Fire Riposte", "Desert Wind", 2, ManeuverType.Counter);
             var strike = CreateManeuver("Steel Strike", "Iron Heart", 1, ManeuverType.Strike);
-            var content = new TestManeuverContentProvider(boost, counter, strike);
+            var content = new FakeRulesCatalog(boost, counter, strike);
 
             var engine = new MartialManeuverEngine(content);
             var character = new Character();
@@ -1047,7 +1030,7 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 38, 43, 56, 66, 73, 85, 90
         [TestMethod]
         public void MartialManeuverEngine_FullCatalogStanceActivation_ModifiesStatsAcrossClasses() {
-            var content = new ResourceSubsystemContentProvider();
+            var content = new GameRulesCatalog();
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
 
@@ -1118,7 +1101,7 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 38–40
         [TestMethod]
         public void MartialManeuverEngine_FullCatalogRecovery_OperatesAcrossCrusaderSwordsageAndWarblade() {
-            var content = new ResourceSubsystemContentProvider();
+            var content = new GameRulesCatalog();
             var engine = new MartialManeuverEngine(content);
             var context = new FakeCharacterContext();
 

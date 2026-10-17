@@ -292,23 +292,23 @@ namespace PlayMore35.Tests {
 
         // Source: Tome of Battle, pp. 37–46
         [TestMethod]
-        public void ResourceSubsystemContentProvider_LoadsManeuversCatalogCleanly() {
-            var provider = new ResourceSubsystemContentProvider();
-            var all = provider.GetManeuvers().ToList();
+        public void GameRulesCatalog_LoadsManeuversCatalogCleanly() {
+            var catalog = new GameRulesCatalog();
+            var all = catalog.Maneuvers.Values.ToList();
             Assert.IsTrue(all.Count >= 190);
 
-            var strike = provider.GetManeuver("Steely Strike");
+            var strike = catalog.GetManeuver("Steely Strike");
             Assert.IsNotNull(strike);
             Assert.AreEqual("Iron Heart", strike.Discipline);
             Assert.AreEqual(ManeuverType.Strike, strike.Type);
 
-            var stance = provider.GetManeuver("Punishing Stance");
+            var stance = catalog.GetManeuver("Punishing Stance");
             Assert.IsNotNull(stance);
             Assert.AreEqual(ManeuverType.Stance, stance.Type);
             Assert.IsTrue(stance.Effects.Count > 0, "Punishing Stance should have effects defined.");
 
             // Case-insensitive lookup
-            var caseInsensitive = provider.GetManeuver("punishing stance");
+            var caseInsensitive = catalog.GetManeuver("punishing stance");
             Assert.IsNotNull(caseInsensitive);
         }
 

@@ -26,6 +26,7 @@ namespace PlayMore35.Rules {
         public IReadOnlyDictionary<string, Item> Items { get; }
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; }
         public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
+        public IReadOnlyDictionary<string, Vestige> Vestiges { get; }
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots { get; }
         public IReadOnlyList<Statistic> CoreStats { get; }
@@ -143,6 +144,12 @@ namespace PlayMore35.Rules {
                 .Select(x => new Maneuver((JObject)x))
                 .ToDictionary(x => x.Name);
             Maneuvers = new ReadOnlyDictionary<string, Maneuver>(maneuvers);
+
+            // 11. Vestiges
+            var vestiges = GetResource(Properties.Resources.vestiges, "vestiges.json")
+                .Select(x => new Vestige((JObject)x))
+                .ToDictionary(x => x.Name);
+            Vestiges = new ReadOnlyDictionary<string, Vestige>(vestiges);
         }
 
         private JToken GetResource(byte[] resource, string altFilename) {
@@ -193,6 +200,8 @@ namespace PlayMore35.Rules {
         public ExternalEffect GetExternalEffect(string name) => FindEntity(ExternalEffects, name, x => x.Effect?.Name);
 
         public Maneuver GetManeuver(string name) => FindEntity(Maneuvers, name, x => x.Name);
+ 
+        public Vestige GetVestige(string name) => FindEntity(Vestiges, name, x => x.Name);
 
         public IEnumerable<string> ChoicesForKey(string choiceDescription) {
             switch (choiceDescription) {

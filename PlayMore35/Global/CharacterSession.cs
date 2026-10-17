@@ -37,6 +37,7 @@ namespace PlayMore35.Global {
         Equipped ICharacterContext.EquippedItems => equippedItems;
         Timeline ICharacterContext.Timeline => Timeline;
         SubsystemRegistry ICharacterContext.Subsystems => subsystems;
+        IRulesCatalog ICharacterContext.Catalog => catalog;
 
         List<AttackRoutine> ICharacterContext.GetAllRoutines() => GetAllRoutines().ToList();
         List<AttackRoutine> ICharacterContext.GetVisibleRoutines() => GetVisibleRoutines().ToList();

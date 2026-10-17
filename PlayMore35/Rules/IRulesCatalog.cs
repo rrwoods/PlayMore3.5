@@ -18,6 +18,7 @@ namespace PlayMore35.Rules {
         IReadOnlyDictionary<string, Item> Items { get; }
         IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; }
         IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
+        IReadOnlyDictionary<string, Vestige> Vestiges { get; }
 
         Race GetRace(string name);
         CharacterClass GetClass(string name);
@@ -30,6 +31,7 @@ namespace PlayMore35.Rules {
         Item GetItem(string name);
         ExternalEffect GetExternalEffect(string name);
         Maneuver GetManeuver(string name);
+        Vestige GetVestige(string name);
 
         IEnumerable<string> ChoicesForKey(string choiceDescription);
 
