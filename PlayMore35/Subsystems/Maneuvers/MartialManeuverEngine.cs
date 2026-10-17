@@ -132,17 +132,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
             return group;
         }
 
-        public int GetKnownCapacity(string source) => GetKnownSlotGroup(source).Capacity;
-
-        public int GetStanceCapacity(string source) => GetStanceSlotGroup(source).Capacity;
-
-        public int GetKnownMaxLevel(string source) => GetKnownSlotGroup(source).MaxLevel;
-
-        public int GetStanceMaxLevel(string source) => GetStanceSlotGroup(source).MaxLevel;
-
-        public bool IsKnownSlotLevelValid(string source, int slotIndex) => GetKnownSlotGroup(source).IsSlotLevelValid(slotIndex);
-
-        public bool IsStanceSlotLevelValid(string source, int slotIndex) => GetStanceSlotGroup(source).IsSlotLevelValid(slotIndex);
 
         public KnownManeuverSlot GetKnownSlot(string source, int slotIndex) {
             if (slotIndex < 0) return null;
