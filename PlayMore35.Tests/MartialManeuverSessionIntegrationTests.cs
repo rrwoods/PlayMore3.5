@@ -70,10 +70,10 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            Assert.AreEqual(6, engine.GetKnownCapacity("Warblade"));
-            Assert.AreEqual(2, engine.GetStanceCapacity("Warblade"));
-            Assert.AreEqual(3, engine.GetKnownMaxLevel("Warblade"));
-            Assert.AreEqual(3, engine.GetStanceMaxLevel("Warblade"));
+            Assert.AreEqual(6, engine.GetKnownSlotGroup("Warblade").Capacity);
+            Assert.AreEqual(2, engine.GetStanceSlotGroup("Warblade").Capacity);
+            Assert.AreEqual(3, engine.GetKnownSlotGroup("Warblade").MaxLevel);
+            Assert.AreEqual(3, engine.GetStanceSlotGroup("Warblade").MaxLevel);
         }
 
         // Source: Tome of Battle, p. 39
@@ -100,8 +100,8 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            Assert.AreEqual(3, engine.GetKnownMaxLevel("Warblade"));
-            Assert.AreEqual(2, engine.GetKnownMaxLevel("Crusader"));
+            Assert.AreEqual(3, engine.GetKnownSlotGroup("Warblade").MaxLevel);
+            Assert.AreEqual(2, engine.GetKnownSlotGroup("Crusader").MaxLevel);
         }
 
         // Source: Tome of Battle, pp. 39, 52
@@ -125,8 +125,8 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            Assert.AreEqual(1, engine.GetKnownCapacity("Feats"));
-            Assert.AreEqual(1, engine.GetKnownMaxLevel("Feats"));
+            Assert.AreEqual(1, engine.GetKnownSlotGroup("Feats").Capacity);
+            Assert.AreEqual(1, engine.GetKnownSlotGroup("Feats").MaxLevel);
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43, 69

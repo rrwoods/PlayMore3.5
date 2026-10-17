@@ -267,18 +267,18 @@ namespace PlayMore35.Tests {
             engine.Initialize(context);
             engine.Initialize(context);
 
-            Assert.AreEqual(3, engine.GetKnownCapacity("Warblade"));
-            Assert.AreEqual(2, engine.GetKnownMaxLevel("Warblade"));
-            Assert.AreEqual(1, engine.GetStanceCapacity("Warblade"));
-            Assert.AreEqual(2, engine.GetStanceMaxLevel("Warblade"));
+            Assert.AreEqual(3, engine.GetKnownSlotGroup("Warblade").Capacity);
+            Assert.AreEqual(2, engine.GetKnownSlotGroup("Warblade").MaxLevel);
+            Assert.AreEqual(1, engine.GetStanceSlotGroup("Warblade").Capacity);
+            Assert.AreEqual(2, engine.GetStanceSlotGroup("Warblade").MaxLevel);
 
             // Slot 0 with level 1 maneuver is valid
             engine.SetKnownSlot("Warblade", 0, new KnownManeuverSlot("Steel Strike"));
-            Assert.IsTrue(engine.IsKnownSlotLevelValid("Warblade", 0));
+            Assert.IsTrue(engine.GetKnownSlotGroup("Warblade").IsSlotLevelValid(0));
 
             // Slot 1 with level 3 maneuver exceeds max level 2 (ADR-0001: accepts but reports invalid)
             engine.SetKnownSlot("Warblade", 1, new KnownManeuverSlot("Iron Heart Surge"));
-            Assert.IsFalse(engine.IsKnownSlotLevelValid("Warblade", 1));
+            Assert.IsFalse(engine.GetKnownSlotGroup("Warblade").IsSlotLevelValid(1));
         }
 
         // Source: Tome of Battle, p. 39
