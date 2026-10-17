@@ -7,7 +7,15 @@ using PlayMore35.Global;
 namespace PlayMore35.Subsystems.Maneuvers {
     public class MartialManeuverEngine : ISubsystemEngine {
         public const string SubsystemId = "martial_maneuvers";
+        public const string ACTIVE_STANCES = "active stances";
         public static readonly string[] StandardSources = new[] { "Warblade", "Crusader", "Swordsage", "Feats" };
+
+        public static string InitiatorLevelStat(string source = null) {
+            if (string.IsNullOrWhiteSpace(source)) {
+                return "initiator level";
+            }
+            return $"initiator level:{source.Trim().ToLowerInvariant()}";
+        }
 
         private readonly ISubsystemContentProvider contentProvider;
         private ICharacterContext context;
@@ -25,17 +33,17 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public bool IsActive {
             get {
                 if (context == null) return false;
-                if (context.GetStatValue("initiator level", 0) > 0 ||
+                if (context.GetStatValue(InitiatorLevelStat(), 0) > 0 ||
                     context.GetStatValue("maneuvers known", 0) > 0 ||
                     context.GetStatValue("stances known", 0) > 0 ||
-                    context.GetStatValue(Constants.ACTIVE_STANCES, 0) > 0) {
+                    context.GetStatValue(ACTIVE_STANCES, 0) > 0) {
                     return true;
                 }
 
                 var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase);
                 foreach (var source in allSources) {
                     string lower = source.ToLowerInvariant();
-                    if (context.GetStatValue($"initiator level:{lower}", 0) > 0 ||
+                    if (context.GetStatValue(InitiatorLevelStat(source), 0) > 0 ||
                         context.GetStatValue($"maneuvers known:{lower}", 0) > 0 ||
                         context.GetStatValue($"stances known:{lower}", 0) > 0) {
                         return true;
@@ -155,7 +163,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public List<string> ValidateStances() {
             var warnings = new List<string>();
             int totalActiveStances = state.Sources.Values.Sum(s => s.ActiveStances.Count());
-            int maxActiveStances = context?.GetStatValue(Constants.ACTIVE_STANCES, 0) ?? 0;
+            int maxActiveStances = context?.GetStatValue(ACTIVE_STANCES, 0) ?? 0;
             if (totalActiveStances > maxActiveStances) {
                 warnings.Add($"Active stances count ({totalActiveStances}) exceeds active stances capacity ({maxActiveStances}).");
             }
@@ -233,7 +241,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             var slot = src?.GetStanceSlot(slotIndex);
             if (slot == null) return;
 
-            int maxActive = context?.GetStatValue(Constants.ACTIVE_STANCES, 1) ?? 1;
+            int maxActive = context?.GetStatValue(ACTIVE_STANCES, 1) ?? 1;
 
             if (maxActive <= 1) {
                 ExitAllStances();

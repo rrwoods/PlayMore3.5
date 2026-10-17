@@ -299,16 +299,6 @@ namespace PlayMore35.Effects {
             "Abjuration", "Conjuration", "Divination", "Enchantment", "Evocation", "Illusion", "Necromancy", "Transmutation"
         };
 
-        public static readonly string EFFECTIVE_BINDER_LEVEL = "effective binder level";
-        public static readonly string BINDING_CHECK = "binding check";
-        public static readonly string MAX_VESTIGE_LEVEL = "maximum vestige level";
-        public static readonly string NUM_VESTIGES = "number of vestiges";
-
         public static readonly string CHARACTER_LEVEL = "character level";
-        public static readonly string INITIATOR_LEVEL_WARBLADE = "initiator level:warblade";
-        public static readonly string INITIATOR_LEVEL_CRUSADER = "initiator level:crusader";
-        public static readonly string INITIATOR_LEVEL_SWORDSAGE = "initiator level:swordsage";
-        public static readonly string INITIATOR_LEVEL_FEATS = "initiator level:feats";
-        public static readonly string ACTIVE_STANCES = "active stances";
     }
 }

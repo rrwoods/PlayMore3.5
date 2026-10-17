@@ -8,6 +8,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
@@ -83,8 +84,8 @@ namespace PlayMore35.Tests {
             var engine = new PactMagicEngine();
             context.Subsystems.Register(engine, "vestige");
 
-            context.Effects.AddStat(new Statistic(Constants.NUM_VESTIGES));
-            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(Constants.NUM_VESTIGES, new Modifier(1, Constants.UNTYPED)));
+            context.Effects.AddStat(new Statistic(PactMagicEngine.NUM_VESTIGES));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, Constants.UNTYPED)));
             engine.Initialize(context);
 
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
@@ -94,6 +95,47 @@ namespace PlayMore35.Tests {
             action.Perform(context);
 
             Assert.IsNull(engine.CurrentVestige(0));
+        }
+
+        [TestMethod]
+        public void CoreConstants_ContainsNoSubsystemStatistics() {
+            var fields = typeof(Constants).GetFields(BindingFlags.Public | BindingFlags.Static);
+            var names = fields.Select(f => f.Name).ToList();
+            var values = fields.Where(f => f.FieldType == typeof(string)).Select(f => (string)f.GetValue(null)).ToList();
+
+            CollectionAssert.DoesNotContain(names, "NUM_VESTIGES");
+            CollectionAssert.DoesNotContain(names, "BINDING_CHECK");
+            CollectionAssert.DoesNotContain(names, "MAX_VESTIGE_LEVEL");
+            CollectionAssert.DoesNotContain(names, "EFFECTIVE_BINDER_LEVEL");
+            CollectionAssert.DoesNotContain(names, "ACTIVE_STANCES");
+            CollectionAssert.DoesNotContain(names, "INITIATOR_LEVEL_WARBLADE");
+            CollectionAssert.DoesNotContain(names, "INITIATOR_LEVEL_CRUSADER");
+            CollectionAssert.DoesNotContain(names, "INITIATOR_LEVEL_SWORDSAGE");
+            CollectionAssert.DoesNotContain(names, "INITIATOR_LEVEL_FEATS");
+
+            Assert.IsFalse(values.Any(v => v != null && v.Contains("vestige")), "Constants must not contain vestige stats.");
+            Assert.IsFalse(values.Any(v => v != null && v.Contains("stances")), "Constants must not contain stance stats.");
+            Assert.IsFalse(values.Any(v => v != null && v.Contains("initiator level:")), "Constants must not contain specific initiator level stats.");
+        }
+
+        [TestMethod]
+        public void SubsystemEngines_DefineSubsystemStatistics() {
+            Assert.AreEqual("number of vestiges", PactMagicEngine.NUM_VESTIGES);
+            Assert.AreEqual("binding check", PactMagicEngine.BINDING_CHECK);
+            Assert.AreEqual("maximum vestige level", PactMagicEngine.MAX_VESTIGE_LEVEL);
+            Assert.AreEqual("effective binder level", PactMagicEngine.EFFECTIVE_BINDER_LEVEL);
+            Assert.AreEqual("active stances", MartialManeuverEngine.ACTIVE_STANCES);
+        }
+
+        [TestMethod]
+        public void MartialManeuverEngine_InitiatorLevelStat_FormatsCanonicalStatKeys() {
+            Assert.AreEqual("initiator level:warblade", MartialManeuverEngine.InitiatorLevelStat("Warblade"));
+            Assert.AreEqual("initiator level:crusader", MartialManeuverEngine.InitiatorLevelStat("crusader"));
+            Assert.AreEqual("initiator level:swordsage", MartialManeuverEngine.InitiatorLevelStat("SWORDSAGE"));
+            Assert.AreEqual("initiator level:feats", MartialManeuverEngine.InitiatorLevelStat("  feats  "));
+            Assert.AreEqual("initiator level", MartialManeuverEngine.InitiatorLevelStat(null));
+            Assert.AreEqual("initiator level", MartialManeuverEngine.InitiatorLevelStat(""));
+            Assert.AreEqual("initiator level", MartialManeuverEngine.InitiatorLevelStat("   "));
         }
 
         [TestMethod]

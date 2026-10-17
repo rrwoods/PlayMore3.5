@@ -1369,10 +1369,10 @@ namespace PlayMore35 {
             
             var pactEngine = session.Subsystems.Get<PactMagicEngine>();
             List<Vestige> availableVestiges = pactEngine?.AvailableVestiges().ToList() ?? new List<Vestige>();
-            int numVestiges = pactEngine?.SlotCount ?? session.GetStatistic(NUM_VESTIGES).Value;
+            int numVestiges = pactEngine?.SlotCount ?? session.GetStatistic(PactMagicEngine.NUM_VESTIGES).Value;
 
             int vestigeLeft = pnlVestige1.Left;
-            string bindingCheck = $"1d20{session.GetStatistic(BINDING_CHECK).Value.ToString("+#;-#;\"\"")}";
+            string bindingCheck = $"1d20{session.GetStatistic(PactMagicEngine.BINDING_CHECK).Value.ToString("+#;-#;\"\"")}";
             for (int i = 0; i < numVestiges; i++) {
                 Panel vestigePanel = new Panel {
                     Top = pnlVestige1.Top,

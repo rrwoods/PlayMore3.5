@@ -11,6 +11,7 @@ using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
+using static PlayMore35.Subsystems.PactMagic.PactMagicEngine;
 
 namespace PlayMore35.Tests {
     [TestClass]
