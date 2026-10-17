@@ -29,23 +29,6 @@ namespace PlayMore35.Tests {
             SheetAction.ResetParsersForTesting();
         }
 
-        private class TestManeuverContentProvider : ISubsystemContentProvider {
-            private readonly Dictionary<string, Maneuver> maneuvers;
-
-            public TestManeuverContentProvider(params Maneuver[] list) {
-                maneuvers = list.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);
-            }
-
-            public IEnumerable<Vestige> GetVestiges() => Enumerable.Empty<Vestige>();
-            public Vestige GetVestige(string name) => null;
-
-            public IEnumerable<Maneuver> GetManeuvers() => maneuvers.Values;
-
-            public Maneuver GetManeuver(string name) {
-                if (string.IsNullOrEmpty(name)) return null;
-                return maneuvers.TryGetValue(name, out var m) ? m : null;
-            }
-        }
 
         [TestMethod]
         public void CharacterSession_HasNoBespokeManeuverMembers() {
@@ -198,8 +181,8 @@ namespace PlayMore35.Tests {
                 Type = ManeuverType.Stance,
                 Effects = new List<Effect> { attackStanceEffect }
             };
-            var customProvider = new TestManeuverContentProvider(testStance);
-            var customEngine = new MartialManeuverEngine(customProvider);
+            var customCatalog = new FakeRulesCatalog(new[] { testStance }, inner: catalog);
+            var customEngine = new MartialManeuverEngine(customCatalog);
 
             var character = new Character();
             character.classLevels.Clear();
@@ -207,7 +190,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["STR"] = 16; // STR +3
             character.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "greatsword" };
 
-            var session = new CharacterSession(character, catalog);
+            var session = new CharacterSession(character, customCatalog);
             session.Subsystems.Register(customEngine, "maneuver");
             customEngine.Initialize(session);
             session.Recalculate();

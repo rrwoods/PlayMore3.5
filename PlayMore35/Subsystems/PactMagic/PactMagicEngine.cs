@@ -5,6 +5,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using static PlayMore35.Effects.Constants;
 
@@ -15,17 +16,17 @@ namespace PlayMore35.Subsystems.PactMagic {
         public const string BINDING_CHECK = "binding check";
         public const string MAX_VESTIGE_LEVEL = "maximum vestige level";
         public const string EFFECTIVE_BINDER_LEVEL = "effective binder level";
-        private readonly ISubsystemContentProvider contentProvider;
+        private IRulesCatalog catalog;
         private SubsystemSlotGroup<PactSlot> slots;
         private ICharacterContext context;
         private bool stateLoaded = false;
 
-        public PactMagicEngine(ISubsystemContentProvider contentProvider = null) {
-            this.contentProvider = contentProvider ?? new ResourceSubsystemContentProvider();
+        public PactMagicEngine(IRulesCatalog catalog = null) {
+            this.catalog = catalog ?? new GameRulesCatalog();
             this.slots = new SubsystemSlotGroup<PactSlot>(
                 () => context?.GetStatValue(NUM_VESTIGES, 0) ?? 0,
                 () => context?.GetStatValue(MAX_VESTIGE_LEVEL, 0) ?? int.MaxValue,
-                slot => contentProvider.GetVestige(slot?.VestigeName)?.Level ?? 0
+                slot => this.catalog.GetVestige(slot?.VestigeName)?.Level ?? 0
             );
         }
 
@@ -42,10 +43,13 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         public void Initialize(ICharacterContext context) {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            if (context.Catalog != null) {
+                this.catalog = context.Catalog;
+            }
             this.slots = new SubsystemSlotGroup<PactSlot>(
                 () => context.GetStatValue(NUM_VESTIGES, 0),
                 () => context?.GetStatValue(MAX_VESTIGE_LEVEL, 0) ?? int.MaxValue,
-                slot => contentProvider.GetVestige(slot?.VestigeName)?.Level ?? 0
+                slot => this.catalog.GetVestige(slot?.VestigeName)?.Level ?? 0
             );
             this.stateLoaded = false;
             EnsureSlotsLoaded();
@@ -79,7 +83,7 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         private void ResetDefiance(string vestigeName) {
             if (string.IsNullOrEmpty(vestigeName)) return;
-            var vestige = contentProvider.GetVestige(vestigeName);
+            var vestige = catalog.GetVestige(vestigeName);
             if (vestige?.Influence == null) return;
             string paramKey = vestige.Influence.ParameterName;
             if (context?.Character?.paramValues != null) {
@@ -127,7 +131,7 @@ namespace PlayMore35.Subsystems.PactMagic {
             if (slot == null || string.IsNullOrEmpty(slot.VestigeName)) {
                 return null;
             }
-            return contentProvider.GetVestige(slot.VestigeName);
+            return catalog.GetVestige(slot.VestigeName);
         }
 
         public IEnumerable<Vestige> AvailableVestiges() {
@@ -135,14 +139,14 @@ namespace PlayMore35.Subsystems.PactMagic {
                 return Enumerable.Empty<Vestige>();
             }
             int maxLevel = context?.GetStatValue(MAX_VESTIGE_LEVEL, 0) ?? 0;
-            return contentProvider.GetVestiges()
+            return (catalog.Vestiges?.Values ?? Enumerable.Empty<Vestige>())
                 .Where(v => v.Level <= maxLevel)
                 .OrderBy(v => v.Name);
         }
 
         public int BindingCheckDc(string vestigeName) {
             if (string.IsNullOrEmpty(vestigeName)) return 0;
-            return contentProvider.GetVestige(vestigeName)?.BindingDc ?? 0;
+            return catalog.GetVestige(vestigeName)?.BindingDc ?? 0;
         }
 
         public (int bonus, List<string> explanation) GetBindingCheckBonus() {
@@ -158,7 +162,7 @@ namespace PlayMore35.Subsystems.PactMagic {
                 var slot = GetSlot(i);
                 if (slot == null || string.IsNullOrEmpty(slot.VestigeName)) continue;
 
-                var vestige = contentProvider.GetVestige(slot.VestigeName);
+                var vestige = catalog.GetVestige(slot.VestigeName);
                 if (vestige == null) continue;
 
                 if (slot.State == PactState.POOR_PACT && vestige.Influence != null) {

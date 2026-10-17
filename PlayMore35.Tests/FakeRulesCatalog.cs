@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+using PlayMore35.CharacterChoices;
+using PlayMore35.Effects;
+using PlayMore35.Items;
+using PlayMore35.Rules;
+using PlayMore35.Subsystems.Maneuvers;
+
+namespace PlayMore35.Tests {
+    public class FakeRulesCatalog : IRulesCatalog {
+        public Dictionary<string, Race> RacesMap { get; } = new Dictionary<string, Race>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, CharacterClass> ClassesMap { get; } = new Dictionary<string, CharacterClass>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Feat> FeatsMap { get; } = new Dictionary<string, Feat>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Weapon> WeaponsMap { get; } = new Dictionary<string, Weapon>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Armor> ArmorsMap { get; } = new Dictionary<string, Armor>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Shield> ShieldsMap { get; } = new Dictionary<string, Shield>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, WeaponProperty> WeaponPropertiesMap { get; } = new Dictionary<string, WeaponProperty>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, ArmorProperty> ArmorPropertiesMap { get; } = new Dictionary<string, ArmorProperty>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Item> ItemsMap { get; } = new Dictionary<string, Item>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, ExternalEffect> ExternalEffectsMap { get; } = new Dictionary<string, ExternalEffect>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Maneuver> ManeuversMap { get; } = new Dictionary<string, Maneuver>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Vestige> VestigesMap { get; } = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
+
+        public IReadOnlyDictionary<string, Race> Races => RacesMap;
+        public IReadOnlyDictionary<string, CharacterClass> Classes => ClassesMap;
+        public IReadOnlyDictionary<string, Feat> Feats => FeatsMap;
+        public IReadOnlyDictionary<string, Weapon> Weapons => WeaponsMap;
+        public IReadOnlyDictionary<string, Armor> Armors => ArmorsMap;
+        public IReadOnlyDictionary<string, Shield> Shields => ShieldsMap;
+        public IReadOnlyDictionary<string, WeaponProperty> WeaponProperties => WeaponPropertiesMap;
+        public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties => ArmorPropertiesMap;
+        public IReadOnlyDictionary<string, Item> Items => ItemsMap;
+        public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects => ExternalEffectsMap;
+        public IReadOnlyDictionary<string, Maneuver> Maneuvers => ManeuversMap;
+        public IReadOnlyDictionary<string, Vestige> Vestiges => VestigesMap;
+
+        private readonly IRulesCatalog inner;
+
+        public IReadOnlyDictionary<string, int> CoreFeatSlots => inner?.CoreFeatSlots ?? new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
+        public IReadOnlyList<Statistic> CoreStats => inner?.CoreStats ?? new List<Statistic>().AsReadOnly();
+        public IReadOnlyList<Effect> CoreEffects => inner?.CoreEffects ?? new List<Effect>().AsReadOnly();
+        public IReadOnlyDictionary<string, FlagDefinition> CoreFlags => inner?.CoreFlags ?? new ReadOnlyDictionary<string, FlagDefinition>(new Dictionary<string, FlagDefinition>());
+        public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters => inner?.CoreParameters ?? new ReadOnlyDictionary<string, ParameterDefinition>(new Dictionary<string, ParameterDefinition>());
+        public JToken CoreRulesJson => inner?.CoreRulesJson ?? new JObject();
+
+        public FakeRulesCatalog(params Maneuver[] maneuvers) : this(maneuvers, null, null) { }
+        public FakeRulesCatalog(params Vestige[] vestiges) : this(null, vestiges, null) { }
+        public FakeRulesCatalog(IEnumerable<Maneuver> maneuvers, IRulesCatalog inner) : this(maneuvers, null, inner) { }
+        public FakeRulesCatalog(IEnumerable<Vestige> vestiges, IRulesCatalog inner) : this(null, vestiges, inner) { }
+
+        public FakeRulesCatalog(IEnumerable<Maneuver> maneuvers = null, IEnumerable<Vestige> vestiges = null, IRulesCatalog inner = null) {
+            this.inner = inner;
+            if (inner != null) {
+                if (inner.Vestiges != null) {
+                    foreach (var kvp in inner.Vestiges) {
+                        VestigesMap[kvp.Key] = kvp.Value;
+                    }
+                }
+                if (inner.Maneuvers != null) {
+                    foreach (var kvp in inner.Maneuvers) {
+                        ManeuversMap[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+            if (maneuvers != null) {
+                foreach (var m in maneuvers) {
+                    if (m?.Name != null) ManeuversMap[m.Name] = m;
+                }
+            }
+            if (vestiges != null) {
+                foreach (var v in vestiges) {
+                    if (v?.Name != null) VestigesMap[v.Name] = v;
+                }
+            }
+        }
+
+        public Race GetRace(string name) => (name != null && RacesMap.TryGetValue(name, out var val)) ? val : inner?.GetRace(name);
+        public CharacterClass GetClass(string name) => (name != null && ClassesMap.TryGetValue(name, out var val)) ? val : inner?.GetClass(name);
+        public Feat GetFeat(string name) => (name != null && FeatsMap.TryGetValue(name, out var val)) ? val : inner?.GetFeat(name);
+        public Weapon GetWeapon(string name) => (name != null && WeaponsMap.TryGetValue(name, out var val)) ? val : inner?.GetWeapon(name);
+        public Armor GetArmor(string name) => (name != null && ArmorsMap.TryGetValue(name, out var val)) ? val : inner?.GetArmor(name);
+        public Shield GetShield(string name) => (name != null && ShieldsMap.TryGetValue(name, out var val)) ? val : inner?.GetShield(name);
+        public WeaponProperty GetWeaponProperty(string name) => (name != null && WeaponPropertiesMap.TryGetValue(name, out var val)) ? val : inner?.GetWeaponProperty(name);
+        public ArmorProperty GetArmorProperty(string name) => (name != null && ArmorPropertiesMap.TryGetValue(name, out var val)) ? val : inner?.GetArmorProperty(name);
+        public Item GetItem(string name) => (name != null && ItemsMap.TryGetValue(name, out var val)) ? val : inner?.GetItem(name);
+        public ExternalEffect GetExternalEffect(string name) => (name != null && ExternalEffectsMap.TryGetValue(name, out var val)) ? val : inner?.GetExternalEffect(name);
+        public Maneuver GetManeuver(string name) => (name != null && ManeuversMap.TryGetValue(name, out var val)) ? val : inner?.GetManeuver(name);
+        public Vestige GetVestige(string name) => (name != null && VestigesMap.TryGetValue(name, out var val)) ? val : inner?.GetVestige(name);
+
+        public IEnumerable<string> ChoicesForKey(string choiceDescription) => inner?.ChoicesForKey(choiceDescription) ?? Enumerable.Empty<string>();
+    }
+}

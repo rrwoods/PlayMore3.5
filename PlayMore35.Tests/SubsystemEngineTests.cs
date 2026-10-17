@@ -7,6 +7,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.Subsystems.PactMagic;
@@ -448,9 +449,9 @@ namespace PlayMore35.Tests {
 
         // Source: Tome of Battle, pp. 37–46
         [TestMethod]
-        public void ResourceSubsystemContentProvider_CanLoadFullManeuverCatalog_AndResolveAllNineDisciplines() {
-            var provider = new ResourceSubsystemContentProvider();
-            var maneuvers = provider.GetManeuvers().ToList();
+        public void GameRulesCatalog_CanLoadFullManeuverCatalog_AndResolveAllNineDisciplines() {
+            var catalog = new GameRulesCatalog();
+            var maneuvers = catalog.Maneuvers.Values.ToList();
 
             Assert.IsTrue(maneuvers.Count >= 190, $"Expected at least 190 maneuvers, got {maneuvers.Count}");
 
@@ -464,8 +465,8 @@ namespace PlayMore35.Tests {
                 var discManeuvers = maneuvers.Where(m => m.Discipline == disc).ToList();
                 Assert.IsTrue(discManeuvers.Count >= 15, $"Discipline '{disc}' should have at least 15 maneuvers, found {discManeuvers.Count}");
                 var first = discManeuvers.First();
-                var fetched = provider.GetManeuver(first.Name);
-                Assert.IsNotNull(fetched, $"Failed to fetch maneuver '{first.Name}' via provider");
+                var fetched = catalog.GetManeuver(first.Name);
+                Assert.IsNotNull(fetched, $"Failed to fetch maneuver '{first.Name}' via catalog");
                 Assert.AreEqual(first.Name, fetched.Name);
             }
         }

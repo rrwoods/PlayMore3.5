@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.Tests {
@@ -13,11 +14,13 @@ namespace PlayMore35.Tests {
         public Equipped EquippedItems { get; set; }
         public Timeline Timeline => Character?.Timeline;
         public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
+        public IRulesCatalog Catalog { get; set; }
 
-        public FakeCharacterContext(Character character = null, EffectPool effects = null, Equipped equipped = null) {
+        public FakeCharacterContext(Character character = null, EffectPool effects = null, Equipped equipped = null, IRulesCatalog catalog = null) {
             Character = character ?? new Character();
             Effects = effects ?? new EffectPool(Character);
             EquippedItems = equipped ?? new Equipped();
+            Catalog = catalog;
             if (Character.Timeline != null) {
                 Character.Timeline.Context = this;
             }

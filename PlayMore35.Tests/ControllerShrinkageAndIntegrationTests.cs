@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
@@ -14,23 +15,6 @@ using static PlayMore35.Effects.Constants;
 namespace PlayMore35.Tests {
     [TestClass]
     public class ControllerShrinkageAndIntegrationTests {
-        private class TestContentProvider : ISubsystemContentProvider {
-            private readonly Dictionary<string, Vestige> vestiges;
-
-            public TestContentProvider(params Vestige[] list) {
-                vestiges = list.ToDictionary(v => v.Name, v => v);
-            }
-
-            public IEnumerable<Vestige> GetVestiges() => vestiges.Values;
-
-            public Vestige GetVestige(string name) {
-                return (name != null && vestiges.TryGetValue(name, out var v)) ? v : null;
-            }
-
-            public IEnumerable<PlayMore35.Subsystems.Maneuvers.Maneuver> GetManeuvers() => Enumerable.Empty<PlayMore35.Subsystems.Maneuvers.Maneuver>();
-
-            public PlayMore35.Subsystems.Maneuvers.Maneuver GetManeuver(string name) => null;
-        }
 
         private static Vestige CreateTestVestige(string name, int level = 1, int dc = 15) {
             var ability = new Effect($"{name} Ability Effect")
@@ -71,12 +55,12 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void Subsystem_FullBindingLifecycle_WithTimelineAdvanceAndReload() {
             var vestige = CreateTestVestige("Aym", 1, 15);
-            var contentProvider = new TestContentProvider(vestige);
-            var engine = new PactMagicEngine(contentProvider);
+            var catalog = new FakeRulesCatalog(vestiges: new[] { vestige }, inner: new GameRulesCatalog());
+            var engine = new PactMagicEngine(catalog);
 
             var character = new Character();
             character.classLevels.Add("Binder");
-            var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
+            var session = new CharacterSession(character, catalog);
             ICharacterContext ctx = session;
             session.Subsystems.Register(engine, "vestige");
 
@@ -130,11 +114,11 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void PactMagicEngine_UnbindVestige_ResetsDefianceAndSlots() {
             var vestige = CreateTestVestige("Aym", 1, 15);
-            var contentProvider = new TestContentProvider(vestige);
-            var engine = new PactMagicEngine(contentProvider);
+            var catalog = new FakeRulesCatalog(vestiges: new[] { vestige }, inner: new GameRulesCatalog());
+            var engine = new PactMagicEngine(catalog);
 
             var character = new Character();
-            var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
+            var session = new CharacterSession(character, catalog);
             ICharacterContext ctx = session;
             session.Subsystems.Register(engine, "vestige");
 

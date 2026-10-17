@@ -7,9 +7,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
+using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.Maneuvers;
+using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
@@ -162,7 +165,6 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void Catalog_TextEffectCategories_ExistInConstants() {
             var catalog = new GameRulesCatalog();
-            var provider = new ResourceSubsystemContentProvider();
 
             // 1. Invariants: EXPLORATION and SOCIAL must be registered in Constants.TEXT_CATEGORIES
             CollectionAssert.Contains(TEXT_CATEGORIES, EXPLORATION);
@@ -194,7 +196,7 @@ namespace PlayMore35.Tests {
             }
 
             // Assert all text categories loaded from vestiges.json exist in valid categories
-            foreach (var vestige in provider.GetVestiges()) {
+            foreach (var vestige in catalog.Vestiges.Values) {
                 foreach (var text in vestige.Influence.Text) {
                     Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown vestige influence category: {text.Category}");
                 }
@@ -236,37 +238,125 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void VestigesCatalog_InfluenceCategories_MatchSection0Requirements() {
-            var provider = new ResourceSubsystemContentProvider();
+            var catalog = new GameRulesCatalog();
 
-            var amon = provider.GetVestige("Amon");
+            var amon = catalog.GetVestige("Amon");
             Assert.IsNotNull(amon);
             Assert.AreEqual(CONDITION, amon.Influence.Text[0].Category);
 
-            var aym = provider.GetVestige("Aym");
+            var aym = catalog.GetVestige("Aym");
             Assert.IsNotNull(aym);
             Assert.AreEqual(SOCIAL, aym.Influence.Text[0].Category);
 
-            var leraje = provider.GetVestige("Leraje");
+            var leraje = catalog.GetVestige("Leraje");
             Assert.IsNotNull(leraje);
             Assert.AreEqual(SOCIAL, leraje.Influence.Text[1].Category);
 
-            var naberius = provider.GetVestige("Naberius");
+            var naberius = catalog.GetVestige("Naberius");
             Assert.IsNotNull(naberius);
             Assert.AreEqual(SOCIAL, naberius.Influence.Text[0].Category);
 
-            var ronove = provider.GetVestige("Ronove");
+            var ronove = catalog.GetVestige("Ronove");
             Assert.IsNotNull(ronove);
             Assert.AreEqual(2, ronove.Influence.Text.Count);
             Assert.AreEqual(SOCIAL, ronove.Influence.Text[0].Category);
             Assert.AreEqual(CONDITION, ronove.Influence.Text[1].Category);
 
-            var haagenti = provider.GetVestige("Haagenti");
+            var haagenti = catalog.GetVestige("Haagenti");
             Assert.IsNotNull(haagenti);
             Assert.AreEqual(SOCIAL, haagenti.Influence.Text[0].Category);
 
-            var malphas = provider.GetVestige("Malphas");
+            var malphas = catalog.GetVestige("Malphas");
             Assert.IsNotNull(malphas);
             Assert.AreEqual(SOCIAL, malphas.Influence.Text[0].Category);
+        }
+
+        // Source: Tome of Magic, pp. 16–50
+        [TestMethod]
+        public void GameRulesCatalog_LoadsVestiges_FromResources() {
+            var catalog = new GameRulesCatalog();
+
+            Assert.IsNotNull(catalog.Vestiges, "Vestiges dictionary must be initialized.");
+            Assert.IsTrue(catalog.Vestiges.Count >= 9, $"Expected at least 9 vestiges, got {catalog.Vestiges.Count}");
+
+            var amon = catalog.GetVestige("Amon");
+            Assert.IsNotNull(amon, "Amon should be present in catalog.");
+            Assert.AreEqual("Amon", amon.Name);
+            Assert.AreEqual(1, amon.Level);
+            Assert.AreEqual(20, amon.BindingDc);
+            Assert.IsNotNull(amon.Influence);
+            Assert.IsTrue(amon.Abilities.Count > 0, "Amon should have abilities.");
+
+            // Case-insensitive lookup
+            var amonLower = catalog.GetVestige("amon");
+            Assert.IsNotNull(amonLower, "Vestige lookup should be case-insensitive.");
+            Assert.AreEqual("Amon", amonLower.Name);
+
+            // Missing / null / empty
+            Assert.IsNull(catalog.GetVestige("NonExistentVestige"));
+            Assert.IsNull(catalog.GetVestige(null));
+            Assert.IsNull(catalog.GetVestige(""));
+        }
+
+        [TestMethod]
+        public void MartialManeuverEngine_ResolvesCatalogFromContext_OnInit() {
+            var customManeuver = new Maneuver {
+                Name = "Special Strike",
+                Discipline = "Iron Heart",
+                Level = 1,
+                Type = ManeuverType.Strike
+            };
+            var customCatalog = new FakeRulesCatalog(customManeuver);
+
+            // Engine constructed with default catalog
+            var engine = new MartialManeuverEngine();
+            var context = new FakeCharacterContext(catalog: customCatalog);
+
+            // Before initialize, engine does not know about customManeuver
+            var preWarnings = engine.ValidateManeuver("Special Strike", "Warblade");
+            Assert.IsTrue(preWarnings.Any(w => w.Contains("not recognized")), "Default catalog should not recognize test maneuver.");
+
+            // Initialize resolves context.Catalog
+            engine.Initialize(context);
+
+            var postWarnings = engine.ValidateManeuver("Special Strike", "Warblade");
+            Assert.IsFalse(postWarnings.Any(w => w.Contains("not recognized")), "Initialized engine must recognize maneuver from context.Catalog.");
+        }
+
+        [TestMethod]
+        public void PactMagicEngine_ResolvesCatalogFromContext_OnInit() {
+            var ability = new Effect("Granted Test Power");
+            var influence = new Effect("Test Influence");
+            var json = new JObject(
+                new JProperty("name", "Test Vestige"),
+                new JProperty("level", 1),
+                new JProperty("binding DC", 22),
+                new JProperty("influence", influence.ToJson()),
+                new JProperty("abilities", new JArray(ability.ToJson()))
+            );
+            var customVestige = new Vestige(json);
+            var customCatalog = new FakeRulesCatalog(customVestige);
+
+            // Engine constructed with default catalog
+            var engine = new PactMagicEngine();
+            var context = new FakeCharacterContext(catalog: customCatalog);
+            context.Effects.AddStat(new Statistic(PactMagicEngine.NUM_VESTIGES));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, UNTYPED)));
+            context.Effects.AddStat(new Statistic(PactMagicEngine.MAX_VESTIGE_LEVEL));
+            context.Effects.AddEffect(new Effect("Max Level").AddModifier(PactMagicEngine.MAX_VESTIGE_LEVEL, new Modifier(5, UNTYPED)));
+
+            // Before initialize, engine does not know about customVestige
+            Assert.AreEqual(0, engine.BindingCheckDc("Test Vestige"));
+
+            // Initialize resolves context.Catalog
+            engine.Initialize(context);
+
+            Assert.AreEqual(22, engine.BindingCheckDc("Test Vestige"), "Initialized engine must resolve DC from context.Catalog.");
+            var available = engine.AvailableVestiges().ToList();
+            Assert.IsTrue(available.Any(v => v.Name == "Test Vestige"), "AvailableVestiges must include vestige from context.Catalog.");
+
+            engine.BindVestige(0, "Test Vestige");
+            Assert.AreEqual("Test Vestige", engine.CurrentVestige(0)?.Name);
         }
     }
 }
