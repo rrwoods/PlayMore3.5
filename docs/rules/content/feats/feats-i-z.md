@@ -1,4 +1,4 @@
-﻿# Feats (I–Z)
+# Feats (I–Z)
 
 ### Improved Trip
 - **Status**: Unarbitrated Domain Specification
@@ -37,9 +37,11 @@
 - **Source**: TODO
 
 ### Martial Stance
+- **Status**: Unarbitrated Domain Specification
 - **Source**: *Tome of Battle*, p. 52
 
 ### Martial Study
+- **Status**: Unarbitrated Domain Specification
 - **Source**: *Tome of Battle*, p. 52
 
 ### Martial Weapon Proficiency

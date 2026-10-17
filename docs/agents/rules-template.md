@@ -18,7 +18,7 @@ Do not bulk-load `docs/rules/` upfront. Query the filesystem for the specific fi
 
 When inspecting a target file in `docs/rules/`:
 1. **Populated citation (Reference Entry)**: The entry contains a verified sourcebook, page number, and mechanical facts without checklist syntax. Treat it as an **Environmental Fact** and use it directly without re-asking the human.
-2. **Rules Skeleton (unarbitrated placeholder) or absent entry**: The entry is an unarbitrated **Domain Specification** awaiting human arbitration (formatted as a compact unarbitrated stub schema or a maneuver schema skeleton with `TODO` values). Request human arbitration using the template below. Once the human provides or confirms the citation, **immediately replace the Rules Skeleton (or add the entry) in `docs/rules/` as a fully populated Reference Entry** so future sessions never have to ask again.
+2. **Rules Skeleton (unarbitrated placeholder) or absent entry**: The entry is an unarbitrated **Domain Specification** awaiting human arbitration (formatted as a compact unarbitrated stub schema with `- **Status**: Unarbitrated Domain Specification` or a maneuver schema skeleton with `TODO` values). An entry remains an unarbitrated Domain Specification even if its sourcebook and page citation are known, until its actionable mechanics are arbitrated and recorded. Request human arbitration using the template below. Once the human provides or confirms the citation and mechanics, **immediately replace the Rules Skeleton (or add the entry) in `docs/rules/` as a fully populated Reference Entry** so future sessions never have to ask again.
 
 ### 300-line growth threshold & splitting protocol
 
@@ -71,6 +71,8 @@ For general content catalogs awaiting arbitration (such as feats, items, equipme
 - **Status**: Unarbitrated Domain Specification
 - **Source**: TODO
 ```
+
+An unarbitrated entry retains `- **Status**: Unarbitrated Domain Specification` even if its primary source and page number are already identified (`- **Source**: <Sourcebook>, p. <Page>`). It only transitions to a full Reference Entry (omitting the Status line) once the actionable Environmental Facts (formulas, table progressions, or mechanics) are fully recorded.
 
 When human arbitration confirms the primary source and mechanics, replace the Rules Skeleton with the full structured Reference Entry for that content type (citing the primary sourcebook and page, and detailing actionable Environmental Facts).
 
