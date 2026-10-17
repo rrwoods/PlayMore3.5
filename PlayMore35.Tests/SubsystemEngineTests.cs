@@ -96,7 +96,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SubsystemSlotGroup_ClampsAndValidatesCapacity_Dynamically() {
+        public void SubsystemSlotGroup_AllowsDecoupledAccessAndCapacityTracking_Dynamically() {
             int dynamicCapacity = 2;
             var slotGroup = new SubsystemSlotGroup<string>(() => dynamicCapacity);
 
@@ -108,26 +108,33 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Item A", slotGroup[0]);
             Assert.AreEqual("Item B", slotGroup[1]);
 
-            // Out of range access throws
+            // Negative index throws
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => {
-                var _ = slotGroup[2];
+                var _ = slotGroup[-1];
             });
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => {
-                slotGroup[2] = "Item C";
+                slotGroup[-1] = "Item Invalid";
             });
 
-            // Dynamically expand capacity
-            dynamicCapacity = 3;
-            Assert.AreEqual(3, slotGroup.Capacity);
-            Assert.AreEqual(3, slotGroup.Slots.Count);
+            // Index beyond capacity does not throw: auto-expands storage
             slotGroup[2] = "Item C";
             Assert.AreEqual("Item C", slotGroup[2]);
+            Assert.AreEqual(3, slotGroup.Slots.Count);
 
-            // Dynamically shrink capacity
+            // Dynamically expand capacity
+            dynamicCapacity = 4;
+            Assert.AreEqual(4, slotGroup.Capacity);
+            Assert.AreEqual(4, slotGroup.Slots.Count);
+            Assert.AreEqual("Item C", slotGroup[2]);
+            Assert.IsNull(slotGroup[3]);
+
+            // Dynamically shrink capacity below populated count preserves occupied slots
             dynamicCapacity = 1;
             Assert.AreEqual(1, slotGroup.Capacity);
-            Assert.AreEqual(1, slotGroup.Slots.Count);
+            Assert.AreEqual(4, slotGroup.Slots.Count);
             Assert.AreEqual("Item A", slotGroup[0]);
+            Assert.AreEqual("Item B", slotGroup[1]);
+            Assert.AreEqual("Item C", slotGroup[2]);
 
             // Clear slot
             slotGroup.ClearSlot(0);
@@ -168,8 +175,10 @@ namespace PlayMore35.Tests {
             Assert.IsNull(slotGroup[1]);
             Assert.AreEqual("Three", slotGroup[2]);
 
+            // Negative index throws
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.ClearSlot(-1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.ClearSlot(3));
+            // Non-negative index beyond current count does not throw
+            slotGroup.ClearSlot(3);
         }
 
         [TestMethod]
@@ -188,14 +197,82 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SubsystemSlotGroup_NegativeCapacity_ClampsToZero() {
+        public void SubsystemSlotGroup_NegativeCapacity_ClampsToZero_AndAllowsSlotAccess() {
             var slotGroup = new SubsystemSlotGroup<int>(() => -5);
 
             Assert.AreEqual(0, slotGroup.Capacity);
             Assert.AreEqual(0, slotGroup.Slots.Count);
+
+            // Setting and getting at non-negative indices succeeds and auto-expands storage
+            slotGroup[0] = 42;
+            Assert.AreEqual(42, slotGroup[0]);
+            Assert.AreEqual(1, slotGroup.Slots.Count);
+            Assert.AreEqual(42, slotGroup.Slots[0]);
+
+            // Negative indices throw
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => {
-                var _ = slotGroup[0];
+                var _ = slotGroup[-1];
             });
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => {
+                slotGroup[-1] = 99;
+            });
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_ZeroCapacity_AllowsPopulatingAndReadingSlots() {
+            var slotGroup = new SubsystemSlotGroup<string>(0);
+            Assert.AreEqual(0, slotGroup.Capacity);
+            Assert.AreEqual(0, slotGroup.Slots.Count);
+
+            // Populating index 2 auto-expands backing list
+            slotGroup[2] = "Echo";
+            Assert.AreEqual(0, slotGroup.Capacity);
+            Assert.AreEqual(3, slotGroup.Slots.Count);
+            Assert.IsNull(slotGroup[0]);
+            Assert.IsNull(slotGroup[1]);
+            Assert.AreEqual("Echo", slotGroup[2]);
+
+            // Accessing unpopulated index returns default and auto-expands
+            var read = slotGroup[4];
+            Assert.IsNull(read);
+            Assert.AreEqual(5, slotGroup.Slots.Count);
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_CapacityTransitions_PreserveOccupiedSlotsAndPadEmptySlots() {
+            int dynamicCapacity = 2;
+            var slotGroup = new SubsystemSlotGroup<string>(() => dynamicCapacity);
+
+            slotGroup[0] = "Alpha";
+            slotGroup[1] = "Beta";
+
+            // Capacity expands from 2 to 4: pads with empty slots
+            dynamicCapacity = 4;
+            Assert.AreEqual(4, slotGroup.Capacity);
+            Assert.AreEqual(4, slotGroup.Slots.Count);
+            Assert.AreEqual("Alpha", slotGroup.Slots[0]);
+            Assert.AreEqual("Beta", slotGroup.Slots[1]);
+            Assert.IsNull(slotGroup.Slots[2]);
+            Assert.IsNull(slotGroup.Slots[3]);
+
+            // Set slot 3
+            slotGroup[3] = "Delta";
+            Assert.AreEqual("Delta", slotGroup.Slots[3]);
+
+            // Capacity drops to 0 (e.g. temporary stat penalty or uninitialized state)
+            dynamicCapacity = 0;
+            Assert.AreEqual(0, slotGroup.Capacity);
+            // Slots retains all occupied slots up to highest populated index
+            Assert.AreEqual(4, slotGroup.Slots.Count);
+            Assert.AreEqual("Alpha", slotGroup.Slots[0]);
+            Assert.AreEqual("Beta", slotGroup.Slots[1]);
+            Assert.IsNull(slotGroup.Slots[2]);
+            Assert.AreEqual("Delta", slotGroup.Slots[3]);
+
+            // Modifying retained slots at zero capacity succeeds without throwing
+            slotGroup[1] = "Beta-Modified";
+            Assert.AreEqual("Beta-Modified", slotGroup[1]);
+            Assert.AreEqual("Beta-Modified", slotGroup.Slots[1]);
         }
 
         [TestMethod]
@@ -334,7 +411,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SubsystemSlotGroup_IsSlotLevelValid_OutOfRangeSlotIndex_ThrowsArgumentOutOfRangeException() {
+        public void SubsystemSlotGroup_IsSlotLevelValid_NegativeSlotIndex_ThrowsArgumentOutOfRangeException() {
             var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
                 fixedCapacity: 2,
                 maxLevelProvider: () => 3,
@@ -342,7 +419,31 @@ namespace PlayMore35.Tests {
             );
 
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.IsSlotLevelValid(-1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.IsSlotLevelValid(2));
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_IsSlotLevelValid_EvaluatesCorrectly_AcrossSlotsBeyondCapacity() {
+            int dynamicMaxLevel = 2;
+            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
+                capacityProvider: () => 1,
+                maxLevelProvider: () => dynamicMaxLevel,
+                levelSelector: e => e?.Level ?? 0
+            );
+
+            // Slot 0 (within capacity) has level 2 element -> valid
+            slotGroup[0] = new TestSlottedElement { Name = "Valid", Level = 2 };
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
+
+            // Slot 1 (beyond capacity) has level 3 element -> invalid (level > max level)
+            slotGroup[1] = new TestSlottedElement { Name = "Overleveled", Level = 3 };
+            Assert.IsFalse(slotGroup.IsSlotLevelValid(1));
+
+            // Slot 2 (beyond capacity and unassigned) -> valid (empty slot)
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(2));
+
+            // Dynamic progression increases MaxLevel: slot 1 becomes valid
+            dynamicMaxLevel = 3;
+            Assert.IsTrue(slotGroup.IsSlotLevelValid(1));
         }
 
         // Source: Tome of Battle, pp. 37–46
