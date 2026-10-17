@@ -8,55 +8,11 @@ Unrecorded D&D 3.5e game rules are **Domain Specifications**, while verified cit
 
 ### Directory layout
 
-Do not bulk-load `docs/rules/` upfront. Open only the specific file(s) matching the mechanic or content item your task touches:
+Do not bulk-load `docs/rules/` upfront. Query the filesystem for the specific file matching your task:
 
-```
-docs/rules/
-├── mechanics/                          ← Systemic 3.5e rules (rules.json & C# subsystems)
-│   ├── abilities-and-saves.md
-│   ├── combat.md
-│   ├── equipment-and-encumbrance.md
-│   ├── health-and-conditions.md
-│   ├── progression.md
-│   ├── skills.md
-│   └── stacking-and-modifiers.md
-├── subsystems/                         ← Subsystem rules (e.g. spellcasting, manifesting, etc)
-│   ├── spellcasting.md (not yet present)
-│   ├── manifesting.md (not yet present)
-│   ├── maneuvers.md
-│   ├── pact-magic.md
-│   ├── truenaming.md (not yet present)
-│   ├── mysteries.md (not yet present)
-│   ├── meldshaping.md (not yet present)
-│   └── invocations.md (not yet present)
-└── content/                            ← 1:1 mirror of PlayMore35/Resources/<stem>.json (excluding external.json)
-    ├── armor.md
-    ├── armorProperties.md
-    ├── classes/                        ← Reference entries & progression tables for classes
-    │   ├── barbarian.md
-    │   ├── binder.md
-    │   ├── crusader.md
-    │   ├── fighter.md
-    │   ├── swordsage.md
-    │   └── warblade.md
-    ├── feats/                          ← Partitioned feat reference files (e.g. feats-a-i.md, feats-i-z.md)
-    ├── items.md
-    ├── maneuvers/                      ← Discipline-partitioned 6-field maneuver reference entries
-    │   ├── desert-wind.md
-    │   ├── devoted-spirit.md
-    │   ├── diamond-mind.md
-    │   ├── iron-heart.md
-    │   ├── setting-sun.md
-    │   ├── shadow-hand.md
-    │   ├── stone-dragon.md
-    │   ├── tiger-claw.md
-    │   └── white-raven.md
-    ├── races.md
-    ├── shields.md
-    ├── vestiges.md
-    ├── weaponProperties.md
-    └── weapons.md
-```
+- `docs/rules/mechanics/`: Systemic 3.5e rules logic (e.g. `combat.md`, `stacking-and-modifiers.md`, `skills.md`).
+- `docs/rules/subsystems/`: Dedicated subsystem arbitration documents (e.g. `maneuvers.md`, `pact-magic.md`).
+- `docs/rules/content/`: 1:1 mirror of `PlayMore35/Resources/<stem>.json`. Stored as `<stem>.md` (or a `<stem>/` subfolder if split under the 300-line ceiling).
 
 ### Two-state lookup & write-back workflow
 
