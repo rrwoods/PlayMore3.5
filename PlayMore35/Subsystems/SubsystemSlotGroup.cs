@@ -27,7 +27,9 @@ namespace PlayMore35.Subsystems {
             if (levelSelector == null) {
                 return true;
             }
-            EnsureCapacity(slotIndex + 1);
+            if (slotIndex >= slots.Count) {
+                return true;
+            }
             TSlot item = slots[slotIndex];
             if (EqualityComparer<TSlot>.Default.Equals(item, default(TSlot))) {
                 return true;
@@ -37,11 +39,13 @@ namespace PlayMore35.Subsystems {
 
         public IReadOnlyList<TSlot> Slots {
             get {
-                int count = Capacity;
-                EnsureCapacity(count);
+                int count = Math.Max(Capacity, slots.Count);
                 var result = new List<TSlot>(count);
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < slots.Count; i++) {
                     result.Add(slots[i]);
+                }
+                while (result.Count < count) {
+                    result.Add(default(TSlot));
                 }
                 return result;
             }
@@ -62,22 +66,18 @@ namespace PlayMore35.Subsystems {
 
         public void ClearSlot(int slotIndex) {
             ValidateIndex(slotIndex);
-            EnsureCapacity(slotIndex + 1);
-            slots[slotIndex] = default(TSlot);
-        }
-
-        public void ClearAll() {
-            int count = Capacity;
-            EnsureCapacity(count);
-            for (int i = 0; i < count; i++) {
-                slots[i] = default(TSlot);
+            if (slotIndex < slots.Count) {
+                slots[slotIndex] = default(TSlot);
             }
         }
 
-        private void ValidateIndex(int index) {
-            int max = Capacity;
-            if (index < 0 || index >= max) {
-                throw new ArgumentOutOfRangeException(nameof(index), $"Slot index {index} is out of range [0, {max - 1}].");
+        public void ClearAll() {
+            slots.Clear();
+        }
+
+        private static void ValidateIndex(int index) {
+            if (index < 0) {
+                throw new ArgumentOutOfRangeException(nameof(index), $"Slot index {index} must be non-negative.");
             }
         }
 
