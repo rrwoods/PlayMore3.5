@@ -21,6 +21,10 @@ namespace PlayMore35.Subsystems.Maneuvers {
         private IRulesCatalog catalog;
         private ICharacterContext context;
         private MartialManeuverState state;
+        private readonly Dictionary<string, SubsystemSlotGroup<KnownManeuverSlot>> knownGroups =
+            new Dictionary<string, SubsystemSlotGroup<KnownManeuverSlot>>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, SubsystemSlotGroup<StanceSlot>> stanceGroups =
+            new Dictionary<string, SubsystemSlotGroup<StanceSlot>>(StringComparer.OrdinalIgnoreCase);
 
         public string Id => SubsystemId;
 
@@ -41,7 +45,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     return true;
                 }
 
-                var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase);
+                var allSources = GetAllSources();
                 foreach (var source in allSources) {
                     string lower = source.ToLowerInvariant();
                     if (context.GetStatValue(InitiatorLevelStat(source), 0) > 0 ||
@@ -67,42 +71,209 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     context.Character.Subsystems[SubsystemId] = this.state;
                 }
             }
-            WireAllSources();
+            knownGroups.Clear();
+            stanceGroups.Clear();
         }
 
-        private void WireAllSources() {
-            var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
-            foreach (var source in allSources) {
-                WireSource(source);
+        public IEnumerable<string> GetAllSources() {
+            var sources = new HashSet<string>(StandardSources, StringComparer.OrdinalIgnoreCase);
+            foreach (var k in state.Known.Keys) sources.Add(k);
+            foreach (var k in state.Stances.Keys) sources.Add(k);
+            return sources;
+        }
+
+        public IEnumerable<string> GetKnownSources() {
+            return StandardSources.Union(state.Known.Keys, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public IEnumerable<string> GetStanceSources() {
+            return StandardSources.Union(state.Stances.Keys, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public SubsystemSlotGroup<KnownManeuverSlot> GetKnownSlotGroup(string source) {
+            if (string.IsNullOrWhiteSpace(source)) {
+                throw new ArgumentException("Source name cannot be null or empty.", nameof(source));
             }
-        }
-
-        public ManeuverSourceState GetSource(string source) {
-            var src = state.GetOrCreateSource(source);
-            if (context != null) {
-                WireSource(source, src);
+            if (!knownGroups.TryGetValue(source, out var group)) {
+                string lower = source.ToLowerInvariant();
+                var storage = state.GetOrCreateKnown(source);
+                group = new SubsystemSlotGroup<KnownManeuverSlot>(
+                    () => context?.GetStatValue($"maneuvers known:{lower}", 0) ?? 0,
+                    () => context?.GetStatValue($"max maneuver level:{lower}", 0) ?? int.MaxValue,
+                    slot => {
+                        if (slot == null || string.IsNullOrEmpty(slot.ManeuverName)) return 0;
+                        return catalog.GetManeuver(slot.ManeuverName)?.Level ?? 0;
+                    },
+                    storage
+                );
+                knownGroups[source] = group;
             }
-            src.EnsureLoaded();
-            return src;
+            return group;
         }
 
-        private void WireSource(string sourceKey, ManeuverSourceState src = null) {
-            src = src ?? state.GetOrCreateSource(sourceKey);
-            string lower = sourceKey.ToLowerInvariant();
-            src.Wire(
-                () => context?.GetStatValue($"maneuvers known:{lower}", 0) ?? 0,
-                () => context?.GetStatValue($"max maneuver level:{lower}", 0) ?? int.MaxValue,
-                slot => {
-                    if (slot == null || string.IsNullOrEmpty(slot.ManeuverName)) return 0;
-                    return catalog.GetManeuver(slot.ManeuverName)?.Level ?? 0;
-                },
-                () => context?.GetStatValue($"stances known:{lower}", 0) ?? 0,
-                () => context?.GetStatValue($"max maneuver level:{lower}", 0) ?? int.MaxValue,
-                slot => {
-                    if (slot == null || string.IsNullOrEmpty(slot.StanceName)) return 0;
-                    return catalog.GetManeuver(slot.StanceName)?.Level ?? 0;
+        public SubsystemSlotGroup<StanceSlot> GetStanceSlotGroup(string source) {
+            if (string.IsNullOrWhiteSpace(source)) {
+                throw new ArgumentException("Source name cannot be null or empty.", nameof(source));
+            }
+            if (!stanceGroups.TryGetValue(source, out var group)) {
+                string lower = source.ToLowerInvariant();
+                var storage = state.GetOrCreateStances(source);
+                group = new SubsystemSlotGroup<StanceSlot>(
+                    () => context?.GetStatValue($"stances known:{lower}", 0) ?? 0,
+                    () => context?.GetStatValue($"max maneuver level:{lower}", 0) ?? int.MaxValue,
+                    slot => {
+                        if (slot == null || string.IsNullOrEmpty(slot.StanceName)) return 0;
+                        return catalog.GetManeuver(slot.StanceName)?.Level ?? 0;
+                    },
+                    storage
+                );
+                stanceGroups[source] = group;
+            }
+            return group;
+        }
+
+        public int GetKnownCapacity(string source) => GetKnownSlotGroup(source).Capacity;
+
+        public int GetStanceCapacity(string source) => GetStanceSlotGroup(source).Capacity;
+
+        public int GetKnownMaxLevel(string source) => GetKnownSlotGroup(source).MaxLevel;
+
+        public int GetStanceMaxLevel(string source) => GetStanceSlotGroup(source).MaxLevel;
+
+        public bool IsKnownSlotLevelValid(string source, int slotIndex) => GetKnownSlotGroup(source).IsSlotLevelValid(slotIndex);
+
+        public bool IsStanceSlotLevelValid(string source, int slotIndex) => GetStanceSlotGroup(source).IsSlotLevelValid(slotIndex);
+
+        public KnownManeuverSlot GetKnownSlot(string source, int slotIndex) {
+            if (slotIndex < 0) return null;
+            if (state.Known.TryGetValue(source, out var list) && slotIndex < list.Count) {
+                return list[slotIndex];
+            }
+            return null;
+        }
+
+        public void SetKnownSlot(string source, int slotIndex, KnownManeuverSlot slot) {
+            if (slotIndex < 0) {
+                throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            GetKnownSlotGroup(source)[slotIndex] = slot;
+        }
+
+        public void SetKnownSlot(string source, int slotIndex, string maneuverName) {
+            var existing = GetKnownSlot(source, slotIndex);
+            var slotState = existing?.State ?? ManeuverState.Unreadied;
+            SetKnownSlot(source, slotIndex, new KnownManeuverSlot(maneuverName, slotState));
+        }
+
+        public void ClearKnownSlot(string source, int slotIndex) {
+            if (slotIndex < 0) {
+                throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            GetKnownSlotGroup(source).ClearSlot(slotIndex);
+        }
+
+        public StanceSlot GetStanceSlot(string source, int slotIndex) {
+            if (slotIndex < 0) return null;
+            if (state.Stances.TryGetValue(source, out var list) && slotIndex < list.Count) {
+                return list[slotIndex];
+            }
+            return null;
+        }
+
+        public void SetStanceSlot(string source, int slotIndex, StanceSlot slot) {
+            if (slotIndex < 0) {
+                throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            GetStanceSlotGroup(source)[slotIndex] = slot;
+        }
+
+        public void SetStanceSlot(string source, int slotIndex, string stanceName) {
+            var existing = GetStanceSlot(source, slotIndex);
+            var isActive = existing?.IsActive ?? false;
+            SetStanceSlot(source, slotIndex, new StanceSlot(stanceName, isActive));
+        }
+
+        public void ClearStanceSlot(string source, int slotIndex) {
+            if (slotIndex < 0) {
+                throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            GetStanceSlotGroup(source).ClearSlot(slotIndex);
+        }
+
+        public IReadOnlyList<KnownManeuverSlot> GetKnownSlots(string source) {
+            return GetKnownSlotGroup(source).Slots;
+        }
+
+        public IReadOnlyList<StanceSlot> GetStanceSlots(string source) {
+            return GetStanceSlotGroup(source).Slots;
+        }
+
+        public IEnumerable<KnownManeuverSlot> GetReadiedManeuvers(string source) {
+            if (state.Known.TryGetValue(source, out var list) && list != null) {
+                return list.Where(s => s != null && s.IsReadied);
+            }
+            return Enumerable.Empty<KnownManeuverSlot>();
+        }
+
+        public int GetReadiedCount(string source) {
+            if (state.Known.TryGetValue(source, out var list) && list != null) {
+                return list.Count(s => s != null && s.IsReadied);
+            }
+            return 0;
+        }
+
+        public IEnumerable<StanceSlot> GetActiveStances(string source) {
+            if (state.Stances.TryGetValue(source, out var list) && list != null) {
+                return list.Where(s => s != null && s.IsActive);
+            }
+            return Enumerable.Empty<StanceSlot>();
+        }
+
+        public IEnumerable<StanceSlot> GetAllActiveStances() {
+            return state.Stances.Values
+                .Where(list => list != null)
+                .SelectMany(list => list)
+                .Where(s => s != null && s.IsActive);
+        }
+
+        public IEnumerable<string> GetKnownManeuverNames(string source = null) {
+            if (!string.IsNullOrEmpty(source)) {
+                if (state.Known.TryGetValue(source, out var list) && list != null) {
+                    return list.Where(s => s != null && !string.IsNullOrWhiteSpace(s.ManeuverName))
+                               .Select(s => s.ManeuverName);
                 }
-            );
+                return Enumerable.Empty<string>();
+            }
+            return state.Known.Values
+                .Where(list => list != null)
+                .SelectMany(list => list)
+                .Where(s => s != null && !string.IsNullOrWhiteSpace(s.ManeuverName))
+                .Select(s => s.ManeuverName);
+        }
+
+        public IEnumerable<string> GetStanceNames(string source = null) {
+            if (!string.IsNullOrEmpty(source)) {
+                if (state.Stances.TryGetValue(source, out var list) && list != null) {
+                    return list.Where(s => s != null && !string.IsNullOrWhiteSpace(s.StanceName))
+                               .Select(s => s.StanceName);
+                }
+                return Enumerable.Empty<string>();
+            }
+            return state.Stances.Values
+                .Where(list => list != null)
+                .SelectMany(list => list)
+                .Where(s => s != null && !string.IsNullOrWhiteSpace(s.StanceName))
+                .Select(s => s.StanceName);
+        }
+
+        public bool HasManeuver(string maneuverName, string source = null) {
+            if (string.IsNullOrWhiteSpace(maneuverName)) return false;
+            return GetKnownManeuverNames(source).Any(name => string.Equals(name, maneuverName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool HasStance(string stanceName, string source = null) {
+            if (string.IsNullOrWhiteSpace(stanceName)) return false;
+            return GetStanceNames(source).Any(name => string.Equals(name, stanceName, StringComparison.OrdinalIgnoreCase));
         }
 
         public List<string> ValidateManeuver(string maneuverName, string source) {
@@ -135,18 +306,18 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
 
             // 3. Cross-class uniqueness check
-            foreach (var kvp in state.Sources) {
-                if (!string.Equals(kvp.Key, source, StringComparison.OrdinalIgnoreCase)) {
-                    var otherSource = kvp.Value;
-                    if (otherSource.HasManeuver(maneuverName) || otherSource.HasStance(maneuverName)) {
-                        warnings.Add($"Maneuver '{maneuverName}' is already learned under source '{kvp.Key}'.");
+            var allSources = GetAllSources();
+            foreach (var otherSource in allSources) {
+                if (!string.Equals(otherSource, source, StringComparison.OrdinalIgnoreCase)) {
+                    if (HasManeuver(maneuverName, otherSource) || HasStance(maneuverName, otherSource)) {
+                        warnings.Add($"Maneuver '{maneuverName}' is already learned under source '{otherSource}'.");
                     }
                 }
             }
 
             // 4. Readied capacity check
-            if (!string.IsNullOrEmpty(source) && state.Sources.TryGetValue(source, out var srcState)) {
-                int readiedCount = srcState.ReadiedCount;
+            if (!string.IsNullOrEmpty(source)) {
+                int readiedCount = GetReadiedCount(source);
                 int maxReadied = context?.GetStatValue($"maneuvers readied:{lowerSource}", 0) ?? 0;
                 if (readiedCount > maxReadied) {
                     warnings.Add($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {source}.");
@@ -166,7 +337,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public List<string> ValidateStances() {
             var warnings = new List<string>();
-            int totalActiveStances = state.Sources.Values.Sum(s => s.ActiveStances.Count());
+            int totalActiveStances = GetAllActiveStances().Count();
             int maxActiveStances = context?.GetStatValue(ACTIVE_STANCES, 0) ?? 0;
             if (totalActiveStances > maxActiveStances) {
                 warnings.Add($"Active stances count ({totalActiveStances}) exceeds active stances capacity ({maxActiveStances}).");
@@ -177,22 +348,20 @@ namespace PlayMore35.Subsystems.Maneuvers {
         private int CountKnownInDiscipline(string discipline, string excludingManeuverName) {
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var src in state.Sources.Values) {
-                foreach (var name in src.AllKnownManeuverNames()) {
-                    if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
-                        var m = catalog.GetManeuver(name);
-                        if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
-                            distinctKnown.Add(name);
-                        }
+            foreach (var name in GetKnownManeuverNames()) {
+                if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
+                    var m = catalog.GetManeuver(name);
+                    if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
+                        distinctKnown.Add(name);
                     }
                 }
+            }
 
-                foreach (var name in src.AllStanceNames()) {
-                    if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
-                        var m = catalog.GetManeuver(name);
-                        if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
-                            distinctKnown.Add(name);
-                        }
+            foreach (var name in GetStanceNames()) {
+                if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
+                    var m = catalog.GetManeuver(name);
+                    if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
+                        distinctKnown.Add(name);
                     }
                 }
             }
@@ -203,14 +372,12 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
             if (pool == null) return;
             var ctx = context ?? this.context;
-            foreach (var source in state.Sources.Values) {
-                foreach (var stance in source.ActiveStances) {
-                    if (string.IsNullOrEmpty(stance.StanceName)) continue;
-                    var maneuver = catalog.GetManeuver(stance.StanceName);
-                    if (maneuver?.Effects != null) {
-                        foreach (var effect in maneuver.Effects) {
-                            pool.AddEffect(effect);
-                        }
+            foreach (var stance in GetAllActiveStances()) {
+                if (string.IsNullOrEmpty(stance.StanceName)) continue;
+                var maneuver = catalog.GetManeuver(stance.StanceName);
+                if (maneuver?.Effects != null) {
+                    foreach (var effect in maneuver.Effects) {
+                        pool.AddEffect(effect);
                     }
                 }
             }
@@ -241,8 +408,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         // Source: Tome of Battle, pp. 5, 23, 38, 40, 43
         public void AdoptStance(string source, int slotIndex, string replaceSource = null, int? replaceSlotIndex = null) {
-            var src = GetSource(source);
-            var slot = src?.GetStanceSlot(slotIndex);
+            var slot = GetStanceSlot(source, slotIndex);
             if (slot == null) return;
 
             int maxActive = context?.GetStatValue(ACTIVE_STANCES, 1) ?? 1;
@@ -250,17 +416,14 @@ namespace PlayMore35.Subsystems.Maneuvers {
             if (maxActive <= 1) {
                 ExitAllStances();
             } else {
-                var activeStances = new List<(ManeuverSourceState Source, StanceSlot Slot, string SourceKey, int SlotIndex)>();
-                var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
+                var activeStances = new List<(StanceSlot Slot, string SourceKey, int SlotIndex)>();
+                var allSources = GetStanceSources();
                 foreach (var sourceKey in allSources) {
-                    if (!state.Sources.ContainsKey(sourceKey)) continue;
-                    var sState = state.Sources[sourceKey];
-                    if (sState.Stances != null) {
-                        for (int i = 0; i < sState.Stances.Slots.Count; i++) {
-                            var s = sState.Stances.Slots[i];
-                            if (s != null && s.IsActive && s != slot) {
-                                activeStances.Add((sState, s, sourceKey, i));
-                            }
+                    if (!state.Stances.TryGetValue(sourceKey, out var slots)) continue;
+                    for (int i = 0; i < slots.Count; i++) {
+                        var s = slots[i];
+                        if (s != null && s.IsActive && s != slot) {
+                            activeStances.Add((s, sourceKey, i));
                         }
                     }
                 }
@@ -272,7 +435,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
                         a.SlotIndex == replaceSlotIndex.Value);
                     if (target.Slot != null) {
                         target.Slot.IsActive = false;
-                        target.Source.SyncToSaved();
                         activeStances.Remove(target);
                     }
                 }
@@ -280,21 +442,17 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 while (activeStances.Count >= maxActive) {
                     var oldest = activeStances[0];
                     oldest.Slot.IsActive = false;
-                    oldest.Source.SyncToSaved();
                     activeStances.RemoveAt(0);
                 }
             }
 
             slot.IsActive = true;
-            src.SyncToSaved();
         }
 
         // Source: Tome of Battle, p. 23
         public void AdoptStances(string source1, int slotIndex1, string source2, int slotIndex2) {
-            var src1 = GetSource(source1);
-            var slot1 = src1?.GetStanceSlot(slotIndex1);
-            var src2 = GetSource(source2);
-            var slot2 = src2?.GetStanceSlot(slotIndex2);
+            var slot1 = GetStanceSlot(source1, slotIndex1);
+            var slot2 = GetStanceSlot(source2, slotIndex2);
 
             if (slot1 == null && slot2 == null) return;
 
@@ -302,40 +460,28 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
             if (slot1 != null) {
                 slot1.IsActive = true;
-                src1.SyncToSaved();
             }
             if (slot2 != null && slot2 != slot1) {
                 slot2.IsActive = true;
-                src2.SyncToSaved();
             }
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43
         public void ExitStance(string source, int slotIndex) {
-            var src = GetSource(source);
-            var slot = src?.GetStanceSlot(slotIndex);
+            var slot = GetStanceSlot(source, slotIndex);
             if (slot != null && slot.IsActive) {
                 slot.IsActive = false;
-                src.SyncToSaved();
             }
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43
         public void ExitAllStances() {
-            var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
-            foreach (var sourceKey in allSources) {
-                if (!state.Sources.ContainsKey(sourceKey)) continue;
-                var src = state.Sources[sourceKey];
-                if (src.Stances != null) {
-                    bool changed = false;
-                    foreach (var slot in src.Stances.Slots) {
+            foreach (var slots in state.Stances.Values) {
+                if (slots != null) {
+                    foreach (var slot in slots) {
                         if (slot != null && slot.IsActive) {
                             slot.IsActive = false;
-                            changed = true;
                         }
-                    }
-                    if (changed) {
-                        src.SyncToSaved();
                     }
                 }
             }
@@ -343,32 +489,27 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         // Source: Tome of Battle, p. 38
         public void ReadyManeuver(string source, int slotIndex) {
-            var src = GetSource(source);
-            var slot = src?.GetKnownSlot(slotIndex);
+            var slot = GetKnownSlot(source, slotIndex);
             if (slot != null && slot.State == ManeuverState.Unreadied) {
                 if (string.Equals(source, "Crusader", StringComparison.OrdinalIgnoreCase)) {
                     slot.State = ManeuverState.Withheld;
                 } else {
                     slot.State = ManeuverState.Available;
                 }
-                src.SyncToSaved();
             }
         }
 
         // Source: Tome of Battle, p. 38
         public void UnreadyManeuver(string source, int slotIndex) {
-            var src = GetSource(source);
-            var slot = src?.GetKnownSlot(slotIndex);
+            var slot = GetKnownSlot(source, slotIndex);
             if (slot != null && slot.State != ManeuverState.Unreadied) {
                 slot.State = ManeuverState.Unreadied;
-                src.SyncToSaved();
             }
         }
 
         // Source: Tome of Battle, pp. 38, 42-45
         public bool InitiateManeuver(string source, int slotIndex, bool throwOnInvalid = false) {
-            var src = GetSource(source);
-            var slot = src?.GetKnownSlot(slotIndex);
+            var slot = GetKnownSlot(source, slotIndex);
             if (slot == null || slot.State != ManeuverState.Available) {
                 if (throwOnInvalid) {
                     throw new InvalidOperationException($"Maneuver slot {slotIndex} in source '{source}' is not Available.");
@@ -377,7 +518,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
 
             slot.State = ManeuverState.Expended;
-            src.SyncToSaved();
 
             var maneuver = !string.IsNullOrEmpty(slot.ManeuverName) ? catalog.GetManeuver(slot.ManeuverName) : null;
             if (maneuver != null && (maneuver.Type == ManeuverType.Boost || maneuver.Type == ManeuverType.Counter)) {
@@ -391,23 +531,20 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         // Source: Tome of Battle, p. 40
         public void RecoverWarblade(string source = "Warblade") {
-            var src = GetSource(source);
-            if (src?.Known == null) return;
-            foreach (var slot in src.Known.Slots) {
-                if (slot != null && slot.State == ManeuverState.Expended) {
-                    slot.State = ManeuverState.Available;
+            if (state.Known.TryGetValue(source, out var slots) && slots != null) {
+                foreach (var slot in slots) {
+                    if (slot != null && slot.State == ManeuverState.Expended) {
+                        slot.State = ManeuverState.Available;
+                    }
                 }
             }
-            src.SyncToSaved();
         }
 
         // Source: Tome of Battle, p. 40
         public void RecoverSwordsage(string source, int slotIndex) {
-            var src = GetSource(source);
-            var slot = src?.GetKnownSlot(slotIndex);
+            var slot = GetKnownSlot(source, slotIndex);
             if (slot != null && slot.State == ManeuverState.Expended) {
                 slot.State = ManeuverState.Available;
-                src.SyncToSaved();
             }
         }
 
@@ -418,10 +555,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         // Source: Tome of Battle, pp. 38, 40
         public void DealCrusader(string source = "Crusader", Random rng = null) {
-            var src = GetSource(source);
-            if (src == null) return;
-
-            var readied = src.ReadiedManeuvers.ToList();
+            var readied = GetReadiedManeuvers(source).ToList();
             if (readied.Count == 0) return;
 
             string lower = (source ?? "").ToLowerInvariant();
@@ -445,8 +579,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
             for (int i = 0; i < grantCount; i++) {
                 shuffled[i].State = ManeuverState.Available;
             }
-
-            src.SyncToSaved();
         }
 
         // Source: Tome of Battle, pp. 38, 40
@@ -454,17 +586,12 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         // Source: Tome of Battle, p. 38
         public void AdvanceCrusaderTurn(string source = "Crusader", Random rng = null) {
-            var src = GetSource(source);
-            if (src == null) return;
-
             rng = rng ?? new Random();
-            var withheldSlots = src.Known?.Slots?.Where(s => s != null && s.State == ManeuverState.Withheld).ToList()
-                                ?? src.ReadiedManeuvers.Where(s => s.State == ManeuverState.Withheld).ToList();
+            var withheldSlots = GetKnownSlots(source).Where(s => s != null && s.State == ManeuverState.Withheld).ToList();
 
             if (withheldSlots.Count > 0) {
                 int pickIndex = rng.Next(withheldSlots.Count);
                 withheldSlots[pickIndex].State = ManeuverState.Available;
-                src.SyncToSaved();
             } else {
                 DealCrusader(source, rng);
             }
@@ -475,20 +602,17 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         // Source: Tome of Battle, pp. 38, 40
         public void ResetEncounter(Random rng = null) {
-            var allSources = StandardSources.Union(state.Sources.Keys, StringComparer.OrdinalIgnoreCase).ToList();
+            var allSources = GetKnownSources();
             foreach (var sourceKey in allSources) {
-                if (!state.Sources.ContainsKey(sourceKey)) continue;
-                var src = state.Sources[sourceKey];
                 if (string.Equals(sourceKey, "Crusader", StringComparison.OrdinalIgnoreCase)) {
                     DealCrusader(sourceKey, rng);
                 } else {
-                    if (src.Known != null) {
-                        foreach (var slot in src.Known.Slots) {
+                    if (state.Known.TryGetValue(sourceKey, out var slots) && slots != null) {
+                        foreach (var slot in slots) {
                             if (slot != null && slot.IsReadied) {
                                 slot.State = ManeuverState.Available;
                             }
                         }
-                        src.SyncToSaved();
                     }
                 }
             }

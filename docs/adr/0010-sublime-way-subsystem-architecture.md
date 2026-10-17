@@ -1,4 +1,4 @@
-﻿# Sublime Way Subsystem Architecture
+# Sublime Way Subsystem Architecture
 
 ## Context
 The Sublime Way martial system (*Tome of Battle: The Book of Nine Swords*) introduces martial maneuvers and stances across nine disciplines. Characters acquire maneuvers and stances through martial adept classes (Warblade, Crusader, Swordsage) or feats (Martial Study, Martial Stance). The subsystem requires modeling two-stage preparation (known vs. readied), class-isolated pools, divergent in-combat recovery mechanics (Crusader card decks, Warblade swift flourishes, Swordsage full-round meditation), and seamless integration with the headless `Timeline` and `EffectPool` without introducing speculative frameworks or violating Enable, Don't Enforce (ADR-0001).
@@ -10,12 +10,11 @@ We structure the Sublime Way around a single cohesive engine `MartialManeuverEng
    - `SubsystemSlotGroup<TSlot>` is deepened with optional `maxLevelProvider` and `levelSelector` delegates to evaluate level-based access gating across both Pact Magic and Martial Maneuvers per the Rule of Two (ADR-0006).
    - The slot group exposes `IsSlotLevelValid(int slotIndex)` for non-blocking advisory Warning Badges (ADR-0001) without rejecting out-of-level assignments.
 
-2. **Unified Initiator Sources (`ManeuverSourceState`)**:
-   - `MartialManeuverState` organizes data by initiator source: `Dictionary<string, ManeuverSourceState> Sources`.
+2. **Direct Initiator Partitions and Unified Caller Seam**:
+   - `MartialManeuverState` organizes data directly by initiator source without intermediate wrapper states: `Dictionary<string, List<KnownManeuverSlot>> Known` and `Dictionary<string, List<StanceSlot>> Stances`.
    - Keys include adept classes (`"Warblade"`, `"Crusader"`, `"Swordsage"`) and non-adept feat grants (`"Feats"`).
-   - Each source maintains:
-     - `SubsystemSlotGroup<KnownManeuverSlot> Known` (capacity derived from `maneuvers known:<source>`, level-gated by `max maneuver level:<source>`).
-     - `SubsystemSlotGroup<StanceSlot> Stances` (capacity derived from `stances known:<source>`, level-gated).
+   - `MartialManeuverEngine` acts as the single cohesive caller seam for all slot mutations, queries, capacity checks, and lifecycle actions (`SetKnownSlot`, `GetKnownSlot`, `ClearKnownSlot`, `SetStanceSlot`, `GetStanceSlot`, `ClearStanceSlot`, `AdoptStance`, `InitiateManeuver`, recovery routines).
+   - `SubsystemSlotGroup<TSlot>` binds directly to the state's underlying lists via an optional `storage` constructor parameter, eliminating shadow arrays, synchronization loops, and dynamic wrapper allocations.
 
 3. **Four-State Lifecycle & Initiation Seam**:
    - `KnownManeuverSlot` tracks `ManeuverName` and an explicit 4-state enum `ManeuverState { Unreadied, Withheld, Available, Expended }`.

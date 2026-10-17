@@ -118,7 +118,6 @@
     <Compile Include="Subsystems\Maneuvers\ManeuverState.cs" />
     <Compile Include="Subsystems\Maneuvers\KnownManeuverSlot.cs" />
     <Compile Include="Subsystems\Maneuvers\StanceSlot.cs" />
-    <Compile Include="Subsystems\Maneuvers\ManeuverSourceState.cs" />
     <Compile Include="Subsystems\Maneuvers\MartialManeuverState.cs" />
     <Compile Include="Subsystems\Maneuvers\MartialManeuverEngine.cs" />
     <Compile Include="Subsystems\Maneuvers\ManeuverSheetAction.cs" />
