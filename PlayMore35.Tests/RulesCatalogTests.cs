@@ -392,7 +392,7 @@ namespace PlayMore35.Tests {
                     }
                 }
             }
-            Assert.AreEqual(0, invalid.Count, $"Invalid modifier types found: {string.Join(", ", invalid)}");
+            Assert.AreEqual(0, invalid.Count, $"Invalid modifier types found: {string.Join(", ", invalid)}. A missing modifier type is an unarbitrated Domain Specification requiring human arbitration to add to ModifierTypes and docs/rules/mechanics/stacking-and-modifiers.md.");
             Assert.IsTrue(checkedModifiers > 0, "Should have verified at least one modifier in the catalog.");
         }
     }

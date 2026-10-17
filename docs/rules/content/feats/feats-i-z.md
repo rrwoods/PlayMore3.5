@@ -40,15 +40,19 @@
 - **Status**: Verified Reference Entry
 - **Source**: *Tome of Battle*, p. 52
 - **Prerequisites**: One martial maneuver.
-- **Benefit**: You gain the ability to learn a martial stance from any discipline you have access to through maneuvers.
-- **Rules Dysfunction & Human-Approved Correction** (`dysfunction:martial-study-minimum-il`): Grants `initiator level:feats` using non-stacking `internal` bonus type ($\max(1, \lfloor\text{Character Level} / 2\rfloor)$) so that an adept or non-adept acquiring the feat has an active initiator level.
+- **Benefit**: Choose a stance from a discipline in which you know a maneuver and whose prerequisite you meet.  You know that stance.  If you have martial adept levels at the time you take this feat, the new stance becomes a stance known for one of them.  Otherwise, your initiator level for that stance is half your character level rounded down, minimum 1.
+- **Rules Dysfunction** (`dysfunction:martial-study-minimum-il`): As written, the initiator level for Martial Stance doesn't include "minimum 1", resulting in the possibility of not having any eligible stances.
+- **Human-Approved Correction**: The minimum initiator level for a non-adept taking Martial Stance (and Martial Study) is 1.
 
 ### Martial Study
 - **Status**: Verified Reference Entry
 - **Source**: *Tome of Battle*, p. 52
-- **Benefit**: By learning the basic principles of a martial discipline, you gain the ability to initiate a single martial maneuver.
-- **Rules Dysfunction & Human-Approved Correction** (`dysfunction:martial-study-minimum-il`):
-  Under strict rules-as-written, a 1st-level non-adept taking *Martial Study* receives $\lfloor 1 / 2 \rfloor = 0$ initiator level, leaving them with $\text{Max Maneuver Level} = 0$ and unable to select or initiate any 1st-level maneuver. PlayMore35 applies a human-approved correction setting $\text{IL}_{\text{feats}} = \max(1, \lfloor\text{Character Level} / 2\rfloor)$ using non-stacking modifier type `internal`.
+- **Benefit**:
+  - If you have martial adept levels at the time you take this feat, choose one of your martial adept classes, and choose a maneuver whose prerequisite you meet and whose level is low enough for you to select for the chosen class.  (It doesn't need to be in that class's disciplines.)  The maneuver becomes a maneuver known for that class (and that class's maneuvers known increases by 1).
+  - If you don't have martial adept levels at the time you take this feat, your initiator level is half your character level, rounded down, minimum 1.  Choose a maneuver whose prerequisite you meet and whose level is low enough for you to select (based on that initiator level).  You gain one maneuver known, one maneuver readied, and know the chosen maneuver.  (This feat doesn't grant a recovery method.)
+  - The chosen maneuver's discipline's key skill becomes a class skill for you, starting the level after you take this feat.
+- **Rules Dysfunction** (`dysfunction:martial-study-minimum-il`): As written, the initiator level for Martial Study doesn't include "minimum 1", resulting in the possibility of not having any eligible stances.
+- **Human-Approved Correction**: The minimum initiator level for a non-adept taking Martial Study (and Martial Stance) is 1.
 
 ### Martial Weapon Proficiency
 - **Status**: Unarbitrated Domain Specification

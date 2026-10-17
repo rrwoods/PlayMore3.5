@@ -136,12 +136,16 @@ _Avoid_: System, subsystem engine, magic system
 A discrete catalogable unit within a subsystem (such as a spell, martial maneuver, psionic power, vestige, soulmeld, invocation, mystery, or utterance) that a character can learn, prepare, ready, bind, shape, or activate. May be shortened to *Element* when the subsystem context is clear.
 _Avoid_: Subsystem thing, subsystem ability, subsystem option, subsystem feature
 
+**Level Gating**:
+The dynamic calculation of the maximum accessible subsystem element tier (such as maximum maneuver level, spell circle, or vestige grade) derived from progression or grant statistics (such as initiator level or caster level).
+_Avoid_: Level cap, tier limit, spell level cap, access ceiling
+
 **Progression Access**:
-Eligibility for subsystem elements acquired through a character's class progression and governed by level caps or class and discipline lists.
+Eligibility for subsystem elements acquired through a character's class progression, bounded by level gating and class or discipline lists.
 _Avoid_: Class access, standard access, normal progression
 
 **Non-Progression Access**:
-Eligibility for specific subsystem elements granted outside normal class progression (such as via feats or special class features) that bypasses or modifies standard class or discipline restrictions.
+Eligibility for specific subsystem elements granted outside normal class progression (such as via feats or special class features) that bypasses or modifies standard class or discipline restrictions, while remaining subject to level gating.
 _Avoid_: Exception grant, direct grant, bonus access
 
 **Subsystem Slot**:
