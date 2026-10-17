@@ -5,7 +5,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Absolute Steel
 - **Source**: *Tome of Battle*, p. 66
 - **Type**: Stance
-- **Level**: Warblade 3
+- **Level**: 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Iron Heart maneuver
 - **Mechanics**: You gain a +10-foot enhancement bonus to your speed. If you move at least 10 feet during your turn, you gain a +2 dodge bonus to AC until the start of your next turn.
@@ -13,7 +13,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Adamantine Hurricane
 - **Source**: *Tome of Battle*, p. 66
 - **Type**: Strike
-- **Level**: Warblade 8
+- **Level**: 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Iron Heart maneuvers
 - **Mechanics**: Make two melee attacks at a +4 bonus against each adjacent opponent you threaten.
@@ -21,7 +21,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Dancing Blade Form
 - **Source**: *Tome of Battle*, p. 67
 - **Type**: Stance
-- **Level**: Warblade 5
+- **Level**: 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: During your turn, your reach with melee attacks increases by 5 feet. This doesn't stack with other reach-increasing maneuvers.
@@ -29,7 +29,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Dazing Strike
 - **Source**: *Tome of Battle*, p. 67
 - **Type**: Strike
-- **Level**: Warblade 5
+- **Level**: 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: Make a melee attack. If it hits, the target must make a Fortitude save (DC 15 + your Str modifier) or be dazed for 1 round.
@@ -37,7 +37,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Disarming Strike
 - **Source**: *Tome of Battle*, p. 67
 - **Type**: Strike
-- **Level**: Warblade 2
+- **Level**: 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
 - **Mechanics**: Make a melee attack. If it hits and deals damage, you can attempt to disarm the target without provoking attacks of opportunity or risking counter-disarm.
@@ -45,7 +45,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Exorcism of Steel
 - **Source**: *Tome of Battle*, p. 67
 - **Type**: Strike
-- **Level**: Warblade 3
+- **Level**: 3
 - **Initiation Action**: Standard action
 - **Prerequisites**: One Iron Heart maneuver
 - **Mechanics**: Make a sunder attack against an opponent's manufactured weapon without provoking attacks of opportunity. If successful, the wielder takes a –4 penalty on melee damage rolls for 1 minute (Will save DC 13 + your Str modifier halves).
@@ -53,7 +53,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Finishing Move
 - **Source**: *Tome of Battle*, p. 67
 - **Type**: Strike
-- **Level**: Warblade 7
+- **Level**: 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Iron Heart maneuvers
 - **Mechanics**: Make a melee attack. It deals an extra 4d6 damage, or extra 6d6 damage if the target is below full HP, or extra 14d6 damage if the target is at or below half HP.
@@ -61,7 +61,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Iron Heart Endurance
 - **Source**: *Tome of Battle*, p. 68
 - **Type**: Boost
-- **Level**: Warblade 6
+- **Level**: 6
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: If you have half or fewer of your full normal hit points remaining, you heal hit points equal to twice your character level.
@@ -69,7 +69,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Iron Heart Focus
 - **Source**: *Tome of Battle*, p. 68
 - **Type**: Counter
-- **Level**: Warblade 5
+- **Level**: 5
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: When you fail a saving throw, you can reroll it and must accept the second result.
@@ -77,7 +77,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Iron Heart Surge
 - **Source**: *Tome of Battle*, p. 68
 - **Type**: Other
-- **Level**: Warblade 3
+- **Level**: 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Iron Heart maneuver
 - **Mechanics**: Select one spell, effect, or condition currently affecting you with a duration of 1 or more rounds. That effect ends immediately, and you gain a +2 morale bonus on attack rolls until the end of your next turn.
@@ -85,7 +85,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Lightning Recovery
 - **Source**: *Tome of Battle*, p. 68
 - **Type**: Counter
-- **Level**: Warblade 4
+- **Level**: 4
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: When a melee attack you make misses, you can reroll the attack roll with a +2 bonus.
@@ -93,7 +93,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Lightning Throw
 - **Source**: *Tome of Battle*, p. 68
 - **Type**: Strike
-- **Level**: Warblade 8
+- **Level**: 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: Make a melee attack roll and throw your melee weapon in a 30-ft. line. Each creature in the line takes your normal melee damage plus an extra 12d6 damage, with a Reflex save (DC equal to your attack roll) for half damage. Your weapon returns to your hand at the end of the round.
@@ -101,7 +101,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Manticore Parry
 - **Source**: *Tome of Battle*, p. 69
 - **Type**: Counter
-- **Level**: Warblade 6
+- **Level**: 6
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: When an enemy attacks you with an armed melee attack, you can oppose it with a melee attack roll. If your roll beats the enemy's attack roll, the strike is deflected to an adjacent target of your choice using the enemy's attack roll. You must choose to use this before knowing if the attack hits.
@@ -109,7 +109,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Mithral Tornado
 - **Source**: *Tome of Battle*, p. 69
 - **Type**: Strike
-- **Level**: Warblade 4
+- **Level**: 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Iron Heart maneuvers
 - **Mechanics**: Make a melee attack at a +2 bonus against every adjacent opponent.
@@ -117,15 +117,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Punishing Stance
 - **Source**: *Tome of Battle*, p. 69
 - **Type**: Stance
-- **Level**: Warblade 1
+- **Level**: 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
-- **Mechanics**: You deal an extra 1d6 points of damage with all melee attacks, but take a –2 penalty to AC.
+- **Mechanics**: You deal an extra 1d6 damage with all melee attacks, but take a –2 penalty to AC.
 
 ### Scything Blade
 - **Source**: *Tome of Battle*, p. 69
 - **Type**: Boost
-- **Level**: Warblade 7
+- **Level**: 7
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Iron Heart maneuvers
 - **Mechanics**: If the first melee attack you make during your turn hits, you can immediately make a free melee attack at your highest attack bonus against a different enemy you threaten.
@@ -133,7 +133,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Steel Wind
 - **Source**: *Tome of Battle*, p. 69
 - **Type**: Strike
-- **Level**: Warblade 1
+- **Level**: 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
 - **Mechanics**: Make two melee attacks, each against a different foe you threaten.
@@ -141,7 +141,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Steely Strike
 - **Source**: *Tome of Battle*, p. 69
 - **Type**: Strike
-- **Level**: Warblade 1
+- **Level**: 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
 - **Mechanics**: Make a melee attack with a +4 bonus. All enemies other than the target gain a +4 bonus on attack rolls against you for 1 round.
@@ -149,15 +149,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Strike of Perfect Clarity
 - **Source**: *Tome of Battle*, p. 70
 - **Type**: Strike
-- **Level**: Warblade 9
+- **Level**: 9
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Four Iron Heart maneuvers
-- **Mechanics**: Make a melee attack. If it hits, you deal an extra 100 points of damage.
+- **Mechanics**: Make a melee attack. If it hits, you deal an extra 100 damage.
 
 ### Supreme Blade Parry
 - **Source**: *Tome of Battle*, p. 70
 - **Type**: Stance
-- **Level**: Warblade 8
+- **Level**: 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Iron Heart maneuvers
 - **Mechanics**: You gain damage reduction 5/— against any opponent that does not catch you flat-footed, provided you are proficient with your weapon (or have Improved Unarmed Strike if unarmed).
@@ -165,7 +165,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Wall of Blades
 - **Source**: *Tome of Battle*, p. 70
 - **Type**: Counter
-- **Level**: Warblade 2
+- **Level**: 2
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: None
 - **Mechanics**: When an opponent attacks you with a melee or ranged attack, you can make a melee attack roll with your weapon to oppose the attack. You use the higher of your AC or attack roll against that attack. You cannot use this if denied your Dexterity bonus to AC.

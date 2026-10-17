@@ -5,7 +5,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Assassin's Stance
 - **Source**: *Tome of Battle*, p. 75
 - **Type**: Stance
-- **Level**: Swordsage 3
+- **Level**: 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: One Shadow Hand maneuver
 - **Mechanics**: You gain the sneak attack ability (+2d6 damage); if you already have sneak attack, this bonus damage stacks.
@@ -13,7 +13,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Balance On the Sky
 - **Source**: *Tome of Battle*, p. 75
 - **Type**: Stance
-- **Level**: Swordsage 8
+- **Level**: 8
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Three Shadow Hand maneuvers
 - **Mechanics**: You gain the benefit of air walk (PH 196) on yourself while maintaining this stance with at least one hand empty (moving upward costs 10 ft. movement per 5 ft. elevation). If this stance ends in midair, you fall.
@@ -21,15 +21,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Bloodletting Strike
 - **Source**: *Tome of Battle*, p. 75
 - **Type**: Strike
-- **Level**: Swordsage 5
+- **Level**: 5
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Shadow Hand maneuvers
-- **Mechanics**: Make a melee attack. If it hits, you also deal 4 points of Constitution damage (Fortitude save DC 15 + your Wis modifier reduces to 2 points).
+- **Mechanics**: Make a melee attack. If it hits, you also deal 4 Constitution damage (Fortitude save DC 15 + your Wis modifier reduces to 2 points).
 
 ### Child of Shadow
 - **Source**: *Tome of Battle*, p. 76
 - **Type**: Stance
-- **Level**: Swordsage 1
+- **Level**: 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
 - **Mechanics**: If you move at least 10 feet during your turn, you gain concealment against all attacks until the start of your next turn.
@@ -37,15 +37,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Clinging Shadow Strike
 - **Source**: *Tome of Battle*, p. 76
 - **Type**: Strike
-- **Level**: Swordsage 1
+- **Level**: 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
-- **Mechanics**: Make a melee attack. If it hits, you deal an extra 1d6 points of damage and the target must make a Fortitude save (DC 11 + your Wis modifier) or suffer a 20% miss chance on all attacks for 1 round.
+- **Mechanics**: Make a melee attack. If it hits, you deal an extra 1d6 damage and the target must make a Fortitude save (DC 11 + your Wis modifier) or suffer a 20% miss chance on all attacks for 1 round.
 
 ### Cloak of Deception
 - **Source**: *Tome of Battle*, p. 76
 - **Type**: Boost
-- **Level**: Swordsage 2
+- **Level**: 2
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
 - **Mechanics**: You turn invisible (as greater invisibility, PH 245) until the end of your turn.
@@ -53,7 +53,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Dance of the Spider
 - **Source**: *Tome of Battle*, p. 76
 - **Type**: Stance
-- **Level**: Swordsage 3
+- **Level**: 3
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
 - **Mechanics**: You gain a climb speed of 20 feet and can move on vertical surfaces and ceilings with at least one hand free without Climb checks, retaining your Dexterity bonus to AC (cannot run).
@@ -61,7 +61,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Death in the Dark
 - **Source**: *Tome of Battle*, p. 76
 - **Type**: Strike
-- **Level**: Swordsage 7
+- **Level**: 7
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Shadow Hand maneuvers
 - **Mechanics**: Make a melee attack against a flat-footed opponent vulnerable to critical hits. If it hits, the target must make a Fortitude save (DC 17 + your Wis modifier), taking an extra 15d6 damage on a failed save or an extra 5d6 damage on a successful save.
@@ -69,15 +69,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Drain Vitality
 - **Source**: *Tome of Battle*, p. 77
 - **Type**: Strike
-- **Level**: Swordsage 2
+- **Level**: 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Shadow Hand maneuver
-- **Mechanics**: Make a melee attack. If it hits, the target must make a Fortitude save (DC 12 + your Wis modifier) or take 2 points of Constitution damage.
+- **Mechanics**: Make a melee attack. If it hits, the target must make a Fortitude save (DC 12 + your Wis modifier) or take 2 Constitution damage.
 
 ### Enervating Shadow Strike
 - **Source**: *Tome of Battle*, p. 77
 - **Type**: Strike
-- **Level**: Swordsage 8
+- **Level**: 8
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Shadow Hand maneuvers
 - **Mechanics**: Make a melee attack. If it hits, the target must make a Fortitude save (DC 18 + your Wis modifier) or gain 1d4 negative levels; you gain 5 temporary hit points per negative level bestowed until the end of the encounter.
@@ -85,15 +85,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Five-Shadow Creeping Ice Enervation Strike
 - **Source**: *Tome of Battle*, p. 77
 - **Type**: Strike
-- **Level**: Swordsage 9
+- **Level**: 9
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Five Shadow Hand maneuvers
-- **Mechanics**: Make a melee attack. If it hits, you deal an extra 15d6 points of damage, and roll d20 for an effect (lasts 1d6 rounds): 1–7 deals 2d6 Dex damage and reduces speed to 0 ft.; 8–14 deals 2d6 Str damage and a –6 penalty on attack rolls and Concentration checks; 15–20 deals 2d6 Dex, 2d6 Str, and 2d6 Con damage. A Fortitude save (DC 19 + your Wis modifier) negates the special effect, negates the Con damage, and halves the Dex and Str damage.
+- **Mechanics**: Make a melee attack. If it hits, you deal an extra 15d6 damage, and roll d20 for an effect (lasts 1d6 rounds): 1–7 deals 2d6 Dex damage and reduces speed to 0 ft.; 8–14 deals 2d6 Str damage and a –6 penalty on attack rolls and Concentration checks; 15–20 deals 2d6 Dex, 2d6 Str, and 2d6 Con damage. A Fortitude save (DC 19 + your Wis modifier) negates the special effect, negates the Con damage, and halves the Dex and Str damage.
 
 ### Ghost Blade
 - **Source**: *Tome of Battle*, p. 77
 - **Type**: Strike
-- **Level**: Swordsage 6
+- **Level**: 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Three Shadow Hand maneuvers
 - **Mechanics**: Make a melee attack. The target is flat-footed against this attack.
@@ -101,7 +101,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Hand of Death
 - **Source**: *Tome of Battle*, p. 77
 - **Type**: Strike
-- **Level**: Swordsage 4
+- **Level**: 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
 - **Mechanics**: Make a melee touch attack against a flat-footed opponent. If it hits, the target must make a Fortitude save (DC 14 + your Wis modifier) or be paralyzed for 1d3 rounds.
@@ -109,7 +109,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Island of Blades
 - **Source**: *Tome of Battle*, p. 78
 - **Type**: Stance
-- **Level**: Swordsage 1
+- **Level**: 1
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: None
 - **Mechanics**: While both you and an ally are adjacent to the same creature, you both gain the benefit of flanking that creature.
@@ -117,15 +117,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Obscuring Shadow Veil
 - **Source**: *Tome of Battle*, p. 78
 - **Type**: Strike
-- **Level**: Swordsage 4
+- **Level**: 4
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: Two Shadow Hand maneuvers
-- **Mechanics**: Make a melee attack. If it hits, you deal an extra 5d6 points of damage and the target must make a Fortitude save (DC 14 + your Wis modifier) or suffer a 50% miss chance on all attacks for 1 round.
+- **Mechanics**: Make a melee attack. If it hits, you deal an extra 5d6 damage and the target must make a Fortitude save (DC 14 + your Wis modifier) or suffer a 50% miss chance on all attacks for 1 round.
 
 ### One With Shadow
 - **Source**: *Tome of Battle*, p. 78
 - **Type**: Counter
-- **Level**: Swordsage 8
+- **Level**: 8
 - **Initiation Action**: 1 immediate action
 - **Prerequisites**: Three Shadow Hand maneuvers
 - **Mechanics**: You become incorporeal along with your gear until the start of your next turn.
@@ -133,15 +133,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Shadow Blade Technique
 - **Source**: *Tome of Battle*, p. 78
 - **Type**: Strike
-- **Level**: Swordsage 1
+- **Level**: 1
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
-- **Mechanics**: Make a melee attack, rolling 2d20. If you choose the higher roll, resolve the attack normally; if you choose the lower roll (or both rolls match), you deal an extra 1d6 points of cold damage on a hit.
+- **Mechanics**: Make a melee attack, rolling 2d20. If you choose the higher roll, resolve the attack normally; if you choose the lower roll (or both rolls match), you deal an extra 1d6 cold damage on a hit.
 
 ### Shadow Blink
 - **Source**: *Tome of Battle*, p. 79
 - **Type**: Other [Teleportation]
-- **Level**: Swordsage 7
+- **Level**: 7
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Four Shadow Hand maneuvers
 - **Mechanics**: You teleport up to 50 feet to any unoccupied space to which you have line of sight and line of effect.
@@ -149,15 +149,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Shadow Garrote
 - **Source**: *Tome of Battle*, p. 78
 - **Type**: Strike
-- **Level**: Swordsage 3
+- **Level**: 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
-- **Mechanics**: Make a ranged touch attack against a living creature within 60 ft. If it hits, you deal 5d6 points of damage and the target must make a Fortitude save (DC 13 + your Wis modifier) or become flat-footed until the start of its next turn.
+- **Mechanics**: Make a ranged touch attack against a living creature within 60 ft. If it hits, you deal 5d6 damage and the target must make a Fortitude save (DC 13 + your Wis modifier) or become flat-footed until the start of its next turn.
 
 ### Shadow Jaunt
 - **Source**: *Tome of Battle*, p. 79
 - **Type**: Other [Teleportation]
-- **Level**: Swordsage 2
+- **Level**: 2
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
 - **Mechanics**: You teleport up to 50 feet to any unoccupied space to which you have line of sight and line of effect.
@@ -165,15 +165,15 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Shadow Noose
 - **Source**: *Tome of Battle*, p. 79
 - **Type**: Strike
-- **Level**: Swordsage 6
+- **Level**: 6
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: None
-- **Mechanics**: Make a ranged touch attack against a flat-footed living creature within 60 ft. If it hits, you deal 8d6 points of damage and the target must make a Fortitude save (DC 16 + your Wis modifier) or be stunned for 1 round.
+- **Mechanics**: Make a ranged touch attack against a flat-footed living creature within 60 ft. If it hits, you deal 8d6 damage and the target must make a Fortitude save (DC 16 + your Wis modifier) or be stunned for 1 round.
 
 ### Shadow Stride
 - **Source**: *Tome of Battle*, p. 80
 - **Type**: Other [Teleportation]
-- **Level**: Swordsage 6
+- **Level**: 6
 - **Initiation Action**: 1 move action
 - **Prerequisites**: Three Shadow Hand maneuvers
 - **Mechanics**: You teleport up to 50 feet to any unoccupied space to which you have line of sight and line of effect.
@@ -181,7 +181,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Stalker in the Night
 - **Source**: *Tome of Battle*, p. 80
 - **Type**: Strike
-- **Level**: Swordsage 6
+- **Level**: 6
 - **Initiation Action**: 1 full-round action
 - **Prerequisites**: None
 - **Mechanics**: Move up to your speed and make a single melee attack at any point during your movement. If hidden before moving, you retain your previous Hide and Move Silently checks for this movement and attack.
@@ -189,7 +189,7 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Step of the Dancing Moth
 - **Source**: *Tome of Battle*, p. 80
 - **Type**: Stance
-- **Level**: Swordsage 5
+- **Level**: 5
 - **Initiation Action**: 1 swift action
 - **Prerequisites**: Two Shadow Hand maneuvers
 - **Mechanics**: You gain a land speed of 20 feet (cannot run) and walk up to 5 feet above the ground, ignoring terrain features projecting 5 feet or less (such as difficult terrain, liquid, or lava) and ignoring penalties for moving quickly while hiding or moving silently.
@@ -197,9 +197,9 @@ Primary Source: *Tome of Battle: The Book of Nine Swords*, Chapter 4.
 ### Strength Draining Strike
 - **Source**: *Tome of Battle*, p. 80
 - **Type**: Strike
-- **Level**: Swordsage 3
+- **Level**: 3
 - **Initiation Action**: 1 standard action
 - **Prerequisites**: One Shadow Hand maneuver
-- **Mechanics**: Make a melee attack. If it hits, you also deal 4 points of Strength damage (Fortitude save DC 13 + your Wis modifier halves).
+- **Mechanics**: Make a melee attack. If it hits, you also deal 4 Strength damage (Fortitude save DC 13 + your Wis modifier halves).
 
 
