@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Tests
 {
@@ -124,6 +126,96 @@ namespace PlayMore35.Tests
                 violations.Count,
                 "Markdown files in docs/rules/ must not contain unresolved soft hyphens or raw typographic ligatures:\n" +
                 string.Join("\n", violations));
+        }
+
+        [TestMethod]
+        public void MigratedContentFiles_HaveNoChecklistSyntax()
+        {
+            string repoRoot = TestEnvironment.FindRepoRoot();
+            string contentRulesDir = Path.Combine(repoRoot, "docs", "rules", "content");
+            string classesDir = Path.Combine(contentRulesDir, "classes");
+            string featsDir = Path.Combine(contentRulesDir, "feats");
+
+            var directoriesToCheck = new List<string>();
+            if (Directory.Exists(classesDir)) directoriesToCheck.Add(classesDir);
+            if (Directory.Exists(featsDir)) directoriesToCheck.Add(featsDir);
+
+            var checklistRegex = new Regex(@"^\s*-\s*\[[ xX]\]", RegexOptions.Multiline);
+            var violations = new List<string>();
+
+            foreach (string dir in directoriesToCheck)
+            {
+                foreach (string file in Directory.GetFiles(dir, "*.md", SearchOption.AllDirectories))
+                {
+                    string text = File.ReadAllText(file);
+                    if (checklistRegex.IsMatch(text))
+                    {
+                        string relativePath = file.Substring(repoRoot.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                        violations.Add(relativePath);
+                    }
+                }
+            }
+
+            Assert.AreEqual(
+                0,
+                violations.Count,
+                "Content files must use structured reference schemas instead of task-list checklist syntax (- [ ] or - [x]):\n" +
+                string.Join("\n", violations));
+        }
+
+        [TestMethod]
+        public void FeatsDirectory_HasBalancedFilesCoveringAllResourceFeats()
+        {
+            string repoRoot = TestEnvironment.FindRepoRoot();
+            string contentRulesDir = Path.Combine(repoRoot, "docs", "rules", "content");
+            string singleFeatsFile = Path.Combine(contentRulesDir, "feats.md");
+            string featsDir = Path.Combine(contentRulesDir, "feats");
+
+            Assert.IsFalse(File.Exists(singleFeatsFile), "docs/rules/content/feats.md should be replaced by docs/rules/content/feats/ directory.");
+            Assert.IsTrue(Directory.Exists(featsDir), "Expected directory docs/rules/content/feats/ to exist.");
+
+            string featsAI = Path.Combine(featsDir, "feats-a-i.md");
+            string featsIZ = Path.Combine(featsDir, "feats-i-z.md");
+
+            Assert.IsTrue(File.Exists(featsAI), "Expected docs/rules/content/feats/feats-a-i.md to exist.");
+            Assert.IsTrue(File.Exists(featsIZ), "Expected docs/rules/content/feats/feats-i-z.md to exist.");
+
+            int linesAI = File.ReadLines(featsAI).Count();
+            int linesIZ = File.ReadLines(featsIZ).Count();
+            Assert.IsTrue(linesAI <= MaxLinesPerRulesFile, $"feats-a-i.md ({linesAI} lines) exceeds {MaxLinesPerRulesFile} lines.");
+            Assert.IsTrue(linesIZ <= MaxLinesPerRulesFile, $"feats-i-z.md ({linesIZ} lines) exceeds {MaxLinesPerRulesFile} lines.");
+
+            var featsInAI = ExtractSectionHeadings(featsAI);
+            var featsInIZ = ExtractSectionHeadings(featsIZ);
+
+            Assert.IsTrue(Math.Abs(featsInAI.Count - featsInIZ.Count) <= 2,
+                $"Feat files should have balanced entry counts. Got {featsInAI.Count} in feats-a-i.md and {featsInIZ.Count} in feats-i-z.md.");
+
+            string featsJsonPath = Path.Combine(repoRoot, "PlayMore35", "Resources", "feats.json");
+            string jsonText = File.ReadAllText(featsJsonPath);
+            var parsedFeats = JArray.Parse(jsonText);
+            var allDocumentedFeats = new HashSet<string>(featsInAI.Concat(featsInIZ), StringComparer.OrdinalIgnoreCase);
+            var missingFeats = new List<string>();
+
+            foreach (var item in parsedFeats)
+            {
+                string featName = (string)item["benefit"]?["name"];
+                if (!string.IsNullOrEmpty(featName) && !allDocumentedFeats.Contains(featName))
+                {
+                    missingFeats.Add(featName);
+                }
+            }
+
+            Assert.AreEqual(0, missingFeats.Count, "The following feats from feats.json are missing from docs/rules/content/feats/: " + string.Join(", ", missingFeats));
+        }
+
+        private static List<string> ExtractSectionHeadings(string filePath)
+        {
+            var headingRegex = new Regex(@"^###\s+(.+)$", RegexOptions.Multiline);
+            return headingRegex.Matches(File.ReadAllText(filePath))
+                .Cast<Match>()
+                .Select(m => m.Groups[1].Value.Trim())
+                .ToList();
         }
     }
 }
