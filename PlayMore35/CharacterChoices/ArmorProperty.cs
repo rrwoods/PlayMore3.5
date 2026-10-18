@@ -1,4 +1,4 @@
-﻿using PlayMore35.Effects;
+using PlayMore35.Effects;
 
 using Newtonsoft.Json.Linq;
 using static PlayMore35.Effects.Constants;
@@ -57,30 +57,30 @@ namespace PlayMore35.Items {
         }
 
         public static ArmorProperty MASTERWORK = new ArmorProperty("mwk") {
-            AcpModifier = new Modifier(+1, UNTYPED) { Name = "mwk" }
+            AcpModifier = new Modifier(+1, ModifierTypes.UNTYPED) { Name = "mwk" }
         };
 
         public static ArmorProperty[] PLUS = new ArmorProperty[] {
             null, // don't ask for a +0 armor/shield.
             new ArmorProperty("+1") {
-                AcpModifier = new Modifier(+1, UNTYPED) { Name = "mwk" },
-                AcModifier = new Modifier(+1, ENHANCEMENT) { Name = "enhancement" }
+                AcpModifier = new Modifier(+1, ModifierTypes.UNTYPED) { Name = "mwk" },
+                AcModifier = new Modifier(+1, ModifierTypes.ENHANCEMENT) { Name = "enhancement" }
             },
             new ArmorProperty("+2") {
-                AcpModifier = new Modifier(+1, UNTYPED) { Name = "mwk" },
-                AcModifier = new Modifier(+2, ENHANCEMENT) { Name = "enhancement" }
+                AcpModifier = new Modifier(+1, ModifierTypes.UNTYPED) { Name = "mwk" },
+                AcModifier = new Modifier(+2, ModifierTypes.ENHANCEMENT) { Name = "enhancement" }
             },
             new ArmorProperty("+3") {
-                AcpModifier = new Modifier(+1, UNTYPED) { Name = "mwk" },
-                AcModifier = new Modifier(+3, ENHANCEMENT) { Name = "enhancement" }
+                AcpModifier = new Modifier(+1, ModifierTypes.UNTYPED) { Name = "mwk" },
+                AcModifier = new Modifier(+3, ModifierTypes.ENHANCEMENT) { Name = "enhancement" }
             },
             new ArmorProperty("+4") {
-                AcpModifier = new Modifier(+1, UNTYPED) { Name = "mwk" },
-                AcModifier = new Modifier(+4, ENHANCEMENT) { Name = "enhancement" }
+                AcpModifier = new Modifier(+1, ModifierTypes.UNTYPED) { Name = "mwk" },
+                AcModifier = new Modifier(+4, ModifierTypes.ENHANCEMENT) { Name = "enhancement" }
             },
             new ArmorProperty("+5") {
-                AcpModifier = new Modifier(+1, UNTYPED) { Name = "mwk" },
-                AcModifier = new Modifier(+5, ENHANCEMENT) { Name = "enhancement" }
+                AcpModifier = new Modifier(+1, ModifierTypes.UNTYPED) { Name = "mwk" },
+                AcModifier = new Modifier(+5, ModifierTypes.ENHANCEMENT) { Name = "enhancement" }
             },
         };
     }

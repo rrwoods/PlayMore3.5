@@ -123,7 +123,7 @@ namespace PlayMore35.Effects {
             }
             
             if (resource.StaticUses != 0) {
-                baseUses.AddModifier(statName, new Modifier(resource.StaticUses, BASE));
+                baseUses.AddModifier(statName, new Modifier(resource.StaticUses, ModifierTypes.BASE));
             }
             AddStat(new Statistic(statName));
 
@@ -282,7 +282,7 @@ namespace PlayMore35.Effects {
                 string name = ability.Key;
                 int score = ability.Value;
                 ReplaceEffect(new Effect($"Assigned {name}")
-                    .AddModifier(name + " score", new Modifier(score, BASE))
+                    .AddModifier(name + " score", new Modifier(score, ModifierTypes.BASE))
                 );
             }
         }
@@ -292,12 +292,12 @@ namespace PlayMore35.Effects {
             AssignAbilityScores(character.assignedAbilityScores);
             foreach (var ability in character.abilityScoreIncrements) {
                 AddEffect(new Effect("Level")
-                    .AddModifier(ability.Value + " score", new Modifier(+1, ABILITY_MODIFIER))
+                    .AddModifier(ability.Value + " score", new Modifier(+1, ModifierTypes.ABILITY_MODIFIER))
                 );
             }
             int numHd = character.rolledHitDice.Count();
             AddEffect(new Effect("Hit dice")
-                .AddModifier(TOTAL_HD, new Modifier(numHd, BASE))
+                .AddModifier(TOTAL_HD, new Modifier(numHd, ModifierTypes.BASE))
             );
             for (int i = 0; i < numHd; i++) {
                 // This might seem roundabout compared to the alternative, which is to
@@ -306,15 +306,15 @@ namespace PlayMore35.Effects {
                 string hdName = $"Level {i+1} hit die";
                 AddStat(new Statistic(hdName, stats[CON_MODIFIER]).Minimum(1));
                 AddEffect(new Effect(hdName)
-                    .AddModifier(hdName, new Modifier(character.rolledHitDice[i], BASE))
+                    .AddModifier(hdName, new Modifier(character.rolledHitDice[i], ModifierTypes.BASE))
                 );
                 AddEffect(new Effect(hdName)
-                    .AddModifier(MAX_HP, new Modifier(hdName, BASE))
+                    .AddModifier(MAX_HP, new Modifier(hdName, ModifierTypes.BASE))
                 );
             }
             foreach (var skill in character.skillRanks) {
                 AddEffect(new Effect(skill.Key + RANKS)
-                    .AddModifier(skill.Key + RANKS, new Modifier(skill.Value.Sum(), BASE))
+                    .AddModifier(skill.Key + RANKS, new Modifier(skill.Value.Sum(), ModifierTypes.BASE))
                 );
             }
 
@@ -333,14 +333,14 @@ namespace PlayMore35.Effects {
             CreatureType = race.CreatureType;
             SubTypes.AddRange(race.SubTypes);
             Effect effect = new Effect(race.Name + " racial traits")
-                .AddModifier(SIZE_CATEGORY, new Modifier(race.SizeCategory, BASE))
-                .AddModifier(BASE_SPEED, new Modifier(race.BaseSpeed, BASE))
-                .AddModifier(STR_SCORE, new Modifier(race.Str, RACIAL))
-                .AddModifier(DEX_SCORE, new Modifier(race.Dex, RACIAL))
-                .AddModifier(CON_SCORE, new Modifier(race.Con, RACIAL))
-                .AddModifier(INT_SCORE, new Modifier(race.Int, RACIAL))
-                .AddModifier(WIS_SCORE, new Modifier(race.Wis, RACIAL))
-                .AddModifier(CHA_SCORE, new Modifier(race.Cha, RACIAL));
+                .AddModifier(SIZE_CATEGORY, new Modifier(race.SizeCategory, ModifierTypes.BASE))
+                .AddModifier(BASE_SPEED, new Modifier(race.BaseSpeed, ModifierTypes.BASE))
+                .AddModifier(STR_SCORE, new Modifier(race.Str, ModifierTypes.RACIAL))
+                .AddModifier(DEX_SCORE, new Modifier(race.Dex, ModifierTypes.RACIAL))
+                .AddModifier(CON_SCORE, new Modifier(race.Con, ModifierTypes.RACIAL))
+                .AddModifier(INT_SCORE, new Modifier(race.Int, ModifierTypes.RACIAL))
+                .AddModifier(WIS_SCORE, new Modifier(race.Wis, ModifierTypes.RACIAL))
+                .AddModifier(CHA_SCORE, new Modifier(race.Cha, ModifierTypes.RACIAL));
             foreach (string language in race.AutomaticLanguages) {
                 effect.AddText(LANGUAGES, language);
             }
@@ -369,11 +369,11 @@ namespace PlayMore35.Effects {
         public void GenerateClassEffects(CharacterClass @class, int level) {
             AddStat(new Statistic($"{@class.Name} level"));
             AddEffect(new Effect($"{@class.Name} level")
-                .AddModifier($"{@class.Name} level", new Modifier(level, BASE))
+                .AddModifier($"{@class.Name} level", new Modifier(level, ModifierTypes.BASE))
             );
             AddStat(new Statistic(CHARACTER_LEVEL));
             AddEffect(new Effect($"{@class.Name} character level contribution")
-                .AddModifier(CHARACTER_LEVEL, new Modifier(level, UNTYPED))
+                .AddModifier(CHARACTER_LEVEL, new Modifier(level, ModifierTypes.UNTYPED))
             );
             int baseAttackBonus = 0;
             switch (@class.BaseAttackBonus) {
@@ -391,17 +391,17 @@ namespace PlayMore35.Effects {
                     break;
             }
             AddEffect(new Effect($"{@class.Name} base attack bonus")
-                .AddModifier(BASE_ATTACK_BONUS, new Modifier(baseAttackBonus, BASE))
+                .AddModifier(BASE_ATTACK_BONUS, new Modifier(baseAttackBonus, ModifierTypes.BASE))
             );
 
             AddEffect(new Effect($"{@class.Name} base Fort save")
-                .AddModifier(FORT_SAVES, new Modifier(BaseSaveBonus(@class.BaseFortSave, level), BASE))
+                .AddModifier(FORT_SAVES, new Modifier(BaseSaveBonus(@class.BaseFortSave, level), ModifierTypes.BASE))
             );
             AddEffect(new Effect($"{@class.Name} base Ref save")
-                .AddModifier(REF_SAVES, new Modifier(BaseSaveBonus(@class.BaseRefSave, level), BASE))
+                .AddModifier(REF_SAVES, new Modifier(BaseSaveBonus(@class.BaseRefSave, level), ModifierTypes.BASE))
             );
             AddEffect(new Effect($"{@class.Name} base Will save")
-                .AddModifier(WILL_SAVES, new Modifier(BaseSaveBonus(@class.BaseWillSave, level), BASE))
+                .AddModifier(WILL_SAVES, new Modifier(BaseSaveBonus(@class.BaseWillSave, level), ModifierTypes.BASE))
             );
 
             Effect proficiencies = new Effect($"{@class.Name} proficiencies");

@@ -29,7 +29,7 @@ namespace PlayMore35.Tests {
             if (!pool.stats.ContainsKey(statName)) {
                 pool.AddStat(new Statistic(statName));
             }
-            pool.AddEffect(new Effect($"Base {statName}").AddModifier(statName, new Modifier(value, UNTYPED)));
+            pool.AddEffect(new Effect($"Base {statName}").AddModifier(statName, new Modifier(value, ModifierTypes.UNTYPED)));
         }
 
         // Source: Tome of Battle, p. 38
@@ -852,7 +852,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ContributeEffects_ProjectsActiveStanceModifiers_AndIgnoresInactiveStances() {
             var stanceEffect = new Effect("Punishing Stance Effect")
-                .AddModifier("AC", new Modifier(-2, UNTYPED));
+                .AddModifier("AC", new Modifier(-2, ModifierTypes.UNTYPED));
             var stance = new Maneuver {
                 Name = "Punishing Stance",
                 Discipline = "Iron Heart",
@@ -888,7 +888,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void InitiateManeuver_SchedulesSheetActionForBoostAndCounter_AndExpiresOnTimelineAdvance() {
             var boostEffect = new Effect("Wind Stride Effect")
-                .AddModifier("Speed", new Modifier(10, ENHANCEMENT));
+                .AddModifier("Speed", new Modifier(10, ModifierTypes.ENHANCEMENT));
             var boost = new Maneuver {
                 Name = "Wind Stride",
                 Discipline = "Desert Wind",

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,9 +24,9 @@ namespace PlayMore35.Effects {
 
         // attackPenalty is the penalty to *this extra attack* -- for penalties to all attacks
         // as a result of the same effect, add a Modifier to the effect.
-        // bonusType should be ENHANCEMENT for explicitly non-stacking extra attacks (like haste/speed)
-        // BASE for iteratives, and UNTYPED for others.  Can use any stacking bonus type for others,
-        // but UNTYPED is probably the only one that makes sense.
+        // bonusType should be ModifierTypes.ENHANCEMENT for explicitly non-stacking extra attacks (like haste/speed)
+        // ModifierTypes.BASE for iteratives, and ModifierTypes.UNTYPED for others.  Can use any stacking bonus type for others,
+        // but ModifierTypes.UNTYPED is probably the only one that makes sense.
         public ExtraAttack(int attackPenalty, string bonusType) {
             AttackPenalty = attackPenalty;
             BonusType = bonusType;

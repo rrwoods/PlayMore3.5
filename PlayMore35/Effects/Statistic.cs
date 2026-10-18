@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -124,8 +124,8 @@ namespace PlayMore35.Effects {
         public bool Relevant(EffectPool pool, Items.Equipped items) {
             return pool.GetModifiers(items, this)
                 .Where(x => !ignoredModifierTypes.ContainsKey(x.Type) || !ignoredModifierTypes[x.Type].On(pool, items))
-                .Where(x => x.Type.Equals(Constants.BASE) || x.ComputeAmount(pool, items) != 0)
-                .Where(x => x.Type != Constants.ABILITY_MODIFIER)
+                .Where(x => x.Type.Equals(ModifierTypes.BASE) || x.ComputeAmount(pool, items) != 0)
+                .Where(x => x.Type != ModifierTypes.ABILITY_MODIFIER)
                 .Any();
         }
 

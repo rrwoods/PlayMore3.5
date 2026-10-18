@@ -1,4 +1,4 @@
-﻿using PlayMore35.Effects;
+using PlayMore35.Effects;
 using Newtonsoft.Json.Linq;
 
 using static PlayMore35.Effects.Constants;
@@ -66,30 +66,30 @@ namespace PlayMore35.Items {
         }
 
         public static WeaponProperty MASTERWORK = new WeaponProperty("mwk") {
-            AttackModifier = new Modifier(+1, ENHANCEMENT) { Name = "mwk" }
+            AttackModifier = new Modifier(+1, ModifierTypes.ENHANCEMENT) { Name = "mwk" }
         };
 
         public static WeaponProperty[] PLUS = new WeaponProperty[] {
             null, // don't ask for a +0 weapon.
             new WeaponProperty("+1") {
-                AttackModifier = new Modifier(+1, ENHANCEMENT) { Name = "enhancement" },
-                DamageModifier = new Modifier(+1, ENHANCEMENT) { Name = "enhancement" },
+                AttackModifier = new Modifier(+1, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
+                DamageModifier = new Modifier(+1, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
             },
             new WeaponProperty("+2") {
-                AttackModifier = new Modifier(+2, ENHANCEMENT) { Name = "enhancement" },
-                DamageModifier = new Modifier(+2, ENHANCEMENT) { Name = "enhancement" },
+                AttackModifier = new Modifier(+2, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
+                DamageModifier = new Modifier(+2, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
             },
             new WeaponProperty("+3") {
-                AttackModifier = new Modifier(+3, ENHANCEMENT) { Name = "enhancement" },
-                DamageModifier = new Modifier(+3, ENHANCEMENT) { Name = "enhancement" },
+                AttackModifier = new Modifier(+3, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
+                DamageModifier = new Modifier(+3, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
             },
             new WeaponProperty("+4") {
-                AttackModifier = new Modifier(+4, ENHANCEMENT) { Name = "enhancement" },
-                DamageModifier = new Modifier(+4, ENHANCEMENT) { Name = "enhancement" },
+                AttackModifier = new Modifier(+4, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
+                DamageModifier = new Modifier(+4, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
             },
             new WeaponProperty("+5") {
-                AttackModifier = new Modifier(+5, ENHANCEMENT) { Name = "enhancement" },
-                DamageModifier = new Modifier(+5, ENHANCEMENT) { Name = "enhancement" },
+                AttackModifier = new Modifier(+5, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
+                DamageModifier = new Modifier(+5, ModifierTypes.ENHANCEMENT) { Name = "enhancement" },
             },
         };
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -21,11 +21,12 @@ namespace PlayMore35.Effects {
         public const string SACRED = "sacred";
         public const string SHIELD = "shield";
         public const string SIZE = "size";
-        public const string INTERNAL = "internal";
         public const string KEEN = "keen";
-        public const string UNTYPED = "untyped";
-        public const string BASE = "base";
-        public const string ABILITY_MODIFIER = "ability modifier";
+        public const string INTERNAL = "internal"; // only used for "effects" that need to set a value like initiator level,
+                                                   // without accidentally double-counting
+        public const string UNTYPED = "untyped"; // no type listed in explainer
+        public const string BASE = "base"; // "bonus" type for the base number for a statistic, no type listed
+        public const string ABILITY_MODIFIER = "ability modifier"; // listed after base with no type
 
         public static readonly ReadOnlyCollection<string> All = new ReadOnlyCollection<string>(new[] {
             ALCHEMICAL,

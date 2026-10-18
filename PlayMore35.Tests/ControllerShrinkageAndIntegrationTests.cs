@@ -123,7 +123,7 @@ namespace PlayMore35.Tests {
             session.Subsystems.Register(engine, "vestige");
 
             ctx.Effects.AddStat(new Statistic(PactMagicEngine.NUM_VESTIGES));
-            ctx.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, UNTYPED)));
+            ctx.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, ModifierTypes.UNTYPED)));
             engine.Initialize(session);
 
             engine.BindVestige(0, "Aym", PactState.GOOD_PACT);

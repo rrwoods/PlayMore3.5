@@ -341,9 +341,9 @@ namespace PlayMore35.Tests {
             var engine = new PactMagicEngine();
             var context = new FakeCharacterContext(catalog: customCatalog);
             context.Effects.AddStat(new Statistic(PactMagicEngine.NUM_VESTIGES));
-            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, UNTYPED)));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, ModifierTypes.UNTYPED)));
             context.Effects.AddStat(new Statistic(PactMagicEngine.MAX_VESTIGE_LEVEL));
-            context.Effects.AddEffect(new Effect("Max Level").AddModifier(PactMagicEngine.MAX_VESTIGE_LEVEL, new Modifier(5, UNTYPED)));
+            context.Effects.AddEffect(new Effect("Max Level").AddModifier(PactMagicEngine.MAX_VESTIGE_LEVEL, new Modifier(5, ModifierTypes.UNTYPED)));
 
             // Before initialize, engine does not know about customVestige
             Assert.AreEqual(0, engine.BindingCheckDc("Test Vestige"));

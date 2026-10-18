@@ -36,7 +36,7 @@ namespace PlayMore35.Tests {
             if (!pool.stats.ContainsKey(statName)) {
                 pool.AddStat(new Statistic(statName));
             }
-            pool.AddEffect(new Effect($"Base {statName}").AddModifier(statName, new Modifier(value, UNTYPED)));
+            pool.AddEffect(new Effect($"Base {statName}").AddModifier(statName, new Modifier(value, ModifierTypes.UNTYPED)));
         }
 
         [TestMethod]

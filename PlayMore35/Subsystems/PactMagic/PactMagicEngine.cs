@@ -179,7 +179,7 @@ namespace PlayMore35.Subsystems.PactMagic {
 
             if (defianceParams.Any()) {
                 Modifier CreateDefianceModifier() {
-                    Modifier mod = new Modifier(UNTYPED);
+                    Modifier mod = new Modifier(ModifierTypes.UNTYPED);
                     foreach (string paramKey in defianceParams) {
                         mod.AddAmount(new MultiplyAmount(-1, new ControllableAmount(paramKey)));
                     }

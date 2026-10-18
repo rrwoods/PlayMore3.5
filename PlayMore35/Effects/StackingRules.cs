@@ -2,34 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using static PlayMore35.Effects.Constants;
 using static System.Math;
 
 namespace PlayMore35.Effects {
     public static class StackingRules {
-        public static readonly string[] stackingTypes = { BASE, ABILITY_MODIFIER, CIRCUMSTANCE, DODGE, RACIAL, UNTYPED };
+        public static readonly string[] stackingTypes = {
+            ModifierTypes.BASE,
+            ModifierTypes.ABILITY_MODIFIER,
+            ModifierTypes.CIRCUMSTANCE,
+            ModifierTypes.DODGE,
+            ModifierTypes.RACIAL,
+            ModifierTypes.UNTYPED
+        };
         private static readonly string[] typeOrder = {
-            //BASE,
-            //ABILITY_MODIFIER,
-            SIZE,
-            RACIAL,
-            NATURAL_ARMOR,
-            ARMOR,
-            SHIELD,
-            DODGE,
-            DEFLECTION,
-            ENHANCEMENT,
-            RESISTANCE,
-            INSIGHT,
-            COMPETENCE,
-            LUCK,
-            MORALE,
-            SACRED,
-            PROFANE,
-            ALCHEMICAL,
-            CIRCUMSTANCE,
-            INTERNAL,
-            //UNTYPED,
+            //ModifierTypes.BASE,
+            //ModifierTypes.ABILITY_MODIFIER,
+            ModifierTypes.SIZE,
+            ModifierTypes.RACIAL,
+            ModifierTypes.NATURAL_ARMOR,
+            ModifierTypes.ARMOR,
+            ModifierTypes.SHIELD,
+            ModifierTypes.DODGE,
+            ModifierTypes.DEFLECTION,
+            ModifierTypes.ENHANCEMENT,
+            ModifierTypes.RESISTANCE,
+            ModifierTypes.INSIGHT,
+            ModifierTypes.COMPETENCE,
+            ModifierTypes.LUCK,
+            ModifierTypes.MORALE,
+            ModifierTypes.SACRED,
+            ModifierTypes.PROFANE,
+            ModifierTypes.ALCHEMICAL,
+            ModifierTypes.CIRCUMSTANCE,
+            ModifierTypes.INTERNAL,
+            //ModifierTypes.UNTYPED,
         };
 
         private static string ExplainBase(int mod, string name) {
@@ -62,7 +68,7 @@ namespace PlayMore35.Effects {
                 int amount = mod.ComputeAmount(pool, items);
                 string type = mod.Type;
                 if (amount == 0) {
-                    if (mod.Type == BASE || mod.Type == ABILITY_MODIFIER) {
+                    if (mod.Type == ModifierTypes.BASE || mod.Type == ModifierTypes.ABILITY_MODIFIER) {
                         if (!stackingExpl.ContainsKey(mod.Type)) {
                             stackingExpl[mod.Type] = new List<(int mod, string name)>();
                         }
@@ -109,13 +115,13 @@ namespace PlayMore35.Effects {
             total += penalties.Values.Sum();
             total += bonuses.Values.Sum();
             List<string> explanation = new List<string>();
-            if (stackingExpl.ContainsKey(BASE)) {
-                foreach (var (mod, name) in stackingExpl[BASE]) {
+            if (stackingExpl.ContainsKey(ModifierTypes.BASE)) {
+                foreach (var (mod, name) in stackingExpl[ModifierTypes.BASE]) {
                     explanation.Add(ExplainBase(mod, name));
                 }
             }
-            if (stackingExpl.ContainsKey(ABILITY_MODIFIER)) {
-                foreach (var (mod, name) in stackingExpl[ABILITY_MODIFIER]) {
+            if (stackingExpl.ContainsKey(ModifierTypes.ABILITY_MODIFIER)) {
+                foreach (var (mod, name) in stackingExpl[ModifierTypes.ABILITY_MODIFIER]) {
                     explanation.Add(ExplainBase(mod, name));
                 }
             }
@@ -145,8 +151,8 @@ namespace PlayMore35.Effects {
                 var (mod, name, overlaps) = otherPenalty.Value;
                 explanation.Add(Explain(mod, name, otherPenalty.Key, overlaps));
             }
-            if (stackingExpl.ContainsKey(UNTYPED)) {
-                foreach (var (mod, name) in stackingExpl[UNTYPED]) {
+            if (stackingExpl.ContainsKey(ModifierTypes.UNTYPED)) {
+                foreach (var (mod, name) in stackingExpl[ModifierTypes.UNTYPED]) {
                     explanation.Add(ExplainBase(mod, name));
                 }
             }
