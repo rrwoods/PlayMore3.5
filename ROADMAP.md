@@ -18,6 +18,11 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - Effects in .json-defined catalogs need to be able to determine the discipline of a maneuver choice, and the key skill for that discipline.  This functionality must reside the manuever subsystem to keep from leaking subsystem-specific rules into the core rules logic.
 - Effects in .json-defined catalogs need to be able to set class skills, starting at a specific level.
 
+### Maneuvers UI
+- Known maneuvers and stances is a build-time choice, and should be present in the level details view.  The player should be able to search for maneuvers there, and the text of what comes up should be sourced from docs/rules/content/maneuvers/\*.md.  While we're here, the "..." button that brings up the level details view should get a highlight of some sort whenever there's an unfilled choice for that level (like picking a maneuver known, or the weapon choice for Weapon Focus).
+- Readied maneuvers and current stance is a play-time choice, and we need a new Maneuvers tab (like the Vestiges tab for pact magic).  We need to think A LOT about how to lay this out and what the interaction paradigms are.  The "maneuvers as cards" analogy is very good and we should use it.
+
+
 ---
 
 ## Tier 1: Odric & Core UX Priorities
@@ -86,6 +91,7 @@ Anything in this tier that turns out not to be easy should be deferred.
   - Fully document every vestige in the game, in docs/rules/content/vestiges.md (including Zceryll).
   - Fully document all of binder's statistics and class features.
   - Fully implement binder's class features.
+  - Eliminate the "EBL for max vestige level" stat.  Implement a way for effects to be conditional on what downstream thing is being computed.  When "max vestige level" is downstream, Improved Binding adds 2 to "effective binder level".
 
 - **Encumbrance and Carrying Capacity visibility**:
   - Show the player what their weight limits are, and their current load category
