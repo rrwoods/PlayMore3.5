@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -205,6 +205,113 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.GetStatistic("maneuvers known:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("maneuvers readied:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("initiator level:feats").Value);
+        }
+
+        // Source: Tome of Battle, pp. 32, 52; Player's Handbook, pp. 58-59, 62; dysfunction:skill-feats-same-level
+        [TestMethod]
+        public void MartialStudy_AcquiredAtLevel1_GrantsClassSkill_ForLevel1AndSubsequentLevels() {
+            var character = new Character();
+            character.race = "human";
+            character.assignedAbilityScores["INT"] = 10;
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind"; // Iron Heart -> Balance
+
+            var session = new CharacterSession(character, catalog);
+
+            // Balance is not a Fighter class skill by default, but is granted by Martial Study
+            Assert.IsTrue(session.IsClassSkill("Balance", 0), "Balance should be class skill at level 1.");
+            Assert.IsTrue(session.IsClassSkill("Balance", 1), "Balance should remain class skill at level 2.");
+
+            // Skill points at level 1: Fighter INT 10 gets (2 + 0) * 4 = 8 points
+            session.Mutate(c => {
+                c.skillRanks["Balance"] = new List<int> { 4, 0 };
+            });
+            // 4 ranks * 1 pt (class skill) = 4 spent, 8 - 4 = 4 remaining
+            Assert.AreEqual(4, session.SkillPointsRemainingAtLevel(0));
+
+            // Rank cap at level 1: max class ranks = 1 + 3 = 4
+            Assert.IsFalse(session.TooManyRanks("Balance", 0), "4 ranks should not exceed cap of 4.");
+
+            session.Mutate(c => {
+                c.skillRanks["Balance"] = new List<int> { 5, 0 };
+            });
+            Assert.IsTrue(session.TooManyRanks("Balance", 0), "5 ranks should exceed cap of 4.");
+        }
+
+        // Source: Tome of Battle, pp. 32, 52; Player's Handbook, pp. 58-59, 62; dysfunction:skill-feats-same-level
+        [TestMethod]
+        public void MartialStudy_AcquiredAtLevel3_GrantsClassSkill_StartingAtLevel3_NotPriorLevels() {
+            var character = new Character();
+            character.race = "human";
+            character.assignedAbilityScores["INT"] = 10;
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter"); // Level 1
+            character.classLevels.Add("Fighter"); // Level 2
+            character.classLevels.Add("Fighter"); // Level 3
+            character.classLevels.Add("Fighter"); // Level 4
+            character.feats["Level 3"] = "Martial Study";
+            character.featChoices["Level 3:maneuver"] = "Steel Wind"; // Iron Heart -> Balance
+
+            var session = new CharacterSession(character, catalog);
+
+            // Level 1 and 2: Balance was not yet granted and is cross-class
+            Assert.IsFalse(session.IsClassSkill("Balance", 0), "Balance is cross-class at level 1.");
+            Assert.IsFalse(session.IsClassSkill("Balance", 1), "Balance is cross-class at level 2.");
+
+            // Level 3 and 4: Balance is a class skill starting at acquisition level
+            Assert.IsTrue(session.IsClassSkill("Balance", 2), "Balance is class skill at level 3.");
+            Assert.IsTrue(session.IsClassSkill("Balance", 3), "Balance remains class skill at level 4.");
+
+            // Skill point costs:
+            // At level 1 (cross-class): 2 ranks cost 2 * 2 = 4 points. 8 - 4 = 4 remaining.
+            session.Mutate(c => {
+                c.skillRanks["Balance"] = new List<int> { 2, 0, 2, 0 };
+            });
+            Assert.AreEqual(4, session.SkillPointsRemainingAtLevel(0));
+
+            // At level 3 (class skill): 2 ranks cost 2 * 1 = 2 points. 2 - 2 = 0 remaining.
+            Assert.AreEqual(0, session.SkillPointsRemainingAtLevel(2));
+
+            // Rank caps:
+            // At level 1: max cross-class ranks = (1 + 3) / 2 = 2. 2 ranks is allowed.
+            Assert.IsFalse(session.TooManyRanks("Balance", 0));
+
+            // If 3 ranks at level 1: exceeds cross-class cap of 2
+            session.Mutate(c => {
+                c.skillRanks["Balance"] = new List<int> { 3, 0, 1, 0 };
+            });
+            Assert.IsTrue(session.TooManyRanks("Balance", 0), "3 ranks at level 1 should exceed cross-class cap of 2.");
+
+            // At level 3: total ranks = 4, max class ranks = 3 + 3 = 6. Not exceeded.
+            Assert.IsFalse(session.TooManyRanks("Balance", 2), "Total 4 ranks at level 3 should not exceed class cap of 6.");
+        }
+
+        // Source: Tome of Battle, pp. 32, 52; Player's Handbook, pp. 58-59, 62
+        [TestMethod]
+        public void MartialStudy_MultipleAcquisitions_GrantsRespectiveDisciplineSkills() {
+            var character = new Character();
+            character.race = "human";
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter"); // Level 1
+            character.classLevels.Add("Fighter"); // Level 2
+            character.classLevels.Add("Fighter"); // Level 3
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Crusader's Strike"; // Devoted Spirit -> Intimidate
+            character.feats["Level 3"] = "Martial Study";
+            character.featChoices["Level 3:maneuver"] = "Steel Wind"; // Iron Heart -> Balance
+
+            var session = new CharacterSession(character, catalog);
+
+            // Level 1: Intimidate is class skill; Balance is cross-class
+            Assert.IsTrue(session.IsClassSkill("Intimidate", 0));
+            Assert.IsFalse(session.IsClassSkill("Balance", 0));
+
+            // Level 3: Both are class skills
+            Assert.IsTrue(session.IsClassSkill("Intimidate", 2));
+            Assert.IsTrue(session.IsClassSkill("Balance", 2));
         }
     }
 }

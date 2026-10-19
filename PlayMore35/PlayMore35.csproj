@@ -95,6 +95,7 @@
     <Compile Include="Effects\ParameterDefinition.cs" />
     <Compile Include="Effects\LengthOfTime.cs" />
     <Compile Include="Effects\Text.cs" />
+    <Compile Include="Rules\IPropertyProvider.cs" />
     <Compile Include="Rules\IRulesCatalog.cs" />
     <Compile Include="Rules\GameRulesCatalog.cs" />
     <Compile Include="Global\ICharacterContext.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Subsystems\PactMagic\PactMagicState.cs" />
     <Compile Include="Subsystems\PactMagic\PactMagicEngine.cs" />
     <Compile Include="Subsystems\PactMagic\UnbindVestigeAction.cs" />
+    <Compile Include="Subsystems\Maneuvers\MartialDiscipline.cs" />
     <Compile Include="Subsystems\Maneuvers\Maneuver.cs" />
     <Compile Include="Subsystems\Maneuvers\ManeuverState.cs" />
     <Compile Include="Subsystems\Maneuvers\KnownManeuverSlot.cs" />

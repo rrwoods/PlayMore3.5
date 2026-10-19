@@ -27,6 +27,7 @@ namespace PlayMore35.Rules {
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; }
         public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
         public IReadOnlyDictionary<string, Vestige> Vestiges { get; }
+        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => MartialDiscipline.All;
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots { get; }
         public IReadOnlyList<Statistic> CoreStats { get; }
@@ -143,6 +144,11 @@ namespace PlayMore35.Rules {
             var maneuvers = GetResource(Properties.Resources.maneuvers, "maneuvers.json")
                 .Select(x => new Maneuver((JObject)x))
                 .ToDictionary(x => x.Name);
+            foreach (var m in maneuvers.Values) {
+                if (Disciplines.TryGetValue(m.Discipline, out var d)) {
+                    m.DisciplineDefinition = d;
+                }
+            }
             Maneuvers = new ReadOnlyDictionary<string, Maneuver>(maneuvers);
 
             // 11. Vestiges
@@ -202,6 +208,91 @@ namespace PlayMore35.Rules {
         public Maneuver GetManeuver(string name) => FindEntity(Maneuvers, name, x => x.Name);
  
         public Vestige GetVestige(string name) => FindEntity(Vestiges, name, x => x.Name);
+
+        public MartialDiscipline GetDiscipline(string name) => MartialDiscipline.Get(name);
+
+        public object GetEntity(string type, string name) {
+            if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;
+            switch (type.ToLowerInvariant()) {
+                case "maneuver":
+                    return GetManeuver(name);
+                case "discipline":
+                    return GetDiscipline(name);
+                case "class":
+                    return GetClass(name);
+                case "race":
+                    return GetRace(name);
+                case "feat":
+                    return GetFeat(name);
+                case "weapon":
+                    return GetWeapon(name);
+                case "armor":
+                    return GetArmor(name);
+                case "shield":
+                    return GetShield(name);
+                case "item":
+                    return GetItem(name);
+                case "weaponproperty":
+                    return GetWeaponProperty(name);
+                case "armorproperty":
+                    return GetArmorProperty(name);
+                case "vestige":
+                    return GetVestige(name);
+                case "externaleffect":
+                    return GetExternalEffect(name);
+                default:
+                    return null;
+            }
+        }
+
+        public string ResolveTemplate(string template, IReadOnlyDictionary<string, string> choices) =>
+            ResolveTemplateInternal(this, template, choices);
+
+        internal static string ResolveTemplateInternal(IRulesCatalog catalog, string template, IReadOnlyDictionary<string, string> choices) {
+            if (string.IsNullOrEmpty(template)) return "";
+            if (!template.Contains("${")) return template;
+
+            string GetChoice(string key) {
+                if (choices == null) return null;
+                if (choices.TryGetValue(key, out var val)) return val;
+                var kvp = choices.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase));
+                if (kvp.Value != null) return kvp.Value;
+                var prefixedKvp = choices.FirstOrDefault(x => x.Key.EndsWith(":" + key, StringComparison.OrdinalIgnoreCase));
+                if (prefixedKvp.Value != null) return prefixedKvp.Value;
+                return null;
+            }
+
+            return System.Text.RegularExpressions.Regex.Replace(template, @"\$\{([^}]+)\}", match => {
+                string path = match.Groups[1].Value.Trim();
+                if (string.IsNullOrEmpty(path)) return "";
+
+                string[] parts = path.Split('.');
+                if (parts.Length == 1) {
+                    return GetChoice(parts[0]) ?? "";
+                }
+
+                string rootType = parts[0];
+                string rootName = GetChoice(rootType);
+                if (string.IsNullOrEmpty(rootName)) return "";
+
+                object current = catalog?.GetEntity(rootType, rootName);
+                if (current == null) return "";
+
+                for (int i = 1; i < parts.Length; i++) {
+                    if (current is IPropertyProvider provider) {
+                        if (provider.Properties != null && provider.Properties.TryGetValue(parts[i], out var nextVal)) {
+                            current = nextVal;
+                        } else {
+                            return "";
+                        }
+                    } else {
+                        return "";
+                    }
+                }
+
+                return current?.ToString() ?? "";
+            });
+        }
 
         public IEnumerable<string> ChoicesForKey(string choiceDescription) {
             switch (choiceDescription) {

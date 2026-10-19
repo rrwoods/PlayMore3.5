@@ -9,6 +9,7 @@ namespace PlayMore35.CharacterChoices {
         public List<string> Descriptors = new List<string>(); // don't bother with [General].  nothing cares.
         public string Prerequisites = ""; // not formalizing this for now
         public string ChoiceDescription = "";
+        public List<string> ClassSkills = new List<string>();
         public List<FlagDefinition> Flags = new List<FlagDefinition>();
         public List<ParameterDefinition> Parameters = new List<ParameterDefinition>();
         public Effect Benefit; // name of the feat is the name of the effect
@@ -26,6 +27,7 @@ namespace PlayMore35.CharacterChoices {
             if (ChoiceDescription.Any()) {
                 json["choice"] = ChoiceDescription;
             }
+            json.AddList("class skills", ClassSkills);
             json.AddList("flags", Flags);
             json.AddList("parameters", Parameters);
             json.AddList("stats", NewStats);
@@ -35,6 +37,10 @@ namespace PlayMore35.CharacterChoices {
         public Feat(JObject json) {
             Benefit = new Effect((JObject)json["benefit"]);
             Descriptors.ReadJson("descriptors", json);
+            ClassSkills.ReadJson("class skills", json);
+            if (json["benefit"] is JObject b) {
+                ClassSkills.ReadJson("class skills", b);
+            }
             if (json["prerequisites"] != null) {
                 Prerequisites = (string)json["prerequisites"];
             }
