@@ -628,5 +628,226 @@ namespace PlayMore35.Tests {
             Assert.IsFalse(engine.HasManeuver("Stone Bones", "Warblade"));
             Assert.IsFalse(engine.GetKnownSlots("Warblade").Any(s => s != null && s.IsFeatBound));
         }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStance_Adept_ProjectsIntoAdeptStanceSlots_AsFeatBoundSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:stance"] = "Punishing Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            // Warblade has 1 base stance known, feat grants +1 -> total 2
+            Assert.AreEqual(2, session.GetStatistic("stances known:warblade").Value);
+
+            var stanceSlots = engine.GetStanceSlots("Warblade");
+            var featSlot = stanceSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(featSlot, "Feat-bound stance slot should exist in Warblade stance slots.");
+            Assert.AreEqual("Punishing Stance", featSlot.StanceName);
+            Assert.IsTrue(featSlot.IsFeatBound);
+            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.IsTrue(engine.HasStance("Punishing Stance", "Warblade"));
+        }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStance_NonAdept_ProjectsIntoFeatsStanceSlots_AsFeatBoundSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:stance"] = "Bolstering Voice";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            // Non-adept: stances known:feats = 1, active stances = 1
+            Assert.AreEqual(1, session.GetStatistic("stances known:feats").Value);
+            Assert.AreEqual(1, session.GetStatistic("active stances").Value);
+
+            var featSlots = engine.GetStanceSlots("Feats");
+            var featSlot = featSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(featSlot, "Feat-bound stance slot should exist in Feats stance slots.");
+            Assert.AreEqual("Bolstering Voice", featSlot.StanceName);
+            Assert.IsTrue(featSlot.IsFeatBound);
+            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.IsTrue(engine.HasStance("Bolstering Voice", "Feats"));
+        }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStance_FeatBoundSlot_CannotBeOverwrittenOrCleared_ThrowsInvalidOperationException() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:stance"] = "Punishing Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var warbladeSlots = engine.GetStanceSlots("Warblade");
+            int featSlotIndex = -1;
+            for (int i = 0; i < warbladeSlots.Count; i++) {
+                if (warbladeSlots[i] != null && warbladeSlots[i].IsFeatBound) {
+                    featSlotIndex = i;
+                    break;
+                }
+            }
+            Assert.IsTrue(featSlotIndex >= 0, "Feat-bound stance slot must be found.");
+
+            // Attempting to overwrite via string overload throws
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.SetStanceSlot("Warblade", featSlotIndex, "Hunter's Sense");
+            });
+
+            // Attempting to overwrite via StanceSlot overload throws
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.SetStanceSlot("Warblade", featSlotIndex, new StanceSlot("Hunter's Sense"));
+            });
+
+            // Attempting to clear throws
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.ClearStanceSlot("Warblade", featSlotIndex);
+            });
+        }
+
+        // Source: Tome of Battle, pp. 5, 23, 32, 52
+        [TestMethod]
+        public void MartialStance_FeatBoundSlot_ActiveState_PreservedAcrossRecalculations() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:stance"] = "Punishing Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var warbladeSlots = engine.GetStanceSlots("Warblade");
+            int featSlotIndex = warbladeSlots.ToList().FindIndex(s => s != null && s.IsFeatBound);
+            Assert.IsTrue(featSlotIndex >= 0);
+
+            // Adopt the feat-bound stance
+            engine.AdoptStance("Warblade", featSlotIndex);
+            Assert.IsTrue(engine.GetStanceSlot("Warblade", featSlotIndex).IsActive);
+
+            // Recalculate session preserves active stance
+            session.Recalculate();
+            Assert.IsTrue(engine.GetStanceSlot("Warblade", featSlotIndex).IsActive);
+        }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStance_LateMulticlassAdept_RemainsInFeatsPool() {
+            // Level 1 Fighter with Martial Stance, then gains Warblade at Level 2
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:stance"] = "Bolstering Voice";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+
+            Assert.IsTrue(engine.HasStance("Bolstering Voice", "Feats"));
+
+            // Multiclass to Warblade at level 2
+            character.classLevels.Add("Warblade");
+            session.Recalculate();
+
+            // Stance must remain in Feats pool, not migrated to Warblade
+            Assert.IsTrue(engine.HasStance("Bolstering Voice", "Feats"));
+            Assert.IsFalse(engine.HasStance("Bolstering Voice", "Warblade"));
+        }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStance_Multiclass_TwoAdeptClasses_ProjectsIntoChosenClass() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.classLevels.Add("Crusader");
+            character.classLevels.Add("Crusader"); // Level 3: Warblade and Crusader both present
+            character.feats["Level 3"] = "Martial Stance";
+            character.featChoices["Level 3:class"] = "Crusader";
+            character.featChoices["Level 3:stance"] = "Iron Guard's Glare";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            // Iron Guard's Glare must project into Crusader stance slots, NOT Warblade
+            Assert.IsTrue(engine.HasStance("Iron Guard's Glare", "Crusader"));
+            Assert.IsFalse(engine.HasStance("Iron Guard's Glare", "Warblade"));
+
+            var crusaderFeatSlot = engine.GetStanceSlots("Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(crusaderFeatSlot);
+            Assert.AreEqual("Iron Guard's Glare", crusaderFeatSlot.StanceName);
+            Assert.AreEqual("Level 3", crusaderFeatSlot.FeatSlot);
+        }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStance_SerializationRoundTrip_PreservesFeatBoundSlotProperties() {
+            var character = new Character { name = "Martial Stance Hero", race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:stance"] = "Punishing Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+
+            int featIndex = engine.GetStanceSlots("Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
+            Assert.IsTrue(featIndex >= 0);
+            engine.AdoptStance("Warblade", featIndex);
+
+            // Full character serialization round-trip
+            JToken json = character.ToJson();
+            var restoredChar = new Character((JObject)json);
+            var restoredSession = new CharacterSession(restoredChar, catalog);
+            var restoredEngine = restoredSession.Subsystems.Get<MartialManeuverEngine>();
+
+            var restoredSlot = restoredEngine.GetStanceSlots("Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(restoredSlot);
+            Assert.AreEqual("Punishing Stance", restoredSlot.StanceName);
+            Assert.IsTrue(restoredSlot.IsFeatBound);
+            Assert.AreEqual("Level 1", restoredSlot.FeatSlot);
+            Assert.IsTrue(restoredSlot.IsActive);
+        }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStance_FeatChoice_UpdatedOrCleared_UpdatesProjectedSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:stance"] = "Punishing Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+
+            Assert.IsTrue(engine.HasStance("Punishing Stance", "Warblade"));
+
+            // Changing the feat choice updates the projected stance name
+            session.SetFeatChoice("Level 1", "stance", "Hunter's Sense");
+            Assert.IsTrue(engine.HasStance("Hunter's Sense", "Warblade"));
+            Assert.IsFalse(engine.HasStance("Punishing Stance", "Warblade"));
+
+            // Clearing the feat choice removes the projected slot
+            session.SetFeatChoice("Level 1", "stance", "");
+            Assert.IsFalse(engine.HasStance("Hunter's Sense", "Warblade"));
+            Assert.IsFalse(engine.GetStanceSlots("Warblade").Any(s => s != null && s.IsFeatBound));
+        }
     }
 }
