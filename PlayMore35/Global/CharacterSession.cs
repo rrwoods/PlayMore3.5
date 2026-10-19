@@ -597,9 +597,11 @@ namespace PlayMore35.Global {
                     }
                 }
             }
-            foreach (var feat in effects.featSlots) {
-                if (feat.Value <= level) {
-                    AddFeatSlot(feats, feat.Key, feat.Value);
+            if (effects?.featSlots != null) {
+                foreach (var feat in effects.featSlots) {
+                    if (feat.Value <= level) {
+                        AddFeatSlot(feats, feat.Key, feat.Value);
+                    }
                 }
             }
             List<(string, int)> classLevels = character.DetailClassLevels();

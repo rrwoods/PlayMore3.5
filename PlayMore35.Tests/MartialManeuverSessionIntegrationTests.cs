@@ -380,5 +380,253 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(3, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Withheld));
             Assert.AreEqual(0, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Expended));
         }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStudy_Adept_ProjectsIntoTargetKnownSlots_AsFeatBoundSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            var featSlot = warbladeSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(featSlot, "Feat-bound slot should exist in Warblade known slots.");
+            Assert.AreEqual("Steel Wind", featSlot.ManeuverName);
+            Assert.IsTrue(featSlot.IsFeatBound);
+            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.IsTrue(engine.HasManeuver("Steel Wind", "Warblade"));
+        }
+
+        // Source: Tome of Battle, pp. 32, 52
+        [TestMethod]
+        public void MartialStudy_NonAdept_ProjectsIntoFeatsKnownSlots_AsFeatBoundSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Moment of Perfect Mind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var featSlots = engine.GetKnownSlots("Feats");
+            var featSlot = featSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(featSlot, "Feat-bound slot should exist in Feats known slots.");
+            Assert.AreEqual("Moment of Perfect Mind", featSlot.ManeuverName);
+            Assert.IsTrue(featSlot.IsFeatBound);
+            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.IsTrue(engine.HasManeuver("Moment of Perfect Mind", "Feats"));
+        }
+
+        // Source: Tome of Battle, p. 32
+        [TestMethod]
+        public void FeatBoundSlot_CannotBeOverwrittenOrCleared_ThrowsInvalidOperationException() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            int featSlotIndex = -1;
+            for (int i = 0; i < warbladeSlots.Count; i++) {
+                if (warbladeSlots[i] != null && warbladeSlots[i].IsFeatBound) {
+                    featSlotIndex = i;
+                    break;
+                }
+            }
+            Assert.IsTrue(featSlotIndex >= 0, "Feat-bound slot must be found.");
+
+            // Attempting to overwrite via string overload throws
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.SetKnownSlot("Warblade", featSlotIndex, "Iron Heart Surge");
+            });
+
+            // Attempting to overwrite via KnownManeuverSlot overload throws
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.SetKnownSlot("Warblade", featSlotIndex, new KnownManeuverSlot("Iron Heart Surge"));
+            });
+
+            // Attempting to clear throws
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.ClearKnownSlot("Warblade", featSlotIndex);
+            });
+        }
+
+        // Source: Tome of Battle, pp. 32, 38, 40
+        [TestMethod]
+        public void FeatBoundSlot_ReadiedState_PreservedAcrossRecalculations() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            int featSlotIndex = warbladeSlots.ToList().FindIndex(s => s != null && s.IsFeatBound);
+            Assert.IsTrue(featSlotIndex >= 0);
+
+            // Ready the feat-bound maneuver
+            engine.ReadyManeuver("Warblade", featSlotIndex);
+            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+
+            // Recalculate session preserves readied state
+            session.Recalculate();
+            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+
+            // Initiate maneuver transitions state to Expended
+            session.StartCombat();
+            bool initiated = engine.InitiateManeuver("Warblade", featSlotIndex);
+            Assert.IsTrue(initiated);
+            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+
+            // Warblade recovery restores it
+            engine.RecoverWarblade("Warblade");
+            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+        }
+
+        // Source: Tome of Battle, pp. 22, 32
+        [TestMethod]
+        public void MartialAdept_LevelUp_PreservesFeatBoundSlots_AndPreventsRetraining() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade"); // Level 1: 3 class + 1 feat = 4
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            // Populate class slots 0, 1, 2
+            engine.SetKnownSlot("Warblade", 0, "Moment of Perfect Mind");
+            engine.SetKnownSlot("Warblade", 1, "Steely Strike");
+            engine.SetKnownSlot("Warblade", 2, "Wind Stride");
+
+            var featSlot = engine.GetKnownSlots("Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(featSlot);
+            Assert.AreEqual("Steel Wind", featSlot.ManeuverName);
+
+            // Level up to Warblade 4 (Table 1-3 allows retraining 1 maneuver at 4th level)
+            character.classLevels.Add("Warblade"); // Level 2: 4 class + 1 feat = 5
+            character.classLevels.Add("Warblade"); // Level 3: 5 class + 1 feat = 6
+            character.classLevels.Add("Warblade"); // Level 4: 5 class + 1 feat = 6
+            session.Recalculate();
+
+            Assert.AreEqual(6, session.GetStatistic("maneuvers known:warblade").Value);
+
+            // Normal class slots can be retrained (e.g. slot 0 to Iron Heart Surge)
+            engine.SetKnownSlot("Warblade", 0, "Iron Heart Surge");
+            Assert.AreEqual("Iron Heart Surge", engine.GetKnownSlot("Warblade", 0).ManeuverName);
+
+            // Feat-bound slot remains in known slots and cannot be retrained or cleared
+            int featIndex = engine.GetKnownSlots("Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
+            Assert.IsTrue(featIndex >= 0);
+            Assert.AreEqual("Steel Wind", engine.GetKnownSlot("Warblade", featIndex).ManeuverName);
+
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.SetKnownSlot("Warblade", featIndex, "Mountain Hammer");
+            });
+
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.ClearKnownSlot("Warblade", featIndex);
+            });
+        }
+
+        // Source: Tome of Battle, p. 32
+        [TestMethod]
+        public void Multiclass_TwoAdeptClasses_ProjectsIntoChosenClass() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.classLevels.Add("Crusader");
+            character.classLevels.Add("Crusader"); // Level 3: Warblade and Crusader both present
+            character.feats["Level 3"] = "Martial Study";
+            character.featChoices["Level 3:class"] = "Crusader";
+            character.featChoices["Level 3:maneuver"] = "Mountain Hammer";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            // Mountain Hammer must project into Crusader known slots, NOT Warblade
+            Assert.IsTrue(engine.HasManeuver("Mountain Hammer", "Crusader"));
+            Assert.IsFalse(engine.HasManeuver("Mountain Hammer", "Warblade"));
+
+            var crusaderFeatSlot = engine.GetKnownSlots("Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(crusaderFeatSlot);
+            Assert.AreEqual("Mountain Hammer", crusaderFeatSlot.ManeuverName);
+            Assert.AreEqual("Level 3", crusaderFeatSlot.FeatSlot);
+        }
+
+        // Source: Tome of Battle, p. 32
+        [TestMethod]
+        public void SerializationRoundTrip_PreservesFeatBoundSlotProperties() {
+            var character = new Character { name = "Martial Study Hero", race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+
+            int featIndex = engine.GetKnownSlots("Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
+            Assert.IsTrue(featIndex >= 0);
+            engine.ReadyManeuver("Warblade", featIndex);
+
+            // Full character serialization round-trip
+            JToken json = character.ToJson();
+            var restoredChar = new Character((JObject)json);
+            var restoredSession = new CharacterSession(restoredChar, catalog);
+            var restoredEngine = restoredSession.Subsystems.Get<MartialManeuverEngine>();
+
+            var restoredSlot = restoredEngine.GetKnownSlots("Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(restoredSlot);
+            Assert.AreEqual("Steel Wind", restoredSlot.ManeuverName);
+            Assert.IsTrue(restoredSlot.IsFeatBound);
+            Assert.AreEqual("Level 1", restoredSlot.FeatSlot);
+            Assert.AreEqual(ManeuverState.Available, restoredSlot.State);
+        }
+
+        // Source: Tome of Battle, p. 32
+        [TestMethod]
+        public void FeatChoice_UpdatedOrCleared_UpdatesProjectedSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+
+            Assert.IsTrue(engine.HasManeuver("Steel Wind", "Warblade"));
+
+            // Changing the feat choice updates the projected slot name
+            session.SetFeatChoice("Level 1", "maneuver", "Stone Bones");
+            Assert.IsTrue(engine.HasManeuver("Stone Bones", "Warblade"));
+            Assert.IsFalse(engine.HasManeuver("Steel Wind", "Warblade"));
+
+            // Clearing the feat choice removes the projected slot
+            session.SetFeatChoice("Level 1", "maneuver", "");
+            Assert.IsFalse(engine.HasManeuver("Stone Bones", "Warblade"));
+            Assert.IsFalse(engine.GetKnownSlots("Warblade").Any(s => s != null && s.IsFeatBound));
+        }
     }
 }
