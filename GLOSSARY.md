@@ -68,6 +68,10 @@ _Avoid_: Checked item, populated stub, rule entry
 The personal saved data of a player character, including permanent choices, current inventory, and transient combat effects.
 _Avoid_: Character build, profile, sheet state
 
+**Acquisition Level**:
+The character level at which a specific feat slot, class level, or capability was gained during character progression, determining temporal eligibility for prerequisites and non-progression grants.
+_Avoid_: Feat level, grant level, slot level
+
 **Monster**:
 A creature entity modeled using the unified Character representation, starting with Racial Hit Dice and capable of standard progression and advancement.
 _Avoid_: NPC statblock, mob, monster definition
@@ -175,6 +179,10 @@ _Avoid_: Maneuver, mode, aura, sustained spell
 **Maneuvers Known**:
 The permanent repertoire of Sublime Way martial maneuvers learned through class progression or feats, eligible for preparation into readied slots.
 _Avoid_: Known slots, maneuver deck, spellbook
+
+**Feat-Sourced Maneuver**:
+A martial maneuver or stance acquired through non-progression access (such as the *Martial Study* or *Martial Stance* feat) that permanently binds either to an adept initiator source or to the general `"Feats"` pseudo-source, and cannot be exchanged through class-level retraining.
+_Avoid_: Feat maneuver, bonus maneuver, extra maneuver
 
 **Readied Maneuver**:
 A known maneuver assigned to a dedicated subsystem slot during out-of-combat preparation, available for tactical initiation in combat.

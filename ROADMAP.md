@@ -20,6 +20,7 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ### Maneuvers UI
 - Known maneuvers and stances is a build-time choice, and should be present in the level details view.  The player should be able to search for maneuvers there, and the text of what comes up should be sourced from docs/rules/content/maneuvers/\*.md.  While we're here, the "..." button that brings up the level details view should get a highlight of some sort whenever there's an unfilled choice for that level (like picking a maneuver known, or the weapon choice for Weapon Focus).
+  - We will need to update the Martial Study and Martial Stance choices to use this UI as well.
 - Readied maneuvers and current stance is a play-time choice, and we need a new Maneuvers tab (like the Vestiges tab for pact magic).  We need to think A LOT about how to lay this out and what the interaction paradigms are.  The "maneuvers as cards" analogy is very good and we should use it.
 
 
