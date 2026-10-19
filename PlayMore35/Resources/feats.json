@@ -1246,6 +1246,7 @@
       "modifiers": [
         {
           "affects": "initiator level:feats",
+          "active": { "choice": "Feats" },
           "dysfunction": "martial-study-minimum-il",
           "mod": {
             "type": "internal",
@@ -1265,7 +1266,7 @@
           }
         },
         {
-          "affects": "maneuvers known:feats",
+          "affects": "maneuvers known:${class}",
           "mod": {
             "type": "untyped",
             "amounts": [ { "fixed": 1 } ]
@@ -1273,6 +1274,7 @@
         },
         {
           "affects": "maneuvers readied:feats",
+          "active": { "choice": "Feats" },
           "mod": {
             "type": "untyped",
             "amounts": [ { "fixed": 1 } ]

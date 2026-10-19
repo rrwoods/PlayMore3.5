@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public interface IToggle : IJsonable {
         bool On(EffectPool pool, Items.Equipped items);
+        IToggle ApplyChoice(string choice);
     }
 
     public static class Toggle {
@@ -15,6 +16,9 @@ namespace PlayMore35.Effects {
             }
             if (json["any"] != null) {
                 return new AnyToggle((JArray)json["any"]);
+            }
+            if (json["choice"] != null) {
+                return new ChoiceToggle((string)json["choice"]);
             }
             if (json["proficient"] != null) {
                 return new ArmorProficiencyToggle((string)json["proficient"]);
@@ -42,6 +46,10 @@ namespace PlayMore35.Effects {
 
         public bool On(EffectPool pool, Items.Equipped items) {
             return true;
+        }
+
+        public IToggle ApplyChoice(string choice) {
+            return this;
         }
 
         public static IToggle Instance { get; } = new AlwaysOn();

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class FlagToggle : IToggle {
@@ -14,6 +14,10 @@ namespace PlayMore35.Effects {
 
         public bool On(EffectPool pool, Items.Equipped items) {
             return pool.HasFlag(flag, items);
+        }
+
+        public IToggle ApplyChoice(string choice) {
+            return this;
         }
     }
 }

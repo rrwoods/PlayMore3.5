@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -21,6 +21,10 @@ namespace PlayMore35.Effects {
 
         public bool On(EffectPool pool, Items.Equipped items) {
             return toggles.Any(x => x.On(pool, items));
+        }
+
+        public IToggle ApplyChoice(string choice) {
+            return new AnyToggle(toggles.Select(x => x.ApplyChoice(choice)).ToArray());
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     class UnToggle : IToggle {
@@ -14,6 +14,10 @@ namespace PlayMore35.Effects {
 
         public bool On(EffectPool pool, Items.Equipped items) {
             return !basis.On(pool, items);
+        }
+
+        public IToggle ApplyChoice(string choice) {
+            return new UnToggle(basis.ApplyChoice(choice));
         }
     }
 }

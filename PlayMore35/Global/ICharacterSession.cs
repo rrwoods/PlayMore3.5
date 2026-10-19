@@ -79,6 +79,11 @@ namespace PlayMore35.Global {
         int SkillPointsRemainingAtLevel(int levelIndex);
         int TotalSkillRanks(string skill);
         SortedDictionary<int, List<string>> GetFeatSlots();
+        int GetFeatSlotLevel(string featSlot);
+        string ResolveFeatTargetSource(string featSlot);
+        void SetFeatChoice(string featSlot, string choice);
+        void SetFeatChoice(string featSlot, string key, string choice);
+        string GetFeatChoice(string featSlot, string key = null);
         void AddLevel();
     }
 }

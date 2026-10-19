@@ -213,9 +213,17 @@ namespace PlayMore35.Global {
                 string featName = feat.Value;
                 var featDef = catalog.GetFeat(featName);
                 if (featDef != null) {
+                    string choice = "";
+                    if (featName == "Martial Study" || featName == "Martial Stance") {
+                        choice = ResolveFeatTargetSource(featSlot);
+                    } else if (character.featChoices.TryGetValue(featSlot, out var c)) {
+                        choice = c;
+                    } else if (character.featChoices.TryGetValue($"{featSlot}:class", out var cls)) {
+                        choice = cls;
+                    }
                     effects.GenerateFeatEffects(
                         featDef,
-                        character.featChoices.ContainsKey(featSlot) ? character.featChoices[featSlot] : ""
+                        choice
                     );
                 }
             }
@@ -585,6 +593,65 @@ namespace PlayMore35.Global {
                 }
             }
             return feats;
+        }
+
+        public int GetFeatSlotLevel(string featSlot) {
+            if (string.IsNullOrEmpty(featSlot)) return 0;
+            foreach (var levelEntry in GetFeatSlots()) {
+                if (levelEntry.Value.Contains(featSlot)) {
+                    return levelEntry.Key;
+                }
+            }
+            return 0;
+        }
+
+        public string ResolveFeatTargetSource(string featSlot) {
+            int level = GetFeatSlotLevel(featSlot);
+            var adeptClasses = character.classLevels
+                .Take(level)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(IsAdeptClass)
+                .ToList();
+
+            if (adeptClasses.Count == 0) {
+                return "Feats";
+            }
+            if (adeptClasses.Count == 1) {
+                return adeptClasses[0];
+            }
+
+            if (character.featChoices.TryGetValue($"{featSlot}:class", out var chosenClass) && !string.IsNullOrWhiteSpace(chosenClass)) {
+                var matched = adeptClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
+                return matched ?? chosenClass;
+            }
+            if (character.featChoices.TryGetValue(featSlot, out var legacyChoice) && !string.IsNullOrWhiteSpace(legacyChoice)) {
+                var matched = adeptClasses.FirstOrDefault(c => string.Equals(c, legacyChoice, StringComparison.OrdinalIgnoreCase));
+                return matched ?? legacyChoice;
+            }
+
+            return adeptClasses[0];
+        }
+
+        private bool IsAdeptClass(string className) {
+            var cls = catalog.GetClass(className);
+            return cls != null && cls.Subsystems.ContainsKey(PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine.SubsystemId);
+        }
+
+        public void SetFeatChoice(string featSlot, string choice) {
+            character.featChoices[featSlot] = choice;
+            Recalculate();
+        }
+
+        public void SetFeatChoice(string featSlot, string key, string choice) {
+            character.featChoices[$"{featSlot}:{key}"] = choice;
+            Recalculate();
+        }
+
+        public string GetFeatChoice(string featSlot, string key = null) {
+            if (string.IsNullOrEmpty(key)) {
+                return character.featChoices.TryGetValue(featSlot, out var choice) ? choice : "";
+            }
+            return character.featChoices.TryGetValue($"{featSlot}:{key}", out var compChoice) ? compChoice : "";
         }
 
         public int GetSizeCategory() {
