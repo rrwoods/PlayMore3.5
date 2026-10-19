@@ -77,6 +77,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
             knownGroups.Clear();
             stanceGroups.Clear();
+            ProjectFeatSlots();
         }
 
         public IEnumerable<string> GetAllSources() {
@@ -98,6 +99,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             if (string.IsNullOrWhiteSpace(source)) {
                 throw new ArgumentException("Source name cannot be null or empty.", nameof(source));
             }
+            ProjectFeatSlots();
             if (!knownGroups.TryGetValue(source, out var group)) {
                 string lower = source.ToLowerInvariant();
                 var storage = state.GetOrCreateKnown(source);
@@ -139,6 +141,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public KnownManeuverSlot GetKnownSlot(string source, int slotIndex) {
             if (slotIndex < 0) return null;
+            ProjectFeatSlots();
             if (state.Known.TryGetValue(source, out var list) && slotIndex < list.Count) {
                 return list[slotIndex];
             }
@@ -148,6 +151,10 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public void SetKnownSlot(string source, int slotIndex, KnownManeuverSlot slot) {
             if (slotIndex < 0) {
                 throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            var existing = GetKnownSlot(source, slotIndex);
+            if (existing != null && existing.IsFeatBound) {
+                throw new InvalidOperationException($"Cannot retrain or replace feat-bound maneuver slot '{existing.ManeuverName}'.");
             }
             GetKnownSlotGroup(source)[slotIndex] = slot;
         }
@@ -161,6 +168,10 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public void ClearKnownSlot(string source, int slotIndex) {
             if (slotIndex < 0) {
                 throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            var existing = GetKnownSlot(source, slotIndex);
+            if (existing != null && existing.IsFeatBound) {
+                throw new InvalidOperationException($"Cannot clear feat-bound maneuver slot '{existing.ManeuverName}'.");
             }
             GetKnownSlotGroup(source).ClearSlot(slotIndex);
         }
@@ -230,6 +241,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
         }
 
         public IEnumerable<string> GetKnownManeuverNames(string source = null) {
+            ProjectFeatSlots();
             if (!string.IsNullOrEmpty(source)) {
                 if (state.Known.TryGetValue(source, out var list) && list != null) {
                     return list.Where(s => s != null && !string.IsNullOrWhiteSpace(s.ManeuverName))
@@ -365,6 +377,10 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
             if (pool == null) return;
             var ctx = context ?? this.context;
+            if (ctx != null && this.context != ctx) {
+                this.context = ctx;
+            }
+            ProjectFeatSlots();
 
             if (ctx != null) {
                 foreach (var source in GetAllSources()) {
@@ -624,6 +640,139 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     }
                 }
             }
+        }
+
+        public void ProjectFeatSlots() {
+            if (context?.Character == null) return;
+
+            var featChoices = context.Character.featChoices;
+            if (featChoices == null) return;
+
+            var activeFeatManeuvers = new Dictionary<string, (string FeatSlot, string ManeuverName)>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var kvp in featChoices) {
+                if (kvp.Key.EndsWith(":maneuver", StringComparison.OrdinalIgnoreCase)) {
+                    string featSlot = kvp.Key.Substring(0, kvp.Key.Length - ":maneuver".Length);
+                    if (!string.IsNullOrWhiteSpace(kvp.Value)) {
+                        activeFeatManeuvers[featSlot] = (featSlot, kvp.Value);
+                    }
+                }
+            }
+
+            if (context.Character.feats != null) {
+                foreach (var featKvp in context.Character.feats) {
+                    if (string.Equals(featKvp.Value, "Martial Study", StringComparison.OrdinalIgnoreCase)) {
+                        string featSlot = featKvp.Key;
+                        if (!activeFeatManeuvers.ContainsKey(featSlot) &&
+                            featChoices.TryGetValue(featSlot, out var mName) &&
+                            !string.IsNullOrWhiteSpace(mName)) {
+                            activeFeatManeuvers[featSlot] = (featSlot, mName);
+                        }
+                    }
+                }
+            }
+
+            // Remove any slots in state.Known that are feat-bound to a featSlot no longer active
+            foreach (var kvp in state.Known) {
+                for (int i = kvp.Value.Count - 1; i >= 0; i--) {
+                    var slot = kvp.Value[i];
+                    if (slot != null && slot.IsFeatBound && !string.IsNullOrEmpty(slot.FeatSlot)) {
+                        if (!activeFeatManeuvers.ContainsKey(slot.FeatSlot)) {
+                            kvp.Value.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+
+            // Project each active feat maneuver
+            foreach (var item in activeFeatManeuvers.Values) {
+                string featSlot = item.FeatSlot;
+                string maneuverName = item.ManeuverName;
+                string targetSource = ResolveTargetSource(featSlot);
+
+                var targetList = state.GetOrCreateKnown(targetSource);
+
+                KnownManeuverSlot existingSlot = null;
+                string existingSource = null;
+                int existingIndex = -1;
+
+                foreach (var kvp in state.Known) {
+                    for (int i = 0; i < kvp.Value.Count; i++) {
+                        var slot = kvp.Value[i];
+                        if (slot != null && slot.IsFeatBound && string.Equals(slot.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase)) {
+                            existingSlot = slot;
+                            existingSource = kvp.Key;
+                            existingIndex = i;
+                            break;
+                        }
+                    }
+                    if (existingSlot != null) break;
+                }
+
+                int totalCapacity = context?.GetStatValue($"maneuvers known:{targetSource.ToLowerInvariant()}", 0) ?? 0;
+                int totalFeatsForSource = activeFeatManeuvers.Values.Count(f => string.Equals(ResolveTargetSource(f.FeatSlot), targetSource, StringComparison.OrdinalIgnoreCase));
+                int baseClassCapacity = Math.Max(0, totalCapacity - totalFeatsForSource);
+
+                if (existingSlot != null) {
+                    if (string.Equals(existingSource, targetSource, StringComparison.OrdinalIgnoreCase)) {
+                        existingSlot.ManeuverName = maneuverName;
+                        existingSlot.IsFeatBound = true;
+                        existingSlot.FeatSlot = featSlot;
+
+                        if (existingIndex < baseClassCapacity && targetList.All(s => s == null || s.IsFeatBound)) {
+                            targetList.RemoveAt(existingIndex);
+                            while (targetList.Count < baseClassCapacity) {
+                                targetList.Add(null);
+                            }
+                            targetList.Add(existingSlot);
+                        }
+                    } else {
+                        state.Known[existingSource].RemoveAt(existingIndex);
+                        existingSlot.ManeuverName = maneuverName;
+                        existingSlot.IsFeatBound = true;
+                        existingSlot.FeatSlot = featSlot;
+                        InsertOrAppendFeatSlot(targetSource, targetList, existingSlot, baseClassCapacity);
+                    }
+                } else {
+                    var matchingSlot = targetList.FirstOrDefault(s => s != null && !s.IsFeatBound && string.Equals(s.ManeuverName, maneuverName, StringComparison.OrdinalIgnoreCase));
+                    if (matchingSlot != null) {
+                        matchingSlot.IsFeatBound = true;
+                        matchingSlot.FeatSlot = featSlot;
+                    } else {
+                        var newSlot = new KnownManeuverSlot(maneuverName, ManeuverState.Unreadied, isFeatBound: true, featSlot: featSlot);
+                        InsertOrAppendFeatSlot(targetSource, targetList, newSlot, baseClassCapacity);
+                    }
+                }
+            }
+        }
+
+        private void InsertOrAppendFeatSlot(string targetSource, List<KnownManeuverSlot> targetList, KnownManeuverSlot featSlot, int baseClassCapacity) {
+            while (targetList.Count < baseClassCapacity) {
+                targetList.Add(null);
+            }
+            targetList.Add(featSlot);
+        }
+
+        private string ResolveTargetSource(string featSlot) {
+            if (context is ICharacterSession session) {
+                return session.ResolveFeatTargetSource(featSlot);
+            }
+
+            if (context?.Character?.featChoices != null &&
+                context.Character.featChoices.TryGetValue($"{featSlot}:class", out var explicitClass) &&
+                !string.IsNullOrWhiteSpace(explicitClass)) {
+                return explicitClass;
+            }
+
+            if (context?.Character?.classLevels != null && catalog != null) {
+                var adept = context.Character.classLevels.FirstOrDefault(c => {
+                    var classDef = catalog.GetClass(c);
+                    return classDef != null && classDef.Subsystems.ContainsKey(SubsystemId);
+                });
+                if (!string.IsNullOrEmpty(adept)) return adept;
+            }
+
+            return "Feats";
         }
     }
 }

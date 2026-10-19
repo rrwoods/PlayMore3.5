@@ -6,12 +6,16 @@ namespace PlayMore35.Subsystems.Maneuvers {
     public class KnownManeuverSlot : IJsonable {
         public string ManeuverName { get; set; } = "";
         public ManeuverState State { get; set; } = ManeuverState.Unreadied;
+        public bool IsFeatBound { get; set; } = false;
+        public string FeatSlot { get; set; } = null;
 
         public bool IsReadied => State != ManeuverState.Unreadied;
 
-        public KnownManeuverSlot(string maneuverName = "", ManeuverState state = ManeuverState.Unreadied) {
+        public KnownManeuverSlot(string maneuverName = "", ManeuverState state = ManeuverState.Unreadied, bool isFeatBound = false, string featSlot = null) {
             ManeuverName = maneuverName ?? "";
             State = state;
+            IsFeatBound = isFeatBound;
+            FeatSlot = featSlot;
         }
 
         public KnownManeuverSlot(JObject json) {
@@ -23,15 +27,26 @@ namespace PlayMore35.Subsystems.Maneuvers {
             } else {
                 State = ManeuverState.Unreadied;
             }
+            IsFeatBound = (bool)(json["isFeatBound"] ?? false);
+            FeatSlot = (string)json["featSlot"];
         }
 
         public JToken ToJson() {
-            return new JObject(
+            var obj = new JObject(
                 new JProperty("name", ManeuverName),
                 new JProperty("state", State.ToString())
             );
+            if (IsFeatBound) {
+                obj["isFeatBound"] = true;
+            }
+            if (!string.IsNullOrEmpty(FeatSlot)) {
+                obj["featSlot"] = FeatSlot;
+            }
+            return obj;
         }
 
-        public override string ToString() => $"{ManeuverName} ({State})";
+        public override string ToString() => IsFeatBound
+            ? $"{ManeuverName} ({State}, Feat-Bound: {FeatSlot})"
+            : $"{ManeuverName} ({State})";
     }
 }
