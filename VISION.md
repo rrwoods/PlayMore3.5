@@ -20,9 +20,9 @@ These core invariants govern every architecture decision, rule calculation, and 
 1. **RAW Fidelity with "Enable, Don't Enforce" (ADR-0001)**:
    - Calculations strictly reflect official D&D 3.5e Rules-as-Written (stacking rules, size scaling, effort categories, proficiencies, prerequisites).
    - Build validation logic informs rather than gates: unfulfilled prerequisites or illegal equipment loadouts surface non-obtrusive advisory warning badges (e.g. hoverable alert icons) but never prohibit choices or block tabletop DM fiat.
-2. **Systemic Game Rules as First-Class Statistics (ADR-0002)**:
-   - Global thresholds and systemic mechanics (such as the death threshold, massive damage limit, or stabilization chance) are modeled directly as `Statistic` objects within `rules.json`.
-   - House rules adjust systemic mechanics using standard `Modifier` and `Effect` primitives, preserving mathematical breakdown tooltips and eliminating hardcoded constants.
+2. **Separation of Systems and Content (ADR-0002)**:
+   - Systems code (core engine, subsystems, and UI presentation dialogs) and systems files (`rules.json`) operate with zero literacy of specific content names, IDs, or strings, preventing an explosion of special cases.
+   - Global thresholds and systemic mechanics (such as the death threshold) are modeled directly as `Statistic` objects within `rules.json`, while content files (`feats.json`, `classes.json`, etc.) configure and parameterize systemic primitives.
 3. **Unified Monster & Character Representation (ADR-0003)**:
    - Monsters and player characters share the unified `Character` data model.
    - Base creature statistics progress through Racial Hit Dice (governed by creature types); advancing a monster reuses the standard character leveling, feat selection, and ability increment pipeline.
