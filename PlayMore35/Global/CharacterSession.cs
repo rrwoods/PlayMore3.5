@@ -214,7 +214,10 @@ namespace PlayMore35.Global {
                 var featDef = catalog.GetFeat(featName);
                 if (featDef != null) {
                     string choice = "";
-                    if (featName == "Martial Study" || featName == "Martial Stance") {
+                    var classChoice = featDef.Choices?.FirstOrDefault(c => string.Equals(c.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase));
+                    if (classChoice != null) {
+                        choice = ResolveClassChoice(featSlot, classChoice);
+                    } else if (featName == "Martial Study" || featName == "Martial Stance") {
                         choice = ResolveFeatTargetSource(featSlot);
                     } else if (character.featChoices.TryGetValue(featSlot, out var c)) {
                         choice = c;
@@ -229,6 +232,15 @@ namespace PlayMore35.Global {
                         var choicesDict = new Dictionary<string, string>(character.featChoices, StringComparer.OrdinalIgnoreCase);
                         if (!string.IsNullOrEmpty(choice)) {
                             choicesDict["class"] = choice;
+                        }
+                        if (featDef.Choices != null) {
+                            foreach (var ch in featDef.Choices) {
+                                if (string.Equals(ch.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
+                                    choicesDict[ch.Id] = ResolveClassChoice(featSlot, ch);
+                                } else if (character.featChoices.TryGetValue($"{featSlot}:{ch.Id}", out var val)) {
+                                    choicesDict[ch.Id] = val;
+                                }
+                            }
                         }
                         if (character.featChoices.TryGetValue($"{featSlot}:maneuver", out var chosenManeuver)) {
                             choicesDict["maneuver"] = chosenManeuver;
@@ -626,12 +638,16 @@ namespace PlayMore35.Global {
         }
 
         public string ResolveFeatTargetSource(string featSlot) {
+            if (character.feats.TryGetValue(featSlot, out var featName)) {
+                var featDef = catalog.GetFeat(featName);
+                var classChoice = featDef?.Choices?.FirstOrDefault(c => string.Equals(c.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase));
+                if (classChoice != null) {
+                    return ResolveClassChoice(featSlot, classChoice);
+                }
+            }
+
             int level = GetFeatSlotLevel(featSlot);
-            var adeptClasses = character.classLevels
-                .Take(level)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(IsAdeptClass)
-                .ToList();
+            var adeptClasses = GetEligibleClassesAtLevel(level, "Adept");
 
             if (adeptClasses.Count == 0) {
                 return "Feats";
@@ -648,20 +664,70 @@ namespace PlayMore35.Global {
             return adeptClasses[0];
         }
 
+        public string ResolveClassChoice(string featSlot, ChoiceDescriptor descriptor) {
+            if (descriptor == null) return "";
+            int level = GetFeatSlotLevel(featSlot);
+            var eligibleClasses = GetEligibleClassesAtLevel(level, descriptor.Filter);
+
+            if (eligibleClasses.Count == 0) {
+                return descriptor.Fallback ?? "";
+            }
+            if (eligibleClasses.Count == 1) {
+                return eligibleClasses[0];
+            }
+
+            string choiceKey = descriptor.Id;
+            if (!string.IsNullOrEmpty(choiceKey) &&
+                character.featChoices.TryGetValue($"{featSlot}:{choiceKey}", out var chosenClass) &&
+                !string.IsNullOrWhiteSpace(chosenClass)) {
+                var matched = eligibleClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
+                return matched ?? chosenClass;
+            }
+
+            if (character.featChoices.TryGetValue(featSlot, out var legacyClass) && !string.IsNullOrWhiteSpace(legacyClass)) {
+                var matched = eligibleClasses.FirstOrDefault(c => string.Equals(c, legacyClass, StringComparison.OrdinalIgnoreCase));
+                if (matched != null) return matched;
+            }
+
+            return eligibleClasses[0];
+        }
+
         public bool IsAdeptClass(string className) {
             var cls = catalog.GetClass(className);
             return cls != null && cls.Subsystems.ContainsKey(PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine.SubsystemId);
         }
 
-        public IReadOnlyList<string> GetEligibleAdeptClassesAtLevel(int level) {
+        public bool IsClassEligible(string className, string filter) {
+            if (string.IsNullOrEmpty(filter)) return true;
+            if (string.Equals(filter, "Adept", StringComparison.OrdinalIgnoreCase)) {
+                return IsAdeptClass(className);
+            }
+            var cls = catalog.GetClass(className);
+            if (cls != null && cls.Subsystems.ContainsKey(filter)) {
+                return true;
+            }
+            return string.Equals(className, filter, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string filter = null) {
             int cappedLevel = Math.Min(level, character.classLevels.Count);
             if (cappedLevel <= 0) return new List<string>().AsReadOnly();
-            return character.classLevels
+            var candidateClasses = character.classLevels
                 .Take(cappedLevel)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(IsAdeptClass)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            if (string.IsNullOrEmpty(filter)) {
+                return candidateClasses.ToList().AsReadOnly();
+            }
+
+            return candidateClasses
+                .Where(c => IsClassEligible(c, filter))
                 .ToList()
                 .AsReadOnly();
+        }
+
+        public IReadOnlyList<string> GetEligibleAdeptClassesAtLevel(int level) {
+            return GetEligibleClassesAtLevel(level, "Adept");
         }
 
         public void SetFeatChoice(string featSlot, string choice) {

@@ -83,6 +83,9 @@ namespace PlayMore35.Global {
         string ResolveFeatTargetSource(string featSlot);
         bool IsAdeptClass(string className);
         IReadOnlyList<string> GetEligibleAdeptClassesAtLevel(int level);
+        IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string filter = null);
+        string ResolveClassChoice(string featSlot, ChoiceDescriptor descriptor);
+        bool IsClassEligible(string className, string filter);
         void SetFeatChoice(string featSlot, string choice);
         void SetFeatChoice(string featSlot, string key, string choice);
         string GetFeatChoice(string featSlot, string key = null);

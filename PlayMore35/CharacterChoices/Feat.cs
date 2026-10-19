@@ -5,10 +5,58 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 
 namespace PlayMore35.CharacterChoices {
+    public class ChoiceDescriptor : IJsonable {
+        public string Id { get; set; } = "";
+        public string Label { get; set; } = "";
+        public string Domain { get; set; } = "";
+        public string Filter { get; set; } = "";
+        public string Fallback { get; set; } = "";
+        public string DependsOn { get; set; } = "";
+
+        public ChoiceDescriptor() { }
+
+        public ChoiceDescriptor(JObject json) {
+            Id = (string)json["id"] ?? "";
+            Label = (string)json["label"] ?? "";
+            Domain = (string)json["domain"] ?? "";
+            Filter = (string)json["filter"] ?? "";
+            Fallback = (string)json["fallback"] ?? "";
+            DependsOn = (string)json["dependsOn"] ?? "";
+        }
+
+        public ChoiceDescriptor(string id, string label, string domain, string filter = "", string fallback = "", string dependsOn = "") {
+            Id = id ?? "";
+            Label = label ?? "";
+            Domain = domain ?? "";
+            Filter = filter ?? "";
+            Fallback = fallback ?? "";
+            DependsOn = dependsOn ?? "";
+        }
+
+        public JToken ToJson() {
+            var json = new JObject(
+                new JProperty("id", Id),
+                new JProperty("label", Label),
+                new JProperty("domain", Domain)
+            );
+            if (!string.IsNullOrEmpty(Filter)) {
+                json.Add(new JProperty("filter", Filter));
+            }
+            if (!string.IsNullOrEmpty(Fallback)) {
+                json.Add(new JProperty("fallback", Fallback));
+            }
+            if (!string.IsNullOrEmpty(DependsOn)) {
+                json.Add(new JProperty("dependsOn", DependsOn));
+            }
+            return json;
+        }
+    }
+
     public class Feat : IJsonable {
         public List<string> Descriptors = new List<string>(); // don't bother with [General].  nothing cares.
         public string Prerequisites = ""; // not formalizing this for now
         public string ChoiceDescription = "";
+        public List<ChoiceDescriptor> Choices = new List<ChoiceDescriptor>();
         public List<string> ClassSkills = new List<string>();
         public List<FlagDefinition> Flags = new List<FlagDefinition>();
         public List<ParameterDefinition> Parameters = new List<ParameterDefinition>();
@@ -18,7 +66,7 @@ namespace PlayMore35.CharacterChoices {
 
         public JToken ToJson() {
             JObject json = new JObject(
-                new JProperty("benefit", Benefit)
+                new JProperty("benefit", Benefit?.ToJson() ?? new JObject())
             );
             json.AddList("descriptors", Descriptors);
             if (Prerequisites.Any()) {
@@ -27,6 +75,7 @@ namespace PlayMore35.CharacterChoices {
             if (ChoiceDescription.Any()) {
                 json["choice"] = ChoiceDescription;
             }
+            json.AddList("choices", Choices);
             json.AddList("class skills", ClassSkills);
             json.AddList("flags", Flags);
             json.AddList("parameters", Parameters);
@@ -43,6 +92,9 @@ namespace PlayMore35.CharacterChoices {
             }
             if (json["choice"] != null) {
                 ChoiceDescription = (string)json["choice"];
+            }
+            if (json["choices"] != null) {
+                Choices.AddRange(json["choices"].Select(x => new ChoiceDescriptor((JObject)x)));
             }
             if (json["flags"] != null) {
                 Flags.AddRange(json["flags"].Select(x => new FlagDefinition((JObject)x)));

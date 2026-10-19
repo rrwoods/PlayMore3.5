@@ -26,12 +26,15 @@ namespace PlayMore35 {
         private class FeatSlotChoiceState {
             public string FeatSlot;
             public string FeatName;
+            public Feat FeatDef;
             public Control SingleChoiceControl;
             public string AutoSelectedClass;
             public ComboBox ClassComboBox;
             public ComboBox ManeuverComboBox;
             public WarningBadge WarningBadge;
-            public bool IsMultiChoice => FeatName == "Martial Study" || FeatName == "Martial Stance";
+            public Dictionary<string, Control> ChoiceControls = new Dictionary<string, Control>();
+            public Dictionary<string, string> AutoResolvedChoices = new Dictionary<string, string>();
+            public bool IsMultiChoice => (FeatDef != null && FeatDef.Choices != null && FeatDef.Choices.Any()) || FeatName == "Martial Study" || FeatName == "Martial Stance";
         }
 
         private Dictionary<string, FeatSlotChoiceState> slotChoiceStates = new Dictionary<string, FeatSlotChoiceState>();
@@ -139,12 +142,18 @@ namespace PlayMore35 {
                 return;
             }
 
+            var featDef = session.Catalog.GetFeat(featName);
+            if (featDef?.Choices != null && featDef.Choices.Any()) {
+                PrepareDeclarativeChoices(featDef, featSlot, left);
+                return;
+            }
+
             if (featName == "Martial Study" || featName == "Martial Stance") {
                 PrepareMartialChoice(featName, featSlot, left);
                 return;
             }
 
-            string choiceDescription = session.Catalog.GetFeat(featName)?.ChoiceDescription ?? "";
+            string choiceDescription = featDef?.ChoiceDescription ?? "";
             if (!choiceDescription.Any()) {
                 UpdateMartialWarnings();
                 return;
@@ -193,6 +202,125 @@ namespace PlayMore35 {
             Controls.Add(choiceBox);
             choiceState.SingleChoiceControl = choiceBox;
             featChoices[featSlot] = choiceBox;
+
+            dynamicSlotControls[featSlot] = slotControls;
+            slotChoiceStates[featSlot] = choiceState;
+            UpdateMartialWarnings();
+        }
+
+        private void PrepareDeclarativeChoices(Feat featDef, string featSlot, int left) {
+            var slotControls = new List<Control>();
+            var choiceState = new FeatSlotChoiceState {
+                FeatSlot = featSlot,
+                FeatName = featDef.Benefit?.Name ?? "",
+                FeatDef = featDef
+            };
+
+            int slotLevel = session.GetFeatSlotLevel(featSlot);
+            if (slotLevel <= 0) slotLevel = levelIndex + 1;
+
+            int currentTop = lblFeatChoice.Top;
+
+            foreach (var desc in featDef.Choices) {
+                if (string.Equals(desc.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
+                    var eligibleClasses = session.GetEligibleClassesAtLevel(slotLevel, desc.Filter);
+                    if (eligibleClasses.Count >= 2) {
+                        string headerText = !string.IsNullOrWhiteSpace(desc.Label)
+                            ? (desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase) ? desc.Label : $"Choose {desc.Label.ToLower()}")
+                            : "Choose class";
+                        Label classHeader = new Label {
+                            Top = currentTop,
+                            Left = left,
+                            AutoSize = true,
+                            Text = headerText
+                        };
+                        slotControls.Add(classHeader);
+                        Controls.Add(classHeader);
+
+                        ComboBox classBox = new ComboBox {
+                            Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
+                            Left = left,
+                            Size = cboFeatChoice.Size,
+                            Tag = $"{featSlot}:{desc.Id}"
+                        };
+                        foreach (string eligibleClass in eligibleClasses.OrderBy(x => x)) {
+                            classBox.Items.Add(eligibleClass);
+                        }
+
+                        string savedClass = session.GetFeatChoice(featSlot, desc.Id);
+                        if (string.IsNullOrWhiteSpace(savedClass)) {
+                            savedClass = session.GetFeatChoice(featSlot);
+                        }
+                        if (!string.IsNullOrWhiteSpace(savedClass) && classBox.Items.Contains(savedClass)) {
+                            classBox.SelectedItem = savedClass;
+                        } else {
+                            classBox.SelectedIndex = 0;
+                        }
+
+                        slotControls.Add(classBox);
+                        Controls.Add(classBox);
+                        choiceState.ClassComboBox = classBox;
+                        choiceState.ChoiceControls[desc.Id] = classBox;
+
+                        currentTop = classBox.Bottom + 7;
+                    } else if (eligibleClasses.Count == 1) {
+                        choiceState.AutoSelectedClass = eligibleClasses[0];
+                        choiceState.AutoResolvedChoices[desc.Id] = eligibleClasses[0];
+                    } else {
+                        string fallback = !string.IsNullOrEmpty(desc.Fallback) ? desc.Fallback : "Feats";
+                        choiceState.AutoSelectedClass = fallback;
+                        choiceState.AutoResolvedChoices[desc.Id] = fallback;
+                    }
+                } else {
+                    string headerText = !string.IsNullOrWhiteSpace(desc.Label)
+                        ? (desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase) ? desc.Label : $"Choose {desc.Label.ToLower()}")
+                        : $"Choose {desc.Id}";
+                    Label header = new Label {
+                        Top = currentTop,
+                        Left = left,
+                        AutoSize = true,
+                        Text = headerText
+                    };
+                    slotControls.Add(header);
+                    Controls.Add(header);
+
+                    IEnumerable<string> domainChoices = session.Catalog.ChoicesForKey(desc.Domain);
+                    Control choiceBox;
+                    if (domainChoices.Any()) {
+                        var cbo = new ComboBox {
+                            Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
+                            Left = left,
+                            Size = cboFeatChoice.Size,
+                            Tag = $"{featSlot}:{desc.Id}"
+                        };
+                        foreach (string ch in domainChoices) {
+                            cbo.Items.Add(ch);
+                        }
+                        string saved = session.GetFeatChoice(featSlot, desc.Id);
+                        if (!string.IsNullOrEmpty(saved) && cbo.Items.Contains(saved)) {
+                            cbo.SelectedItem = saved;
+                        } else if (cbo.Items.Count > 0) {
+                            cbo.SelectedIndex = 0;
+                        }
+                        choiceBox = cbo;
+                    } else {
+                        choiceBox = new TextBox {
+                            Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
+                            Left = left,
+                            Size = cboFeatChoice.Size,
+                            Tag = $"{featSlot}:{desc.Id}"
+                        };
+                        string saved = session.GetFeatChoice(featSlot, desc.Id);
+                        if (!string.IsNullOrEmpty(saved)) {
+                            choiceBox.Text = saved;
+                        }
+                    }
+                    slotControls.Add(choiceBox);
+                    Controls.Add(choiceBox);
+                    choiceState.ChoiceControls[desc.Id] = choiceBox;
+                    currentTop = choiceBox.Bottom + 7;
+                }
+            }
 
             dynamicSlotControls[featSlot] = slotControls;
             slotChoiceStates[featSlot] = choiceState;
@@ -383,7 +511,22 @@ namespace PlayMore35 {
         public Dictionary<string, string> GetFeatChoices() {
             var result = new Dictionary<string, string>();
             foreach (var state in slotChoiceStates.Values) {
-                if (!state.IsMultiChoice) {
+                if (state.FeatDef != null && state.FeatDef.Choices != null && state.FeatDef.Choices.Any()) {
+                    foreach (var desc in state.FeatDef.Choices) {
+                        string val = "";
+                        if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
+                            val = ctrl.Text;
+                        } else if (state.AutoResolvedChoices.TryGetValue(desc.Id, out var autoVal)) {
+                            val = autoVal;
+                        }
+                        if (!string.IsNullOrWhiteSpace(val)) {
+                            result[$"{state.FeatSlot}:{desc.Id}"] = val;
+                            if (state.FeatDef.Choices.Count == 1) {
+                                result[state.FeatSlot] = val;
+                            }
+                        }
+                    }
+                } else if (!state.IsMultiChoice) {
                     if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
                         result[state.FeatSlot] = state.SingleChoiceControl.Text;
                     }
