@@ -28,6 +28,26 @@ _Avoid_: Error badge, validation failure, blocker
 
 ### Rules & State
 
+**System**:
+An overarching rules engine, subsystem, or mechanic governing character creation, progression, calculations, or gameplay that provides generic interaction, choice, and lifecycle models.
+_Avoid_: Engine, base system, core rules
+
+**Content**:
+A parameterized data instance cataloged within a system (such as a specific feat, class, race, skill, maneuver, spell, or item) that configures and instantiates systemic primitives.
+_Avoid_: System data, rules data, game definitions
+
+**Content Agnosticism**:
+The architectural invariant requiring all systems code (core engine, subsystems, and UI presentation dialogs) and systems files to operate without referencing specific content names, IDs, or strings.
+_Avoid_: Loose coupling, content independence, zero content literacy
+
+**Systems File**:
+A configuration or rules specification file (such as `rules.json`) that defines systemic statistics, formulas, modifier types, and global parameters without referencing content.
+_Avoid_: Configuration file, rules catalog, settings file
+
+**Content File**:
+An immutable catalog file (such as `feats.json`, `classes.json`, `spells.json`, or `maneuvers.json`) containing definitions of specific content units that leverage systems.
+_Avoid_: Rules file, system file, data dictionary
+
 **Rules Catalog**:
 An immutable repository of core and house rule definitions (races, classes, feats, items) shared read-only across character sessions.
 _Avoid_: Rules cache, item database, game data
