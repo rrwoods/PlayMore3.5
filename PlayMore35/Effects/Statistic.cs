@@ -91,7 +91,7 @@ namespace PlayMore35.Effects {
         }
 
         public bool MatchesTag(string tag) {
-            return Name.Equals(tag) || tags.Contains(tag);
+            return Name.Equals(tag, StringComparison.OrdinalIgnoreCase) || tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
         }
 
         public Statistic Minimum(int minimum) {

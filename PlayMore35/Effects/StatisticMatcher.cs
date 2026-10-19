@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class StatisticMatcher : ISubjectMatcher<Statistic> {
@@ -17,7 +17,7 @@ namespace PlayMore35.Effects {
         }
 
         public ISubjectMatcher<Statistic> ApplyChoice(string choice) { 
-            return new StatisticMatcher(Tag.Replace("$", choice));
+            return new StatisticMatcher(Tag.Replace("${class}", choice).Replace("$", choice));
         }
     }
 }

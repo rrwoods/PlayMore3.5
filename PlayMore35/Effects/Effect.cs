@@ -98,7 +98,8 @@ namespace PlayMore35.Effects {
             if (json["extra attacks"] != null) {
                 ExtraAttacks.AddRange(json["extra attacks"].Select(x => new Alterer<ExtraAttack, Attack> {
                     affects = new AttackMatcher((JObject)x["affects"]),
-                    mod = new ExtraAttack((JObject)x["mod"])
+                    mod = new ExtraAttack((JObject)x["mod"]),
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["attack"] != null) {
@@ -106,7 +107,8 @@ namespace PlayMore35.Effects {
                     affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
-                    }
+                    },
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["damage"] != null) {
@@ -114,7 +116,8 @@ namespace PlayMore35.Effects {
                     affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
-                    }
+                    },
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["dice"] != null) {
@@ -122,7 +125,8 @@ namespace PlayMore35.Effects {
                     affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new DiceGroup((JObject)x["mod"]) {
                         Name = Name
-                    }
+                    },
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["threat"] != null) {
@@ -130,7 +134,8 @@ namespace PlayMore35.Effects {
                     affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
-                    }
+                    },
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["range"] != null) {
@@ -138,7 +143,8 @@ namespace PlayMore35.Effects {
                     affects = new AttackMatcher((JObject)x["affects"]),
                     mod = new Multiplier((decimal)x["mod"]) {
                         Name = Name
-                    }
+                    },
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["modifiers"] != null) {
@@ -146,7 +152,8 @@ namespace PlayMore35.Effects {
                     affects = new StatisticMatcher((string)x["affects"]),
                     mod = new Modifier((JObject)x["mod"]) {
                         Name = Name
-                    }
+                    },
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["multipliers"] != null) {
@@ -154,7 +161,8 @@ namespace PlayMore35.Effects {
                     affects = new StatisticMatcher((string)x["affects"]),
                     mod = new Multiplier((decimal)x["mod"]) {
                         Name = Name
-                    }
+                    },
+                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
                 }));
             }
             if (json["weapon familiarity"] != null) {
@@ -191,7 +199,7 @@ namespace PlayMore35.Effects {
         public Effect ApplyChoice(string choice) {
             Effect copy = new Effect(Name) {
                 Parameter = string.IsNullOrEmpty(Parameter) ? "" : Parameter.Replace("$", choice),
-                Toggle = Toggle
+                Toggle = Toggle.ApplyChoice(choice)
             };
 
             copy.ExtraAttacks.AddRange(ExtraAttacks.Select(x => x.ApplyChoice(choice)));
@@ -334,16 +342,20 @@ namespace PlayMore35.Effects {
         ) where AlterType : IJsonable {
             // In order to prevent infinite recursion, we have to check whether we care about what this effect
             // does before checking whether it applies.
-            IEnumerable<AlterType> potential = alterers
+            var matching = alterers
                 .Where(x => x.affects.Matches(affecting))
-                .Select(x => x.mod);
-            if (!potential.Any()) {
-                return potential;
+                .ToList();
+            if (!matching.Any()) {
+                return Enumerable.Empty<AlterType>();
             }
 
-            return Toggle.On(pool, items)
-                ? potential
-                : Enumerable.Empty<AlterType>();
+            if (!Toggle.On(pool, items)) {
+                return Enumerable.Empty<AlterType>();
+            }
+
+            return matching
+                .Where(x => x.Toggle.On(pool, items))
+                .Select(x => x.mod);
         }
 
         public IEnumerable<ExtraAttack> GetExtraAttacks(EffectPool pool, Equipped items, Attack affecting) {

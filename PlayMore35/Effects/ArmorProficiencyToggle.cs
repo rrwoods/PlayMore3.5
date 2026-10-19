@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
 
 namespace PlayMore35.Effects {
@@ -17,6 +17,10 @@ namespace PlayMore35.Effects {
 
         public JToken ToJson() {
             return new JObject("proficient", Key);
+        }
+
+        public IToggle ApplyChoice(string choice) {
+            return this;
         }
     }
 }

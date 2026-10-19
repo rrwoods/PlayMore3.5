@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
@@ -54,6 +54,10 @@ namespace PlayMore35.Effects {
             }
 
             return false; // we should never get here...
+        }
+
+        public IToggle ApplyChoice(string choice) {
+            return this;
         }
     }
 }

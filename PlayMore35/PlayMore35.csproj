@@ -184,6 +184,7 @@
     <Compile Include="Effects\Effect.cs" />
     <Compile Include="Effects\IAmount.cs" />
     <Compile Include="Effects\IToggle.cs" />
+    <Compile Include="Effects\ChoiceToggle.cs" />
     <Compile Include="Effects\Modifier.cs" />
     <Compile Include="Effects\EffectPool.cs" />
     <Compile Include="Effects\FixedAmount.cs" />
