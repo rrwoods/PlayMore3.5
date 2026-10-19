@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
+using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
 
@@ -328,6 +330,243 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, feat.ClassSkills.Count);
             Assert.AreEqual("Bluff", feat.ClassSkills[0]);
             Assert.IsFalse(feat.ClassSkills.Contains("Disguise"), "Class skills should not be parsed from benefit JObject.");
+        }
+
+        [TestMethod]
+        public void ChoiceDescriptor_JsonSerializationAndDeserialization_RoundTripsAllFields() {
+            var desc = new ChoiceDescriptor("class", "Target Class", "CharacterClasses", "Adept", "Feats", "priorChoice");
+            var json = (JObject)desc.ToJson();
+
+            Assert.AreEqual("class", (string)json["id"]);
+            Assert.AreEqual("Target Class", (string)json["label"]);
+            Assert.AreEqual("CharacterClasses", (string)json["domain"]);
+            Assert.AreEqual("Adept", (string)json["filter"]);
+            Assert.AreEqual("Feats", (string)json["fallback"]);
+            Assert.AreEqual("priorChoice", (string)json["dependsOn"]);
+
+            var restored = new ChoiceDescriptor(json);
+            Assert.AreEqual("class", restored.Id);
+            Assert.AreEqual("Target Class", restored.Label);
+            Assert.AreEqual("CharacterClasses", restored.Domain);
+            Assert.AreEqual("Adept", restored.Filter);
+            Assert.AreEqual("Feats", restored.Fallback);
+            Assert.AreEqual("priorChoice", restored.DependsOn);
+        }
+
+        [TestMethod]
+        public void Feat_Choices_RoundTripsThroughJson() {
+            var original = new Feat(new JObject(
+                new JProperty("benefit", new JObject(new JProperty("name", "Synthetic Feat"))),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "class"),
+                        new JProperty("label", "Target Class"),
+                        new JProperty("domain", "CharacterClasses"),
+                        new JProperty("filter", "Adept"),
+                        new JProperty("fallback", "Feats")
+                    )
+                ))
+            ));
+
+            Assert.AreEqual(1, original.Choices.Count);
+            Assert.AreEqual("class", original.Choices[0].Id);
+            Assert.AreEqual("Target Class", original.Choices[0].Label);
+            Assert.AreEqual("CharacterClasses", original.Choices[0].Domain);
+            Assert.AreEqual("Adept", original.Choices[0].Filter);
+            Assert.AreEqual("Feats", original.Choices[0].Fallback);
+
+            var serialized = (JObject)original.ToJson();
+            var restored = new Feat(serialized);
+
+            Assert.AreEqual(1, restored.Choices.Count);
+            Assert.AreEqual("class", restored.Choices[0].Id);
+            Assert.AreEqual("Target Class", restored.Choices[0].Label);
+            Assert.AreEqual("CharacterClasses", restored.Choices[0].Domain);
+            Assert.AreEqual("Adept", restored.Choices[0].Filter);
+            Assert.AreEqual("Feats", restored.Choices[0].Fallback);
+        }
+
+        private static Feat CreateSyntheticClassTargetedFeat(string featName = "Synthetic Adept Feat", string filter = "Adept", string fallback = "Feats") {
+            var feat = new Feat(new JObject(
+                new JProperty("benefit", new JObject(new JProperty("name", featName))),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "class"),
+                        new JProperty("label", "Target Class"),
+                        new JProperty("domain", "CharacterClasses"),
+                        new JProperty("filter", filter),
+                        new JProperty("fallback", fallback)
+                    )
+                ))
+            ));
+            return feat;
+        }
+
+        [TestMethod]
+        public void ResolveClassChoice_SyntheticFeat_ZeroQualifyingClasses_ResolvesToFallback() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            var resolvedChoice = session.ResolveClassChoice("Level 1", syntheticFeat.Choices[0]);
+            Assert.AreEqual("Feats", resolvedChoice);
+            Assert.AreEqual("Feats", session.ResolveFeatTargetSource("Level 1"));
+        }
+
+        [TestMethod]
+        public void ResolveClassChoice_SyntheticFeat_SingleQualifyingClass_AutoResolvesToThatClass() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Crusader");
+            character.classLevels.Add("Crusader");
+            character.feats["Level 3"] = syntheticFeat.Benefit.Name;
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            var resolvedChoice = session.ResolveClassChoice("Level 3", syntheticFeat.Choices[0]);
+            Assert.AreEqual("Crusader", resolvedChoice);
+            Assert.AreEqual("Crusader", session.ResolveFeatTargetSource("Level 3"));
+        }
+
+        [TestMethod]
+        public void ResolveClassChoice_SyntheticFeat_MultipleQualifyingClasses_ResolvesToChosenClass() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.classLevels.Add("Crusader");
+            character.classLevels.Add("Crusader");
+            character.feats["Level 3"] = syntheticFeat.Benefit.Name;
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Default before explicit choice returns first qualifying class
+            Assert.AreEqual("Warblade", session.ResolveClassChoice("Level 3", syntheticFeat.Choices[0]));
+
+            session.SetFeatChoice("Level 3", "class", "Crusader");
+            Assert.AreEqual("Crusader", session.ResolveClassChoice("Level 3", syntheticFeat.Choices[0]));
+
+            session.SetFeatChoice("Level 3", "class", "Warblade");
+            Assert.AreEqual("Warblade", session.ResolveClassChoice("Level 3", syntheticFeat.Choices[0]));
+        }
+
+        [TestMethod]
+        public void ResolveClassChoice_SyntheticFeat_TemporalGating_ResolvesBasedOnAcquisitionLevel() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");   // Level 1
+            character.classLevels.Add("Warblade");  // Level 2
+            character.classLevels.Add("Crusader");  // Level 3
+
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+            character.feats["Level 3"] = syntheticFeat.Benefit.Name;
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Level 1 slot acquired at level 1: 0 adept classes at level 1 -> Feats
+            Assert.AreEqual("Feats", session.ResolveClassChoice("Level 1", syntheticFeat.Choices[0]));
+
+            // Level 3 slot acquired at level 3: 2 adept classes at level 3
+            session.SetFeatChoice("Level 3", "class", "Crusader");
+            Assert.AreEqual("Crusader", session.ResolveClassChoice("Level 3", syntheticFeat.Choices[0]));
+
+            // Slot acquired at level 1 remains Feats regardless of level 3 progression
+            Assert.AreEqual("Feats", session.ResolveClassChoice("Level 1", syntheticFeat.Choices[0]));
+        }
+
+        [TestMethod]
+        public void SyntheticFeat_EffectGeneration_AppliesResolvedChoiceWithoutContentLiteracy() {
+            var feat = new Feat(new JObject(
+                new JProperty("benefit", new JObject(
+                    new JProperty("name", "Synthetic Adept Focus"),
+                    new JProperty("flags", new JArray("SyntheticChoice:$"))
+                )),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "class"),
+                        new JProperty("label", "Target Class"),
+                        new JProperty("domain", "CharacterClasses"),
+                        new JProperty("filter", "Adept"),
+                        new JProperty("fallback", "Feats")
+                    )
+                ))
+            ));
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[feat.Benefit.Name] = feat;
+
+            // Character A: Crusader 1 -> auto-resolves to Crusader
+            var charA = new Character { race = "human" };
+            charA.classLevels.Clear();
+            charA.classLevels.Add("Crusader");
+            charA.feats["Level 1"] = feat.Benefit.Name;
+            var sessionA = new CharacterSession(charA, fakeCatalog);
+            Assert.IsTrue(sessionA.HasFlag("SyntheticChoice:Crusader"), "Feat effect should have choice resolved to Crusader.");
+            Assert.IsFalse(sessionA.HasFlag("SyntheticChoice:Warblade"));
+
+            // Character B: Warblade 1 -> auto-resolves to Warblade
+            var charB = new Character { race = "human" };
+            charB.classLevels.Clear();
+            charB.classLevels.Add("Warblade");
+            charB.feats["Level 1"] = feat.Benefit.Name;
+            var sessionB = new CharacterSession(charB, fakeCatalog);
+            Assert.IsTrue(sessionB.HasFlag("SyntheticChoice:Warblade"), "Feat effect should have choice resolved to Warblade.");
+            Assert.IsFalse(sessionB.HasFlag("SyntheticChoice:Crusader"));
+
+            // Character C: Fighter 1 -> 0 adept classes -> fallback to Feats
+            var charC = new Character { race = "human" };
+            charC.classLevels.Clear();
+            charC.classLevels.Add("Fighter");
+            charC.feats["Level 1"] = feat.Benefit.Name;
+            var sessionC = new CharacterSession(charC, fakeCatalog);
+            Assert.IsTrue(sessionC.HasFlag("SyntheticChoice:Feats"), "Feat effect should have choice resolved to fallback 'Feats'.");
+        }
+
+        [TestMethod]
+        public void SyntheticFeat_ClassSkillTemplate_ExpandsResolvedChoiceWithoutContentLiteracy() {
+            var feat = new Feat(new JObject(
+                new JProperty("benefit", new JObject(new JProperty("name", "Synthetic Skill Feat"))),
+                new JProperty("class skills", new JArray("${class}")),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "class"),
+                        new JProperty("label", "Target Class"),
+                        new JProperty("domain", "CharacterClasses"),
+                        new JProperty("filter", "Adept"),
+                        new JProperty("fallback", "Feats")
+                    )
+                ))
+            ));
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[feat.Benefit.Name] = feat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = feat.Benefit.Name;
+
+            var session = new CharacterSession(character, fakeCatalog);
+            Assert.IsTrue(session.IsClassSkill("Warblade", 0), "Template ${class} should expand to resolved choice 'Warblade'.");
         }
     }
 }

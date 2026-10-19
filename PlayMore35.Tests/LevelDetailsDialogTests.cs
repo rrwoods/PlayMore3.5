@@ -580,5 +580,131 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(level1Badge.Visible, "Warning badge on Level 1 should clear when prerequisite is restored.");
             }
         }
+
+        private static (ICharacterSession session, Feat syntheticFeat) CreateSyntheticFeatSession(Feat syntheticFeat, params string[] classes) {
+            var innerCatalog = new GameRulesCatalog();
+            var fakeCatalog = new FakeRulesCatalog(inner: innerCatalog);
+            string featName = syntheticFeat.Benefit.Name;
+            fakeCatalog.FeatsMap[featName] = syntheticFeat;
+            foreach (var kvp in innerCatalog.Feats) {
+                if (!fakeCatalog.FeatsMap.ContainsKey(kvp.Key)) {
+                    fakeCatalog.FeatsMap[kvp.Key] = kvp.Value;
+                }
+            }
+            FormUtils.availableFeats = fakeCatalog.Feats.Keys.OrderBy(x => x).ToList();
+            var character = new Character {
+                race = "human",
+                classLevels = classes.ToList()
+            };
+            var session = new CharacterSession(character, fakeCatalog);
+            return (session, syntheticFeat);
+        }
+
+        private static Feat CreateSyntheticClassTargetedFeat(string featName = "Synthetic Adept Feat", string filter = "Adept", string fallback = "Feats") {
+            return new Feat(new JObject(
+                new JProperty("benefit", new JObject(new JProperty("name", featName))),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "class"),
+                        new JProperty("label", "Target Class"),
+                        new JProperty("domain", "CharacterClasses"),
+                        new JProperty("filter", filter),
+                        new JProperty("fallback", fallback)
+                    )
+                ))
+            ));
+        }
+
+        [TestMethod]
+        public void SyntheticClassTargetedFeat_ZeroEligibleClasses_AutoSelectsFallback_NoClassDropdown() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var (session, _) = CreateSyntheticFeatSession(syntheticFeat, "Fighter");
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(0);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                featCombo.SelectedItem = syntheticFeat.Benefit.Name;
+
+                // Class dropdown should not be rendered
+                var classCombos = dialog.Controls.OfType<ComboBox>()
+                    .Where(cbo => Equals(cbo.Tag, "Level 1:class"))
+                    .ToList();
+                Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 eligible classes exist.");
+
+                dialog.SaveChanges();
+                Assert.AreEqual("Feats", session.Character.featChoices["Level 1:class"]);
+            }
+        }
+
+        [TestMethod]
+        public void SyntheticClassTargetedFeat_SingleEligibleClass_AutoSelectsClass_NoClassDropdown() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var (session, _) = CreateSyntheticFeatSession(syntheticFeat, "Fighter", "Warblade", "Warblade");
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                featCombo.SelectedItem = syntheticFeat.Benefit.Name;
+
+                var classCombos = dialog.Controls.OfType<ComboBox>()
+                    .Where(cbo => Equals(cbo.Tag, "Level 3:class"))
+                    .ToList();
+                Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 eligible class exists.");
+
+                dialog.SaveChanges();
+                Assert.AreEqual("Warblade", session.Character.featChoices["Level 3:class"]);
+            }
+        }
+
+        [TestMethod]
+        public void SyntheticClassTargetedFeat_TwoOrMoreEligibleClasses_RendersClassDropdown_ContainsOnlyEligibleClasses() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var (session, _) = CreateSyntheticFeatSession(syntheticFeat, "Warblade", "Crusader", "Crusader");
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                featCombo.SelectedItem = syntheticFeat.Benefit.Name;
+
+                var classCombo = dialog.Controls.OfType<ComboBox>()
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ eligible classes exist.");
+                CollectionAssert.AreEquivalent(
+                    new[] { "Crusader", "Warblade" },
+                    classCombo.Items.Cast<string>().ToList(),
+                    "Class dropdown should contain only the eligible classes."
+                );
+
+                classCombo.SelectedItem = "Crusader";
+                dialog.SaveChanges();
+
+                Assert.AreEqual("Crusader", session.Character.featChoices["Level 3:class"]);
+            }
+        }
+
+        [TestMethod]
+        public void SyntheticClassTargetedFeat_ExistingChoicePreserved_InitializesSelection() {
+            var syntheticFeat = CreateSyntheticClassTargetedFeat();
+            var (session, _) = CreateSyntheticFeatSession(syntheticFeat, "Warblade", "Crusader", "Crusader");
+            session.Mutate(c => {
+                c.feats["Level 3"] = syntheticFeat.Benefit.Name;
+                c.featChoices["Level 3:class"] = "Crusader";
+            });
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var classCombo = dialog.Controls.OfType<ComboBox>()
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ eligible classes exist.");
+                Assert.AreEqual("Crusader", classCombo.SelectedItem, "Saved class choice should be selected on load.");
+            }
+        }
     }
 }
