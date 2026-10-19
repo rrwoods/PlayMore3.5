@@ -448,6 +448,9 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     if (string.Equals(slot, currentFeatSlot, StringComparison.OrdinalIgnoreCase)) {
                         continue;
                     }
+                    if (currentChoices != null && (currentChoices.ContainsKey($"{slot}:maneuver") || currentChoices.ContainsKey($"{slot}:stance"))) {
+                        continue;
+                    }
                     int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
                     if (slotLevel > 0 && slotLevel <= level) {
                         if (character.featChoices != null) {
@@ -455,10 +458,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
                                 distinctKnown.Add(mName);
                             } else if (character.featChoices.TryGetValue($"{slot}:stance", out var sName) && !string.IsNullOrWhiteSpace(sName)) {
                                 distinctKnown.Add(sName);
-                            } else if (character.featChoices.TryGetValue(slot, out var legacyName) && !string.IsNullOrWhiteSpace(legacyName)) {
-                                if (catalog.GetManeuver(legacyName) != null) {
-                                    distinctKnown.Add(legacyName);
-                                }
                             }
                         }
                     }
@@ -467,14 +466,16 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
             if (currentChoices != null) {
                 foreach (var kvp in currentChoices) {
-                    if (kvp.Key.EndsWith(":maneuver", StringComparison.OrdinalIgnoreCase) || kvp.Key.EndsWith(":stance", StringComparison.OrdinalIgnoreCase)) {
-                        int colonIdx = kvp.Key.IndexOf(':');
-                        string slot = kvp.Key.Substring(0, colonIdx);
-                        if (!string.Equals(slot, currentFeatSlot, StringComparison.OrdinalIgnoreCase)) {
-                            int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
-                            if (slotLevel > 0 && slotLevel <= level && !string.IsNullOrWhiteSpace(kvp.Value)) {
-                                distinctKnown.Add(kvp.Value);
-                            }
+                    string slot = null;
+                    if (kvp.Key.EndsWith(":maneuver", StringComparison.OrdinalIgnoreCase)) {
+                        slot = kvp.Key.Substring(0, kvp.Key.Length - ":maneuver".Length);
+                    } else if (kvp.Key.EndsWith(":stance", StringComparison.OrdinalIgnoreCase)) {
+                        slot = kvp.Key.Substring(0, kvp.Key.Length - ":stance".Length);
+                    }
+                    if (slot != null && !string.Equals(slot, currentFeatSlot, StringComparison.OrdinalIgnoreCase)) {
+                        int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
+                        if (slotLevel > 0 && slotLevel <= level && !string.IsNullOrWhiteSpace(kvp.Value)) {
+                            distinctKnown.Add(kvp.Value);
                         }
                     }
                 }
@@ -822,19 +823,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 }
             }
 
-            if (context.Character.feats != null) {
-                foreach (var featKvp in context.Character.feats) {
-                    if (string.Equals(featKvp.Value, "Martial Study", StringComparison.OrdinalIgnoreCase)) {
-                        string featSlot = featKvp.Key;
-                        if (!activeFeatManeuvers.ContainsKey(featSlot) &&
-                            featChoices.TryGetValue(featSlot, out var mName) &&
-                            !string.IsNullOrWhiteSpace(mName)) {
-                            activeFeatManeuvers[featSlot] = (featSlot, mName);
-                        }
-                    }
-                }
-            }
-
             // Remove any slots in state.Known that are feat-bound to a featSlot no longer active
             foreach (var kvp in state.Known) {
                 for (int i = kvp.Value.Count - 1; i >= 0; i--) {
@@ -897,14 +885,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
                         InsertOrAppendFeatSlot(targetSource, targetList, existingSlot, baseClassCapacity);
                     }
                 } else {
-                    var matchingSlot = targetList.FirstOrDefault(s => s != null && !s.IsFeatBound && string.Equals(s.ManeuverName, maneuverName, StringComparison.OrdinalIgnoreCase));
-                    if (matchingSlot != null) {
-                        matchingSlot.IsFeatBound = true;
-                        matchingSlot.FeatSlot = featSlot;
-                    } else {
-                        var newSlot = new KnownManeuverSlot(maneuverName, ManeuverState.Unreadied, isFeatBound: true, featSlot: featSlot);
-                        InsertOrAppendFeatSlot(targetSource, targetList, newSlot, baseClassCapacity);
-                    }
+                    var newSlot = new KnownManeuverSlot(maneuverName, ManeuverState.Unreadied, isFeatBound: true, featSlot: featSlot);
+                    InsertOrAppendFeatSlot(targetSource, targetList, newSlot, baseClassCapacity);
                 }
             }
 
@@ -915,19 +897,6 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     string featSlot = kvp.Key.Substring(0, kvp.Key.Length - ":stance".Length);
                     if (!string.IsNullOrWhiteSpace(kvp.Value)) {
                         activeFeatStances[featSlot] = (featSlot, kvp.Value);
-                    }
-                }
-            }
-
-            if (context.Character.feats != null) {
-                foreach (var featKvp in context.Character.feats) {
-                    if (string.Equals(featKvp.Value, "Martial Stance", StringComparison.OrdinalIgnoreCase)) {
-                        string featSlot = featKvp.Key;
-                        if (!activeFeatStances.ContainsKey(featSlot) &&
-                            featChoices.TryGetValue(featSlot, out var sName) &&
-                            !string.IsNullOrWhiteSpace(sName)) {
-                            activeFeatStances[featSlot] = (featSlot, sName);
-                        }
                     }
                 }
             }
@@ -994,14 +963,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
                         InsertOrAppendFeatStanceSlot(targetSource, targetList, existingSlot, baseClassCapacity);
                     }
                 } else {
-                    var matchingSlot = targetList.FirstOrDefault(s => s != null && !s.IsFeatBound && string.Equals(s.StanceName, stanceName, StringComparison.OrdinalIgnoreCase));
-                    if (matchingSlot != null) {
-                        matchingSlot.IsFeatBound = true;
-                        matchingSlot.FeatSlot = featSlot;
-                    } else {
-                        var newSlot = new StanceSlot(stanceName, isActive: false, isFeatBound: true, featSlot: featSlot);
-                        InsertOrAppendFeatStanceSlot(targetSource, targetList, newSlot, baseClassCapacity);
-                    }
+                    var newSlot = new StanceSlot(stanceName, isActive: false, isFeatBound: true, featSlot: featSlot);
+                    InsertOrAppendFeatStanceSlot(targetSource, targetList, newSlot, baseClassCapacity);
                 }
             }
         }

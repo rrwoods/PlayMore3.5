@@ -849,5 +849,80 @@ namespace PlayMore35.Tests {
             Assert.IsFalse(engine.HasStance("Hunter's Sense", "Warblade"));
             Assert.IsFalse(engine.GetStanceSlots("Warblade").Any(s => s != null && s.IsFeatBound));
         }
+
+        [TestMethod]
+        public void ProjectFeatSlots_SameManeuverAsClassProgression_DoesNotHijackClassSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade"); // Level 1 Warblade: 3 class slots + 1 feat slot = 4
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:class"] = "Warblade";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            // Populate class slot 0 with the EXACT same maneuver name ("Steel Wind")
+            engine.SetKnownSlot("Warblade", 0, "Steel Wind");
+            engine.SetKnownSlot("Warblade", 1, "Steely Strike");
+            engine.SetKnownSlot("Warblade", 2, "Moment of Perfect Mind");
+
+            session.Recalculate();
+
+            var knownSlots = engine.GetKnownSlots("Warblade").ToList();
+            Assert.AreEqual(4, knownSlots.Count, "Warblade should have 3 class slots + 1 feat slot.");
+
+            // Slot 0 (class progression slot) must NOT be feat-bound
+            Assert.IsNotNull(knownSlots[0]);
+            Assert.AreEqual("Steel Wind", knownSlots[0].ManeuverName);
+            Assert.IsFalse(knownSlots[0].IsFeatBound, "Class progression slot should never be hijacked into a feat-bound slot.");
+            Assert.IsNull(knownSlots[0].FeatSlot);
+
+            // Feat slot (slot 3) must be the dedicated feat-bound slot
+            Assert.IsNotNull(knownSlots[3]);
+            Assert.AreEqual("Steel Wind", knownSlots[3].ManeuverName);
+            Assert.IsTrue(knownSlots[3].IsFeatBound, "Feat slot should be dedicated and marked IsFeatBound.");
+            Assert.AreEqual("Level 1", knownSlots[3].FeatSlot);
+
+            // Class slot 0 should still be retrainable / modifiable as a normal class slot
+            engine.SetKnownSlot("Warblade", 0, "Douse the Flames");
+            Assert.AreEqual("Douse the Flames", engine.GetKnownSlot("Warblade", 0).ManeuverName);
+            Assert.AreEqual("Steel Wind", engine.GetKnownSlot("Warblade", 3).ManeuverName);
+        }
+
+        [TestMethod]
+        public void ProjectFeatSlots_SameStanceAsClassProgression_DoesNotHijackClassSlot() {
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade"); // Level 1 Warblade: 1 class stance + 1 feat stance = 2
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:class"] = "Warblade";
+            character.featChoices["Level 1:stance"] = "Punishing Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            // Populate class stance slot 0 with the EXACT same stance name ("Punishing Stance")
+            engine.SetStanceSlot("Warblade", 0, "Punishing Stance");
+
+            session.Recalculate();
+
+            var stanceSlots = engine.GetStanceSlots("Warblade").ToList();
+            Assert.AreEqual(2, stanceSlots.Count, "Warblade should have 1 class stance slot + 1 feat stance slot.");
+
+            // Slot 0 (class progression slot) must NOT be feat-bound
+            Assert.IsNotNull(stanceSlots[0]);
+            Assert.AreEqual("Punishing Stance", stanceSlots[0].StanceName);
+            Assert.IsFalse(stanceSlots[0].IsFeatBound, "Class progression stance slot should never be hijacked into a feat-bound slot.");
+            Assert.IsNull(stanceSlots[0].FeatSlot);
+
+            // Feat slot (slot 1) must be dedicated feat-bound slot
+            Assert.IsNotNull(stanceSlots[1]);
+            Assert.AreEqual("Punishing Stance", stanceSlots[1].StanceName);
+            Assert.IsTrue(stanceSlots[1].IsFeatBound, "Feat stance slot should be dedicated and marked IsFeatBound.");
+            Assert.AreEqual("Level 1", stanceSlots[1].FeatSlot);
+        }
     }
 }

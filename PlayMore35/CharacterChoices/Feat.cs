@@ -38,9 +38,6 @@ namespace PlayMore35.CharacterChoices {
             Benefit = new Effect((JObject)json["benefit"]);
             Descriptors.ReadJson("descriptors", json);
             ClassSkills.ReadJson("class skills", json);
-            if (json["benefit"] is JObject b) {
-                ClassSkills.ReadJson("class skills", b);
-            }
             if (json["prerequisites"] != null) {
                 Prerequisites = (string)json["prerequisites"];
             }

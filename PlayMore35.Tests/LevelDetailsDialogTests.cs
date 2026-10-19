@@ -538,5 +538,47 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(session.Character.featChoices.ContainsKey("Level 1:stance"));
             }
         }
+
+        [TestMethod]
+        public void DialogValidation_PendingChoicesAcrossSlotsAtSameLevel_SatisfiesPrerequisitesWithoutSpuriousWarning() {
+            var session = CreateAdeptSession("Fighter");
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(0);
+
+                // Slot "Human": select Martial Study -> Burning Blade (Desert Wind, 0 prereq)
+                var humanFeatCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Human"));
+                humanFeatCombo.SelectedItem = "Martial Study";
+
+                var humanManeuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Human:maneuver"));
+                humanManeuverCombo.SelectedItem = "[Desert Wind] Burning Blade";
+
+                // Slot "Level 1": select Martial Stance -> Flame's Blessing (Desert Wind, requires 1 Desert Wind maneuver)
+                var level1FeatCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                level1FeatCombo.SelectedItem = "Martial Stance";
+
+                var level1StanceCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1:stance"));
+                level1StanceCombo.SelectedItem = "[Desert Wind] Flame's Blessing";
+
+                // Prerequisite of 1 Desert Wind maneuver for Flame's Blessing is met by pending choice in Human slot
+                var level1Badge = dialog.Controls.OfType<PlayMore35.UI.WarningBadge>()
+                    .FirstOrDefault(b => Equals(b.Tag, "Level 1"));
+                Assert.IsNotNull(level1Badge);
+                Assert.IsFalse(level1Badge.Visible, "Warning badge on Level 1 should be hidden because Human slot selected Burning Blade.");
+
+                // If Human slot changes to non-Desert Wind maneuver (e.g. Steel Wind from Iron Heart)
+                humanManeuverCombo.SelectedItem = "[Iron Heart] Steel Wind";
+                Assert.IsTrue(level1Badge.Visible, "Warning badge on Level 1 should appear because Desert Wind prerequisite is no longer met.");
+                StringAssert.Contains(level1Badge.WarningMessage, "Requires 1 Desert Wind maneuver, but only 0 known.");
+
+                // If Human slot switches back to Burning Blade, warning badge clears immediately
+                humanManeuverCombo.SelectedItem = "[Desert Wind] Burning Blade";
+                Assert.IsFalse(level1Badge.Visible, "Warning badge on Level 1 should clear when prerequisite is restored.");
+            }
+        }
     }
 }

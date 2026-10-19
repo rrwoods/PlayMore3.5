@@ -105,6 +105,7 @@ namespace PlayMore35 {
 
                 featLeft += cboFeat2.Left - cboFeat1.Left;
             }
+            UpdateMartialWarnings();
         }
 
         public static string ExtractManeuverName(string formattedText) {
@@ -134,6 +135,7 @@ namespace PlayMore35 {
             }
 
             if (string.IsNullOrEmpty(featName)) {
+                UpdateMartialWarnings();
                 return;
             }
 
@@ -144,6 +146,7 @@ namespace PlayMore35 {
 
             string choiceDescription = session.Catalog.GetFeat(featName)?.ChoiceDescription ?? "";
             if (!choiceDescription.Any()) {
+                UpdateMartialWarnings();
                 return;
             }
 
@@ -193,6 +196,7 @@ namespace PlayMore35 {
 
             dynamicSlotControls[featSlot] = slotControls;
             slotChoiceStates[featSlot] = choiceState;
+            UpdateMartialWarnings();
         }
 
         private void PrepareMartialChoice(string featName, string featSlot, int left) {
@@ -286,9 +290,6 @@ namespace PlayMore35 {
 
             string choiceKey = isStance ? "stance" : "maneuver";
             string savedManeuver = session.GetFeatChoice(featSlot, choiceKey);
-            if (string.IsNullOrWhiteSpace(savedManeuver)) {
-                savedManeuver = session.GetFeatChoice(featSlot);
-            }
 
             if (!string.IsNullOrWhiteSpace(savedManeuver)) {
                 string matchedItem = maneuverBox.Items.Cast<string>()
@@ -302,25 +303,8 @@ namespace PlayMore35 {
             Controls.Add(maneuverBox);
             choiceState.ManeuverComboBox = maneuverBox;
 
-            Action updateWarning = () => {
-                string selectedText = maneuverBox.SelectedItem != null ? maneuverBox.SelectedItem.ToString() : maneuverBox.Text;
-                string selectedManeuver = ExtractManeuverName(selectedText);
-                if (string.IsNullOrWhiteSpace(selectedManeuver)) {
-                    badge.ClearWarning();
-                    return;
-                }
-
-                string target = choiceState.ClassComboBox != null ? choiceState.ClassComboBox.Text : choiceState.AutoSelectedClass;
-                var engine = session.Subsystems?.Get<MartialManeuverEngine>();
-                var warnings = engine != null
-                    ? engine.ValidateFeatManeuver(featSlot, selectedManeuver, target)
-                    : new List<string>();
-                if (warnings.Count > 0) {
-                    badge.SetWarning(string.Join("\n", warnings));
-                } else {
-                    badge.ClearWarning();
-                }
-            };
+            dynamicSlotControls[featSlot] = slotControls;
+            slotChoiceStates[featSlot] = choiceState;
 
             maneuverBox.SelectedValueChanged += (s, e) => {
                 if (maneuverBox.SelectedItem == null && !string.IsNullOrWhiteSpace(maneuverBox.Text)) {
@@ -331,17 +315,44 @@ namespace PlayMore35 {
                         maneuverBox.SelectedItem = matched;
                     }
                 }
-                updateWarning();
+                UpdateMartialWarnings();
             };
 
             if (choiceState.ClassComboBox != null) {
-                choiceState.ClassComboBox.SelectedValueChanged += (s, e) => updateWarning();
+                choiceState.ClassComboBox.SelectedValueChanged += (s, e) => UpdateMartialWarnings();
             }
 
-            updateWarning();
+            UpdateMartialWarnings();
+        }
 
-            dynamicSlotControls[featSlot] = slotControls;
-            slotChoiceStates[featSlot] = choiceState;
+        private void UpdateMartialWarnings() {
+            var currentChoices = GetFeatChoices();
+            var engine = session.Subsystems?.Get<MartialManeuverEngine>();
+
+            foreach (var state in slotChoiceStates.Values) {
+                if (!state.IsMultiChoice || state.WarningBadge == null || state.ManeuverComboBox == null) {
+                    continue;
+                }
+
+                string selectedText = state.ManeuverComboBox.SelectedItem != null 
+                    ? state.ManeuverComboBox.SelectedItem.ToString() 
+                    : state.ManeuverComboBox.Text;
+                string selectedManeuver = ExtractManeuverName(selectedText);
+                if (string.IsNullOrWhiteSpace(selectedManeuver)) {
+                    state.WarningBadge.ClearWarning();
+                    continue;
+                }
+
+                string target = state.ClassComboBox != null ? state.ClassComboBox.Text : state.AutoSelectedClass;
+                var warnings = engine != null
+                    ? engine.ValidateFeatManeuver(state.FeatSlot, selectedManeuver, target, currentChoices)
+                    : new List<string>();
+                if (warnings.Count > 0) {
+                    state.WarningBadge.SetWarning(string.Join("\n", warnings));
+                } else {
+                    state.WarningBadge.ClearWarning();
+                }
+            }
         }
 
         public void SelectClass(object sender, EventArgs e) {
