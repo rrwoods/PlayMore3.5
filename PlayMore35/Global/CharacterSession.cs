@@ -656,9 +656,112 @@ namespace PlayMore35.Global {
             return adeptClasses[0];
         }
 
-        private bool IsAdeptClass(string className) {
+        public bool IsAdeptClass(string className) {
             var cls = catalog.GetClass(className);
             return cls != null && cls.Subsystems.ContainsKey(PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine.SubsystemId);
+        }
+
+        public IReadOnlyList<string> GetEligibleAdeptClassesAtLevel(int level) {
+            int cappedLevel = Math.Min(level, character.classLevels.Count);
+            if (cappedLevel <= 0) return new List<string>().AsReadOnly();
+            return character.classLevels
+                .Take(cappedLevel)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(IsAdeptClass)
+                .ToList()
+                .AsReadOnly();
+        }
+
+        public int GetInitiatorLevelAtLevel(string source, int level) {
+            if (string.IsNullOrWhiteSpace(source)) return 0;
+            int cappedLevel = Math.Min(level, character.classLevels.Count);
+            if (cappedLevel <= 0) return 0;
+            var classesAtLevel = character.classLevels.Take(cappedLevel).ToList();
+
+            if (string.Equals(source, "Feats", StringComparison.OrdinalIgnoreCase)) {
+                return Math.Max(1, classesAtLevel.Count / 2);
+            }
+
+            int classLevels = classesAtLevel.Count(c => string.Equals(c, source, StringComparison.OrdinalIgnoreCase));
+            if (classLevels == 0) return 0;
+            int otherLevels = classesAtLevel.Count - classLevels;
+            return classLevels + (otherLevels / 2);
+        }
+
+        public int CountKnownInDisciplineAtLevel(string discipline, int level, string currentFeatSlot = null, string excludingManeuverName = null, IDictionary<string, string> currentChoices = null) {
+            if (string.IsNullOrWhiteSpace(discipline)) return 0;
+            var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            int cappedLevel = Math.Min(level, character.classLevels.Count);
+            var classesAtLevel = character.classLevels.Take(cappedLevel).ToList();
+
+            if (character.Subsystems.TryGetValue(PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine.SubsystemId, out var subState)
+                && subState is PlayMore35.Subsystems.Maneuvers.MartialManeuverState mState) {
+                foreach (var kvp in mState.Known) {
+                    string sourceClass = kvp.Key;
+                    if (classesAtLevel.Any(c => string.Equals(c, sourceClass, StringComparison.OrdinalIgnoreCase))) {
+                        foreach (var slot in kvp.Value) {
+                            if (slot != null && !slot.IsFeatBound && !string.IsNullOrWhiteSpace(slot.ManeuverName)) {
+                                distinctKnown.Add(slot.ManeuverName);
+                            }
+                        }
+                    }
+                }
+                foreach (var kvp in mState.Stances) {
+                    string sourceClass = kvp.Key;
+                    if (classesAtLevel.Any(c => string.Equals(c, sourceClass, StringComparison.OrdinalIgnoreCase))) {
+                        foreach (var slot in kvp.Value) {
+                            if (slot != null && !string.IsNullOrWhiteSpace(slot.StanceName)) {
+                                distinctKnown.Add(slot.StanceName);
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var featKvp in character.feats) {
+                string slot = featKvp.Key;
+                if (string.Equals(slot, currentFeatSlot, StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
+                int slotLevel = GetFeatSlotLevel(slot);
+                if (slotLevel > 0 && slotLevel <= level) {
+                    if (character.featChoices.TryGetValue($"{slot}:maneuver", out var mName) && !string.IsNullOrWhiteSpace(mName)) {
+                        distinctKnown.Add(mName);
+                    } else if (character.featChoices.TryGetValue($"{slot}:stance", out var sName) && !string.IsNullOrWhiteSpace(sName)) {
+                        distinctKnown.Add(sName);
+                    } else if (character.featChoices.TryGetValue(slot, out var legacyName) && !string.IsNullOrWhiteSpace(legacyName)) {
+                        if (catalog.GetManeuver(legacyName) != null) {
+                            distinctKnown.Add(legacyName);
+                        }
+                    }
+                }
+            }
+
+            if (currentChoices != null) {
+                foreach (var kvp in currentChoices) {
+                    if (kvp.Key.EndsWith(":maneuver", StringComparison.OrdinalIgnoreCase) || kvp.Key.EndsWith(":stance", StringComparison.OrdinalIgnoreCase)) {
+                        int colonIdx = kvp.Key.IndexOf(':');
+                        string slot = kvp.Key.Substring(0, colonIdx);
+                        if (!string.Equals(slot, currentFeatSlot, StringComparison.OrdinalIgnoreCase)) {
+                            int slotLevel = GetFeatSlotLevel(slot);
+                            if (slotLevel > 0 && slotLevel <= level && !string.IsNullOrWhiteSpace(kvp.Value)) {
+                                distinctKnown.Add(kvp.Value);
+                            }
+                        }
+                    }
+                }
+            }
+
+            int count = 0;
+            foreach (var name in distinctKnown) {
+                if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
+                    var m = catalog.GetManeuver(name);
+                    if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
+                        count++;
+                    }
+                }
+            }
+            return count;
         }
 
         public void SetFeatChoice(string featSlot, string choice) {

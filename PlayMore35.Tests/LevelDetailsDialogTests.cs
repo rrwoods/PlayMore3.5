@@ -146,5 +146,209 @@ namespace PlayMore35.Tests {
                 );
             }
         }
+
+        private static ICharacterSession CreateAdeptSession(params string[] classes) {
+            var catalog = new GameRulesCatalog();
+            FormUtils.availableFeats = catalog.Feats.Keys.OrderBy(x => x).ToList();
+            var character = new Character {
+                race = "human",
+                classLevels = classes.ToList()
+            };
+            return new CharacterSession(character, catalog);
+        }
+
+        [TestMethod]
+        public void MartialStudy_ZeroAdeptClasses_AutoSelectsFeats_NoClassDropdown() {
+            // Level 1 Fighter (0 adept classes possessed)
+            var session = CreateAdeptSession("Fighter");
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(0);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                featCombo.SelectedItem = "Martial Study";
+
+                // Class dropdown should not be rendered
+                var classCombos = dialog.Controls.OfType<ComboBox>()
+                    .Where(cbo => Equals(cbo.Tag, "Level 1:class"))
+                    .ToList();
+                Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
+
+                // Maneuver dropdown should be rendered with formatted items
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1:maneuver"));
+                Assert.IsTrue(maneuverCombo.Items.Contains("[Iron Heart] Steel Wind"));
+                // Stances must not be present in Martial Study
+                Assert.IsFalse(maneuverCombo.Items.Contains("[Desert Wind] Flame's Blessing"));
+
+                maneuverCombo.SelectedItem = "[Iron Heart] Steel Wind";
+                dialog.SaveChanges();
+
+                Assert.AreEqual("Feats", session.Character.featChoices["Level 1:class"]);
+                Assert.AreEqual("Steel Wind", session.Character.featChoices["Level 1:maneuver"]);
+            }
+        }
+
+        [TestMethod]
+        public void MartialStudy_SingleAdeptClass_AutoSelectsAdeptClass_NoClassDropdown() {
+            // Level 3 character with Fighter 1, Warblade 2 (1 adept class possessed)
+            var session = CreateAdeptSession("Fighter", "Warblade", "Warblade");
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                featCombo.SelectedItem = "Martial Study";
+
+                var classCombos = dialog.Controls.OfType<ComboBox>()
+                    .Where(cbo => Equals(cbo.Tag, "Level 3:class"))
+                    .ToList();
+                Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 adept class exists.");
+
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3:maneuver"));
+                maneuverCombo.SelectedItem = "[Iron Heart] Steel Wind";
+                dialog.SaveChanges();
+
+                Assert.AreEqual("Warblade", session.Character.featChoices["Level 3:class"]);
+                Assert.AreEqual("Steel Wind", session.Character.featChoices["Level 3:maneuver"]);
+            }
+        }
+
+        [TestMethod]
+        public void MartialStudy_TwoOrMoreAdeptClasses_RendersClassDropdown_ContainsOnlyEligibleAdeptClasses() {
+            // Level 3 character with Warblade 1, Crusader 2 (2 adept classes possessed)
+            var session = CreateAdeptSession("Warblade", "Crusader", "Crusader");
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                featCombo.SelectedItem = "Martial Study";
+
+                var classCombo = dialog.Controls.OfType<ComboBox>()
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ adept classes exist.");
+                CollectionAssert.AreEquivalent(
+                    new[] { "Crusader", "Warblade" },
+                    classCombo.Items.Cast<string>().ToList(),
+                    "Class dropdown should contain only the eligible adept classes (and not 'Feats')."
+                );
+
+                classCombo.SelectedItem = "Crusader";
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3:maneuver"));
+                maneuverCombo.SelectedItem = "[Devoted Spirit] Crusader's Strike";
+
+                dialog.SaveChanges();
+
+                Assert.AreEqual("Crusader", session.Character.featChoices["Level 3:class"]);
+                Assert.AreEqual("Crusader's Strike", session.Character.featChoices["Level 3:maneuver"]);
+            }
+        }
+
+        [TestMethod]
+        public void MartialStudy_ExceedsMaxManeuverLevel_DisplaysAdvisoryWarningBadge() {
+            // Level 1 Fighter: IL = 1 for Feats, max maneuver level = 1
+            var session = CreateAdeptSession("Fighter");
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(0);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                featCombo.SelectedItem = "Martial Study";
+
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1:maneuver"));
+                // Disarming Strike is level 2
+                maneuverCombo.SelectedItem = "[Iron Heart] Disarming Strike";
+
+                var badge = dialog.Controls.OfType<PlayMore35.UI.WarningBadge>()
+                    .FirstOrDefault(b => Equals(b.Tag, "Level 1"));
+                Assert.IsNotNull(badge, "Warning badge should exist for feat slot.");
+                Assert.IsTrue(badge.Visible, "Warning badge should be visible when maneuver level exceeds max level.");
+                StringAssert.Contains(badge.WarningMessage, "exceeds maximum maneuver level");
+
+                // Switch to level 1 maneuver (Steel Wind)
+                maneuverCombo.SelectedItem = "[Iron Heart] Steel Wind";
+                Assert.IsFalse(badge.Visible, "Warning badge should not be visible when selection is valid.");
+            }
+        }
+
+        [TestMethod]
+        public void MartialStudy_UnmetDisciplinePrerequisite_DisplaysAdvisoryWarningBadge() {
+            // Level 3 Swordsage (IL = 3, max maneuver level = 2, 0 Desert Wind maneuvers known)
+            var session = CreateAdeptSession("Swordsage", "Swordsage", "Swordsage");
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                featCombo.SelectedItem = "Martial Study";
+
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3:maneuver"));
+                // Flashing Sun is level 2, requires 1 Desert Wind maneuver
+                maneuverCombo.SelectedItem = "[Desert Wind] Flashing Sun";
+
+                var badge = dialog.Controls.OfType<PlayMore35.UI.WarningBadge>()
+                    .FirstOrDefault(b => Equals(b.Tag, "Level 3"));
+                Assert.IsNotNull(badge);
+                Assert.IsTrue(badge.Visible);
+                StringAssert.Contains(badge.WarningMessage, "Requires 1 Desert Wind maneuver, but only 0 known.");
+            }
+        }
+
+        [TestMethod]
+        public void MartialStudy_PrerequisiteMetByEarlierManeuver_NoWarningBadge() {
+            // Level 3 Swordsage who already took Burning Blade at Level 1
+            var session = CreateAdeptSession("Swordsage", "Swordsage", "Swordsage");
+            session.Mutate(c => {
+                c.feats["Level 1"] = "Martial Study";
+                c.featChoices["Level 1:class"] = "Swordsage";
+                c.featChoices["Level 1:maneuver"] = "Burning Blade";
+            });
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                featCombo.SelectedItem = "Martial Study";
+
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3:maneuver"));
+                maneuverCombo.SelectedItem = "[Desert Wind] Flashing Sun";
+
+                var badge = dialog.Controls.OfType<PlayMore35.UI.WarningBadge>()
+                    .FirstOrDefault(b => Equals(b.Tag, "Level 3"));
+                Assert.IsNotNull(badge);
+                Assert.IsFalse(badge.Visible, "Warning badge should be hidden when prerequisite is met by earlier maneuver.");
+            }
+        }
+
+        [TestMethod]
+        public void MartialStudy_ReplaceFeatWithOtherFeat_RemovesStaleCompositeChoices() {
+            var session = CreateAdeptSession("Fighter");
+            session.Mutate(c => {
+                c.feats["Level 1"] = "Martial Study";
+                c.featChoices["Level 1:class"] = "Feats";
+                c.featChoices["Level 1:maneuver"] = "Steel Wind";
+            });
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(0);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                featCombo.SelectedItem = "Endurance";
+
+                dialog.SaveChanges();
+
+                Assert.AreEqual("Endurance", session.Character.feats["Level 1"]);
+                Assert.IsFalse(session.Character.featChoices.ContainsKey("Level 1:class"));
+                Assert.IsFalse(session.Character.featChoices.ContainsKey("Level 1:maneuver"));
+            }
+        }
     }
 }
