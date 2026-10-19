@@ -374,6 +374,154 @@ namespace PlayMore35.Subsystems.Maneuvers {
             return distinctKnown.Count;
         }
 
+        public int GetInitiatorLevelAtLevel(string source, int level) {
+            if (string.IsNullOrWhiteSpace(source)) return 0;
+            var character = context?.Character;
+            if (character == null) return 0;
+            int cappedLevel = Math.Min(level, character.classLevels.Count);
+            if (cappedLevel <= 0) return 0;
+            var classesAtLevel = character.classLevels.Take(cappedLevel).ToList();
+
+            if (string.Equals(source, "Feats", StringComparison.OrdinalIgnoreCase)) {
+                return Math.Max(1, classesAtLevel.Count / 2);
+            }
+
+            int classLevels = classesAtLevel.Count(c => string.Equals(c, source, StringComparison.OrdinalIgnoreCase));
+            if (classLevels == 0) return 0;
+            int otherLevels = classesAtLevel.Count - classLevels;
+            return classLevels + (otherLevels / 2);
+        }
+
+        public int GetMaxManeuverLevelAtLevel(string source, int level) {
+            int il = GetInitiatorLevelAtLevel(source, level);
+            if (il <= 0) return 0;
+            return Math.Min(9, (il + 1) / 2);
+        }
+
+        public int CountKnownInDisciplineAtLevel(string discipline, int level, string currentFeatSlot = null, string excludingManeuverName = null, IDictionary<string, string> currentChoices = null) {
+            if (string.IsNullOrWhiteSpace(discipline)) return 0;
+            var character = context?.Character;
+            if (character == null) return 0;
+
+            var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            int cappedLevel = Math.Min(level, character.classLevels.Count);
+            var classesAtLevel = character.classLevels.Take(cappedLevel).ToList();
+
+            // 1. Known from class progression
+            foreach (var kvp in state.Known) {
+                string sourceClass = kvp.Key;
+                if (classesAtLevel.Any(c => string.Equals(c, sourceClass, StringComparison.OrdinalIgnoreCase))) {
+                    foreach (var slot in kvp.Value) {
+                        if (slot != null && !slot.IsFeatBound && !string.IsNullOrWhiteSpace(slot.ManeuverName)) {
+                            distinctKnown.Add(slot.ManeuverName);
+                        }
+                    }
+                }
+            }
+            foreach (var kvp in state.Stances) {
+                string sourceClass = kvp.Key;
+                if (classesAtLevel.Any(c => string.Equals(c, sourceClass, StringComparison.OrdinalIgnoreCase))) {
+                    foreach (var slot in kvp.Value) {
+                        if (slot != null && !string.IsNullOrWhiteSpace(slot.StanceName)) {
+                            distinctKnown.Add(slot.StanceName);
+                        }
+                    }
+                }
+            }
+
+            // 2. Known from feats at or before this level
+            var session = context as ICharacterSession;
+            if (character.feats != null) {
+                foreach (var featKvp in character.feats) {
+                    string slot = featKvp.Key;
+                    if (string.Equals(slot, currentFeatSlot, StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    }
+                    int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
+                    if (slotLevel > 0 && slotLevel <= level) {
+                        if (character.featChoices != null) {
+                            if (character.featChoices.TryGetValue($"{slot}:maneuver", out var mName) && !string.IsNullOrWhiteSpace(mName)) {
+                                distinctKnown.Add(mName);
+                            } else if (character.featChoices.TryGetValue($"{slot}:stance", out var sName) && !string.IsNullOrWhiteSpace(sName)) {
+                                distinctKnown.Add(sName);
+                            } else if (character.featChoices.TryGetValue(slot, out var legacyName) && !string.IsNullOrWhiteSpace(legacyName)) {
+                                if (catalog.GetManeuver(legacyName) != null) {
+                                    distinctKnown.Add(legacyName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (currentChoices != null) {
+                foreach (var kvp in currentChoices) {
+                    if (kvp.Key.EndsWith(":maneuver", StringComparison.OrdinalIgnoreCase) || kvp.Key.EndsWith(":stance", StringComparison.OrdinalIgnoreCase)) {
+                        int colonIdx = kvp.Key.IndexOf(':');
+                        string slot = kvp.Key.Substring(0, colonIdx);
+                        if (!string.Equals(slot, currentFeatSlot, StringComparison.OrdinalIgnoreCase)) {
+                            int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
+                            if (slotLevel > 0 && slotLevel <= level && !string.IsNullOrWhiteSpace(kvp.Value)) {
+                                distinctKnown.Add(kvp.Value);
+                            }
+                        }
+                    }
+                }
+            }
+
+            int count = 0;
+            foreach (var name in distinctKnown) {
+                if (!string.Equals(name, excludingManeuverName, StringComparison.OrdinalIgnoreCase)) {
+                    var m = catalog.GetManeuver(name);
+                    if (m != null && string.Equals(m.Discipline, discipline, StringComparison.OrdinalIgnoreCase)) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        public List<string> ValidateFeatManeuver(string featSlot, string maneuverName, string targetSource = null, IDictionary<string, string> currentChoices = null) {
+            var warnings = new List<string>();
+            if (string.IsNullOrWhiteSpace(maneuverName)) {
+                return warnings;
+            }
+
+            var maneuver = catalog.GetManeuver(maneuverName);
+            if (maneuver == null) {
+                warnings.Add($"Maneuver '{maneuverName}' is not recognized in the rules catalog.");
+                return warnings;
+            }
+
+            var session = context as ICharacterSession;
+            int level = session?.GetFeatSlotLevel(featSlot) ?? 0;
+            if (level <= 0) {
+                level = context?.Character?.classLevels?.Count ?? 0;
+            }
+
+            string source = targetSource;
+            if (string.IsNullOrWhiteSpace(source)) {
+                source = session?.ResolveFeatTargetSource(featSlot) ?? "Feats";
+            }
+
+            // 1. Level cap check at that acquisition level
+            int maxLevel = GetMaxManeuverLevelAtLevel(source, level);
+            if (maneuver.Level > maxLevel) {
+                warnings.Add($"Maneuver level {maneuver.Level} exceeds maximum maneuver level {maxLevel} for {source}.");
+            }
+
+            // 2. Discipline prerequisites check at that acquisition level
+            if (maneuver.PrerequisiteCount > 0) {
+                int knownDisciplineCount = CountKnownInDisciplineAtLevel(maneuver.Discipline, level, featSlot, maneuverName, currentChoices);
+                if (knownDisciplineCount < maneuver.PrerequisiteCount) {
+                    string plural = maneuver.PrerequisiteCount == 1 ? "maneuver" : "maneuvers";
+                    warnings.Add($"Requires {maneuver.PrerequisiteCount} {maneuver.Discipline} {plural}, but only {knownDisciplineCount} known.");
+                }
+            }
+
+            return warnings;
+        }
+
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
             if (pool == null) return;
             var ctx = context ?? this.context;

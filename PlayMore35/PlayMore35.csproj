@@ -207,6 +207,9 @@
     <Compile Include="UI\LabeledField.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\WarningBadge.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\LevelDetailsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
