@@ -26,6 +26,8 @@ namespace PlayMore35.Effects {
 
         public string CreatureType { get; private set; } = "";
         public List<string> SubTypes { get; private set; } = new List<string>();
+        private readonly List<GrantedClassSkill> grantedClassSkills = new List<GrantedClassSkill>();
+        public IReadOnlyList<GrantedClassSkill> GrantedClassSkills => grantedClassSkills.AsReadOnly();
 
         public JToken ToJson() {
             return new JObject(
@@ -436,6 +438,29 @@ namespace PlayMore35.Effects {
             feat.Flags.ForEach(x => AddFlag(x));
             feat.Parameters.ForEach(x => controllableParameters[x.Name] = new ControllableParameter(x, character));
             AddStats(feat.NewStats);
+        }
+
+        public void GrantClassSkill(string skill, int minimumLevel) {
+            if (!string.IsNullOrWhiteSpace(skill)) {
+                grantedClassSkills.Add(new GrantedClassSkill(skill, minimumLevel));
+            }
+        }
+
+        public bool HasGrantedClassSkill(string skill, int levelIndex) {
+            if (string.IsNullOrWhiteSpace(skill) || levelIndex < 0) return false;
+            return grantedClassSkills.Any(g =>
+                string.Equals(g.Skill, skill, StringComparison.OrdinalIgnoreCase) &&
+                levelIndex >= g.MinimumLevel - 1);
+        }
+    }
+
+    public class GrantedClassSkill {
+        public string Skill { get; }
+        public int MinimumLevel { get; }
+
+        public GrantedClassSkill(string skill, int minimumLevel) {
+            Skill = skill ?? "";
+            MinimumLevel = minimumLevel;
         }
     }
 

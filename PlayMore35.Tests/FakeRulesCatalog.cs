@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -23,6 +23,7 @@ namespace PlayMore35.Tests {
         public Dictionary<string, ExternalEffect> ExternalEffectsMap { get; } = new Dictionary<string, ExternalEffect>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, Maneuver> ManeuversMap { get; } = new Dictionary<string, Maneuver>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, Vestige> VestigesMap { get; } = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, MartialDiscipline> DisciplinesMap { get; } = new Dictionary<string, MartialDiscipline>(StringComparer.OrdinalIgnoreCase);
 
         public IReadOnlyDictionary<string, Race> Races => RacesMap;
         public IReadOnlyDictionary<string, CharacterClass> Classes => ClassesMap;
@@ -36,6 +37,7 @@ namespace PlayMore35.Tests {
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects => ExternalEffectsMap;
         public IReadOnlyDictionary<string, Maneuver> Maneuvers => ManeuversMap;
         public IReadOnlyDictionary<string, Vestige> Vestiges => VestigesMap;
+        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => DisciplinesMap.Count > 0 ? DisciplinesMap : (inner?.Disciplines ?? MartialDiscipline.All);
 
         private readonly IRulesCatalog inner;
 
@@ -89,6 +91,44 @@ namespace PlayMore35.Tests {
         public ExternalEffect GetExternalEffect(string name) => (name != null && ExternalEffectsMap.TryGetValue(name, out var val)) ? val : inner?.GetExternalEffect(name);
         public Maneuver GetManeuver(string name) => (name != null && ManeuversMap.TryGetValue(name, out var val)) ? val : inner?.GetManeuver(name);
         public Vestige GetVestige(string name) => (name != null && VestigesMap.TryGetValue(name, out var val)) ? val : inner?.GetVestige(name);
+        public MartialDiscipline GetDiscipline(string name) => (name != null && DisciplinesMap.TryGetValue(name, out var val)) ? val : (inner?.GetDiscipline(name) ?? MartialDiscipline.Get(name));
+
+        public object GetEntity(string type, string name) {
+            if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;
+            switch (type.ToLowerInvariant()) {
+                case "maneuver":
+                    return GetManeuver(name);
+                case "discipline":
+                    return GetDiscipline(name);
+                case "class":
+                    return GetClass(name);
+                case "race":
+                    return GetRace(name);
+                case "feat":
+                    return GetFeat(name);
+                case "weapon":
+                    return GetWeapon(name);
+                case "armor":
+                    return GetArmor(name);
+                case "shield":
+                    return GetShield(name);
+                case "item":
+                    return GetItem(name);
+                case "weaponproperty":
+                    return GetWeaponProperty(name);
+                case "armorproperty":
+                    return GetArmorProperty(name);
+                case "vestige":
+                    return GetVestige(name);
+                case "externaleffect":
+                    return GetExternalEffect(name);
+                default:
+                    return null;
+            }
+        }
+
+        public string ResolveTemplate(string template, IReadOnlyDictionary<string, string> choices) =>
+            GameRulesCatalog.ResolveTemplateInternal(this, template, choices);
 
         public IEnumerable<string> ChoicesForKey(string choiceDescription) => inner?.ChoicesForKey(choiceDescription) ?? Enumerable.Empty<string>();
     }

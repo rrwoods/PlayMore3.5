@@ -395,5 +395,120 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, invalid.Count, $"Invalid modifier types found: {string.Join(", ", invalid)}. A missing modifier type is an unarbitrated Domain Specification requiring human arbitration to add to ModifierTypes and docs/rules/mechanics/stacking-and-modifiers.md.");
             Assert.IsTrue(checkedModifiers > 0, "Should have verified at least one modifier in the catalog.");
         }
+
+        [TestMethod]
+        public void MartialDiscipline_CatalogAndProperties_CorrectlyConfigured() {
+            var catalog = new GameRulesCatalog();
+            Assert.AreEqual(9, catalog.Disciplines.Count);
+
+            var ironHeart = catalog.GetDiscipline("Iron Heart");
+            Assert.IsNotNull(ironHeart);
+            Assert.AreEqual("Iron Heart", ironHeart.Name);
+            Assert.AreEqual("Balance", ironHeart.KeySkill);
+            CollectionAssert.Contains(ironHeart.Weapons.ToList(), "bastard sword");
+
+            // Case-insensitive IPropertyProvider
+            Assert.AreEqual("Iron Heart", ironHeart.Properties["name"]);
+            Assert.AreEqual("Balance", ironHeart.Properties["keyskill"]);
+            Assert.AreEqual("Balance", ironHeart.Properties["KEYSKILL"]);
+            Assert.AreEqual(ironHeart.Weapons, ironHeart.Properties["weapons"]);
+        }
+
+        [TestMethod]
+        public void Maneuver_ImplementsIPropertyProvider_WithDisciplineObject() {
+            var catalog = new GameRulesCatalog();
+            var steelWind = catalog.GetManeuver("Steel Wind");
+            Assert.IsNotNull(steelWind);
+
+            var provider = steelWind as IPropertyProvider;
+            Assert.IsNotNull(provider);
+            Assert.AreEqual("Steel Wind", provider.Properties["name"]);
+            Assert.AreEqual(1, provider.Properties["level"]);
+
+            var discipline = provider.Properties["discipline"] as MartialDiscipline;
+            Assert.IsNotNull(discipline);
+            Assert.AreEqual("Iron Heart", discipline.Name);
+            Assert.AreEqual("Balance", discipline.KeySkill);
+        }
+
+        [TestMethod]
+        public void ResolveTemplate_SimpleVariable_ReturnsChoiceValue() {
+            var catalog = new GameRulesCatalog();
+            var choices = new Dictionary<string, string> {
+                ["class"] = "Warblade"
+            };
+
+            Assert.AreEqual("Warblade", catalog.ResolveTemplate("${class}", choices));
+            Assert.AreEqual("maneuvers known:Warblade", catalog.ResolveTemplate("maneuvers known:${class}", choices));
+        }
+
+        [TestMethod]
+        public void ResolveTemplate_DotSeparatedPath_TraversesPropertyProviders() {
+            var catalog = new GameRulesCatalog();
+            var choices = new Dictionary<string, string> {
+                ["maneuver"] = "Steel Wind"
+            };
+
+            Assert.AreEqual("Balance", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices));
+            Assert.AreEqual("Iron Heart", catalog.ResolveTemplate("${maneuver.discipline.name}", choices));
+            Assert.AreEqual("Steel Wind", catalog.ResolveTemplate("${maneuver.name}", choices));
+            Assert.AreEqual("1", catalog.ResolveTemplate("${maneuver.level}", choices));
+        }
+
+        [TestMethod]
+        public void ResolveTemplate_AllNineDisciplines_ResolveCorrectKeySkills() {
+            // Source: Tome of Battle, pp. 41-43; docs/rules/subsystems/maneuvers.md
+            var catalog = new GameRulesCatalog();
+            var testCases = new Dictionary<string, string> {
+                ["Burning Blade"] = "Tumble",               // Desert Wind
+                ["Crusader's Strike"] = "Intimidate",       // Devoted Spirit
+                ["Sapphire Nightmare Blade"] = "Concentration", // Diamond Mind
+                ["Steel Wind"] = "Balance",                 // Iron Heart
+                ["Mighty Throw"] = "Sense Motive",           // Setting Sun
+                ["Shadow Blade Technique"] = "Hide",        // Shadow Hand
+                ["Stone Bones"] = "Balance",                // Stone Dragon
+                ["Wolf Fang Strike"] = "Jump",              // Tiger Claw
+                ["Douse the Flames"] = "Diplomacy"          // White Raven
+            };
+
+            foreach (var kvp in testCases) {
+                var choices = new Dictionary<string, string> { ["maneuver"] = kvp.Key };
+                string resolved = catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices);
+                Assert.AreEqual(kvp.Value, resolved, $"Maneuver '{kvp.Key}' should resolve key skill to '{kvp.Value}'");
+            }
+        }
+
+        [TestMethod]
+        public void ResolveTemplate_PrefixedChoiceKey_ResolvesCorrectly() {
+            var catalog = new GameRulesCatalog();
+            var choices = new Dictionary<string, string> {
+                ["Level 1:maneuver"] = "Steel Wind"
+            };
+
+            Assert.AreEqual("Balance", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices));
+        }
+
+        [TestMethod]
+        public void ResolveTemplate_UnsetOrMissingKey_SafelyReturnsEmptyString() {
+            var catalog = new GameRulesCatalog();
+
+            // Empty choices
+            Assert.AreEqual("", catalog.ResolveTemplate("${class}", new Dictionary<string, string>()));
+            Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", new Dictionary<string, string>()));
+
+            // Missing entity
+            var choices = new Dictionary<string, string> { ["maneuver"] = "NonExistentManeuver" };
+            Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices));
+
+            // Missing property
+            choices["maneuver"] = "Steel Wind";
+            Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.nonexistent.keySkill}", choices));
+            Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.discipline.nonexistent}", choices));
+
+            // Null inputs
+            Assert.AreEqual("", catalog.ResolveTemplate(null, choices));
+            Assert.AreEqual("", catalog.ResolveTemplate("", choices));
+            Assert.AreEqual("", catalog.ResolveTemplate("${class}", null));
+        }
     }
 }

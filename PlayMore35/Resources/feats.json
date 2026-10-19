@@ -1235,6 +1235,7 @@
       { "name": "maneuvers readied:feats" },
       { "name": "stances known:feats" }
     ],
+    "class skills": [ "${maneuver.discipline.keySkill}" ],
     "benefit": {
       "name": "Martial Study",
       "text": [

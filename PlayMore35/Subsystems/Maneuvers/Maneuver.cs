@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Rules;
 
 namespace PlayMore35.Subsystems.Maneuvers {
     public enum ManeuverType {
@@ -14,7 +16,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
         Other
     }
 
-    public class Maneuver : IJsonable {
+    public class Maneuver : IJsonable, IPropertyProvider {
         public string Name { get; set; } = "";
         public string Discipline { get; set; } = "";
         public int Level { get; set; } = 1;
@@ -24,6 +26,18 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public int PrerequisiteCount { get; set; } = 0;
         public string Description { get; set; } = "";
         public List<Effect> Effects { get; set; } = new List<Effect>();
+        public MartialDiscipline DisciplineDefinition { get; set; }
+
+        public IReadOnlyDictionary<string, object> Properties {
+            get {
+                var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {
+                    ["name"] = Name,
+                    ["level"] = Level,
+                    ["discipline"] = DisciplineDefinition ?? MartialDiscipline.Get(Discipline)
+                };
+                return new ReadOnlyDictionary<string, object>(dict);
+            }
+        }
 
         public Maneuver() { }
 

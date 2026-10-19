@@ -225,6 +225,28 @@ namespace PlayMore35.Global {
                         featDef,
                         choice
                     );
+
+                    if (featDef.ClassSkills.Any()) {
+                        int acquisitionLevel = Math.Max(1, GetFeatSlotLevel(featSlot));
+                        var choicesDict = new Dictionary<string, string>(character.featChoices, StringComparer.OrdinalIgnoreCase);
+                        if (!string.IsNullOrEmpty(choice)) {
+                            choicesDict["class"] = choice;
+                        }
+                        if (character.featChoices.TryGetValue($"{featSlot}:maneuver", out var chosenManeuver)) {
+                            choicesDict["maneuver"] = chosenManeuver;
+                        } else if (character.featChoices.TryGetValue(featSlot, out var singleManeuver)) {
+                            choicesDict["maneuver"] = singleManeuver;
+                        }
+                        if (character.featChoices.TryGetValue($"{featSlot}:stance", out var chosenStance)) {
+                            choicesDict["stance"] = chosenStance;
+                        }
+                        foreach (var template in featDef.ClassSkills) {
+                            string skill = catalog.ResolveTemplate(template, choicesDict);
+                            if (!string.IsNullOrEmpty(skill)) {
+                                effects.GrantClassSkill(skill, acquisitionLevel);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -692,6 +714,9 @@ namespace PlayMore35.Global {
                 if (@class != null && @class.ClassSkills.Contains(skill)) {
                     return true;
                 }
+            }
+            if (effects != null && effects.HasGrantedClassSkill(skill, levelIndex)) {
+                return true;
             }
             return false;
         }
