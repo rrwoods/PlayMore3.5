@@ -185,7 +185,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Skill-like checks: Wild empathy, turning checks modeled as stats displayed under skills.
   - Skill point grant effects (Nymph's Kiss, Open Minded).
   - Cross-class cost alteration effects (Able Learner).
-  - Class skill grant effects (Martial Study).
+  - Class skill grant effects (Martial Study does this but locks it to feats -- prefactor, then implement e.g. Cleric domains).
   - Movement mode skill bonuses (Climb bonus from climb speed, Swim bonus from swim speed).
   - Rules-embedded situational bonuses (Hide bonuses while invisible).
   - Global skill effects: Effects affecting all skills (sickened, vestige defiance) should not trigger relevance for every skill; display centrally.
