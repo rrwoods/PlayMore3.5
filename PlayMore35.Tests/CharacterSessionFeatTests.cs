@@ -313,5 +313,21 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(session.IsClassSkill("Intimidate", 2));
             Assert.IsTrue(session.IsClassSkill("Balance", 2));
         }
+
+        [TestMethod]
+        public void Feat_JsonDeserialization_ReadsClassSkillsFromRootOnly_NotBenefit() {
+            var jsonWithRoot = new JObject(
+                new JProperty("benefit", new JObject(
+                    new JProperty("name", "Test Feat"),
+                    new JProperty("class skills", new JArray("Disguise"))
+                )),
+                new JProperty("class skills", new JArray("Bluff"))
+            );
+
+            var feat = new Feat(jsonWithRoot);
+            Assert.AreEqual(1, feat.ClassSkills.Count);
+            Assert.AreEqual("Bluff", feat.ClassSkills[0]);
+            Assert.IsFalse(feat.ClassSkills.Contains("Disguise"), "Class skills should not be parsed from benefit JObject.");
+        }
     }
 }
