@@ -1193,6 +1193,7 @@
       "modifiers": [
         {
           "affects": "initiator level:feats",
+          "active": { "choice": "Feats" },
           "dysfunction": "martial-study-minimum-il",
           "mod": {
             "type": "internal",
@@ -1212,7 +1213,7 @@
           }
         },
         {
-          "affects": "stances known:feats",
+          "affects": "stances known:${class}",
           "mod": {
             "type": "untyped",
             "amounts": [ { "fixed": 1 } ]
@@ -1220,6 +1221,7 @@
         },
         {
           "affects": "active stances",
+          "active": { "choice": "Feats" },
           "mod": {
             "type": "internal",
             "amounts": [ { "fixed": 1 } ]

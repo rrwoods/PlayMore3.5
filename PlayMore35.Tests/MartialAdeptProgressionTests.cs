@@ -424,12 +424,16 @@ namespace PlayMore35.Tests {
             var wb20Session = new CharacterSession(wb20Char, catalog);
             Assert.AreEqual(2, wb20Session.GetStatValue(MartialManeuverEngine.ACTIVE_STANCES, 0), "Warblade 20 should have 2 active stances");
 
-            // 4. Martial Stance feat grants 1 active stance
+            // 4. Martial Stance feat grants 1 active stance for non-adepts ("Feats"), not for adepts ("Warblade")
             var martialStance = catalog.GetFeat("Martial Stance");
             Assert.IsNotNull(martialStance, "Martial Stance feat must be in catalog");
             var featPool = new EffectPool(new Character());
-            featPool.GenerateFeatEffects(martialStance, "");
-            Assert.AreEqual(1, featPool.GetStatValue(MartialManeuverEngine.ACTIVE_STANCES, null), "Martial Stance feat should grant 1 active stance");
+            featPool.GenerateFeatEffects(martialStance, "Feats");
+            Assert.AreEqual(1, featPool.GetStatValue(MartialManeuverEngine.ACTIVE_STANCES, null), "Martial Stance feat should grant 1 active stance for Feats");
+
+            var adeptPool = new EffectPool(new Character());
+            adeptPool.GenerateFeatEffects(martialStance, "Warblade");
+            Assert.AreEqual(0, adeptPool.GetStatValue(MartialManeuverEngine.ACTIVE_STANCES, null, 0), "Martial Stance feat should not grant active stance for adept classes");
         }
     }
 }

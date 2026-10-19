@@ -121,6 +121,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             if (string.IsNullOrWhiteSpace(source)) {
                 throw new ArgumentException("Source name cannot be null or empty.", nameof(source));
             }
+            ProjectFeatSlots();
             if (!stanceGroups.TryGetValue(source, out var group)) {
                 string lower = source.ToLowerInvariant();
                 var storage = state.GetOrCreateStances(source);
@@ -178,6 +179,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         public StanceSlot GetStanceSlot(string source, int slotIndex) {
             if (slotIndex < 0) return null;
+            ProjectFeatSlots();
             if (state.Stances.TryGetValue(source, out var list) && slotIndex < list.Count) {
                 return list[slotIndex];
             }
@@ -187,6 +189,10 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public void SetStanceSlot(string source, int slotIndex, StanceSlot slot) {
             if (slotIndex < 0) {
                 throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            var existing = GetStanceSlot(source, slotIndex);
+            if (existing != null && existing.IsFeatBound) {
+                throw new InvalidOperationException($"Cannot retrain or replace feat-bound stance slot '{existing.StanceName}'.");
             }
             GetStanceSlotGroup(source)[slotIndex] = slot;
         }
@@ -200,6 +206,10 @@ namespace PlayMore35.Subsystems.Maneuvers {
         public void ClearStanceSlot(string source, int slotIndex) {
             if (slotIndex < 0) {
                 throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Slot index {slotIndex} must be non-negative.");
+            }
+            var existing = GetStanceSlot(source, slotIndex);
+            if (existing != null && existing.IsFeatBound) {
+                throw new InvalidOperationException($"Cannot clear feat-bound stance slot '{existing.StanceName}'.");
             }
             GetStanceSlotGroup(source).ClearSlot(slotIndex);
         }
@@ -257,6 +267,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
         }
 
         public IEnumerable<string> GetStanceNames(string source = null) {
+            ProjectFeatSlots();
             if (!string.IsNullOrEmpty(source)) {
                 if (state.Stances.TryGetValue(source, out var list) && list != null) {
                     return list.Where(s => s != null && !string.IsNullOrWhiteSpace(s.StanceName))
@@ -422,7 +433,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 string sourceClass = kvp.Key;
                 if (classesAtLevel.Any(c => string.Equals(c, sourceClass, StringComparison.OrdinalIgnoreCase))) {
                     foreach (var slot in kvp.Value) {
-                        if (slot != null && !string.IsNullOrWhiteSpace(slot.StanceName)) {
+                        if (slot != null && !slot.IsFeatBound && !string.IsNullOrWhiteSpace(slot.StanceName)) {
                             distinctKnown.Add(slot.StanceName);
                         }
                     }
@@ -511,11 +522,15 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
 
             // 2. Discipline prerequisites check at that acquisition level
-            if (maneuver.PrerequisiteCount > 0) {
+            int requiredDisciplineCount = maneuver.PrerequisiteCount;
+            if (maneuver.Type == ManeuverType.Stance) {
+                requiredDisciplineCount = Math.Max(1, requiredDisciplineCount);
+            }
+            if (requiredDisciplineCount > 0) {
                 int knownDisciplineCount = CountKnownInDisciplineAtLevel(maneuver.Discipline, level, featSlot, maneuverName, currentChoices);
-                if (knownDisciplineCount < maneuver.PrerequisiteCount) {
-                    string plural = maneuver.PrerequisiteCount == 1 ? "maneuver" : "maneuvers";
-                    warnings.Add($"Requires {maneuver.PrerequisiteCount} {maneuver.Discipline} {plural}, but only {knownDisciplineCount} known.");
+                if (knownDisciplineCount < requiredDisciplineCount) {
+                    string plural = requiredDisciplineCount == 1 ? "maneuver" : "maneuvers";
+                    warnings.Add($"Requires {requiredDisciplineCount} {maneuver.Discipline} {plural}, but only {knownDisciplineCount} known.");
                 }
             }
 
@@ -892,9 +907,113 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     }
                 }
             }
+
+            var activeFeatStances = new Dictionary<string, (string FeatSlot, string StanceName)>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var kvp in featChoices) {
+                if (kvp.Key.EndsWith(":stance", StringComparison.OrdinalIgnoreCase)) {
+                    string featSlot = kvp.Key.Substring(0, kvp.Key.Length - ":stance".Length);
+                    if (!string.IsNullOrWhiteSpace(kvp.Value)) {
+                        activeFeatStances[featSlot] = (featSlot, kvp.Value);
+                    }
+                }
+            }
+
+            if (context.Character.feats != null) {
+                foreach (var featKvp in context.Character.feats) {
+                    if (string.Equals(featKvp.Value, "Martial Stance", StringComparison.OrdinalIgnoreCase)) {
+                        string featSlot = featKvp.Key;
+                        if (!activeFeatStances.ContainsKey(featSlot) &&
+                            featChoices.TryGetValue(featSlot, out var sName) &&
+                            !string.IsNullOrWhiteSpace(sName)) {
+                            activeFeatStances[featSlot] = (featSlot, sName);
+                        }
+                    }
+                }
+            }
+
+            // Remove any slots in state.Stances that are feat-bound to a featSlot no longer active
+            foreach (var kvp in state.Stances) {
+                for (int i = kvp.Value.Count - 1; i >= 0; i--) {
+                    var slot = kvp.Value[i];
+                    if (slot != null && slot.IsFeatBound && !string.IsNullOrEmpty(slot.FeatSlot)) {
+                        if (!activeFeatStances.ContainsKey(slot.FeatSlot)) {
+                            kvp.Value.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+
+            // Project each active feat stance
+            foreach (var item in activeFeatStances.Values) {
+                string featSlot = item.FeatSlot;
+                string stanceName = item.StanceName;
+                string targetSource = ResolveTargetSource(featSlot);
+
+                var targetList = state.GetOrCreateStances(targetSource);
+
+                StanceSlot existingSlot = null;
+                string existingSource = null;
+                int existingIndex = -1;
+
+                foreach (var kvp in state.Stances) {
+                    for (int i = 0; i < kvp.Value.Count; i++) {
+                        var slot = kvp.Value[i];
+                        if (slot != null && slot.IsFeatBound && string.Equals(slot.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase)) {
+                            existingSlot = slot;
+                            existingSource = kvp.Key;
+                            existingIndex = i;
+                            break;
+                        }
+                    }
+                    if (existingSlot != null) break;
+                }
+
+                int totalCapacity = context?.GetStatValue($"stances known:{targetSource.ToLowerInvariant()}", 0) ?? 0;
+                int totalFeatsForSource = activeFeatStances.Values.Count(f => string.Equals(ResolveTargetSource(f.FeatSlot), targetSource, StringComparison.OrdinalIgnoreCase));
+                int baseClassCapacity = Math.Max(0, totalCapacity - totalFeatsForSource);
+
+                if (existingSlot != null) {
+                    if (string.Equals(existingSource, targetSource, StringComparison.OrdinalIgnoreCase)) {
+                        existingSlot.StanceName = stanceName;
+                        existingSlot.IsFeatBound = true;
+                        existingSlot.FeatSlot = featSlot;
+
+                        if (existingIndex < baseClassCapacity && targetList.All(s => s == null || s.IsFeatBound)) {
+                            targetList.RemoveAt(existingIndex);
+                            while (targetList.Count < baseClassCapacity) {
+                                targetList.Add(null);
+                            }
+                            targetList.Add(existingSlot);
+                        }
+                    } else {
+                        state.Stances[existingSource].RemoveAt(existingIndex);
+                        existingSlot.StanceName = stanceName;
+                        existingSlot.IsFeatBound = true;
+                        existingSlot.FeatSlot = featSlot;
+                        InsertOrAppendFeatStanceSlot(targetSource, targetList, existingSlot, baseClassCapacity);
+                    }
+                } else {
+                    var matchingSlot = targetList.FirstOrDefault(s => s != null && !s.IsFeatBound && string.Equals(s.StanceName, stanceName, StringComparison.OrdinalIgnoreCase));
+                    if (matchingSlot != null) {
+                        matchingSlot.IsFeatBound = true;
+                        matchingSlot.FeatSlot = featSlot;
+                    } else {
+                        var newSlot = new StanceSlot(stanceName, isActive: false, isFeatBound: true, featSlot: featSlot);
+                        InsertOrAppendFeatStanceSlot(targetSource, targetList, newSlot, baseClassCapacity);
+                    }
+                }
+            }
         }
 
         private void InsertOrAppendFeatSlot(string targetSource, List<KnownManeuverSlot> targetList, KnownManeuverSlot featSlot, int baseClassCapacity) {
+            while (targetList.Count < baseClassCapacity) {
+                targetList.Add(null);
+            }
+            targetList.Add(featSlot);
+        }
+
+        private void InsertOrAppendFeatStanceSlot(string targetSource, List<StanceSlot> targetList, StanceSlot featSlot, int baseClassCapacity) {
             while (targetList.Count < baseClassCapacity) {
                 targetList.Add(null);
             }
