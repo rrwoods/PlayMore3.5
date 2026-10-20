@@ -195,6 +195,14 @@ namespace PlayMore35.Subsystems.PactMagic {
             }
         }
 
+        public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) {
+            return new List<string>().AsReadOnly();
+        }
+
+        public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) {
+            return new List<string>();
+        }
+
         private void SyncState() {
             if (context?.Character == null) return;
             if (!context.Character.Subsystems.TryGetValue(SubsystemId, out var state) || !(state is PactMagicState pactMagicState)) {

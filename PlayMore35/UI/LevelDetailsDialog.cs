@@ -30,12 +30,37 @@ namespace PlayMore35 {
             public Control SingleChoiceControl;
             public string AutoSelectedClass;
             public ComboBox ClassComboBox;
-            public ComboBox ManeuverComboBox;
             public WarningBadge WarningBadge;
             public ChoiceDescriptor WarningDescriptor;
             public Dictionary<string, Control> ChoiceControls = new Dictionary<string, Control>();
             public Dictionary<string, string> AutoResolvedChoices = new Dictionary<string, string>();
             public bool IsMultiChoice => FeatDef != null && FeatDef.Choices != null && FeatDef.Choices.Any();
+        }
+
+        private class ChoiceItem {
+            public string DisplayText { get; }
+            public string Value { get; }
+
+            public ChoiceItem(string displayText, string value) {
+                DisplayText = displayText;
+                Value = value;
+            }
+
+            public override string ToString() => DisplayText;
+
+            public override bool Equals(object obj) {
+                if (obj is ChoiceItem other) {
+                    return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase) ||
+                           string.Equals(DisplayText, other.DisplayText, StringComparison.OrdinalIgnoreCase);
+                }
+                if (obj is string str) {
+                    return string.Equals(Value, str, StringComparison.OrdinalIgnoreCase) ||
+                           string.Equals(DisplayText, str, StringComparison.OrdinalIgnoreCase);
+                }
+                return false;
+            }
+
+            public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
         }
 
         private Dictionary<string, FeatSlotChoiceState> slotChoiceStates = new Dictionary<string, FeatSlotChoiceState>();
@@ -112,7 +137,34 @@ namespace PlayMore35 {
             UpdateWarnings();
         }
 
-        public static string ExtractManeuverName(string formattedText) {
+        private static string FormatChoiceHeader(ChoiceDescriptor desc) {
+            if (!string.IsNullOrWhiteSpace(desc?.Label)) {
+                return desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase)
+                    ? desc.Label
+                    : $"Choose {desc.Label.ToLower()}";
+            }
+            return desc != null ? $"Choose {desc.Id}" : "";
+        }
+
+        private string ResolveTargetSource(FeatSlotChoiceState state, ChoiceDescriptor desc) {
+            string target = null;
+            if (desc != null && !string.IsNullOrEmpty(desc.DependsOn)) {
+                if (state.ChoiceControls.TryGetValue(desc.DependsOn, out var parentCtrl)) {
+                    target = parentCtrl.Text;
+                } else if (state.AutoResolvedChoices.TryGetValue(desc.DependsOn, out var autoVal)) {
+                    target = autoVal;
+                }
+            }
+            if (string.IsNullOrWhiteSpace(target)) {
+                target = state.ClassComboBox != null ? state.ClassComboBox.Text : state.AutoSelectedClass;
+            }
+            if (string.IsNullOrWhiteSpace(target)) {
+                target = session.ResolveFeatTargetSource(state.FeatSlot);
+            }
+            return target;
+        }
+
+        private static string ExtractBracketedName(string formattedText) {
             if (string.IsNullOrWhiteSpace(formattedText)) return "";
             int closeBracket = formattedText.IndexOf("] ");
             if (formattedText.StartsWith("[") && closeBracket >= 0) {
@@ -221,9 +273,7 @@ namespace PlayMore35 {
                 if (string.Equals(desc.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
                     var eligibleClasses = session.GetEligibleClassesAtLevel(slotLevel, desc.Filter);
                     if (eligibleClasses.Count >= 2) {
-                        string headerText = !string.IsNullOrWhiteSpace(desc.Label)
-                            ? (desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase) ? desc.Label : $"Choose {desc.Label.ToLower()}")
-                            : "Choose class";
+                        string headerText = FormatChoiceHeader(desc);
                         Label classHeader = new Label {
                             Top = currentTop,
                             Left = left,
@@ -244,9 +294,6 @@ namespace PlayMore35 {
                         }
 
                         string savedClass = session.GetFeatChoice(featSlot, desc.Id);
-                        if (string.IsNullOrWhiteSpace(savedClass)) {
-                            savedClass = session.GetFeatChoice(featSlot);
-                        }
                         if (!string.IsNullOrWhiteSpace(savedClass) && classBox.Items.Contains(savedClass)) {
                             classBox.SelectedItem = savedClass;
                         } else {
@@ -270,9 +317,7 @@ namespace PlayMore35 {
                         choiceState.AutoResolvedChoices[desc.Id] = fallback;
                     }
                 } else if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                    string headerText = !string.IsNullOrWhiteSpace(desc.Label)
-                        ? (desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase) ? desc.Label : $"Choose {desc.Label.ToLower()}")
-                        : $"Choose {desc.Id}";
+                    string headerText = FormatChoiceHeader(desc);
                     Label header = new Label {
                         Top = currentTop,
                         Left = left,
@@ -301,45 +346,48 @@ namespace PlayMore35 {
                         Tag = $"{featSlot}:{desc.Id}"
                     };
 
-                    string targetClass = null;
-                    if (!string.IsNullOrEmpty(desc.DependsOn)) {
-                        if (choiceState.ChoiceControls.TryGetValue(desc.DependsOn, out var parentCtrl)) {
-                            targetClass = parentCtrl.Text;
-                            if (parentCtrl is ComboBox parentCombo) {
-                                parentCombo.SelectedValueChanged += (s, e) => UpdateWarnings();
-                            }
-                        } else if (choiceState.AutoResolvedChoices.TryGetValue(desc.DependsOn, out var autoVal)) {
-                            targetClass = autoVal;
-                        }
-                    }
-                    if (string.IsNullOrWhiteSpace(targetClass)) {
-                        targetClass = choiceState.AutoSelectedClass ?? session.ResolveFeatTargetSource(featSlot);
-                    }
+                    string targetClass = ResolveTargetSource(choiceState, desc);
 
                     var elements = session.GetAccessibleSubsystemElements(desc.Domain, desc.Filter, targetClass, slotLevel);
                     foreach (var el in elements) {
-                        elementBox.Items.Add(el);
+                        elementBox.Items.Add(new ChoiceItem(el, ExtractBracketedName(el)));
                     }
 
                     string saved = session.GetFeatChoice(featSlot, desc.Id);
-                    if (string.IsNullOrWhiteSpace(saved)) {
-                        saved = session.GetFeatChoice(featSlot);
-                    }
                     if (!string.IsNullOrWhiteSpace(saved)) {
-                        string matchedItem = elementBox.Items.Cast<string>()
-                            .FirstOrDefault(item => ExtractManeuverName(item).Equals(saved, StringComparison.OrdinalIgnoreCase) || item.Equals(saved, StringComparison.OrdinalIgnoreCase));
+                        var matchedItem = elementBox.Items.OfType<ChoiceItem>()
+                            .FirstOrDefault(item => item.Value.Equals(saved, StringComparison.OrdinalIgnoreCase) || item.DisplayText.Equals(saved, StringComparison.OrdinalIgnoreCase));
                         if (matchedItem != null) {
                             elementBox.SelectedItem = matchedItem;
+                        } else {
+                            var extraItem = new ChoiceItem($"[{session.Catalog.GetManeuver(saved)?.Discipline ?? "Unknown"}] {saved}", saved);
+                            elementBox.Items.Add(extraItem);
+                            elementBox.SelectedItem = extraItem;
                         }
                     }
 
                     elementBox.SelectedValueChanged += (s, e) => {
                         if (elementBox.SelectedItem == null && !string.IsNullOrWhiteSpace(elementBox.Text)) {
                             string raw = elementBox.Text;
-                            string matched = elementBox.Items.Cast<string>()
-                                .FirstOrDefault(item => ExtractManeuverName(item).Equals(raw, StringComparison.OrdinalIgnoreCase) || item.Equals(raw, StringComparison.OrdinalIgnoreCase));
+                            var matched = elementBox.Items.OfType<ChoiceItem>()
+                                .FirstOrDefault(item => item.Value.Equals(raw, StringComparison.OrdinalIgnoreCase) || item.DisplayText.Equals(raw, StringComparison.OrdinalIgnoreCase));
                             if (matched != null) {
                                 elementBox.SelectedItem = matched;
+                            }
+                        }
+                        UpdateWarnings();
+                    };
+                    bool updatingText = false;
+                    elementBox.TextChanged += (s, e) => {
+                        if (updatingText) return;
+                        if (elementBox.SelectedIndex != -1) {
+                            var item = elementBox.SelectedItem as ChoiceItem;
+                            if (item == null || !item.DisplayText.Equals(elementBox.Text, StringComparison.OrdinalIgnoreCase)) {
+                                updatingText = true;
+                                string currentText = elementBox.Text;
+                                elementBox.SelectedIndex = -1;
+                                elementBox.Text = currentText;
+                                updatingText = false;
                             }
                         }
                         UpdateWarnings();
@@ -348,57 +396,8 @@ namespace PlayMore35 {
                     slotControls.Add(elementBox);
                     Controls.Add(elementBox);
                     choiceState.ChoiceControls[desc.Id] = elementBox;
-                    choiceState.ManeuverComboBox = elementBox;
 
                     currentTop = elementBox.Bottom + 7;
-                } else {
-                    string headerText = !string.IsNullOrWhiteSpace(desc.Label)
-                        ? (desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase) ? desc.Label : $"Choose {desc.Label.ToLower()}")
-                        : $"Choose {desc.Id}";
-                    Label header = new Label {
-                        Top = currentTop,
-                        Left = left,
-                        AutoSize = true,
-                        Text = headerText
-                    };
-                    slotControls.Add(header);
-                    Controls.Add(header);
-
-                    IEnumerable<string> domainChoices = session.Catalog.ChoicesForKey(desc.Domain);
-                    Control choiceBox;
-                    if (domainChoices.Any()) {
-                        var cbo = new ComboBox {
-                            Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
-                            Left = left,
-                            Size = cboFeatChoice.Size,
-                            Tag = $"{featSlot}:{desc.Id}"
-                        };
-                        foreach (string ch in domainChoices) {
-                            cbo.Items.Add(ch);
-                        }
-                        string saved = session.GetFeatChoice(featSlot, desc.Id);
-                        if (!string.IsNullOrEmpty(saved) && cbo.Items.Contains(saved)) {
-                            cbo.SelectedItem = saved;
-                        } else if (cbo.Items.Count > 0) {
-                            cbo.SelectedIndex = 0;
-                        }
-                        choiceBox = cbo;
-                    } else {
-                        choiceBox = new TextBox {
-                            Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
-                            Left = left,
-                            Size = cboFeatChoice.Size,
-                            Tag = $"{featSlot}:{desc.Id}"
-                        };
-                        string saved = session.GetFeatChoice(featSlot, desc.Id);
-                        if (!string.IsNullOrEmpty(saved)) {
-                            choiceBox.Text = saved;
-                        }
-                    }
-                    slotControls.Add(choiceBox);
-                    Controls.Add(choiceBox);
-                    choiceState.ChoiceControls[desc.Id] = choiceBox;
-                    currentTop = choiceBox.Bottom + 7;
                 }
             }
 
@@ -420,40 +419,29 @@ namespace PlayMore35 {
                     desc = state.FeatDef.Choices.FirstOrDefault(c => string.Equals(c.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase));
                 }
                 if (desc == null) {
-                    desc = new ChoiceDescriptor("maneuver", "Choose maneuver", "SubsystemElements", "maneuver", "", "class");
+                    state.WarningBadge.ClearWarning();
+                    continue;
                 }
 
-                string selectedText = "";
+                string selectedValue = "";
                 if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
-                    selectedText = ctrl is ComboBox cbo && cbo.SelectedItem != null 
-                        ? cbo.SelectedItem.ToString() 
-                        : ctrl.Text;
-                } else if (state.ManeuverComboBox != null) {
-                    selectedText = state.ManeuverComboBox.SelectedItem != null 
-                        ? state.ManeuverComboBox.SelectedItem.ToString() 
-                        : state.ManeuverComboBox.Text;
+                    if (ctrl is ComboBox cbo) {
+                        if (cbo.SelectedItem is ChoiceItem ci && (string.IsNullOrWhiteSpace(cbo.Text) || ci.DisplayText.Equals(cbo.Text, StringComparison.OrdinalIgnoreCase))) {
+                            selectedValue = ci.Value;
+                        } else {
+                            selectedValue = ExtractBracketedName(cbo.Text);
+                        }
+                    } else {
+                        selectedValue = ctrl.Text;
+                    }
                 }
 
-                string selectedValue = ExtractManeuverName(selectedText);
                 if (string.IsNullOrWhiteSpace(selectedValue)) {
                     state.WarningBadge.ClearWarning();
                     continue;
                 }
 
-                string target = null;
-                if (!string.IsNullOrEmpty(desc.DependsOn)) {
-                    if (state.ChoiceControls.TryGetValue(desc.DependsOn, out var parentCtrl)) {
-                        target = parentCtrl.Text;
-                    } else if (state.AutoResolvedChoices.TryGetValue(desc.DependsOn, out var autoVal)) {
-                        target = autoVal;
-                    }
-                }
-                if (string.IsNullOrWhiteSpace(target)) {
-                    target = state.ClassComboBox != null ? state.ClassComboBox.Text : state.AutoSelectedClass;
-                }
-                if (string.IsNullOrWhiteSpace(target)) {
-                    target = session.ResolveFeatTargetSource(state.FeatSlot);
-                }
+                string target = ResolveTargetSource(state, desc);
 
                 var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, selectedValue, target, currentChoices);
                 if (warnings.Count > 0) {
@@ -496,18 +484,22 @@ namespace PlayMore35 {
                     foreach (var desc in state.FeatDef.Choices) {
                         string val = "";
                         if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
-                            string text = ctrl is ComboBox cbo && cbo.SelectedItem != null 
-                                ? cbo.SelectedItem.ToString() 
-                                : ctrl.Text;
-                            val = ExtractManeuverName(text);
+                            if (ctrl is ComboBox cbo) {
+                                if (cbo.SelectedItem is ChoiceItem ci && (string.IsNullOrWhiteSpace(cbo.Text) || ci.DisplayText.Equals(cbo.Text, StringComparison.OrdinalIgnoreCase))) {
+                                    val = ci.Value;
+                                } else if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                                    val = ExtractBracketedName(cbo.Text);
+                                } else {
+                                    val = cbo.Text;
+                                }
+                            } else {
+                                val = ctrl.Text;
+                            }
                         } else if (state.AutoResolvedChoices.TryGetValue(desc.Id, out var autoVal)) {
                             val = autoVal;
                         }
                         if (!string.IsNullOrWhiteSpace(val)) {
                             result[$"{state.FeatSlot}:{desc.Id}"] = val;
-                            if (state.FeatDef.Choices.Count == 1) {
-                                result[state.FeatSlot] = val;
-                            }
                         }
                     }
                 } else if (!state.IsMultiChoice) {

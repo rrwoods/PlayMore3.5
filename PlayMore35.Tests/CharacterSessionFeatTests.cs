@@ -724,5 +724,100 @@ namespace PlayMore35.Tests {
             var warbladeWarnings = session2.ValidateFeatChoice("Level 3", desc, "Mountain Hammer", "Warblade");
             Assert.AreEqual(0, warbladeWarnings.Count, "Level 2 maneuver should have 0 warnings for Warblade at level 3.");
         }
+
+        [TestMethod]
+        public void ChoiceDescriptor_IsImmutable_HasNoParameterlessConstructor_AndHasJsonConstructor() {
+            var type = typeof(ChoiceDescriptor);
+
+            // 1. No parameterless constructor
+            var defaultCtor = type.GetConstructor(Type.EmptyTypes);
+            Assert.IsNull(defaultCtor, "ChoiceDescriptor must not have a public parameterless constructor.");
+
+            // 2. All properties must be get-only (no public setter)
+            var properties = type.GetProperties();
+            Assert.IsTrue(properties.Length > 0, "ChoiceDescriptor should have properties.");
+            foreach (var prop in properties) {
+                Assert.IsNull(prop.GetSetMethod(), $"Property {prop.Name} must be get-only (no public setter).");
+            }
+
+            // 3. The constructor has [JsonConstructor]
+            var jsonCtor = type.GetConstructors()
+                .FirstOrDefault(c => c.GetCustomAttributes(typeof(Newtonsoft.Json.JsonConstructorAttribute), false).Any());
+            Assert.IsNotNull(jsonCtor, "ChoiceDescriptor must have a constructor decorated with [JsonConstructor].");
+        }
+
+        [TestMethod]
+        public void GetAccessibleSubsystemElements_FiltersByAcquisitionLevelAndTargetSource() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            var session = new CharacterSession(character, catalog);
+
+            // Level 1 Fighter with target "Feats": max maneuver level = 1
+            var level1Elements = session.GetAccessibleSubsystemElements("SubsystemElements", "maneuver", "Feats", 1);
+            Assert.IsTrue(level1Elements.Any(e => e.EndsWith("Steel Wind")), "Level 1 maneuvers should be included.");
+            Assert.IsFalse(level1Elements.Any(e => e.EndsWith("Disarming Strike")), "Level 2 maneuvers should be excluded for Level 1 Feats.");
+            Assert.IsFalse(level1Elements.Any(e => e.EndsWith("Punishing Stance")), "Stances should be excluded when filter is maneuver.");
+
+            // Stance filter: only stances returned
+            var stanceElements = session.GetAccessibleSubsystemElements("SubsystemElements", "stance", "Feats", 1);
+            Assert.IsTrue(stanceElements.Any(e => e.EndsWith("Punishing Stance")), "Stances should be included.");
+            Assert.IsFalse(stanceElements.Any(e => e.EndsWith("Steel Wind")), "Maneuvers should be excluded when filter is stance.");
+
+            // Level 3 Warblade: max maneuver level = 2
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.classLevels.Add("Warblade");
+            character.classLevels.Add("Warblade");
+            var session2 = new CharacterSession(character, catalog);
+
+            var level3Elements = session2.GetAccessibleSubsystemElements("SubsystemElements", "maneuver", "Warblade", 3);
+            Assert.IsTrue(level3Elements.Any(e => e.EndsWith("Steel Wind")), "Level 1 maneuvers should be included.");
+            Assert.IsTrue(level3Elements.Any(e => e.EndsWith("Disarming Strike")), "Level 2 maneuvers should be included for Level 3 Warblade.");
+            Assert.IsFalse(level3Elements.Any(e => e.EndsWith("Iron Heart Surge")), "Level 3 maneuvers should be excluded for Level 3 Warblade.");
+        }
+
+        [TestMethod]
+        public void Recalculate_FeatWithGenericNonClassChoices_PassesChoicesToFeatEffects() {
+            var syntheticFeat = new Feat(new JObject(
+                new JProperty("benefit", new JObject(
+                    new JProperty("name", "Synthetic Weapon Focus"),
+                    new JProperty("modifiers", new JArray(
+                        new JObject(
+                            new JProperty("affects", "attack bonus:$"),
+                            new JProperty("mod", new JObject(
+                                new JProperty("type", "untyped"),
+                                new JProperty("amounts", new JArray(new JObject(new JProperty("fixed", 1))))
+                            ))
+                        )
+                    ))
+                )),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "weapon"),
+                        new JProperty("label", "Choose weapon"),
+                        new JProperty("domain", "Weapons")
+                    )
+                )),
+                new JProperty("stats", new JArray(
+                    new JObject(new JProperty("name", "attack bonus:Longsword"))
+                ))
+            ));
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+            character.featChoices["Level 1:weapon"] = "Longsword";
+
+            var session = new CharacterSession(character, fakeCatalog);
+            // Verify that the effect was generated with the choice 'Longsword' applied to $
+            var stat = session.GetStatistic("attack bonus:Longsword");
+            Assert.IsNotNull(stat, "Modifier for attack bonus:Longsword should be generated from generic feat choice.");
+            Assert.AreEqual(1, stat.Value, "Attack bonus for chosen weapon should be 1.");
+        }
     }
 }

@@ -1,36 +1,31 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 
 namespace PlayMore35.CharacterChoices {
     public class ChoiceDescriptor : IJsonable {
-        public string Id { get; set; } = "";
-        public string Label { get; set; } = "";
-        public string Domain { get; set; } = "";
-        public string Filter { get; set; } = "";
-        public string Fallback { get; set; } = "";
-        public string DependsOn { get; set; } = "";
+        public string Id { get; }
+        public string Label { get; }
+        public string Domain { get; }
+        public string Filter { get; }
+        public string Fallback { get; }
+        public string DependsOn { get; }
 
-        public ChoiceDescriptor() { }
-
-        public ChoiceDescriptor(JObject json) {
-            Id = (string)json["id"] ?? "";
-            Label = (string)json["label"] ?? "";
-            Domain = (string)json["domain"] ?? "";
-            Filter = (string)json["filter"] ?? "";
-            Fallback = (string)json["fallback"] ?? "";
-            DependsOn = (string)json["dependsOn"] ?? "";
-        }
-
-        public ChoiceDescriptor(string id, string label, string domain, string filter = "", string fallback = "", string dependsOn = "") {
+        [JsonConstructor]
+        public ChoiceDescriptor(string id, string label, string domain, string filter = null, string fallback = null, string dependsOn = null) {
             Id = id ?? "";
             Label = label ?? "";
             Domain = domain ?? "";
             Filter = filter ?? "";
             Fallback = fallback ?? "";
             DependsOn = dependsOn ?? "";
+        }
+
+        public ChoiceDescriptor(JObject json)
+            : this((string)json?["id"], (string)json?["label"], (string)json?["domain"], (string)json?["filter"], (string)json?["fallback"], (string)json?["dependsOn"]) {
         }
 
         public JToken ToJson() {

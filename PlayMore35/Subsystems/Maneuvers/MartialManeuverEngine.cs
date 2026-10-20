@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
@@ -536,6 +537,51 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
 
             return warnings;
+        }
+
+        public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) {
+            if (catalog?.Maneuvers == null) return new List<string>().AsReadOnly();
+            bool isStance = string.Equals(filter, "stance", StringComparison.OrdinalIgnoreCase);
+            bool isManeuver = string.Equals(filter, "maneuver", StringComparison.OrdinalIgnoreCase);
+            if (!isStance && !isManeuver && !string.IsNullOrEmpty(filter)) {
+                return new List<string>().AsReadOnly();
+            }
+
+            int slotLevel = level;
+            if (slotLevel <= 0) {
+                slotLevel = context?.Character?.classLevels?.Count ?? 0;
+            }
+
+            string source = targetSource;
+            if (string.IsNullOrWhiteSpace(source)) {
+                var session = context as ICharacterSession;
+                source = session?.ResolveFeatTargetSource(null) ?? "Feats";
+            }
+
+            int maxLevel = GetMaxManeuverLevelAtLevel(source, slotLevel);
+
+            return catalog.Maneuvers.Values
+                .Where(m => isStance ? m.Type == ManeuverType.Stance : m.Type != ManeuverType.Stance)
+                .Where(m => m.Level <= maxLevel)
+                .OrderBy(m => m.Discipline)
+                .ThenBy(m => m.Name)
+                .Select(m => $"[{m.Discipline}] {m.Name}")
+                .ToList()
+                .AsReadOnly();
+        }
+
+        public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) {
+            if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
+                return new List<string>();
+            }
+            if (string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(descriptor.Filter, "maneuver", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(descriptor.Filter, "stance", StringComparison.OrdinalIgnoreCase) ||
+                    string.IsNullOrEmpty(descriptor.Filter)) {
+                    return ValidateFeatManeuver(featSlot, choiceValue, targetSource, currentChoices);
+                }
+            }
+            return new List<string>();
         }
 
         public void ContributeEffects(EffectPool pool, ICharacterContext context) {
