@@ -1182,6 +1182,22 @@
       { "name": "stances known:feats" },
       { "name": "active stances" }
     ],
+    "choices": [
+      {
+        "id": "class",
+        "label": "Choose class",
+        "domain": "CharacterClasses",
+        "filter": "Adept",
+        "fallback": "Feats"
+      },
+      {
+        "id": "stance",
+        "label": "Choose stance",
+        "domain": "SubsystemElements",
+        "filter": "stance",
+        "dependsOn": "class"
+      }
+    ],
     "benefit": {
       "name": "Martial Stance",
       "text": [
@@ -1236,6 +1252,22 @@
       { "name": "maneuvers known:feats" },
       { "name": "maneuvers readied:feats" },
       { "name": "stances known:feats" }
+    ],
+    "choices": [
+      {
+        "id": "class",
+        "label": "Choose class",
+        "domain": "CharacterClasses",
+        "filter": "Adept",
+        "fallback": "Feats"
+      },
+      {
+        "id": "maneuver",
+        "label": "Choose maneuver",
+        "domain": "SubsystemElements",
+        "filter": "maneuver",
+        "dependsOn": "class"
+      }
     ],
     "class skills": [ "${maneuver.discipline.keySkill}" ],
     "benefit": {

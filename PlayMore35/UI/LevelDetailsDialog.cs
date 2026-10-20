@@ -32,9 +32,10 @@ namespace PlayMore35 {
             public ComboBox ClassComboBox;
             public ComboBox ManeuverComboBox;
             public WarningBadge WarningBadge;
+            public ChoiceDescriptor WarningDescriptor;
             public Dictionary<string, Control> ChoiceControls = new Dictionary<string, Control>();
             public Dictionary<string, string> AutoResolvedChoices = new Dictionary<string, string>();
-            public bool IsMultiChoice => (FeatDef != null && FeatDef.Choices != null && FeatDef.Choices.Any()) || FeatName == "Martial Study" || FeatName == "Martial Stance";
+            public bool IsMultiChoice => FeatDef != null && FeatDef.Choices != null && FeatDef.Choices.Any();
         }
 
         private Dictionary<string, FeatSlotChoiceState> slotChoiceStates = new Dictionary<string, FeatSlotChoiceState>();
@@ -108,7 +109,7 @@ namespace PlayMore35 {
 
                 featLeft += cboFeat2.Left - cboFeat1.Left;
             }
-            UpdateMartialWarnings();
+            UpdateWarnings();
         }
 
         public static string ExtractManeuverName(string formattedText) {
@@ -138,7 +139,7 @@ namespace PlayMore35 {
             }
 
             if (string.IsNullOrEmpty(featName)) {
-                UpdateMartialWarnings();
+                UpdateWarnings();
                 return;
             }
 
@@ -148,14 +149,9 @@ namespace PlayMore35 {
                 return;
             }
 
-            if (featName == "Martial Study" || featName == "Martial Stance") {
-                PrepareMartialChoice(featName, featSlot, left);
-                return;
-            }
-
             string choiceDescription = featDef?.ChoiceDescription ?? "";
             if (!choiceDescription.Any()) {
-                UpdateMartialWarnings();
+                UpdateWarnings();
                 return;
             }
 
@@ -205,7 +201,7 @@ namespace PlayMore35 {
 
             dynamicSlotControls[featSlot] = slotControls;
             slotChoiceStates[featSlot] = choiceState;
-            UpdateMartialWarnings();
+            UpdateWarnings();
         }
 
         private void PrepareDeclarativeChoices(Feat featDef, string featSlot, int left) {
@@ -257,6 +253,8 @@ namespace PlayMore35 {
                             classBox.SelectedIndex = 0;
                         }
 
+                        classBox.SelectedValueChanged += (s, e) => UpdateWarnings();
+
                         slotControls.Add(classBox);
                         Controls.Add(classBox);
                         choiceState.ClassComboBox = classBox;
@@ -271,6 +269,88 @@ namespace PlayMore35 {
                         choiceState.AutoSelectedClass = fallback;
                         choiceState.AutoResolvedChoices[desc.Id] = fallback;
                     }
+                } else if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                    string headerText = !string.IsNullOrWhiteSpace(desc.Label)
+                        ? (desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase) ? desc.Label : $"Choose {desc.Label.ToLower()}")
+                        : $"Choose {desc.Id}";
+                    Label header = new Label {
+                        Top = currentTop,
+                        Left = left,
+                        AutoSize = true,
+                        Text = headerText
+                    };
+                    slotControls.Add(header);
+                    Controls.Add(header);
+
+                    WarningBadge badge = new WarningBadge {
+                        Top = header.Top,
+                        Left = left + header.PreferredWidth + 6,
+                        Tag = featSlot,
+                        Name = $"badge_{featSlot}"
+                    };
+                    slotControls.Add(badge);
+                    Controls.Add(badge);
+                    choiceState.WarningBadge = badge;
+                    choiceState.WarningDescriptor = desc;
+
+                    ComboBox elementBox = new ComboBox {
+                        Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
+                        Left = left,
+                        Size = cboFeatChoice.Size,
+                        DropDownWidth = 280,
+                        Tag = $"{featSlot}:{desc.Id}"
+                    };
+
+                    string targetClass = null;
+                    if (!string.IsNullOrEmpty(desc.DependsOn)) {
+                        if (choiceState.ChoiceControls.TryGetValue(desc.DependsOn, out var parentCtrl)) {
+                            targetClass = parentCtrl.Text;
+                            if (parentCtrl is ComboBox parentCombo) {
+                                parentCombo.SelectedValueChanged += (s, e) => UpdateWarnings();
+                            }
+                        } else if (choiceState.AutoResolvedChoices.TryGetValue(desc.DependsOn, out var autoVal)) {
+                            targetClass = autoVal;
+                        }
+                    }
+                    if (string.IsNullOrWhiteSpace(targetClass)) {
+                        targetClass = choiceState.AutoSelectedClass ?? session.ResolveFeatTargetSource(featSlot);
+                    }
+
+                    var elements = session.GetAccessibleSubsystemElements(desc.Domain, desc.Filter, targetClass, slotLevel);
+                    foreach (var el in elements) {
+                        elementBox.Items.Add(el);
+                    }
+
+                    string saved = session.GetFeatChoice(featSlot, desc.Id);
+                    if (string.IsNullOrWhiteSpace(saved)) {
+                        saved = session.GetFeatChoice(featSlot);
+                    }
+                    if (!string.IsNullOrWhiteSpace(saved)) {
+                        string matchedItem = elementBox.Items.Cast<string>()
+                            .FirstOrDefault(item => ExtractManeuverName(item).Equals(saved, StringComparison.OrdinalIgnoreCase) || item.Equals(saved, StringComparison.OrdinalIgnoreCase));
+                        if (matchedItem != null) {
+                            elementBox.SelectedItem = matchedItem;
+                        }
+                    }
+
+                    elementBox.SelectedValueChanged += (s, e) => {
+                        if (elementBox.SelectedItem == null && !string.IsNullOrWhiteSpace(elementBox.Text)) {
+                            string raw = elementBox.Text;
+                            string matched = elementBox.Items.Cast<string>()
+                                .FirstOrDefault(item => ExtractManeuverName(item).Equals(raw, StringComparison.OrdinalIgnoreCase) || item.Equals(raw, StringComparison.OrdinalIgnoreCase));
+                            if (matched != null) {
+                                elementBox.SelectedItem = matched;
+                            }
+                        }
+                        UpdateWarnings();
+                    };
+
+                    slotControls.Add(elementBox);
+                    Controls.Add(elementBox);
+                    choiceState.ChoiceControls[desc.Id] = elementBox;
+                    choiceState.ManeuverComboBox = elementBox;
+
+                    currentTop = elementBox.Bottom + 7;
                 } else {
                     string headerText = !string.IsNullOrWhiteSpace(desc.Label)
                         ? (desc.Label.StartsWith("Choose ", StringComparison.OrdinalIgnoreCase) ? desc.Label : $"Choose {desc.Label.ToLower()}")
@@ -324,157 +404,58 @@ namespace PlayMore35 {
 
             dynamicSlotControls[featSlot] = slotControls;
             slotChoiceStates[featSlot] = choiceState;
-            UpdateMartialWarnings();
+            UpdateWarnings();
         }
 
-        private void PrepareMartialChoice(string featName, string featSlot, int left) {
-            var slotControls = new List<Control>();
-            var choiceState = new FeatSlotChoiceState {
-                FeatSlot = featSlot,
-                FeatName = featName
-            };
-
-            int slotLevel = session.GetFeatSlotLevel(featSlot);
-            if (slotLevel <= 0) slotLevel = levelIndex + 1;
-
-            var eligibleAdeptClasses = session.GetEligibleAdeptClassesAtLevel(slotLevel);
-
-            int currentTop = lblFeatChoice.Top;
-
-            if (eligibleAdeptClasses.Count >= 2) {
-                Label classHeader = new Label {
-                    Top = currentTop,
-                    Left = left,
-                    AutoSize = true,
-                    Text = "Choose class"
-                };
-                slotControls.Add(classHeader);
-                Controls.Add(classHeader);
-
-                ComboBox classBox = new ComboBox {
-                    Top = cboFeatChoice.Top,
-                    Left = left,
-                    Size = cboFeatChoice.Size,
-                    Tag = $"{featSlot}:class"
-                };
-                foreach (string adeptClass in eligibleAdeptClasses.OrderBy(x => x)) {
-                    classBox.Items.Add(adeptClass);
-                }
-
-                string savedClass = session.GetFeatChoice(featSlot, "class");
-                if (!string.IsNullOrWhiteSpace(savedClass) && classBox.Items.Contains(savedClass)) {
-                    classBox.SelectedItem = savedClass;
-                } else {
-                    classBox.SelectedIndex = 0;
-                }
-
-                slotControls.Add(classBox);
-                Controls.Add(classBox);
-                choiceState.ClassComboBox = classBox;
-
-                currentTop = classBox.Bottom + 7;
-            } else if (eligibleAdeptClasses.Count == 1) {
-                choiceState.AutoSelectedClass = eligibleAdeptClasses[0];
-            } else {
-                choiceState.AutoSelectedClass = "Feats";
-            }
-
-            bool isStance = featName == "Martial Stance";
-            Label maneuverHeader = new Label {
-                Top = currentTop,
-                Left = left,
-                AutoSize = true,
-                Text = isStance ? "Choose stance" : "Choose maneuver"
-            };
-            slotControls.Add(maneuverHeader);
-            Controls.Add(maneuverHeader);
-
-            WarningBadge badge = new WarningBadge {
-                Top = maneuverHeader.Top,
-                Left = left + maneuverHeader.PreferredWidth + 6,
-                Tag = featSlot,
-                Name = $"badge_{featSlot}"
-            };
-            slotControls.Add(badge);
-            Controls.Add(badge);
-            choiceState.WarningBadge = badge;
-
-            ComboBox maneuverBox = new ComboBox {
-                Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
-                Left = left,
-                Size = cboFeatChoice.Size,
-                DropDownWidth = 280,
-                Tag = isStance ? $"{featSlot}:stance" : $"{featSlot}:maneuver"
-            };
-
-            var candidateManeuvers = session.Catalog.Maneuvers.Values
-                .Where(m => isStance ? m.Type == ManeuverType.Stance : m.Type != ManeuverType.Stance)
-                .OrderBy(m => m.Discipline)
-                .ThenBy(m => m.Name);
-
-            foreach (var m in candidateManeuvers) {
-                maneuverBox.Items.Add($"[{m.Discipline}] {m.Name}");
-            }
-
-            string choiceKey = isStance ? "stance" : "maneuver";
-            string savedManeuver = session.GetFeatChoice(featSlot, choiceKey);
-
-            if (!string.IsNullOrWhiteSpace(savedManeuver)) {
-                string matchedItem = maneuverBox.Items.Cast<string>()
-                    .FirstOrDefault(item => ExtractManeuverName(item).Equals(savedManeuver, StringComparison.OrdinalIgnoreCase) || item.Equals(savedManeuver, StringComparison.OrdinalIgnoreCase));
-                if (matchedItem != null) {
-                    maneuverBox.SelectedItem = matchedItem;
-                }
-            }
-
-            slotControls.Add(maneuverBox);
-            Controls.Add(maneuverBox);
-            choiceState.ManeuverComboBox = maneuverBox;
-
-            dynamicSlotControls[featSlot] = slotControls;
-            slotChoiceStates[featSlot] = choiceState;
-
-            maneuverBox.SelectedValueChanged += (s, e) => {
-                if (maneuverBox.SelectedItem == null && !string.IsNullOrWhiteSpace(maneuverBox.Text)) {
-                    string raw = maneuverBox.Text;
-                    string matched = maneuverBox.Items.Cast<string>()
-                        .FirstOrDefault(item => ExtractManeuverName(item).Equals(raw, StringComparison.OrdinalIgnoreCase) || item.Equals(raw, StringComparison.OrdinalIgnoreCase));
-                    if (matched != null) {
-                        maneuverBox.SelectedItem = matched;
-                    }
-                }
-                UpdateMartialWarnings();
-            };
-
-            if (choiceState.ClassComboBox != null) {
-                choiceState.ClassComboBox.SelectedValueChanged += (s, e) => UpdateMartialWarnings();
-            }
-
-            UpdateMartialWarnings();
-        }
-
-        private void UpdateMartialWarnings() {
+        private void UpdateWarnings() {
             var currentChoices = GetFeatChoices();
-            var engine = session.Subsystems?.Get<MartialManeuverEngine>();
 
             foreach (var state in slotChoiceStates.Values) {
-                if (!state.IsMultiChoice || state.WarningBadge == null || state.ManeuverComboBox == null) {
+                if (state.WarningBadge == null) {
                     continue;
                 }
 
-                string selectedText = state.ManeuverComboBox.SelectedItem != null 
-                    ? state.ManeuverComboBox.SelectedItem.ToString() 
-                    : state.ManeuverComboBox.Text;
-                string selectedManeuver = ExtractManeuverName(selectedText);
-                if (string.IsNullOrWhiteSpace(selectedManeuver)) {
+                var desc = state.WarningDescriptor;
+                if (desc == null && state.FeatDef?.Choices != null) {
+                    desc = state.FeatDef.Choices.FirstOrDefault(c => string.Equals(c.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase));
+                }
+                if (desc == null) {
+                    desc = new ChoiceDescriptor("maneuver", "Choose maneuver", "SubsystemElements", "maneuver", "", "class");
+                }
+
+                string selectedText = "";
+                if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
+                    selectedText = ctrl is ComboBox cbo && cbo.SelectedItem != null 
+                        ? cbo.SelectedItem.ToString() 
+                        : ctrl.Text;
+                } else if (state.ManeuverComboBox != null) {
+                    selectedText = state.ManeuverComboBox.SelectedItem != null 
+                        ? state.ManeuverComboBox.SelectedItem.ToString() 
+                        : state.ManeuverComboBox.Text;
+                }
+
+                string selectedValue = ExtractManeuverName(selectedText);
+                if (string.IsNullOrWhiteSpace(selectedValue)) {
                     state.WarningBadge.ClearWarning();
                     continue;
                 }
 
-                string target = state.ClassComboBox != null ? state.ClassComboBox.Text : state.AutoSelectedClass;
-                var warnings = engine != null
-                    ? engine.ValidateFeatManeuver(state.FeatSlot, selectedManeuver, target, currentChoices)
-                    : new List<string>();
+                string target = null;
+                if (!string.IsNullOrEmpty(desc.DependsOn)) {
+                    if (state.ChoiceControls.TryGetValue(desc.DependsOn, out var parentCtrl)) {
+                        target = parentCtrl.Text;
+                    } else if (state.AutoResolvedChoices.TryGetValue(desc.DependsOn, out var autoVal)) {
+                        target = autoVal;
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(target)) {
+                    target = state.ClassComboBox != null ? state.ClassComboBox.Text : state.AutoSelectedClass;
+                }
+                if (string.IsNullOrWhiteSpace(target)) {
+                    target = session.ResolveFeatTargetSource(state.FeatSlot);
+                }
+
+                var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, selectedValue, target, currentChoices);
                 if (warnings.Count > 0) {
                     state.WarningBadge.SetWarning(string.Join("\n", warnings));
                 } else {
@@ -515,7 +496,10 @@ namespace PlayMore35 {
                     foreach (var desc in state.FeatDef.Choices) {
                         string val = "";
                         if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
-                            val = ctrl.Text;
+                            string text = ctrl is ComboBox cbo && cbo.SelectedItem != null 
+                                ? cbo.SelectedItem.ToString() 
+                                : ctrl.Text;
+                            val = ExtractManeuverName(text);
                         } else if (state.AutoResolvedChoices.TryGetValue(desc.Id, out var autoVal)) {
                             val = autoVal;
                         }
@@ -529,16 +513,6 @@ namespace PlayMore35 {
                 } else if (!state.IsMultiChoice) {
                     if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
                         result[state.FeatSlot] = state.SingleChoiceControl.Text;
-                    }
-                } else {
-                    string targetClass = state.ClassComboBox != null ? state.ClassComboBox.Text : state.AutoSelectedClass;
-                    if (!string.IsNullOrWhiteSpace(targetClass)) {
-                        result[$"{state.FeatSlot}:class"] = targetClass;
-                    }
-                    string key = state.FeatName == "Martial Stance" ? "stance" : "maneuver";
-                    string mName = state.ManeuverComboBox != null ? ExtractManeuverName(state.ManeuverComboBox.SelectedItem?.ToString() ?? state.ManeuverComboBox.Text) : "";
-                    if (!string.IsNullOrWhiteSpace(mName)) {
-                        result[$"{state.FeatSlot}:{key}"] = mName;
                     }
                 }
             }
