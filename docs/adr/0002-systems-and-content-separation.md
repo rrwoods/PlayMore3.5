@@ -40,4 +40,3 @@ We establish the separation of systems and content as a foundational architectur
 - Eliminates special-case explosion across engine, subsystem, and UI presentation code.
 - Ensures new sourcebook content can be introduced purely through JSON data whenever the underlying systemic primitive already exists.
 - Clarifies the role of `rules.json` as a systems file, distinct from content catalogs.
-- **Technical Debt & Remediation**: Lingering hardcoded checks in `CharacterSession.cs` (e.g. line 217 `if (featName == "Martial Study" || featName == "Martial Stance")`) and `LevelDetailsDialog.cs` (e.g. line 34 `IsMultiChoice`) are classified as technical debt to be refactored into the declarative choice descriptor schema.
