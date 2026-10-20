@@ -1,4 +1,4 @@
-# PlayMore35
+﻿﻿# PlayMore35
 
 A dynamic character sheet and combat companion for running Dungeons & Dragons 3.5 Edition characters during live play.
 
@@ -131,8 +131,12 @@ The sequential progression of combat rounds and game time that advances the dura
 _Avoid_: Clock, round manager
 
 **Sheet Action**:
-A scheduled modification that alters character state over a specific duration and automatically reverts upon expiration.
-_Avoid_: Timed buff, event, scheduled job
+A discrete character mutation—instantaneous or scheduled over a duration—that alters controllable flags, parameters, subsystem slot states, or resource pools, automatically reverting duration-based changes upon expiration.
+_Avoid_: Timed buff, event, scheduled job, command
+
+**Persistent Sheet Action**:
+A non-serialized sheet action projected dynamically by an active effect or subsystem that triggers continuously on recurring timeline events (such as round starts or turn boundaries) without being consumed or persisted to character state.
+_Avoid_: Static trigger, permanent action, recurring job, tick hook
 
 **Invocation**:
 An at-will spell-like ability chosen from a fixed grade (least, lesser, greater, dark) that functions as an essence, shape, or sustained effect.
@@ -151,6 +155,22 @@ The categorization and advisory presentation of abilities by action cost (standa
 _Avoid_: Action tracker, action lock, turn budget
 
 ### Subsystems & Resources
+
+**Subsystem Verb**:
+An elemental slot state transition, element execution, or resource pool operation provided by the subsystem engine, or a named composite operation configured by a subsystem or class feature.
+_Avoid_: Subsystem action, engine mutation, custom recovery
+
+**Slot State**:
+The current lifecycle condition of a subsystem slot (such as Unreadied, Withheld, Available, or Expended for maneuvers, or Bound, Suppressed, or Empty for pact magic) governed by the subsystem's state machine.
+_Avoid_: Slot status, slot mode
+
+**Subsystem Source**:
+The class, feat, or creature origin of a character's subsystem capabilities (such as Warblade, Binder, or Feats), governing progression access, capacity statistics, and source-specific verbs like readying and recovery.
+_Avoid_: Source partition, subsystem origin
+
+**Subsystem State Machine**:
+The formal finite set of valid lifecycle states and allowed transitions for a subsystem slot group.
+_Avoid_: Slot lifecycle, state graph, status machine
 
 **Subsystem**:
 An encapsulated magic or martial discipline (such as Pact Magic, Martial Maneuvers, Vancian Spellcasting, or Meldshaping) governed by specialized preparation, selection, or recovery mechanics.
