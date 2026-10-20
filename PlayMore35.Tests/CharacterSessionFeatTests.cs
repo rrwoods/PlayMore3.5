@@ -7,6 +7,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
+using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -567,6 +568,161 @@ namespace PlayMore35.Tests {
 
             var session = new CharacterSession(character, fakeCatalog);
             Assert.IsTrue(session.IsClassSkill("Warblade", 0), "Template ${class} should expand to resolved choice 'Warblade'.");
+        }
+
+        private static Feat CreateSyntheticSubsystemMultiChoiceFeat(
+            string featName = "Synthetic Subsystem Feat",
+            string elementFilter = "maneuver",
+            string elementId = "maneuver",
+            string elementLabel = "Choose maneuver",
+            string template = "${maneuver.discipline.keySkill}")
+        {
+            return new Feat(new JObject(
+                new JProperty("benefit", new JObject(
+                    new JProperty("name", featName),
+                    new JProperty("modifiers", new JArray(
+                        new JObject(
+                            new JProperty("affects", "maneuvers known:${class}"),
+                            new JProperty("mod", new JObject(
+                                new JProperty("type", "untyped"),
+                                new JProperty("amounts", new JArray(new JObject(new JProperty("fixed", 1))))
+                            ))
+                        )
+                    ))
+                )),
+                new JProperty("class skills", new JArray(template)),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "class"),
+                        new JProperty("label", "Target Class"),
+                        new JProperty("domain", "CharacterClasses"),
+                        new JProperty("filter", "Adept"),
+                        new JProperty("fallback", "Feats")
+                    ),
+                    new JObject(
+                        new JProperty("id", elementId),
+                        new JProperty("label", elementLabel),
+                        new JProperty("domain", "SubsystemElements"),
+                        new JProperty("filter", elementFilter),
+                        new JProperty("dependsOn", "class")
+                    )
+                ))
+            ));
+        }
+
+        [TestMethod]
+        public void SyntheticMultiChoiceFeat_TargetClassAndSubsystemElement_ResolvesChoicesAndExpandsTemplate() {
+            var syntheticFeat = CreateSyntheticSubsystemMultiChoiceFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // 1. Target class auto-resolves to Warblade
+            Assert.AreEqual("Warblade", session.ResolveClassChoice("Level 1", syntheticFeat.Choices[0]));
+
+            // 2. Class skill template ${maneuver.discipline.keySkill} resolves to Balance (Iron Heart key skill)
+            Assert.IsTrue(session.IsClassSkill("Balance", 0), "Template should expand key skill of chosen maneuver to 'Balance'.");
+
+            // 3. Modifier maneuvers known:${class} resolves to maneuvers known:warblade
+            Assert.AreEqual(4, session.GetStatValue("maneuvers known:warblade", 0)); // base 3 + 1 from synthetic feat
+        }
+
+        [TestMethod]
+        public void SyntheticMultiChoiceFeat_SlotProjection_ProjectsIntoSubsystemAsLockedSlot() {
+            var syntheticFeat = CreateSyntheticSubsystemMultiChoiceFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, fakeCatalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            var featSlot = warbladeSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(featSlot, "Synthetic feat should project into Warblade known slots as a feat-bound slot.");
+            Assert.AreEqual("Steel Wind", featSlot.ManeuverName);
+            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+
+            // Attempting to overwrite or clear feat-bound slot throws InvalidOperationException
+            int slotIndex = warbladeSlots.ToList().IndexOf(featSlot);
+            Assert.ThrowsException<InvalidOperationException>(() => {
+                engine.SetKnownSlot("Warblade", slotIndex, new KnownManeuverSlot("Stone Bones", ManeuverState.Unreadied));
+            });
+        }
+
+        [TestMethod]
+        public void SyntheticMultiChoiceFeat_NonAdept_ProjectsIntoFeatsPool_AsLockedSlot() {
+            var syntheticFeat = CreateSyntheticSubsystemMultiChoiceFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+            character.featChoices["Level 1:maneuver"] = "Moment of Perfect Mind";
+
+            var session = new CharacterSession(character, fakeCatalog);
+            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            Assert.IsNotNull(engine);
+
+            var featSlots = engine.GetKnownSlots("Feats");
+            var featSlot = featSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(featSlot, "Synthetic feat on non-adept should project into Feats pool.");
+            Assert.AreEqual("Moment of Perfect Mind", featSlot.ManeuverName);
+            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+        }
+
+        [TestMethod]
+        public void SyntheticMultiChoiceFeat_DependentLevelGating_ValidatesMaxManeuverLevelAgainstTargetClass() {
+            var syntheticFeat = CreateSyntheticSubsystemMultiChoiceFeat();
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            // Character 1: Level 1 Fighter (non-adept: IL 1 -> Max Maneuver Level 1)
+            var char1 = new Character { race = "human" };
+            char1.classLevels.Clear();
+            char1.classLevels.Add("Fighter");
+            char1.feats["Level 1"] = syntheticFeat.Benefit.Name;
+
+            var session1 = new CharacterSession(char1, fakeCatalog);
+            var desc = syntheticFeat.Choices[1]; // SubsystemElements choice
+
+            // Level 1 maneuver: valid
+            var validWarnings = session1.ValidateFeatChoice("Level 1", desc, "Steel Wind", "Feats");
+            Assert.AreEqual(0, validWarnings.Count, "Level 1 maneuver should have 0 warnings for Feats at level 1.");
+
+            // Level 2 maneuver (Mountain Hammer, level 2 Stone Dragon): exceeds max maneuver level 1 for Feats
+            var invalidWarnings = session1.ValidateFeatChoice("Level 1", desc, "Mountain Hammer", "Feats");
+            Assert.IsTrue(invalidWarnings.Count > 0);
+            StringAssert.Contains(invalidWarnings[0], "exceeds maximum maneuver level 1 for Feats");
+
+            // Character 2: Level 3 Warblade (IL 3 -> Max Maneuver Level 2)
+            var char2 = new Character { race = "human" };
+            char2.classLevels.Clear();
+            char2.classLevels.Add("Warblade");
+            char2.classLevels.Add("Warblade");
+            char2.classLevels.Add("Warblade");
+            char2.feats["Level 3"] = syntheticFeat.Benefit.Name;
+
+            var session2 = new CharacterSession(char2, fakeCatalog);
+
+            // Mountain Hammer is valid for Warblade at level 3
+            var warbladeWarnings = session2.ValidateFeatChoice("Level 3", desc, "Mountain Hammer", "Warblade");
+            Assert.AreEqual(0, warbladeWarnings.Count, "Level 2 maneuver should have 0 warnings for Warblade at level 3.");
         }
     }
 }

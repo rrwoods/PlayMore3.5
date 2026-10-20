@@ -6,6 +6,7 @@ using PlayMore35.Effects;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
+using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Global {
@@ -217,8 +218,6 @@ namespace PlayMore35.Global {
                     var classChoice = featDef.Choices?.FirstOrDefault(c => string.Equals(c.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase));
                     if (classChoice != null) {
                         choice = ResolveClassChoice(featSlot, classChoice);
-                    } else if (featName == "Martial Study" || featName == "Martial Stance") {
-                        choice = ResolveFeatTargetSource(featSlot);
                     } else if (character.featChoices.TryGetValue(featSlot, out var c)) {
                         choice = c;
                     }
@@ -241,12 +240,6 @@ namespace PlayMore35.Global {
                                     choicesDict[ch.Id] = val;
                                 }
                             }
-                        }
-                        if (character.featChoices.TryGetValue($"{featSlot}:maneuver", out var chosenManeuver)) {
-                            choicesDict["maneuver"] = chosenManeuver;
-                        }
-                        if (character.featChoices.TryGetValue($"{featSlot}:stance", out var chosenStance)) {
-                            choicesDict["stance"] = chosenStance;
                         }
                         foreach (var template in featDef.ClassSkills) {
                             string skill = catalog.ResolveTemplate(template, choicesDict);
@@ -745,6 +738,47 @@ namespace PlayMore35.Global {
                 return character.featChoices.TryGetValue(featSlot, out var choice) ? choice : "";
             }
             return character.featChoices.TryGetValue($"{featSlot}:{key}", out var compChoice) ? compChoice : "";
+        }
+
+        public IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource, int level) {
+            if (string.Equals(domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                bool isStance = string.Equals(filter, "stance", StringComparison.OrdinalIgnoreCase);
+                if (catalog?.Maneuvers != null) {
+                    return catalog.Maneuvers.Values
+                        .Where(m => isStance ? m.Type == ManeuverType.Stance : m.Type != ManeuverType.Stance)
+                        .OrderBy(m => m.Discipline)
+                        .ThenBy(m => m.Name)
+                        .Select(m => $"[{m.Discipline}] {m.Name}")
+                        .ToList()
+                        .AsReadOnly();
+                }
+            }
+            if (!string.IsNullOrEmpty(filter)) {
+                var filterChoices = catalog?.ChoicesForKey(filter)?.ToList();
+                if (filterChoices != null && filterChoices.Count > 0) {
+                    return filterChoices.AsReadOnly();
+                }
+            }
+            if (!string.IsNullOrEmpty(domain)) {
+                var domainChoices = catalog?.ChoicesForKey(domain)?.ToList();
+                if (domainChoices != null && domainChoices.Count > 0) {
+                    return domainChoices.AsReadOnly();
+                }
+            }
+            return new List<string>().AsReadOnly();
+        }
+
+        public List<string> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) {
+            if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
+                return new List<string>();
+            }
+            if (string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                var engine = subsystems?.Get<PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine>();
+                if (engine != null) {
+                    return engine.ValidateFeatManeuver(featSlot, choiceValue, targetSource, currentChoices);
+                }
+            }
+            return new List<string>();
         }
 
         public int GetSizeCategory() {

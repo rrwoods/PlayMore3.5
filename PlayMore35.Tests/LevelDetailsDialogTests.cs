@@ -706,5 +706,107 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual("Crusader", classCombo.SelectedItem, "Saved class choice should be selected on load.");
             }
         }
+
+        private static Feat CreateSyntheticSubsystemFeat(
+            string featName = "Synthetic Subsystem Feat", 
+            string elementFilter = "maneuver", 
+            string elementId = "maneuver", 
+            string elementLabel = "Choose maneuver") 
+        {
+            return new Feat(new JObject(
+                new JProperty("benefit", new JObject(new JProperty("name", featName))),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "class"),
+                        new JProperty("label", "Target Class"),
+                        new JProperty("domain", "CharacterClasses"),
+                        new JProperty("filter", "Adept"),
+                        new JProperty("fallback", "Feats")
+                    ),
+                    new JObject(
+                        new JProperty("id", elementId),
+                        new JProperty("label", elementLabel),
+                        new JProperty("domain", "SubsystemElements"),
+                        new JProperty("filter", elementFilter),
+                        new JProperty("dependsOn", "class")
+                    )
+                ))
+            ));
+        }
+
+        [TestMethod]
+        public void SyntheticSubsystemFeat_DialogRendersDependentMultiChoiceControls_AndSavesChoices() {
+            var syntheticFeat = CreateSyntheticSubsystemFeat();
+            var (session, _) = CreateSyntheticFeatSession(syntheticFeat, "Fighter");
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(0);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                featCombo.SelectedItem = syntheticFeat.Benefit.Name;
+
+                // 1. Class dropdown should not be rendered (0 adept classes -> auto-resolves to Feats)
+                var classCombos = dialog.Controls.OfType<ComboBox>()
+                    .Where(cbo => Equals(cbo.Tag, "Level 1:class"))
+                    .ToList();
+                Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
+
+                // 2. Maneuver dropdown and WarningBadge should be rendered
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 1:maneuver"));
+                Assert.IsNotNull(maneuverCombo, "Maneuver dropdown should be rendered for SubsystemElements choice.");
+                Assert.IsTrue(maneuverCombo.Items.Contains("[Iron Heart] Steel Wind"));
+
+                var badge = dialog.Controls.OfType<PlayMore35.UI.WarningBadge>()
+                    .FirstOrDefault(b => Equals(b.Tag, "Level 1"));
+                Assert.IsNotNull(badge, "Warning badge should be rendered for subsystem element choice.");
+
+                // Valid choice: Level 1 maneuver -> badge hidden
+                maneuverCombo.SelectedItem = "[Iron Heart] Steel Wind";
+                Assert.IsFalse(badge.Visible, "Warning badge should be hidden for valid Level 1 maneuver.");
+
+                // Invalid choice: Level 2 maneuver exceeds level 1 max level for Feats -> badge visible
+                maneuverCombo.SelectedItem = "[Stone Dragon] Mountain Hammer";
+                Assert.IsTrue(badge.Visible, "Warning badge should appear when maneuver exceeds maximum maneuver level.");
+
+                // Select valid maneuver back and save
+                maneuverCombo.SelectedItem = "[Iron Heart] Steel Wind";
+                dialog.SaveChanges();
+
+                Assert.AreEqual("Feats", session.Character.featChoices["Level 1:class"]);
+                Assert.AreEqual("Steel Wind", session.Character.featChoices["Level 1:maneuver"]);
+            }
+        }
+
+        [TestMethod]
+        public void SyntheticSubsystemFeat_DialogWithTwoAdeptClasses_RendersBothDropdowns_AndParameterizesLevelGating() {
+            var syntheticFeat = CreateSyntheticSubsystemFeat();
+            var (session, _) = CreateSyntheticFeatSession(syntheticFeat, "Warblade", "Crusader", "Crusader");
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                featCombo.SelectedItem = syntheticFeat.Benefit.Name;
+
+                var classCombo = dialog.Controls.OfType<ComboBox>()
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                Assert.IsNotNull(classCombo, "Class dropdown should be rendered for 2+ adept classes.");
+
+                var maneuverCombo = dialog.Controls.OfType<ComboBox>()
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:maneuver"));
+                Assert.IsNotNull(maneuverCombo, "Maneuver dropdown should be rendered.");
+
+                classCombo.SelectedItem = "Crusader";
+                maneuverCombo.SelectedItem = "[Devoted Spirit] Crusader's Strike";
+
+                dialog.SaveChanges();
+
+                Assert.AreEqual("Crusader", session.Character.featChoices["Level 3:class"]);
+                Assert.AreEqual("Crusader's Strike", session.Character.featChoices["Level 3:maneuver"]);
+            }
+        }
     }
 }
