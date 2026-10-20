@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
 
@@ -25,6 +25,9 @@ namespace PlayMore35.Effects {
         }
 
         public IToggle ApplyChoice(string choice) {
+            if (string.Equals(actual, expected, StringComparison.OrdinalIgnoreCase)) {
+                return this;
+            }
             return new ChoiceToggle(expected, choice);
         }
     }

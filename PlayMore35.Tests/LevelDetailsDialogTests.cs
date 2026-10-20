@@ -261,8 +261,9 @@ namespace PlayMore35.Tests {
 
                 var maneuverCombo = dialog.Controls.OfType<ComboBox>()
                     .First(cbo => Equals(cbo.Tag, "Level 1:maneuver"));
-                // Disarming Strike is level 2
-                maneuverCombo.SelectedItem = "[Iron Heart] Disarming Strike";
+                // Disarming Strike is level 2 (not in dropdown for Level 1 Fighter)
+                Assert.IsFalse(maneuverCombo.Items.Contains("[Iron Heart] Disarming Strike"));
+                maneuverCombo.Text = "[Iron Heart] Disarming Strike";
 
                 var badge = dialog.Controls.OfType<PlayMore35.UI.WarningBadge>()
                     .FirstOrDefault(b => Equals(b.Tag, "Level 1"));
@@ -455,8 +456,9 @@ namespace PlayMore35.Tests {
 
                 var stanceCombo = dialog.Controls.OfType<ComboBox>()
                     .First(cbo => Equals(cbo.Tag, "Level 1:stance"));
-                // Giant's Stance is level 5
-                stanceCombo.SelectedItem = "[Stone Dragon] Giant's Stance";
+                // Giant's Stance is level 5 (not in dropdown for Level 1 Fighter)
+                Assert.IsFalse(stanceCombo.Items.Contains("[Stone Dragon] Giant's Stance"));
+                stanceCombo.Text = "[Stone Dragon] Giant's Stance";
 
                 var badge = dialog.Controls.OfType<PlayMore35.UI.WarningBadge>()
                     .FirstOrDefault(b => Equals(b.Tag, "Level 1"));
@@ -767,7 +769,8 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(badge.Visible, "Warning badge should be hidden for valid Level 1 maneuver.");
 
                 // Invalid choice: Level 2 maneuver exceeds level 1 max level for Feats -> badge visible
-                maneuverCombo.SelectedItem = "[Stone Dragon] Mountain Hammer";
+                Assert.IsFalse(maneuverCombo.Items.Contains("[Stone Dragon] Mountain Hammer"));
+                maneuverCombo.Text = "[Stone Dragon] Mountain Hammer";
                 Assert.IsTrue(badge.Visible, "Warning badge should appear when maneuver exceeds maximum maneuver level.");
 
                 // Select valid maneuver back and save

@@ -20,6 +20,8 @@ namespace PlayMore35.Tests {
             public bool IsActive => true;
             public void Initialize(ICharacterContext context) { }
             public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
+            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) => new List<string>().AsReadOnly();
+            public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) => new List<string>();
         }
 
         private class FakeSimpleSubsystem : ISubsystemEngine {
@@ -27,6 +29,8 @@ namespace PlayMore35.Tests {
             public bool IsActive => false;
             public void Initialize(ICharacterContext context) { }
             public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
+            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) => new List<string>().AsReadOnly();
+            public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) => new List<string>();
         }
 
         [TestMethod]

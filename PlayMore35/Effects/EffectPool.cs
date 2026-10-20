@@ -429,15 +429,23 @@ namespace PlayMore35.Effects {
             }
         }
 
-        public void GenerateFeatEffects(Feat feat, string choice) {
+        public void GenerateFeatEffects(Feat feat, IEnumerable<string> choices) {
             Effect benefit = feat.Benefit;
-            if (choice.Any()) {
-                benefit = benefit.ApplyChoice(choice);
+            if (benefit != null && choices != null) {
+                foreach (var choice in choices.Where(c => !string.IsNullOrEmpty(c))) {
+                    benefit = benefit.ApplyChoice(choice);
+                }
             }
-            AddEffect(benefit);
+            if (benefit != null) {
+                AddEffect(benefit);
+            }
             feat.Flags.ForEach(x => AddFlag(x));
             feat.Parameters.ForEach(x => controllableParameters[x.Name] = new ControllableParameter(x, character));
             AddStats(feat.NewStats);
+        }
+
+        public void GenerateFeatEffects(Feat feat, string choice) {
+            GenerateFeatEffects(feat, string.IsNullOrEmpty(choice) ? Enumerable.Empty<string>() : new[] { choice });
         }
 
         public void GrantClassSkill(string skill, int minimumLevel) {

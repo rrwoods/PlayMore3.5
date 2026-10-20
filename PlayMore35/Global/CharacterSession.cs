@@ -214,33 +214,36 @@ namespace PlayMore35.Global {
                 string featName = feat.Value;
                 var featDef = catalog.GetFeat(featName);
                 if (featDef != null) {
-                    string choice = "";
-                    var classChoice = featDef.Choices?.FirstOrDefault(c => string.Equals(c.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase));
-                    if (classChoice != null) {
-                        choice = ResolveClassChoice(featSlot, classChoice);
-                    } else if (character.featChoices.TryGetValue(featSlot, out var c)) {
-                        choice = c;
+                    var featChoicesList = new List<string>();
+                    var choicesDict = new Dictionary<string, string>(character.featChoices, StringComparer.OrdinalIgnoreCase);
+
+                    if (featDef.Choices != null && featDef.Choices.Any()) {
+                        foreach (var ch in featDef.Choices) {
+                            string val = "";
+                            if (string.Equals(ch.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
+                                val = ResolveClassChoice(featSlot, ch);
+                            } else if (character.featChoices.TryGetValue($"{featSlot}:{ch.Id}", out var choiceVal) && !string.IsNullOrWhiteSpace(choiceVal)) {
+                                val = choiceVal;
+                            } else if (!string.IsNullOrEmpty(ch.Fallback)) {
+                                val = ch.Fallback;
+                            }
+                            if (!string.IsNullOrEmpty(val)) {
+                                choicesDict[ch.Id] = val;
+                                featChoicesList.Add(val);
+                            }
+                        }
+                    } else if (character.featChoices.TryGetValue(featSlot, out var c) && !string.IsNullOrWhiteSpace(c)) {
+                        featChoicesList.Add(c);
+                        choicesDict[""] = c;
                     }
+
                     effects.GenerateFeatEffects(
                         featDef,
-                        choice
+                        featChoicesList
                     );
 
                     if (featDef.ClassSkills.Any()) {
                         int acquisitionLevel = Math.Max(1, GetFeatSlotLevel(featSlot));
-                        var choicesDict = new Dictionary<string, string>(character.featChoices, StringComparer.OrdinalIgnoreCase);
-                        if (!string.IsNullOrEmpty(choice)) {
-                            choicesDict["class"] = choice;
-                        }
-                        if (featDef.Choices != null) {
-                            foreach (var ch in featDef.Choices) {
-                                if (string.Equals(ch.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
-                                    choicesDict[ch.Id] = ResolveClassChoice(featSlot, ch);
-                                } else if (character.featChoices.TryGetValue($"{featSlot}:{ch.Id}", out var val)) {
-                                    choicesDict[ch.Id] = val;
-                                }
-                            }
-                        }
                         foreach (var template in featDef.ClassSkills) {
                             string skill = catalog.ResolveTemplate(template, choicesDict);
                             if (!string.IsNullOrEmpty(skill)) {
@@ -677,11 +680,6 @@ namespace PlayMore35.Global {
                 return matched ?? chosenClass;
             }
 
-            if (character.featChoices.TryGetValue(featSlot, out var legacyClass) && !string.IsNullOrWhiteSpace(legacyClass)) {
-                var matched = eligibleClasses.FirstOrDefault(c => string.Equals(c, legacyClass, StringComparison.OrdinalIgnoreCase));
-                if (matched != null) return matched;
-            }
-
             return eligibleClasses[0];
         }
 
@@ -742,15 +740,13 @@ namespace PlayMore35.Global {
 
         public IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource, int level) {
             if (string.Equals(domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                bool isStance = string.Equals(filter, "stance", StringComparison.OrdinalIgnoreCase);
-                if (catalog?.Maneuvers != null) {
-                    return catalog.Maneuvers.Values
-                        .Where(m => isStance ? m.Type == ManeuverType.Stance : m.Type != ManeuverType.Stance)
-                        .OrderBy(m => m.Discipline)
-                        .ThenBy(m => m.Name)
-                        .Select(m => $"[{m.Discipline}] {m.Name}")
-                        .ToList()
-                        .AsReadOnly();
+                if (subsystems != null) {
+                    foreach (var engine in subsystems.All) {
+                        var elements = engine.GetAccessibleElements(filter, targetSource, level);
+                        if (elements != null && elements.Count > 0) {
+                            return elements;
+                        }
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(filter)) {
@@ -772,13 +768,16 @@ namespace PlayMore35.Global {
             if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
                 return new List<string>();
             }
-            if (string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                var engine = subsystems?.Get<PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine>();
-                if (engine != null) {
-                    return engine.ValidateFeatManeuver(featSlot, choiceValue, targetSource, currentChoices);
+            var allWarnings = new List<string>();
+            if (subsystems != null) {
+                foreach (var engine in subsystems.All) {
+                    var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+                    if (warnings != null && warnings.Count > 0) {
+                        allWarnings.AddRange(warnings);
+                    }
                 }
             }
-            return new List<string>();
+            return allWarnings;
         }
 
         public int GetSizeCategory() {
