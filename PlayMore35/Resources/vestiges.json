@@ -3,12 +3,14 @@
     "id": "pact_magic",
     "name": "Pact Magic",
     "required_element_properties": [
-      "binding DC"
+      "binding DC",
+      "level"
     ],
     "element_statistics": {
       "binding DC": [
         "binding DCs"
-      ]
+      ],
+      "level": []
     },
     "slot_groups": {
       "vestiges": {

@@ -713,5 +713,132 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(15, aym.GetStatistic("binding DC", (ICharacterContext)null).Value);
             Assert.AreEqual(20, amon.GetStatistic("binding DC", (ICharacterSession)null).Value);
         }
+
+        [TestMethod]
+        public void SubsystemDefinition_LevelStatistic_EnforcesPresenceAndRoundTrips() {
+            var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            Assert.IsTrue(pactDef.ElementStatistics.ContainsKey("level"));
+            CollectionAssert.AreEqual(new string[0], pactDef.ElementStatistics["level"]);
+
+            var validJson = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("element_statistics", new JObject(
+                        new JProperty("level", new JArray())
+                    ))
+                )),
+                new JProperty("elements", new JArray(
+                    new JObject(
+                        new JProperty("name", "Valid Element"),
+                        new JProperty("level", 2)
+                    )
+                ))
+            );
+            var validDef = new SubsystemDefinition(validJson);
+            Assert.AreEqual(1, validDef.Elements.Count);
+            Assert.AreEqual(2, validDef.Elements["Valid Element"].GetProperty<int>("level"));
+
+            var roundTripped = new SubsystemDefinition((JObject)validDef.ToJson());
+            Assert.IsTrue(roundTripped.ElementStatistics.ContainsKey("level"));
+            CollectionAssert.AreEqual(new string[0], roundTripped.ElementStatistics["level"]);
+            Assert.AreEqual(2, roundTripped.Elements["Valid Element"].GetProperty<int>("level"));
+
+            var invalidMissingJson = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("element_statistics", new JObject(
+                        new JProperty("level", new JArray())
+                    ))
+                )),
+                new JProperty("elements", new JArray(
+                    new JObject(
+                        new JProperty("name", "Invalid Element")
+                    )
+                ))
+            );
+            var ex1 = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(invalidMissingJson));
+            StringAssert.Contains(ex1.Message, "Invalid Element");
+            StringAssert.Contains(ex1.Message, "level");
+
+            var invalidNonNumericJson = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("element_statistics", new JObject(
+                        new JProperty("level", new JArray())
+                    ))
+                )),
+                new JProperty("elements", new JArray(
+                    new JObject(
+                        new JProperty("name", "Invalid Element"),
+                        new JProperty("level", "not_a_number")
+                    )
+                ))
+            );
+            var ex2 = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(invalidNonNumericJson));
+            StringAssert.Contains(ex2.Message, "Invalid Element");
+            StringAssert.Contains(ex2.Message, "must be numeric");
+        }
+
+        // Source: Tome of Magic, p. 19
+        [TestMethod]
+        public void PactMagic_LevelStatistic_ProjectedIntoEffectPool_AndModifiable() {
+            var character = new Character();
+            character.classLevels[0] = "Binder";
+            character.assignedAbilityScores["STR"] = 10;
+            character.assignedAbilityScores["CON"] = 10;
+            var catalog = new GameRulesCatalog();
+            var session = new CharacterSession(character, catalog);
+            var ctx = (ICharacterContext)session;
+            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            Assert.IsNotNull(pactEngine);
+
+            var aym = pactEngine.GetElement("Aym");
+            var savnok = pactEngine.GetElement("Savnok");
+            Assert.IsNotNull(aym);
+            Assert.IsNotNull(savnok);
+
+            // Baseline check
+            Assert.AreEqual("level:Aym", aym.GetStatisticName("level"));
+            Assert.AreEqual("level:Savnok", savnok.GetStatisticName("level"));
+            Assert.AreEqual(1, session.GetStatistic("level:Aym").Value);
+            Assert.AreEqual(2, session.GetStatistic("level:Savnok").Value);
+            Assert.AreEqual(1, aym.GetStatistic("level", session).Value);
+            Assert.AreEqual(2, savnok.GetStatistic("level", session).Value);
+
+            // Binder level 1: max vestige level is 1
+            Assert.AreEqual(1, session.GetStatistic("maximum vestige level").Value);
+            var accessibleBase = pactEngine.GetAccessibleElements(null, null, 1);
+            CollectionAssert.Contains(accessibleBase.ToList(), "Aym");
+            CollectionAssert.DoesNotContain(accessibleBase.ToList(), "Savnok");
+
+            // Savnok in slot 0 is overleveled
+            pactEngine.AssignSlot("vestiges", 0, "Savnok", "good_pact", "Binder");
+            Assert.IsFalse(pactEngine.IsSlotLevelValid("vestiges", 0));
+
+            // Modify Savnok's projected level by -1
+            var reduceSavnok = new Effect("Savnok Affinity")
+                .AddModifier("level:Savnok", new Modifier(-1, ModifierTypes.UNTYPED));
+            ctx.Effects.AddEffect(reduceSavnok);
+
+            // Projected level is now 1
+            Assert.AreEqual(1, session.GetStatistic("level:Savnok").Value);
+            Assert.AreEqual(1, savnok.GetStatistic("level", session).Value);
+
+            // Savnok is now valid in slot 0
+            Assert.IsTrue(pactEngine.IsSlotLevelValid("vestiges", 0));
+
+            // Savnok is now accessible at level 1
+            var accessibleModified = pactEngine.GetAccessibleElements(null, null, 1);
+            CollectionAssert.Contains(accessibleModified.ToList(), "Savnok");
+
+            // Removing modifier restores Savnok to level 2
+            ctx.Effects.RemoveEffect(reduceSavnok.Name);
+
+            Assert.AreEqual(2, session.GetStatistic("level:Savnok").Value);
+            Assert.AreEqual(2, savnok.GetStatistic("level", session).Value);
+            Assert.IsFalse(pactEngine.IsSlotLevelValid("vestiges", 0));
+        }
     }
 }

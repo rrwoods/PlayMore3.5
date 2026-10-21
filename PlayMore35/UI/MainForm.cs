@@ -1409,7 +1409,7 @@ namespace PlayMore35 {
             var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
             int maxLevel = session.GetStatistic("maximum vestige level").Value;
             var availableVestiges = (pactEngine?.Definition.Elements.Values ?? Enumerable.Empty<SubsystemElement>())
-                .Where(v => v.Level <= maxLevel)
+                .Where(v => v.GetStatistic("level", session).Value <= maxLevel)
                 .OrderBy(v => v.Name)
                 .ToList();
             int numVestiges = pactEngine?.GetSlotGroup("vestiges")?.Capacity ?? session.GetStatistic("number of vestiges").Value;

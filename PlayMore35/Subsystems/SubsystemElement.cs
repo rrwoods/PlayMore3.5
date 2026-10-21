@@ -17,11 +17,6 @@ namespace PlayMore35.Subsystems {
             set => _properties["name"] = value;
         }
 
-        public int Level {
-            get => _properties.TryGetValue("level", out var v) ? Convert.ToInt32(v) : 1;
-            set => _properties["level"] = value;
-        }
-
         public string Type {
             get => _properties.TryGetValue("type", out var v) ? v?.ToString() ?? "" : "";
             set => _properties["type"] = value;
@@ -142,7 +137,6 @@ namespace PlayMore35.Subsystems {
                 }
             }
             if (!json.ContainsKey("name")) json["name"] = Name;
-            if (!json.ContainsKey("level")) json["level"] = Level;
             if (!string.IsNullOrEmpty(Type) && !json.ContainsKey("type")) json["type"] = Type;
 
             if (Verbs.Count > 0) {

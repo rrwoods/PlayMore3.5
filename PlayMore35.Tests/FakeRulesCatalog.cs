@@ -107,7 +107,9 @@ namespace PlayMore35.Tests {
                 vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact" });
                 def.SlotGroups["vestiges"] = vestigesSlotGroup;
                 def.RequiredElementProperties.Add("binding DC");
+                def.RequiredElementProperties.Add("level");
                 def.ElementStatistics["binding DC"] = new List<string> { "binding DCs" };
+                def.ElementStatistics["level"] = new List<string>();
 
                 def.Verbs["bind_good_pact"] = new List<SubsystemStep> {
                     new SubsystemStep {
@@ -141,9 +143,9 @@ namespace PlayMore35.Tests {
             foreach (var v in VestigesMap.Values) {
                 if (v == null || string.IsNullOrEmpty(v.Name)) continue;
                 var elem = new SubsystemElement {
-                    Name = v.Name,
-                    Level = v.Level
+                    Name = v.Name
                 };
+                elem.SetProperty("level", v.Level);
                 elem.SetProperty("binding DC", v.BindingDc);
                 if (v.Abilities != null) {
                     foreach (var a in v.Abilities) elem.AddKindEffect("abilities", a);
@@ -266,7 +268,6 @@ namespace PlayMore35.Tests {
 
             var acidFlask = new SubsystemElement {
                 Name = "Acid Flask",
-                Level = 1,
                 Type = "Flask"
             };
             acidFlask.Verbs["execute"] = new List<SubsystemStep> {
@@ -279,14 +280,12 @@ namespace PlayMore35.Tests {
 
             var fireFlask = new SubsystemElement {
                 Name = "Fire Flask",
-                Level = 1,
                 Type = "Flask"
             };
             def.Elements[fireFlask.Name] = fireFlask;
 
             var speedInfusion = new SubsystemElement {
                 Name = "Speed Infusion",
-                Level = 1,
                 Type = "Infusion"
             };
             var speedEffect = new Effect("Speed Infusion Effect");
@@ -296,7 +295,6 @@ namespace PlayMore35.Tests {
 
             var strengthInfusion = new SubsystemElement {
                 Name = "Strength Infusion",
-                Level = 2,
                 Type = "Infusion"
             };
             var strEffect = new Effect("Strength Infusion Effect");
