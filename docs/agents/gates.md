@@ -24,3 +24,7 @@ When authoring an `implementation_plan.md` (include under `Proposed Changes`) or
 - **`ROADMAP.md`**: When backlog items, progression tiers, or feature priorities are started, completed, or reordered. When backlog items are completed, remove them from `ROADMAP.md` rather than marking them as completed in the text.
 - **`GLOSSARY.md`**: When project/engine domain language or architectural concepts are introduced, modified, or retired (keep specific 3.5e rules and game content in `docs/rules/`, never `GLOSSARY.md`).
 - **`VISION.md`**: When product destination, architectural invariants, capabilities, or anti-goals shift.
+
+### 4. Prototype promotion gate
+
+When promoting code from a prototype, specify exclusively the chosen design in tickets and specifications. Upstream descriptions and context pointers present only the selected variant so the agent works against a single definitive architecture.

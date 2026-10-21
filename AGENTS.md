@@ -22,18 +22,18 @@ Product destination, architectural invariants, capability frontiers, and anti-go
 
 ### Coding standards
 
-C# architecture, WinForms layout and `Designer.cs` conventions, `.csproj` `<SubType>` rules, and testing practices: see `CODING_STANDARDS.md`.
+Sole source of truth for code review: `CODING_STANDARDS.md` (C# architecture, WinForms layout and `Designer.cs` conventions, `.csproj` `<SubType>` rules, and testing practices).
 
 ### Planning and pre-commit gates
 
-Rules provenance, scope audits, and documentation gates before committing or marking a PR ready: see `docs/agents/gates.md`.
+Rules provenance, scope audits, prototype promotion, and documentation gates before committing or marking a PR ready: see `docs/agents/gates.md`.
 
-## Formatting and conventions
+## Workflow and git conventions
 
 ### Git conventions
 
 Prefer linear git history:
-- Line endings invariant: All files strictly use LF (`scripts/check-lf.ps1`).
+- Line endings: Automated pre-commit hook enforces LF (`scripts/check-lf.ps1`).
 - Rebase working branches onto the target base branch (`git rebase <base>`) rather than creating merge commits.
 - Integrate branch commits via fast-forward merges (`git merge --ff-only <branch>`). Avoid `--no-ff` merge commits where possible.
 - When a task graph has a single active frontier (strictly sequential dependencies), work directly on the branch without creating extra worktree indirection. Still dispatch an implementer subagent per ticket (inheriting the workspace) to keep the orchestrator's context window lean.
@@ -44,11 +44,6 @@ Prefer linear git history:
 
 When authoring pull request descriptions with Mermaid diagrams:
 - Always wrap Mermaid edge labels in double quotes (e.g. `-->|"Read/Write Mutation"|`). Unquoted slashes, brackets, or parentheses break GitHub's Mermaid parser.
-
-### Code architecture and test seams
-
-- See `CODING_STANDARDS.md` for UI encapsulation, WinForms layout, `.csproj` `<SubType>`, and test performance rules.
-- **Prototype clean references**: When promoting code from a prototype exploring multiple design variants, never reference discarded variants in tickets or specifications. Prune all unselected options from descriptions and pointers upstream so the agent only encounters the chosen variant.
 
 ## Rules arbitration invariant
 
