@@ -10,24 +10,24 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
-using static PlayMore35.Subsystems.PactMagic.PactMagicEngine;
 
 namespace PlayMore35.Tests {
     [TestClass]
     public class PactMagicEngineTests {
 
         private static Vestige CreateTestVestige(string name, int level = 1, int dc = 15) {
-            var ability = new Effect($"{name} Granted Armor")
-                .AddModifier("Armor Class", new Modifier(2, "competence"));
+            var ability = new Effect($"{name} Granted Ability")
+                .AddModifier(STR_SCORE, new Modifier(2, "competence"));
             var influence = new Effect($"{name} Influence");
             var json = new JObject(
                 new JProperty("name", name),
                 new JProperty("level", level),
                 new JProperty("binding DC", dc),
-                new JProperty("influence", influence.ToJson()),
-                new JProperty("abilities", new JArray(ability.ToJson()))
+                new JProperty("kinds", new JObject(
+                    new JProperty("abilities", new JArray(ability.ToJson())),
+                    new JProperty("influence", new JArray(influence.ToJson()))
+                ))
             );
             return new Vestige(json);
         }
@@ -57,139 +57,133 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void PactState_ContainsOnlyGoodPactAndPoorPact() {
-            var values = System.Enum.GetNames(typeof(PactState));
-            CollectionAssert.AreEquivalent(new[] { "GOOD_PACT", "POOR_PACT" }, values);
+        public void PactMagic_SlotGroup_ContainsExpectedStates() {
+            var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            Assert.IsTrue(pactDef.SlotGroups.ContainsKey("vestiges"));
+            var group = pactDef.SlotGroups["vestiges"];
+            CollectionAssert.AreEquivalent(new[] { "empty", "good_pact", "poor_pact", "suppressed" }, group.States);
+            Assert.AreEqual("empty", group.DefaultState);
         }
 
         [TestMethod]
-        public void PactMagicEngine_IsActive_WhenNumberOfVestigesExceedsZero() {
+        public void PactMagic_IsActive_WhenNumberOfVestigesExceedsZero() {
             var vestige = CreateTestVestige("Aym");
-            var contentProvider = new FakeRulesCatalog(vestige);
-            var engine = new PactMagicEngine(contentProvider);
-            var context = new FakeCharacterContext();
-
-            engine.Initialize(context);
+            var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestige }, inner: new GameRulesCatalog());
+            var character = new Character();
+            var session = new CharacterSession(character, contentProvider);
+            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
 
             // Initially no statistic -> inactive
             Assert.IsFalse(engine.IsActive);
 
-            // Add number of vestiges = 0 -> still inactive
-            SetStat(context.Effects, NUM_VESTIGES, 0);
-            Assert.IsFalse(engine.IsActive);
-
-            // Set number of vestiges = 1 -> active
-            context.Effects = new EffectPool(context.Character);
-            SetStat(context.Effects, NUM_VESTIGES, 1);
+            // Add Binder level -> number of vestiges = 1 -> active
+            character.classLevels.Add("Binder");
+            session.Recalculate();
             Assert.IsTrue(engine.IsActive);
         }
 
         [TestMethod]
-        public void PactMagicEngine_BindingAndSlotClamping_UsesSubsystemSlotGroup() {
+        public void PactMagic_BindingAndSlotClamping_UsesSubsystemSlotGroup() {
             var vestigeA = CreateTestVestige("Aym", 1, 15);
             var vestigeB = CreateTestVestige("Ronove", 1, 15);
-            var contentProvider = new FakeRulesCatalog(vestigeA, vestigeB);
-            var engine = new PactMagicEngine(contentProvider);
-            var context = new FakeCharacterContext();
+            var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestigeA, vestigeB }, inner: new GameRulesCatalog());
+            var character = new Character();
+            for (int i = 0; i < 8; i++) character.classLevels.Add("Binder");
+            var session = new CharacterSession(character, contentProvider);
 
-            SetStat(context.Effects, NUM_VESTIGES, 2);
-            engine.Initialize(context);
-
-            Assert.AreEqual(2, engine.SlotCount);
+            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            Assert.AreEqual(2, engine.GetSlotGroup("vestiges").Capacity);
 
             // Bind slot 0 to Aym (good pact)
-            engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
-            Assert.AreEqual("Aym", engine.GetSlot(0).VestigeName);
-            Assert.AreEqual(PactState.GOOD_PACT, engine.GetSlot(0).State);
-            Assert.AreEqual(vestigeA, engine.CurrentVestige(0));
+            engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
+            Assert.AreEqual("Aym", engine.GetSlot("vestiges", 0).Element);
+            Assert.AreEqual("good_pact", engine.GetSlot("vestiges", 0).State);
 
             // Bind slot 1 to Ronove (poor pact)
-            engine.BindVestige(1, "Ronove", PactState.POOR_PACT);
-            Assert.AreEqual("Ronove", engine.GetSlot(1).VestigeName);
-            Assert.AreEqual(PactState.POOR_PACT, engine.GetSlot(1).State);
+            engine.AssignSlot("vestiges", 1, "Ronove", "poor_pact", "Binder");
+            Assert.AreEqual("Ronove", engine.GetSlot("vestiges", 1).Element);
+            Assert.AreEqual("poor_pact", engine.GetSlot("vestiges", 1).State);
 
             // Override pact state on slot 0
-            engine.ChangePactState(0, PactState.POOR_PACT);
-            Assert.AreEqual(PactState.POOR_PACT, engine.GetSlot(0).State);
+            engine.SetSlotState("vestiges", 0, "poor_pact");
+            Assert.AreEqual("poor_pact", engine.GetSlot("vestiges", 0).State);
 
-            // Unbind vestige slot 0
-            engine.UnbindVestige(0);
-            Assert.AreEqual("", engine.GetSlot(0).VestigeName);
-            Assert.IsNull(engine.CurrentVestige(0));
+            // Unbind vestige slot 0 via declarative SheetAction
+            session.PerformAction(new SheetAction {
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Verb = "unbind"
+            });
+            Assert.AreEqual("", engine.GetSlot("vestiges", 0).Element);
+            Assert.AreEqual("empty", engine.GetSlot("vestiges", 0).State);
         }
 
         [TestMethod]
-        public void PactMagicEngine_BindingDc_AndCheckBonus_CalculatedCorrectly() {
+        public void PactMagic_BindingDc_AndCheckBonus_CalculatedCorrectly() {
             var vestige = CreateTestVestige("Aym", 1, 20);
-            var contentProvider = new FakeRulesCatalog(vestige);
-            var engine = new PactMagicEngine(contentProvider);
-            var context = new FakeCharacterContext();
+            var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestige }, inner: new GameRulesCatalog());
+            var character = new Character();
+            character.classLevels.Add("Binder");
+            character.assignedAbilityScores["CHA"] = 18;
+            var session = new CharacterSession(character, contentProvider);
 
-            SetStat(context.Effects, NUM_VESTIGES, 1);
-            SetStat(context.Effects, BINDING_CHECK, 5);
-            engine.Initialize(context);
-
-            Assert.AreEqual(20, engine.BindingCheckDc("Aym"));
-            Assert.AreEqual(5, engine.GetBindingCheckBonus().bonus);
+            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            Assert.AreEqual(20, engine.GetElement("Aym").BindingDc);
+            Assert.AreEqual(5, session.GetStatistic("binding check").Value);
         }
 
         // Source: Tome of Magic, p. 10
         [TestMethod]
-        public void PactMagicEngine_ContributeEffects_AddsAbilitiesInfluenceAndDefianceDebuffs() {
+        public void PactMagic_ContributeEffects_AddsAbilitiesInfluenceAndDefianceDebuffs() {
             var vestige = CreateTestVestige("Aym", 1, 15);
-            var contentProvider = new FakeRulesCatalog(vestige);
-            var engine = new PactMagicEngine(contentProvider);
-            var context = new FakeCharacterContext();
-
-            SetStat(context.Effects, NUM_VESTIGES, 1);
-            SetStat(context.Effects, "Armor Class", 10);
-            SetStat(context.Effects, ALL_SAVES, 2);
-            engine.Initialize(context);
+            var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestige }, inner: new GameRulesCatalog());
+            var character = new Character();
+            character.classLevels[0] = "Binder";
+            character.assignedAbilityScores["STR"] = 10;
+            character.assignedAbilityScores["CON"] = 10;
+            var session = new CharacterSession(character, contentProvider);
+            var ctx = (ICharacterContext)session;
+            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
 
             // 1. Good Pact: contributes granted abilities only
-            engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
-            var pool = new EffectPool(context.Character);
-            SetStat(pool, NUM_VESTIGES, 1);
-            SetStat(pool, "Armor Class", 10);
-            SetStat(pool, ALL_SAVES, 2);
-            engine.ContributeEffects(pool, context);
+            engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
+            session.Recalculate();
 
-            // Ability grants +2 competence to Armor Class (10 + 2 = 12)
-            Assert.AreEqual(12, pool.stats["Armor Class"].GetValue(pool, context.EquippedItems).value);
+            // Ability grants +2 competence to STR score (10 base + 2 = 12)
+            Assert.AreEqual(12, session.GetStatistic(STR_SCORE).Value);
             // No influence effect
-            Assert.IsFalse(pool.Effects.Any(e => e.Name.Contains("Influence")));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name.Contains("Influence")));
             // No defiance effect
-            Assert.IsFalse(pool.Effects.Any(e => e.Name == "Vestige defiance"));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"));
 
             // 2. Poor Pact (0 defiances): contributes granted abilities + influence + Vestige defiance (0 penalty)
-            engine.ChangePactState(0, PactState.POOR_PACT);
-            pool = new EffectPool(context.Character);
-            SetStat(pool, NUM_VESTIGES, 1);
-            SetStat(pool, "Armor Class", 10);
-            SetStat(pool, ALL_SAVES, 2);
-            SetStat(pool, ABILITY_CHECKS, 3);
-            SetStat(pool, ALL_SKILLS, 4);
-            engine.ContributeEffects(pool, context);
+            engine.SetSlotState("vestiges", 0, "poor_pact");
+            session.Recalculate();
 
-            Assert.IsTrue(pool.Effects.Any(e => e.Name == "Aym Influence"));
-            Assert.IsTrue(pool.Effects.Any(e => e.Name == "Vestige defiance"));
-            var savesAtZero = pool.stats[ALL_SAVES].GetValue(pool, context.EquippedItems);
-            Assert.AreEqual(2, savesAtZero.value);
-            Assert.IsFalse(savesAtZero.explanation.Any(s => s.Contains("Vestige defiance")));
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"));
+            var savesAtZero = session.GetStatistic(FORT_SAVES);
+            Assert.AreEqual(2, savesAtZero.Value);
+            Assert.IsFalse(savesAtZero.Explanation.Any(s => s.Contains("Vestige defiance")));
 
             // 3. Poor Pact (defied twice): retains influence and applies -2 untyped penalty to saves, checks, skills, and attacks
-            pool.controllableParameters["Aym Influence defied"].Value = 2;
-            Assert.IsTrue(pool.Effects.Any(e => e.Name == "Aym Influence"));
-            var savesDefied = pool.stats[ALL_SAVES].GetValue(pool, context.EquippedItems);
-            Assert.AreEqual(0, savesDefied.value);
-            CollectionAssert.Contains(savesDefied.explanation, "–2 Vestige defiance");
-            Assert.AreEqual(1, pool.stats[ABILITY_CHECKS].GetValue(pool, context.EquippedItems).value);
-            Assert.AreEqual(2, pool.stats[ALL_SKILLS].GetValue(pool, context.EquippedItems).value);
+            session.SetParameter("Aym Influence defied", 2);
+            session.Recalculate();
+
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+            var savesDefied = session.GetStatistic(FORT_SAVES);
+            Assert.AreEqual(0, savesDefied.Value);
+            CollectionAssert.Contains(savesDefied.Explanation.ToList(), "–2 Vestige defiance");
+            Assert.AreEqual(-2, session.GetStatistic(CON_CHECKS).Value);
+            Assert.AreEqual(-2, session.GetStatistic(CONCENTRATION).Value);
         }
 
         // Source: Tome of Magic, p. 10
         [TestMethod]
-        public void PactMagicEngine_DefianceStacksAcrossSingleAndMultipleVestiges() {
+        public void PactMagic_DefianceStacksAcrossSingleAndMultipleVestiges() {
             var character = new Character();
             for (int i = 0; i < 8; i++) {
                 character.classLevels.Add("Binder");
@@ -197,12 +191,12 @@ namespace PlayMore35.Tests {
             character.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "longsword", SizeCategory = 0 };
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
 
-            var pactEngine = session.Subsystems.Get<PactMagicEngine>();
-            Assert.AreEqual(2, pactEngine.SlotCount);
+            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            Assert.AreEqual(2, pactEngine.GetSlotGroup("vestiges").Capacity);
 
-            // Bind Naberius in slot 0 and Savnok in slot 1, both in POOR_PACT
-            pactEngine.BindVestige(0, "Naberius", PactState.POOR_PACT);
-            pactEngine.BindVestige(1, "Savnok", PactState.POOR_PACT);
+            // Bind Naberius in slot 0 and Savnok in slot 1, both in poor_pact
+            pactEngine.AssignSlot("vestiges", 0, "Naberius", "poor_pact", "Binder");
+            pactEngine.AssignSlot("vestiges", 1, "Savnok", "poor_pact", "Binder");
             session.Recalculate();
 
             int baseFort = session.GetStatistic(FORT_SAVES).Value;
@@ -264,75 +258,86 @@ namespace PlayMore35.Tests {
 
         // Source: Tome of Magic, p. 10
         [TestMethod]
-        public void PactMagicEngine_DefianceResetsOnUnbindRebindGoodPactAndTimelineExpiration() {
+        public void PactMagic_DefianceResetsOnUnbindRebindGoodPactAndTimelineExpiration() {
             var character = new Character();
             for (int i = 0; i < 8; i++) {
                 character.classLevels.Add("Binder");
             }
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
-            var pactEngine = session.Subsystems.Get<PactMagicEngine>();
+            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
 
             int baseFort = session.GetStatistic(FORT_SAVES).Value;
 
-            // 1. ChangePactState to GOOD_PACT resets defiance count to 0
-            pactEngine.BindVestige(0, "Naberius", PactState.POOR_PACT);
+            // 1. Changing state to good_pact resets defiance count to 0
+            pactEngine.AssignSlot("vestiges", 0, "Naberius", "poor_pact", "Binder");
             session.Recalculate();
             session.SetParameter("Naberius's influence defied", 2);
             Assert.AreEqual(baseFort - 2, session.GetStatistic(FORT_SAVES).Value);
 
-            pactEngine.ChangePactState(0, PactState.GOOD_PACT);
+            pactEngine.SetSlotState("vestiges", 0, "good_pact");
             session.Recalculate();
             Assert.AreEqual(0, session.Character.paramValues["Naberius's influence defied"]);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
 
-            // Even if switched back to POOR_PACT, defiance count starts at 0
-            pactEngine.ChangePactState(0, PactState.POOR_PACT);
+            // Even if switched back to poor_pact, defiance count starts at 0
+            pactEngine.SetSlotState("vestiges", 0, "poor_pact");
             session.Recalculate();
             Assert.AreEqual(0, session.GetControllableParameters().First(p => p.Name == "Naberius's influence defied").Value);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
 
-            // 2. BindVestige replacing or rebinding a slot resets defiance count to 0
+            // 2. Rebinding a slot resets defiance count to 0
             session.SetParameter("Naberius's influence defied", 3);
             Assert.AreEqual(baseFort - 3, session.GetStatistic(FORT_SAVES).Value);
 
-            pactEngine.BindVestige(0, "Savnok", PactState.POOR_PACT);
+            pactEngine.AssignSlot("vestiges", 0, "Savnok", "poor_pact", "Binder");
             session.Recalculate();
             Assert.AreEqual(0, session.Character.paramValues["Naberius's influence defied"]);
             Assert.AreEqual(0, session.GetControllableParameters().First(p => p.Name == "Savnok's influence defied").Value);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
 
-            // 3. UnbindVestige resets defiance count to 0
+            // 3. Unbind resets defiance count to 0
             session.SetParameter("Savnok's influence defied", 2);
             Assert.AreEqual(baseFort - 2, session.GetStatistic(FORT_SAVES).Value);
 
-            pactEngine.UnbindVestige(0);
+            session.PerformAction(new SheetAction {
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Verb = "unbind"
+            });
             session.Recalculate();
             Assert.AreEqual(0, session.Character.paramValues["Savnok's influence defied"]);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
 
             // 4. 24-hour Timeline expiration unbinds and resets defiance count to 0
-            pactEngine.BindVestige(0, "Naberius", PactState.POOR_PACT);
+            pactEngine.AssignSlot("vestiges", 0, "Naberius", "poor_pact", "Binder");
             session.Recalculate();
             session.SetParameter("Naberius's influence defied", 2);
             Assert.AreEqual(baseFort - 2, session.GetStatistic(FORT_SAVES).Value);
 
-            session.Timeline.Schedule(new UnbindVestigeAction(0), "24 hours");
+            session.Timeline.Schedule(new SheetAction {
+                Name = "Unbind vestige slot 0",
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Verb = "unbind"
+            }, "24 hours");
             session.AdvanceTimeline(new LengthOfTime("24 hours"));
 
-            Assert.IsNull(pactEngine.CurrentVestige(0));
+            Assert.IsTrue(string.IsNullOrEmpty(pactEngine.GetSlot("vestiges", 0)?.Element) || pactEngine.GetSlot("vestiges", 0)?.State == "empty");
             Assert.AreEqual(0, session.Character.paramValues["Naberius's influence defied"]);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
         }
 
         // Source: Tome of Magic, p. 10
         [TestMethod]
-        public void PactMagicEngine_PoorPactInfluence_RendersAndSynchronizesDefiedParameterInTextEffectPanels() {
+        public void PactMagic_PoorPactInfluence_RendersAndSynchronizesDefiedParameterInTextEffectPanels() {
             var character = new Character();
             character.classLevels.Add("Binder");
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
-            var pactEngine = session.Subsystems.Get<PactMagicEngine>();
+            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
 
-            pactEngine.BindVestige(0, "Savnok", PactState.POOR_PACT);
+            pactEngine.AssignSlot("vestiges", 0, "Savnok", "poor_pact", "Binder");
             session.Recalculate();
 
             var socialPanel = new TextEffectPanel {
@@ -383,15 +388,15 @@ namespace PlayMore35.Tests {
                 new SubsystemSlot("Aym", "good_pact", "Binder"),
                 new SubsystemSlot("Ronove", "poor_pact", "Binder")
             };
-            character.Subsystems[PactMagicEngine.SubsystemId] = pactState;
+            character.Subsystems["pact_magic"] = pactState;
 
             JToken json = character.ToJson();
             Assert.IsNotNull(json["subsystems"]);
-            Assert.IsNotNull(json["subsystems"][PactMagicEngine.SubsystemId]);
+            Assert.IsNotNull(json["subsystems"]["pact_magic"]);
 
             var restored = new Character((JObject)json);
-            Assert.IsTrue(restored.Subsystems.ContainsKey(PactMagicEngine.SubsystemId));
-            var restoredPact = restored.Subsystems[PactMagicEngine.SubsystemId];
+            Assert.IsTrue(restored.Subsystems.ContainsKey("pact_magic"));
+            var restoredPact = restored.Subsystems["pact_magic"];
             Assert.IsNotNull(restoredPact);
             Assert.IsTrue(restoredPact.Slots.ContainsKey("vestiges"));
             Assert.AreEqual(2, restoredPact.Slots["vestiges"].Count);
@@ -402,59 +407,67 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void OdricJson_LoadsScheduledUnbindVestigeAction_Correctly() {
+        public void OdricJson_LoadsScheduledUnbindAction_Correctly() {
             var path = TestEnvironment.FindOdricJsonPath();
             var json = JObject.Parse(System.IO.File.ReadAllText(path));
             var character = new Character(json);
 
             Assert.IsNotNull(character.Timeline);
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
-            var engine = session.Subsystems.Get<PactMagicEngine>();
+            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
             Assert.IsNotNull(engine);
-            Assert.AreEqual("Savnok", engine.CurrentVestige(0)?.Name);
+            Assert.AreEqual("Savnok", engine.GetSlot("vestiges", 0)?.Element);
 
             // Advance timeline to scheduled unbind round (43214 - 28835 = 14379 rounds)
             var advanceResult = session.AdvanceTimeline(new LengthOfTime("14379 rounds"));
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, advanceResult.RefreshRequirement);
             Assert.AreEqual(1, advanceResult.ExpiredActions.Count);
-            Assert.IsInstanceOfType(advanceResult.ExpiredActions[0], typeof(UnbindVestigeAction));
-            var unbindAction = (UnbindVestigeAction)advanceResult.ExpiredActions[0];
+            var unbindAction = advanceResult.ExpiredActions[0];
+            Assert.AreEqual("pact_magic", unbindAction.Subsystem);
+            Assert.AreEqual("vestiges", unbindAction.SlotGroup);
             Assert.AreEqual(0, unbindAction.SlotIndex);
-            Assert.IsNull(engine.CurrentVestige(0));
+            Assert.AreEqual("unbind", unbindAction.Verb);
+            Assert.IsTrue(string.IsNullOrEmpty(engine.GetSlot("vestiges", 0)?.Element) || engine.GetSlot("vestiges", 0)?.State == "empty");
         }
 
         [TestMethod]
-        public void PactMagicEngine_SlotLevelValidation_ReflectsVestigeLevelAndMaxVestigeLevel() {
+        public void PactMagic_SlotLevelValidation_ReflectsVestigeLevelAndMaxVestigeLevel() {
             var vestige1 = CreateTestVestige("Aym", 1, 15);
             var vestige2 = CreateTestVestige("Savnok", 2, 15);
-            var contentProvider = new FakeRulesCatalog(vestige1, vestige2);
-            var engine = new PactMagicEngine(contentProvider);
-            var context = new FakeCharacterContext();
+            var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestige1, vestige2 }, inner: new GameRulesCatalog());
+            var character = new Character();
+            character.classLevels[0] = "Binder";
+            character.assignedAbilityScores["STR"] = 10;
+            character.assignedAbilityScores["CON"] = 10;
+            var session = new CharacterSession(character, contentProvider);
+            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
 
-            SetStat(context.Effects, NUM_VESTIGES, 2);
-            SetStat(context.Effects, MAX_VESTIGE_LEVEL, 1);
-            engine.Initialize(context);
-
-            // Empty slots are valid
-            Assert.IsTrue(engine.IsSlotLevelValid(0));
-            Assert.IsTrue(engine.IsSlotLevelValid(1));
+            // Empty slot is valid
+            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
 
             // Slot 0: Level 1 vestige is valid
-            engine.BindVestige(0, "Aym");
-            Assert.IsTrue(engine.IsSlotLevelValid(0));
+            engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
+            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
 
-            // Slot 1: Level 2 vestige is bound without exception (Enable, Don't Enforce)
-            engine.BindVestige(1, "Savnok");
-            Assert.AreEqual("Savnok", engine.GetSlot(1).VestigeName);
-            Assert.IsFalse(engine.IsSlotLevelValid(1));
+            // Slot 0: Level 2 vestige is bound without exception (Enable, Don't Enforce)
+            engine.AssignSlot("vestiges", 0, "Savnok", "good_pact", "Binder");
+            Assert.AreEqual("Savnok", engine.GetSlot("vestiges", 0).Element);
+            Assert.IsFalse(engine.IsSlotLevelValid("vestiges", 0));
 
-            // Dynamically increase max vestige level to 2
-            SetStat(context.Effects, MAX_VESTIGE_LEVEL, 2);
-            Assert.IsTrue(engine.IsSlotLevelValid(1));
+            // Dynamically increase max vestige level to 2 (Binder level 3)
+            character.classLevels.Add("Binder");
+            character.classLevels.Add("Binder");
+            session.Recalculate();
+            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
 
             // Unbind resets to valid
-            engine.UnbindVestige(1);
-            Assert.IsTrue(engine.IsSlotLevelValid(1));
+            session.PerformAction(new SheetAction {
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Verb = "unbind"
+            });
+            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
         }
     }
 }

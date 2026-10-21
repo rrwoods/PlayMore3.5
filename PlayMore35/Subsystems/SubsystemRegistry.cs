@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Global;
 using PlayMore35.Subsystems.Maneuvers;
-using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemRegistry {
         public static void RegisterDefaultActionParsers() {
-            SheetAction.RegisterParser(UnbindVestigeAction.TryParse);
             SheetAction.RegisterParser(ManeuverSheetAction.TryParse);
         }
 
         public static SubsystemRegistry CreateDefault() {
             var registry = new SubsystemRegistry();
-            registry.Register(new PactMagicEngine(), "vestige");
+            var catalog = new Rules.GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            if (pactDef != null) {
+                registry.Register(new SubsystemEngine(pactDef), "vestige");
+            }
             registry.Register(new MartialManeuverEngine(), "maneuver");
             return registry;
         }

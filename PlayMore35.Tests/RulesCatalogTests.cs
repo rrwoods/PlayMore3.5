@@ -12,7 +12,6 @@ using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
-using PlayMore35.Subsystems.PactMagic;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
@@ -331,32 +330,34 @@ namespace PlayMore35.Tests {
                 new JProperty("name", "Test Vestige"),
                 new JProperty("level", 1),
                 new JProperty("binding DC", 22),
-                new JProperty("influence", influence.ToJson()),
-                new JProperty("abilities", new JArray(ability.ToJson()))
+                new JProperty("kinds", new JObject(
+                    new JProperty("abilities", new JArray(ability.ToJson())),
+                    new JProperty("influence", new JArray(influence.ToJson()))
+                ))
             );
             var customVestige = new Vestige(json);
             var customCatalog = new FakeRulesCatalog(customVestige);
 
             // Engine constructed with default catalog
-            var engine = new PactMagicEngine();
+            var defaultCatalog = new GameRulesCatalog();
+            var engine = new SubsystemEngine(defaultCatalog.GetSubsystem("pact_magic"));
             var context = new FakeCharacterContext(catalog: customCatalog);
-            context.Effects.AddStat(new Statistic(PactMagicEngine.NUM_VESTIGES));
-            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, ModifierTypes.UNTYPED)));
-            context.Effects.AddStat(new Statistic(PactMagicEngine.MAX_VESTIGE_LEVEL));
-            context.Effects.AddEffect(new Effect("Max Level").AddModifier(PactMagicEngine.MAX_VESTIGE_LEVEL, new Modifier(5, ModifierTypes.UNTYPED)));
+            context.Effects.AddStat(new Statistic("number of vestiges"));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(1, ModifierTypes.UNTYPED)));
+            context.Effects.AddStat(new Statistic("maximum vestige level"));
+            context.Effects.AddEffect(new Effect("Max Level").AddModifier("maximum vestige level", new Modifier(5, ModifierTypes.UNTYPED)));
 
-            // Before initialize, engine does not know about customVestige
-            Assert.AreEqual(0, engine.BindingCheckDc("Test Vestige"));
+            // Before initialize, engine uses default catalog
+            Assert.IsNull(engine.GetElement("Test Vestige"));
 
             // Initialize resolves context.Catalog
             engine.Initialize(context);
 
-            Assert.AreEqual(22, engine.BindingCheckDc("Test Vestige"), "Initialized engine must resolve DC from context.Catalog.");
-            var available = engine.AvailableVestiges().ToList();
-            Assert.IsTrue(available.Any(v => v.Name == "Test Vestige"), "AvailableVestiges must include vestige from context.Catalog.");
+            Assert.IsNotNull(engine.GetElement("Test Vestige"), "Initialized engine must resolve custom vestige from context.Catalog.");
+            Assert.AreEqual(22, engine.GetElement("Test Vestige").BindingDc, "Initialized engine must resolve DC from context.Catalog.");
 
-            engine.BindVestige(0, "Test Vestige");
-            Assert.AreEqual("Test Vestige", engine.CurrentVestige(0)?.Name);
+            engine.AssignSlot("vestiges", 0, "Test Vestige", "good_pact", "Binder");
+            Assert.AreEqual("Test Vestige", engine.GetSlotElement("vestiges", 0));
         }
 
         [TestMethod]

@@ -6,7 +6,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
-using PlayMore35.Subsystems.PactMagic;
+using PlayMore35.Subsystems;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
@@ -157,10 +157,10 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(SOCIAL, panel.EffectsPanel.Tag);
 
                 // Bind a vestige with Social influence (Aym) with poor pact so influence is contributed
-                var pactEngine = session.Subsystems.Get<PactMagicEngine>();
-                Assert.IsNotNull(pactEngine, "PactMagicEngine should be registered.");
-                Assert.IsTrue(pactEngine.IsActive, "PactMagicEngine should be active for Binder.");
-                pactEngine.BindVestige(0, "Aym", PactState.POOR_PACT);
+                var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+                Assert.IsNotNull(pactEngine, "pact_magic SubsystemEngine should be registered.");
+                Assert.IsTrue(pactEngine.IsActive, "pact_magic SubsystemEngine should be active for Binder.");
+                pactEngine.AssignSlot("vestiges", 0, "Aym", "poor_pact", "Binder");
                 session.Recalculate();
 
                 var textEffects = session.GetTextEffects();

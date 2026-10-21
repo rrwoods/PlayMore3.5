@@ -167,7 +167,10 @@
       "43214": [
         {
           "name": "Unbind vestige slot 0",
-          "unbind_vestige": 0
+          "subsystem": "pact_magic",
+          "slot_group": "vestiges",
+          "slot_index": 0,
+          "verb": "unbind"
         }
       ]
     },

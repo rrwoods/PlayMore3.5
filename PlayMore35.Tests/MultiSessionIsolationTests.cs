@@ -9,7 +9,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
-using PlayMore35.Subsystems.PactMagic;
+using PlayMore35.Subsystems;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -154,13 +154,12 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Savnok", pactMagic.Slots["vestiges"][0].Element);
             Assert.AreEqual("poor_pact", pactMagic.Slots["vestiges"][0].State);
 
-            var pactEngine = session.Subsystems.Get<PactMagicEngine>();
-            Assert.IsNotNull(pactEngine, "PactMagicEngine should be registered.");
-            Assert.IsTrue(pactEngine.IsActive, "PactMagicEngine should be active for Binder.");
-            Assert.AreEqual(1, pactEngine.SlotCount);
-            Assert.AreEqual("Savnok", pactEngine.GetSlot(0)?.VestigeName);
-            Assert.AreEqual(PactState.POOR_PACT, pactEngine.GetSlot(0)?.State);
-            Assert.AreEqual("Savnok", pactEngine.CurrentVestige(0)?.Name);
+            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            Assert.IsNotNull(pactEngine, "pact_magic SubsystemEngine should be registered.");
+            Assert.IsTrue(pactEngine.IsActive, "pact_magic SubsystemEngine should be active for Binder.");
+            Assert.AreEqual(1, pactEngine.GetSlotCapacity("vestiges"));
+            Assert.AreEqual("Savnok", pactEngine.GetSlotElement("vestiges", 0));
+            Assert.AreEqual("poor_pact", pactEngine.GetSlotState("vestiges", 0));
 
             // Assert Equipment
             Assert.IsNotNull(session.Character.equipped.PrimaryHandWeapon);

@@ -6,7 +6,7 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
-using PlayMore35.Subsystems.PactMagic;
+using PlayMore35.Rules;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -55,14 +55,19 @@ namespace PlayMore35.Tests {
         public void SheetAction_RegisterParser_AndFromJson_DispatchesPolymorphicActions() {
             var vestigeJson = new JObject(
                 new JProperty("name", "Unbind Slot 1"),
-                new JProperty("unbind_vestige", 1)
+                new JProperty("subsystem", "pact_magic"),
+                new JProperty("slot_group", "vestiges"),
+                new JProperty("slot_index", 1),
+                new JProperty("verb", "unbind")
             );
             var parsed = SheetAction.FromJson(vestigeJson);
 
-            Assert.IsInstanceOfType(parsed, typeof(UnbindVestigeAction));
-            var unbindAction = (UnbindVestigeAction)parsed;
-            Assert.AreEqual(1, unbindAction.SlotIndex);
-            Assert.AreEqual("Unbind Slot 1", unbindAction.Name);
+            Assert.IsInstanceOfType(parsed, typeof(SheetAction));
+            Assert.AreEqual("pact_magic", parsed.Subsystem);
+            Assert.AreEqual("vestiges", parsed.SlotGroup);
+            Assert.AreEqual(1, parsed.SlotIndex);
+            Assert.AreEqual("unbind", parsed.Verb);
+            Assert.AreEqual("Unbind Slot 1", parsed.Name);
 
             var maneuverJson = new JObject(
                 new JProperty("name", "Wind Stride (Swordsage)"),
@@ -81,7 +86,6 @@ namespace PlayMore35.Tests {
             );
             var parsedStandard = SheetAction.FromJson(standardJson);
             Assert.IsInstanceOfType(parsedStandard, typeof(SheetAction));
-            Assert.IsNotInstanceOfType(parsedStandard, typeof(UnbindVestigeAction));
             Assert.IsNotInstanceOfType(parsedStandard, typeof(ManeuverSheetAction));
         }
 
@@ -111,44 +115,66 @@ namespace PlayMore35.Tests {
             Assert.IsNotInstanceOfType(postResetParsed, typeof(CustomTestAction));
             Assert.IsInstanceOfType(postResetParsed, typeof(SheetAction));
 
-            var unbindJson = new JObject(new JProperty("unbind_vestige", 0));
-            var unbindParsed = SheetAction.FromJson(unbindJson);
-            Assert.IsInstanceOfType(unbindParsed, typeof(UnbindVestigeAction));
+            var maneuverJson = new JObject(new JProperty("maneuver_action", "Wind Stride"));
+            var maneuverParsed = SheetAction.FromJson(maneuverJson);
+            Assert.IsInstanceOfType(maneuverParsed, typeof(ManeuverSheetAction));
         }
 
         [TestMethod]
-        public void UnbindVestigeAction_SerializesAndPerforms_DirectlyOnPactMagicEngine() {
-            var action = new UnbindVestigeAction(2);
+        public void DeclarativeSubsystemAction_SerializesAndPerforms_DirectlyOnSubsystemEngine() {
+            var action = new SheetAction {
+                Name = "Unbind vestige slot 2",
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 2,
+                Verb = "unbind"
+            };
             var json = (JObject)action.ToJson();
 
-            Assert.AreEqual(2, (int)json["unbind_vestige"]);
+            Assert.AreEqual("pact_magic", (string)json["subsystem"]);
+            Assert.AreEqual("vestiges", (string)json["slot_group"]);
+            Assert.AreEqual(2, (int)json["slot_index"]);
+            Assert.AreEqual("unbind", (string)json["verb"]);
 
             var deserialized = SheetAction.FromJson(json);
-            Assert.IsInstanceOfType(deserialized, typeof(UnbindVestigeAction));
+            Assert.IsNotNull(deserialized);
             Assert.IsTrue(action.Matches(deserialized));
 
             var (context, _, _) = CreateTestContext();
-            var engine = new PactMagicEngine();
+            var catalog = new GameRulesCatalog();
+            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"));
             context.Subsystems.Register(engine);
+            context.Effects.AddStat(new Statistic("number of vestiges"));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(3, ModifierTypes.UNTYPED)));
             engine.Initialize(context);
+            engine.AssignSlot("vestiges", 2, "Aym", "good_pact", "Binder");
+            Assert.AreEqual("Aym", engine.GetSlotElement("vestiges", 2));
 
             var req = deserialized.Perform(context);
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
+            Assert.IsNull(engine.GetSlotElement("vestiges", 2));
+            Assert.AreEqual("empty", engine.GetSlotState("vestiges", 2));
         }
 
         [TestMethod]
-        public void UnbindVestigeAction_MatchesAndDefaultName_BehavesCorrectly() {
-            var actionSlot0 = new UnbindVestigeAction(0);
-            var actionSlot1 = new UnbindVestigeAction(1);
+        public void DeclarativeSubsystemAction_MatchesAndDefaultName_BehavesCorrectly() {
+            var actionSlot0 = new SheetAction { Subsystem = "pact_magic", SlotGroup = "vestiges", SlotIndex = 0, Verb = "unbind" };
+            var actionSlot1 = new SheetAction { Subsystem = "pact_magic", SlotGroup = "vestiges", SlotIndex = 1, Verb = "unbind" };
             var standardAction = new SheetAction { Name = "Unbind vestige slot 0" };
 
-            Assert.IsTrue(actionSlot0.Matches(new UnbindVestigeAction(0)));
+            Assert.IsTrue(actionSlot0.Matches(new SheetAction { Subsystem = "pact_magic", SlotGroup = "vestiges", SlotIndex = 0, Verb = "unbind" }));
             Assert.IsFalse(actionSlot0.Matches(actionSlot1));
             Assert.IsFalse(actionSlot0.Matches(standardAction));
             Assert.IsFalse(actionSlot0.Matches(null));
 
-            var jsonWithoutName = new JObject(new JProperty("unbind_vestige", 3));
-            var parsed = new UnbindVestigeAction(jsonWithoutName);
+            var json = new JObject(
+                new JProperty("name", "Unbind vestige slot 3"),
+                new JProperty("subsystem", "pact_magic"),
+                new JProperty("slot_group", "vestiges"),
+                new JProperty("slot_index", 3),
+                new JProperty("verb", "unbind")
+            );
+            var parsed = SheetAction.FromJson(json);
             Assert.AreEqual("Unbind vestige slot 3", parsed.Name);
             Assert.AreEqual(3, parsed.SlotIndex);
 
@@ -263,22 +289,23 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void Odric_StandaloneDeserialization_DeserializesUnbindVestigeActionWithoutSessionOrRegistration() {
+        public void Odric_StandaloneDeserialization_DeserializesDeclarativeSubsystemActionWithoutSessionOrRegistration() {
             var odricPath = TestEnvironment.FindOdricJsonPath();
             var json = JObject.Parse(File.ReadAllText(odricPath));
 
             var character = new Character(json);
 
             var scheduledActions = character.Timeline.ScheduledActions.Values.SelectMany(x => x).ToList();
-            var unbindAction = scheduledActions.OfType<UnbindVestigeAction>().FirstOrDefault();
+            var unbindAction = scheduledActions.FirstOrDefault(a => a.Subsystem == "pact_magic" && a.Verb == "unbind");
 
-            Assert.IsNotNull(unbindAction, "Scheduled unbind_vestige action in Odric.json should deserialize as UnbindVestigeAction.");
+            Assert.IsNotNull(unbindAction, "Scheduled unbind action in Odric.json should deserialize as declarative SheetAction.");
+            Assert.AreEqual("vestiges", unbindAction.SlotGroup);
             Assert.AreEqual(0, unbindAction.SlotIndex);
             Assert.AreEqual("Unbind vestige slot 0", unbindAction.Name);
         }
 
         [TestMethod]
-        public void Timeline_StandaloneDeserialization_DeserializesUnbindVestigeActionWithoutSessionOrRegistration() {
+        public void Timeline_StandaloneDeserialization_DeserializesDeclarativeSubsystemActionWithoutSessionOrRegistration() {
             var timelineJson = new JObject(
                 new JProperty("round zero", "2026-10-06T20:11:30.0000000"),
                 new JProperty("encounter start time", "2026-10-06T20:12:00.0000000"),
@@ -289,7 +316,10 @@ namespace PlayMore35.Tests {
                     new JProperty("15", new JArray(
                         new JObject(
                             new JProperty("name", "Unbind vestige slot 0"),
-                            new JProperty("unbind_vestige", 0)
+                            new JProperty("subsystem", "pact_magic"),
+                            new JProperty("slot_group", "vestiges"),
+                            new JProperty("slot_index", 0),
+                            new JProperty("verb", "unbind")
                         )
                     ))
                 )),
@@ -300,9 +330,10 @@ namespace PlayMore35.Tests {
 
             var actions = timeline.ScheduledActions[15];
             Assert.AreEqual(1, actions.Count);
-            Assert.IsInstanceOfType(actions[0], typeof(UnbindVestigeAction));
-            var unbind = (UnbindVestigeAction)actions[0];
-            Assert.AreEqual(0, unbind.SlotIndex);
+            Assert.AreEqual("pact_magic", actions[0].Subsystem);
+            Assert.AreEqual("vestiges", actions[0].SlotGroup);
+            Assert.AreEqual(0, actions[0].SlotIndex);
+            Assert.AreEqual("unbind", actions[0].Verb);
         }
     }
 }
