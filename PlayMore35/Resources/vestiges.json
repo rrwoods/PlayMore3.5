@@ -1,623 +1,815 @@
-[
-  {
-    "name": "Amon",
-    "level": 1,
-    "binding DC": 20,
-    "influence": {
-      "name": "Amon's influence",
-      "text": [
+{
+  "subsystem": {
+    "id": "pact_magic",
+    "name": "Pact Magic",
+    "slot_groups": {
+      "vestiges": {
+        "capacity_stat": "number of vestiges",
+        "max_level_stat": "maximum vestige level",
+        "states": [
+          "empty",
+          "good_pact",
+          "poor_pact",
+          "suppressed"
+        ],
+        "default_state": "empty"
+      }
+    },
+    "verbs": {
+      "unbind": [
         {
-          "category": "Condition",
-          "text": "You must save against beneficial spells cast by worshippers of fire, sun, and law dieties."
+          "type": "transition",
+          "slot_group": "vestiges",
+          "selector": "invoked",
+          "from": "*",
+          "to": "empty"
         }
       ]
     },
-    "abilities": [
+    "projections": [
       {
-        "name": "Darkvision 60 ft.",
-        "text": [
-          {
-            "category": "Senses",
-            "text": "You can see in the dark up to 60 ft."
-          }
+        "slot_group": "vestiges",
+        "state": "good_pact",
+        "kinds": [
+          "abilities"
         ]
       },
       {
-        "name": "Fire Breath",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "You breathe a line of fire, extending 10 feet per effective binder level ({{effective binder level}}), maximum 50 feet, dealing 1d6 fire damage per binder level, Reflex halves.",
-            "resource": {
-              "action": "std",
-              "uses": 1,
-              "recharge": "5 rounds"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Ram Attack",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "As long as you show Amon's sign, you have a natural ram attack.  It deals 1d6 damage plus 1.5 times your Strength bonus.  On a charge, it deals an additional 1d8 damage."
-          }
+        "slot_group": "vestiges",
+        "state": "poor_pact",
+        "kinds": [
+          "abilities",
+          "influence"
         ]
       }
     ]
   },
-  {
-    "name": "Aym",
-    "level": 1,
-    "binding DC": 15,
-    "influence": {
-      "name": "Aym's influence",
-      "text": [
-        {
-          "category": "Social",
-          "text": "You begrudge every coin or item of value that you or your group must give to another.\n\nYou must give a copper, silver, gold, or platinum piece to every dwarf you meet within 1 minute of learning their name."
-        }
-      ]
-    },
-    "abilities": [
-      {
-        "name": "Dwarven Step",
-        "flags": [ "Can't be encumbered" ]
-      },
-      {
-        "name": "Halo of Fire",
-        "text": [
+  "elements": [
+    {
+      "name": "Amon",
+      "level": 1,
+      "binding DC": 20,
+      "kinds": {
+        "abilities": [
           {
-            "category": "React",
-            "text": "Any opponent that strikes you with a non-reach melee weapon takes 1d6 fire damage."
+            "name": "Darkvision 60 ft.",
+            "text": [
+              {
+                "category": "Senses",
+                "text": "You can see in the dark up to 60 ft."
+              }
+            ]
           },
           {
-            "category": "Atk Options",
-            "text": "Your touch attacks deal an additional 1d6 fire damage."
-          }
-        ]
-      },
-      {
-        "name": "Improved Sunder",
-        "text": [
+            "name": "Fire Breath",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "You breathe a line of fire, extending 10 feet per effective binder level ({{effective binder level}}), maximum 50 feet, dealing 1d6 fire damage per binder level, Reflex halves.",
+                "resource": {
+                  "action": "std",
+                  "uses": 1,
+                  "recharge": "5 rounds"
+                }
+              }
+            ]
+          },
           {
-            "category": "Atk Options",
-            "text": "When you strike at an object held or carried by an opponent, you don't provoke an attack of opportunity, and you get a +4 bonus on the attack roll."
-          }
-        ]
-      },
-      {
-        "name": "Medium Armor Proficiency",
-        "armor proficiencies": [ "MEDIUM" ]
-      },
-      {
-        "name": "Resistance to Fire",
-        "text": [
-          {
-            "category": "Resist",
-            "text": "fire 10"
-          }
-        ]
-      },
-      {
-        "name": "Ruinous Attack",
-        "active": {
-          "conditional": {
-            "left": { "stat value": "effective binder level" },
-            "relation": "LESS_THAN",
-            "right": { "fixed": 10 }
-          }
-        },
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Your melee attacks deal double damage to objects."
-          }
-        ]
-      },
-      {
-        "name": "Ruinous Attack",
-        "active": {
-          "conditional": {
-            "left": { "stat value": "effective binder level" },
-            "relation": "GREATER_THAN_OR_EQUAL",
-            "right": { "fixed": 10 }
-          }
-        },
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Your melee attacks deal double damage to objects.\n\nYour melee attacks overcome DR/adamantine."
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "name": "Leraje",
-    "level": 1,
-    "binding DC": 15,
-    "influence": {
-      "name": "Leraje's influence",
-      "text": [
-        {
-          "category": "Actions",
-          "text": "You can't attack elves, half-elves, drow, or any other creature of elven blood."
-        },
-        {
-          "category": "Social",
-          "text": "You are quiet and unassuming."
-        }
-      ]
-    },
-    "abilities": [
-      {
-        "name": "Hide Bonus (Leraje)",
-        "modifiers": [
-          {
-            "affects": "Hide",
-            "mod": {
-              "type": "competence",
-              "amounts": [ { "fixed": 4 } ]
-            }
-          }
-        ]
-      },
-      {
-        "name": "Low-Light Vision",
-        "text": [
-          {
-            "category": "Senses",
-            "text": "You can see twice as far as normal in dim light.  If you have low-light vision from another effect, you can see thrice as far instead."
-          }
-        ]
-      },
-      {
-        "name": "Precise Shot",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "You can make ranged attacks at an opponent engaged in melee without the standard -4 attack roll penalty."
-          }
-        ]
-      },
-      {
-        "name": "Ricochet",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Make a single ranged attack against two adjacent targets, using one attack roll and one damage roll for both targets.  Apply any precision damage to only the first target struck, choosing which target this is before any rolls are made.",
-            "resource": {
-              "action": "std",
-              "recharge": "at-will"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Bow Proficiencies",
-        "weapon proficiencies": [
-          {
-            "name": [
-              "composite longbow",
-              "composite shortbow",
-              "longbow",
-              "shortbow"
+            "name": "Ram Attack",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "As long as you show Amon's sign, you have a natural ram attack.  It deals 1d6 damage plus 1.5 times your Strength bonus.  On a charge, it deals an additional 1d8 damage."
+              }
             ]
           }
         ],
-        "text": [
+        "influence": [
           {
-            "category": "Atk Options",
-            "text": "If you are proficient with the composite longbow without binding Leraje, you get a +1 competence bonus on attack rolls with it.  The same is true for the composite shortbow, the longbow, and the shortbow."
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "name": "Naberius",
-    "level": 1,
-    "binding DC": 15,
-    "influence": {
-      "name": "Naberius's influence",
-      "text": [
-        {
-          "category": "Social",
-          "text": "Whenever you are presented with a pulpit, a stage, a talking stick, or any other place or object designed to give a speaker the floor, you must immediately seize the opportunity to speak, and do so for {{effective binder level}} round(s).  If another tries to take control of the discourse, you must shout them down or mock them."
-        }
-      ]
-    },
-    "abilities": [
-      {
-        "name": "Disguise Self",
-        "text": [
-          {
-            "category": "Special Actions",
-            "text": "disguise self",
-            "resource": {
-              "action": "std",
-              "recharge": "at-will"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Faster Ability Healing",
-        "text": [
-          {
-            "category": "Special Qualities",
-            "text": "Each of your damaged ability scores heals 1 each round, and each drained score heals 1 each hour."
-          }
-        ]
-      },
-      {
-        "name": "Naberius's Skills",
-        "text": [
-          {
-            "category": "Skills",
-            "text": "Choose {{CON bonus}} skills in which you have no ranks that can't be used untrained.  You can make checks in those skills."
-          }
-        ]
-      },
-      {
-        "name": "Persuasive Words",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "One creature within 30 feet must make a Will save (DC {{vestige save DC}}) or be affected as if by a command spell, cast by you.  If your effective binder level ({{effective binder level}}) is 14 or higher, they are affected as if by suggestion instead.",
-            "resource": {
-              "action": "std",
-              "uses": 1,
-              "recharge": "5 rounds"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Silver Tongue",
-        "text": [
-          {
-            "category": "Skills",
-            "text": "You can take 10 on Diplomacy and Bluff checks when distracted or threatened.  You can make a rushed Diplomacy check as a standard action and take no penalty."
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "name": "Ronove",
-    "level": 1,
-    "binding DC": 15,
-    "influence": {
-      "name": "Ronove's influence",
-      "text": [
-        {
-          "category": "Social",
-          "text": "You feel the constant need to prove your worth."
-        },
-        {
-          "category": "Condition",
-          "text": "You can't consume food, beverages, or potions."
-        }
-      ]
-    },
-    "abilities": [
-      {
-        "name": "Magic Attacks",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Your melee attacks overcome DR/magic."
-          }
-        ]
-      },
-      {
-        "name": "Cold Iron Attacks",
-        "active": {
-          "conditional": {
-            "left": { "stat value": "effective binder level" },
-            "relation": "GREATER_THAN_OR_EQUAL",
-            "right": { "fixed": 7 }
-          }
-        },
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Your melee attacks overcome DR/cold iron."
-          }
-        ]
-      },
-      {
-        "name": "Far Hand (objects)",
-        "text": [
-          {
-            "category": "Special Actions",
-            "text": "Lift and move an object to which you have line of effect, as long as it remains within 10 feet per effective binder level ({{effective binder level}}).  The force manipulating the object is considered Medium, with a Strength score of {{effective binder level}}.  During the swift action you can move the object up to 5 feet per effective binder level ({{effective binder level}}).  If the object is over a light load for a {{effective binder level}}-Strength creature, you can move it only half that distance.  If it's over a light load for you, this is a move action instead.  You can't lift it more than 5 feet off the ground.  You can maintain this control each round with a swift action (or move action, if appropriate).",
-            "resource": {
-              "action": "swift",
-              "recharge": "at-will"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Far Hand (enemies)",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Choose an enemy within 10 feet per effective binder level ({{effective binder level}}).  An unseen force with {{effective binder level}} Strength deals 1d6 to that enemy and bull rushes it in a direction of your choice, with a +2 bonus on the check.",
-            "resource": {
-              "action": "swift",
-              "uses": 1,
-              "recharge": "5 rounds"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Ronove's Fists",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "You don't provoke attacks of opportunity from armed opponents when you attack them unarmed, and you get an attack of opportunity against an opponent making an unarmed attack against you while you are unarmed.\n\nYour unarmed strikes can deal lethal or nonlethal damage, at your option.  Your unarmed strike deals damage like a monk {{effective binder level}}."
-          }
-        ]
-      },
-      {
-        "name": "Sprint",
-        "modifiers": [
-          {
-            "affects": "Land speed",
-            "mod": {
-              "type": "enhancement",
-              "amounts": [ { "fixed": 10 } ]
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "name": "Dahlver-Nar",
-    "level": 2,
-    "binding DC": 17,
-    "influence": {
-      "name": "Dahlver-Nar's influence",
-      "text": [
-        {
-          "category": "Actions",
-          "text": "You shift quickly from distraction to extreme focus and back again.  Sometimes you stare blankly off into space, and at other times you gaze intently at the person or task at hand.  Since Dahlver-Nar dislikes any task that requires more than 1 round of concentration (such as some spellcasting, concentration on an effect, or any action that requires a Concentration check), he requires that you undertake no such activities while under his influence."
-        }
-      ]
-    },
-    "abilities": [
-      {
-        "name": "Mad Soul",
-        "text": [
-          {
-            "category": "Immune",
-            "text": "Wis damage/drain, madness, insanity, confusion"
-          }
-        ]
-      },
-      {
-        "name": "Maddening Moan",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Every creature within a 30-foot spread must make a Will save (DC {{vestige save DC}}) or be dazed for 1 round.  This is a mind-affecting sonic ability.",
-            "resource": {
-              "action": "std",
-              "uses": 1,
-              "recharge": "5 rounds"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Natural Armor",
-        "modifiers": [
-          {
-            "affects": "natural armor",
-            "mod": {
-              "type": "enhancement",
-              "amounts": [
-                {
-                  "multiply": {
-                    "variable": {
-                      "stat value": "CON modifier"
-                    },
-                    "scalar": 0.5
-                  }
+            "name": "Amon's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Amon's influence",
+                "adjust": {
+                  "Amon's influence defied": 1
                 }
-              ]
-            }
-          }
-        ]
-      },
-      {
-        "name": "Shield Self",
-        "text": [
-          {
-            "category": "Def Options",
-            "text": "Designate one creature within 10 feet per effective binder level ({{effective binder level}}).  As long as that creature remains within range, you take only half damage from all effects that deal hit point damage, and it takes the rest.  This effect ends immediately when you choose another creature, or you die, or it dies.  An unwilling target can make a Will save (DC {{vestige save DC}}) to negate the effect.",
-            "resource": {
-              "action": "std",
-              "recharge": "at-will"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "name": "Haagenti",
-    "level": 2,
-    "binding DC": 17,
-    "influence": {
-      "name": "Haagenti's influence",
-      "text": [
-        {
-          "category": "Social",
-          "text": "You feel ashamed and occasionally bashful in the presence of beautiful creatures.\n\nYou must give deference to any creature you perceive as more attractive or charismatic than yourself.  This deference can be a bow, a salute, opening a door for the creature, not speaking until spoken to, or any other gesture that acknowledges the creature as superior to you.  You must constantly treat any such creature with respect."
-        }
-      ]
-    },
-    "abilities": [
-      {
-        "name": "Confusing Touch",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Make a touch attack.  If you hit, the target must make a Will save (DC {{vestige save DC}}) or be confused for 1 round per three effective binder levels ({{effective binder level}}).  At effective binder level 19, this is a maze effect instead.",
-            "resource": {
-              "action": "attack",
-              "uses": 1,
-              "recharge": "5 rounds"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Immunity to Transformation",
-        "text": [
-          {
-            "category": "Def Options",
-            "text": "At the beginning of your turn, if you're under the effect of form-changing magic such as polymorph or petrification, you can end the effect as a free action."
-          }
-        ]
-      },
-      {
-        "name": "Shield Proficiency",
-        "shield proficiencies": [ "tower" ]
-      },
-      {
-        "name": "Weapon Proficiency",
-        "weapon proficiencies": [
-          {
-            "name": [
-              "battleaxe",
-              "greataxe",
-              "handaxe",
-              "throwing axe"
+              }
+            ],
+            "text": [
+              {
+                "category": "Condition",
+                "text": "You must save against beneficial spells cast by worshippers of fire, sun, and law dieties."
+              }
             ]
           }
         ]
       }
-    ]
-  },
-  {
-    "name": "Malphas",
-    "level": 2,
-    "binding DC": 15,
-    "influence": {
-      "name": "Malphas's influence",
-      "text": [
-        {
-          "category": "Social",
-          "text": "You fall in love too easily.  A kind word or friendly gesture can cause you to devote yourself entirely to another person.  Should that person reject your affection, your broken heart mends the moment another attractive person shows you some kindness."
-        },
-        {
-          "category": "Actions",
-          "text": "If you have access to poison, you must employ it against your foes at every opportunity."
-        }
-      ]
     },
-    "abilities": [
-      {
-        "name": "Bird's Eye Viewing",
-        "text": [
+    {
+      "name": "Aym",
+      "level": 1,
+      "binding DC": 15,
+      "kinds": {
+        "abilities": [
           {
-            "category": "Senses",
-            "text": "At will, you can summon a raven (or dove, using a raven's statistics), appearing perched on your shoulder.  You have complete control over its actions, and you can see what it sees and hear what it hears.  Use the bird's skill checks to determine the results of its actions and observations (for example, Bluff, Search, Spot, and Listen) but your own to derive information (for example, Knowledge, Sense Motive, and Spellcraft).  If you have the trapfinding ability, you can use the bird to find traps that don't require it to manipulate an object.\n\nThe bird can't talk.  It remains until you summon another, mentally dismiss it (as a standard action), or stop binding with Malphas."
+            "name": "Dwarven Step",
+            "flags": [
+              "Can't be encumbered"
+            ]
+          },
+          {
+            "name": "Halo of Fire",
+            "text": [
+              {
+                "category": "React",
+                "text": "Any opponent that strikes you with a non-reach melee weapon takes 1d6 fire damage."
+              },
+              {
+                "category": "Atk Options",
+                "text": "Your touch attacks deal an additional 1d6 fire damage."
+              }
+            ]
+          },
+          {
+            "name": "Improved Sunder",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "When you strike at an object held or carried by an opponent, you don't provoke an attack of opportunity, and you get a +4 bonus on the attack roll."
+              }
+            ]
+          },
+          {
+            "name": "Medium Armor Proficiency",
+            "armor proficiencies": [
+              "MEDIUM"
+            ]
+          },
+          {
+            "name": "Resistance to Fire",
+            "text": [
+              {
+                "category": "Resist",
+                "text": "fire 10"
+              }
+            ]
+          },
+          {
+            "name": "Ruinous Attack",
+            "active": {
+              "conditional": {
+                "left": {
+                  "stat value": "effective binder level"
+                },
+                "relation": "LESS_THAN",
+                "right": {
+                  "fixed": 10
+                }
+              }
+            },
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Your melee attacks deal double damage to objects."
+              }
+            ]
+          },
+          {
+            "name": "Ruinous Attack",
+            "active": {
+              "conditional": {
+                "left": {
+                  "stat value": "effective binder level"
+                },
+                "relation": "GREATER_THAN_OR_EQUAL",
+                "right": {
+                  "fixed": 10
+                }
+              }
+            },
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Your melee attacks deal double damage to objects.\n\nYour melee attacks overcome DR/adamantine."
+              }
+            ]
           }
-        ]
-      },
-      {
-        "name": "Invisibility",
-        "text": [
+        ],
+        "influence": [
           {
-            "category": "Special Actions",
-            "text": "Your effective binder level ({{effective binder level}}) determines the type of action this ability requires: full-round at 1st, standard at 5th, move at 10th, swift at 15th.\n\nYou are affected as if by an invisibility spell that lasts {{effective binder level}} rounds.",
-            "resource": {
-              "action": "variable",
-              "uses": 1,
-              "recharge": "5 rounds"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Poison Use",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "You don't risk poisoning yourself when handling poison."
-          }
-        ]
-      },
-      {
-        "name": "Sudden Strike",
-        "text": [
-          {
-            "category": "Atk Options",
-            "text": "Your attacks against dexterity-denied enemies within 30 feet deal 1d6 extra damage, plus 1d6 more per four effective binder levels ({{effective binder level}})."
+            "name": "Aym's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Aym's influence",
+                "adjust": {
+                  "Aym's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Social",
+                "text": "You begrudge every coin or item of value that you or your group must give to another.\n\nYou must give a copper, silver, gold, or platinum piece to every dwarf you meet within 1 minute of learning their name."
+              }
+            ]
           }
         ]
       }
-    ]
-  },
-  {
-    "name": "Savnok",
-    "level": 2,
-    "binding DC": 20,
-    "influence": {
-      "name": "Savnok's influence",
-      "text": [
-        {
-          "category": "Social",
-          "text": "You are headstrong and recalcitrant.  Once you make up your mind about a particular issue, very little can change your thoughts on the matter."
-        },
-        {
-          "category": "Actions",
-          "text": "Whenever you use any item that improves your AC, you can't remove that protection for any reason."
-        }
-      ]
     },
-    "abilities": [
-      {
-        "name": "Call Armor",
-        "text": [
+    {
+      "name": "Leraje",
+      "level": 1,
+      "binding DC": 15,
+      "kinds": {
+        "abilities": [
           {
-            "category": "Def Options",
-            "text": "Summon Savnok's full plate, which appears about your body.  As you attain higher effective binder levels ({{effective binder level}}), the armor's quality improves as follows:  2nd mwk; 5th +1; 9th +2 light fortification; 13th +2 moderate fortification; 17th +4 moderate fortification; 20th +4 heavy fortification.  You can dismiss the armor with another full-round action (if your pact is good).",
-            "resource": {
-              "action": "full-round",
-              "recharge": "at-will"
-            }
+            "name": "Hide Bonus (Leraje)",
+            "modifiers": [
+              {
+                "affects": "Hide",
+                "mod": {
+                  "type": "competence",
+                  "amounts": [
+                    {
+                      "fixed": 4
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Low-Light Vision",
+            "text": [
+              {
+                "category": "Senses",
+                "text": "You can see twice as far as normal in dim light.  If you have low-light vision from another effect, you can see thrice as far instead."
+              }
+            ]
+          },
+          {
+            "name": "Precise Shot",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "You can make ranged attacks at an opponent engaged in melee without the standard -4 attack roll penalty."
+              }
+            ]
+          },
+          {
+            "name": "Ricochet",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Make a single ranged attack against two adjacent targets, using one attack roll and one damage roll for both targets.  Apply any precision damage to only the first target struck, choosing which target this is before any rolls are made.",
+                "resource": {
+                  "action": "std",
+                  "recharge": "at-will"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Bow Proficiencies",
+            "weapon proficiencies": [
+              {
+                "name": [
+                  "composite longbow",
+                  "composite shortbow",
+                  "longbow",
+                  "shortbow"
+                ]
+              }
+            ],
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "If you are proficient with the composite longbow without binding Leraje, you get a +1 competence bonus on attack rolls with it.  The same is true for the composite shortbow, the longbow, and the shortbow."
+              }
+            ]
           }
-        ]
-      },
-      {
-        "name": "Heavy Armor Proficiency",
-        "armor proficiencies": [ "HEAVY" ]
-      },
-      {
-        "name": "Move Ally",
-        "text": [
+        ],
+        "influence": [
           {
-            "category": "Move Options",
-            "text": "You instantly swap positions with any visible willing ally within 5 feet per two binder levels.  Objects carried by you or your ally go along, but creatures do not.  This movement doesn't provoke attacks of opportunity.",
-            "resource": {
-              "action": "std",
-              "uses": 1,
-              "recharge": "5 rounds"
-            }
+            "name": "Leraje's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Leraje's influence",
+                "adjust": {
+                  "Leraje's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Actions",
+                "text": "You can't attack elves, half-elves, drow, or any other creature of elven blood."
+              },
+              {
+                "category": "Social",
+                "text": "You are quiet and unassuming."
+              }
+            ]
           }
         ]
       }
-    ]
-  }
-]
+    },
+    {
+      "name": "Naberius",
+      "level": 1,
+      "binding DC": 15,
+      "kinds": {
+        "abilities": [
+          {
+            "name": "Disguise Self",
+            "text": [
+              {
+                "category": "Special Actions",
+                "text": "disguise self",
+                "resource": {
+                  "action": "std",
+                  "recharge": "at-will"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Faster Ability Healing",
+            "text": [
+              {
+                "category": "Special Qualities",
+                "text": "Each of your damaged ability scores heals 1 each round, and each drained score heals 1 each hour."
+              }
+            ]
+          },
+          {
+            "name": "Naberius's Skills",
+            "text": [
+              {
+                "category": "Skills",
+                "text": "Choose {{CON bonus}} skills in which you have no ranks that can't be used untrained.  You can make checks in those skills."
+              }
+            ]
+          },
+          {
+            "name": "Persuasive Words",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "One creature within 30 feet must make a Will save (DC {{vestige save DC}}) or be affected as if by a command spell, cast by you.  If your effective binder level ({{effective binder level}}) is 14 or higher, they are affected as if by suggestion instead.",
+                "resource": {
+                  "action": "std",
+                  "uses": 1,
+                  "recharge": "5 rounds"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Silver Tongue",
+            "text": [
+              {
+                "category": "Skills",
+                "text": "You can take 10 on Diplomacy and Bluff checks when distracted or threatened.  You can make a rushed Diplomacy check as a standard action and take no penalty."
+              }
+            ]
+          }
+        ],
+        "influence": [
+          {
+            "name": "Naberius's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Naberius's influence",
+                "adjust": {
+                  "Naberius's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Social",
+                "text": "Whenever you are presented with a pulpit, a stage, a talking stick, or any other place or object designed to give a speaker the floor, you must immediately seize the opportunity to speak, and do so for {{effective binder level}} round(s).  If another tries to take control of the discourse, you must shout them down or mock them."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Ronove",
+      "level": 1,
+      "binding DC": 15,
+      "kinds": {
+        "abilities": [
+          {
+            "name": "Magic Attacks",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Your melee attacks overcome DR/magic."
+              }
+            ]
+          },
+          {
+            "name": "Cold Iron Attacks",
+            "active": {
+              "conditional": {
+                "left": {
+                  "stat value": "effective binder level"
+                },
+                "relation": "GREATER_THAN_OR_EQUAL",
+                "right": {
+                  "fixed": 7
+                }
+              }
+            },
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Your melee attacks overcome DR/cold iron."
+              }
+            ]
+          },
+          {
+            "name": "Far Hand (objects)",
+            "text": [
+              {
+                "category": "Special Actions",
+                "text": "Lift and move an object to which you have line of effect, as long as it remains within 10 feet per effective binder level ({{effective binder level}}).  The force manipulating the object is considered Medium, with a Strength score of {{effective binder level}}.  During the swift action you can move the object up to 5 feet per effective binder level ({{effective binder level}}).  If the object is over a light load for a {{effective binder level}}-Strength creature, you can move it only half that distance.  If it's over a light load for you, this is a move action instead.  You can't lift it more than 5 feet off the ground.  You can maintain this control each round with a swift action (or move action, if appropriate).",
+                "resource": {
+                  "action": "swift",
+                  "recharge": "at-will"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Far Hand (enemies)",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Choose an enemy within 10 feet per effective binder level ({{effective binder level}}).  An unseen force with {{effective binder level}} Strength deals 1d6 to that enemy and bull rushes it in a direction of your choice, with a +2 bonus on the check.",
+                "resource": {
+                  "action": "swift",
+                  "uses": 1,
+                  "recharge": "5 rounds"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Ronove's Fists",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "You don't provoke attacks of opportunity from armed opponents when you attack them unarmed, and you get an attack of opportunity against an opponent making an unarmed attack against you while you are unarmed.\n\nYour unarmed strikes can deal lethal or nonlethal damage, at your option.  Your unarmed strike deals damage like a monk {{effective binder level}}."
+              }
+            ]
+          },
+          {
+            "name": "Sprint",
+            "modifiers": [
+              {
+                "affects": "Land speed",
+                "mod": {
+                  "type": "enhancement",
+                  "amounts": [
+                    {
+                      "fixed": 10
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "influence": [
+          {
+            "name": "Ronove's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Ronove's influence",
+                "adjust": {
+                  "Ronove's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Social",
+                "text": "You feel the constant need to prove your worth."
+              },
+              {
+                "category": "Condition",
+                "text": "You can't consume food, beverages, or potions."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Dahlver-Nar",
+      "level": 2,
+      "binding DC": 17,
+      "kinds": {
+        "abilities": [
+          {
+            "name": "Mad Soul",
+            "text": [
+              {
+                "category": "Immune",
+                "text": "Wis damage/drain, madness, insanity, confusion"
+              }
+            ]
+          },
+          {
+            "name": "Maddening Moan",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Every creature within a 30-foot spread must make a Will save (DC {{vestige save DC}}) or be dazed for 1 round.  This is a mind-affecting sonic ability.",
+                "resource": {
+                  "action": "std",
+                  "uses": 1,
+                  "recharge": "5 rounds"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Natural Armor",
+            "modifiers": [
+              {
+                "affects": "natural armor",
+                "mod": {
+                  "type": "enhancement",
+                  "amounts": [
+                    {
+                      "multiply": {
+                        "variable": {
+                          "stat value": "CON modifier"
+                        },
+                        "scalar": 0.5
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Shield Self",
+            "text": [
+              {
+                "category": "Def Options",
+                "text": "Designate one creature within 10 feet per effective binder level ({{effective binder level}}).  As long as that creature remains within range, you take only half damage from all effects that deal hit point damage, and it takes the rest.  This effect ends immediately when you choose another creature, or you die, or it dies.  An unwilling target can make a Will save (DC {{vestige save DC}}) to negate the effect.",
+                "resource": {
+                  "action": "std",
+                  "recharge": "at-will"
+                }
+              }
+            ]
+          }
+        ],
+        "influence": [
+          {
+            "name": "Dahlver-Nar's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Dahlver-Nar's influence",
+                "adjust": {
+                  "Dahlver-Nar's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Actions",
+                "text": "You shift quickly from distraction to extreme focus and back again.  Sometimes you stare blankly off into space, and at other times you gaze intently at the person or task at hand.  Since Dahlver-Nar dislikes any task that requires more than 1 round of concentration (such as some spellcasting, concentration on an effect, or any action that requires a Concentration check), he requires that you undertake no such activities while under his influence."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Haagenti",
+      "level": 2,
+      "binding DC": 17,
+      "kinds": {
+        "abilities": [
+          {
+            "name": "Confusing Touch",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Make a touch attack.  If you hit, the target must make a Will save (DC {{vestige save DC}}) or be confused for 1 round per three effective binder levels ({{effective binder level}}).  At effective binder level 19, this is a maze effect instead.",
+                "resource": {
+                  "action": "attack",
+                  "uses": 1,
+                  "recharge": "5 rounds"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Immunity to Transformation",
+            "text": [
+              {
+                "category": "Def Options",
+                "text": "At the beginning of your turn, if you're under the effect of form-changing magic such as polymorph or petrification, you can end the effect as a free action."
+              }
+            ]
+          },
+          {
+            "name": "Shield Proficiency",
+            "shield proficiencies": [
+              "tower"
+            ]
+          },
+          {
+            "name": "Weapon Proficiency",
+            "weapon proficiencies": [
+              {
+                "name": [
+                  "battleaxe",
+                  "greataxe",
+                  "handaxe",
+                  "throwing axe"
+                ]
+              }
+            ]
+          }
+        ],
+        "influence": [
+          {
+            "name": "Haagenti's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Haagenti's influence",
+                "adjust": {
+                  "Haagenti's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Social",
+                "text": "You feel ashamed and occasionally bashful in the presence of beautiful creatures.\n\nYou must give deference to any creature you perceive as more attractive or charismatic than yourself.  This deference can be a bow, a salute, opening a door for the creature, not speaking until spoken to, or any other gesture that acknowledges the creature as superior to you.  You must constantly treat any such creature with respect."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Malphas",
+      "level": 2,
+      "binding DC": 15,
+      "kinds": {
+        "abilities": [
+          {
+            "name": "Bird's Eye Viewing",
+            "text": [
+              {
+                "category": "Senses",
+                "text": "At will, you can summon a raven (or dove, using a raven's statistics), appearing perched on your shoulder.  You have complete control over its actions, and you can see what it sees and hear what it hears.  Use the bird's skill checks to determine the results of its actions and observations (for example, Bluff, Search, Spot, and Listen) but your own to derive information (for example, Knowledge, Sense Motive, and Spellcraft).  If you have the trapfinding ability, you can use the bird to find traps that don't require it to manipulate an object.\n\nThe bird can't talk.  It remains until you summon another, mentally dismiss it (as a standard action), or stop binding with Malphas."
+              }
+            ]
+          },
+          {
+            "name": "Invisibility",
+            "text": [
+              {
+                "category": "Special Actions",
+                "text": "Your effective binder level ({{effective binder level}}) determines the type of action this ability requires: full-round at 1st, standard at 5th, move at 10th, swift at 15th.\n\nYou are affected as if by an invisibility spell that lasts {{effective binder level}} rounds.",
+                "resource": {
+                  "action": "variable",
+                  "uses": 1,
+                  "recharge": "5 rounds"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Poison Use",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "You don't risk poisoning yourself when handling poison."
+              }
+            ]
+          },
+          {
+            "name": "Sudden Strike",
+            "text": [
+              {
+                "category": "Atk Options",
+                "text": "Your attacks against dexterity-denied enemies within 30 feet deal 1d6 extra damage, plus 1d6 more per four effective binder levels ({{effective binder level}})."
+              }
+            ]
+          }
+        ],
+        "influence": [
+          {
+            "name": "Malphas's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Malphas's influence",
+                "adjust": {
+                  "Malphas's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Social",
+                "text": "You fall in love too easily.  A kind word or friendly gesture can cause you to devote yourself entirely to another person.  Should that person reject your affection, your broken heart mends the moment another attractive person shows you some kindness."
+              },
+              {
+                "category": "Actions",
+                "text": "If you have access to poison, you must employ it against your foes at every opportunity."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Savnok",
+      "level": 2,
+      "binding DC": 20,
+      "kinds": {
+        "abilities": [
+          {
+            "name": "Call Armor",
+            "text": [
+              {
+                "category": "Def Options",
+                "text": "Summon Savnok's full plate, which appears about your body.  As you attain higher effective binder levels ({{effective binder level}}), the armor's quality improves as follows:  2nd mwk; 5th +1; 9th +2 light fortification; 13th +2 moderate fortification; 17th +4 moderate fortification; 20th +4 heavy fortification.  You can dismiss the armor with another full-round action (if your pact is good).",
+                "resource": {
+                  "action": "full-round",
+                  "recharge": "at-will"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Heavy Armor Proficiency",
+            "armor proficiencies": [
+              "HEAVY"
+            ]
+          },
+          {
+            "name": "Move Ally",
+            "text": [
+              {
+                "category": "Move Options",
+                "text": "You instantly swap positions with any visible willing ally within 5 feet per two binder levels.  Objects carried by you or your ally go along, but creatures do not.  This movement doesn't provoke attacks of opportunity.",
+                "resource": {
+                  "action": "std",
+                  "uses": 1,
+                  "recharge": "5 rounds"
+                }
+              }
+            ]
+          }
+        ],
+        "influence": [
+          {
+            "name": "Savnok's influence",
+            "parameter": "defied",
+            "actions": [
+              {
+                "name": "Defy Savnok's influence",
+                "adjust": {
+                  "Savnok's influence defied": 1
+                }
+              }
+            ],
+            "text": [
+              {
+                "category": "Social",
+                "text": "You are headstrong and recalcitrant.  Once you make up your mind about a particular issue, very little can change your thoughts on the matter."
+              },
+              {
+                "category": "Actions",
+                "text": "Whenever you use any item that improves your AC, you can't remove that protection for any reason."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

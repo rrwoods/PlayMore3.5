@@ -70,6 +70,11 @@ namespace PlayMore35.Tests {
                         ManeuversMap[kvp.Key] = kvp.Value;
                     }
                 }
+                if (inner.Subsystems != null) {
+                    foreach (var kvp in inner.Subsystems) {
+                        SubsystemsMap[kvp.Key] = kvp.Value;
+                    }
+                }
             }
             if (maneuvers != null) {
                 foreach (var m in maneuvers) {
@@ -80,6 +85,57 @@ namespace PlayMore35.Tests {
                 foreach (var v in vestiges) {
                     if (v?.Name != null) VestigesMap[v.Name] = v;
                 }
+            }
+            if (VestigesMap.Count > 0 || inner?.GetSubsystem("pact_magic") != null) {
+                BuildPactMagicSubsystem();
+            }
+        }
+
+        public void BuildPactMagicSubsystem() {
+            SubsystemDefinition def;
+            if (!SubsystemsMap.TryGetValue("pact_magic", out def) || def == null) {
+                def = new SubsystemDefinition {
+                    Id = "pact_magic",
+                    Name = "Pact Magic"
+                };
+                var vestigesSlotGroup = new SlotGroupDefinition {
+                    Name = "vestiges",
+                    CapacityStat = "number of vestiges",
+                    MaxLevelStat = "maximum vestige level",
+                    DefaultState = "empty"
+                };
+                vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact", "suppressed" });
+                def.SlotGroups["vestiges"] = vestigesSlotGroup;
+
+                def.Verbs["unbind"] = new List<SubsystemStep> {
+                    new SubsystemStep {
+                        Type = "transition",
+                        SlotGroup = "vestiges",
+                        Selector = "invoked",
+                        FromState = "*",
+                        ToState = "empty"
+                    }
+                };
+
+                def.Projections.Add(new KindProjectionRule("vestiges", "good_pact", "abilities"));
+                def.Projections.Add(new KindProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
+                SubsystemsMap["pact_magic"] = def;
+            }
+
+            foreach (var v in VestigesMap.Values) {
+                if (v == null || string.IsNullOrEmpty(v.Name)) continue;
+                var elem = new SubsystemElement {
+                    Name = v.Name,
+                    Level = v.Level,
+                    BindingDc = v.BindingDc
+                };
+                if (v.Abilities != null) {
+                    foreach (var a in v.Abilities) elem.AddKindEffect("abilities", a);
+                }
+                if (v.Influence != null) {
+                    elem.AddKindEffect("influence", v.Influence);
+                }
+                def.Elements[elem.Name] = elem;
             }
         }
 

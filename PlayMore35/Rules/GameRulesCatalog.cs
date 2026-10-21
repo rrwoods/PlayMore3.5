@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -29,7 +29,7 @@ namespace PlayMore35.Rules {
         public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
         public IReadOnlyDictionary<string, Vestige> Vestiges { get; }
         public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => MartialDiscipline.All;
-        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; } = new ReadOnlyDictionary<string, SubsystemDefinition>(new Dictionary<string, SubsystemDefinition>());
+        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; }
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots { get; }
         public IReadOnlyList<Statistic> CoreStats { get; }
@@ -153,10 +153,26 @@ namespace PlayMore35.Rules {
             }
             Maneuvers = new ReadOnlyDictionary<string, Maneuver>(maneuvers);
 
-            // 11. Vestiges
-            var vestiges = GetResource(Properties.Resources.vestiges, "vestiges.json")
-                .Select(x => new Vestige((JObject)x))
-                .ToDictionary(x => x.Name);
+            // 11. Vestiges and Subsystems
+            var subsystemsMap = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
+            var vestiges = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
+            var vestigesToken = GetResource(Properties.Resources.vestiges, "vestiges.json");
+
+            if (vestigesToken is JObject vestigesObj) {
+                var pactDef = new SubsystemDefinition(vestigesObj);
+                subsystemsMap[pactDef.Id] = pactDef;
+
+                if (vestigesObj["elements"] is JArray elemArr) {
+                    foreach (var elemToken in elemArr) {
+                        if (elemToken is JObject elemObj) {
+                            var vestige = new Vestige(elemObj);
+                            vestiges[vestige.Name] = vestige;
+                        }
+                    }
+                }
+            }
+
+            Subsystems = new ReadOnlyDictionary<string, SubsystemDefinition>(subsystemsMap);
             Vestiges = new ReadOnlyDictionary<string, Vestige>(vestiges);
         }
 

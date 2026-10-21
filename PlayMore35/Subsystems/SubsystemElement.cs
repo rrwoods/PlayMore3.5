@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -10,6 +10,7 @@ namespace PlayMore35.Subsystems {
         public string Name { get; set; } = "";
         public int Level { get; set; } = 1;
         public string Type { get; set; } = "";
+        public int BindingDc { get; set; } = 0;
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<Effect>> Kinds { get; } = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
 
@@ -20,6 +21,7 @@ namespace PlayMore35.Subsystems {
             Name = (string)(json["name"] ?? "");
             Level = (int)(json["level"] ?? 1);
             Type = (string)(json["type"] ?? "");
+            BindingDc = (int)(json["binding DC"] ?? 0);
 
             if (json["verbs"] is JObject verbsObj) {
                 foreach (var prop in verbsObj.Properties()) {
@@ -33,6 +35,20 @@ namespace PlayMore35.Subsystems {
                 foreach (var prop in kindsObj.Properties()) {
                     if (prop.Value is JArray arr) {
                         Kinds[prop.Name] = arr.Select(x => new Effect((JObject)x)).ToList();
+                    }
+                }
+            }
+
+            if (Kinds.TryGetValue("influence", out var infList)) {
+                foreach (var inf in infList) {
+                    if (string.IsNullOrEmpty(inf.Parameter)) {
+                        inf.Parameter = "defied";
+                    }
+                    if (!inf.associatedAction.Any()) {
+                        inf.associatedAction.Add(
+                            new SheetAction { Name = $"Defy {inf.Name}" }
+                                .AdjustParam(inf.ParameterName, 1)
+                        );
                     }
                 }
             }
@@ -58,6 +74,9 @@ namespace PlayMore35.Subsystems {
                 new JProperty("level", Level),
                 new JProperty("type", Type)
             );
+            if (BindingDc > 0) {
+                json["binding DC"] = BindingDc;
+            }
 
             if (Verbs.Count > 0) {
                 var verbsObj = new JObject();

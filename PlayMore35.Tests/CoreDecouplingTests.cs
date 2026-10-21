@@ -8,9 +8,9 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
-using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -80,22 +80,24 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void UnbindVestigeAction_DispatchesThroughPactMagicEngine() {
+        public void SubsystemAction_UnbindVestige_DispatchesThroughSubsystemEngine() {
             var context = new TestContextWithSlottedSubsystem();
-            var engine = new PactMagicEngine();
+            var catalog = new GameRulesCatalog();
+            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"));
             context.Subsystems.Register(engine, "vestige");
 
-            context.Effects.AddStat(new Statistic(PactMagicEngine.NUM_VESTIGES));
-            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier(PactMagicEngine.NUM_VESTIGES, new Modifier(1, ModifierTypes.UNTYPED)));
+            context.Effects.AddStat(new Statistic("number of vestiges"));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(1, ModifierTypes.UNTYPED)));
             engine.Initialize(context);
 
-            engine.BindVestige(0, "Aym", PactState.GOOD_PACT);
-            Assert.AreEqual("Aym", engine.CurrentVestige(0)?.Name);
+            engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
+            Assert.AreEqual("Aym", engine.GetSlotElement("vestiges", 0));
 
-            var action = new UnbindVestigeAction(0);
+            var action = new SheetAction { Subsystem = "pact_magic", SlotGroup = "vestiges", SlotIndex = 0, Verb = "unbind" };
             action.Perform(context);
 
-            Assert.IsNull(engine.CurrentVestige(0));
+            Assert.IsNull(engine.GetSlotElement("vestiges", 0));
+            Assert.AreEqual("empty", engine.GetSlotState("vestiges", 0));
         }
 
         [TestMethod]
@@ -120,11 +122,12 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SubsystemEngines_DefineSubsystemStatistics() {
-            Assert.AreEqual("number of vestiges", PactMagicEngine.NUM_VESTIGES);
-            Assert.AreEqual("binding check", PactMagicEngine.BINDING_CHECK);
-            Assert.AreEqual("maximum vestige level", PactMagicEngine.MAX_VESTIGE_LEVEL);
-            Assert.AreEqual("effective binder level", PactMagicEngine.EFFECTIVE_BINDER_LEVEL);
+        public void SubsystemDefinitions_DefineSubsystemStatistics() {
+            var catalog = new GameRulesCatalog();
+            Assert.IsTrue(catalog.Subsystems.ContainsKey("pact_magic"));
+            var pact = catalog.Subsystems["pact_magic"];
+            Assert.AreEqual("number of vestiges", pact.SlotGroups["vestiges"].CapacityStat);
+            Assert.AreEqual("maximum vestige level", pact.SlotGroups["vestiges"].MaxLevelStat);
             Assert.AreEqual("active stances", MartialManeuverEngine.ACTIVE_STANCES);
         }
 

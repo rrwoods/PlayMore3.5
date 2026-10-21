@@ -10,7 +10,6 @@ using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
-using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -75,7 +74,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void SubsystemRegistry_CreateDefault_RegistersStandardEngines() {
             var registry = SubsystemRegistry.CreateDefault();
-            var engine = registry.Get<PactMagicEngine>();
+            var engine = registry.Get("pact_magic");
             Assert.IsNotNull(engine);
             Assert.AreSame(engine, registry.Get("pact_magic"));
             Assert.AreSame(engine, registry.Get("vestige"));
@@ -92,7 +91,6 @@ namespace PlayMore35.Tests {
         public void SubsystemRegistry_NewInstance_RemainsEmptyForTestIsolation() {
             var registry = new SubsystemRegistry();
             Assert.AreEqual(0, registry.All.Count());
-            Assert.IsNull(registry.Get<PactMagicEngine>());
             Assert.IsNull(registry.Get("pact_magic"));
             Assert.IsNull(registry.Get("vestige"));
             Assert.IsNull(registry.Get<MartialManeuverEngine>());
@@ -298,32 +296,25 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void CharacterSession_InitializesSubsystemsWithDefaults() {
             var session = new CharacterSession(new Character(), new PlayMore35.Rules.GameRulesCatalog());
-            Assert.IsNotNull(session.Subsystems.Get<PactMagicEngine>());
+            Assert.IsNotNull(session.Subsystems.Get("pact_magic"));
             Assert.IsNotNull(session.Subsystems.Get("vestige"));
         }
 
         [TestMethod]
-        public void ActionParserSeam_SerializedSubsystemActions_DeserializeIntoStronglyTypedRepresentations() {
-            var original = new UnbindVestigeAction(0);
-            var serialized = (JObject)original.ToJson();
-
-            var deserialized = SheetAction.FromJson(serialized);
+        public void ActionParserSeam_SerializedManeuverActions_DeserializeIntoStronglyTypedRepresentations() {
+            var maneuverJson = new JObject(
+                new JProperty("name", "Wind Stride"),
+                new JProperty("maneuver_action", "Wind Stride"),
+                new JProperty("source", "Swordsage")
+            );
+            var deserialized = SheetAction.FromJson(maneuverJson);
 
             Assert.IsNotNull(deserialized);
-            Assert.IsInstanceOfType(deserialized, typeof(UnbindVestigeAction));
-            var unbindAction = (UnbindVestigeAction)deserialized;
-            Assert.AreEqual(0, unbindAction.SlotIndex);
-            Assert.AreEqual("Unbind vestige slot 0", unbindAction.Name);
-            Assert.IsTrue(original.Matches(deserialized));
-
-            var directJson = new JObject(
-                new JProperty("name", "Custom Unbind"),
-                new JProperty("unbind_vestige", 2)
-            );
-            var parsedDirect = SheetAction.FromJson(directJson);
-            Assert.IsInstanceOfType(parsedDirect, typeof(UnbindVestigeAction));
-            Assert.AreEqual(2, ((UnbindVestigeAction)parsedDirect).SlotIndex);
-            Assert.AreEqual("Custom Unbind", parsedDirect.Name);
+            Assert.IsInstanceOfType(deserialized, typeof(ManeuverSheetAction));
+            var mAction = (ManeuverSheetAction)deserialized;
+            Assert.AreEqual("Wind Stride", mAction.ManeuverName);
+            Assert.AreEqual("Swordsage", mAction.Source);
+            Assert.AreEqual("Wind Stride", mAction.Name);
         }
 
         private class TestSlottedElement {
