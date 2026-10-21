@@ -104,8 +104,9 @@ namespace PlayMore35.Tests {
                     MaxLevelStat = "maximum vestige level",
                     DefaultState = "empty"
                 };
-                vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact", "suppressed" });
+                vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact" });
                 def.SlotGroups["vestiges"] = vestigesSlotGroup;
+                def.RequiredElementProperties.Add("binding DC");
 
                 def.Verbs["bind_good_pact"] = new List<SubsystemStep> {
                     new SubsystemStep {
@@ -140,9 +141,9 @@ namespace PlayMore35.Tests {
                 if (v == null || string.IsNullOrEmpty(v.Name)) continue;
                 var elem = new SubsystemElement {
                     Name = v.Name,
-                    Level = v.Level,
-                    BindingDc = v.BindingDc
+                    Level = v.Level
                 };
+                elem.SetProperty("binding DC", v.BindingDc);
                 if (v.Abilities != null) {
                     foreach (var a in v.Abilities) elem.AddKindEffect("abilities", a);
                 }

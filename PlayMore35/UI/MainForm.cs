@@ -1340,7 +1340,7 @@ namespace PlayMore35 {
                         Verb = verb,
                         Source = "Binder"
                     });
-                    stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
+                    stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.GetProperty<int>("binding DC")})";
                 }
                 session.Recalculate();
                 RefreshEffects();
@@ -1351,7 +1351,7 @@ namespace PlayMore35 {
         private EventHandler BindVestige(int slotIndex, SubsystemElement vestige, string bindingCheckDice) {
             return (sender, e) => {
                 RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
-                bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
+                bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.GetProperty<int>("binding DC");
                 string verb = bindingCheckSuccess ? "bind_good_pact" : "bind_poor_pact";
                 session.PerformAction(new SheetAction {
                     Name = $"Bind {vestige.Name} slot {slotIndex}",
@@ -1428,7 +1428,7 @@ namespace PlayMore35 {
                 var slot = pactEngine?.GetSlot("vestiges", i);
                 string currentVestige = (slot != null && slot.State != "empty") ? (slot.Element ?? "") : "";
                 var currentElem = !string.IsNullOrEmpty(currentVestige) ? pactEngine?.GetElement(currentVestige) : null;
-                int? dc = currentElem?.BindingDc;
+                int? dc = currentElem?.GetProperty<int?>("binding DC");
                 Label stateLabel = new Label {
                     Location = lblPactState.Location,
                     Text = (dc == null) ? "Pact state" : $"Pact state (Binding DC {dc})",
