@@ -157,6 +157,7 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, List<SubsystemStep>> DefaultElementVerbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, PoolDefinition> Pools { get; } = new Dictionary<string, PoolDefinition>(StringComparer.OrdinalIgnoreCase);
         public List<KindProjectionRule> Projections { get; } = new List<KindProjectionRule>();
+        public List<string> RequiredElementProperties { get; } = new List<string>();
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
@@ -209,6 +210,10 @@ namespace PlayMore35.Subsystems {
                 Projections.AddRange(projArr.Select(x => new KindProjectionRule((JObject)x)));
             }
 
+            if (subJson["required_element_properties"] is JArray reqPropsArr) {
+                RequiredElementProperties.AddRange(reqPropsArr.Select(x => x.ToString()));
+            }
+
             if (subJson["actions"] is JArray actionsArr) {
                 Actions.AddRange(actionsArr.Select(x => SheetAction.FromJson((JObject)x)));
             }
@@ -218,6 +223,11 @@ namespace PlayMore35.Subsystems {
                     if (elemToken is JObject elemObj) {
                         var elem = new SubsystemElement(elemObj);
                         if (!string.IsNullOrEmpty(elem.Name)) {
+                            foreach (var reqProp in RequiredElementProperties) {
+                                if (!elem.Properties.ContainsKey(reqProp) || elem.Properties[reqProp] == null) {
+                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required property '{reqProp}'.");
+                                }
+                            }
                             Elements[elem.Name] = elem;
                         }
                     }
@@ -257,6 +267,10 @@ namespace PlayMore35.Subsystems {
 
             if (Projections.Count > 0) {
                 subJson["projections"] = new JArray(Projections.Select(x => x.ToJson()));
+            }
+
+            if (RequiredElementProperties.Count > 0) {
+                subJson["required_element_properties"] = new JArray(RequiredElementProperties);
             }
 
             if (Actions.Count > 0) {

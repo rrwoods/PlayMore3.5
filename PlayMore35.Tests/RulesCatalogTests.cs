@@ -354,7 +354,7 @@ namespace PlayMore35.Tests {
             engine.Initialize(context);
 
             Assert.IsNotNull(engine.GetElement("Test Vestige"), "Initialized engine must resolve custom vestige from context.Catalog.");
-            Assert.AreEqual(22, engine.GetElement("Test Vestige").BindingDc, "Initialized engine must resolve DC from context.Catalog.");
+            Assert.AreEqual(22, engine.GetElement("Test Vestige").GetProperty<int>("binding DC"), "Initialized engine must resolve DC from context.Catalog.");
 
             engine.AssignSlot("vestiges", 0, "Test Vestige", "good_pact", "Binder");
             Assert.AreEqual("Test Vestige", engine.GetSlotElement("vestiges", 0));

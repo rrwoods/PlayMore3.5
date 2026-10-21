@@ -27,9 +27,24 @@ namespace PlayMore35.Subsystems {
             set => _properties["type"] = value;
         }
 
-        public int BindingDc {
-            get => _properties.TryGetValue("binding DC", out var v) ? Convert.ToInt32(v) : 0;
-            set => _properties["binding DC"] = value;
+        public T GetProperty<T>(string key, T defaultValue = default) {
+            if (string.IsNullOrEmpty(key)) return defaultValue;
+            if (_properties.TryGetValue(key, out var val) && val != null) {
+                if (val is T typedVal) return typedVal;
+                try {
+                    var targetType = typeof(T);
+                    var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+                    return (T)Convert.ChangeType(val, underlyingType);
+                } catch {
+                    return defaultValue;
+                }
+            }
+            return defaultValue;
+        }
+
+        public void SetProperty(string key, object value) {
+            if (string.IsNullOrEmpty(key)) return;
+            _properties[key] = value;
         }
 
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
@@ -40,8 +55,17 @@ namespace PlayMore35.Subsystems {
         public SubsystemElement(JObject json) {
             if (json == null) return;
             foreach (var prop in json.Properties()) {
+                if (string.Equals(prop.Name, "verbs", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(prop.Name, "kinds", StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
+
                 if (prop.Value is JValue jv) {
                     _properties[prop.Name] = jv.Value;
+                } else if (prop.Value is JArray ja) {
+                    _properties[prop.Name] = ja.Select(t => t is JValue v ? v.Value : (object)t).ToList();
+                } else if (prop.Value is JObject jo) {
+                    _properties[prop.Name] = jo;
                 }
             }
 
@@ -79,6 +103,10 @@ namespace PlayMore35.Subsystems {
         public JToken ToJson() {
             var json = new JObject();
             foreach (var kvp in _properties) {
+                if (string.Equals(kvp.Key, "verbs", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(kvp.Key, "kinds", StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
                 if (kvp.Value != null) {
                     json[kvp.Key] = JToken.FromObject(kvp.Value);
                 }

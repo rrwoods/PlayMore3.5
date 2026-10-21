@@ -2,6 +2,9 @@
   "subsystem": {
     "id": "pact_magic",
     "name": "Pact Magic",
+    "required_element_properties": [
+      "binding DC"
+    ],
     "slot_groups": {
       "vestiges": {
         "capacity_stat": "number of vestiges",
@@ -9,8 +12,7 @@
         "states": [
           "empty",
           "good_pact",
-          "poor_pact",
-          "suppressed"
+          "poor_pact"
         ],
         "default_state": "empty"
       }

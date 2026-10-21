@@ -63,7 +63,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(pactDef);
             Assert.IsTrue(pactDef.SlotGroups.ContainsKey("vestiges"));
             var group = pactDef.SlotGroups["vestiges"];
-            CollectionAssert.AreEquivalent(new[] { "empty", "good_pact", "poor_pact", "suppressed" }, group.States);
+            CollectionAssert.AreEquivalent(new[] { "empty", "good_pact", "poor_pact" }, group.States);
             Assert.AreEqual("empty", group.DefaultState);
         }
 
@@ -131,7 +131,7 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, contentProvider);
 
             var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
-            Assert.AreEqual(20, engine.GetElement("Aym").BindingDc);
+            Assert.AreEqual(20, engine.GetElement("Aym").GetProperty<int>("binding DC"));
             Assert.AreEqual(5, session.GetStatistic("binding check").Value);
         }
 
@@ -481,17 +481,30 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(provider);
             Assert.AreEqual("Aym", provider.Properties["name"]);
             Assert.AreEqual(15, Convert.ToInt32(provider.Properties["binding DC"]));
-            Assert.AreEqual(15, aym.BindingDc);
+            Assert.AreEqual(15, aym.GetProperty<int>("binding DC"));
 
-            // Generic custom property support
+            // Generic custom property support and GetProperty/SetProperty
             var customElem = new SubsystemElement(new JObject(
                 new JProperty("name", "Custom Element"),
                 new JProperty("level", 3),
-                new JProperty("customKey", "customValue")
+                new JProperty("customKey", "customValue"),
+                new JProperty("customNumber", 42),
+                new JProperty("tags", new JArray("fire", "breath"))
             ));
             var customProvider = customElem as IPropertyProvider;
             Assert.IsNotNull(customProvider);
             Assert.AreEqual("customValue", customProvider.Properties["customKey"]);
+            Assert.AreEqual("customValue", customElem.GetProperty<string>("customKey"));
+            Assert.AreEqual(42, customElem.GetProperty<int>("customNumber"));
+            Assert.AreEqual(99, customElem.GetProperty<int>("missingKey", 99));
+
+            customElem.SetProperty("customKey", "updatedValue");
+            Assert.AreEqual("updatedValue", customElem.GetProperty<string>("customKey"));
+
+            var tags = customElem.GetProperty<System.Collections.IList>("tags");
+            Assert.IsNotNull(tags);
+            Assert.AreEqual(2, tags.Count);
+            Assert.AreEqual("fire", tags[0]);
         }
 
         [TestMethod]
@@ -557,6 +570,50 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(string.IsNullOrEmpty(slot.Element) || slot.State == "empty");
             Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
             Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+        }
+
+        [TestMethod]
+        public void SubsystemDefinition_RequiredElementProperties_EnforcesPresenceAndRoundTrips() {
+            var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            CollectionAssert.Contains(pactDef.RequiredElementProperties, "binding DC");
+
+            var validJson = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("required_element_properties", new JArray("binding DC"))
+                )),
+                new JProperty("elements", new JArray(
+                    new JObject(
+                        new JProperty("name", "Valid Element"),
+                        new JProperty("level", 1),
+                        new JProperty("binding DC", 15)
+                    )
+                ))
+            );
+            var validDef = new SubsystemDefinition(validJson);
+            Assert.AreEqual(1, validDef.Elements.Count);
+            Assert.AreEqual(15, validDef.Elements["Valid Element"].GetProperty<int>("binding DC"));
+
+            var roundTripped = new SubsystemDefinition((JObject)validDef.ToJson());
+            CollectionAssert.AreEqual(new[] { "binding DC" }, roundTripped.RequiredElementProperties);
+
+            var invalidJson = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("required_element_properties", new JArray("binding DC"))
+                )),
+                new JProperty("elements", new JArray(
+                    new JObject(
+                        new JProperty("name", "Invalid Element"),
+                        new JProperty("level", 1)
+                    )
+                ))
+            );
+            var ex = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(invalidJson));
+            StringAssert.Contains(ex.Message, "Invalid Element");
+            StringAssert.Contains(ex.Message, "binding DC");
         }
     }
 }

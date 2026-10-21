@@ -1,4 +1,4 @@
-﻿﻿# PlayMore35
+﻿# PlayMore35
 
 A dynamic character sheet and combat companion for running Dungeons & Dragons 3.5 Edition characters during live play.
 
@@ -161,7 +161,7 @@ An elemental slot state transition, element execution, or resource pool operatio
 _Avoid_: Subsystem action, engine mutation, custom recovery
 
 **Slot State**:
-The current lifecycle condition of a subsystem slot (such as Unreadied, Withheld, Available, or Expended for maneuvers, or Bound, Suppressed, or Empty for pact magic) governed by the subsystem's state machine.
+The current lifecycle condition of a subsystem slot (such as Unreadied, Withheld, Available, or Expended for maneuvers, or Good Pact, Poor Pact, or Empty for pact magic) governed by the subsystem's state machine.
 _Avoid_: Slot status, slot mode
 
 **Subsystem Source**:
