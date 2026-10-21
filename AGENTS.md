@@ -33,6 +33,7 @@ Rules provenance, scope audits, and documentation gates before committing or mar
 ### Git conventions
 
 Prefer linear git history:
+- Line endings invariant: All files strictly use LF (`scripts/check-lf.ps1`).
 - Rebase working branches onto the target base branch (`git rebase <base>`) rather than creating merge commits.
 - Integrate branch commits via fast-forward merges (`git merge --ff-only <branch>`). Avoid `--no-ff` merge commits where possible.
 - When a task graph has a single active frontier (strictly sequential dependencies), work directly on the branch without creating extra worktree indirection. Still dispatch an implementer subagent per ticket (inheriting the workspace) to keep the orchestrator's context window lean.

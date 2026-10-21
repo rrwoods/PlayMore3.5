@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [switch]$Fix,
     [string]$Path = ""
@@ -65,9 +65,9 @@ $filesToCheck = Get-ChildItem -Path $targetDir -Recurse -File | Where-Object {
     return $false
 }
 
-$nonCrlfPattern = '(?<!\r)\n|\r(?!\n)'
 $violations = @()
 $fixedCount = 0
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 foreach ($file in $filesToCheck) {
     $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
@@ -76,14 +76,14 @@ foreach ($file in $filesToCheck) {
     if ([System.Array]::IndexOf($bytes, [byte]0) -ge 0) { continue }
 
     $text = [System.Text.Encoding]::UTF8.GetString($bytes)
-    $hasViolation = [System.Text.RegularExpressions.Regex]::IsMatch($text, $nonCrlfPattern)
+    $hasViolation = $text.Contains("`r")
 
     $relPath = $file.FullName.Substring($repoRoot.Length).TrimStart('\', '/')
 
     if ($hasViolation) {
         if ($Fix) {
-            $normalized = [System.Text.RegularExpressions.Regex]::Replace($text, "\r\n?|\n", "`r`n")
-            [System.IO.File]::WriteAllText($file.FullName, $normalized, [System.Text.Encoding]::UTF8)
+            $normalized = [System.Text.RegularExpressions.Regex]::Replace($text, "\r\n?|\r", "`n")
+            [System.IO.File]::WriteAllText($file.FullName, $normalized, $utf8NoBom)
             Write-Host "FIXED: $relPath" -ForegroundColor Yellow
             $fixedCount++
         } else {
@@ -95,18 +95,18 @@ foreach ($file in $filesToCheck) {
 
 if ($Fix) {
     if ($fixedCount -gt 0) {
-        Write-Host "`nSuccessfully normalized $fixedCount file(s) to CRLF." -ForegroundColor Green
+        Write-Host "`nSuccessfully normalized $fixedCount file(s) to LF." -ForegroundColor Green
     } else {
-        Write-Host "`nAll $($filesToCheck.Count) checked file(s) already have CRLF line endings." -ForegroundColor Green
+        Write-Host "`nAll $($filesToCheck.Count) checked file(s) already have LF line endings." -ForegroundColor Green
     }
     exit 0
 } else {
     if ($violations.Count -gt 0) {
-        Write-Host "`n$($violations.Count) file(s) have non-CRLF line endings." -ForegroundColor Red
-        Write-Host "Run with -Fix to automatically normalize: powershell -ExecutionPolicy Bypass -File scripts/check-crlf.ps1 -Fix" -ForegroundColor Yellow
+        Write-Host "`n$($violations.Count) file(s) have non-LF line endings (CRLF found)." -ForegroundColor Red
+        Write-Host "Run with -Fix to automatically normalize: powershell -ExecutionPolicy Bypass -File scripts/check-lf.ps1 -Fix" -ForegroundColor Yellow
         exit 1
     } else {
-        Write-Host "OK: All $($filesToCheck.Count) checked file(s) have valid CRLF line endings." -ForegroundColor Green
+        Write-Host "OK: All $($filesToCheck.Count) checked file(s) have valid LF line endings." -ForegroundColor Green
         exit 0
     }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -108,7 +108,11 @@
     <Compile Include="Global\TimelineAdvanceResult.cs" />
     <Compile Include="Global\SheetAction.cs" />
     <Compile Include="Subsystems\ISubsystemEngine.cs" />
+    <Compile Include="Subsystems\SubsystemDefinition.cs" />
+    <Compile Include="Subsystems\SubsystemElement.cs" />
+    <Compile Include="Subsystems\SubsystemEngine.cs" />
     <Compile Include="Subsystems\SubsystemRegistry.cs" />
+    <Compile Include="Subsystems\SubsystemSlot.cs" />
     <Compile Include="Subsystems\SubsystemSlotGroup.cs" />
     <Compile Include="Subsystems\PactMagic\PactState.cs" />
     <Compile Include="Subsystems\PactMagic\PactSlot.cs" />

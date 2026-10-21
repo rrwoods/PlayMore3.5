@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems.Maneuvers {
     public class ManeuverSheetAction : SheetAction {
         public string ManeuverName { get; }
-        public string Source { get; }
 
         public ManeuverSheetAction(string maneuverName, string source, string duration = "1 round") {
             ManeuverName = maneuverName ?? "";

@@ -1,10 +1,8 @@
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems.PactMagic {
     public class UnbindVestigeAction : SheetAction {
-        public int SlotIndex { get; }
-
         public UnbindVestigeAction(int slotIndex) {
             SlotIndex = slotIndex;
             Name = $"Unbind vestige slot {slotIndex}";
@@ -25,13 +23,17 @@ namespace PlayMore35.Subsystems.PactMagic {
         public override TimelineRefreshRequirement Perform(ICharacterContext context) {
             base.Perform(context);
             var engine = context?.Subsystems?.Get<PactMagicEngine>();
-            engine?.UnbindVestige(SlotIndex);
+            if (SlotIndex.HasValue) {
+                engine?.UnbindVestige(SlotIndex.Value);
+            }
             return TimelineRefreshRequirement.FullReload;
         }
 
         public override JToken ToJson() {
             var json = (JObject)base.ToJson();
-            json["unbind_vestige"] = SlotIndex;
+            if (SlotIndex.HasValue) {
+                json["unbind_vestige"] = SlotIndex.Value;
+            }
             return json;
         }
 

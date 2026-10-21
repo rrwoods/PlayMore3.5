@@ -4,7 +4,7 @@ $preCommitPath = ".git/hooks/pre-commit"
 $preCommitContent = @'
 #!/bin/sh
 set -e
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/check-crlf.ps1 -Fix
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/check-lf.ps1 -Fix
 git update-index --again
 dotnet test --no-restore --verbosity quiet
 '@

@@ -1,0 +1,140 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+using PlayMore35.Global;
+
+namespace PlayMore35.Subsystems {
+    public class SubsystemSlot : IJsonable {
+        public string Element { get; set; } = "";
+        public string State { get; set; } = "";
+        public string Source { get; set; } = "";
+        public string FeatSlot { get; set; } = null;
+
+        public SubsystemSlot() { }
+
+        public SubsystemSlot(string element, string state, string source = null, string featSlot = null) {
+            Element = element ?? "";
+            State = state ?? "";
+            Source = source ?? "";
+            FeatSlot = featSlot;
+        }
+
+        public SubsystemSlot(JObject json) {
+            if (json == null) return;
+            Element = (string)(json["element"] ?? "");
+            State = (string)(json["state"] ?? "");
+            Source = (string)(json["source"] ?? "");
+            FeatSlot = (string)json["feat_slot"];
+        }
+
+        public JToken ToJson() {
+            var json = new JObject(
+                new JProperty("element", Element),
+                new JProperty("state", State),
+                new JProperty("source", Source)
+            );
+            if (!string.IsNullOrEmpty(FeatSlot)) {
+                json["feat_slot"] = FeatSlot;
+            }
+            return json;
+        }
+    }
+
+    public class SubsystemTransition : IJsonable {
+        public string SlotGroup { get; set; } = "";
+        public string Selector { get; set; } = "invoked";
+        public string FromState { get; set; } = null;
+        public string ToState { get; set; } = "";
+        public string CountExpression { get; set; } = "1";
+        public int? SlotIndex { get; set; } = null;
+        public List<int> SelectedIndices { get; set; } = null;
+
+        public SubsystemTransition() { }
+
+        public SubsystemTransition(JObject json) {
+            if (json == null) return;
+            SlotGroup = (string)(json["slot_group"] ?? "");
+            Selector = (string)(json["selector"] ?? "invoked");
+            FromState = (string)json["from"];
+            ToState = (string)(json["to"] ?? "");
+            if (json["count"] != null) {
+                CountExpression = (string)json["count"];
+            }
+            if (json["slot_index"] != null) {
+                SlotIndex = (int)json["slot_index"];
+            }
+            if (json["selected_indices"] is JArray arr) {
+                SelectedIndices = arr.Select(x => (int)x).ToList();
+            }
+        }
+
+        public JToken ToJson() {
+            var json = new JObject(
+                new JProperty("slot_group", SlotGroup),
+                new JProperty("selector", Selector),
+                new JProperty("to", ToState)
+            );
+            if (FromState != null) {
+                json["from"] = FromState;
+            }
+            if (!string.IsNullOrEmpty(CountExpression)) {
+                json["count"] = CountExpression;
+            }
+            if (SlotIndex.HasValue) {
+                json["slot_index"] = SlotIndex.Value;
+            }
+            if (SelectedIndices != null && SelectedIndices.Count > 0) {
+                json["selected_indices"] = new JArray(SelectedIndices);
+            }
+            return json;
+        }
+    }
+
+    public class SubsystemPoolOperation : IJsonable {
+        public string Pool { get; set; } = "";
+        public string Op { get; set; } = "consume";
+        public int Amount { get; set; } = 0;
+
+        public SubsystemPoolOperation() { }
+
+        public SubsystemPoolOperation(string pool, string op, int amount) {
+            Pool = pool ?? "";
+            Op = op ?? "consume";
+            Amount = amount;
+        }
+
+        public SubsystemPoolOperation(JObject json) {
+            if (json == null) return;
+            Pool = (string)(json["pool"] ?? "");
+            Op = (string)(json["op"] ?? "consume");
+            Amount = (int)(json["amount"] ?? 0);
+        }
+
+        public JToken ToJson() {
+            return new JObject(
+                new JProperty("pool", Pool),
+                new JProperty("op", Op),
+                new JProperty("amount", Amount)
+            );
+        }
+    }
+
+    public class SubsystemTarget {
+        public string SlotGroup { get; set; }
+        public int? SlotIndex { get; set; }
+        public string Element { get; set; }
+        public string Source { get; set; }
+        public List<int> SelectedIndices { get; set; }
+
+        public SubsystemTarget() { }
+
+        public SubsystemTarget(string slotGroup = null, int? slotIndex = null, string element = null, string source = null, List<int> selectedIndices = null) {
+            SlotGroup = slotGroup;
+            SlotIndex = slotIndex;
+            Element = element;
+            Source = source;
+            SelectedIndices = selectedIndices;
+        }
+    }
+}

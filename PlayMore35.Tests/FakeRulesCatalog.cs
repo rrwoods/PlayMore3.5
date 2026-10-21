@@ -5,8 +5,10 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
+using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
+using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Tests {
@@ -24,6 +26,7 @@ namespace PlayMore35.Tests {
         public Dictionary<string, Maneuver> ManeuversMap { get; } = new Dictionary<string, Maneuver>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, Vestige> VestigesMap { get; } = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, MartialDiscipline> DisciplinesMap { get; } = new Dictionary<string, MartialDiscipline>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, SubsystemDefinition> SubsystemsMap { get; } = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
 
         public IReadOnlyDictionary<string, Race> Races => RacesMap;
         public IReadOnlyDictionary<string, CharacterClass> Classes => ClassesMap;
@@ -38,6 +41,7 @@ namespace PlayMore35.Tests {
         public IReadOnlyDictionary<string, Maneuver> Maneuvers => ManeuversMap;
         public IReadOnlyDictionary<string, Vestige> Vestiges => VestigesMap;
         public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => DisciplinesMap.Count > 0 ? DisciplinesMap : (inner?.Disciplines ?? MartialDiscipline.All);
+        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems => SubsystemsMap;
 
         private readonly IRulesCatalog inner;
 
@@ -92,6 +96,146 @@ namespace PlayMore35.Tests {
         public Maneuver GetManeuver(string name) => (name != null && ManeuversMap.TryGetValue(name, out var val)) ? val : inner?.GetManeuver(name);
         public Vestige GetVestige(string name) => (name != null && VestigesMap.TryGetValue(name, out var val)) ? val : inner?.GetVestige(name);
         public MartialDiscipline GetDiscipline(string name) => (name != null && DisciplinesMap.TryGetValue(name, out var val)) ? val : (inner?.GetDiscipline(name) ?? MartialDiscipline.Get(name));
+        public SubsystemDefinition GetSubsystem(string name) => (name != null && SubsystemsMap.TryGetValue(name, out var val)) ? val : inner?.GetSubsystem(name);
+
+        public void RegisterSubsystem(SubsystemDefinition def) {
+            if (def != null && !string.IsNullOrEmpty(def.Id)) {
+                SubsystemsMap[def.Id] = def;
+            }
+        }
+
+        public static SubsystemDefinition CreateSyntheticAlchemySubsystem() {
+            var def = new SubsystemDefinition {
+                Id = "synthetic_alchemy",
+                Name = "Synthetic Alchemy"
+            };
+
+            var flasks = new SlotGroupDefinition {
+                Name = "flasks",
+                CapacityStat = "max_flasks",
+                FixedCapacity = 3,
+                DefaultState = "empty"
+            };
+            flasks.States.AddRange(new[] { "empty", "prepared", "expended" });
+            def.SlotGroups["flasks"] = flasks;
+
+            var infusions = new SlotGroupDefinition {
+                Name = "infusions",
+                CapacityStat = "max_infusions",
+                FixedCapacity = 2,
+                DefaultState = "inactive"
+            };
+            infusions.States.AddRange(new[] { "inactive", "active" });
+            def.SlotGroups["infusions"] = infusions;
+
+            def.Pools["catalyst"] = new PoolDefinition {
+                Id = "catalyst",
+                Name = "Catalyst Points",
+                CapacityStat = "catalyst_capacity",
+                DefaultCapacity = 10,
+                ResetCadence = "rest"
+            };
+
+            def.Pools["heat"] = new PoolDefinition {
+                Id = "heat",
+                Name = "Heat Points",
+                CapacityStat = "heat_capacity",
+                DefaultCapacity = 5,
+                ResetCadence = "encounter"
+            };
+
+            def.Verbs["throw"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "transition",
+                    SlotGroup = "flasks",
+                    Selector = "invoked",
+                    FromState = "prepared",
+                    ToState = "expended"
+                },
+                new SubsystemStep {
+                    Type = "invoke_element_verb",
+                    Verb = "execute",
+                    Selector = "invoked"
+                }
+            };
+
+            def.Verbs["prepare_all"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "transition",
+                    SlotGroup = "flasks",
+                    Selector = "all",
+                    FromState = "expended",
+                    ToState = "prepared"
+                }
+            };
+
+            def.Verbs["prepare_select"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "transition",
+                    SlotGroup = "flasks",
+                    Selector = "select",
+                    FromState = "expended",
+                    ToState = "prepared"
+                }
+            };
+
+            def.Verbs["deal_random"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "transition",
+                    SlotGroup = "flasks",
+                    Selector = "random",
+                    FromState = "empty",
+                    ToState = "prepared",
+                    CountExpression = "random_flasks_granted"
+                }
+            };
+
+            def.DefaultElementVerbs["execute"] = new List<SubsystemStep>();
+
+            def.Projections.Add(new KindProjectionRule("infusions", "active", "effects"));
+
+            var acidFlask = new SubsystemElement {
+                Name = "Acid Flask",
+                Level = 1,
+                Type = "Flask"
+            };
+            acidFlask.Verbs["execute"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "action",
+                    Action = new SheetAction().AdjustParam("acid_splash_count", 1)
+                }
+            };
+            def.Elements[acidFlask.Name] = acidFlask;
+
+            var fireFlask = new SubsystemElement {
+                Name = "Fire Flask",
+                Level = 1,
+                Type = "Flask"
+            };
+            def.Elements[fireFlask.Name] = fireFlask;
+
+            var speedInfusion = new SubsystemElement {
+                Name = "Speed Infusion",
+                Level = 1,
+                Type = "Infusion"
+            };
+            var speedEffect = new Effect("Speed Infusion Effect");
+            speedEffect.AddModifier("DEX score", new Modifier(4, ModifierTypes.UNTYPED));
+            speedInfusion.AddKindEffect("effects", speedEffect);
+            def.Elements[speedInfusion.Name] = speedInfusion;
+
+            var strengthInfusion = new SubsystemElement {
+                Name = "Strength Infusion",
+                Level = 2,
+                Type = "Infusion"
+            };
+            var strEffect = new Effect("Strength Infusion Effect");
+            strEffect.AddModifier("STR score", new Modifier(2, ModifierTypes.ENHANCEMENT));
+            strengthInfusion.AddKindEffect("effects", strEffect);
+            def.Elements[strengthInfusion.Name] = strengthInfusion;
+
+            return def;
+        }
 
         public object GetEntity(string type, string name) {
             if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;

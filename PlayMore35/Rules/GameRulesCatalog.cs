@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
+using PlayMore35.Subsystems;
 using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
@@ -28,6 +29,7 @@ namespace PlayMore35.Rules {
         public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
         public IReadOnlyDictionary<string, Vestige> Vestiges { get; }
         public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => MartialDiscipline.All;
+        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; } = new ReadOnlyDictionary<string, SubsystemDefinition>(new Dictionary<string, SubsystemDefinition>());
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots { get; }
         public IReadOnlyList<Statistic> CoreStats { get; }
@@ -210,6 +212,7 @@ namespace PlayMore35.Rules {
         public Vestige GetVestige(string name) => FindEntity(Vestiges, name, x => x.Name);
 
         public MartialDiscipline GetDiscipline(string name) => MartialDiscipline.Get(name);
+        public SubsystemDefinition GetSubsystem(string name) => (name != null && Subsystems.TryGetValue(name, out var s)) ? s : null;
 
         public object GetEntity(string type, string name) {
             if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;

@@ -52,6 +52,12 @@ namespace PlayMore35.Global {
                 this.character.Timeline.Context = this;
             }
 
+            if (this.catalog?.Subsystems != null) {
+                foreach (var subDef in this.catalog.Subsystems.Values) {
+                    subsystems.Register(new SubsystemEngine(subDef));
+                }
+            }
+
             foreach (var skill in this.character.skillRanks) {
                 while (skill.Value.Count < this.character.classLevels.Count) {
                     skill.Value.Add(0);
@@ -987,8 +993,17 @@ namespace PlayMore35.Global {
             if (character.Timeline == null) return new TimelineAdvanceResult();
             character.Timeline.Context = this;
             var result = character.Timeline.EndCombat(this);
-            Recalculate();
+            ResetCadence("encounter");
             return result;
+        }
+
+        public void ResetCadence(string cadence) {
+            if (subsystems != null) {
+                foreach (var engine in subsystems.All.OfType<SubsystemEngine>()) {
+                    engine.ResetCadence(cadence, this);
+                }
+            }
+            Recalculate();
         }
 
         public void AddLevel() {
