@@ -14,7 +14,7 @@ We replace all bespoke subsystem engines, interface shims, and class-specific re
    - The engine provides four fundamental C# primitives:
      - **Slot State Transitions**: Generic state changes across slot groups supporting targeting selectors: `invoked` (the triggered slot), `all` (all slots matching `from`), `select` (user-chosen slot), and `random` (stochastic transfer).
      - **Element Verb Invocation**: Explicit invocation of an element-level verb (e.g., `execute`) on an assigned element, falling back to subsystem element verb defaults if not declared on the element.
-     - **Resource Pool Operations**: Clamped numeric pool operations (`consume`, `recharge`, `set`) against dynamic capacity statistics, with cadence resets (`rest`, `encounter`).
+     - **Resource Pool Operations**: Clamped numeric pool operations (`consume`, `recharge`, `set`) against dynamic capacity statistics.
      - **Kind-Based Effect Projection**: Queries assigned elements for specific named categories of effects (`kind`) when a slot matches a required state.
 
 2. **Authoritative Subsystem Catalogs (`maneuvers.json`, `vestiges.json`)**:
@@ -41,6 +41,7 @@ We replace all bespoke subsystem engines, interface shims, and class-specific re
 - **Pass-Through Interface (`ISubsystemEngine`)**: Rejected under the Falsifiable Deletion Test. With a single concrete `SubsystemEngine` handling all subsystems via data, the interface has zero alternate implementations and adds pure indirection.
 - **Subsystem-Level Recovery Verbs (`recover_all`, `recover_one` in `maneuvers.json`)**: Rejected. Subsystems should not know how specific classes recover maneuvers; classes own their recovery mechanics by calling engine primitives.
 - **Polymorphic Action Subclasses (`UnbindVestigeAction`)**: Rejected. Imperative subclasses break JSON transparency and bypass the declarative action pipeline.
+- **Ambient Subsystem Reset Cadences (`reset_cadence` on pools)**: Rejected. Conflated timeline clock parameter decay with subsystem lifecycles. Subsystems in 3.5e have heterogeneous, action-driven lifecycles (vestige 24-hour timeline unbinding, maneuver discrete recovery actions, Vancian rest & study actions). `SubsystemEngine` does not perform ambient resets; pools and slots are reset exclusively via discrete player `SheetAction`s, scheduled timeline reversions, or persistent sheet actions.
 
 ## Consequences
 - Completely eliminates class literacy leaks from C# engines; core engine code knows zero class, discipline, or subsystem element names.

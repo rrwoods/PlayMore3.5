@@ -993,17 +993,7 @@ namespace PlayMore35.Global {
             if (character.Timeline == null) return new TimelineAdvanceResult();
             character.Timeline.Context = this;
             var result = character.Timeline.EndCombat(this);
-            ResetCadence("encounter");
             return result;
-        }
-
-        public void ResetCadence(string cadence) {
-            if (subsystems != null) {
-                foreach (var engine in subsystems.All.OfType<SubsystemEngine>()) {
-                    engine.ResetCadence(cadence, this);
-                }
-            }
-            Recalculate();
         }
 
         public void AddLevel() {

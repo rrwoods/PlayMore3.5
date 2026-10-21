@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.CharacterChoices;
@@ -44,7 +44,7 @@ namespace PlayMore35.Subsystems {
             foreach (var kvp in Definition.Pools) {
                 var poolDef = kvp.Value;
                 int cap = poolDef.DefaultCapacity;
-                poolValues[kvp.Key] = poolDef.ResetMode == "zero" ? 0 : cap;
+                poolValues[kvp.Key] = cap;
             }
         }
 
@@ -106,7 +106,7 @@ namespace PlayMore35.Subsystems {
                 var poolDef = kvp.Value;
                 if (!poolValues.ContainsKey(kvp.Key)) {
                     int cap = GetPoolCapacity(kvp.Key, context);
-                    poolValues[kvp.Key] = poolDef.ResetMode == "zero" ? 0 : cap;
+                    poolValues[kvp.Key] = cap;
                 }
             }
         }
@@ -183,18 +183,6 @@ namespace PlayMore35.Subsystems {
             if (string.IsNullOrEmpty(poolId) || amount <= 0) return;
             int current = GetPoolValue(poolId, ctx);
             SetPoolValue(poolId, current + amount, ctx);
-        }
-
-        public void ResetCadence(string cadence, ICharacterContext ctx = null) {
-            if (string.IsNullOrEmpty(cadence)) return;
-            var activeContext = ctx ?? context;
-            foreach (var kvp in Definition.Pools) {
-                var poolDef = kvp.Value;
-                if (string.Equals(poolDef.ResetCadence, cadence, StringComparison.OrdinalIgnoreCase)) {
-                    int cap = GetPoolCapacity(kvp.Key, activeContext);
-                    SetPoolValue(kvp.Key, poolDef.ResetMode == "zero" ? 0 : cap, activeContext);
-                }
-            }
         }
 
         public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation operation, ICharacterContext ctx) {

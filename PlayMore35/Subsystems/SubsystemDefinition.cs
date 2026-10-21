@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -94,8 +94,6 @@ namespace PlayMore35.Subsystems {
         public string Name { get; set; } = "";
         public string CapacityStat { get; set; } = null;
         public int DefaultCapacity { get; set; } = 0;
-        public string ResetCadence { get; set; } = null;
-        public string ResetMode { get; set; } = "full";
 
         public PoolDefinition() { }
 
@@ -105,8 +103,6 @@ namespace PlayMore35.Subsystems {
             Name = (string)(json["name"] ?? Id);
             CapacityStat = (string)json["capacity_stat"];
             DefaultCapacity = (int)(json["default_capacity"] ?? 0);
-            ResetCadence = (string)json["reset_cadence"];
-            ResetMode = (string)(json["reset_mode"] ?? "full");
         }
 
         public JToken ToJson() {
@@ -116,8 +112,6 @@ namespace PlayMore35.Subsystems {
             );
             if (!string.IsNullOrEmpty(CapacityStat)) json["capacity_stat"] = CapacityStat;
             if (DefaultCapacity > 0) json["default_capacity"] = DefaultCapacity;
-            if (!string.IsNullOrEmpty(ResetCadence)) json["reset_cadence"] = ResetCadence;
-            if (!string.IsNullOrEmpty(ResetMode)) json["reset_mode"] = ResetMode;
             return json;
         }
     }

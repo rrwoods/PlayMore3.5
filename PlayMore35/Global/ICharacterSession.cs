@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
@@ -70,7 +70,6 @@ namespace PlayMore35.Global {
         TimelineAdvanceResult SetTime(DateTime time);
         TimelineAdvanceResult StartCombat();
         TimelineAdvanceResult EndCombat();
-        void ResetCadence(string cadence);
 
         int GetSizeCategory();
         int GetStartingIntelligence();

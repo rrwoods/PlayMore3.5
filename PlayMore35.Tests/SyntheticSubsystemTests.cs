@@ -264,27 +264,34 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void ResourcePoolCadence_ResetsAppropriately_OnRestAndEncounter() {
+        public void ResourcePoolOperations_RechargeAndSet_ViaDeclarativeSheetAction() {
             var (session, _, engine) = CreateSyntheticSession();
 
-            // Catalyst reset_cadence is "rest" (cap 10)
-            // Heat reset_cadence is "encounter" (cap 5)
+            // Catalyst starts at default capacity 10; Heat starts at default capacity 5
             engine.ConsumePool("catalyst", 7, session);
             engine.ConsumePool("heat", 4, session);
 
             Assert.AreEqual(3, engine.GetPoolValue("catalyst", session));
             Assert.AreEqual(1, engine.GetPoolValue("heat", session));
 
-            // End combat triggers encounter cadence reset
+            // End combat does NOT reset pools ambiently
             session.EndCombat();
+            Assert.AreEqual(3, engine.GetPoolValue("catalyst", session), "Catalyst pool must not reset ambiently on EndCombat.");
+            Assert.AreEqual(1, engine.GetPoolValue("heat", session), "Heat pool must not reset ambiently on EndCombat.");
 
-            Assert.AreEqual(5, engine.GetPoolValue("heat", session), "Heat pool with cadence 'encounter' should reset to full upon EndCombat.");
-            Assert.AreEqual(3, engine.GetPoolValue("catalyst", session), "Catalyst pool with cadence 'rest' should not reset upon encounter end.");
+            // Pool recharge via declarative SheetAction (e.g. resting or player action)
+            session.PerformAction(new SheetAction {
+                Subsystem = "synthetic_alchemy",
+                PoolOperation = new SubsystemPoolOperation("catalyst", "recharge", 7)
+            });
+            Assert.AreEqual(10, engine.GetPoolValue("catalyst", session), "Catalyst pool should recharge to full via SheetAction.");
 
-            // Reset rest cadence
-            session.ResetCadence("rest");
-
-            Assert.AreEqual(10, engine.GetPoolValue("catalyst", session), "Catalyst pool should reset to full upon rest cadence reset.");
+            // Pool set via declarative SheetAction
+            session.PerformAction(new SheetAction {
+                Subsystem = "synthetic_alchemy",
+                PoolOperation = new SubsystemPoolOperation("heat", "set", 5)
+            });
+            Assert.AreEqual(5, engine.GetPoolValue("heat", session), "Heat pool should be set to 5 via SheetAction.");
         }
 
         [TestMethod]
@@ -496,10 +503,13 @@ namespace PlayMore35.Tests {
             }, session);
             Assert.AreEqual(1, engine.GetSlots("flasks").Count(s => s?.State == "prepared"));
 
-            // 5. Cadence resets
+            // 5. Pool operation via SheetAction
             engine.ConsumePool("heat", 3, session);
             Assert.AreEqual(2, engine.GetPoolValue("heat", session));
-            session.EndCombat();
+            session.PerformAction(new SheetAction {
+                Subsystem = "synthetic_alchemy",
+                PoolOperation = new SubsystemPoolOperation("heat", "recharge", 3)
+            });
             Assert.AreEqual(5, engine.GetPoolValue("heat", session));
 
             // Complete zero content literacy verified end-to-end

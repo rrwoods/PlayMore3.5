@@ -132,16 +132,14 @@ namespace PlayMore35.Tests {
                 Id = "catalyst",
                 Name = "Catalyst Points",
                 CapacityStat = "catalyst_capacity",
-                DefaultCapacity = 10,
-                ResetCadence = "rest"
+                DefaultCapacity = 10
             };
 
             def.Pools["heat"] = new PoolDefinition {
                 Id = "heat",
                 Name = "Heat Points",
                 CapacityStat = "heat_capacity",
-                DefaultCapacity = 5,
-                ResetCadence = "encounter"
+                DefaultCapacity = 5
             };
 
             def.Verbs["throw"] = new List<SubsystemStep> {
