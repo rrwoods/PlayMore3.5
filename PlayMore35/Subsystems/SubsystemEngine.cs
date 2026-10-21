@@ -43,7 +43,7 @@ namespace PlayMore35.Subsystems {
                 var group = new SubsystemSlotGroup<SubsystemSlot>(
                     capacityProvider: () => ResolveCapacity(groupDef),
                     maxLevelProvider: () => ResolveMaxLevel(groupDef),
-                    levelSelector: slot => GetElementLevel(slot?.Element)
+                    levelSelector: slot => GetElement(slot?.Element)?.GetStatistic("level", context).Value ?? 0
                 );
                 slotGroups[groupKey] = group;
             }
@@ -85,12 +85,6 @@ namespace PlayMore35.Subsystems {
                 return ctx.GetStatValue(name, defaultValue);
             }
             return defaultValue;
-        }
-
-        public int GetElementLevel(string elementName) {
-            if (string.IsNullOrEmpty(elementName)) return 1;
-            var elem = GetElement(elementName);
-            return elem?.Level ?? 1;
         }
 
         public SubsystemElement GetElement(string elementName, ICharacterContext ctx = null) {
@@ -687,7 +681,7 @@ namespace PlayMore35.Subsystems {
         public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) {
             var list = new List<string>();
             foreach (var elem in Definition.Elements.Values) {
-                if (level > 0 && elem.Level > level) continue;
+                if (level > 0 && elem.GetStatistic("level", context).Value > level) continue;
                 if (!string.IsNullOrEmpty(filter)) {
                     bool matches = string.Equals(elem.Type, filter, StringComparison.OrdinalIgnoreCase) ||
                                    string.Equals(Id, filter, StringComparison.OrdinalIgnoreCase) ||
