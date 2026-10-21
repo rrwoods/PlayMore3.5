@@ -320,6 +320,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ResxLinkedResource Include="Resources\*.json" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="InvalidateResxOnJsonChange" BeforeTargets="CoreResGen" Inputs="@(ResxLinkedResource)" Outputs="$(IntermediateOutputPath)PlayMore35.Properties.Resources.resources">
+    <Delete Files="$(IntermediateOutputPath)PlayMore35.Properties.Resources.resources;$(IntermediateOutputPath)$(MSBuildProjectFile).GenerateResource.cache" />
+  </Target>
 </Project>
