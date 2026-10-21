@@ -4,13 +4,34 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Rules;
 
 namespace PlayMore35.Subsystems {
-    public class SubsystemElement : IJsonable {
-        public string Name { get; set; } = "";
-        public int Level { get; set; } = 1;
-        public string Type { get; set; } = "";
-        public int BindingDc { get; set; } = 0;
+    public class SubsystemElement : IJsonable, IPropertyProvider {
+        private readonly Dictionary<string, object> _properties = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        public IReadOnlyDictionary<string, object> Properties => _properties;
+
+        public string Name {
+            get => _properties.TryGetValue("name", out var v) ? v?.ToString() ?? "" : "";
+            set => _properties["name"] = value;
+        }
+
+        public int Level {
+            get => _properties.TryGetValue("level", out var v) ? Convert.ToInt32(v) : 1;
+            set => _properties["level"] = value;
+        }
+
+        public string Type {
+            get => _properties.TryGetValue("type", out var v) ? v?.ToString() ?? "" : "";
+            set => _properties["type"] = value;
+        }
+
+        public int BindingDc {
+            get => _properties.TryGetValue("binding DC", out var v) ? Convert.ToInt32(v) : 0;
+            set => _properties["binding DC"] = value;
+        }
+
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<Effect>> Kinds { get; } = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
 
@@ -18,10 +39,11 @@ namespace PlayMore35.Subsystems {
 
         public SubsystemElement(JObject json) {
             if (json == null) return;
-            Name = (string)(json["name"] ?? "");
-            Level = (int)(json["level"] ?? 1);
-            Type = (string)(json["type"] ?? "");
-            BindingDc = (int)(json["binding DC"] ?? 0);
+            foreach (var prop in json.Properties()) {
+                if (prop.Value is JValue jv) {
+                    _properties[prop.Name] = jv.Value;
+                }
+            }
 
             if (json["verbs"] is JObject verbsObj) {
                 foreach (var prop in verbsObj.Properties()) {
@@ -35,20 +57,6 @@ namespace PlayMore35.Subsystems {
                 foreach (var prop in kindsObj.Properties()) {
                     if (prop.Value is JArray arr) {
                         Kinds[prop.Name] = arr.Select(x => new Effect((JObject)x)).ToList();
-                    }
-                }
-            }
-
-            if (Kinds.TryGetValue("influence", out var infList)) {
-                foreach (var inf in infList) {
-                    if (string.IsNullOrEmpty(inf.Parameter)) {
-                        inf.Parameter = "defied";
-                    }
-                    if (!inf.associatedAction.Any()) {
-                        inf.associatedAction.Add(
-                            new SheetAction { Name = $"Defy {inf.Name}" }
-                                .AdjustParam(inf.ParameterName, 1)
-                        );
                     }
                 }
             }
@@ -69,14 +77,15 @@ namespace PlayMore35.Subsystems {
         }
 
         public JToken ToJson() {
-            var json = new JObject(
-                new JProperty("name", Name),
-                new JProperty("level", Level),
-                new JProperty("type", Type)
-            );
-            if (BindingDc > 0) {
-                json["binding DC"] = BindingDc;
+            var json = new JObject();
+            foreach (var kvp in _properties) {
+                if (kvp.Value != null) {
+                    json[kvp.Key] = JToken.FromObject(kvp.Value);
+                }
             }
+            if (!json.ContainsKey("name")) json["name"] = Name;
+            if (!json.ContainsKey("level")) json["level"] = Level;
+            if (!string.IsNullOrEmpty(Type) && !json.ContainsKey("type")) json["type"] = Type;
 
             if (Verbs.Count > 0) {
                 var verbsObj = new JObject();

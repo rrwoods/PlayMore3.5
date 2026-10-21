@@ -266,7 +266,7 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public void AssignSlot(string groupName, int index, string element, string state = null, string source = null, string featSlot = null) {
+        public void AssignSlot(string groupName, int index, string element, string state = null, string source = null, string featSlot = null, ICharacterContext ctx = null) {
             var group = GetSlotGroup(groupName);
             if (group == null) throw new ArgumentException($"Slot group '{groupName}' not found in subsystem '{Id}'.");
             string targetState = state;
@@ -277,21 +277,23 @@ namespace PlayMore35.Subsystems {
                     targetState = "available";
                 }
             }
+            var activeContext = ctx ?? context;
             var existing = (index >= 0 && index < group.Slots.Count) ? group[index] : null;
             if (existing != null && !string.IsNullOrEmpty(existing.Element)) {
-                ResetElementParameters(existing.Element, context);
+                ResetElementParameters(existing.Element, activeContext);
             }
-            ResetElementParameters(element, context);
+            ResetElementParameters(element, activeContext);
             group[index] = new SubsystemSlot(element, targetState, source, featSlot);
             SyncState();
         }
 
-        public void ClearSlot(string groupName, int index) {
+        public void ClearSlot(string groupName, int index, ICharacterContext ctx = null) {
+            var activeContext = ctx ?? context;
             var group = GetSlotGroup(groupName);
             if (group != null && index >= 0 && index < group.Slots.Count) {
                 var existing = group[index];
                 if (existing != null && !string.IsNullOrEmpty(existing.Element)) {
-                    ResetElementParameters(existing.Element, context);
+                    ResetElementParameters(existing.Element, activeContext);
                 }
             }
             group?.ClearSlot(index);
@@ -549,6 +551,26 @@ namespace PlayMore35.Subsystems {
             string type = step.Type?.ToLowerInvariant() ?? "";
 
             switch (type) {
+                case "assign":
+                    string groupName = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : slotGroup;
+                    string targetState = !string.IsNullOrEmpty(step.ToState) ? step.ToState : "assigned";
+                    int selIndex = targetSlotIndex ?? -1;
+                    if (selIndex == -1 && !string.IsNullOrEmpty(groupName)) {
+                        var grp = GetSlotGroup(groupName);
+                        if (grp != null) {
+                            for (int i = 0; i < grp.Slots.Count; i++) {
+                                if (grp.Slots[i] == null || string.IsNullOrEmpty(grp.Slots[i].Element)) {
+                                    selIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (selIndex >= 0) {
+                        AssignSlot(groupName, selIndex, targetElement, targetState, targetSource, null, ctx);
+                    }
+                    return TimelineRefreshRequirement.FullReload;
+
                 case "transition":
                     var transition = new SubsystemTransition {
                         SlotGroup = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : slotGroup,
