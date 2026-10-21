@@ -107,6 +107,7 @@ namespace PlayMore35.Tests {
                 vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact" });
                 def.SlotGroups["vestiges"] = vestigesSlotGroup;
                 def.RequiredElementProperties.Add("binding DC");
+                def.ElementStatistics["binding DC"] = new List<string> { "binding DCs" };
 
                 def.Verbs["bind_good_pact"] = new List<SubsystemStep> {
                     new SubsystemStep {

@@ -5,6 +5,11 @@
     "required_element_properties": [
       "binding DC"
     ],
+    "element_statistics": {
+      "binding DC": [
+        "binding DCs"
+      ]
+    },
     "slot_groups": {
       "vestiges": {
         "capacity_stat": "number of vestiges",
