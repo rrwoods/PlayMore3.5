@@ -615,5 +615,103 @@ namespace PlayMore35.Tests {
             StringAssert.Contains(ex.Message, "Invalid Element");
             StringAssert.Contains(ex.Message, "binding DC");
         }
+
+        [TestMethod]
+        public void SubsystemDefinition_ElementStatistics_EnforcesPresenceAndRoundTrips() {
+            var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            Assert.IsTrue(pactDef.ElementStatistics.ContainsKey("binding DC"));
+            CollectionAssert.AreEqual(new[] { "binding DCs" }, pactDef.ElementStatistics["binding DC"]);
+
+            var validJson = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("element_statistics", new JObject(
+                        new JProperty("binding DC", new JArray("binding DCs"))
+                    ))
+                )),
+                new JProperty("elements", new JArray(
+                    new JObject(
+                        new JProperty("name", "Valid Element"),
+                        new JProperty("level", 1),
+                        new JProperty("binding DC", 15)
+                    )
+                ))
+            );
+            var validDef = new SubsystemDefinition(validJson);
+            Assert.AreEqual(1, validDef.Elements.Count);
+            Assert.AreEqual(15, validDef.Elements["Valid Element"].GetProperty<int>("binding DC"));
+
+            var roundTripped = new SubsystemDefinition((JObject)validDef.ToJson());
+            Assert.IsTrue(roundTripped.ElementStatistics.ContainsKey("binding DC"));
+            CollectionAssert.AreEqual(new[] { "binding DCs" }, roundTripped.ElementStatistics["binding DC"]);
+
+            var invalidMissingJson = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("element_statistics", new JObject(
+                        new JProperty("binding DC", new JArray("binding DCs"))
+                    ))
+                )),
+                new JProperty("elements", new JArray(
+                    new JObject(
+                        new JProperty("name", "Invalid Element"),
+                        new JProperty("level", 1)
+                    )
+                ))
+            );
+            var ex1 = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(invalidMissingJson));
+            StringAssert.Contains(ex1.Message, "Invalid Element");
+            StringAssert.Contains(ex1.Message, "binding DC");
+        }
+
+        // Source: Tome of Magic, p. 19
+        [TestMethod]
+        public void PactMagic_ElementStatistics_ProjectedIntoEffectPool_AndModifiableByTagOrExactName() {
+            var character = new Character();
+            character.classLevels[0] = "Binder";
+            character.assignedAbilityScores["STR"] = 10;
+            character.assignedAbilityScores["CON"] = 10;
+            var catalog = new GameRulesCatalog();
+            var session = new CharacterSession(character, catalog);
+            var ctx = (ICharacterContext)session;
+            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            Assert.IsNotNull(pactEngine);
+
+            var aym = pactEngine.GetElement("Aym");
+            var amon = pactEngine.GetElement("Amon");
+            Assert.IsNotNull(aym);
+            Assert.IsNotNull(amon);
+
+            // Baseline check via session.GetStatistic and element.GetStatistic
+            Assert.AreEqual("binding DC:Aym", aym.GetStatisticName("binding DC"));
+            Assert.AreEqual("binding DC:Amon", amon.GetStatisticName("binding DC"));
+
+            Assert.AreEqual(15, session.GetStatistic("binding DC:Aym").Value);
+            Assert.AreEqual(20, session.GetStatistic("binding DC:Amon").Value);
+            Assert.AreEqual(15, aym.GetStatistic("binding DC", session).Value);
+            Assert.AreEqual(20, amon.GetStatistic("binding DC", session).Value);
+
+            // Modifiers applied to "binding DCs" (tag) reduce all vestige DCs
+            ctx.Effects.AddEffect(new Effect("Vestige Mastery").AddModifier("binding DCs", new Modifier(-2, ModifierTypes.UNTYPED)));
+            Assert.AreEqual(13, session.GetStatistic("binding DC:Aym").Value);
+            Assert.AreEqual(18, session.GetStatistic("binding DC:Amon").Value);
+            Assert.AreEqual(13, aym.GetStatistic("binding DC", session).Value);
+            Assert.AreEqual(18, amon.GetStatistic("binding DC", session).Value);
+
+            // Modifiers applied to "binding DC:Amon" (exact name) reduce only Amon's DC
+            ctx.Effects.AddEffect(new Effect("Favored Vestige (Amon)").AddModifier("binding DC:Amon", new Modifier(-4, ModifierTypes.UNTYPED)));
+            Assert.AreEqual(14, session.GetStatistic("binding DC:Amon").Value);
+            Assert.AreEqual(13, session.GetStatistic("binding DC:Aym").Value);
+            Assert.AreEqual(14, amon.GetStatistic("binding DC", session).Value);
+            Assert.AreEqual(13, aym.GetStatistic("binding DC", session).Value);
+
+            // Fallback when context is null or omitted
+            Assert.AreEqual(15, aym.GetStatistic("binding DC").Value);
+            Assert.AreEqual(20, amon.GetStatistic("binding DC").Value);
+            Assert.AreEqual(15, aym.GetStatistic("binding DC", (ICharacterContext)null).Value);
+            Assert.AreEqual(20, amon.GetStatistic("binding DC", (ICharacterSession)null).Value);
+        }
     }
 }

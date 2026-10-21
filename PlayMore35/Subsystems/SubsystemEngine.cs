@@ -612,8 +612,30 @@ namespace PlayMore35.Subsystems {
         }
 
         public void ContributeEffects(EffectPool pool, ICharacterContext ctx) {
-            if (pool == null || Definition.Projections == null || Definition.Projections.Count == 0) return;
+            if (pool == null) return;
             var activeContext = ctx ?? context;
+
+            if (Definition.ElementStatistics != null && Definition.Elements != null) {
+                foreach (var elem in Definition.Elements.Values) {
+                    if (elem == null || string.IsNullOrEmpty(elem.Name)) continue;
+                    foreach (var kvp in Definition.ElementStatistics) {
+                        string statProp = kvp.Key;
+                        int baseVal = elem.GetProperty<int>(statProp);
+                        string statName = elem.GetStatisticName(statProp);
+                        var stat = new Statistic(statName);
+                        if (kvp.Value != null) {
+                            foreach (var tag in kvp.Value) {
+                                stat.AddTag(tag);
+                            }
+                        }
+                        pool.AddStat(stat);
+                        pool.AddEffect(new Effect($"{statName} Base")
+                            .AddModifier(statName, new Modifier(baseVal, ModifierTypes.BASE)));
+                    }
+                }
+            }
+
+            if (Definition.Projections == null || Definition.Projections.Count == 0) return;
 
             var defianceParams = new List<string>();
 

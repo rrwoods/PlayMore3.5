@@ -158,6 +158,7 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, PoolDefinition> Pools { get; } = new Dictionary<string, PoolDefinition>(StringComparer.OrdinalIgnoreCase);
         public List<KindProjectionRule> Projections { get; } = new List<KindProjectionRule>();
         public List<string> RequiredElementProperties { get; } = new List<string>();
+        public Dictionary<string, List<string>> ElementStatistics { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
@@ -214,6 +215,16 @@ namespace PlayMore35.Subsystems {
                 RequiredElementProperties.AddRange(reqPropsArr.Select(x => x.ToString()));
             }
 
+            if (subJson["element_statistics"] is JObject statObj) {
+                foreach (var prop in statObj.Properties()) {
+                    var tags = new List<string>();
+                    if (prop.Value is JArray tagsArr) {
+                        tags.AddRange(tagsArr.Select(x => (string)x));
+                    }
+                    ElementStatistics[prop.Name] = tags;
+                }
+            }
+
             if (subJson["actions"] is JArray actionsArr) {
                 Actions.AddRange(actionsArr.Select(x => SheetAction.FromJson((JObject)x)));
             }
@@ -226,6 +237,16 @@ namespace PlayMore35.Subsystems {
                             foreach (var reqProp in RequiredElementProperties) {
                                 if (!elem.Properties.ContainsKey(reqProp) || elem.Properties[reqProp] == null) {
                                     throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required property '{reqProp}'.");
+                                }
+                            }
+                            foreach (var statProp in ElementStatistics.Keys) {
+                                if (!elem.Properties.TryGetValue(statProp, out var val) || val == null) {
+                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required element statistic '{statProp}'.");
+                                }
+                                try {
+                                    Convert.ToInt32(val);
+                                } catch {
+                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' statistic '{statProp}' must be numeric, but was '{val}'.");
                                 }
                             }
                             Elements[elem.Name] = elem;
@@ -271,6 +292,14 @@ namespace PlayMore35.Subsystems {
 
             if (RequiredElementProperties.Count > 0) {
                 subJson["required_element_properties"] = new JArray(RequiredElementProperties);
+            }
+
+            if (ElementStatistics.Count > 0) {
+                var statObj = new JObject();
+                foreach (var kvp in ElementStatistics) {
+                    statObj[kvp.Key] = new JArray(kvp.Value);
+                }
+                subJson["element_statistics"] = statObj;
             }
 
             if (Actions.Count > 0) {

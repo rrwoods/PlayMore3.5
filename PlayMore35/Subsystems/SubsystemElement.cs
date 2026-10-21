@@ -47,6 +47,36 @@ namespace PlayMore35.Subsystems {
             _properties[key] = value;
         }
 
+        public string GetStatisticName(string propertyName) => $"{propertyName}:{Name}";
+
+        public StatView GetStatistic(string propertyName, ICharacterContext context) {
+            var statName = GetStatisticName(propertyName);
+            if (context != null) {
+                var stat = context.GetStatistic(statName);
+                if (stat != null && (stat.Value != 0 || (stat.Explanation != null && stat.Explanation.Count > 0))) {
+                    return stat;
+                }
+            }
+            return new StatView(statName, GetProperty<int>(propertyName));
+        }
+
+        public StatView GetStatistic(string propertyName, ICharacterSession session) {
+            var statName = GetStatisticName(propertyName);
+            if (session != null) {
+                var stat = session.GetStatistic(statName);
+                if (stat != null && (stat.Value != 0 || (stat.Explanation != null && stat.Explanation.Count > 0))) {
+                    return stat;
+                }
+            }
+            return new StatView(statName, GetProperty<int>(propertyName));
+        }
+
+        public StatView GetStatistic(string propertyName, CharacterSession session) =>
+            GetStatistic(propertyName, (ICharacterSession)session);
+
+        public StatView GetStatistic(string propertyName) =>
+            new StatView(GetStatisticName(propertyName), GetProperty<int>(propertyName));
+
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<Effect>> Kinds { get; } = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
 
