@@ -16,6 +16,20 @@
       }
     },
     "verbs": {
+      "bind_good_pact": [
+        {
+          "type": "assign",
+          "slot_group": "vestiges",
+          "to": "good_pact"
+        }
+      ],
+      "bind_poor_pact": [
+        {
+          "type": "assign",
+          "slot_group": "vestiges",
+          "to": "poor_pact"
+        }
+      ],
       "unbind": [
         {
           "type": "transition",

@@ -1330,8 +1330,16 @@ namespace PlayMore35 {
                         Verb = "unbind"
                     });
                 } else {
-                    string state = pactStates[slotIndex].SelectedIndex == 1 ? "poor_pact" : "good_pact";
-                    pactEngine?.AssignSlot("vestiges", slotIndex, vestige.Name, state, "Binder");
+                    string verb = pactStates[slotIndex].SelectedIndex == 1 ? "bind_poor_pact" : "bind_good_pact";
+                    session.PerformAction(new SheetAction {
+                        Name = $"Bind {vestige.Name} slot {slotIndex}",
+                        Subsystem = "pact_magic",
+                        SlotGroup = "vestiges",
+                        SlotIndex = slotIndex,
+                        Element = vestige.Name,
+                        Verb = verb,
+                        Source = "Binder"
+                    });
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.BindingDc})";
                 }
                 session.Recalculate();
@@ -1344,9 +1352,16 @@ namespace PlayMore35 {
             return (sender, e) => {
                 RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.BindingDc;
-                var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
-                string state = bindingCheckSuccess ? "good_pact" : "poor_pact";
-                pactEngine?.AssignSlot("vestiges", slotIndex, vestige.Name, state, "Binder");
+                string verb = bindingCheckSuccess ? "bind_good_pact" : "bind_poor_pact";
+                session.PerformAction(new SheetAction {
+                    Name = $"Bind {vestige.Name} slot {slotIndex}",
+                    Subsystem = "pact_magic",
+                    SlotGroup = "vestiges",
+                    SlotIndex = slotIndex,
+                    Element = vestige.Name,
+                    Verb = verb,
+                    Source = "Binder"
+                });
                 var unbindAction = new SheetAction {
                     Name = $"Unbind vestige slot {slotIndex}",
                     Subsystem = "pact_magic",

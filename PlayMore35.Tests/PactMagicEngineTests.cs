@@ -469,5 +469,94 @@ namespace PlayMore35.Tests {
             });
             Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
         }
+
+        [TestMethod]
+        public void SubsystemElement_ImplementsIPropertyProvider_AndExposesGenericProperties() {
+            var catalog = new GameRulesCatalog();
+            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"));
+            var aym = engine.GetElement("Aym");
+            Assert.IsNotNull(aym);
+
+            var provider = aym as IPropertyProvider;
+            Assert.IsNotNull(provider);
+            Assert.AreEqual("Aym", provider.Properties["name"]);
+            Assert.AreEqual(15, Convert.ToInt32(provider.Properties["binding DC"]));
+            Assert.AreEqual(15, aym.BindingDc);
+
+            // Generic custom property support
+            var customElem = new SubsystemElement(new JObject(
+                new JProperty("name", "Custom Element"),
+                new JProperty("level", 3),
+                new JProperty("customKey", "customValue")
+            ));
+            var customProvider = customElem as IPropertyProvider;
+            Assert.IsNotNull(customProvider);
+            Assert.AreEqual("customValue", customProvider.Properties["customKey"]);
+        }
+
+        [TestMethod]
+        public void PactMagic_DeclarativeBinding_GoodPactAndPoorPact_ViaSheetActions() {
+            var vestige = CreateTestVestige("Aym", 1, 15);
+            var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestige }, inner: new GameRulesCatalog());
+            var character = new Character();
+            character.classLevels[0] = "Binder";
+            character.assignedAbilityScores["STR"] = 10;
+            character.assignedAbilityScores["CON"] = 10;
+            var session = new CharacterSession(character, contentProvider);
+            var ctx = (ICharacterContext)session;
+            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+
+            // 1. Bind good pact via declarative SheetAction
+            session.PerformAction(new SheetAction {
+                Name = "Bind Aym slot 0",
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Element = "Aym",
+                Verb = "bind_good_pact",
+                Source = "Binder"
+            });
+            session.Recalculate();
+
+            var slot = engine.GetSlot("vestiges", 0);
+            Assert.IsNotNull(slot);
+            Assert.AreEqual("Aym", slot.Element);
+            Assert.AreEqual("good_pact", slot.State);
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+
+            // 2. Bind poor pact via declarative SheetAction
+            session.PerformAction(new SheetAction {
+                Name = "Bind Aym slot 0",
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Element = "Aym",
+                Verb = "bind_poor_pact",
+                Source = "Binder"
+            });
+            session.Recalculate();
+
+            slot = engine.GetSlot("vestiges", 0);
+            Assert.IsNotNull(slot);
+            Assert.AreEqual("Aym", slot.Element);
+            Assert.AreEqual("poor_pact", slot.State);
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+
+            // 3. Unbind via declarative SheetAction
+            session.PerformAction(new SheetAction {
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Verb = "unbind"
+            });
+            session.Recalculate();
+
+            slot = engine.GetSlot("vestiges", 0);
+            Assert.IsTrue(string.IsNullOrEmpty(slot.Element) || slot.State == "empty");
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+        }
     }
 }

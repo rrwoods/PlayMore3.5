@@ -107,6 +107,20 @@ namespace PlayMore35.Tests {
                 vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact", "suppressed" });
                 def.SlotGroups["vestiges"] = vestigesSlotGroup;
 
+                def.Verbs["bind_good_pact"] = new List<SubsystemStep> {
+                    new SubsystemStep {
+                        Type = "assign",
+                        SlotGroup = "vestiges",
+                        ToState = "good_pact"
+                    }
+                };
+                def.Verbs["bind_poor_pact"] = new List<SubsystemStep> {
+                    new SubsystemStep {
+                        Type = "assign",
+                        SlotGroup = "vestiges",
+                        ToState = "poor_pact"
+                    }
+                };
                 def.Verbs["unbind"] = new List<SubsystemStep> {
                     new SubsystemStep {
                         Type = "transition",
