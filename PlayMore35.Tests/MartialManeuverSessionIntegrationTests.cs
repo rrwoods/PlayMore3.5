@@ -302,7 +302,7 @@ namespace PlayMore35.Tests {
 
             var restoredChar = new Character((JObject)json);
             Assert.IsTrue(restoredChar.Subsystems.ContainsKey(MartialManeuverEngine.SubsystemId));
-            Assert.IsInstanceOfType(restoredChar.Subsystems[MartialManeuverEngine.SubsystemId], typeof(MartialManeuverState));
+            Assert.IsInstanceOfType(restoredChar.Subsystems[MartialManeuverEngine.SubsystemId], typeof(SubsystemState));
 
             // Load into a new CharacterSession
             var restoredSession = new CharacterSession(restoredChar, catalog);

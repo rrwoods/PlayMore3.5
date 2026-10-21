@@ -59,9 +59,16 @@ namespace PlayMore35.Subsystems.PactMagic {
             if (stateLoaded) return;
             if (context?.Character != null && slots.Capacity > 0) {
                 stateLoaded = true;
-                if (context.Character.Subsystems.TryGetValue(SubsystemId, out var state) && state is PactMagicState pactState) {
-                    for (int i = 0; i < pactState.Slots.Count && i < slots.Capacity; i++) {
-                        slots[i] = new PactSlot(pactState.Slots[i].VestigeName, pactState.Slots[i].State);
+                if (context.Character.Subsystems.TryGetValue(SubsystemId, out var subState) && subState != null) {
+                    if (subState.Slots.TryGetValue("vestiges", out var vestigeSlots)) {
+                        for (int i = 0; i < vestigeSlots.Count && i < slots.Capacity; i++) {
+                            var s = vestigeSlots[i];
+                            PactState pState = PactState.GOOD_PACT;
+                            if (!string.IsNullOrEmpty(s.State) && Enum.TryParse(s.State, true, out PactState parsed)) {
+                                pState = parsed;
+                            }
+                            slots[i] = new PactSlot(s.Element, pState);
+                        }
                     }
                 }
                 SyncState();
@@ -205,14 +212,18 @@ namespace PlayMore35.Subsystems.PactMagic {
 
         private void SyncState() {
             if (context?.Character == null) return;
-            if (!context.Character.Subsystems.TryGetValue(SubsystemId, out var state) || !(state is PactMagicState pactMagicState)) {
-                pactMagicState = new PactMagicState();
-                context.Character.Subsystems[SubsystemId] = pactMagicState;
+            if (!context.Character.Subsystems.TryGetValue(SubsystemId, out var subState) || subState == null) {
+                subState = new SubsystemState();
+                context.Character.Subsystems[SubsystemId] = subState;
             }
-            pactMagicState.Slots.Clear();
+            var vestigeList = new List<SubsystemSlot>();
             for (int i = 0; i < SlotCount; i++) {
-                pactMagicState.Slots.Add(GetSlot(i));
+                var slot = GetSlot(i);
+                if (slot != null && !string.IsNullOrEmpty(slot.VestigeName)) {
+                    vestigeList.Add(new SubsystemSlot(slot.VestigeName, slot.State.ToString().ToLowerInvariant(), "Binder"));
+                }
             }
+            subState.Slots["vestiges"] = vestigeList;
         }
     }
 }

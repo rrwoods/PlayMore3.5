@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems {
-    public class SubsystemSlot : IJsonable {
+    public class SubsystemSlot : IJsonable, IEquatable<SubsystemSlot> {
         public string Element { get; set; } = "";
         public string State { get; set; } = "";
         public string Source { get; set; } = "";
@@ -38,6 +38,29 @@ namespace PlayMore35.Subsystems {
                 json["feat_slot"] = FeatSlot;
             }
             return json;
+        }
+
+        public bool Equals(SubsystemSlot other) {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(Element, other.Element, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(State, other.State, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(Source, other.Source, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(FeatSlot, other.FeatSlot, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override bool Equals(object obj) {
+            return Equals(obj as SubsystemSlot);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                int hash = (Element != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Element) : 0);
+                hash = (hash * 397) ^ (State != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(State) : 0);
+                hash = (hash * 397) ^ (Source != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Source) : 0);
+                hash = (hash * 397) ^ (FeatSlot != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(FeatSlot) : 0);
+                return hash;
+            }
         }
     }
 

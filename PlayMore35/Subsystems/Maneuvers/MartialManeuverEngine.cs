@@ -5,6 +5,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
+using PlayMore35.Subsystems;
 
 namespace PlayMore35.Subsystems.Maneuvers {
     public class MartialManeuverEngine : ISubsystemEngine {
@@ -70,15 +71,62 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 this.catalog = context.Catalog;
             }
             if (context.Character != null) {
-                if (context.Character.Subsystems.TryGetValue(SubsystemId, out var existingState) && existingState is MartialManeuverState mState) {
-                    this.state = mState;
-                } else {
-                    context.Character.Subsystems[SubsystemId] = this.state;
+                if (context.Character.Subsystems.TryGetValue(SubsystemId, out var subState) && subState != null) {
+                    if (subState.Slots.TryGetValue("readied", out var readiedSlots)) {
+                        foreach (var s in readiedSlots) {
+                            if (s != null && !string.IsNullOrEmpty(s.Element)) {
+                                ManeuverState mState = ManeuverState.Available;
+                                if (!string.IsNullOrEmpty(s.State) && Enum.TryParse(s.State, true, out ManeuverState parsed)) {
+                                    mState = parsed;
+                                }
+                                string src = !string.IsNullOrEmpty(s.Source) ? s.Source : "Warblade";
+                                state.GetOrCreateKnown(src).Add(new KnownManeuverSlot(s.Element, mState, !string.IsNullOrEmpty(s.FeatSlot), s.FeatSlot));
+                            }
+                        }
+                    }
+                    if (subState.Slots.TryGetValue("stances", out var stanceSlots)) {
+                        foreach (var s in stanceSlots) {
+                            if (s != null && !string.IsNullOrEmpty(s.Element)) {
+                                bool active = string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase);
+                                string src = !string.IsNullOrEmpty(s.Source) ? s.Source : "Warblade";
+                                state.GetOrCreateStances(src).Add(new StanceSlot(s.Element, active, !string.IsNullOrEmpty(s.FeatSlot), s.FeatSlot));
+                            }
+                        }
+                    }
                 }
+                SyncState();
             }
             knownGroups.Clear();
             stanceGroups.Clear();
             ProjectFeatSlots();
+            SyncState();
+        }
+
+        private void SyncState() {
+            if (context?.Character == null) return;
+            if (!context.Character.Subsystems.TryGetValue(SubsystemId, out var subState) || subState == null) {
+                subState = new SubsystemState();
+                context.Character.Subsystems[SubsystemId] = subState;
+            }
+            var readiedList = new List<SubsystemSlot>();
+            foreach (var kvp in state.Known) {
+                foreach (var slot in kvp.Value) {
+                    if (slot != null && !string.IsNullOrEmpty(slot.ManeuverName)) {
+                        readiedList.Add(new SubsystemSlot(slot.ManeuverName, slot.State.ToString().ToLowerInvariant(), kvp.Key, slot.FeatSlot));
+                    }
+                }
+            }
+            subState.Slots["readied"] = readiedList;
+
+            var stanceList = new List<SubsystemSlot>();
+            foreach (var kvp in state.Stances) {
+                foreach (var slot in kvp.Value) {
+                    if (slot != null && !string.IsNullOrEmpty(slot.StanceName)) {
+                        stanceList.Add(new SubsystemSlot(slot.StanceName, slot.IsActive ? "active" : "inactive", kvp.Key, slot.FeatSlot));
+                    }
+                }
+            }
+            subState.Slots["stances"] = stanceList;
         }
 
         public IEnumerable<string> GetAllSources() {
@@ -159,6 +207,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 throw new InvalidOperationException($"Cannot retrain or replace feat-bound maneuver slot '{existing.ManeuverName}'.");
             }
             GetKnownSlotGroup(source)[slotIndex] = slot;
+            SyncState();
         }
 
         public void SetKnownSlot(string source, int slotIndex, string maneuverName) {
@@ -176,6 +225,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 throw new InvalidOperationException($"Cannot clear feat-bound maneuver slot '{existing.ManeuverName}'.");
             }
             GetKnownSlotGroup(source).ClearSlot(slotIndex);
+            SyncState();
         }
 
         public StanceSlot GetStanceSlot(string source, int slotIndex) {
@@ -196,6 +246,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 throw new InvalidOperationException($"Cannot retrain or replace feat-bound stance slot '{existing.StanceName}'.");
             }
             GetStanceSlotGroup(source)[slotIndex] = slot;
+            SyncState();
         }
 
         public void SetStanceSlot(string source, int slotIndex, string stanceName) {
@@ -213,6 +264,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 throw new InvalidOperationException($"Cannot clear feat-bound stance slot '{existing.StanceName}'.");
             }
             GetStanceSlotGroup(source).ClearSlot(slotIndex);
+            SyncState();
         }
 
         public IReadOnlyList<KnownManeuverSlot> GetKnownSlots(string source) {
@@ -591,6 +643,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 this.context = ctx;
             }
             ProjectFeatSlots();
+            SyncState();
 
             if (ctx != null) {
                 foreach (var source in GetAllSources()) {
@@ -681,6 +734,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             }
 
             slot.IsActive = true;
+            SyncState();
         }
 
         // Source: Tome of Battle, p. 23
@@ -698,6 +752,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             if (slot2 != null && slot2 != slot1) {
                 slot2.IsActive = true;
             }
+            SyncState();
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43
@@ -705,6 +760,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             var slot = GetStanceSlot(source, slotIndex);
             if (slot != null && slot.IsActive) {
                 slot.IsActive = false;
+                SyncState();
             }
         }
 
@@ -719,6 +775,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     }
                 }
             }
+            SyncState();
         }
 
         // Source: Tome of Battle, p. 38
@@ -730,6 +787,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 } else {
                     slot.State = ManeuverState.Available;
                 }
+                SyncState();
             }
         }
 
@@ -738,6 +796,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             var slot = GetKnownSlot(source, slotIndex);
             if (slot != null && slot.State != ManeuverState.Unreadied) {
                 slot.State = ManeuverState.Unreadied;
+                SyncState();
             }
         }
 
@@ -760,6 +819,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 }
             }
 
+            SyncState();
             return true;
         }
 
@@ -772,6 +832,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     }
                 }
             }
+            SyncState();
         }
 
         // Source: Tome of Battle, p. 40
@@ -779,6 +840,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             var slot = GetKnownSlot(source, slotIndex);
             if (slot != null && slot.State == ManeuverState.Expended) {
                 slot.State = ManeuverState.Available;
+                SyncState();
             }
         }
 
@@ -813,6 +875,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             for (int i = 0; i < grantCount; i++) {
                 shuffled[i].State = ManeuverState.Available;
             }
+            SyncState();
         }
 
         // Source: Tome of Battle, pp. 38, 40
@@ -826,6 +889,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             if (withheldSlots.Count > 0) {
                 int pickIndex = rng.Next(withheldSlots.Count);
                 withheldSlots[pickIndex].State = ManeuverState.Available;
+                SyncState();
             } else {
                 DealCrusader(source, rng);
             }
@@ -850,6 +914,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                     }
                 }
             }
+            SyncState();
         }
 
         public void ProjectFeatSlots() {

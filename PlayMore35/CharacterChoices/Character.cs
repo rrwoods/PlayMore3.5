@@ -7,8 +7,6 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
-using PlayMore35.Subsystems.PactMagic;
 
 namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
@@ -37,7 +35,7 @@ namespace PlayMore35.CharacterChoices {
         public List<XpSessionEntry> sessions;
 
         public List<string> externalEffects;
-        public Dictionary<string, IJsonable> Subsystems { get; set; } = new Dictionary<string, IJsonable>();
+        public Dictionary<string, SubsystemState> Subsystems { get; set; } = new Dictionary<string, SubsystemState>(StringComparer.OrdinalIgnoreCase);
 
         // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
         // These are for saving and loading ONLY!
@@ -106,13 +104,11 @@ namespace PlayMore35.CharacterChoices {
             equipped = new EquippedChoices((JObject)json["equipped"]);
             sessions = ((JArray)json["sessions"]).Select(x => new XpSessionEntry((JObject)x)).OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList();
             externalEffects = ((JArray)json["effects"]).Select(x => (string)x).ToList();
-            Subsystems = new Dictionary<string, IJsonable>();
+            Subsystems = new Dictionary<string, SubsystemState>(StringComparer.OrdinalIgnoreCase);
             if (json["subsystems"] is JObject subObj) {
                 foreach (var prop in subObj.Properties()) {
-                    if (prop.Name == PactMagicEngine.SubsystemId && prop.Value is JObject pactJson) {
-                        Subsystems[prop.Name] = PactMagicState.FromJson(pactJson);
-                    } else if (prop.Name == MartialManeuverEngine.SubsystemId && prop.Value is JObject maneuverJson) {
-                        Subsystems[prop.Name] = new MartialManeuverState(maneuverJson);
+                    if (prop.Value is JObject stateJson) {
+                        Subsystems[prop.Name] = new SubsystemState(stateJson);
                     }
                 }
             }
@@ -155,7 +151,7 @@ namespace PlayMore35.CharacterChoices {
             sessions = new List<XpSessionEntry>();
 
             externalEffects = new List<string>();
-            Subsystems = new Dictionary<string, IJsonable>();
+            Subsystems = new Dictionary<string, SubsystemState>(StringComparer.OrdinalIgnoreCase);
 
             flagValues = new Dictionary<string, bool>();
             paramValues = new Dictionary<string, int>();

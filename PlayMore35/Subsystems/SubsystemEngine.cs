@@ -14,7 +14,14 @@ namespace PlayMore35.Subsystems {
         public SubsystemDefinition Definition { get; }
         public string Id => Definition.Id;
         public string Name => Definition.Name;
-        public bool IsActive => true;
+        public bool IsActive {
+            get {
+                if (slotGroups.Values.Any(g => g.Capacity > 0)) return true;
+                if (slotGroups.Values.Any(g => g.Slots.Any(s => s != null && !string.IsNullOrEmpty(s.Element)))) return true;
+                if (Definition.Pools.Keys.Any(k => GetPoolCapacity(k, context) > 0)) return true;
+                return false;
+            }
+        }
         public Random Rng { get; private set; }
 
         public SubsystemEngine(SubsystemDefinition definition, Random rng = null) {
@@ -102,12 +109,89 @@ namespace PlayMore35.Subsystems {
 
         public void Initialize(ICharacterContext context) {
             this.context = context;
+            if (context?.Character != null) {
+                if (context.Character.Subsystems.TryGetValue(Id, out var state) && state != null) {
+                    LoadState(state);
+                }
+            }
             foreach (var kvp in Definition.Pools) {
                 var poolDef = kvp.Value;
                 if (!poolValues.ContainsKey(kvp.Key)) {
                     int cap = GetPoolCapacity(kvp.Key, context);
                     poolValues[kvp.Key] = cap;
                 }
+            }
+            if (context?.Character != null && (IsActive || context.Character.Subsystems.ContainsKey(Id))) {
+                SyncState();
+            }
+        }
+
+        public void LoadState(SubsystemState state) {
+            if (state == null) return;
+
+            if (state.Slots != null) {
+                foreach (var kvp in state.Slots) {
+                    var group = GetSlotGroup(kvp.Key);
+                    if (group != null) {
+                        group.ClearAll();
+                        for (int i = 0; i < kvp.Value.Count; i++) {
+                            var s = kvp.Value[i];
+                            if (s != null) {
+                                group[i] = new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (state.Pools != null) {
+                foreach (var kvp in state.Pools) {
+                    poolValues[kvp.Key] = kvp.Value;
+                }
+            }
+        }
+
+        public SubsystemState ExportState() {
+            var state = new SubsystemState();
+            foreach (var kvp in slotGroups) {
+                var groupKey = kvp.Key;
+                var group = kvp.Value;
+                var slots = group.Slots;
+                int lastIndex = -1;
+                for (int i = slots.Count - 1; i >= 0; i--) {
+                    var s = slots[i];
+                    if (s != null && (!string.IsNullOrEmpty(s.Element) || !string.IsNullOrEmpty(s.State) || !string.IsNullOrEmpty(s.Source))) {
+                        lastIndex = i;
+                        break;
+                    }
+                }
+                var list = new List<SubsystemSlot>();
+                for (int i = 0; i <= lastIndex; i++) {
+                    var s = slots[i];
+                    if (s != null) {
+                        list.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                    } else {
+                        list.Add(new SubsystemSlot());
+                    }
+                }
+                state.Slots[groupKey] = list;
+            }
+
+            foreach (var kvp in Definition.Pools) {
+                state.Pools[kvp.Key] = GetPoolValue(kvp.Key);
+            }
+            foreach (var kvp in poolValues) {
+                if (!state.Pools.ContainsKey(kvp.Key)) {
+                    state.Pools[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return state;
+        }
+
+        private void SyncState() {
+            if (context?.Character?.Subsystems != null) {
+                context.Character.Subsystems[Id] = ExportState();
             }
         }
 
@@ -144,11 +228,13 @@ namespace PlayMore35.Subsystems {
                 }
             }
             group[index] = new SubsystemSlot(element, targetState, source, featSlot);
+            SyncState();
         }
 
         public void ClearSlot(string groupName, int index) {
             var group = GetSlotGroup(groupName);
             group?.ClearSlot(index);
+            SyncState();
         }
 
         public int GetPoolCapacity(string poolId, ICharacterContext ctx = null) {
@@ -171,6 +257,7 @@ namespace PlayMore35.Subsystems {
             if (string.IsNullOrEmpty(poolId)) return;
             int cap = GetPoolCapacity(poolId, ctx);
             poolValues[poolId] = Math.Max(0, Math.Min(value, cap));
+            SyncState();
         }
 
         public void ConsumePool(string poolId, int amount, ICharacterContext ctx = null) {
@@ -305,6 +392,7 @@ namespace PlayMore35.Subsystems {
                     break;
             }
 
+            SyncState();
             return TimelineRefreshRequirement.FullReload;
         }
 

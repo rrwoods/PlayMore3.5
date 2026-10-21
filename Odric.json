@@ -119,12 +119,16 @@
   "effects": [],
   "subsystems": {
     "pact_magic": {
-      "slots": [
-        {
-          "name": "Savnok",
-          "state": "POOR_PACT"
-        }
-      ]
+      "slots": {
+        "vestiges": [
+          {
+            "element": "Savnok",
+            "state": "poor_pact",
+            "source": "Binder"
+          }
+        ]
+      },
+      "pools": {}
     }
   },
   "routine preferences": {

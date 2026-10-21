@@ -378,9 +378,11 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void Character_Subsystems_SerializesAndRoundTripsUnderSubsystemsJson() {
             var character = new Character();
-            var pactState = new PactMagicState();
-            pactState.Slots.Add(new PactSlot("Aym", PactState.GOOD_PACT));
-            pactState.Slots.Add(new PactSlot("Ronove", PactState.POOR_PACT));
+            var pactState = new SubsystemState();
+            pactState.Slots["vestiges"] = new List<SubsystemSlot> {
+                new SubsystemSlot("Aym", "good_pact", "Binder"),
+                new SubsystemSlot("Ronove", "poor_pact", "Binder")
+            };
             character.Subsystems[PactMagicEngine.SubsystemId] = pactState;
 
             JToken json = character.ToJson();
@@ -389,13 +391,14 @@ namespace PlayMore35.Tests {
 
             var restored = new Character((JObject)json);
             Assert.IsTrue(restored.Subsystems.ContainsKey(PactMagicEngine.SubsystemId));
-            var restoredPact = restored.Subsystems[PactMagicEngine.SubsystemId] as PactMagicState;
+            var restoredPact = restored.Subsystems[PactMagicEngine.SubsystemId];
             Assert.IsNotNull(restoredPact);
-            Assert.AreEqual(2, restoredPact.Slots.Count);
-            Assert.AreEqual("Aym", restoredPact.Slots[0].VestigeName);
-            Assert.AreEqual(PactState.GOOD_PACT, restoredPact.Slots[0].State);
-            Assert.AreEqual("Ronove", restoredPact.Slots[1].VestigeName);
-            Assert.AreEqual(PactState.POOR_PACT, restoredPact.Slots[1].State);
+            Assert.IsTrue(restoredPact.Slots.ContainsKey("vestiges"));
+            Assert.AreEqual(2, restoredPact.Slots["vestiges"].Count);
+            Assert.AreEqual("Aym", restoredPact.Slots["vestiges"][0].Element);
+            Assert.AreEqual("good_pact", restoredPact.Slots["vestiges"][0].State);
+            Assert.AreEqual("Ronove", restoredPact.Slots["vestiges"][1].Element);
+            Assert.AreEqual("poor_pact", restoredPact.Slots["vestiges"][1].State);
         }
 
         [TestMethod]

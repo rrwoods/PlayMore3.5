@@ -23,7 +23,7 @@ namespace PlayMore35.CharacterChoices {
         EquippedChoices equipped { get; }
         IReadOnlyList<XpSessionEntry> sessions { get; }
         IReadOnlyList<string> externalEffects { get; }
-        IReadOnlyDictionary<string, IJsonable> Subsystems { get; }
+        IReadOnlyDictionary<string, SubsystemState> Subsystems { get; }
         IReadOnlyDictionary<string, bool> flagValues { get; }
         IReadOnlyDictionary<string, int> paramValues { get; }
         Timeline Timeline { get; }

@@ -395,12 +395,16 @@ namespace PlayMore35.Tests {
 
         // Source: Tome of Battle, p. 38
         [TestMethod]
-        public void Character_Subsystems_DeserializesMartialManeuverState() {
+        public void Character_Subsystems_DeserializesSubsystemState() {
             var character = new Character();
             character.name = "Test Martial Adept";
-            var mState = new MartialManeuverState();
-            mState.GetOrCreateKnown("Warblade").Add(new KnownManeuverSlot("Steel Strike", ManeuverState.Available));
-            mState.GetOrCreateStances("Warblade").Add(new StanceSlot("Punishing Stance", true));
+            var mState = new SubsystemState();
+            mState.Slots["readied"] = new List<SubsystemSlot> {
+                new SubsystemSlot("Steel Strike", "available", "Warblade")
+            };
+            mState.Slots["stances"] = new List<SubsystemSlot> {
+                new SubsystemSlot("Punishing Stance", "active", "Warblade")
+            };
             character.Subsystems["martial_maneuvers"] = mState;
 
             // Serialize to JSON
@@ -410,14 +414,14 @@ namespace PlayMore35.Tests {
             // Restore from JSON
             var restored = new Character(json);
             Assert.IsTrue(restored.Subsystems.ContainsKey("martial_maneuvers"));
-            Assert.IsInstanceOfType(restored.Subsystems["martial_maneuvers"], typeof(MartialManeuverState));
+            Assert.IsInstanceOfType(restored.Subsystems["martial_maneuvers"], typeof(SubsystemState));
 
-            var restoredState = (MartialManeuverState)restored.Subsystems["martial_maneuvers"];
-            Assert.IsTrue(restoredState.Known.ContainsKey("Warblade"));
-            Assert.AreEqual("Steel Strike", restoredState.Known["Warblade"][0].ManeuverName);
-            Assert.AreEqual(ManeuverState.Available, restoredState.Known["Warblade"][0].State);
-            Assert.AreEqual("Punishing Stance", restoredState.Stances["Warblade"][0].StanceName);
-            Assert.IsTrue(restoredState.Stances["Warblade"][0].IsActive);
+            var restoredState = restored.Subsystems["martial_maneuvers"];
+            Assert.IsTrue(restoredState.Slots.ContainsKey("readied"));
+            Assert.AreEqual("Steel Strike", restoredState.Slots["readied"][0].Element);
+            Assert.AreEqual("available", restoredState.Slots["readied"][0].State);
+            Assert.AreEqual("Punishing Stance", restoredState.Slots["stances"][0].Element);
+            Assert.AreEqual("active", restoredState.Slots["stances"][0].State);
         }
 
         // Source: Tome of Battle, p. 38

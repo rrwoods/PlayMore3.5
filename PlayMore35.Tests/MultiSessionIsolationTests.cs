@@ -147,11 +147,12 @@ namespace PlayMore35.Tests {
 
             // Assert Subsystems: Pact Magic
             Assert.IsTrue(session.Character.Subsystems.ContainsKey("pact_magic"), "Should contain pact_magic subsystem.");
-            var pactMagic = session.Character.Subsystems["pact_magic"] as PactMagicState;
+            var pactMagic = session.Character.Subsystems["pact_magic"];
             Assert.IsNotNull(pactMagic);
-            Assert.AreEqual(1, pactMagic.Slots.Count);
-            Assert.AreEqual("Savnok", pactMagic.Slots[0].VestigeName);
-            Assert.AreEqual(PactState.POOR_PACT, pactMagic.Slots[0].State);
+            Assert.IsTrue(pactMagic.Slots.ContainsKey("vestiges"));
+            Assert.AreEqual(1, pactMagic.Slots["vestiges"].Count);
+            Assert.AreEqual("Savnok", pactMagic.Slots["vestiges"][0].Element);
+            Assert.AreEqual("poor_pact", pactMagic.Slots["vestiges"][0].State);
 
             var pactEngine = session.Subsystems.Get<PactMagicEngine>();
             Assert.IsNotNull(pactEngine, "PactMagicEngine should be registered.");
