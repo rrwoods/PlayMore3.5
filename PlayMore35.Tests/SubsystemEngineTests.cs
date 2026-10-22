@@ -80,8 +80,9 @@ namespace PlayMore35.Tests {
             Assert.AreSame(engine, registry.Get("vestige"));
             CollectionAssert.Contains(registry.All.ToList(), engine);
 
-            var maneuverEngine = registry.Get<MartialManeuverEngine>();
+            var maneuverEngine = registry.Get("martial_maneuvers");
             Assert.IsNotNull(maneuverEngine);
+            Assert.IsInstanceOfType(maneuverEngine, typeof(SubsystemEngine));
             Assert.AreSame(maneuverEngine, registry.Get("martial_maneuvers"));
             Assert.AreSame(maneuverEngine, registry.Get("maneuver"));
             CollectionAssert.Contains(registry.All.ToList(), maneuverEngine);
@@ -93,7 +94,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, registry.All.Count());
             Assert.IsNull(registry.Get("pact_magic"));
             Assert.IsNull(registry.Get("vestige"));
-            Assert.IsNull(registry.Get<MartialManeuverEngine>());
             Assert.IsNull(registry.Get("martial_maneuvers"));
             Assert.IsNull(registry.Get("maneuver"));
         }
@@ -304,17 +304,20 @@ namespace PlayMore35.Tests {
         public void ActionParserSeam_SerializedManeuverActions_DeserializeIntoStronglyTypedRepresentations() {
             var maneuverJson = new JObject(
                 new JProperty("name", "Wind Stride"),
-                new JProperty("maneuver_action", "Wind Stride"),
+                new JProperty("subsystem", "martial_maneuvers"),
+                new JProperty("verb", "expend"),
+                new JProperty("slot_group", "readied"),
+                new JProperty("element", "Wind Stride"),
                 new JProperty("source", "Swordsage")
             );
             var deserialized = SheetAction.FromJson(maneuverJson);
 
             Assert.IsNotNull(deserialized);
-            Assert.IsInstanceOfType(deserialized, typeof(ManeuverSheetAction));
-            var mAction = (ManeuverSheetAction)deserialized;
-            Assert.AreEqual("Wind Stride", mAction.ManeuverName);
-            Assert.AreEqual("Swordsage", mAction.Source);
-            Assert.AreEqual("Wind Stride", mAction.Name);
+            Assert.AreEqual("martial_maneuvers", deserialized.Subsystem);
+            Assert.AreEqual("expend", deserialized.Verb);
+            Assert.AreEqual("Wind Stride", deserialized.Element);
+            Assert.AreEqual("Swordsage", deserialized.Source);
+            Assert.AreEqual("Wind Stride", deserialized.Name);
         }
 
         private class TestSlottedElement {

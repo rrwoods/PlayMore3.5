@@ -21,6 +21,8 @@ namespace PlayMore35.Subsystems {
 
         public int Capacity => Math.Max(0, capacityProvider());
 
+        internal IList<TSlot> RawSlots => slots;
+
         public int MaxLevel => maxLevelProvider != null ? maxLevelProvider() : int.MaxValue;
 
         public bool IsSlotLevelValid(int slotIndex) {

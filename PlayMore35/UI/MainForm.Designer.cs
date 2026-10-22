@@ -31,7 +31,6 @@ namespace PlayMore35 {
             this.pagCharacter = new System.Windows.Forms.TabPage();
             this.lblClassesHeader = new System.Windows.Forms.Label();
             this.btnLevelDetails = new System.Windows.Forms.Button();
-            this.lblTestRoll = new System.Windows.Forms.Label();
             this.lblSampleXp1 = new System.Windows.Forms.Label();
             this.lblSampleXp2 = new System.Windows.Forms.Label();
             this.lblSampleSession1 = new System.Windows.Forms.Label();
@@ -232,7 +231,6 @@ namespace PlayMore35 {
             // 
             this.pagCharacter.Controls.Add(this.lblClassesHeader);
             this.pagCharacter.Controls.Add(this.btnLevelDetails);
-            this.pagCharacter.Controls.Add(this.lblTestRoll);
             this.pagCharacter.Controls.Add(this.lblSampleXp1);
             this.pagCharacter.Controls.Add(this.lblSampleXp2);
             this.pagCharacter.Controls.Add(this.lblSampleSession1);
@@ -331,16 +329,6 @@ namespace PlayMore35 {
             this.btnLevelDetails.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.btnLevelDetails.UseVisualStyleBackColor = true;
             this.btnLevelDetails.Visible = false;
-            // 
-            // lblTestRoll
-            // 
-            this.lblTestRoll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblTestRoll.AutoSize = true;
-            this.lblTestRoll.Location = new System.Drawing.Point(3, 502);
-            this.lblTestRoll.Name = "lblTestRoll";
-            this.lblTestRoll.Size = new System.Drawing.Size(149, 17);
-            this.lblTestRoll.TabIndex = 107;
-            this.lblTestRoll.Text = "Right-click to test rolling";
             // 
             // lblSampleXp1
             // 
@@ -2294,7 +2282,6 @@ namespace PlayMore35 {
         private System.Windows.Forms.Panel pnlVestige2;
         private System.Windows.Forms.ListBox lstPactState;
         private System.Windows.Forms.Label lblPactState;
-        private System.Windows.Forms.Label lblTestRoll;
         private System.Windows.Forms.Button btnLevelDetails;
         private System.Windows.Forms.Label lblClassesHeader;
         private System.Windows.Forms.TabPage pagStats;

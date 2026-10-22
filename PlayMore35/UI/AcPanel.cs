@@ -26,8 +26,8 @@ namespace PlayMore35 {
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
             ICharacterSession session = mainForm.Session;
-            LabelStat(ac, session, AC, AC, ",", null, false);
-            LabelStat(touch, session, "touch", TOUCH_AC, "", null, false);
+            LabelStat(ac, session, AC, AC, ",", false);
+            LabelStat(touch, session, "touch", TOUCH_AC, "", false);
         }
     }
 }

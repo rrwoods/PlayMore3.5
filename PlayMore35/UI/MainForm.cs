@@ -1348,9 +1348,8 @@ namespace PlayMore35 {
         }
 
         // this is what happens when you use the action/round handler by right-clicking and choosing bind
-        private EventHandler BindVestige(int slotIndex, SubsystemElement vestige, string bindingCheckDice) {
+        private EventHandler BindVestige(int slotIndex, SubsystemElement vestige) {
             return (sender, e) => {
-                RollStat(bindingCheckDice, $"binding check ({vestige.Name})");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.GetStatistic("binding DC", session).Value;
                 string verb = bindingCheckSuccess ? "bind_good_pact" : "bind_poor_pact";
                 session.PerformAction(new SheetAction {
@@ -1415,7 +1414,6 @@ namespace PlayMore35 {
             int numVestiges = pactEngine?.GetSlotGroup("vestiges")?.Capacity ?? session.GetStatistic("number of vestiges").Value;
 
             int vestigeLeft = pnlVestige1.Left;
-            string bindingCheck = $"1d20{session.GetStatistic("binding check").Value.ToString("+#;-#;\"\"")}";
             for (int i = 0; i < numVestiges; i++) {
                 Panel vestigePanel = new Panel {
                     Top = pnlVestige1.Top,
@@ -1436,7 +1434,6 @@ namespace PlayMore35 {
                 };
                 stateLabels.Add(stateLabel);
                 vestigePanel.Controls.Add(stateLabel);
-                Rollable(stateLabel, "binding check", bindingCheck);
 
                 ListBox state = new ListBox {
                     Location = lstPactState.Location,
@@ -1474,7 +1471,7 @@ namespace PlayMore35 {
                     ToolStripMenuItem menuItem = new ToolStripMenuItem {
                         Text = $"Bind {vestige.Name}"
                     };
-                    menuItem.Click += BindVestige(i, vestige, bindingCheck);
+                    menuItem.Click += BindVestige(i, vestige);
                     choice.ContextMenuStrip = new ContextMenuStrip();
                     choice.ContextMenuStrip.Items.Add(menuItem);
 
@@ -1493,8 +1490,6 @@ namespace PlayMore35 {
         private void MainForm_Load(object sender, EventArgs e) {
             Font = scala;
             UpdateXpLedgerBounds();
-
-            Rollable(lblTestRoll, "testing...", "1d7");
 
             // this "buffer" is actually the difference between the left side of the points label and
             // the left side of a hypothetical "extra" ranks box -- makes the math easier.

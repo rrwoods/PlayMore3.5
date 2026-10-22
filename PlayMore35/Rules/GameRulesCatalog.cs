@@ -16,40 +16,77 @@ namespace PlayMore35.Rules {
     public class GameRulesCatalog : IRulesCatalog {
         private readonly string saveDir;
 
-        public IReadOnlyDictionary<string, Race> Races { get; }
-        public IReadOnlyDictionary<string, CharacterClass> Classes { get; }
-        public IReadOnlyDictionary<string, Feat> Feats { get; }
-        public IReadOnlyDictionary<string, Weapon> Weapons { get; }
-        public IReadOnlyDictionary<string, Armor> Armors { get; }
-        public IReadOnlyDictionary<string, Shield> Shields { get; }
-        public IReadOnlyDictionary<string, WeaponProperty> WeaponProperties { get; }
-        public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; }
-        public IReadOnlyDictionary<string, Item> Items { get; }
-        public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; }
-        public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
-        public IReadOnlyDictionary<string, Vestige> Vestiges { get; }
-        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => MartialDiscipline.All;
-        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; }
+        public IReadOnlyDictionary<string, Race> Races { get; private set; }
+        public IReadOnlyDictionary<string, CharacterClass> Classes { get; private set; }
+        public IReadOnlyDictionary<string, Feat> Feats { get; private set; }
+        public IReadOnlyDictionary<string, Weapon> Weapons { get; private set; }
+        public IReadOnlyDictionary<string, Armor> Armors { get; private set; }
+        public IReadOnlyDictionary<string, Shield> Shields { get; private set; }
+        public IReadOnlyDictionary<string, WeaponProperty> WeaponProperties { get; private set; }
+        public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; private set; }
+        public IReadOnlyDictionary<string, Item> Items { get; private set; }
+        public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; private set; }
+        public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; private set; }
+        public IReadOnlyDictionary<string, Vestige> Vestiges { get; private set; }
+        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines { get; private set; }
+        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; private set; }
 
-        public IReadOnlyDictionary<string, int> CoreFeatSlots { get; }
-        public IReadOnlyList<Statistic> CoreStats { get; }
-        public IReadOnlyList<Effect> CoreEffects { get; }
-        public IReadOnlyDictionary<string, FlagDefinition> CoreFlags { get; }
-        public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters { get; }
-        public JToken CoreRulesJson { get; }
+        public IReadOnlyDictionary<string, int> CoreFeatSlots { get; private set; }
+        public IReadOnlyList<Statistic> CoreStats { get; private set; }
+        public IReadOnlyList<Effect> CoreEffects { get; private set; }
+        public IReadOnlyDictionary<string, FlagDefinition> CoreFlags { get; private set; }
+        public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters { get; private set; }
+        public JToken CoreRulesJson { get; private set; }
 
-        private readonly IReadOnlyList<string> weaponNames;
-        private readonly IReadOnlyList<string> martialWeaponNames;
-        private readonly IReadOnlyList<string> exoticWeaponNames;
+        private IReadOnlyList<string> weaponNames;
+        private IReadOnlyList<string> martialWeaponNames;
+        private IReadOnlyList<string> exoticWeaponNames;
         private static readonly IReadOnlyList<string> crossbows = new string[] { "hand crossbow", "light crossbow" };
+        private static readonly Lazy<GameRulesCatalog> DefaultCatalog = new Lazy<GameRulesCatalog>(() => new GameRulesCatalog(null, true));
 
         public GameRulesCatalog(string customSaveDir = null) {
             saveDir = customSaveDir;
 
-            if (saveDir != null && !Directory.Exists(saveDir)) {
-                Directory.CreateDirectory(saveDir);
+            if (customSaveDir == null) {
+                var def = DefaultCatalog.Value;
+                CoreRulesJson = def.CoreRulesJson;
+                CoreFeatSlots = def.CoreFeatSlots;
+                CoreStats = def.CoreStats;
+                CoreEffects = def.CoreEffects;
+                CoreFlags = def.CoreFlags;
+                CoreParameters = def.CoreParameters;
+                Races = def.Races;
+                Classes = def.Classes;
+                Feats = def.Feats;
+                Weapons = def.Weapons;
+                weaponNames = def.weaponNames;
+                martialWeaponNames = def.martialWeaponNames;
+                exoticWeaponNames = def.exoticWeaponNames;
+                Armors = def.Armors;
+                Shields = def.Shields;
+                WeaponProperties = def.WeaponProperties;
+                ArmorProperties = def.ArmorProperties;
+                Items = def.Items;
+                ExternalEffects = def.ExternalEffects;
+                Disciplines = def.Disciplines;
+                Maneuvers = def.Maneuvers;
+                Subsystems = def.Subsystems;
+                Vestiges = def.Vestiges;
+                return;
             }
 
+            if (!Directory.Exists(saveDir)) {
+                Directory.CreateDirectory(saveDir);
+            }
+            LoadFromResourcesOrSaveDir();
+        }
+
+        private GameRulesCatalog(string customSaveDir, bool forceLoad) {
+            saveDir = customSaveDir;
+            LoadFromResourcesOrSaveDir();
+        }
+
+        private void LoadFromResourcesOrSaveDir() {
             // 1. Core Rules
             var rulesJson = GetResource(Properties.Resources.rules, "rules.json");
             CoreRulesJson = rulesJson;
@@ -142,19 +179,33 @@ namespace PlayMore35.Rules {
                 .ToDictionary(x => x.Effect.Name);
             ExternalEffects = new ReadOnlyDictionary<string, ExternalEffect>(external);
 
-            // 10. Maneuvers
-            var maneuvers = GetResource(Properties.Resources.maneuvers, "maneuvers.json")
-                .Select(x => new Maneuver((JObject)x))
-                .ToDictionary(x => x.Name);
-            foreach (var m in maneuvers.Values) {
-                if (Disciplines.TryGetValue(m.Discipline, out var d)) {
-                    m.DisciplineDefinition = d;
+            // 10. Maneuvers, Vestiges, and Subsystems
+            var subsystemsMap = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
+            var maneuvers = new Dictionary<string, Maneuver>(StringComparer.OrdinalIgnoreCase);
+            var disciplines = new Dictionary<string, MartialDiscipline>(StringComparer.OrdinalIgnoreCase);
+            var maneuversToken = GetResource(Properties.Resources.maneuvers, "maneuvers.json");
+
+            if (maneuversToken is JObject maneuversObj) {
+                var martialDef = new SubsystemDefinition(maneuversObj);
+                subsystemsMap[martialDef.Id] = martialDef;
+
+                foreach (var kvp in martialDef.Disciplines) {
+                    disciplines[kvp.Key] = kvp.Value;
+                }
+
+                if (maneuversObj["elements"] is JArray mElemArr) {
+                    foreach (var elemToken in mElemArr.OfType<JObject>()) {
+                        var m = new Maneuver(elemToken);
+                        if (disciplines.TryGetValue(m.Discipline, out var d)) {
+                            m.DisciplineDefinition = d;
+                        }
+                        maneuvers[m.Name] = m;
+                    }
                 }
             }
+            Disciplines = new ReadOnlyDictionary<string, MartialDiscipline>(disciplines);
             Maneuvers = new ReadOnlyDictionary<string, Maneuver>(maneuvers);
 
-            // 11. Vestiges and Subsystems
-            var subsystemsMap = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
             var vestiges = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
             var vestigesToken = GetResource(Properties.Resources.vestiges, "vestiges.json");
 
@@ -227,7 +278,7 @@ namespace PlayMore35.Rules {
  
         public Vestige GetVestige(string name) => FindEntity(Vestiges, name, x => x.Name);
 
-        public MartialDiscipline GetDiscipline(string name) => MartialDiscipline.Get(name);
+        public MartialDiscipline GetDiscipline(string name) => FindEntity(Disciplines, name, x => x.Name);
         public SubsystemDefinition GetSubsystem(string name) => (name != null && Subsystems.TryGetValue(name, out var s)) ? s : null;
 
         public object GetEntity(string type, string name) {

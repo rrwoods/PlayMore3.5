@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemStep : IJsonable {
@@ -13,6 +14,7 @@ namespace PlayMore35.Subsystems {
         public string FromState { get; set; } = null;
         public string ToState { get; set; } = "";
         public string CountExpression { get; set; } = "1";
+        public string OnEmptyVerb { get; set; } = "";
         public string Verb { get; set; } = "";
         public SheetAction Action { get; set; } = null;
         public string Pool { get; set; } = "";
@@ -31,6 +33,7 @@ namespace PlayMore35.Subsystems {
             if (json["count"] != null) {
                 CountExpression = (string)json["count"];
             }
+            OnEmptyVerb = (string)(json["on_empty_verb"] ?? "");
             Verb = (string)(json["verb"] ?? "");
             if (json["action"] is JObject actionObj) {
                 Action = SheetAction.FromJson(actionObj);
@@ -47,6 +50,7 @@ namespace PlayMore35.Subsystems {
             if (FromState != null) json["from"] = FromState;
             if (!string.IsNullOrEmpty(ToState)) json["to"] = ToState;
             if (!string.IsNullOrEmpty(CountExpression)) json["count"] = CountExpression;
+            if (!string.IsNullOrEmpty(OnEmptyVerb)) json["on_empty_verb"] = OnEmptyVerb;
             if (!string.IsNullOrEmpty(Verb)) json["verb"] = Verb;
             if (Action != null) json["action"] = Action.ToJson();
             if (!string.IsNullOrEmpty(Pool)) json["pool"] = Pool;
@@ -105,9 +109,13 @@ namespace PlayMore35.Subsystems {
     public class SlotGroupDefinition : IJsonable {
         public string Name { get; set; } = "";
         public string CapacityStat { get; set; } = null;
+        public string ReadiedCapacityStat { get; set; } = null;
+        public string MaxActiveStat { get; set; } = null;
         public int FixedCapacity { get; set; } = 0;
         public MaxLevelDefinition MaxLevel { get; set; } = null;
         public List<Effect> Effects { get; } = new List<Effect>();
+        private readonly List<JObject> _rawEffectJson = new List<JObject>();
+        private readonly Dictionary<string, List<Effect>> _effectsBySourceCache = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
         public List<string> States { get; } = new List<string>();
         public string DefaultState { get; set; } = "";
 
@@ -117,12 +125,17 @@ namespace PlayMore35.Subsystems {
             if (json == null) return;
             Name = (string)(json["name"] ?? "");
             CapacityStat = (string)json["capacity_stat"];
+            ReadiedCapacityStat = (string)json["readied_capacity_stat"];
+            MaxActiveStat = (string)json["max_active_stat"];
             FixedCapacity = (int)(json["fixed_capacity"] ?? 0);
             if (json["max_level"] is JObject mlObj) {
                 MaxLevel = new MaxLevelDefinition(mlObj);
             }
             if (json["effects"] is JArray effArr) {
-                Effects.AddRange(effArr.Select(x => new Effect((JObject)x)));
+                foreach (var x in effArr.OfType<JObject>()) {
+                    _rawEffectJson.Add((JObject)x.DeepClone());
+                    Effects.Add(new Effect(x));
+                }
             }
             if (json["states"] is JArray arr) {
                 States.AddRange(arr.Select(x => (string)x));
@@ -130,10 +143,32 @@ namespace PlayMore35.Subsystems {
             DefaultState = (string)(json["default_state"] ?? (States.Count > 0 ? States[0] : ""));
         }
 
+        public List<Effect> GetEffectsForSource(string source) {
+            if (string.IsNullOrEmpty(source)) return new List<Effect>(Effects);
+            var norm = source.Trim().ToLowerInvariant();
+            if (_effectsBySourceCache.TryGetValue(norm, out var cached) && cached.Count == Effects.Count) {
+                return cached;
+            }
+            List<Effect> resolved;
+            if (_rawEffectJson.Count > 0) {
+                resolved = _rawEffectJson
+                    .Select(j => new Effect(JObject.Parse(j.ToString().Replace("{source}", norm))))
+                    .ToList();
+            } else {
+                resolved = Effects
+                    .Select(e => new Effect(JObject.Parse(e.ToJson().ToString().Replace("{source}", norm))))
+                    .ToList();
+            }
+            _effectsBySourceCache[norm] = resolved;
+            return resolved;
+        }
+
         public JToken ToJson() {
             var json = new JObject();
             if (!string.IsNullOrEmpty(Name)) json["name"] = Name;
             if (!string.IsNullOrEmpty(CapacityStat)) json["capacity_stat"] = CapacityStat;
+            if (!string.IsNullOrEmpty(ReadiedCapacityStat)) json["readied_capacity_stat"] = ReadiedCapacityStat;
+            if (!string.IsNullOrEmpty(MaxActiveStat)) json["max_active_stat"] = MaxActiveStat;
             if (FixedCapacity > 0) json["fixed_capacity"] = FixedCapacity;
             if (MaxLevel != null) json["max_level"] = MaxLevel.ToJson();
             if (Effects.Count > 0) json["effects"] = new JArray(Effects.Select(x => x.ToJson()));
@@ -214,6 +249,7 @@ namespace PlayMore35.Subsystems {
         public List<string> RequiredElementProperties { get; } = new List<string>();
         public Dictionary<string, List<string>> ElementStatistics { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         public LevelGatingDefinition LevelGating { get; set; } = null;
+        public Dictionary<string, MartialDiscipline> Disciplines { get; } = new Dictionary<string, MartialDiscipline>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
@@ -228,6 +264,14 @@ namespace PlayMore35.Subsystems {
 
             if (subJson["level_gating"] is JObject lgObj) {
                 LevelGating = new LevelGatingDefinition(lgObj);
+            }
+
+            if (subJson["disciplines"] is JObject discObj) {
+                foreach (var prop in discObj.Properties()) {
+                    if (prop.Value is JObject dObj) {
+                        Disciplines[prop.Name] = new MartialDiscipline(prop.Name, dObj);
+                    }
+                }
             }
 
             if (subJson["slot_groups"] is JObject slotsObj) {
@@ -314,6 +358,12 @@ namespace PlayMore35.Subsystems {
                                     throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' statistic '{statProp}' must be numeric, but was '{val}'.");
                                 }
                             }
+                            if (Disciplines.Count > 0 && elem.Properties.TryGetValue("discipline", out var discVal) && discVal != null) {
+                                var discName = discVal.ToString();
+                                if (Disciplines.TryGetValue(discName, out var discDef)) {
+                                    elem.SetProperty("discipline", discDef);
+                                }
+                            }
                             Elements[elem.Name] = elem;
                         }
                     }
@@ -326,6 +376,12 @@ namespace PlayMore35.Subsystems {
                 new JProperty("id", Id),
                 new JProperty("name", Name)
             );
+
+            if (Disciplines.Count > 0) {
+                var discObj = new JObject();
+                foreach (var kvp in Disciplines) discObj[kvp.Key] = kvp.Value.ToJson();
+                subJson["disciplines"] = discObj;
+            }
 
             if (SlotGroups.Count > 0) {
                 var slotsObj = new JObject();

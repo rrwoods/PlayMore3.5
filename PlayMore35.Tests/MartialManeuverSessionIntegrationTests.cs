@@ -29,7 +29,6 @@ namespace PlayMore35.Tests {
             SheetAction.ResetParsersForTesting();
         }
 
-
         [TestMethod]
         public void CharacterSession_HasNoBespokeManeuverMembers() {
             var maneuverMethods = typeof(CharacterSession).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
@@ -60,20 +59,20 @@ namespace PlayMore35.Tests {
 
             var session = new CharacterSession(character, catalog);
 
-            Assert.AreEqual(5, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("warblade")).Value);
+            Assert.AreEqual(5, session.GetStatistic("initiator level:warblade").Value);
             Assert.AreEqual(6, session.GetStatistic("maneuvers known:warblade").Value);
             Assert.AreEqual(4, session.GetStatistic("maneuvers readied:warblade").Value);
             Assert.AreEqual(2, session.GetStatistic("stances known:warblade").Value);
             Assert.AreEqual(3, session.GetStatistic("max maneuver level:warblade").Value, string.Join("; ", session.GetStatistic("max maneuver level:warblade").Explanation));
 
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            Assert.AreEqual(6, engine.GetKnownSlotGroup("Warblade").Capacity);
-            Assert.AreEqual(2, engine.GetStanceSlotGroup("Warblade").Capacity);
-            Assert.AreEqual(3, engine.GetKnownSlotGroup("Warblade").MaxLevel);
-            Assert.AreEqual(3, engine.GetStanceSlotGroup("Warblade").MaxLevel);
+            Assert.AreEqual(6, engine.GetSlotCapacity("readied", "Warblade"));
+            Assert.AreEqual(2, engine.GetSlotCapacity("stances", "Warblade"));
+            Assert.AreEqual(3, engine.GetMaxLevel("readied", "Warblade"));
+            Assert.AreEqual(3, engine.GetMaxLevel("stances", "Warblade"));
         }
 
         // Source: Tome of Battle, p. 39
@@ -89,19 +88,19 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(6, session.GetStatistic("character level").Value);
 
             // Warblade IL: 4 + floor(0.5 * 2) = 5 -> Max maneuver level: ceil(5 / 2) = 3
-            Assert.AreEqual(5, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("warblade")).Value);
+            Assert.AreEqual(5, session.GetStatistic("initiator level:warblade").Value);
             Assert.AreEqual(3, session.GetStatistic("max maneuver level:warblade").Value);
 
             // Crusader IL: 2 + floor(0.5 * 4) = 4 -> Max maneuver level: ceil(4 / 2) = 2
-            Assert.AreEqual(4, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("crusader")).Value);
+            Assert.AreEqual(4, session.GetStatistic("initiator level:crusader").Value);
             Assert.AreEqual(2, session.GetStatistic("max maneuver level:crusader").Value);
 
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            Assert.AreEqual(3, engine.GetKnownSlotGroup("Warblade").MaxLevel);
-            Assert.AreEqual(2, engine.GetKnownSlotGroup("Crusader").MaxLevel);
+            Assert.AreEqual(3, engine.GetMaxLevel("readied", "Warblade"));
+            Assert.AreEqual(2, engine.GetMaxLevel("readied", "Crusader"));
         }
 
         // Source: Tome of Battle, pp. 39, 52
@@ -116,17 +115,17 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(4, session.GetStatistic("character level").Value);
             // Feat IL: floor(4 / 2) = 2
-            Assert.AreEqual(2, session.GetStatistic(MartialManeuverEngine.InitiatorLevelStat("feats")).Value);
+            Assert.AreEqual(2, session.GetStatistic("initiator level:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("max maneuver level:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("maneuvers known:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("maneuvers readied:feats").Value);
 
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
-            Assert.AreEqual(1, engine.GetKnownSlotGroup("Feats").Capacity);
-            Assert.AreEqual(1, engine.GetKnownSlotGroup("Feats").MaxLevel);
+            Assert.AreEqual(1, engine.GetSlotCapacity("readied", "Feats"));
+            Assert.AreEqual(1, engine.GetMaxLevel("readied", "Feats"));
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43, 69
@@ -138,28 +137,28 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["DEX"] = 10; // 0 DEX mod
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Baseline AC: 10 (no armor, 0 DEX mod)
             Assert.AreEqual(10, session.GetStatistic("AC").Value);
 
-            engine.SetStanceSlot("Warblade", 0, new StanceSlot("Punishing Stance", isActive: false));
+            engine.AssignSlot("stances", 0, "Punishing Stance", "inactive", "Warblade");
             session.Recalculate();
 
             // Inactive stance: AC remains 10
             Assert.AreEqual(10, session.GetStatistic("AC").Value);
 
             // Adopt Punishing Stance (-2 penalty to AC)
-            engine.AdoptStance("Warblade", 0);
+            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
             session.Recalculate();
-            Assert.IsTrue(engine.GetStanceSlot("Warblade", 0).IsActive);
+            Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual(8, session.GetStatistic("AC").Value);
 
             // Exit stance: AC returns to baseline 10
-            engine.ExitStance("Warblade", 0);
+            engine.InvokeVerb("exit_stance", "stances", 0, source: "Warblade");
             session.Recalculate();
-            Assert.IsFalse(engine.GetStanceSlot("Warblade", 0).IsActive);
+            Assert.AreEqual("inactive", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual(10, session.GetStatistic("AC").Value);
         }
 
@@ -176,7 +175,7 @@ namespace PlayMore35.Tests {
                 Effects = new List<Effect> { attackStanceEffect }
             };
             var customCatalog = new FakeRulesCatalog(new[] { testStance }, inner: catalog);
-            var customEngine = new MartialManeuverEngine(customCatalog);
+            var customEngine = new SubsystemEngine(customCatalog.GetSubsystem("martial_maneuvers"));
 
             var character = new Character();
             character.classLevels.Clear();
@@ -196,8 +195,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(6, standardRoutine.Attacks[0].AttackBonus.bonus);
 
             // Set up stance slot and adopt Stance of the Aggressor
-            customEngine.SetStanceSlot("Warblade", 0, new StanceSlot("Stance of the Aggressor"));
-            customEngine.AdoptStance("Warblade", 0);
+            customEngine.AssignSlot("stances", 0, "Stance of the Aggressor", "inactive", "Warblade");
+            customEngine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
             session.Recalculate();
 
             // Greatsword attack with active stance: +6 + 2 morale = +8
@@ -208,7 +207,7 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(standardRoutine.Attacks[0].AttackBonus.explanation.Any(e => e.Contains("morale") || e.Contains("Aggressor")));
 
             // Exit stance
-            customEngine.ExitAllStances();
+            customEngine.InvokeVerb("exit_all_stances");
             session.Recalculate();
 
             // Returns to baseline +6
@@ -227,29 +226,29 @@ namespace PlayMore35.Tests {
             character.rolledHitDice = new List<int> { 12, 10, 10 };
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Initial land speed
             Assert.AreEqual(30, session.GetStatistic("Land speed").Value);
 
             // Slot 0: Wind Stride (+10 enhancement bonus to Land speed for 1 round)
-            engine.SetKnownSlot("Warblade", 0, new KnownManeuverSlot("Wind Stride", ManeuverState.Unreadied));
+            engine.AssignSlot("readied", 0, "Wind Stride", "unreadied", "Warblade");
             // Slot 1: Steely Strike
-            engine.SetKnownSlot("Warblade", 1, new KnownManeuverSlot("Steely Strike", ManeuverState.Unreadied));
+            engine.AssignSlot("readied", 1, "Steely Strike", "unreadied", "Warblade");
 
             // Ready maneuvers
-            engine.ReadyManeuver("Warblade", 0);
-            engine.ReadyManeuver("Warblade", 1);
-            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 0).State);
-            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 1).State);
+            engine.InvokeVerb("ready", "readied", 0, source: "Warblade");
+            engine.InvokeVerb("ready", "readied", 1, source: "Warblade");
+            Assert.AreEqual("available", engine.GetSlotState("readied", 0, "Warblade"));
+            Assert.AreEqual("available", engine.GetSlotState("readied", 1, "Warblade"));
 
             session.StartCombat();
 
             // Initiate Wind Stride (Boost)
-            bool boostInitiated = engine.InitiateManeuver("Warblade", 0);
-            Assert.IsTrue(boostInitiated);
-            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", 0).State);
+            var boostReq = engine.InvokeVerb("expend", "readied", 0, source: "Warblade");
+            Assert.AreNotEqual(TimelineRefreshRequirement.None, boostReq);
+            Assert.AreEqual("expended", engine.GetSlotState("readied", 0, "Warblade"));
 
             // Dynamic recalculation applies boost modifier to Land speed
             session.Recalculate();
@@ -257,23 +256,24 @@ namespace PlayMore35.Tests {
 
             // Advance timeline by 1 round (boost expires)
             var advanceResult = session.AdvanceTimeline(1);
-            Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, advanceResult.RefreshRequirement);
+            Assert.IsTrue(advanceResult.RefreshRequirement >= TimelineRefreshRequirement.RecomputeDerived);
             Assert.AreEqual(1, advanceResult.ExpiredActions.Count);
-            Assert.IsInstanceOfType(advanceResult.ExpiredActions[0], typeof(ManeuverSheetAction));
+            Assert.IsInstanceOfType(advanceResult.ExpiredActions[0], typeof(SheetAction));
+            Assert.AreEqual("Wind Stride", advanceResult.ExpiredActions[0].Name);
 
             // Land speed returns to baseline 30, but slot remains Expended
             Assert.AreEqual(30, session.GetStatistic("Land speed").Value);
-            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", 0).State);
+            Assert.AreEqual("expended", engine.GetSlotState("readied", 0, "Warblade"));
 
             // Initiate Steely Strike (Strike)
-            bool strikeInitiated = engine.InitiateManeuver("Warblade", 1);
-            Assert.IsTrue(strikeInitiated);
-            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", 1).State);
+            var strikeReq = engine.InvokeVerb("expend", "readied", 1, source: "Warblade");
+            Assert.AreNotEqual(TimelineRefreshRequirement.None, strikeReq);
+            Assert.AreEqual("expended", engine.GetSlotState("readied", 1, "Warblade"));
 
             // Warblade Swift Recovery restores all expended maneuvers
-            engine.RecoverWarblade("Warblade");
-            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 0).State);
-            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", 1).State);
+            engine.InvokeVerb("recover", "readied", source: "Warblade");
+            Assert.AreEqual("available", engine.GetSlotState("readied", 0, "Warblade"));
+            Assert.AreEqual("available", engine.GetSlotState("readied", 1, "Warblade"));
         }
 
         // Source: Tome of Battle, p. 38
@@ -285,12 +285,12 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["DEX"] = 10;
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
 
-            engine.SetKnownSlot("Warblade", 0, new KnownManeuverSlot("Wind Stride", ManeuverState.Available));
-            engine.SetKnownSlot("Warblade", 1, new KnownManeuverSlot("Steely Strike", ManeuverState.Expended));
-            engine.SetKnownSlot("Warblade", 2, new KnownManeuverSlot("Iron Heart Surge", ManeuverState.Unreadied));
-            engine.SetStanceSlot("Warblade", 0, new StanceSlot("Punishing Stance", isActive: true));
+            engine.AssignSlot("readied", 0, "Wind Stride", "available", "Warblade");
+            engine.AssignSlot("readied", 1, "Steely Strike", "expended", "Warblade");
+            engine.AssignSlot("readied", 2, "Iron Heart Surge", "unreadied", "Warblade");
+            engine.AssignSlot("stances", 0, "Punishing Stance", "active", "Warblade");
 
             session.Recalculate();
             Assert.AreEqual(8, session.GetStatistic("AC").Value); // 10 - 2 from active Punishing Stance
@@ -298,36 +298,36 @@ namespace PlayMore35.Tests {
             // Full character serialization round-trip
             JToken json = character.ToJson();
             Assert.IsNotNull(json["subsystems"]);
-            Assert.IsNotNull(json["subsystems"][MartialManeuverEngine.SubsystemId]);
+            Assert.IsNotNull(json["subsystems"]["martial_maneuvers"]);
 
             var restoredChar = new Character((JObject)json);
-            Assert.IsTrue(restoredChar.Subsystems.ContainsKey(MartialManeuverEngine.SubsystemId));
-            Assert.IsInstanceOfType(restoredChar.Subsystems[MartialManeuverEngine.SubsystemId], typeof(SubsystemState));
+            Assert.IsTrue(restoredChar.Subsystems.ContainsKey("martial_maneuvers"));
+            Assert.IsInstanceOfType(restoredChar.Subsystems["martial_maneuvers"], typeof(SubsystemState));
 
             // Load into a new CharacterSession
             var restoredSession = new CharacterSession(restoredChar, catalog);
-            var restoredEngine = restoredSession.Subsystems.Get<MartialManeuverEngine>();
+            var restoredEngine = (SubsystemEngine)restoredSession.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(restoredEngine);
             Assert.IsTrue(restoredEngine.IsActive);
 
             // Verify active stance effect is immediately active
             Assert.AreEqual(8, restoredSession.GetStatistic("AC").Value);
 
-            Assert.AreEqual(ManeuverState.Available, restoredEngine.GetKnownSlot("Warblade", 0).State);
-            Assert.AreEqual("Wind Stride", restoredEngine.GetKnownSlot("Warblade", 0).ManeuverName);
+            Assert.AreEqual("available", restoredEngine.GetSlotState("readied", 0, "Warblade"));
+            Assert.AreEqual("Wind Stride", restoredEngine.GetSlotElement("readied", 0, "Warblade"));
 
-            Assert.AreEqual(ManeuverState.Expended, restoredEngine.GetKnownSlot("Warblade", 1).State);
-            Assert.AreEqual("Steely Strike", restoredEngine.GetKnownSlot("Warblade", 1).ManeuverName);
+            Assert.AreEqual("expended", restoredEngine.GetSlotState("readied", 1, "Warblade"));
+            Assert.AreEqual("Steely Strike", restoredEngine.GetSlotElement("readied", 1, "Warblade"));
 
-            Assert.AreEqual(ManeuverState.Unreadied, restoredEngine.GetKnownSlot("Warblade", 2).State);
-            Assert.AreEqual("Iron Heart Surge", restoredEngine.GetKnownSlot("Warblade", 2).ManeuverName);
+            Assert.AreEqual("unreadied", restoredEngine.GetSlotState("readied", 2, "Warblade"));
+            Assert.AreEqual("Iron Heart Surge", restoredEngine.GetSlotElement("readied", 2, "Warblade"));
 
-            Assert.AreEqual("Punishing Stance", restoredEngine.GetStanceSlot("Warblade", 0).StanceName);
-            Assert.IsTrue(restoredEngine.GetStanceSlot("Warblade", 0).IsActive);
+            Assert.AreEqual("Punishing Stance", restoredEngine.GetSlotElement("stances", 0, "Warblade"));
+            Assert.AreEqual("active", restoredEngine.GetSlotState("stances", 0, "Warblade"));
 
             // Recovery on restored engine works cleanly
-            restoredEngine.RecoverWarblade("Warblade");
-            Assert.AreEqual(ManeuverState.Available, restoredEngine.GetKnownSlot("Warblade", 1).State);
+            restoredEngine.InvokeVerb("recover", "readied", source: "Warblade");
+            Assert.AreEqual("available", restoredEngine.GetSlotState("readied", 1, "Warblade"));
         }
 
         // Source: Tome of Battle, pp. 38, 40
@@ -338,47 +338,50 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Crusader"); // Level 1 Crusader: 5 known, 5 readied, 2 granted
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             Assert.AreEqual(5, session.GetStatistic("maneuvers known:crusader").Value);
             Assert.AreEqual(5, session.GetStatistic("maneuvers readied:crusader").Value);
             Assert.AreEqual(2, session.GetStatistic("maneuvers granted:crusader").Value);
 
-            engine.SetKnownSlot("Crusader", 0, new KnownManeuverSlot("Crusader's Strike", ManeuverState.Withheld));
-            engine.SetKnownSlot("Crusader", 1, new KnownManeuverSlot("Leading the Attack", ManeuverState.Withheld));
-            engine.SetKnownSlot("Crusader", 2, new KnownManeuverSlot("Douse the Flames", ManeuverState.Withheld));
-            engine.SetKnownSlot("Crusader", 3, new KnownManeuverSlot("Martial Spirit", ManeuverState.Withheld));
-            engine.SetKnownSlot("Crusader", 4, new KnownManeuverSlot("Shield Block", ManeuverState.Withheld));
+            engine.AssignSlot("readied", 0, "Crusader's Strike", "withheld", "Crusader");
+            engine.AssignSlot("readied", 1, "Leading the Attack", "withheld", "Crusader");
+            engine.AssignSlot("readied", 2, "Douse the Flames", "withheld", "Crusader");
+            engine.AssignSlot("readied", 3, "Martial Spirit", "withheld", "Crusader");
+            engine.AssignSlot("readied", 4, "Shield Block", "withheld", "Crusader");
 
             // Fixed seed RNG for deterministic dealing
-            var rng = new Random(42);
-            engine.DealCrusader("Crusader", rng);
+            engine.SetRandom(new Random(42));
+            engine.InvokeVerb("deal", "readied", source: "Crusader");
 
             // Exactly 2 granted (Available), 3 Withheld
-            int availableCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Available);
-            int withheldCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Withheld);
+            var crusaderSlots = engine.GetSlots("readied", "Crusader");
+            int availableCount = crusaderSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase));
+            int withheldCount = crusaderSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase));
             Assert.AreEqual(2, availableCount);
             Assert.AreEqual(3, withheldCount);
 
             // Initiate one available maneuver
-            int availableIndex = engine.GetKnownSlots("Crusader").ToList().FindIndex(s => s != null && s.State == ManeuverState.Available);
-            bool initiated = engine.InitiateManeuver("Crusader", availableIndex);
-            Assert.IsTrue(initiated);
-            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Crusader", availableIndex).State);
+            int availableIndex = crusaderSlots.ToList().FindIndex(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase));
+            var initReq = engine.InvokeVerb("expend", "readied", availableIndex, source: "Crusader");
+            Assert.AreNotEqual(TimelineRefreshRequirement.None, initReq);
+            Assert.AreEqual("expended", engine.GetSlotState("readied", availableIndex, "Crusader"));
 
             // Advance Crusader turn: 1 Withheld becomes Available
-            engine.AdvanceCrusaderTurn("Crusader", rng);
-            int newAvailableCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Available);
+            engine.InvokeVerb("advance_turn", "readied", source: "Crusader");
+            crusaderSlots = engine.GetSlots("readied", "Crusader");
+            int newAvailableCount = crusaderSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase));
             Assert.AreEqual(2, newAvailableCount); // 1 unexpended + 1 newly granted
-            int newWithheldCount = engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Withheld);
+            int newWithheldCount = crusaderSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase));
             Assert.AreEqual(2, newWithheldCount);
 
             // Reset encounter: reshuffles and redeals fresh hand of 2 available
-            engine.ResetEncounter(rng);
-            Assert.AreEqual(2, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Available));
-            Assert.AreEqual(3, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Withheld));
-            Assert.AreEqual(0, engine.GetKnownSlots("Crusader").Count(s => s != null && s.State == ManeuverState.Expended));
+            engine.InvokeVerb("reset_encounter");
+            crusaderSlots = engine.GetSlots("readied", "Crusader");
+            Assert.AreEqual(2, crusaderSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase)));
+            Assert.AreEqual(3, crusaderSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase)));
+            Assert.AreEqual(0, crusaderSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "expended", StringComparison.OrdinalIgnoreCase)));
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -391,16 +394,16 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            var warbladeSlots = engine.GetSlots("readied", "Warblade");
             var featSlot = warbladeSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Feat-bound slot should exist in Warblade known slots.");
-            Assert.AreEqual("Steel Wind", featSlot.ManeuverName);
+            Assert.AreEqual("Steel Wind", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
             Assert.AreEqual("Level 1", featSlot.FeatSlot);
-            Assert.IsTrue(engine.HasManeuver("Steel Wind", "Warblade"));
+            Assert.IsTrue(warbladeSlots.Any(s => s != null && string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase)));
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -413,16 +416,16 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Moment of Perfect Mind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var featSlots = engine.GetKnownSlots("Feats");
+            var featSlots = engine.GetSlots("readied", "Feats");
             var featSlot = featSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Feat-bound slot should exist in Feats known slots.");
-            Assert.AreEqual("Moment of Perfect Mind", featSlot.ManeuverName);
+            Assert.AreEqual("Moment of Perfect Mind", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
             Assert.AreEqual("Level 1", featSlot.FeatSlot);
-            Assert.IsTrue(engine.HasManeuver("Moment of Perfect Mind", "Feats"));
+            Assert.IsTrue(featSlots.Any(s => s != null && string.Equals(s.Element, "Moment of Perfect Mind", StringComparison.OrdinalIgnoreCase)));
         }
 
         // Source: Tome of Battle, p. 32
@@ -435,10 +438,10 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            var warbladeSlots = engine.GetSlots("readied", "Warblade");
             int featSlotIndex = -1;
             for (int i = 0; i < warbladeSlots.Count; i++) {
                 if (warbladeSlots[i] != null && warbladeSlots[i].IsFeatBound) {
@@ -448,19 +451,14 @@ namespace PlayMore35.Tests {
             }
             Assert.IsTrue(featSlotIndex >= 0, "Feat-bound slot must be found.");
 
-            // Attempting to overwrite via string overload throws
+            // Attempting to overwrite throws
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.SetKnownSlot("Warblade", featSlotIndex, "Iron Heart Surge");
-            });
-
-            // Attempting to overwrite via KnownManeuverSlot overload throws
-            Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.SetKnownSlot("Warblade", featSlotIndex, new KnownManeuverSlot("Iron Heart Surge"));
+                engine.AssignSlot("readied", featSlotIndex, "Iron Heart Surge", source: "Warblade");
             });
 
             // Attempting to clear throws
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.ClearKnownSlot("Warblade", featSlotIndex);
+                engine.ClearSlot("readied", featSlotIndex, "Warblade");
             });
         }
 
@@ -474,30 +472,30 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            var warbladeSlots = engine.GetSlots("readied", "Warblade");
             int featSlotIndex = warbladeSlots.ToList().FindIndex(s => s != null && s.IsFeatBound);
             Assert.IsTrue(featSlotIndex >= 0);
 
             // Ready the feat-bound maneuver
-            engine.ReadyManeuver("Warblade", featSlotIndex);
-            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+            engine.InvokeVerb("ready", "readied", featSlotIndex, source: "Warblade");
+            Assert.AreEqual("available", engine.GetSlotState("readied", featSlotIndex, "Warblade"));
 
             // Recalculate session preserves readied state
             session.Recalculate();
-            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+            Assert.AreEqual("available", engine.GetSlotState("readied", featSlotIndex, "Warblade"));
 
             // Initiate maneuver transitions state to Expended
             session.StartCombat();
-            bool initiated = engine.InitiateManeuver("Warblade", featSlotIndex);
-            Assert.IsTrue(initiated);
-            Assert.AreEqual(ManeuverState.Expended, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+            var req = engine.InvokeVerb("expend", "readied", featSlotIndex, source: "Warblade");
+            Assert.AreNotEqual(TimelineRefreshRequirement.None, req);
+            Assert.AreEqual("expended", engine.GetSlotState("readied", featSlotIndex, "Warblade"));
 
             // Warblade recovery restores it
-            engine.RecoverWarblade("Warblade");
-            Assert.AreEqual(ManeuverState.Available, engine.GetKnownSlot("Warblade", featSlotIndex).State);
+            engine.InvokeVerb("recover", "readied", source: "Warblade");
+            Assert.AreEqual("available", engine.GetSlotState("readied", featSlotIndex, "Warblade"));
         }
 
         // Source: Tome of Battle, pp. 22, 32
@@ -510,17 +508,17 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Populate class slots 0, 1, 2
-            engine.SetKnownSlot("Warblade", 0, "Moment of Perfect Mind");
-            engine.SetKnownSlot("Warblade", 1, "Steely Strike");
-            engine.SetKnownSlot("Warblade", 2, "Wind Stride");
+            engine.AssignSlot("readied", 0, "Moment of Perfect Mind", source: "Warblade");
+            engine.AssignSlot("readied", 1, "Steely Strike", source: "Warblade");
+            engine.AssignSlot("readied", 2, "Wind Stride", source: "Warblade");
 
-            var featSlot = engine.GetKnownSlots("Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
+            var featSlot = engine.GetSlots("readied", "Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot);
-            Assert.AreEqual("Steel Wind", featSlot.ManeuverName);
+            Assert.AreEqual("Steel Wind", featSlot.Element);
 
             // Level up to Warblade 4 (Table 1-3 allows retraining 1 maneuver at 4th level)
             character.classLevels.Add("Warblade"); // Level 2: 4 class + 1 feat = 5
@@ -531,20 +529,20 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(6, session.GetStatistic("maneuvers known:warblade").Value);
 
             // Normal class slots can be retrained (e.g. slot 0 to Iron Heart Surge)
-            engine.SetKnownSlot("Warblade", 0, "Iron Heart Surge");
-            Assert.AreEqual("Iron Heart Surge", engine.GetKnownSlot("Warblade", 0).ManeuverName);
+            engine.AssignSlot("readied", 0, "Iron Heart Surge", source: "Warblade");
+            Assert.AreEqual("Iron Heart Surge", engine.GetSlotElement("readied", 0, "Warblade"));
 
             // Feat-bound slot remains in known slots and cannot be retrained or cleared
-            int featIndex = engine.GetKnownSlots("Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
+            int featIndex = engine.GetSlots("readied", "Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
             Assert.IsTrue(featIndex >= 0);
-            Assert.AreEqual("Steel Wind", engine.GetKnownSlot("Warblade", featIndex).ManeuverName);
+            Assert.AreEqual("Steel Wind", engine.GetSlotElement("readied", featIndex, "Warblade"));
 
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.SetKnownSlot("Warblade", featIndex, "Mountain Hammer");
+                engine.AssignSlot("readied", featIndex, "Mountain Hammer", source: "Warblade");
             });
 
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.ClearKnownSlot("Warblade", featIndex);
+                engine.ClearSlot("readied", featIndex, "Warblade");
             });
         }
 
@@ -561,16 +559,16 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 3:maneuver"] = "Mountain Hammer";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Mountain Hammer must project into Crusader known slots, NOT Warblade
-            Assert.IsTrue(engine.HasManeuver("Mountain Hammer", "Crusader"));
-            Assert.IsFalse(engine.HasManeuver("Mountain Hammer", "Warblade"));
+            Assert.IsTrue(engine.GetSlots("readied", "Crusader").Any(s => s != null && string.Equals(s.Element, "Mountain Hammer", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsFalse(engine.GetSlots("readied", "Warblade").Any(s => s != null && string.Equals(s.Element, "Mountain Hammer", StringComparison.OrdinalIgnoreCase)));
 
-            var crusaderFeatSlot = engine.GetKnownSlots("Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
+            var crusaderFeatSlot = engine.GetSlots("readied", "Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(crusaderFeatSlot);
-            Assert.AreEqual("Mountain Hammer", crusaderFeatSlot.ManeuverName);
+            Assert.AreEqual("Mountain Hammer", crusaderFeatSlot.Element);
             Assert.AreEqual("Level 3", crusaderFeatSlot.FeatSlot);
         }
 
@@ -584,24 +582,24 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
 
-            int featIndex = engine.GetKnownSlots("Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
+            int featIndex = engine.GetSlots("readied", "Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
             Assert.IsTrue(featIndex >= 0);
-            engine.ReadyManeuver("Warblade", featIndex);
+            engine.InvokeVerb("ready", "readied", featIndex, source: "Warblade");
 
             // Full character serialization round-trip
             JToken json = character.ToJson();
             var restoredChar = new Character((JObject)json);
             var restoredSession = new CharacterSession(restoredChar, catalog);
-            var restoredEngine = restoredSession.Subsystems.Get<MartialManeuverEngine>();
+            var restoredEngine = (SubsystemEngine)restoredSession.Subsystems.Get("martial_maneuvers");
 
-            var restoredSlot = restoredEngine.GetKnownSlots("Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
+            var restoredSlot = restoredEngine.GetSlots("readied", "Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(restoredSlot);
-            Assert.AreEqual("Steel Wind", restoredSlot.ManeuverName);
+            Assert.AreEqual("Steel Wind", restoredSlot.Element);
             Assert.IsTrue(restoredSlot.IsFeatBound);
             Assert.AreEqual("Level 1", restoredSlot.FeatSlot);
-            Assert.AreEqual(ManeuverState.Available, restoredSlot.State);
+            Assert.AreEqual("available", restoredSlot.State);
         }
 
         // Source: Tome of Battle, p. 32
@@ -614,19 +612,19 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
 
-            Assert.IsTrue(engine.HasManeuver("Steel Wind", "Warblade"));
+            Assert.IsTrue(engine.GetSlots("readied", "Warblade").Any(s => s != null && string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase)));
 
             // Changing the feat choice updates the projected slot name
             session.SetFeatChoice("Level 1", "maneuver", "Stone Bones");
-            Assert.IsTrue(engine.HasManeuver("Stone Bones", "Warblade"));
-            Assert.IsFalse(engine.HasManeuver("Steel Wind", "Warblade"));
+            Assert.IsTrue(engine.GetSlots("readied", "Warblade").Any(s => s != null && string.Equals(s.Element, "Stone Bones", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsFalse(engine.GetSlots("readied", "Warblade").Any(s => s != null && string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase)));
 
             // Clearing the feat choice removes the projected slot
             session.SetFeatChoice("Level 1", "maneuver", "");
-            Assert.IsFalse(engine.HasManeuver("Stone Bones", "Warblade"));
-            Assert.IsFalse(engine.GetKnownSlots("Warblade").Any(s => s != null && s.IsFeatBound));
+            Assert.IsFalse(engine.GetSlots("readied", "Warblade").Any(s => s != null && string.Equals(s.Element, "Stone Bones", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsFalse(engine.GetSlots("readied", "Warblade").Any(s => s != null && s.IsFeatBound));
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -639,19 +637,19 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Warblade has 1 base stance known, feat grants +1 -> total 2
             Assert.AreEqual(2, session.GetStatistic("stances known:warblade").Value);
 
-            var stanceSlots = engine.GetStanceSlots("Warblade");
+            var stanceSlots = engine.GetSlots("stances", "Warblade");
             var featSlot = stanceSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Feat-bound stance slot should exist in Warblade stance slots.");
-            Assert.AreEqual("Punishing Stance", featSlot.StanceName);
+            Assert.AreEqual("Punishing Stance", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
             Assert.AreEqual("Level 1", featSlot.FeatSlot);
-            Assert.IsTrue(engine.HasStance("Punishing Stance", "Warblade"));
+            Assert.IsTrue(stanceSlots.Any(s => s != null && string.Equals(s.Element, "Punishing Stance", StringComparison.OrdinalIgnoreCase)));
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -664,20 +662,20 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Bolstering Voice";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Non-adept: stances known:feats = 1, active stances = 1
             Assert.AreEqual(1, session.GetStatistic("stances known:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("active stances").Value);
 
-            var featSlots = engine.GetStanceSlots("Feats");
+            var featSlots = engine.GetSlots("stances", "Feats");
             var featSlot = featSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Feat-bound stance slot should exist in Feats stance slots.");
-            Assert.AreEqual("Bolstering Voice", featSlot.StanceName);
+            Assert.AreEqual("Bolstering Voice", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
             Assert.AreEqual("Level 1", featSlot.FeatSlot);
-            Assert.IsTrue(engine.HasStance("Bolstering Voice", "Feats"));
+            Assert.IsTrue(featSlots.Any(s => s != null && string.Equals(s.Element, "Bolstering Voice", StringComparison.OrdinalIgnoreCase)));
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -690,10 +688,10 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var warbladeSlots = engine.GetStanceSlots("Warblade");
+            var warbladeSlots = engine.GetSlots("stances", "Warblade");
             int featSlotIndex = -1;
             for (int i = 0; i < warbladeSlots.Count; i++) {
                 if (warbladeSlots[i] != null && warbladeSlots[i].IsFeatBound) {
@@ -703,19 +701,14 @@ namespace PlayMore35.Tests {
             }
             Assert.IsTrue(featSlotIndex >= 0, "Feat-bound stance slot must be found.");
 
-            // Attempting to overwrite via string overload throws
+            // Attempting to overwrite throws
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.SetStanceSlot("Warblade", featSlotIndex, "Hunter's Sense");
-            });
-
-            // Attempting to overwrite via StanceSlot overload throws
-            Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.SetStanceSlot("Warblade", featSlotIndex, new StanceSlot("Hunter's Sense"));
+                engine.AssignSlot("stances", featSlotIndex, "Hunter's Sense", source: "Warblade");
             });
 
             // Attempting to clear throws
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.ClearStanceSlot("Warblade", featSlotIndex);
+                engine.ClearSlot("stances", featSlotIndex, "Warblade");
             });
         }
 
@@ -729,20 +722,20 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var warbladeSlots = engine.GetStanceSlots("Warblade");
+            var warbladeSlots = engine.GetSlots("stances", "Warblade");
             int featSlotIndex = warbladeSlots.ToList().FindIndex(s => s != null && s.IsFeatBound);
             Assert.IsTrue(featSlotIndex >= 0);
 
             // Adopt the feat-bound stance
-            engine.AdoptStance("Warblade", featSlotIndex);
-            Assert.IsTrue(engine.GetStanceSlot("Warblade", featSlotIndex).IsActive);
+            engine.InvokeVerb("adopt_stance", "stances", featSlotIndex, source: "Warblade");
+            Assert.AreEqual("active", engine.GetSlotState("stances", featSlotIndex, "Warblade"));
 
             // Recalculate session preserves active stance
             session.Recalculate();
-            Assert.IsTrue(engine.GetStanceSlot("Warblade", featSlotIndex).IsActive);
+            Assert.AreEqual("active", engine.GetSlotState("stances", featSlotIndex, "Warblade"));
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -756,17 +749,17 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Bolstering Voice";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
 
-            Assert.IsTrue(engine.HasStance("Bolstering Voice", "Feats"));
+            Assert.IsTrue(engine.GetSlots("stances", "Feats").Any(s => s != null && string.Equals(s.Element, "Bolstering Voice", StringComparison.OrdinalIgnoreCase)));
 
             // Multiclass to Warblade at level 2
             character.classLevels.Add("Warblade");
             session.Recalculate();
 
             // Stance must remain in Feats pool, not migrated to Warblade
-            Assert.IsTrue(engine.HasStance("Bolstering Voice", "Feats"));
-            Assert.IsFalse(engine.HasStance("Bolstering Voice", "Warblade"));
+            Assert.IsTrue(engine.GetSlots("stances", "Feats").Any(s => s != null && string.Equals(s.Element, "Bolstering Voice", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Bolstering Voice", StringComparison.OrdinalIgnoreCase)));
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -782,16 +775,16 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 3:stance"] = "Iron Guard's Glare";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Iron Guard's Glare must project into Crusader stance slots, NOT Warblade
-            Assert.IsTrue(engine.HasStance("Iron Guard's Glare", "Crusader"));
-            Assert.IsFalse(engine.HasStance("Iron Guard's Glare", "Warblade"));
+            Assert.IsTrue(engine.GetSlots("stances", "Crusader").Any(s => s != null && string.Equals(s.Element, "Iron Guard's Glare", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Iron Guard's Glare", StringComparison.OrdinalIgnoreCase)));
 
-            var crusaderFeatSlot = engine.GetStanceSlots("Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
+            var crusaderFeatSlot = engine.GetSlots("stances", "Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(crusaderFeatSlot);
-            Assert.AreEqual("Iron Guard's Glare", crusaderFeatSlot.StanceName);
+            Assert.AreEqual("Iron Guard's Glare", crusaderFeatSlot.Element);
             Assert.AreEqual("Level 3", crusaderFeatSlot.FeatSlot);
         }
 
@@ -805,24 +798,24 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
 
-            int featIndex = engine.GetStanceSlots("Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
+            int featIndex = engine.GetSlots("stances", "Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
             Assert.IsTrue(featIndex >= 0);
-            engine.AdoptStance("Warblade", featIndex);
+            engine.InvokeVerb("adopt_stance", "stances", featIndex, source: "Warblade");
 
             // Full character serialization round-trip
             JToken json = character.ToJson();
             var restoredChar = new Character((JObject)json);
             var restoredSession = new CharacterSession(restoredChar, catalog);
-            var restoredEngine = restoredSession.Subsystems.Get<MartialManeuverEngine>();
+            var restoredEngine = (SubsystemEngine)restoredSession.Subsystems.Get("martial_maneuvers");
 
-            var restoredSlot = restoredEngine.GetStanceSlots("Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
+            var restoredSlot = restoredEngine.GetSlots("stances", "Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(restoredSlot);
-            Assert.AreEqual("Punishing Stance", restoredSlot.StanceName);
+            Assert.AreEqual("Punishing Stance", restoredSlot.Element);
             Assert.IsTrue(restoredSlot.IsFeatBound);
             Assert.AreEqual("Level 1", restoredSlot.FeatSlot);
-            Assert.IsTrue(restoredSlot.IsActive);
+            Assert.AreEqual("active", restoredSlot.State);
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -835,19 +828,19 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
 
-            Assert.IsTrue(engine.HasStance("Punishing Stance", "Warblade"));
+            Assert.IsTrue(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Punishing Stance", StringComparison.OrdinalIgnoreCase)));
 
             // Changing the feat choice updates the projected stance name
             session.SetFeatChoice("Level 1", "stance", "Hunter's Sense");
-            Assert.IsTrue(engine.HasStance("Hunter's Sense", "Warblade"));
-            Assert.IsFalse(engine.HasStance("Punishing Stance", "Warblade"));
+            Assert.IsTrue(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Hunter's Sense", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Punishing Stance", StringComparison.OrdinalIgnoreCase)));
 
             // Clearing the feat choice removes the projected slot
             session.SetFeatChoice("Level 1", "stance", "");
-            Assert.IsFalse(engine.HasStance("Hunter's Sense", "Warblade"));
-            Assert.IsFalse(engine.GetStanceSlots("Warblade").Any(s => s != null && s.IsFeatBound));
+            Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Hunter's Sense", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && s.IsFeatBound));
         }
 
         [TestMethod]
@@ -860,35 +853,35 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Populate class slot 0 with the EXACT same maneuver name ("Steel Wind")
-            engine.SetKnownSlot("Warblade", 0, "Steel Wind");
-            engine.SetKnownSlot("Warblade", 1, "Steely Strike");
-            engine.SetKnownSlot("Warblade", 2, "Moment of Perfect Mind");
+            engine.AssignSlot("readied", 0, "Steel Wind", source: "Warblade");
+            engine.AssignSlot("readied", 1, "Steely Strike", source: "Warblade");
+            engine.AssignSlot("readied", 2, "Moment of Perfect Mind", source: "Warblade");
 
             session.Recalculate();
 
-            var knownSlots = engine.GetKnownSlots("Warblade").ToList();
+            var knownSlots = engine.GetSlots("readied", "Warblade").ToList();
             Assert.AreEqual(4, knownSlots.Count, "Warblade should have 3 class slots + 1 feat slot.");
 
             // Slot 0 (class progression slot) must NOT be feat-bound
             Assert.IsNotNull(knownSlots[0]);
-            Assert.AreEqual("Steel Wind", knownSlots[0].ManeuverName);
+            Assert.AreEqual("Steel Wind", knownSlots[0].Element);
             Assert.IsFalse(knownSlots[0].IsFeatBound, "Class progression slot should never be hijacked into a feat-bound slot.");
             Assert.IsNull(knownSlots[0].FeatSlot);
 
             // Feat slot (slot 3) must be the dedicated feat-bound slot
             Assert.IsNotNull(knownSlots[3]);
-            Assert.AreEqual("Steel Wind", knownSlots[3].ManeuverName);
+            Assert.AreEqual("Steel Wind", knownSlots[3].Element);
             Assert.IsTrue(knownSlots[3].IsFeatBound, "Feat slot should be dedicated and marked IsFeatBound.");
             Assert.AreEqual("Level 1", knownSlots[3].FeatSlot);
 
             // Class slot 0 should still be retrainable / modifiable as a normal class slot
-            engine.SetKnownSlot("Warblade", 0, "Douse the Flames");
-            Assert.AreEqual("Douse the Flames", engine.GetKnownSlot("Warblade", 0).ManeuverName);
-            Assert.AreEqual("Steel Wind", engine.GetKnownSlot("Warblade", 3).ManeuverName);
+            engine.AssignSlot("readied", 0, "Douse the Flames", source: "Warblade");
+            Assert.AreEqual("Douse the Flames", engine.GetSlotElement("readied", 0, "Warblade"));
+            Assert.AreEqual("Steel Wind", engine.GetSlotElement("readied", 3, "Warblade"));
         }
 
         [TestMethod]
@@ -901,26 +894,26 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
             // Populate class stance slot 0 with the EXACT same stance name ("Punishing Stance")
-            engine.SetStanceSlot("Warblade", 0, "Punishing Stance");
+            engine.AssignSlot("stances", 0, "Punishing Stance", source: "Warblade");
 
             session.Recalculate();
 
-            var stanceSlots = engine.GetStanceSlots("Warblade").ToList();
+            var stanceSlots = engine.GetSlots("stances", "Warblade").ToList();
             Assert.AreEqual(2, stanceSlots.Count, "Warblade should have 1 class stance slot + 1 feat stance slot.");
 
             // Slot 0 (class progression slot) must NOT be feat-bound
             Assert.IsNotNull(stanceSlots[0]);
-            Assert.AreEqual("Punishing Stance", stanceSlots[0].StanceName);
+            Assert.AreEqual("Punishing Stance", stanceSlots[0].Element);
             Assert.IsFalse(stanceSlots[0].IsFeatBound, "Class progression stance slot should never be hijacked into a feat-bound slot.");
             Assert.IsNull(stanceSlots[0].FeatSlot);
 
             // Feat slot (slot 1) must be dedicated feat-bound slot
             Assert.IsNotNull(stanceSlots[1]);
-            Assert.AreEqual("Punishing Stance", stanceSlots[1].StanceName);
+            Assert.AreEqual("Punishing Stance", stanceSlots[1].Element);
             Assert.IsTrue(stanceSlots[1].IsFeatBound, "Feat stance slot should be dedicated and marked IsFeatBound.");
             Assert.AreEqual("Level 1", stanceSlots[1].FeatSlot);
         }

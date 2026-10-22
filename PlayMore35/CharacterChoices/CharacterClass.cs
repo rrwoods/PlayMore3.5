@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Items;
+using PlayMore35.Subsystems;
 
 namespace PlayMore35.CharacterChoices {
     public class CharacterClass : IJsonable {
@@ -44,6 +45,8 @@ namespace PlayMore35.CharacterChoices {
         // S U B S Y S T E M S .
         public Dictionary<string, SubsystemFeature> Subsystems = new Dictionary<string, SubsystemFeature>();
 
+        public CharacterClass() { }
+
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("name", Name),
@@ -79,10 +82,18 @@ namespace PlayMore35.CharacterChoices {
                         new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
                     );
                 } else {
-                    subsObj[kvp.Key] = new JObject(
+                    var subJson = new JObject(
                         new JProperty("stats", new JArray(kvp.Value.Stats)),
                         new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
                     );
+                    if (kvp.Value.Verbs != null && kvp.Value.Verbs.Count > 0) {
+                        var verbsObj = new JObject();
+                        foreach (var vKvp in kvp.Value.Verbs) {
+                            verbsObj[vKvp.Key] = new JArray(vKvp.Value.Select(s => s.ToJson()));
+                        }
+                        subJson["verbs"] = verbsObj;
+                    }
+                    subsObj[kvp.Key] = subJson;
                 }
             }
             if (subsObj.Count > 0) {
@@ -136,10 +147,18 @@ namespace PlayMore35.CharacterChoices {
             if (json["subsystems"] is JObject subsJson) {
                 foreach (var prop in subsJson.Properties()) {
                     if (prop.Value is JObject sObj) {
-                        Subsystems[prop.Name] = new SubsystemFeature {
+                        var feature = new SubsystemFeature {
                             Stats = sObj["stats"] != null ? sObj["stats"].Select(x => (string)x).ToList() : new List<string>(),
                             Effects = sObj["effects"] != null ? sObj["effects"].Select(x => new Effect((JObject)x)).ToList() : new List<Effect>()
                         };
+                        if (sObj["verbs"] is JObject verbsObj) {
+                            foreach (var vProp in verbsObj.Properties()) {
+                                if (vProp.Value is JArray stepsArr) {
+                                    feature.Verbs[vProp.Name] = stepsArr.Select(x => new SubsystemStep((JObject)x)).ToList();
+                                }
+                            }
+                        }
+                        Subsystems[prop.Name] = feature;
                     }
                 }
             }
@@ -149,5 +168,6 @@ namespace PlayMore35.CharacterChoices {
     public class SubsystemFeature {
         public List<string> Stats { get; set; } = new List<string>();
         public List<Effect> Effects { get; set; } = new List<Effect>();
+        public Dictionary<string, List<SubsystemStep>> Verbs { get; set; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
     }
 }

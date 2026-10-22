@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using PlayMore35.Rules;
-using PlayMore35.Subsystems.Maneuvers;
+using PlayMore35.Subsystems;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -496,8 +496,8 @@ namespace PlayMore35.Tests {
         public void MartialStance_PrerequisiteMetByEarlierManeuver_NoWarningBadge() {
             // Level 3 Crusader who already has Crusader's Strike (Devoted Spirit)
             var session = CreateAdeptSession("Crusader", "Crusader", "Crusader");
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
-            engine.SetKnownSlot("Crusader", 0, "Crusader's Strike");
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            engine.AssignSlot("readied", 0, "Crusader's Strike", source: "Crusader");
 
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);

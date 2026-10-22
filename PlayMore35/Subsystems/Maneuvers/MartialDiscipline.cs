@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using PlayMore35.Rules;
 
 namespace PlayMore35.Subsystems.Maneuvers {
@@ -27,25 +28,22 @@ namespace PlayMore35.Subsystems.Maneuvers {
             Weapons = (weapons?.ToList() ?? new List<string>()).AsReadOnly();
         }
 
-        public static readonly IReadOnlyDictionary<string, MartialDiscipline> All =
-            new ReadOnlyDictionary<string, MartialDiscipline>(
-                new List<MartialDiscipline> {
-                    new MartialDiscipline("Desert Wind", "Tumble", new [] { "scimitar", "light mace", "light pick", "falchion", "spear" }),
-                    new MartialDiscipline("Devoted Spirit", "Intimidate", new [] { "falchion", "greatclub", "longsword", "maul" }),
-                    new MartialDiscipline("Diamond Mind", "Concentration", new [] { "rapier", "shortspear", "bastard sword", "trident" }),
-                    new MartialDiscipline("Iron Heart", "Balance", new [] { "bastard sword", "dwarven waraxe", "longsword", "two-bladed sword" }),
-                    new MartialDiscipline("Setting Sun", "Sense Motive", new [] { "short sword", "quarterstaff", "nunchaku", "unarmed strike" }),
-                    new MartialDiscipline("Shadow Hand", "Hide", new [] { "dagger", "short sword", "sai", "siangham", "unarmed strike", "spiked chain" }),
-                    new MartialDiscipline("Stone Dragon", "Balance", new [] { "greatsword", "greataxe", "heavy mace", "unarmed strike" }),
-                    new MartialDiscipline("Tiger Claw", "Jump", new [] { "kukri", "kama", "claw", "handaxe", "greataxe", "unarmed strike" }),
-                    new MartialDiscipline("White Raven", "Diplomacy", new [] { "longsword", "battleaxe", "warhammer", "greatsword", "halberd" })
-                }.ToDictionary(d => d.Name, d => d, StringComparer.OrdinalIgnoreCase)
-            );
-
-        public static MartialDiscipline Get(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (All.TryGetValue(name, out var discipline)) return discipline;
-            return All.Values.FirstOrDefault(d => string.Equals(d.Name, name, StringComparison.OrdinalIgnoreCase));
+        public MartialDiscipline(string name, JObject json) {
+            Name = name ?? "";
+            KeySkill = (string)(json?["keySkill"] ?? "");
+            var weapons = json?["weapons"] is JArray arr
+                ? arr.Select(x => (string)x).ToList()
+                : new List<string>();
+            Weapons = weapons.AsReadOnly();
         }
+
+        public JObject ToJson() {
+            return new JObject(
+                new JProperty("keySkill", KeySkill),
+                new JProperty("weapons", new JArray(Weapons))
+            );
+        }
+
+        public override string ToString() => Name;
     }
 }

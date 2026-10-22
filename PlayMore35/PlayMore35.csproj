@@ -122,7 +122,6 @@
     <Compile Include="Subsystems\Maneuvers\StanceSlot.cs" />
     <Compile Include="Subsystems\Maneuvers\MartialManeuverState.cs" />
     <Compile Include="Subsystems\Maneuvers\MartialManeuverEngine.cs" />
-    <Compile Include="Subsystems\Maneuvers\ManeuverSheetAction.cs" />
     <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -194,7 +193,6 @@
     <Compile Include="Effects\Statistic.cs" />
     <Compile Include="Effects\VariableAmount.cs" />
     <Compile Include="Effects\AttackMatcher.cs" />
-    <Compile Include="Global\RollServer.cs" />
     <Compile Include="UI\AcPanel.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -8,6 +8,8 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features
 
+### Subsystem-projected effects shouldn't exist when they don't need to
+
 ### Martial Study while having martial adept levels (Tome of Battle p. 32)
 - A character with martial adept levels who takes Martial Study adds the learned maneuver to their maneuvers known for one of their martial adept classes.
 - A character who takes Martial Study and then later takes martial adept levels DOES NOT get to do this; the Martial Study maneuver remains a feat-sourced maneuver known (with no recovery method).
@@ -199,8 +201,6 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
 
 ### 4.2 Dashboard & Combat UX
 *(Note: Section 0 restructuring is prioritized in Tier 1).*
-- **Roll Button Feedback**:
-  - Provide feedback if the roll button is clicked and no incoming Roll20 request is listening on `RollServer`. Alternatively, avoid presenting or enable/disable the roll button based on active incoming listener availability.
 - **Comprehensive Effects View**:
   - "All Effects" inspector displaying active, inactive, and conditional effects with toggle overrides.
   - Display uncategorized text under Special Qualities.

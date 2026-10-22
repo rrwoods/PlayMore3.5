@@ -33,7 +33,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {
                     ["name"] = Name,
                     ["level"] = Level,
-                    ["discipline"] = DisciplineDefinition ?? MartialDiscipline.Get(Discipline)
+                    ["discipline"] = DisciplineDefinition ?? (object)Discipline
                 };
                 return new ReadOnlyDictionary<string, object>(dict);
             }
@@ -54,7 +54,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 PrerequisiteCount = (int)json["prerequisiteCount"];
             }
             Description = (string)(json["description"] ?? "");
-            if (json["effects"] is JArray arr) {
+            if (json["kinds"] is JObject kindsObj && kindsObj["effects"] is JArray arr) {
                 Effects = arr.Select(x => new Effect((JObject)x)).ToList();
             }
         }
@@ -67,11 +67,13 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 new JProperty("type", Type.ToString()),
                 new JProperty("actionType", ActionType),
                 new JProperty("prerequisites", Prerequisites),
-                new JProperty("description", Description),
-                new JProperty("effects", new JArray(Effects.Select(x => x.ToJson())))
+                new JProperty("prerequisiteCount", PrerequisiteCount),
+                new JProperty("description", Description)
             );
-            if (PrerequisiteCount > 0) {
-                json["prerequisiteCount"] = PrerequisiteCount;
+            if (Effects.Count > 0) {
+                json["kinds"] = new JObject(
+                    new JProperty("effects", new JArray(Effects.Select(x => x.ToJson())))
+                );
             }
             return json;
         }

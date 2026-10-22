@@ -71,14 +71,19 @@ namespace PlayMore35.Tests {
 
             var maneuverJson = new JObject(
                 new JProperty("name", "Wind Stride (Swordsage)"),
-                new JProperty("maneuver_action", "Wind Stride"),
-                new JProperty("source", "Swordsage")
+                new JProperty("subsystem", "martial_maneuvers"),
+                new JProperty("slot_group", "readied"),
+                new JProperty("element", "Wind Stride"),
+                new JProperty("source", "Swordsage"),
+                new JProperty("verb", "expend")
             );
             var parsedManeuver = SheetAction.FromJson(maneuverJson);
-            Assert.IsInstanceOfType(parsedManeuver, typeof(ManeuverSheetAction));
-            var mAction = (ManeuverSheetAction)parsedManeuver;
-            Assert.AreEqual("Wind Stride", mAction.ManeuverName);
-            Assert.AreEqual("Swordsage", mAction.Source);
+            Assert.IsInstanceOfType(parsedManeuver, typeof(SheetAction));
+            Assert.AreEqual("martial_maneuvers", parsedManeuver.Subsystem);
+            Assert.AreEqual("readied", parsedManeuver.SlotGroup);
+            Assert.AreEqual("Wind Stride", parsedManeuver.Element);
+            Assert.AreEqual("Swordsage", parsedManeuver.Source);
+            Assert.AreEqual("expend", parsedManeuver.Verb);
 
             var standardJson = new JObject(
                 new JProperty("name", "Standard Action"),
@@ -86,7 +91,6 @@ namespace PlayMore35.Tests {
             );
             var parsedStandard = SheetAction.FromJson(standardJson);
             Assert.IsInstanceOfType(parsedStandard, typeof(SheetAction));
-            Assert.IsNotInstanceOfType(parsedStandard, typeof(ManeuverSheetAction));
         }
 
         private class CustomTestAction : SheetAction {
@@ -114,10 +118,6 @@ namespace PlayMore35.Tests {
             var postResetParsed = SheetAction.FromJson(new JObject(new JProperty("custom_action", "hello")));
             Assert.IsNotInstanceOfType(postResetParsed, typeof(CustomTestAction));
             Assert.IsInstanceOfType(postResetParsed, typeof(SheetAction));
-
-            var maneuverJson = new JObject(new JProperty("maneuver_action", "Wind Stride"));
-            var maneuverParsed = SheetAction.FromJson(maneuverJson);
-            Assert.IsInstanceOfType(maneuverParsed, typeof(ManeuverSheetAction));
         }
 
         [TestMethod]

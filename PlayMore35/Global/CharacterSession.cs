@@ -6,7 +6,6 @@ using PlayMore35.Effects;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Global {
@@ -16,7 +15,7 @@ namespace PlayMore35.Global {
         private readonly IRulesCatalog catalog;
         private EffectPool effects;
         private Equipped equippedItems;
-        private readonly SubsystemRegistry subsystems = SubsystemRegistry.CreateDefault();
+        private readonly SubsystemRegistry subsystems = new SubsystemRegistry();
         private int normalSizeCategory;
 
         public IReadOnlyCharacter Character => readOnlyCharacter;
@@ -266,7 +265,8 @@ namespace PlayMore35.Global {
                     if (character.Subsystems.TryGetValue(subEngine.Id, out var state) && state != null) {
                         subEngine.LoadState(state);
                     }
-                    if (engine.IsActive) {
+                    subEngine.ProjectFeatSlots(this);
+                    if (engine.IsActive || character.Subsystems.ContainsKey(subEngine.Id)) {
                         character.Subsystems[subEngine.Id] = subEngine.ExportState();
                     }
                 }
@@ -700,7 +700,7 @@ namespace PlayMore35.Global {
 
         public bool IsAdeptClass(string className) {
             var cls = catalog.GetClass(className);
-            return cls != null && cls.Subsystems.ContainsKey(PlayMore35.Subsystems.Maneuvers.MartialManeuverEngine.SubsystemId);
+            return cls != null && cls.Subsystems.ContainsKey("martial_maneuvers");
         }
 
         public bool IsClassEligible(string className, string filter) {

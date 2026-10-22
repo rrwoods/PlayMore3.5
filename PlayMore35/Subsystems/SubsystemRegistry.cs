@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Global;
-using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemRegistry {
         public static void RegisterDefaultActionParsers() {
-            SheetAction.RegisterParser(ManeuverSheetAction.TryParse);
         }
 
         public static SubsystemRegistry CreateDefault() {
@@ -17,7 +15,10 @@ namespace PlayMore35.Subsystems {
             if (pactDef != null) {
                 registry.Register(new SubsystemEngine(pactDef), "vestige");
             }
-            registry.Register(new MartialManeuverEngine(), "maneuver");
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            if (martialDef != null) {
+                registry.Register(new SubsystemEngine(martialDef), "maneuver");
+            }
             return registry;
         }
 

@@ -7,7 +7,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
-using PlayMore35.Subsystems.Maneuvers;
+using PlayMore35.Subsystems;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -647,19 +647,19 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, fakeCatalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var warbladeSlots = engine.GetKnownSlots("Warblade");
+            var warbladeSlots = engine.GetSlots("readied", "Warblade");
             var featSlot = warbladeSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Synthetic feat should project into Warblade known slots as a feat-bound slot.");
-            Assert.AreEqual("Steel Wind", featSlot.ManeuverName);
+            Assert.AreEqual("Steel Wind", featSlot.Element);
             Assert.AreEqual("Level 1", featSlot.FeatSlot);
 
             // Attempting to overwrite or clear feat-bound slot throws InvalidOperationException
             int slotIndex = warbladeSlots.ToList().IndexOf(featSlot);
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.SetKnownSlot("Warblade", slotIndex, new KnownManeuverSlot("Stone Bones", ManeuverState.Unreadied));
+                engine.AssignSlot("readied", slotIndex, "Stone Bones", "unreadied", "Warblade");
             });
         }
 
@@ -676,13 +676,13 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Moment of Perfect Mind";
 
             var session = new CharacterSession(character, fakeCatalog);
-            var engine = session.Subsystems.Get<MartialManeuverEngine>();
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var featSlots = engine.GetKnownSlots("Feats");
+            var featSlots = engine.GetSlots("readied", "Feats");
             var featSlot = featSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Synthetic feat on non-adept should project into Feats pool.");
-            Assert.AreEqual("Moment of Perfect Mind", featSlot.ManeuverName);
+            Assert.AreEqual("Moment of Perfect Mind", featSlot.Element);
             Assert.AreEqual("Level 1", featSlot.FeatSlot);
         }
 

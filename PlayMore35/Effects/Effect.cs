@@ -340,12 +340,20 @@ namespace PlayMore35.Effects {
             SubjectType affecting,
             List<Alterer<AlterType, SubjectType>> alterers
         ) where AlterType : IJsonable {
+            if (alterers.Count == 0) {
+                return Enumerable.Empty<AlterType>();
+            }
             // In order to prevent infinite recursion, we have to check whether we care about what this effect
             // does before checking whether it applies.
-            var matching = alterers
-                .Where(x => x.affects.Matches(affecting))
-                .ToList();
-            if (!matching.Any()) {
+            List<Alterer<AlterType, SubjectType>> matching = null;
+            for (int i = 0; i < alterers.Count; i++) {
+                var alt = alterers[i];
+                if (alt.affects.Matches(affecting)) {
+                    if (matching == null) matching = new List<Alterer<AlterType, SubjectType>>();
+                    matching.Add(alt);
+                }
+            }
+            if (matching == null) {
                 return Enumerable.Empty<AlterType>();
             }
 

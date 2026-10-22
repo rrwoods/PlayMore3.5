@@ -12,8 +12,7 @@ namespace PlayMore35.Global {
         public static readonly ToolTip TOOLTIP = new ToolTip {
             AutoPopDelay = 32767 // maximum value.
         };
-        private static readonly RollServer rollServer = new RollServer();
-        private static RollPrompt rollPrompt = new RollPrompt();
+        private static RollPrompt rollPrompt;
 
         public static List<string> availableFeats;
 
@@ -42,21 +41,6 @@ namespace PlayMore35.Global {
 
         public static string ValueText(int value, bool plus) {
             return ((plus && value >= 0 ? "+" : "") + value).Replace("-", "–");
-        }
-
-        public static EventHandler RollStat(string dice, string description) {
-            return (object sender, EventArgs e) => {
-                rollServer.Roll(dice, description);
-            };
-        }
-
-        public static void Rollable(Control label, string prefix, string diceText) {
-            ToolStripMenuItem roll = new ToolStripMenuItem {
-                Text = $"Roll {prefix} ({diceText})"
-            };
-            roll.Click += RollStat(diceText, prefix);
-            label.ContextMenuStrip = new ContextMenuStrip();
-            label.ContextMenuStrip.Items.Add(roll);
         }
 
         private static readonly Dictionary<string, string> customShortNames = new Dictionary<string, string> {
@@ -104,31 +88,27 @@ namespace PlayMore35.Global {
             TOOLTIP.SetToolTip(label, description);
         }
 
-        public static Label LabelStat(Label label, int value, IEnumerable<string> explanation, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
+        public static Label LabelStat(Label label, int value, IEnumerable<string> explanation, string prefix, string stat, string postfix = "", bool plus = true) {
             string statValue = ValueText(value, plus);
 
             label.Text = $"{prefix} {statValue}{postfix}";
             ToolTipStatLabel(label, explanation);
 
-            if (rollPrefix != null) {
-                if (!rollPrefix.Any()) {
-                    rollPrefix = prefix;
-                }
-                Rollable(label, rollPrefix, $"1d20{value.ToString("+#;-#;\"\"")}");
-            }
-
             return label;
         }
 
         public static int GetRollResult(string description) {
+            if (rollPrompt == null) {
+                rollPrompt = new RollPrompt();
+            }
             rollPrompt.SetRollDescription(description);
             rollPrompt.ShowDialog();
             return rollPrompt.RollResult();
         }
 
-        public static Label LabelStat(Label label, ICharacterSession session, string prefix, string stat, string postfix = "", string rollPrefix = "", bool plus = true) {
+        public static Label LabelStat(Label label, ICharacterSession session, string prefix, string stat, string postfix = "", bool plus = true) {
             var statView = session.GetStatistic(stat);
-            return LabelStat(label, statView.Value, statView.Explanation, prefix, stat, postfix, rollPrefix, plus);
+            return LabelStat(label, statView.Value, statView.Explanation, prefix, stat, postfix, plus);
         }
     }
 

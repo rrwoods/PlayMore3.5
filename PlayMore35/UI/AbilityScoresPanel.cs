@@ -71,8 +71,8 @@ namespace PlayMore35 {
             ICharacterSession session = mainForm.Session;
             for (int i = 0; i < ABILITY_NAMES.Length; i++) {
                 string ability = ABILITY_NAMES[i];
-                LabelStat(abilities[i].score, session, ability, $"{ability} score", "", null, false);
-                LabelStat(abilities[i].mod, session, "(", $"{ability} modifier", " )", $"{ability} check");
+                LabelStat(abilities[i].score, session, ability, $"{ability} score", "", false);
+                LabelStat(abilities[i].mod, session, "(", $"{ability} modifier", " )");
 
                 string damageName = $"{ability} damage";
                 if (session.Character.paramValues.ContainsKey(damageName)) {

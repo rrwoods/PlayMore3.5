@@ -308,18 +308,19 @@ namespace PlayMore35.Tests {
             var customCatalog = new FakeRulesCatalog(customManeuver);
 
             // Engine constructed with default catalog
-            var engine = new MartialManeuverEngine();
+            var defaultCatalog = new GameRulesCatalog();
+            var engine = new SubsystemEngine(defaultCatalog.GetSubsystem("martial_maneuvers"));
             var context = new FakeCharacterContext(catalog: customCatalog);
 
             // Before initialize, engine does not know about customManeuver
-            var preWarnings = engine.ValidateManeuver("Special Strike", "Warblade");
-            Assert.IsTrue(preWarnings.Any(w => w.Contains("not recognized")), "Default catalog should not recognize test maneuver.");
+            Assert.IsNull(engine.GetElement("Special Strike"));
 
             // Initialize resolves context.Catalog
             engine.Initialize(context);
 
-            var postWarnings = engine.ValidateManeuver("Special Strike", "Warblade");
-            Assert.IsFalse(postWarnings.Any(w => w.Contains("not recognized")), "Initialized engine must recognize maneuver from context.Catalog.");
+            var postWarnings = engine.ValidateChoice(null, null, "Special Strike", "Warblade");
+            Assert.IsFalse(postWarnings.Any(w => w.Contains("not recognized") || w.Contains("not a valid")), "Initialized engine must recognize maneuver from context.Catalog.");
+            Assert.IsNotNull(engine.GetElement("Special Strike"));
         }
 
         [TestMethod]

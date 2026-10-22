@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Subsystems;
 using System;
@@ -131,7 +131,9 @@ namespace PlayMore35.Global {
         public SheetAction() { }
 
         protected virtual SheetAction Revert() {
-            SheetAction revert = new SheetAction();
+            SheetAction revert = new SheetAction {
+                Name = Name
+            };
             revert.flagsToSet.AddRange(flagsToClear);
             revert.flagsToClear.AddRange(flagsToSet);
             foreach (var adjustment in paramsToAdjust) {
@@ -260,8 +262,14 @@ namespace PlayMore35.Global {
                     var req = after.Perform(context);
                     if (req > requirement) requirement = req;
                 }
+                if (requirement == TimelineRefreshRequirement.None && !string.IsNullOrEmpty(Name)) {
+                    requirement = TimelineRefreshRequirement.FullReload;
+                }
             } else if (context != null) {
                 context.Timeline.Schedule(Revert(), duration, context);
+                if (requirement == TimelineRefreshRequirement.None && !string.IsNullOrEmpty(Name)) {
+                    requirement = TimelineRefreshRequirement.FullReload;
+                }
             }
 
             return requirement;

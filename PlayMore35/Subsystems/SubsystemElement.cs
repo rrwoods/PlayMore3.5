@@ -26,6 +26,7 @@ namespace PlayMore35.Subsystems {
             if (string.IsNullOrEmpty(key)) return defaultValue;
             if (_properties.TryGetValue(key, out var val) && val != null) {
                 if (val is T typedVal) return typedVal;
+                if (typeof(T) == typeof(string)) return (T)(object)val.ToString();
                 try {
                     var targetType = typeof(T);
                     var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
@@ -46,7 +47,7 @@ namespace PlayMore35.Subsystems {
 
         public StatView GetStatistic(string propertyName, ICharacterContext context) {
             var statName = GetStatisticName(propertyName);
-            if (context != null) {
+            if (context != null && (context.Effects == null || context.Effects.stats.ContainsKey(statName))) {
                 var stat = context.GetStatistic(statName);
                 if (stat != null && (stat.Value != 0 || (stat.Explanation != null && stat.Explanation.Count > 0))) {
                     return stat;
@@ -57,6 +58,9 @@ namespace PlayMore35.Subsystems {
 
         public StatView GetStatistic(string propertyName, ICharacterSession session) {
             var statName = GetStatisticName(propertyName);
+            if (session is ICharacterContext ctx && ctx.Effects != null && !ctx.Effects.stats.ContainsKey(statName)) {
+                return new StatView(statName, GetProperty<int>(propertyName));
+            }
             if (session != null) {
                 var stat = session.GetStatistic(statName);
                 if (stat != null && (stat.Value != 0 || (stat.Explanation != null && stat.Explanation.Count > 0))) {
@@ -133,7 +137,11 @@ namespace PlayMore35.Subsystems {
                     continue;
                 }
                 if (kvp.Value != null) {
-                    json[kvp.Key] = JToken.FromObject(kvp.Value);
+                    if (kvp.Value is IPropertyProvider) {
+                        json[kvp.Key] = kvp.Value.ToString();
+                    } else {
+                        json[kvp.Key] = JToken.FromObject(kvp.Value);
+                    }
                 }
             }
             if (!json.ContainsKey("name")) json["name"] = Name;

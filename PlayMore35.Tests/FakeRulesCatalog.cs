@@ -40,7 +40,7 @@ namespace PlayMore35.Tests {
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects => ExternalEffectsMap;
         public IReadOnlyDictionary<string, Maneuver> Maneuvers => ManeuversMap;
         public IReadOnlyDictionary<string, Vestige> Vestiges => VestigesMap;
-        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => DisciplinesMap.Count > 0 ? DisciplinesMap : (inner?.Disciplines ?? MartialDiscipline.All);
+        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => DisciplinesMap.Count > 0 ? DisciplinesMap : (inner?.Disciplines ?? new Dictionary<string, MartialDiscipline>());
         public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems => SubsystemsMap;
 
         private readonly IRulesCatalog inner;
@@ -86,60 +86,201 @@ namespace PlayMore35.Tests {
                     if (v?.Name != null) VestigesMap[v.Name] = v;
                 }
             }
-            if (VestigesMap.Count > 0 || inner?.GetSubsystem("pact_magic") != null) {
+            if (!SubsystemsMap.ContainsKey("pact_magic") || vestiges != null) {
                 BuildPactMagicSubsystem();
+            }
+            if (!SubsystemsMap.ContainsKey("martial_maneuvers") || maneuvers != null) {
+                BuildMartialManeuversSubsystem();
+            }
+        }
+
+        public void BuildMartialManeuversSubsystem() {
+            var def = new SubsystemDefinition {
+                Id = "martial_maneuvers",
+                Name = "Martial Maneuvers",
+                LevelGating = new LevelGatingDefinition("level")
+            };
+            if (inner?.GetSubsystem("martial_maneuvers")?.Disciplines != null) {
+                foreach (var kvp in inner.GetSubsystem("martial_maneuvers").Disciplines) {
+                    def.Disciplines[kvp.Key] = kvp.Value;
+                }
+            }
+            def.ElementStatistics["level"] = new List<string>();
+            var readied = new SlotGroupDefinition {
+                Name = "readied",
+                CapacityStat = "maneuvers known:{source}",
+                ReadiedCapacityStat = "maneuvers readied:{source}",
+                MaxLevel = new MaxLevelDefinition("max maneuver level:{source}", 0),
+                DefaultState = "unreadied"
+            };
+            readied.States.AddRange(new[] { "unreadied", "available", "expended", "withheld" });
+            var maxManeuverTable = new Dictionary<int, int> {
+                { 0, 0 }, { 1, 1 }, { 3, 2 }, { 5, 3 }, { 7, 4 },
+                { 9, 5 }, { 11, 6 }, { 13, 7 }, { 15, 8 }, { 17, 9 }
+            };
+            readied.Effects.Add(new Effect("max maneuver level:{source}")
+                .AddModifier("max maneuver level:{source}", new Modifier(new LookupAmount("initiator level:{source}", maxManeuverTable, -1, 1), ModifierTypes.INTERNAL)));
+            def.SlotGroups["readied"] = readied;
+
+            var stances = new SlotGroupDefinition {
+                Name = "stances",
+                CapacityStat = "stances known:{source}",
+                MaxActiveStat = "active stances",
+                MaxLevel = new MaxLevelDefinition("max maneuver level:{source}", 0),
+                DefaultState = "inactive"
+            };
+            stances.States.AddRange(new[] { "inactive", "active" });
+            def.SlotGroups["stances"] = stances;
+
+            def.Projections.Add(new KindProjectionRule("stances", "active", "effects"));
+            def.DefaultElementVerbs["execute"] = new List<SubsystemStep>();
+            def.Verbs["ready"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "unreadied", ToState = "available" }
+            };
+            def.Verbs["unready"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "!unreadied", ToState = "unreadied" }
+            };
+            def.Verbs["expend"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "available", ToState = "expended" },
+                new SubsystemStep { Type = "invoke_element_verb", Verb = "execute", Selector = "invoked" }
+            };
+            def.Verbs["adopt_stance"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "stances", Selector = "invoked", FromState = "*", ToState = "active" }
+            };
+            def.Verbs["exit_stance"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "stances", Selector = "invoked", FromState = "active", ToState = "inactive" }
+            };
+            def.Verbs["exit_all_stances"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "stances", Selector = "all", FromState = "active", ToState = "inactive" }
+            };
+            def.Verbs["recover_all"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "all", FromState = "expended", ToState = "available" }
+            };
+            def.Verbs["recover_select"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "select", CountExpression = "1", FromState = "expended", ToState = "available" }
+            };
+            def.Verbs["deal"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "all", FromState = "!unreadied", ToState = "withheld" },
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "random", CountExpression = "maneuvers granted:{source}", FromState = "withheld", ToState = "available" }
+            };
+            def.Verbs["advance_turn"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "random", CountExpression = "1", FromState = "withheld", ToState = "available", OnEmptyVerb = "deal" }
+            };
+            def.Verbs["reset_encounter"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "all", FromState = "expended", ToState = "available" }
+            };
+            SubsystemsMap["martial_maneuvers"] = def;
+
+            if (GetClass("Warblade") == null) {
+                var wb = new CharacterClass { Name = "Warblade" };
+                var wbSub = new SubsystemFeature();
+                wbSub.Verbs["ready"] = def.Verbs["ready"];
+                wbSub.Verbs["recover"] = def.Verbs["recover_all"];
+                wbSub.Verbs["reset_encounter"] = def.Verbs["reset_encounter"];
+                wb.Subsystems["martial_maneuvers"] = wbSub;
+                ClassesMap["Warblade"] = wb;
+            }
+            if (GetClass("Swordsage") == null) {
+                var ss = new CharacterClass { Name = "Swordsage" };
+                var ssSub = new SubsystemFeature();
+                ssSub.Verbs["ready"] = def.Verbs["ready"];
+                ssSub.Verbs["recover"] = def.Verbs["recover_select"];
+                ssSub.Verbs["reset_encounter"] = def.Verbs["reset_encounter"];
+                ss.Subsystems["martial_maneuvers"] = ssSub;
+                ClassesMap["Swordsage"] = ss;
+            }
+            if (GetClass("Crusader") == null) {
+                var cr = new CharacterClass { Name = "Crusader" };
+                var crSub = new SubsystemFeature();
+                crSub.Verbs["ready"] = new List<SubsystemStep> {
+                    new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "unreadied", ToState = "withheld" }
+                };
+                crSub.Verbs["deal"] = def.Verbs["deal"];
+                crSub.Verbs["advance_turn"] = def.Verbs["advance_turn"];
+                crSub.Verbs["reset_encounter"] = def.Verbs["deal"];
+                cr.Subsystems["martial_maneuvers"] = crSub;
+                ClassesMap["Crusader"] = cr;
+            }
+
+            foreach (var m in ManeuversMap.Values) {
+                if (m == null || string.IsNullOrEmpty(m.Name)) continue;
+                var elem = new SubsystemElement {
+                    Name = m.Name,
+                    Type = m.Type.ToString()
+                };
+                elem.SetProperty("level", m.Level);
+                elem.SetProperty("discipline", (object)m.DisciplineDefinition ?? GetDiscipline(m.Discipline) ?? (object)m.Discipline);
+                elem.SetProperty("actionType", m.ActionType);
+                elem.SetProperty("prerequisites", m.Prerequisites);
+                elem.SetProperty("prerequisiteCount", m.PrerequisiteCount);
+                elem.SetProperty("description", m.Description);
+                if (m.Type == ManeuverType.Boost || m.Type == ManeuverType.Counter) {
+                    elem.Verbs["execute"] = new List<SubsystemStep> {
+                        new SubsystemStep {
+                            Type = "action",
+                            Action = new SheetAction { Name = m.Name }.Duration("1 round")
+                        }
+                    };
+                }
+                if (m.Effects != null) {
+                    foreach (var eff in m.Effects) elem.AddKindEffect("effects", eff);
+                }
+                def.Elements[elem.Name] = elem;
             }
         }
 
         public void BuildPactMagicSubsystem() {
-            SubsystemDefinition def;
-            if (!SubsystemsMap.TryGetValue("pact_magic", out def) || def == null) {
-                def = new SubsystemDefinition {
-                    Id = "pact_magic",
-                    Name = "Pact Magic"
-                };
-                var vestigesSlotGroup = new SlotGroupDefinition {
-                    Name = "vestiges",
-                    CapacityStat = "number of vestiges",
-                    MaxLevel = new MaxLevelDefinition("maximum vestige level", 0),
-                    DefaultState = "empty"
-                };
-                vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact" });
-                def.SlotGroups["vestiges"] = vestigesSlotGroup;
-                def.LevelGating = new LevelGatingDefinition("level");
-                def.RequiredElementProperties.Add("binding DC");
-                def.RequiredElementProperties.Add("level");
-                def.ElementStatistics["binding DC"] = new List<string> { "binding DCs" };
-                def.ElementStatistics["level"] = new List<string>();
+            var def = new SubsystemDefinition {
+                Id = "pact_magic",
+                Name = "Pact Magic"
+            };
+            var vestigesSlotGroup = new SlotGroupDefinition {
+                Name = "vestiges",
+                CapacityStat = "number of vestiges",
+                MaxLevel = new MaxLevelDefinition("maximum vestige level", 0),
+                DefaultState = "empty"
+            };
+            vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact" });
+            var maxVestigeTable = new Dictionary<int, int> {
+                { 1, 1 }, { 3, 2 }, { 5, 3 }, { 7, 4 },
+                { 10, 5 }, { 12, 6 }, { 15, 7 }, { 17, 8 }
+            };
+            vestigesSlotGroup.Effects.Add(new Effect("maximum vestige level")
+                .AddModifier("maximum vestige level", new Modifier(new LookupAmount("EBL for max vestige level", maxVestigeTable, -1, 1), ModifierTypes.UNTYPED)));
+            def.SlotGroups["vestiges"] = vestigesSlotGroup;
+            def.LevelGating = new LevelGatingDefinition("level");
+            def.RequiredElementProperties.Add("binding DC");
+            def.RequiredElementProperties.Add("level");
+            def.ElementStatistics["binding DC"] = new List<string> { "binding DCs" };
+            def.ElementStatistics["level"] = new List<string>();
 
-                def.Verbs["bind_good_pact"] = new List<SubsystemStep> {
-                    new SubsystemStep {
-                        Type = "assign",
-                        SlotGroup = "vestiges",
-                        ToState = "good_pact"
-                    }
-                };
-                def.Verbs["bind_poor_pact"] = new List<SubsystemStep> {
-                    new SubsystemStep {
-                        Type = "assign",
-                        SlotGroup = "vestiges",
-                        ToState = "poor_pact"
-                    }
-                };
-                def.Verbs["unbind"] = new List<SubsystemStep> {
-                    new SubsystemStep {
-                        Type = "transition",
-                        SlotGroup = "vestiges",
-                        Selector = "invoked",
-                        FromState = "*",
-                        ToState = "empty"
-                    }
-                };
+            def.Verbs["bind_good_pact"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "assign",
+                    SlotGroup = "vestiges",
+                    ToState = "good_pact"
+                }
+            };
+            def.Verbs["bind_poor_pact"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "assign",
+                    SlotGroup = "vestiges",
+                    ToState = "poor_pact"
+                }
+            };
+            def.Verbs["unbind"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "transition",
+                    SlotGroup = "vestiges",
+                    Selector = "invoked",
+                    FromState = "*",
+                    ToState = "empty"
+                }
+            };
 
-                def.Projections.Add(new KindProjectionRule("vestiges", "good_pact", "abilities"));
-                def.Projections.Add(new KindProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
-                SubsystemsMap["pact_magic"] = def;
-            }
+            def.Projections.Add(new KindProjectionRule("vestiges", "good_pact", "abilities"));
+            def.Projections.Add(new KindProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
+            SubsystemsMap["pact_magic"] = def;
 
             foreach (var v in VestigesMap.Values) {
                 if (v == null || string.IsNullOrEmpty(v.Name)) continue;
@@ -170,7 +311,12 @@ namespace PlayMore35.Tests {
         public ExternalEffect GetExternalEffect(string name) => (name != null && ExternalEffectsMap.TryGetValue(name, out var val)) ? val : inner?.GetExternalEffect(name);
         public Maneuver GetManeuver(string name) => (name != null && ManeuversMap.TryGetValue(name, out var val)) ? val : inner?.GetManeuver(name);
         public Vestige GetVestige(string name) => (name != null && VestigesMap.TryGetValue(name, out var val)) ? val : inner?.GetVestige(name);
-        public MartialDiscipline GetDiscipline(string name) => (name != null && DisciplinesMap.TryGetValue(name, out var val)) ? val : (inner?.GetDiscipline(name) ?? MartialDiscipline.Get(name));
+        public MartialDiscipline GetDiscipline(string name) {
+            if (string.IsNullOrEmpty(name)) return null;
+            if (DisciplinesMap.TryGetValue(name, out var val)) return val;
+            if (SubsystemsMap.TryGetValue("martial_maneuvers", out var mDef) && mDef?.Disciplines != null && mDef.Disciplines.TryGetValue(name, out var dVal)) return dVal;
+            return inner?.GetDiscipline(name);
+        }
         public SubsystemDefinition GetSubsystem(string name) => (name != null && SubsystemsMap.TryGetValue(name, out var val)) ? val : inner?.GetSubsystem(name);
 
         public void RegisterSubsystem(SubsystemDefinition def) {

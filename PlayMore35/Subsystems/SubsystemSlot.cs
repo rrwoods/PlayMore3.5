@@ -10,6 +10,7 @@ namespace PlayMore35.Subsystems {
         public string State { get; set; } = "";
         public string Source { get; set; } = "";
         public string FeatSlot { get; set; } = null;
+        public bool IsFeatBound => !string.IsNullOrEmpty(FeatSlot);
 
         public SubsystemSlot() { }
 
@@ -70,6 +71,7 @@ namespace PlayMore35.Subsystems {
         public string FromState { get; set; } = null;
         public string ToState { get; set; } = "";
         public string CountExpression { get; set; } = "1";
+        public string OnEmptyVerb { get; set; } = "";
         public int? SlotIndex { get; set; } = null;
         public List<int> SelectedIndices { get; set; } = null;
 
@@ -84,6 +86,7 @@ namespace PlayMore35.Subsystems {
             if (json["count"] != null) {
                 CountExpression = (string)json["count"];
             }
+            OnEmptyVerb = (string)(json["on_empty_verb"] ?? "");
             if (json["slot_index"] != null) {
                 SlotIndex = (int)json["slot_index"];
             }
@@ -103,6 +106,9 @@ namespace PlayMore35.Subsystems {
             }
             if (!string.IsNullOrEmpty(CountExpression)) {
                 json["count"] = CountExpression;
+            }
+            if (!string.IsNullOrEmpty(OnEmptyVerb)) {
+                json["on_empty_verb"] = OnEmptyVerb;
             }
             if (SlotIndex.HasValue) {
                 json["slot_index"] = SlotIndex.Value;

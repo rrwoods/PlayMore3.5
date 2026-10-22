@@ -30,8 +30,8 @@ namespace PlayMore35 {
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
             ICharacterSession session = mainForm.Session;
-            LabelStat(hp, session, HP, CURRENT_HP, ";", null, false);
-            LabelStat(maxHp, session, "max", MAX_HP, " (" + session.Character.classLevels.Count + " HD)", null, false);
+            LabelStat(hp, session, HP, CURRENT_HP, ";", false);
+            LabelStat(maxHp, session, "max", MAX_HP, " (" + session.Character.classLevels.Count + " HD)", false);
 
             if (textEffects[DR].Any()) {
                 maxHp.Text += ";";

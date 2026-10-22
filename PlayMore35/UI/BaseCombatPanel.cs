@@ -26,10 +26,10 @@ namespace PlayMore35 {
         }
 
         public override void Update(Dictionary<string, List<Text>> textEffects) {
-            LabelStat(space, mainForm.Session, SPACE, SPACE, " ft.;", null, false);
-            LabelStat(reach, mainForm.Session, REACH, REACH, " ft.", null, false);
-            LabelStat(bab, mainForm.Session, "Base Atk", BASE_ATTACK_BONUS, ";", null);
-            LabelStat(grp, mainForm.Session, "Grp", GRAPPLE, "", GRAPPLE);
+            LabelStat(space, mainForm.Session, SPACE, SPACE, " ft.;", false);
+            LabelStat(reach, mainForm.Session, REACH, REACH, " ft.", false);
+            LabelStat(bab, mainForm.Session, "Base Atk", BASE_ATTACK_BONUS, ";");
+            LabelStat(grp, mainForm.Session, "Grp", GRAPPLE);
         }
     }
 }

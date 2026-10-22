@@ -679,9 +679,9 @@ namespace PlayMore35.Subsystems.Maneuvers {
 
         private void ContributeManeuverActions(EffectPool pool, IEnumerable<SheetAction> actions) {
             if (actions == null) return;
-            foreach (var action in actions.OfType<ManeuverSheetAction>()) {
-                if (string.IsNullOrEmpty(action.ManeuverName)) continue;
-                var maneuver = catalog.GetManeuver(action.ManeuverName);
+            foreach (var action in actions) {
+                if (action == null || string.IsNullOrEmpty(action.Name)) continue;
+                var maneuver = catalog.GetManeuver(action.Name);
                 if (maneuver?.Effects != null) {
                     foreach (var effect in maneuver.Effects) {
                         pool.AddEffect(effect);
@@ -812,7 +812,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
             var maneuver = !string.IsNullOrEmpty(slot.ManeuverName) ? catalog.GetManeuver(slot.ManeuverName) : null;
             if (maneuver != null && (maneuver.Type == ManeuverType.Boost || maneuver.Type == ManeuverType.Counter)) {
                 if (context?.Timeline != null) {
-                    context.Timeline.Schedule(new ManeuverSheetAction(maneuver.Name, source, "1 round"), "1 round", context);
+                    var action = new SheetAction { Name = maneuver.Name, Source = source, Subsystem = SubsystemId }.Duration("1 round");
+                    action.Perform(context);
                 }
             }
 

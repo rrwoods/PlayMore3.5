@@ -376,6 +376,18 @@
               }
             }
           ]
+        },
+        {
+          "name": "maneuver recovery:warblade",
+          "actions": [
+            {
+              "name": "Recover maneuvers (Warblade)",
+              "subsystem": "martial_maneuvers",
+              "slot_group": "readied",
+              "source": "Warblade",
+              "verb": "recover"
+            }
+          ]
         }
       ],
       [],
@@ -560,7 +572,36 @@
               }
             ]
           }
-        ]
+        ],
+        "verbs": {
+          "ready": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "invoked",
+              "from": "unreadied",
+              "to": "available"
+            }
+          ],
+          "recover": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "all",
+              "from": "expended",
+              "to": "available"
+            }
+          ],
+          "reset_encounter": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "all",
+              "from": "expended",
+              "to": "available"
+            }
+          ]
+        }
       }
     }
   },
@@ -598,6 +639,25 @@
                 "type": "internal",
                 "amounts": [{ "fixed": 1 }]
               }
+            }
+          ]
+        },
+        {
+          "name": "maneuver recovery:crusader",
+          "actions": [
+            {
+              "name": "Deal maneuvers (Crusader)",
+              "subsystem": "martial_maneuvers",
+              "slot_group": "readied",
+              "source": "Crusader",
+              "verb": "deal"
+            },
+            {
+              "name": "Advance turn (Crusader)",
+              "subsystem": "martial_maneuvers",
+              "slot_group": "readied",
+              "source": "Crusader",
+              "verb": "advance_turn"
             }
           ]
         }
@@ -787,7 +847,63 @@
               }
             ]
           }
-        ]
+        ],
+        "verbs": {
+          "ready": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "invoked",
+              "from": "unreadied",
+              "to": "withheld"
+            }
+          ],
+          "deal": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "all",
+              "from": "!unreadied",
+              "to": "withheld"
+            },
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "random",
+              "count": "maneuvers granted:{source}",
+              "from": "withheld",
+              "to": "available"
+            }
+          ],
+          "advance_turn": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "random",
+              "count": "1",
+              "from": "withheld",
+              "to": "available",
+              "on_empty_verb": "deal"
+            }
+          ],
+          "reset_encounter": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "all",
+              "from": "!unreadied",
+              "to": "withheld"
+            },
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "random",
+              "count": "maneuvers granted:{source}",
+              "from": "withheld",
+              "to": "available"
+            }
+          ]
+        }
       }
     }
   },
@@ -836,6 +952,18 @@
                 "type": "internal",
                 "amounts": [ { "fixed": 1 } ]
               }
+            }
+          ]
+        },
+        {
+          "name": "maneuver recovery:swordsage",
+          "actions": [
+            {
+              "name": "Recover maneuver (Swordsage)",
+              "subsystem": "martial_maneuvers",
+              "slot_group": "readied",
+              "source": "Swordsage",
+              "verb": "recover"
             }
           ]
         }
@@ -1014,7 +1142,37 @@
               }
             ]
           }
-        ]
+        ],
+        "verbs": {
+          "ready": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "invoked",
+              "from": "unreadied",
+              "to": "available"
+            }
+          ],
+          "recover": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "select",
+              "count": "1",
+              "from": "expended",
+              "to": "available"
+            }
+          ],
+          "reset_encounter": [
+            {
+              "type": "transition",
+              "slot_group": "readied",
+              "selector": "all",
+              "from": "expended",
+              "to": "available"
+            }
+          ]
+        }
       }
     }
   }
