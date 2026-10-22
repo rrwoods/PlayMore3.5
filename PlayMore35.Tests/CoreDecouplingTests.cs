@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,7 +11,6 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -58,20 +58,26 @@ namespace PlayMore35.Tests {
                 new JProperty("armor proficiencies", new JArray()),
                 new JProperty("shield proficiencies", new JArray()),
                 new JProperty("class features", new JArray()),
-                new JProperty("vestiges", new JObject(
-                    new JProperty("stats", new JArray("generic capacity")),
-                    new JProperty("effects", new JArray(
-                        new JObject(
-                            new JProperty("name", "generic feature effect")
-                        )
+                new JProperty("subsystems", new JObject(
+                    new JProperty("test_subsystem", new JObject(
+                        new JProperty("stats", new JArray("generic capacity")),
+                        new JProperty("effects", new JArray(
+                            new JObject(
+                                new JProperty("name", "generic feature effect")
+                            )
+                        ))
                     ))
                 ))
             );
 
             var @class = new CharacterClass(json);
-            Assert.IsTrue(@class.Subsystems.ContainsKey("vestiges"));
-            Assert.AreEqual(1, @class.Subsystems["vestiges"].Stats.Count);
-            Assert.AreEqual("generic capacity", @class.Subsystems["vestiges"].Stats[0]);
+            Assert.IsTrue(@class.Subsystems.ContainsKey("test_subsystem"));
+            Assert.AreEqual(1, @class.Subsystems["test_subsystem"].Stats.Count);
+            Assert.AreEqual("generic capacity", @class.Subsystems["test_subsystem"].Stats[0]);
+
+            var serialized = (JObject)@class.ToJson();
+            Assert.IsNotNull(serialized["subsystems"]?["test_subsystem"]);
+            Assert.IsNull(serialized["vestiges"]);
 
             var pool = new EffectPool(new Character());
             pool.GenerateClassEffects(@class, 1);
@@ -128,18 +134,50 @@ namespace PlayMore35.Tests {
             var pact = catalog.Subsystems["pact_magic"];
             Assert.AreEqual("number of vestiges", pact.SlotGroups["vestiges"].CapacityStat);
             Assert.AreEqual("maximum vestige level", pact.SlotGroups["vestiges"].MaxLevel.Stat);
-            Assert.AreEqual("active stances", MartialManeuverEngine.ACTIVE_STANCES);
+
+            Assert.IsTrue(catalog.Subsystems.ContainsKey("martial_maneuvers"));
+            var martial = catalog.Subsystems["martial_maneuvers"];
+            Assert.AreEqual("active stances", martial.SlotGroups["stances"].MaxActiveStat);
         }
 
         [TestMethod]
-        public void MartialManeuverEngine_InitiatorLevelStat_FormatsCanonicalStatKeys() {
-            Assert.AreEqual("initiator level:warblade", MartialManeuverEngine.InitiatorLevelStat("Warblade"));
-            Assert.AreEqual("initiator level:crusader", MartialManeuverEngine.InitiatorLevelStat("crusader"));
-            Assert.AreEqual("initiator level:swordsage", MartialManeuverEngine.InitiatorLevelStat("SWORDSAGE"));
-            Assert.AreEqual("initiator level:feats", MartialManeuverEngine.InitiatorLevelStat("  feats  "));
-            Assert.ThrowsException<ArgumentException>(() => MartialManeuverEngine.InitiatorLevelStat(null));
-            Assert.ThrowsException<ArgumentException>(() => MartialManeuverEngine.InitiatorLevelStat(""));
-            Assert.ThrowsException<ArgumentException>(() => MartialManeuverEngine.InitiatorLevelStat("   "));
+        public void CoreAssembly_ContainsNoLegacySubsystemEnginesOrParserRegistry() {
+            var assemblyTypes = typeof(SubsystemEngine).Assembly.GetTypes().Select(t => t.Name).ToList();
+            CollectionAssert.DoesNotContain(assemblyTypes, "ISubsystemEngine");
+            CollectionAssert.DoesNotContain(assemblyTypes, "MartialManeuverEngine");
+            CollectionAssert.DoesNotContain(assemblyTypes, "MartialManeuverState");
+            CollectionAssert.DoesNotContain(assemblyTypes, "KnownManeuverSlot");
+            CollectionAssert.DoesNotContain(assemblyTypes, "StanceSlot");
+            CollectionAssert.DoesNotContain(assemblyTypes, "ManeuverState");
+            CollectionAssert.DoesNotContain(assemblyTypes, "PactMagicEngine");
+
+            Assert.AreEqual(0, typeof(SubsystemEngine).GetInterfaces().Length, "SubsystemEngine must not implement an ISubsystemEngine interface shim.");
+            Assert.IsFalse(typeof(SubsystemRegistry).GetMethods(BindingFlags.Public | BindingFlags.Instance).Any(m => m.Name == "Get" && m.IsGenericMethod), "SubsystemRegistry must not expose a generic Get<T> method.");
+            Assert.IsNull(typeof(SubsystemRegistry).GetMethod("RegisterDefaultActionParsers", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(typeof(SheetAction).GetMethod("RegisterParser", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(typeof(SheetAction).GetMethod("ResetParsersForTesting", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+
+            var catalog = new GameRulesCatalog();
+            var binder = catalog.GetClass("Binder");
+            Assert.IsNotNull(binder);
+            Assert.IsTrue(binder.Subsystems.ContainsKey("pact_magic"), "Binder must declare subsystem 'pact_magic' under 'subsystems'.");
+            Assert.IsFalse(binder.Subsystems.ContainsKey("vestiges"), "Binder must not use legacy 'vestiges' subsystem key.");
+
+            string projectDir = Path.Combine(TestEnvironment.FindRepoRoot(), "PlayMore35");
+            string[] forbiddenClassNames = { "Warblade", "Crusader", "Swordsage", "Binder" };
+            var csFiles = Directory.GetFiles(projectDir, "*.cs", SearchOption.AllDirectories)
+                .Where(f => !f.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar)
+                         && !f.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar));
+
+            foreach (var file in csFiles) {
+                string content = File.ReadAllText(file);
+                foreach (var forbidden in forbiddenClassNames) {
+                    Assert.IsFalse(
+                        content.IndexOf(forbidden, StringComparison.OrdinalIgnoreCase) >= 0,
+                        $"Core C# file '{Path.GetFileName(file)}' must not contain hardcoded class name '{forbidden}'."
+                    );
+                }
+            }
         }
 
         [TestMethod]

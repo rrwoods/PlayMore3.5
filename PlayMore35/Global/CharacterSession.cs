@@ -261,14 +261,12 @@ namespace PlayMore35.Global {
             }
 
             foreach (var engine in subsystems.All) {
-                if (engine is SubsystemEngine subEngine) {
-                    if (character.Subsystems.TryGetValue(subEngine.Id, out var state) && state != null) {
-                        subEngine.LoadState(state);
-                    }
-                    subEngine.ProjectFeatSlots(this);
-                    if (engine.IsActive || character.Subsystems.ContainsKey(subEngine.Id)) {
-                        character.Subsystems[subEngine.Id] = subEngine.ExportState();
-                    }
+                if (character.Subsystems.TryGetValue(engine.Id, out var state) && state != null) {
+                    engine.LoadState(state);
+                }
+                engine.ProjectFeatSlots(this);
+                if (engine.IsActive || character.Subsystems.ContainsKey(engine.Id)) {
+                    character.Subsystems[engine.Id] = engine.ExportState();
                 }
                 if (engine.IsActive) {
                     engine.ContributeEffects(effects, this);

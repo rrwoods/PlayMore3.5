@@ -21,12 +21,6 @@ namespace PlayMore35.Tests {
         [TestInitialize]
         public void SetUp() {
             catalog = new GameRulesCatalog();
-            SubsystemRegistry.RegisterDefaultActionParsers();
-        }
-
-        [TestCleanup]
-        public void TearDown() {
-            SheetAction.ResetParsersForTesting();
         }
 
         [TestMethod]

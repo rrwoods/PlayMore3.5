@@ -5,7 +5,6 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.Rules;
 using System;
 using System.Collections.Generic;
@@ -31,11 +30,6 @@ namespace PlayMore35.Tests {
             return (context, flag, param);
         }
 
-        [TestCleanup]
-        public void Cleanup() {
-            SheetAction.ResetParsersForTesting();
-        }
-
         [TestMethod]
         public void SheetAction_PerformsOnContext_AdjustsFlagsAndParams() {
             var (context, flag, param) = CreateTestContext();
@@ -52,7 +46,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SheetAction_RegisterParser_AndFromJson_DispatchesPolymorphicActions() {
+        public void SheetAction_FromJson_DeserializesDeclarativeActions() {
             var vestigeJson = new JObject(
                 new JProperty("name", "Unbind Slot 1"),
                 new JProperty("subsystem", "pact_magic"),
@@ -91,33 +85,6 @@ namespace PlayMore35.Tests {
             );
             var parsedStandard = SheetAction.FromJson(standardJson);
             Assert.IsInstanceOfType(parsedStandard, typeof(SheetAction));
-        }
-
-        private class CustomTestAction : SheetAction {
-            public string CustomField { get; set; }
-            public CustomTestAction(JObject json) : base(json) {
-                CustomField = (string)json["custom_action"];
-            }
-            public static SheetAction TryParse(JObject json) {
-                return json["custom_action"] != null ? new CustomTestAction(json) : null;
-            }
-        }
-
-        [TestMethod]
-        public void SheetAction_RegisterParser_AndResetParsersForTesting_ManagesLifecycle() {
-            try {
-                SheetAction.RegisterParser(CustomTestAction.TryParse);
-                var json = new JObject(new JProperty("custom_action", "hello"));
-                var parsed = SheetAction.FromJson(json);
-                Assert.IsInstanceOfType(parsed, typeof(CustomTestAction));
-                Assert.AreEqual("hello", ((CustomTestAction)parsed).CustomField);
-            } finally {
-                SheetAction.ResetParsersForTesting();
-            }
-
-            var postResetParsed = SheetAction.FromJson(new JObject(new JProperty("custom_action", "hello")));
-            Assert.IsNotInstanceOfType(postResetParsed, typeof(CustomTestAction));
-            Assert.IsInstanceOfType(postResetParsed, typeof(SheetAction));
         }
 
         [TestMethod]

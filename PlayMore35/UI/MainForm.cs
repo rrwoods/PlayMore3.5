@@ -1313,7 +1313,7 @@ namespace PlayMore35 {
         // this is what happens when you click on a vestige
         private EventHandler ChooseVestige(int slotIndex, SubsystemElement vestige) {
             return (object sender, EventArgs e) => {
-                var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+                var pactEngine = session.Subsystems.Get("pact_magic");
                 if (vestige == null) {
                     session.PerformAction(new SheetAction {
                         Name = $"Unbind vestige slot {slotIndex}",
@@ -1338,7 +1338,7 @@ namespace PlayMore35 {
                         SlotIndex = slotIndex,
                         Element = vestige.Name,
                         Verb = verb,
-                        Source = "Binder"
+                        Source = pactEngine?.GetActiveSources().FirstOrDefault()
                     });
                     stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.GetStatistic("binding DC", session).Value})";
                 }
@@ -1350,6 +1350,7 @@ namespace PlayMore35 {
         // this is what happens when you use the action/round handler by right-clicking and choosing bind
         private EventHandler BindVestige(int slotIndex, SubsystemElement vestige) {
             return (sender, e) => {
+                var pactEngine = session.Subsystems.Get("pact_magic");
                 bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.GetStatistic("binding DC", session).Value;
                 string verb = bindingCheckSuccess ? "bind_good_pact" : "bind_poor_pact";
                 session.PerformAction(new SheetAction {
@@ -1359,7 +1360,7 @@ namespace PlayMore35 {
                     SlotIndex = slotIndex,
                     Element = vestige.Name,
                     Verb = verb,
-                    Source = "Binder"
+                    Source = pactEngine?.GetActiveSources().FirstOrDefault()
                 });
                 var unbindAction = new SheetAction {
                     Name = $"Unbind vestige slot {slotIndex}",
@@ -1382,7 +1383,7 @@ namespace PlayMore35 {
 
         private EventHandler ChangePactState(int slotIndex) {
             return (object sender, EventArgs e) => {
-                var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+                var pactEngine = session.Subsystems.Get("pact_magic");
                 var slot = pactEngine?.GetSlot("vestiges", slotIndex);
                 if (slot != null && !string.IsNullOrEmpty(slot.Element) && slot.State != "empty") {
                     string newState = pactStates[slotIndex].SelectedIndex == 1 ? "poor_pact" : "good_pact";
@@ -1405,7 +1406,7 @@ namespace PlayMore35 {
             vestigeChoices.Clear();
             ClearDynamicControls(pagVestiges, vestigePanels);
             
-            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var pactEngine = session.Subsystems.Get("pact_magic");
             var availableVestiges = (pactEngine?.GetAccessibleElements(null, null) ?? Enumerable.Empty<string>())
                 .Select(name => pactEngine.GetElement(name))
                 .Where(v => v != null)

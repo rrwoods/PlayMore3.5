@@ -107,7 +107,6 @@
     <Compile Include="Global\Timeline.cs" />
     <Compile Include="Global\TimelineAdvanceResult.cs" />
     <Compile Include="Global\SheetAction.cs" />
-    <Compile Include="Subsystems\ISubsystemEngine.cs" />
     <Compile Include="Subsystems\SubsystemDefinition.cs" />
     <Compile Include="Subsystems\SubsystemElement.cs" />
     <Compile Include="Subsystems\SubsystemEngine.cs" />
@@ -117,11 +116,6 @@
     <Compile Include="Subsystems\SubsystemState.cs" />
     <Compile Include="Subsystems\Maneuvers\MartialDiscipline.cs" />
     <Compile Include="Subsystems\Maneuvers\Maneuver.cs" />
-    <Compile Include="Subsystems\Maneuvers\ManeuverState.cs" />
-    <Compile Include="Subsystems\Maneuvers\KnownManeuverSlot.cs" />
-    <Compile Include="Subsystems\Maneuvers\StanceSlot.cs" />
-    <Compile Include="Subsystems\Maneuvers\MartialManeuverState.cs" />
-    <Compile Include="Subsystems\Maneuvers\MartialManeuverEngine.cs" />
     <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>

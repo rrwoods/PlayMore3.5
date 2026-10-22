@@ -9,62 +9,48 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Tests {
     [TestClass]
     public class SubsystemEngineTests {
-        private class FakeFirstSubsystem : ISubsystemEngine {
-            public string Id => "fake-first";
-            public bool IsActive => true;
-            public void Initialize(ICharacterContext context) { }
-            public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
-            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource) => new List<string>().AsReadOnly();
-            public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) => new List<string>();
-        }
-
-        private class FakeSimpleSubsystem : ISubsystemEngine {
-            public string Id => "fake-simple";
-            public bool IsActive => false;
-            public void Initialize(ICharacterContext context) { }
-            public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
-            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource) => new List<string>().AsReadOnly();
-            public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) => new List<string>();
+        private static SubsystemEngine CreateTestEngine(string id, string name = null) {
+            return new SubsystemEngine(new SubsystemDefinition {
+                Id = id,
+                Name = name ?? id
+            });
         }
 
         [TestMethod]
-        public void SubsystemRegistry_RegistersAndRetrievesEngines_ByTypeAndId() {
+        public void SubsystemRegistry_RegistersAndRetrievesEngines_ByIdAndAlias() {
             var registry = new SubsystemRegistry();
-            var first = new FakeFirstSubsystem();
-            var simple = new FakeSimpleSubsystem();
+            var first = CreateTestEngine("fake-first", "Fake First");
+            var simple = CreateTestEngine("fake-simple", "Fake Simple");
 
-            registry.Register(first);
+            registry.Register(first, "first-alias");
             registry.Register(simple);
 
-            Assert.AreSame(first, registry.Get<FakeFirstSubsystem>());
             Assert.AreSame(first, registry.Get("fake-first"));
-
-            Assert.AreSame(simple, registry.Get<FakeSimpleSubsystem>());
+            Assert.AreSame(first, registry.Get("first-alias"));
             Assert.AreSame(simple, registry.Get("fake-simple"));
 
+            CollectionAssert.AreEqual(new[] { first, simple }, registry.All.ToList());
+
             Assert.IsNull(registry.Get("nonexistent"));
-            var unregistered = new SubsystemRegistry();
-            Assert.IsNull(unregistered.Get<FakeFirstSubsystem>());
+            Assert.IsNull(registry.Get(null));
+            Assert.IsNull(registry.Get(""));
         }
 
         [TestMethod]
         public void SubsystemRegistry_ReRegistration_ReplacesExistingEngineInAllAndGet() {
             var registry = new SubsystemRegistry();
-            var first = new FakeFirstSubsystem();
-            var replacement = new FakeFirstSubsystem();
+            var first = CreateTestEngine("fake-first");
+            var replacement = CreateTestEngine("fake-first");
 
             registry.Register(first, "custom-alias");
-            Assert.AreSame(first, registry.Get<FakeFirstSubsystem>());
             Assert.AreSame(first, registry.Get("fake-first"));
             Assert.AreSame(first, registry.Get("custom-alias"));
 
             registry.Register(replacement, "custom-alias");
-            Assert.AreSame(replacement, registry.Get<FakeFirstSubsystem>());
             Assert.AreSame(replacement, registry.Get("fake-first"));
             Assert.AreSame(replacement, registry.Get("custom-alias"));
             Assert.AreEqual(1, registry.All.Count());

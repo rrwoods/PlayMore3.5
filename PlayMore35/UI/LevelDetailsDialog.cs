@@ -1,6 +1,5 @@
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
-using PlayMore35.Subsystems.Maneuvers;
 using PlayMore35.UI;
 using System;
 using System.Collections.Generic;

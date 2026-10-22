@@ -237,104 +237,106 @@
         }
       ]
     ],
-    "vestiges": {
-      "stats": [
-        "effective binder level",
-        "binding check",
-        "EBL for max vestige level",
-        "number of vestiges",
-        "vestige save DC"
-      ],
-      "effects": [
-        {
-          "name": "effective binder level",
-          "modifiers": [
-            {
-              "affects": "effective binder level",
-              "mod": {
-                "type": "untyped",
-                "amounts": [ { "stat value": "Binder level" } ]
+    "subsystems": {
+      "pact_magic": {
+        "stats": [
+          "effective binder level",
+          "binding check",
+          "EBL for max vestige level",
+          "number of vestiges",
+          "vestige save DC"
+        ],
+        "effects": [
+          {
+            "name": "effective binder level",
+            "modifiers": [
+              {
+                "affects": "effective binder level",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [ { "stat value": "Binder level" } ]
+                }
               }
-            }
-          ]
-        },
-        {
-          "name": "binding check",
-          "modifiers": [
-            {
-              "affects": "binding check",
-              "mod": {
-                "type": "untyped",
-                "amounts": [
-                  { "stat value": "CHA modifier" },
-                  { "stat value": "effective binder level" }
-                ]
+            ]
+          },
+          {
+            "name": "binding check",
+            "modifiers": [
+              {
+                "affects": "binding check",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "stat value": "CHA modifier" },
+                    { "stat value": "effective binder level" }
+                  ]
+                }
               }
-            }
-          ]
-        },
-        {
-          "name": "EBL for max vestige level",
-          "modifiers": [
-            {
-              "affects": "EBL for max vestige level",
-              "mod": {
-                "type": "untyped",
-                "amounts": [ { "stat value": "effective binder level" } ]
+            ]
+          },
+          {
+            "name": "EBL for max vestige level",
+            "modifiers": [
+              {
+                "affects": "EBL for max vestige level",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [ { "stat value": "effective binder level" } ]
+                }
               }
-            }
-          ]
-        },
-        {
-          "name": "number of vestiges",
-          "modifiers": [
-            {
-              "affects": "number of vestiges",
-              "mod": {
-                "type": "untyped",
-                "amounts": [
-                  {
-                    "lookup": {
-                      "value": {
-                        "stat value": "effective binder level"
-                      },
-                      "table": {
-                        "1": 1,
-                        "8": 2,
-                        "14": 3,
-                        "20": 4
-                      },
-                      "miss adjust": -1,
-                      "miss factor": 1
+            ]
+          },
+          {
+            "name": "number of vestiges",
+            "modifiers": [
+              {
+                "affects": "number of vestiges",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": {
+                          "stat value": "effective binder level"
+                        },
+                        "table": {
+                          "1": 1,
+                          "8": 2,
+                          "14": 3,
+                          "20": 4
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
                     }
-                  }
-                ]
+                  ]
+                }
               }
-            }
-          ]
-        },
-        {
-          "name": "vestige save DC",
-          "modifiers": [
-            {
-              "affects": "vestige save DC",
-              "mod": {
-                "type": "untyped",
-                "amounts": [
-                  { "fixed": 10 },
-                  {
-                    "multiply": {
-                      "variable": { "stat value": "effective binder level" },
-                      "scalar": 0.5
-                    }
-                  },
-                  { "stat value": "CHA modifier" }
-                ]
+            ]
+          },
+          {
+            "name": "vestige save DC",
+            "modifiers": [
+              {
+                "affects": "vestige save DC",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    { "fixed": 10 },
+                    {
+                      "multiply": {
+                        "variable": { "stat value": "effective binder level" },
+                        "scalar": 0.5
+                      }
+                    },
+                    { "stat value": "CHA modifier" }
+                  ]
+                }
               }
-            }
-          ]
-        }
-      ]
+            ]
+          }
+        ]
+      }
     }
   },
   {

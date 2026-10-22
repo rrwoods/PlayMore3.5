@@ -76,25 +76,18 @@ namespace PlayMore35.CharacterChoices {
 
             var subsObj = new JObject();
             foreach (var kvp in Subsystems) {
-                if (kvp.Key == "vestiges") {
-                    json["vestiges"] = new JObject(
-                        new JProperty("stats", new JArray(kvp.Value.Stats)),
-                        new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
-                    );
-                } else {
-                    var subJson = new JObject(
-                        new JProperty("stats", new JArray(kvp.Value.Stats)),
-                        new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
-                    );
-                    if (kvp.Value.Verbs != null && kvp.Value.Verbs.Count > 0) {
-                        var verbsObj = new JObject();
-                        foreach (var vKvp in kvp.Value.Verbs) {
-                            verbsObj[vKvp.Key] = new JArray(vKvp.Value.Select(s => s.ToJson()));
-                        }
-                        subJson["verbs"] = verbsObj;
+                var subJson = new JObject(
+                    new JProperty("stats", new JArray(kvp.Value.Stats)),
+                    new JProperty("effects", new JArray(kvp.Value.Effects.Select(x => x.ToJson())))
+                );
+                if (kvp.Value.Verbs != null && kvp.Value.Verbs.Count > 0) {
+                    var verbsObj = new JObject();
+                    foreach (var vKvp in kvp.Value.Verbs) {
+                        verbsObj[vKvp.Key] = new JArray(vKvp.Value.Select(s => s.ToJson()));
                     }
-                    subsObj[kvp.Key] = subJson;
+                    subJson["verbs"] = verbsObj;
                 }
+                subsObj[kvp.Key] = subJson;
             }
             if (subsObj.Count > 0) {
                 json["subsystems"] = subsObj;
@@ -138,12 +131,6 @@ namespace PlayMore35.CharacterChoices {
                 }
             }
 
-            if (json["vestiges"] != null) {
-                Subsystems["vestiges"] = new SubsystemFeature {
-                    Stats = json["vestiges"]["stats"].Select(x => (string)x).ToList(),
-                    Effects = json["vestiges"]["effects"].Select(x => new Effect((JObject)x)).ToList()
-                };
-            }
             if (json["subsystems"] is JObject subsJson) {
                 foreach (var prop in subsJson.Properties()) {
                     if (prop.Value is JObject sObj) {

@@ -7,10 +7,9 @@
 
 ## Subsystem Architecture
 
-- **Minimal host lifecycle seam (`ISubsystemEngine`)**: Subsystem engines implement `ISubsystemEngine` solely for `CharacterSession` host lifecycle and dynamic effect contribution (`Id`, `IsActive`, `Initialize`, `ContributeEffects`). Never introduce mechanical sub-interfaces beneath it (such as `ISlottedSubsystem`).
-- **Delegation over inheritance**: Subsystem engines manage internal mechanics (such as slotting, resource expenditure, and access validation) by delegating to composed objects, never via class inheritance or engine interface inheritance.
-- **Rule-of-Two extraction (Just-in-Time delegation)**: Prefactor or extract a shared delegate only when an already-implemented subsystem and the subsystem currently being implemented both require the identical mechanic.
-- **Native domain vocabulary**: Subsystem engines, state models, and UI controls speak their canonical D&D 3.5e terminology for the User, Verb, and Subsystem Element (e.g. `BindVestige`, `InitiateManeuver`, `ReadyManeuver`, `ShapeSoulmeld`, `CastSpell`).
+- **Single concrete `SubsystemEngine` (No `ISubsystemEngine` shim)**: Subsystems are driven by a single concrete `SubsystemEngine` configured by declarative `SubsystemDefinition` JSON (see `docs/adr/0006-declarative-subsystems-and-primitive-verbs.md`). Never introduce per-subsystem engine classes, interface shims (`ISubsystemEngine`), or runtime `SheetAction` parser registrations.
+- **Zero class or subsystem literacy in C# engine code**: Core C# engine code (`SubsystemEngine`, `CharacterSession`, `EffectPool`, `SheetAction`) must remain blind to specific character classes (`Warblade`, `Crusader`, `Swordsage`, `Binder`) and subsystem element names. Express subsystem state machines, level gating, and composite verbs declaratively in JSON via primitive verbs (`ExecuteTransition`, `InvokeElementVerb`, `ExecutePoolOperation`).
+- **Native domain vocabulary**: Declarative subsystem verbs, JSON definitions, and UI controls speak their canonical D&D 3.5e terminology for the User, Verb, and Subsystem Element (e.g. `bind_good_pact`, `adopt_stance`, `recover`, `deal`).
 - **Immutable catalog loading via `IRulesCatalog`**: Load subsystem content definitions (`vestiges.json`, `maneuvers.json`, `spells.json`) via `IRulesCatalog` to share immutable data across sessions without redundant file parsing (see `docs/agents/subsystems.md`).
 
 ## WinForms and `Designer.cs` Layout

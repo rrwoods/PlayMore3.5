@@ -7,7 +7,7 @@ using PlayMore35.Global;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Subsystems {
-    public class SubsystemEngine : ISubsystemEngine {
+    public class SubsystemEngine {
         private readonly Dictionary<string, SubsystemSlotGroup<SubsystemSlot>> slotGroups = new Dictionary<string, SubsystemSlotGroup<SubsystemSlot>>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, int> poolValues = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private readonly List<SubsystemSlot> activeSlotOrder = new List<SubsystemSlot>();

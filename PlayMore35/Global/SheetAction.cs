@@ -7,51 +7,8 @@ using System.Linq;
 
 namespace PlayMore35.Global {
     public class SheetAction : IJsonable {
-        private static readonly List<Func<JObject, SheetAction>> parsers = new List<Func<JObject, SheetAction>>();
-        private static readonly object parserLock = new object();
-        private static bool defaultParsersRegistered = false;
-
-        private static void EnsureDefaultParsers() {
-            if (!defaultParsersRegistered) {
-                lock (parserLock) {
-                    if (!defaultParsersRegistered) {
-                        defaultParsersRegistered = true;
-                        SubsystemRegistry.RegisterDefaultActionParsers();
-                    }
-                }
-            }
-        }
-
-        public static void RegisterParser(Func<JObject, SheetAction> parser) {
-            if (parser != null) {
-                lock (parserLock) {
-                    if (!parsers.Contains(parser)) {
-                        parsers.Add(parser);
-                    }
-                }
-            }
-        }
-
-        public static void ResetParsersForTesting() {
-            lock (parserLock) {
-                parsers.Clear();
-                defaultParsersRegistered = false;
-                EnsureDefaultParsers();
-            }
-        }
-
         public static SheetAction FromJson(JObject json) {
-            if (json == null) return null;
-            EnsureDefaultParsers();
-            List<Func<JObject, SheetAction>> parsersSnapshot;
-            lock (parserLock) {
-                parsersSnapshot = new List<Func<JObject, SheetAction>>(parsers);
-            }
-            foreach (var parser in parsersSnapshot) {
-                var action = parser(json);
-                if (action != null) return action;
-            }
-            return new SheetAction(json);
+            return json == null ? null : new SheetAction(json);
         }
 
         public string Name { get; set; } = null;
@@ -69,7 +26,7 @@ namespace PlayMore35.Global {
         private readonly Dictionary<string, int> paramsToAdjust = new Dictionary<string, int>();
         List<SheetAction> actionsAfter = new List<SheetAction>(); // actions to fire at the end of the duration
 
-        public virtual JToken ToJson() {
+        public JToken ToJson() {
             JObject json = new JObject();
             if (!string.IsNullOrEmpty(Name)) {
                 json["name"] = Name;
@@ -130,7 +87,7 @@ namespace PlayMore35.Global {
 
         public SheetAction() { }
 
-        protected virtual SheetAction Revert() {
+        private SheetAction Revert() {
             SheetAction revert = new SheetAction {
                 Name = Name
             };
@@ -195,7 +152,7 @@ namespace PlayMore35.Global {
             return this;
         }
 
-        public virtual TimelineRefreshRequirement Perform(ICharacterContext context) {
+        public TimelineRefreshRequirement Perform(ICharacterContext context) {
             TimelineRefreshRequirement requirement = TimelineRefreshRequirement.None;
 
             if (duration == "encounter" && context != null && !context.Timeline.Combat) {
@@ -238,7 +195,7 @@ namespace PlayMore35.Global {
             }
 
             if (!string.IsNullOrEmpty(Subsystem) && context?.Subsystems != null) {
-                var engine = context.Subsystems.Get(Subsystem) as SubsystemEngine;
+                var engine = context.Subsystems.Get(Subsystem);
                 if (engine != null) {
                     var target = new SubsystemTarget(SlotGroup, SlotIndex, Element, Source);
                     if (!string.IsNullOrEmpty(Verb)) {
@@ -275,7 +232,7 @@ namespace PlayMore35.Global {
             return requirement;
         }
 
-        public virtual bool Matches(SheetAction action) {
+        public bool Matches(SheetAction action) {
             if (action == null) return false;
             bool baseMatches = Name == action.Name &&
                    duration == action.duration &&

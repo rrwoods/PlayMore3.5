@@ -4,23 +4,19 @@ Guidelines and architectural principles for implementing D&D 3.5e magic and mart
 
 ## 1. Architectural Invariants
 
-Every subsystem implementation must adhere to these five architectural invariants:
+Every subsystem implementation must adhere to these five architectural invariants (see `docs/adr/0006-declarative-subsystems-and-primitive-verbs.md`):
 
-1. **Minimal Host Seam (`ISubsystemEngine`)**:
-   - `ISubsystemEngine` provides universal host lifecycle, engine identification, and dynamic effect contribution (`Id`, `IsActive`, `Initialize`, `ContributeEffects`).
-   - `CharacterSession` hosts active engines uniformly in `SubsystemRegistry` and dispatches `ContributeEffects` during dynamic recomputation without subsystem-specific coupling.
-   - Sub-interfaces beneath `ISubsystemEngine` (such as `ISlottedSubsystem`) are prohibited. Subsystem capabilities belong to composed delegates, not engine interface inheritance.
+1. **Single Concrete `SubsystemEngine` (No `ISubsystemEngine` Shim)**:
+   - All subsystems are evaluated by the concrete `SubsystemEngine` class parameterized by a declarative `SubsystemDefinition` and persisted via universal `SubsystemState`.
+   - `CharacterSession` hosts active `SubsystemEngine` instances uniformly in `SubsystemRegistry` and dispatches `Initialize`, `LoadState`, `ProjectFeatSlots`, `ExportState`, and `ContributeEffects` without per-subsystem C# subclasses or interface shims (`ISubsystemEngine`).
 
-2. **Delegation Over Inheritance**:
-   - Subsystem engines manage internal mechanics (such as slots, resource pools, and access validations) by delegating to composed objects, never through class inheritance or engine interface inheritance.
-   - Timed expirations on the `Timeline` route through engine-specific or delegate operations rather than a global slotted interface.
+2. **Declarative State Machines and Primitive Verbs**:
+   - Subsystem mechanics—slot groups, finite state machines, level gating, and composite verbs—are defined declaratively in JSON and executed through three primitive verbs (`ExecuteTransition`, `InvokeElementVerb`, and `ExecutePoolOperation`).
+   - Core C# engine code (`SubsystemEngine`, `CharacterSession`, `EffectPool`, `SheetAction`) has zero literacy of specific character classes (`Warblade`, `Crusader`, `Swordsage`, `Binder`) or specific subsystem elements.
+   - Timed and persistent actions on the `Timeline` use the unified `SheetAction` model directly without runtime parser registries.
 
-3. **Rule-of-Two Extraction (Just-in-Time Delegation)**:
-   - Prefactor or extract a shared delegate only when an already-implemented subsystem and the subsystem currently being implemented both require the identical mechanic.
-   - Build each new subsystem with cohesive, subsystem-specific domain models tailored to its specific rules. When a second implemented subsystem demonstrates a genuinely shared mechanic, extract the shared delegate at that time.
-
-4. **Native Domain Vocabulary (User / Verb / Element)**:
-   - Subsystem engines speak their canonical D&D 3.5e vocabulary across their public APIs, state models, and presentation controls:
+3. **Native Domain Vocabulary (User / Verb / Element)**:
+   - Declarative subsystem definitions, composite verbs, and presentation controls speak their canonical D&D 3.5e vocabulary:
      - Spellcaster / casts / spell
      - Initiator / initiates / maneuver
      - Manifester / manifests / power
@@ -29,12 +25,12 @@ Every subsystem implementation must adhere to these five architectural invariant
      - Truenamer / speaks / utterance
      - Shadowcaster / casts / mystery
      - Invoker / invokes / invocation
-   - Avoid generic names like `UseThing()` or `SubsystemItem`. Keep domain code expressive and faithful to primary source terminology.
+   - Avoid generic names in domain definitions and UI controls; keep verb and element names faithful to primary source terminology.
 
-5. **Shared Content in Rules Catalog (`IRulesCatalog`)**:
+4. **Shared Content in Rules Catalog (`IRulesCatalog`)**:
    - Subsystem definition catalogs (`vestiges.json`, `maneuvers.json`, `spells.json`, etc.) load through `IRulesCatalog` so multi-character sessions and DM encounter tracking share immutable rules data without redundant JSON parsing.
 
-6. **Enable, Don't Enforce with Advisory Warning Badges (ADR-0001)**:
+5. **Enable, Don't Enforce with Advisory Warning Badges (ADR-0001)**:
    - Selection interfaces filter to eligible elements by default to keep large catalogs navigable, while providing a clear toggle to view all elements.
    - If an element is chosen or slotted that exceeds standard progression access or slot criteria, the system retains the selection and displays a non-blocking Warning Badge.
    - Table exceptions and campaign house rules are declared via the house rules layer or custom feature grants to tell the software that table fiat applies.
