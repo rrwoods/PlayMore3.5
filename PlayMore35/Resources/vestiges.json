@@ -2,20 +2,56 @@
   "subsystem": {
     "id": "pact_magic",
     "name": "Pact Magic",
-    "required_element_properties": [
-      "binding DC",
-      "level"
-    ],
     "element_statistics": {
       "binding DC": [
         "binding DCs"
       ],
       "level": []
     },
+    "level_gating": {
+      "element_statistic": "level"
+    },
     "slot_groups": {
       "vestiges": {
         "capacity_stat": "number of vestiges",
-        "max_level_stat": "maximum vestige level",
+        "max_level": {
+          "stat": "maximum vestige level",
+          "base": 0
+        },
+        "effects": [
+          {
+            "name": "maximum vestige level",
+            "modifiers": [
+              {
+                "affects": "maximum vestige level",
+                "mod": {
+                  "type": "untyped",
+                  "amounts": [
+                    {
+                      "lookup": {
+                        "value": {
+                          "stat value": "EBL for max vestige level"
+                        },
+                        "table": {
+                          "1": 1,
+                          "3": 2,
+                          "5": 3,
+                          "7": 4,
+                          "10": 5,
+                          "12": 6,
+                          "15": 7,
+                          "17": 8
+                        },
+                        "miss adjust": -1,
+                        "miss factor": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
         "states": [
           "empty",
           "good_pact",

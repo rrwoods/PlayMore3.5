@@ -242,7 +242,6 @@
         "effective binder level",
         "binding check",
         "EBL for max vestige level",
-        "maximum vestige level",
         "number of vestiges",
         "vestige save DC"
       ],
@@ -282,38 +281,6 @@
               "mod": {
                 "type": "untyped",
                 "amounts": [ { "stat value": "effective binder level" } ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "maximum vestige level",
-          "modifiers": [
-            {
-              "affects": "maximum vestige level",
-              "mod": {
-                "type": "untyped",
-                "amounts": [
-                  {
-                    "lookup": {
-                      "value": {
-                        "stat value": "EBL for max vestige level"
-                      },
-                      "table": {
-                        "1": 1,
-                        "3": 2,
-                        "5": 3,
-                        "7": 4,
-                        "10": 5,
-                        "12": 6,
-                        "15": 7,
-                        "17": 8
-                      },
-                      "miss adjust": -1,
-                      "miss factor": 1
-                    }
-                  }
-                ]
               }
             }
           ]

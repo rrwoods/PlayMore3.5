@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using PlayMore35.Effects;
 using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems {
@@ -55,11 +56,58 @@ namespace PlayMore35.Subsystems {
         }
     }
 
+    public class MaxLevelDefinition : IJsonable {
+        public string Stat { get; set; } = "";
+        public int Base { get; set; } = 0;
+
+        public MaxLevelDefinition() { }
+
+        public MaxLevelDefinition(string stat, int baseValue = 0) {
+            Stat = stat ?? "";
+            Base = baseValue;
+        }
+
+        public MaxLevelDefinition(JObject json) {
+            if (json == null) return;
+            Stat = (string)(json["stat"] ?? "");
+            Base = (int)(json["base"] ?? 0);
+        }
+
+        public JToken ToJson() {
+            var json = new JObject();
+            if (!string.IsNullOrEmpty(Stat)) json["stat"] = Stat;
+            if (Base != 0) json["base"] = Base;
+            return json;
+        }
+    }
+
+    public class LevelGatingDefinition : IJsonable {
+        public string ElementStatistic { get; set; } = "";
+
+        public LevelGatingDefinition() { }
+
+        public LevelGatingDefinition(string elementStatistic) {
+            ElementStatistic = elementStatistic ?? "";
+        }
+
+        public LevelGatingDefinition(JObject json) {
+            if (json == null) return;
+            ElementStatistic = (string)(json["element_statistic"] ?? "");
+        }
+
+        public JToken ToJson() {
+            var json = new JObject();
+            if (!string.IsNullOrEmpty(ElementStatistic)) json["element_statistic"] = ElementStatistic;
+            return json;
+        }
+    }
+
     public class SlotGroupDefinition : IJsonable {
         public string Name { get; set; } = "";
         public string CapacityStat { get; set; } = null;
         public int FixedCapacity { get; set; } = 0;
-        public string MaxLevelStat { get; set; } = null;
+        public MaxLevelDefinition MaxLevel { get; set; } = null;
+        public List<Effect> Effects { get; } = new List<Effect>();
         public List<string> States { get; } = new List<string>();
         public string DefaultState { get; set; } = "";
 
@@ -70,7 +118,12 @@ namespace PlayMore35.Subsystems {
             Name = (string)(json["name"] ?? "");
             CapacityStat = (string)json["capacity_stat"];
             FixedCapacity = (int)(json["fixed_capacity"] ?? 0);
-            MaxLevelStat = (string)json["max_level_stat"];
+            if (json["max_level"] is JObject mlObj) {
+                MaxLevel = new MaxLevelDefinition(mlObj);
+            }
+            if (json["effects"] is JArray effArr) {
+                Effects.AddRange(effArr.Select(x => new Effect((JObject)x)));
+            }
             if (json["states"] is JArray arr) {
                 States.AddRange(arr.Select(x => (string)x));
             }
@@ -82,7 +135,8 @@ namespace PlayMore35.Subsystems {
             if (!string.IsNullOrEmpty(Name)) json["name"] = Name;
             if (!string.IsNullOrEmpty(CapacityStat)) json["capacity_stat"] = CapacityStat;
             if (FixedCapacity > 0) json["fixed_capacity"] = FixedCapacity;
-            if (!string.IsNullOrEmpty(MaxLevelStat)) json["max_level_stat"] = MaxLevelStat;
+            if (MaxLevel != null) json["max_level"] = MaxLevel.ToJson();
+            if (Effects.Count > 0) json["effects"] = new JArray(Effects.Select(x => x.ToJson()));
             if (States.Count > 0) json["states"] = new JArray(States);
             if (!string.IsNullOrEmpty(DefaultState)) json["default_state"] = DefaultState;
             return json;
@@ -159,6 +213,7 @@ namespace PlayMore35.Subsystems {
         public List<KindProjectionRule> Projections { get; } = new List<KindProjectionRule>();
         public List<string> RequiredElementProperties { get; } = new List<string>();
         public Dictionary<string, List<string>> ElementStatistics { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        public LevelGatingDefinition LevelGating { get; set; } = null;
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
@@ -170,6 +225,10 @@ namespace PlayMore35.Subsystems {
             if (subJson == null) return;
             Id = (string)(subJson["id"] ?? "");
             Name = (string)(subJson["name"] ?? Id);
+
+            if (subJson["level_gating"] is JObject lgObj) {
+                LevelGating = new LevelGatingDefinition(lgObj);
+            }
 
             if (subJson["slot_groups"] is JObject slotsObj) {
                 foreach (var prop in slotsObj.Properties()) {
@@ -222,6 +281,12 @@ namespace PlayMore35.Subsystems {
                         tags.AddRange(tagsArr.Select(x => (string)x));
                     }
                     ElementStatistics[prop.Name] = tags;
+                }
+            }
+
+            if (LevelGating != null) {
+                if (string.IsNullOrEmpty(LevelGating.ElementStatistic) || !ElementStatistics.ContainsKey(LevelGating.ElementStatistic)) {
+                    throw new InvalidOperationException($"Subsystem '{Id}' level gating references element statistic '{LevelGating.ElementStatistic}' which is not defined in element_statistics.");
                 }
             }
 
@@ -292,6 +357,10 @@ namespace PlayMore35.Subsystems {
 
             if (RequiredElementProperties.Count > 0) {
                 subJson["required_element_properties"] = new JArray(RequiredElementProperties);
+            }
+
+            if (LevelGating != null) {
+                subJson["level_gating"] = LevelGating.ToJson();
             }
 
             if (ElementStatistics.Count > 0) {

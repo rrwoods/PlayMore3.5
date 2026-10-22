@@ -9,7 +9,7 @@ namespace PlayMore35.Subsystems {
         bool IsActive { get; }
         void Initialize(ICharacterContext context);
         void ContributeEffects(EffectPool pool, ICharacterContext context);
-        IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level);
+        IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource);
         List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null);
     }
 }

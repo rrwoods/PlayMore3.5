@@ -19,7 +19,7 @@ namespace PlayMore35.Tests {
             public bool IsActive => true;
             public void Initialize(ICharacterContext context) { }
             public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
-            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) => new List<string>().AsReadOnly();
+            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource) => new List<string>().AsReadOnly();
             public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) => new List<string>();
         }
 
@@ -28,7 +28,7 @@ namespace PlayMore35.Tests {
             public bool IsActive => false;
             public void Initialize(ICharacterContext context) { }
             public void ContributeEffects(EffectPool pool, ICharacterContext context) { }
-            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) => new List<string>().AsReadOnly();
+            public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource) => new List<string>().AsReadOnly();
             public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) => new List<string>();
         }
 
@@ -464,6 +464,228 @@ namespace PlayMore35.Tests {
                 Assert.IsNotNull(fetched, $"Failed to fetch maneuver '{first.Name}' via catalog");
                 Assert.AreEqual(first.Name, fetched.Name);
             }
+        }
+
+        [TestMethod]
+        public void SubsystemDefinition_Throws_WhenLevelGatingStatisticNotFoundInElementStatistics() {
+            var json = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("name", "Test Subsystem"),
+                    new JProperty("level_gating", new JObject(
+                        new JProperty("element_statistic", "level")
+                    ))
+                ))
+            );
+
+            var ex = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(json));
+            StringAssert.Contains(ex.Message, "level gating references element statistic 'level'");
+        }
+
+        [TestMethod]
+        public void SubsystemDefinition_Throws_WhenLevelGatingStatisticIsEmptyOrMissing() {
+            var json = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "test_subsystem"),
+                    new JProperty("name", "Test Subsystem"),
+                    new JProperty("level_gating", new JObject())
+                ))
+            );
+
+            var ex = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(json));
+            StringAssert.Contains(ex.Message, "level gating references element statistic ''");
+        }
+
+        // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
+        [TestMethod]
+        public void SubsystemDefinition_ParsesLevelGatingAndSlotGroupMaxLevelAndEffects() {
+            var json = new JObject(
+                new JProperty("subsystem", new JObject(
+                    new JProperty("id", "pact_magic"),
+                    new JProperty("name", "Pact Magic"),
+                    new JProperty("element_statistics", new JObject(
+                        new JProperty("level", new JArray())
+                    )),
+                    new JProperty("level_gating", new JObject(
+                        new JProperty("element_statistic", "level")
+                    )),
+                    new JProperty("slot_groups", new JObject(
+                        new JProperty("vestiges", new JObject(
+                            new JProperty("max_level", new JObject(
+                                new JProperty("stat", "maximum vestige level"),
+                                new JProperty("base", 0)
+                            )),
+                            new JProperty("effects", new JArray(
+                                new JObject(
+                                    new JProperty("name", "max level effect"),
+                                    new JProperty("modifiers", new JArray(
+                                        new JObject(
+                                            new JProperty("affects", "maximum vestige level"),
+                                            new JProperty("mod", new JObject(
+                                                new JProperty("type", "untyped"),
+                                                new JProperty("amounts", new JArray(
+                                                    new JObject(new JProperty("fixed", 5))
+                                                ))
+                                            ))
+                                        )
+                                    ))
+                                )
+                            ))
+                        ))
+                    ))
+                ))
+            );
+
+            var def = new SubsystemDefinition(json);
+            Assert.IsNotNull(def.LevelGating);
+            Assert.AreEqual("level", def.LevelGating.ElementStatistic);
+            var group = def.SlotGroups["vestiges"];
+            Assert.IsNotNull(group.MaxLevel);
+            Assert.AreEqual("maximum vestige level", group.MaxLevel.Stat);
+            Assert.AreEqual(0, group.MaxLevel.Base);
+            Assert.AreEqual(1, group.Effects.Count);
+            Assert.AreEqual("max level effect", group.Effects[0].Name);
+
+            var serialized = (JObject)def.ToJson();
+            var roundTrip = new SubsystemDefinition(serialized);
+            Assert.AreEqual("level", roundTrip.LevelGating.ElementStatistic);
+            Assert.AreEqual("maximum vestige level", roundTrip.SlotGroups["vestiges"].MaxLevel.Stat);
+            Assert.AreEqual(1, roundTrip.SlotGroups["vestiges"].Effects.Count);
+        }
+
+        // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
+        [TestMethod]
+        public void SubsystemEngine_ContributeEffects_RegistersSlotGroupMaxLevelAndContributesSlotGroupEffects() {
+            var def = new SubsystemDefinition {
+                Id = "pact_magic",
+                Name = "Pact Magic"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "vestiges",
+                MaxLevel = new MaxLevelDefinition("maximum vestige level", 0)
+            };
+            var maxLevelEffect = new Effect("Max Vestige Level Progression")
+                .AddModifier("maximum vestige level", new Modifier(new LookupAmount("EBL for max vestige level", new Dictionary<int, int> { { 1, 1 }, { 3, 2 } }, -1, 0), ModifierTypes.UNTYPED));
+            group.Effects.Add(maxLevelEffect);
+            def.SlotGroups["vestiges"] = group;
+
+            var engine = new SubsystemEngine(def);
+            var character = new Character { race = "human" };
+            var session = new CharacterSession(character, new GameRulesCatalog());
+            var pool = new EffectPool(character);
+            pool.AddStat(new Statistic("EBL for max vestige level"));
+            pool.AddEffect(new Effect("EBL").AddModifier("EBL for max vestige level", new Modifier(3, ModifierTypes.BASE)));
+
+            engine.ContributeEffects(pool, session);
+
+            Assert.IsTrue(pool.stats.ContainsKey("maximum vestige level"), "Slot group max level stat should be registered in pool.");
+            Assert.AreEqual(2, pool.GetStatValue("maximum vestige level", null), "Max level stat should be modified by slot group effects.");
+        }
+
+        // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
+        [TestMethod]
+        public void SubsystemEngine_GetAccessibleElements_And_IsSlotLevelValid_GatesDynamicallyBySlotGroupMaxLevel() {
+            var def = new SubsystemDefinition {
+                Id = "pact_magic",
+                Name = "Pact Magic"
+            };
+            def.ElementStatistics["level"] = new List<string>();
+            def.LevelGating = new LevelGatingDefinition("level");
+            var group = new SlotGroupDefinition {
+                Name = "vestiges",
+                FixedCapacity = 2,
+                MaxLevel = new MaxLevelDefinition("maximum vestige level", 1)
+            };
+            def.SlotGroups["vestiges"] = group;
+
+            var elem1 = new SubsystemElement();
+            elem1.Name = "Amon";
+            elem1.SetProperty("level", 1);
+            def.Elements["Amon"] = elem1;
+
+            var elem2 = new SubsystemElement();
+            elem2.Name = "Savnok";
+            elem2.SetProperty("level", 2);
+            def.Elements["Savnok"] = elem2;
+
+            var engine = new SubsystemEngine(def);
+            var character = new Character { race = "human" };
+            var session = new CharacterSession(character, new GameRulesCatalog());
+            ICharacterContext ctx = session;
+            ctx.Effects.AddStat(new Statistic("maximum vestige level"));
+            ctx.Effects.AddEffect(new Effect("Base Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.BASE)));
+            engine.Initialize(session);
+
+            // With max vestige level = 1:
+            var accessible = engine.GetAccessibleElements(null, null);
+            CollectionAssert.Contains(accessible.ToList(), "Amon");
+            CollectionAssert.DoesNotContain(accessible.ToList(), "Savnok");
+
+            // Assign slot 0 to Amon (level 1 <= 1) -> valid
+            engine.AssignSlot("vestiges", 0, "Amon", "good_pact");
+            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
+
+            // Assign slot 1 to Savnok (level 2 > 1) -> invalid
+            engine.AssignSlot("vestiges", 1, "Savnok", "good_pact");
+            Assert.IsFalse(engine.IsSlotLevelValid("vestiges", 1));
+
+            // Increase maximum vestige level to 2 dynamically
+            ctx.Effects.AddEffect(new Effect("Boost Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.UNTYPED)));
+            accessible = engine.GetAccessibleElements(null, null);
+            CollectionAssert.Contains(accessible.ToList(), "Amon");
+            CollectionAssert.Contains(accessible.ToList(), "Savnok");
+            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 1));
+        }
+
+        // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
+        [TestMethod]
+        public void SubsystemEngine_ValidateChoice_EmitsAdvisoryWarning_WhenElementExceedsMaxLevel() {
+            var def = new SubsystemDefinition {
+                Id = "pact_magic",
+                Name = "Pact Magic"
+            };
+            def.ElementStatistics["level"] = new List<string>();
+            def.LevelGating = new LevelGatingDefinition("level");
+            var group = new SlotGroupDefinition {
+                Name = "vestiges",
+                FixedCapacity = 1,
+                MaxLevel = new MaxLevelDefinition("maximum vestige level", 1)
+            };
+            def.SlotGroups["vestiges"] = group;
+
+            var elem1 = new SubsystemElement();
+            elem1.Name = "Amon";
+            elem1.SetProperty("level", 1);
+            def.Elements["Amon"] = elem1;
+
+            var elem2 = new SubsystemElement();
+            elem2.Name = "Savnok";
+            elem2.SetProperty("level", 2);
+            def.Elements["Savnok"] = elem2;
+
+            var engine = new SubsystemEngine(def);
+            var character = new Character { race = "human" };
+            var session = new CharacterSession(character, new GameRulesCatalog());
+            ICharacterContext ctx = session;
+            ctx.Effects.AddStat(new Statistic("maximum vestige level"));
+            ctx.Effects.AddEffect(new Effect("Base Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.BASE)));
+            engine.Initialize(session);
+
+            var descriptor = new ChoiceDescriptor("vestige", "Choose Vestige", "SubsystemElements", "pact_magic");
+
+            // Amon is level 1 <= 1 -> no warnings
+            var warningsAmon = engine.ValidateChoice("feat_0", descriptor, "Amon", "Binder");
+            Assert.AreEqual(0, warningsAmon.Count);
+
+            // Savnok is level 2 > 1 -> advisory warning
+            var warningsSavnok = engine.ValidateChoice("feat_0", descriptor, "Savnok", "Binder");
+            Assert.AreEqual(1, warningsSavnok.Count);
+            StringAssert.Contains(warningsSavnok[0], "Level 2 exceeds maximum 1 for Binder.");
+
+            // Unknown element -> invalid element warning
+            var warningsUnknown = engine.ValidateChoice("feat_0", descriptor, "Nonexistent", "Binder");
+            Assert.AreEqual(1, warningsUnknown.Count);
+            StringAssert.Contains(warningsUnknown[0], "'Nonexistent' is not a valid element in subsystem 'Pact Magic'.");
         }
     }
 }

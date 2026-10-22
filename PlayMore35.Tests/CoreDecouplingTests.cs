@@ -127,7 +127,7 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(catalog.Subsystems.ContainsKey("pact_magic"));
             var pact = catalog.Subsystems["pact_magic"];
             Assert.AreEqual("number of vestiges", pact.SlotGroups["vestiges"].CapacityStat);
-            Assert.AreEqual("maximum vestige level", pact.SlotGroups["vestiges"].MaxLevelStat);
+            Assert.AreEqual("maximum vestige level", pact.SlotGroups["vestiges"].MaxLevel.Stat);
             Assert.AreEqual("active stances", MartialManeuverEngine.ACTIVE_STANCES);
         }
 

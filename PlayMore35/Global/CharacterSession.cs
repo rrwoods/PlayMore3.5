@@ -753,11 +753,11 @@ namespace PlayMore35.Global {
             return character.featChoices.TryGetValue($"{featSlot}:{key}", out var compChoice) ? compChoice : "";
         }
 
-        public IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource, int level) {
+        public IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource) {
             if (string.Equals(domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
                 if (subsystems != null) {
                     foreach (var engine in subsystems.All) {
-                        var elements = engine.GetAccessibleElements(filter, targetSource, level);
+                        var elements = engine.GetAccessibleElements(filter, targetSource);
                         if (elements != null && elements.Count > 0) {
                             return elements;
                         }

@@ -1407,9 +1407,9 @@ namespace PlayMore35 {
             ClearDynamicControls(pagVestiges, vestigePanels);
             
             var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
-            int maxLevel = session.GetStatistic("maximum vestige level").Value;
-            var availableVestiges = (pactEngine?.Definition.Elements.Values ?? Enumerable.Empty<SubsystemElement>())
-                .Where(v => v.GetStatistic("level", session).Value <= maxLevel)
+            var availableVestiges = (pactEngine?.GetAccessibleElements(null, null) ?? Enumerable.Empty<string>())
+                .Select(name => pactEngine.GetElement(name))
+                .Where(v => v != null)
                 .OrderBy(v => v.Name)
                 .ToList();
             int numVestiges = pactEngine?.GetSlotGroup("vestiges")?.Capacity ?? session.GetStatistic("number of vestiges").Value;

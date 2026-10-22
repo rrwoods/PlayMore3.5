@@ -577,7 +577,8 @@ namespace PlayMore35.Tests {
             var catalog = new GameRulesCatalog();
             var pactDef = catalog.GetSubsystem("pact_magic");
             Assert.IsNotNull(pactDef);
-            CollectionAssert.Contains(pactDef.RequiredElementProperties, "binding DC");
+            Assert.AreEqual(0, pactDef.RequiredElementProperties.Count);
+            Assert.IsTrue(pactDef.ElementStatistics.ContainsKey("binding DC"));
 
             var validJson = new JObject(
                 new JProperty("subsystem", new JObject(
@@ -809,7 +810,7 @@ namespace PlayMore35.Tests {
 
             // Binder level 1: max vestige level is 1
             Assert.AreEqual(1, session.GetStatistic("maximum vestige level").Value);
-            var accessibleBase = pactEngine.GetAccessibleElements(null, null, 1);
+            var accessibleBase = pactEngine.GetAccessibleElements(null, null);
             CollectionAssert.Contains(accessibleBase.ToList(), "Aym");
             CollectionAssert.DoesNotContain(accessibleBase.ToList(), "Savnok");
 
@@ -830,7 +831,7 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(pactEngine.IsSlotLevelValid("vestiges", 0));
 
             // Savnok is now accessible at level 1
-            var accessibleModified = pactEngine.GetAccessibleElements(null, null, 1);
+            var accessibleModified = pactEngine.GetAccessibleElements(null, null);
             CollectionAssert.Contains(accessibleModified.ToList(), "Savnok");
 
             // Removing modifier restores Savnok to level 2

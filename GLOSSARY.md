@@ -1,4 +1,4 @@
-﻿# PlayMore35
+# PlayMore35
 
 A dynamic character sheet and combat companion for running Dungeons & Dragons 3.5 Edition characters during live play.
 
@@ -181,7 +181,7 @@ A discrete catalogable unit within a subsystem (such as a spell, martial maneuve
 _Avoid_: Subsystem thing, subsystem ability, subsystem option, subsystem feature
 
 **Level Gating**:
-The dynamic calculation of the maximum accessible subsystem element tier (such as maximum maneuver level, spell circle, or vestige grade) derived from progression or grant statistics (such as initiator level or caster level).
+The dynamic calculation of the maximum accessible subsystem element tier (such as maximum maneuver level, spell circle, or vestige grade) derived from progression or grant statistics (such as initiator level or caster level), declared in subsystem configuration.
 _Avoid_: Level cap, tier limit, spell level cap, access ceiling
 
 **Progression Access**:
