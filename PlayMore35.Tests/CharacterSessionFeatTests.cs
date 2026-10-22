@@ -754,13 +754,13 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             // Level 1 Fighter with target "Feats": max maneuver level = 1
-            var level1Elements = session.GetAccessibleSubsystemElements("SubsystemElements", "maneuver", "Feats", 1);
+            var level1Elements = session.GetAccessibleSubsystemElements("SubsystemElements", "maneuver", "Feats");
             Assert.IsTrue(level1Elements.Any(e => e.EndsWith("Steel Wind")), "Level 1 maneuvers should be included.");
             Assert.IsFalse(level1Elements.Any(e => e.EndsWith("Disarming Strike")), "Level 2 maneuvers should be excluded for Level 1 Feats.");
             Assert.IsFalse(level1Elements.Any(e => e.EndsWith("Punishing Stance")), "Stances should be excluded when filter is maneuver.");
 
             // Stance filter: only stances returned
-            var stanceElements = session.GetAccessibleSubsystemElements("SubsystemElements", "stance", "Feats", 1);
+            var stanceElements = session.GetAccessibleSubsystemElements("SubsystemElements", "stance", "Feats");
             Assert.IsTrue(stanceElements.Any(e => e.EndsWith("Punishing Stance")), "Stances should be included.");
             Assert.IsFalse(stanceElements.Any(e => e.EndsWith("Steel Wind")), "Maneuvers should be excluded when filter is stance.");
 
@@ -771,7 +771,7 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Warblade");
             var session2 = new CharacterSession(character, catalog);
 
-            var level3Elements = session2.GetAccessibleSubsystemElements("SubsystemElements", "maneuver", "Warblade", 3);
+            var level3Elements = session2.GetAccessibleSubsystemElements("SubsystemElements", "maneuver", "Warblade");
             Assert.IsTrue(level3Elements.Any(e => e.EndsWith("Steel Wind")), "Level 1 maneuvers should be included.");
             Assert.IsTrue(level3Elements.Any(e => e.EndsWith("Disarming Strike")), "Level 2 maneuvers should be included for Level 3 Warblade.");
             Assert.IsFalse(level3Elements.Any(e => e.EndsWith("Iron Heart Surge")), "Level 3 maneuvers should be excluded for Level 3 Warblade.");

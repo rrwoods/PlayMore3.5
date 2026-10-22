@@ -101,11 +101,12 @@ namespace PlayMore35.Tests {
                 var vestigesSlotGroup = new SlotGroupDefinition {
                     Name = "vestiges",
                     CapacityStat = "number of vestiges",
-                    MaxLevelStat = "maximum vestige level",
+                    MaxLevel = new MaxLevelDefinition("maximum vestige level", 0),
                     DefaultState = "empty"
                 };
                 vestigesSlotGroup.States.AddRange(new[] { "empty", "good_pact", "poor_pact" });
                 def.SlotGroups["vestiges"] = vestigesSlotGroup;
+                def.LevelGating = new LevelGatingDefinition("level");
                 def.RequiredElementProperties.Add("binding DC");
                 def.RequiredElementProperties.Add("level");
                 def.ElementStatistics["binding DC"] = new List<string> { "binding DCs" };

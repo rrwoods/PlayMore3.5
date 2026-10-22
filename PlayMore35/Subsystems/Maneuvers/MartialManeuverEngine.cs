@@ -591,7 +591,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
             return warnings;
         }
 
-        public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) {
+        public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource) {
             if (catalog?.Maneuvers == null) return new List<string>().AsReadOnly();
             bool isStance = string.Equals(filter, "stance", StringComparison.OrdinalIgnoreCase);
             bool isManeuver = string.Equals(filter, "maneuver", StringComparison.OrdinalIgnoreCase);
@@ -599,10 +599,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 return new List<string>().AsReadOnly();
             }
 
-            int slotLevel = level;
-            if (slotLevel <= 0) {
-                slotLevel = context?.Character?.classLevels?.Count ?? 0;
-            }
+            int characterLevel = context?.Character?.classLevels?.Count ?? 0;
 
             string source = targetSource;
             if (string.IsNullOrWhiteSpace(source)) {
@@ -610,7 +607,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 source = session?.ResolveFeatTargetSource(null) ?? "Feats";
             }
 
-            int maxLevel = GetMaxManeuverLevelAtLevel(source, slotLevel);
+            int maxLevel = GetMaxManeuverLevelAtLevel(source, characterLevel);
 
             return catalog.Maneuvers.Values
                 .Where(m => isStance ? m.Type == ManeuverType.Stance : m.Type != ManeuverType.Stance)

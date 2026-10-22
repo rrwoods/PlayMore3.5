@@ -348,7 +348,7 @@ namespace PlayMore35 {
 
                     string targetClass = ResolveTargetSource(choiceState, desc);
 
-                    var elements = session.GetAccessibleSubsystemElements(desc.Domain, desc.Filter, targetClass, slotLevel);
+                    var elements = session.GetAccessibleSubsystemElements(desc.Domain, desc.Filter, targetClass);
                     foreach (var el in elements) {
                         elementBox.Items.Add(new ChoiceItem(el, ExtractBracketedName(el)));
                     }

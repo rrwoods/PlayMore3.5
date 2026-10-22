@@ -41,9 +41,7 @@ namespace PlayMore35.Subsystems {
                 var groupDef = kvp.Value;
                 string groupKey = kvp.Key;
                 var group = new SubsystemSlotGroup<SubsystemSlot>(
-                    capacityProvider: () => ResolveCapacity(groupDef),
-                    maxLevelProvider: () => ResolveMaxLevel(groupDef),
-                    levelSelector: slot => GetElement(slot?.Element)?.GetStatistic("level", context).Value ?? 0
+                    capacityProvider: () => ResolveCapacity(groupDef)
                 );
                 slotGroups[groupKey] = group;
             }
@@ -64,10 +62,10 @@ namespace PlayMore35.Subsystems {
         }
 
         private int ResolveMaxLevel(SlotGroupDefinition def) {
-            if (context != null && !string.IsNullOrEmpty(def.MaxLevelStat)) {
-                return ResolveStatOrParam(def.MaxLevelStat, context, int.MaxValue);
+            if (context != null && def.MaxLevel != null && !string.IsNullOrEmpty(def.MaxLevel.Stat)) {
+                return ResolveStatOrParam(def.MaxLevel.Stat, context, def.MaxLevel.Base);
             }
-            return int.MaxValue;
+            return def.MaxLevel != null ? def.MaxLevel.Base : int.MaxValue;
         }
 
         private int ResolveStatOrParam(string name, ICharacterContext ctx, int defaultValue) {
@@ -236,7 +234,21 @@ namespace PlayMore35.Subsystems {
         }
 
         public bool IsSlotLevelValid(string groupName, int slotIndex) {
-            return GetSlotGroup(groupName)?.IsSlotLevelValid(slotIndex) ?? true;
+            var group = GetSlotGroup(groupName);
+            if (group == null || slotIndex < 0 || slotIndex >= group.Slots.Count) return true;
+            var slot = group[slotIndex];
+            if (slot == null || string.IsNullOrEmpty(slot.Element)) return true;
+
+            if (Definition.LevelGating == null || string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic)) return true;
+            if (!Definition.SlotGroups.TryGetValue(groupName, out var groupDef)) return true;
+            if (groupDef.MaxLevel == null || string.IsNullOrEmpty(groupDef.MaxLevel.Stat)) return true;
+
+            var elem = GetElement(slot.Element);
+            if (elem == null) return true;
+
+            int elementLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
+            int maxLevel = ResolveMaxLevel(groupDef);
+            return elementLevel <= maxLevel;
         }
 
         public void ResetElementParameters(string elementName, ICharacterContext ctx = null) {
@@ -629,6 +641,22 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
+            if (Definition.SlotGroups != null) {
+                foreach (var groupDef in Definition.SlotGroups.Values) {
+                    if (groupDef.MaxLevel != null && !string.IsNullOrEmpty(groupDef.MaxLevel.Stat)) {
+                        string statName = groupDef.MaxLevel.Stat;
+                        pool.AddStat(new Statistic(statName));
+                        pool.AddEffect(new Effect($"{statName} Base")
+                            .AddModifier(statName, new Modifier(groupDef.MaxLevel.Base, ModifierTypes.BASE)));
+                    }
+                    if (groupDef.Effects != null) {
+                        foreach (var effect in groupDef.Effects) {
+                            pool.AddEffect(effect);
+                        }
+                    }
+                }
+            }
+
             if (Definition.Projections == null || Definition.Projections.Count == 0) return;
 
             var defianceParams = new List<string>();
@@ -678,10 +706,29 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource, int level) {
+        private bool IsElementWithinLevelGate(SubsystemElement elem) {
+            if (Definition.LevelGating == null || string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic)) return true;
+            var gatedSlotGroups = Definition.SlotGroups.Values
+                .Where(g => g.MaxLevel != null && !string.IsNullOrEmpty(g.MaxLevel.Stat))
+                .ToList();
+            if (gatedSlotGroups.Count == 0) return true;
+            int elemLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
+            return gatedSlotGroups.Any(g => elemLevel <= ResolveMaxLevel(g));
+        }
+
+        private int? GetMaxAllowedElementLevel() {
+            if (Definition.LevelGating == null || string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic)) return null;
+            var gatedSlotGroups = Definition.SlotGroups.Values
+                .Where(g => g.MaxLevel != null && !string.IsNullOrEmpty(g.MaxLevel.Stat))
+                .ToList();
+            if (gatedSlotGroups.Count == 0) return null;
+            return gatedSlotGroups.Select(g => ResolveMaxLevel(g)).Max();
+        }
+
+        public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource) {
             var list = new List<string>();
             foreach (var elem in Definition.Elements.Values) {
-                if (level > 0 && elem.GetStatistic("level", context).Value > level) continue;
+                if (!IsElementWithinLevelGate(elem)) continue;
                 if (!string.IsNullOrEmpty(filter)) {
                     bool matches = string.Equals(elem.Type, filter, StringComparison.OrdinalIgnoreCase) ||
                                    string.Equals(Id, filter, StringComparison.OrdinalIgnoreCase) ||
@@ -709,11 +756,24 @@ namespace PlayMore35.Subsystems {
                     return new List<string>();
                 }
             }
-            var valid = GetAccessibleElements(descriptor?.Filter, targetSource, int.MaxValue);
-            if (!valid.Contains(choiceValue, StringComparer.OrdinalIgnoreCase)) {
+            if (!Definition.Elements.TryGetValue(choiceValue, out var chosenElem) ||
+                (!string.IsNullOrEmpty(descriptor.Filter) &&
+                 !string.Equals(chosenElem.Type, descriptor.Filter, StringComparison.OrdinalIgnoreCase) &&
+                 !string.Equals(Id, descriptor.Filter, StringComparison.OrdinalIgnoreCase) &&
+                 !string.Equals(Name, descriptor.Filter, StringComparison.OrdinalIgnoreCase))) {
                 return new List<string> { $"'{choiceValue}' is not a valid element in subsystem '{Name}'." };
             }
-            return new List<string>();
+
+            var warnings = new List<string>();
+            int? maxAllowed = GetMaxAllowedElementLevel();
+            if (maxAllowed.HasValue) {
+                int elemLevel = chosenElem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
+                if (elemLevel > maxAllowed.Value) {
+                    string srcSuffix = !string.IsNullOrWhiteSpace(targetSource) ? $" for {targetSource}" : "";
+                    warnings.Add($"Level {elemLevel} exceeds maximum {maxAllowed.Value}{srcSuffix}.");
+                }
+            }
+            return warnings;
         }
     }
 }
