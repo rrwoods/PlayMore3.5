@@ -205,27 +205,27 @@ namespace PlayMore35.Subsystems {
         }
     }
 
-    public class KindProjectionRule : IJsonable {
+    public class EffectProjectionRule : IJsonable {
         public string SlotGroup { get; set; } = "";
         public string State { get; set; } = "";
-        public List<string> Kinds { get; } = new List<string>();
+        public List<string> Effects { get; } = new List<string>();
 
-        public KindProjectionRule() { }
+        public EffectProjectionRule() { }
 
-        public KindProjectionRule(string slotGroup, string state, params string[] kinds) {
+        public EffectProjectionRule(string slotGroup, string state, params string[] effects) {
             SlotGroup = slotGroup ?? "";
             State = state ?? "";
-            if (kinds != null) {
-                Kinds.AddRange(kinds);
+            if (effects != null) {
+                Effects.AddRange(effects);
             }
         }
 
-        public KindProjectionRule(JObject json) {
+        public EffectProjectionRule(JObject json) {
             if (json == null) return;
             SlotGroup = (string)(json["slot_group"] ?? "");
             State = (string)(json["state"] ?? "");
-            if (json["kinds"] is JArray arr) {
-                Kinds.AddRange(arr.Select(x => (string)x));
+            if (json["effects"] is JArray arr) {
+                Effects.AddRange(arr.Select(x => (string)x));
             }
         }
 
@@ -233,7 +233,7 @@ namespace PlayMore35.Subsystems {
             return new JObject(
                 new JProperty("slot_group", SlotGroup),
                 new JProperty("state", State),
-                new JProperty("kinds", new JArray(Kinds))
+                new JProperty("effects", new JArray(Effects))
             );
         }
     }
@@ -245,7 +245,7 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> DefaultElementVerbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, PoolDefinition> Pools { get; } = new Dictionary<string, PoolDefinition>(StringComparer.OrdinalIgnoreCase);
-        public List<KindProjectionRule> Projections { get; } = new List<KindProjectionRule>();
+        public List<EffectProjectionRule> Projections { get; } = new List<EffectProjectionRule>();
         public List<string> RequiredElementProperties { get; } = new List<string>();
         public Dictionary<string, List<string>> ElementStatistics { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         public LevelGatingDefinition LevelGating { get; set; } = null;
@@ -311,7 +311,7 @@ namespace PlayMore35.Subsystems {
             }
 
             if (subJson["projections"] is JArray projArr) {
-                Projections.AddRange(projArr.Select(x => new KindProjectionRule((JObject)x)));
+                Projections.AddRange(projArr.Select(x => new EffectProjectionRule((JObject)x)));
             }
 
             if (subJson["required_element_properties"] is JArray reqPropsArr) {

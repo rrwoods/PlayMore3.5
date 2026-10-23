@@ -178,8 +178,8 @@
       {
         "slot_group": "stances",
         "state": "active",
-        "kinds": [
-          "effects"
+        "effects": [
+          "benefits"
         ]
       }
     ],
@@ -387,8 +387,8 @@
           }
         ]
       },
-      "kinds": {
-        "effects": [
+      "effects": {
+        "benefits": [
           {
             "name": "Wind Stride",
             "modifiers": [
@@ -1149,8 +1149,8 @@
       "prerequisites": "2 Diamond Mind maneuvers",
       "prerequisiteCount": 2,
       "description": "You gain blindsense out to 30 feet and a +5 insight bonus on Listen checks.",
-      "kinds": {
-        "effects": [
+      "effects": {
+        "benefits": [
           {
             "name": "Hearing the Air",
             "modifiers": [
@@ -1313,8 +1313,8 @@
       "prerequisites": "",
       "prerequisiteCount": 0,
       "description": "You deal an extra 1d6 damage with all melee attacks, but take a –2 penalty to AC.",
-      "kinds": {
-        "effects": [
+      "effects": {
+        "benefits": [
           {
             "name": "Punishing Stance",
             "modifiers": [
@@ -1394,8 +1394,8 @@
       "prerequisites": "1 Iron Heart maneuver",
       "prerequisiteCount": 1,
       "description": "You gain a +10-foot enhancement bonus to your speed. If you move at least 10 feet during your turn, you gain a +2 dodge bonus to AC until the start of your next turn.",
-      "kinds": {
-        "effects": [
+      "effects": {
+        "benefits": [
           {
             "name": "Absolute Steel",
             "modifiers": [
@@ -1434,8 +1434,8 @@
       "prerequisites": "1 Iron Heart maneuver",
       "prerequisiteCount": 1,
       "description": "Select one spell, effect, or condition currently affecting you with a duration of 1 or more rounds. That effect ends immediately, and you gain a +2 morale bonus on attack rolls until the end of your next turn.",
-      "kinds": {
-        "effects": [
+      "effects": {
+        "benefits": [
           {
             "name": "Iron Heart Surge",
             "modifiers": [
@@ -2530,8 +2530,8 @@
       "prerequisites": "1 Tiger Claw maneuver",
       "prerequisiteCount": 1,
       "description": "You gain a +10-foot enhancement bonus on Jump checks, and all your jumps are treated as running jumps.",
-      "kinds": {
-        "effects": [
+      "effects": {
+        "benefits": [
           {
             "name": "Leaping Dragon Stance",
             "modifiers": [
@@ -2754,8 +2754,8 @@
       "prerequisites": "",
       "prerequisiteCount": 0,
       "description": "Allies within 60 ft. who can hear you gain a +2 morale bonus on Will saves (+4 against fear effects).",
-      "kinds": {
-        "effects": [
+      "effects": {
+        "benefits": [
           {
             "name": "Bolstering Voice",
             "modifiers": [

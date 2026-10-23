@@ -54,7 +54,7 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 PrerequisiteCount = (int)json["prerequisiteCount"];
             }
             Description = (string)(json["description"] ?? "");
-            if (json["kinds"] is JObject kindsObj && kindsObj["effects"] is JArray arr) {
+            if (json["effects"] is JObject effectsObj && effectsObj["benefits"] is JArray arr) {
                 Effects = arr.Select(x => new Effect((JObject)x)).ToList();
             }
         }
@@ -71,8 +71,8 @@ namespace PlayMore35.Subsystems.Maneuvers {
                 new JProperty("description", Description)
             );
             if (Effects.Count > 0) {
-                json["kinds"] = new JObject(
-                    new JProperty("effects", new JArray(Effects.Select(x => x.ToJson())))
+                json["effects"] = new JObject(
+                    new JProperty("benefits", new JArray(Effects.Select(x => x.ToJson())))
                 );
             }
             return json;

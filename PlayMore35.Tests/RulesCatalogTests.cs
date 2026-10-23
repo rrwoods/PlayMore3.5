@@ -331,7 +331,7 @@ namespace PlayMore35.Tests {
                 new JProperty("name", "Test Vestige"),
                 new JProperty("level", 1),
                 new JProperty("binding DC", 22),
-                new JProperty("kinds", new JObject(
+                new JProperty("effects", new JObject(
                     new JProperty("abilities", new JArray(ability.ToJson())),
                     new JProperty("influence", new JArray(influence.ToJson()))
                 ))

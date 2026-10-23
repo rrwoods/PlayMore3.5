@@ -23,7 +23,7 @@ namespace PlayMore35.Tests {
                 new JProperty("name", name),
                 new JProperty("level", level),
                 new JProperty("binding DC", dc),
-                new JProperty("kinds", new JObject(
+                new JProperty("effects", new JObject(
                     new JProperty("abilities", new JArray(ability.ToJson())),
                     new JProperty("influence", new JArray(influence.ToJson()))
                 ))

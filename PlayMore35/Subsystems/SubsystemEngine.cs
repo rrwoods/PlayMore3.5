@@ -481,8 +481,8 @@ namespace PlayMore35.Subsystems {
             var activeContext = ctx ?? context;
             var elem = GetElement(elementName, activeContext);
             if (elem == null) return;
-            foreach (var kindList in elem.Kinds.Values) {
-                foreach (var eff in kindList) {
+            foreach (var effectList in elem.Effects.Values) {
+                foreach (var eff in effectList) {
                     if (!string.IsNullOrEmpty(eff.ParameterName)) {
                         string paramKey = eff.ParameterName;
                         if (activeContext?.Character?.paramValues != null) {
@@ -1241,12 +1241,12 @@ namespace PlayMore35.Subsystems {
                         var elem = GetElement(slot.Element, activeContext);
                         if (elem == null) continue;
 
-                        foreach (var kind in rule.Kinds) {
-                            var effects = elem.GetEffectsByKind(kind);
+                        foreach (var effectKey in rule.Effects) {
+                            var effects = elem.GetEffects(effectKey);
                             if (effects != null) {
                                 foreach (var eff in effects) {
                                     pool.AddEffect(eff);
-                                    if (string.Equals(kind, "influence", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(eff.ParameterName)) {
+                                    if (string.Equals(effectKey, "influence", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(eff.ParameterName)) {
                                         defianceParams.Add(eff.ParameterName);
                                     }
                                 }
@@ -1275,7 +1275,7 @@ namespace PlayMore35.Subsystems {
                     if (string.IsNullOrEmpty(elemName)) continue;
                     var elem = GetElement(elemName, activeContext);
                     if (elem != null) {
-                        foreach (var eff in elem.GetEffectsByKind("effects")) {
+                        foreach (var eff in elem.GetEffects("benefits")) {
                             pool.AddEffect(eff);
                         }
                     }

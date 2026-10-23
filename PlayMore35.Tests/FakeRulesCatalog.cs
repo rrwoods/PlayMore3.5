@@ -132,7 +132,7 @@ namespace PlayMore35.Tests {
             stances.States.AddRange(new[] { "inactive", "active" });
             def.SlotGroups["stances"] = stances;
 
-            def.Projections.Add(new KindProjectionRule("stances", "active", "effects"));
+            def.Projections.Add(new EffectProjectionRule("stances", "active", "benefits"));
             def.DefaultElementVerbs["execute"] = new List<SubsystemStep>();
             def.Verbs["ready"] = new List<SubsystemStep> {
                 new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "unreadied", ToState = "available" }
@@ -223,7 +223,7 @@ namespace PlayMore35.Tests {
                     };
                 }
                 if (m.Effects != null) {
-                    foreach (var eff in m.Effects) elem.AddKindEffect("effects", eff);
+                    foreach (var eff in m.Effects) elem.AddEffect("benefits", eff);
                 }
                 def.Elements[elem.Name] = elem;
             }
@@ -278,8 +278,8 @@ namespace PlayMore35.Tests {
                 }
             };
 
-            def.Projections.Add(new KindProjectionRule("vestiges", "good_pact", "abilities"));
-            def.Projections.Add(new KindProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
+            def.Projections.Add(new EffectProjectionRule("vestiges", "good_pact", "abilities"));
+            def.Projections.Add(new EffectProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
             SubsystemsMap["pact_magic"] = def;
 
             foreach (var v in VestigesMap.Values) {
@@ -290,10 +290,10 @@ namespace PlayMore35.Tests {
                 elem.SetProperty("level", v.Level);
                 elem.SetProperty("binding DC", v.BindingDc);
                 if (v.Abilities != null) {
-                    foreach (var a in v.Abilities) elem.AddKindEffect("abilities", a);
+                    foreach (var a in v.Abilities) elem.AddEffect("abilities", a);
                 }
                 if (v.Influence != null) {
-                    elem.AddKindEffect("influence", v.Influence);
+                    elem.AddEffect("influence", v.Influence);
                 }
                 def.Elements[elem.Name] = elem;
             }
@@ -411,7 +411,7 @@ namespace PlayMore35.Tests {
 
             def.DefaultElementVerbs["execute"] = new List<SubsystemStep>();
 
-            def.Projections.Add(new KindProjectionRule("infusions", "active", "effects"));
+            def.Projections.Add(new EffectProjectionRule("infusions", "active", "effects"));
 
             var acidFlask = new SubsystemElement {
                 Name = "Acid Flask",
@@ -437,7 +437,7 @@ namespace PlayMore35.Tests {
             };
             var speedEffect = new Effect("Speed Infusion Effect");
             speedEffect.AddModifier("DEX score", new Modifier(4, ModifierTypes.UNTYPED));
-            speedInfusion.AddKindEffect("effects", speedEffect);
+            speedInfusion.AddEffect("effects", speedEffect);
             def.Elements[speedInfusion.Name] = speedInfusion;
 
             var strengthInfusion = new SubsystemElement {
@@ -446,7 +446,7 @@ namespace PlayMore35.Tests {
             };
             var strEffect = new Effect("Strength Infusion Effect");
             strEffect.AddModifier("STR score", new Modifier(2, ModifierTypes.ENHANCEMENT));
-            strengthInfusion.AddKindEffect("effects", strEffect);
+            strengthInfusion.AddEffect("effects", strEffect);
             def.Elements[strengthInfusion.Name] = strengthInfusion;
 
             return def;

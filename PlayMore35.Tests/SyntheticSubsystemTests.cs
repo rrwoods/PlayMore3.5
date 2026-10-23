@@ -295,7 +295,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void KindBasedProjection_ProjectsModifiersIntoSessionEffects() {
+        public void EffectProjection_ProjectsModifiersIntoSessionEffects() {
             var (session, _, engine) = CreateSyntheticSession();
 
             // Infusions slot group projects active -> "effects"

@@ -77,7 +77,7 @@ namespace PlayMore35.Subsystems {
             new StatView(GetStatisticName(propertyName), GetProperty<int>(propertyName));
 
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, List<Effect>> Kinds { get; } = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, List<Effect>> Effects { get; } = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
 
         public SubsystemElement() { }
 
@@ -85,7 +85,7 @@ namespace PlayMore35.Subsystems {
             if (json == null) return;
             foreach (var prop in json.Properties()) {
                 if (string.Equals(prop.Name, "verbs", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(prop.Name, "kinds", StringComparison.OrdinalIgnoreCase)) {
+                    string.Equals(prop.Name, "effects", StringComparison.OrdinalIgnoreCase)) {
                     continue;
                 }
 
@@ -106,34 +106,34 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (json["kinds"] is JObject kindsObj) {
-                foreach (var prop in kindsObj.Properties()) {
+            if (json["effects"] is JObject effectsObj) {
+                foreach (var prop in effectsObj.Properties()) {
                     if (prop.Value is JArray arr) {
-                        Kinds[prop.Name] = arr.Select(x => new Effect((JObject)x)).ToList();
+                        Effects[prop.Name] = arr.Select(x => new Effect((JObject)x)).ToList();
                     }
                 }
             }
         }
 
-        public void AddKindEffect(string kind, Effect effect) {
-            if (string.IsNullOrEmpty(kind) || effect == null) return;
-            if (!Kinds.TryGetValue(kind, out var list)) {
+        public void AddEffect(string category, Effect effect) {
+            if (string.IsNullOrEmpty(category) || effect == null) return;
+            if (!Effects.TryGetValue(category, out var list)) {
                 list = new List<Effect>();
-                Kinds[kind] = list;
+                Effects[category] = list;
             }
             list.Add(effect);
         }
 
-        public IReadOnlyList<Effect> GetEffectsByKind(string kind) {
-            if (string.IsNullOrEmpty(kind)) return new List<Effect>();
-            return Kinds.TryGetValue(kind, out var list) ? list : (IReadOnlyList<Effect>)new List<Effect>();
+        public IReadOnlyList<Effect> GetEffects(string category) {
+            if (string.IsNullOrEmpty(category)) return new List<Effect>();
+            return Effects.TryGetValue(category, out var list) ? list : (IReadOnlyList<Effect>)new List<Effect>();
         }
 
         public JToken ToJson() {
             var json = new JObject();
             foreach (var kvp in _properties) {
                 if (string.Equals(kvp.Key, "verbs", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(kvp.Key, "kinds", StringComparison.OrdinalIgnoreCase)) {
+                    string.Equals(kvp.Key, "effects", StringComparison.OrdinalIgnoreCase)) {
                     continue;
                 }
                 if (kvp.Value != null) {
@@ -155,12 +155,12 @@ namespace PlayMore35.Subsystems {
                 json["verbs"] = verbsObj;
             }
 
-            if (Kinds.Count > 0) {
-                var kindsObj = new JObject();
-                foreach (var kvp in Kinds) {
-                    kindsObj[kvp.Key] = new JArray(kvp.Value.Select(x => x.ToJson()));
+            if (Effects.Count > 0) {
+                var effectsObj = new JObject();
+                foreach (var kvp in Effects) {
+                    effectsObj[kvp.Key] = new JArray(kvp.Value.Select(x => x.ToJson()));
                 }
-                json["kinds"] = kindsObj;
+                json["effects"] = effectsObj;
             }
 
             return json;

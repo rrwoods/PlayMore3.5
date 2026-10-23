@@ -13,18 +13,18 @@ namespace PlayMore35.CharacterChoices {
         public List<Effect> Abilities;
 
         public JToken ToJson() {
-            var kinds = new JObject();
+            var effects = new JObject();
             if (Abilities != null && Abilities.Count > 0) {
-                kinds["abilities"] = new JArray(Abilities.Select(x => x.ToJson()));
+                effects["abilities"] = new JArray(Abilities.Select(x => x.ToJson()));
             }
             if (Influence != null) {
-                kinds["influence"] = new JArray(Influence.ToJson());
+                effects["influence"] = new JArray(Influence.ToJson());
             }
             return new JObject(
                 new JProperty("name", Name),
                 new JProperty("level", Level),
                 new JProperty("binding DC", BindingDc),
-                new JProperty("kinds", kinds)
+                new JProperty("effects", effects)
             );
         }
 
@@ -32,7 +32,7 @@ namespace PlayMore35.CharacterChoices {
             Name = (string)json["name"];
             Level = (int)json["level"];
             BindingDc = (int)(json["binding DC"] ?? 0);
-            if (json["kinds"]?["influence"] is JArray kInfArr && kInfArr.Count > 0) {
+            if (json["effects"]?["influence"] is JArray kInfArr && kInfArr.Count > 0) {
                 Influence = new Effect((JObject)kInfArr[0]);
             }
             if (Influence != null) {
@@ -46,7 +46,7 @@ namespace PlayMore35.CharacterChoices {
                     );
                 }
             }
-            if (json["kinds"]?["abilities"] is JArray kAbArr) {
+            if (json["effects"]?["abilities"] is JArray kAbArr) {
                 Abilities = kAbArr.Select(x => new Effect((JObject)x)).ToList();
             } else {
                 Abilities = new List<Effect>();

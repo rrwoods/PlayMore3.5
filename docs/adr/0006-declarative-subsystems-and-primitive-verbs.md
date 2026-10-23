@@ -15,13 +15,13 @@ We replace all bespoke subsystem engines, interface shims, and class-specific re
      - **Slot State Transitions**: Generic state changes across slot groups supporting targeting selectors: `invoked` (the triggered slot), `all` (all slots matching `from`), `select` (user-chosen slot), and `random` (stochastic transfer).
      - **Element Verb Invocation**: Explicit invocation of an element-level verb (e.g., `execute`) on an assigned element, falling back to subsystem element verb defaults if not declared on the element.
      - **Resource Pool Operations**: Clamped numeric pool operations (`consume`, `recharge`, `set`) against dynamic capacity statistics.
-     - **Kind-Based Effect Projection**: Queries assigned elements for specific named categories of effects (`kind`) when a slot matches a required state.
+     - **Effect Projection**: Queries assigned elements for specific named categories of effects when a slot matches a required state.
 
 2. **Authoritative Subsystem Catalogs (`maneuvers.json`, `vestiges.json`)**:
    - Subsystem files package both their systemic definition (`"subsystem"`) and their catalog items (`"elements"`).
    - The subsystem definition declares slot groups (and valid states), generic subsystem verbs, general actions, and effect projection rules.
    - The maneuvers subsystem defines the generic `expend` verb as two discrete declarative steps: 1) transition the invoked slot to `"expended"`, and 2) explicitly invoke the maneuver's `"execute"` verb. Subsystems declare default element verbs (such as a default `"execute"` verb in `maneuvers.json` that does nothing).
-   - Kind-based projection rules map slot states to element effect properties (e.g., Stance `"active"` projects `"effects"`; Vestige `"good_pact"` projects `"abilities"`; Vestige `"poor_pact"` projects `"abilities"` and `"influence"`).
+   - Effect projection rules map slot states to element effect properties (e.g., Stance `"active"` projects `"benefits"`; Vestige `"good_pact"` projects `"abilities"`; Vestige `"poor_pact"` projects `"abilities"` and `"influence"`).
 
 3. **Class-Owned Mechanics and Source Verbs (`classes.json`)**:
    - Subsystem recovery and draw cycles belong to class features, not subsystem catalogs.
@@ -31,7 +31,7 @@ We replace all bespoke subsystem engines, interface shims, and class-specific re
 4. **Unified Element and Slot Persistence**:
    - All slots use a universal representation: `ElementId`, `State`, and `Source`.
    - `Character.Subsystems` serializes uniformly as a map of subsystem IDs to slot groups and numeric pools. All hardcoded subsystem string branches are removed from `Character.cs`.
-   - Elements are pure declarative data; their effects are categorized by kind (`effects`, `abilities`, `influence`), with optional element verbs (such as an `execute` SheetAction for duration-based boosts and counters) falling back to subsystem element verb defaults.
+   - Elements are pure declarative data; their effects are categorized by category under `effects` (`benefits`, `abilities`, `influence`), with optional element verbs (such as an `execute` SheetAction for duration-based boosts and counters) falling back to subsystem element verb defaults.
 
 5. **Deepened `SheetAction`**:
    - `SheetAction` is the single mutation model for both instantaneous mutations and duration-based reversions, eliminating all polymorphic subsystem action subclasses.

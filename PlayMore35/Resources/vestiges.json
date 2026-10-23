@@ -89,14 +89,14 @@
       {
         "slot_group": "vestiges",
         "state": "good_pact",
-        "kinds": [
+        "effects": [
           "abilities"
         ]
       },
       {
         "slot_group": "vestiges",
         "state": "poor_pact",
-        "kinds": [
+        "effects": [
           "abilities",
           "influence"
         ]
@@ -108,7 +108,7 @@
       "name": "Amon",
       "level": 1,
       "binding DC": 20,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Darkvision 60 ft.",
@@ -169,7 +169,7 @@
       "name": "Aym",
       "level": 1,
       "binding DC": 15,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Dwarven Step",
@@ -281,7 +281,7 @@
       "name": "Leraje",
       "level": 1,
       "binding DC": 15,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Hide Bonus (Leraje)",
@@ -380,7 +380,7 @@
       "name": "Naberius",
       "level": 1,
       "binding DC": 15,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Disguise Self",
@@ -463,7 +463,7 @@
       "name": "Ronove",
       "level": 1,
       "binding DC": 15,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Magic Attacks",
@@ -577,7 +577,7 @@
       "name": "Dahlver-Nar",
       "level": 2,
       "binding DC": 17,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Mad Soul",
@@ -663,7 +663,7 @@
       "name": "Haagenti",
       "level": 2,
       "binding DC": 17,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Confusing Touch",
@@ -734,7 +734,7 @@
       "name": "Malphas",
       "level": 2,
       "binding DC": 15,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Bird's Eye Viewing",
@@ -808,7 +808,7 @@
       "name": "Savnok",
       "level": 2,
       "binding DC": 20,
-      "kinds": {
+      "effects": {
         "abilities": [
           {
             "name": "Call Armor",
