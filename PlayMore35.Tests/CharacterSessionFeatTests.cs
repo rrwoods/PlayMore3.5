@@ -825,5 +825,202 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(stat, "Modifier for attack bonus:Longsword should be generated from generic feat choice.");
             Assert.AreEqual(1, stat.Value, "Attack bonus for chosen weapon should be 1.");
         }
+
+        [TestMethod]
+        public void BonusFeat_SwapToClassWithoutBonusFeat_RetainsInMemory_DoesNotProject_DoesNotSerialize() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.assignedAbilityScores["CON"] = 10;
+            character.rolledHitDice.Add(10);
+            character.feats["Fighter 1"] = "Toughness";
+
+            var session = new CharacterSession(character, catalog);
+            // Fighter base HP = 10 (d10), Toughness = +3 -> 13 HP
+            Assert.AreEqual(13, session.GetStatistic(Constants.MAX_HP).Value);
+            Assert.AreEqual("Toughness", session.Character.feats["Fighter 1"]);
+
+            // Swap class from Fighter to Crusader
+            session.Mutate(c => c.classLevels[0] = "Crusader");
+
+            // 1. Not projected: Crusader base HP is 10 (d10), no Toughness
+            Assert.AreEqual(10, session.GetStatistic(Constants.MAX_HP).Value);
+            Assert.IsFalse(session.Character.feats.ContainsKey("Fighter 1"), "Inactive feat slot should not be in Character.feats");
+
+            // 2. Retained in memory
+            Assert.AreEqual("Toughness", session.RememberedFeats["Fighter 1"]);
+
+            // 3. Not serialized
+            var json = session.Character.ToJson();
+            var featsJson = (JObject)json["feats"];
+            Assert.IsFalse(featsJson.ContainsKey("Fighter 1"), "Inactive feat slot must not be serialized when saving");
+
+            // 4. Restored when swapping back to Fighter
+            session.Mutate(c => c.classLevels[0] = "Fighter");
+            Assert.AreEqual(13, session.GetStatistic(Constants.MAX_HP).Value);
+            Assert.IsTrue(session.Character.feats.ContainsKey("Fighter 1"));
+            Assert.AreEqual("Toughness", session.Character.feats["Fighter 1"]);
+            Assert.IsFalse(session.RememberedFeats.ContainsKey("Fighter 1"));
+        }
+
+        [TestMethod]
+        public void BonusFeat_WithFeatChoices_SwapClass_RetainsChoicesInMemory_DoesNotSerialize_RestoresOnSwapBack() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Fighter 1"] = "Weapon Focus";
+            character.featChoices["Fighter 1"] = "Longsword";
+            character.featChoices["Fighter 1:weapon"] = "Longsword";
+
+            var session = new CharacterSession(character, catalog);
+            Assert.AreEqual("Longsword", session.Character.featChoices["Fighter 1"]);
+
+            // Swap to Crusader
+            session.Mutate(c => c.classLevels[0] = "Crusader");
+
+            Assert.IsFalse(session.Character.feats.ContainsKey("Fighter 1"));
+            Assert.IsFalse(session.Character.featChoices.ContainsKey("Fighter 1"));
+            Assert.IsFalse(session.Character.featChoices.ContainsKey("Fighter 1:weapon"));
+            Assert.AreEqual("Weapon Focus", session.RememberedFeats["Fighter 1"]);
+            Assert.AreEqual("Longsword", session.RememberedFeatChoices["Fighter 1"]);
+            Assert.AreEqual("Longsword", session.RememberedFeatChoices["Fighter 1:weapon"]);
+
+            var json = session.Character.ToJson();
+            Assert.IsFalse(((JObject)json["feats"]).ContainsKey("Fighter 1"));
+            Assert.IsFalse(((JObject)json["feat choices"]).ContainsKey("Fighter 1"));
+            Assert.IsFalse(((JObject)json["feat choices"]).ContainsKey("Fighter 1:weapon"));
+
+            // Swap back to Fighter
+            session.Mutate(c => c.classLevels[0] = "Fighter");
+            Assert.AreEqual("Weapon Focus", session.Character.feats["Fighter 1"]);
+            Assert.AreEqual("Longsword", session.Character.featChoices["Fighter 1"]);
+            Assert.AreEqual("Longsword", session.Character.featChoices["Fighter 1:weapon"]);
+            Assert.IsFalse(session.RememberedFeats.ContainsKey("Fighter 1"));
+            Assert.IsFalse(session.RememberedFeatChoices.ContainsKey("Fighter 1"));
+        }
+
+        [TestMethod]
+        public void BonusFeat_ActiveClearing_ClearsMemorySoItDoesNotResurrect() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Fighter 1"] = "Toughness";
+
+            var session = new CharacterSession(character, catalog);
+            session.Mutate(c => c.classLevels[0] = "Crusader");
+            Assert.AreEqual("Toughness", session.RememberedFeats["Fighter 1"]);
+
+            session.Mutate(c => c.classLevels[0] = "Fighter");
+            Assert.AreEqual("Toughness", session.Character.feats["Fighter 1"]);
+
+            // Explicitly clear the selection while active
+            session.Mutate(c => {
+                c.feats["Fighter 1"] = "";
+            });
+            Assert.IsFalse(session.RememberedFeats.ContainsKey("Fighter 1"));
+
+            // Swap to Crusader and back to Fighter -> should remain unselected, not resurrect Toughness
+            session.Mutate(c => c.classLevels[0] = "Crusader");
+            session.Mutate(c => c.classLevels[0] = "Fighter");
+            Assert.IsFalse(session.Character.feats.ContainsKey("Fighter 1"));
+            Assert.IsFalse(session.RememberedFeats.ContainsKey("Fighter 1"));
+        }
+
+        [TestMethod]
+        public void RacialBonusFeat_SwapRace_RetainsInMemory_DoesNotProject_RestoresOnSwapBack() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Crusader");
+            character.assignedAbilityScores["CON"] = 10;
+            character.rolledHitDice.Add(10);
+            character.feats["Human"] = "Toughness";
+
+            var session = new CharacterSession(character, catalog);
+            Assert.AreEqual(13, session.GetStatistic(Constants.MAX_HP).Value);
+
+            session.Mutate(c => c.race = "elf");
+            // Elf has -2 racial CON penalty (CON 8 -> -1 mod), and no Toughness -> 9 HP
+            Assert.AreEqual(9, session.GetStatistic(Constants.MAX_HP).Value);
+            Assert.IsFalse(session.Character.feats.ContainsKey("Human"));
+            Assert.AreEqual("Toughness", session.RememberedFeats["Human"]);
+
+            var json = session.Character.ToJson();
+            Assert.IsFalse(((JObject)json["feats"]).ContainsKey("Human"));
+
+            session.Mutate(c => c.race = "human");
+            Assert.AreEqual(13, session.GetStatistic(Constants.MAX_HP).Value);
+            Assert.AreEqual("Toughness", session.Character.feats["Human"]);
+        }
+
+        [TestMethod]
+        public void MartialStudy_InBonusFeatSlot_SwapClass_DeactivatesSubsystemAndRestores() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Fighter 1"] = "Martial Study";
+            character.featChoices["Fighter 1:class"] = "Feats";
+            character.featChoices["Fighter 1:maneuver"] = "Steel Wind";
+
+            var session = new CharacterSession(character, catalog);
+            Assert.AreEqual(1, session.GetStatistic("maneuvers known:feats").Value);
+            Assert.AreEqual(1, session.GetStatistic("initiator level:feats").Value);
+
+            // Swap Fighter to Crusader
+            session.Mutate(c => c.classLevels[0] = "Crusader");
+            Assert.AreEqual(0, session.GetStatistic("maneuvers known:feats").Value);
+            Assert.AreEqual(0, session.GetStatistic("initiator level:feats").Value);
+            Assert.IsFalse(session.Character.feats.ContainsKey("Fighter 1"));
+            Assert.IsFalse(session.Character.featChoices.ContainsKey("Fighter 1:maneuver"));
+            Assert.AreEqual("Martial Study", session.RememberedFeats["Fighter 1"]);
+            Assert.AreEqual("Steel Wind", session.RememberedFeatChoices["Fighter 1:maneuver"]);
+
+            // Swap back to Fighter
+            session.Mutate(c => c.classLevels[0] = "Fighter");
+            Assert.AreEqual(1, session.GetStatistic("maneuvers known:feats").Value);
+            Assert.AreEqual(1, session.GetStatistic("initiator level:feats").Value);
+            Assert.AreEqual("Martial Study", session.Character.feats["Fighter 1"]);
+            Assert.AreEqual("Steel Wind", session.Character.featChoices["Fighter 1:maneuver"]);
+        }
+
+        [TestMethod]
+        public void LevelDecrease_StashesHigherLevelFeats_RestoresOnLevelIncrease() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter"); // Level 3: has Level 1, Fighter 1, Fighter 2, Level 3
+            character.feats["Fighter 1"] = "Toughness";
+            character.feats["Fighter 2"] = "Power Attack";
+            character.feats["Level 3"] = "Iron Will";
+
+            var session = new CharacterSession(character, catalog);
+            Assert.IsTrue(session.Character.feats.ContainsKey("Fighter 2"));
+            Assert.IsTrue(session.Character.feats.ContainsKey("Level 3"));
+
+            // Level down to level 1 (remove levels 2 and 3)
+            session.Mutate(c => {
+                c.classLevels.RemoveAt(2);
+                c.classLevels.RemoveAt(1);
+            });
+
+            Assert.IsTrue(session.Character.feats.ContainsKey("Fighter 1"));
+            Assert.IsFalse(session.Character.feats.ContainsKey("Fighter 2"));
+            Assert.IsFalse(session.Character.feats.ContainsKey("Level 3"));
+            Assert.AreEqual("Power Attack", session.RememberedFeats["Fighter 2"]);
+            Assert.AreEqual("Iron Will", session.RememberedFeats["Level 3"]);
+
+            // Level back up to level 3
+            session.Mutate(c => {
+                c.classLevels.Add("Fighter");
+                c.classLevels.Add("Fighter");
+            });
+
+            Assert.IsTrue(session.Character.feats.ContainsKey("Fighter 2"));
+            Assert.IsTrue(session.Character.feats.ContainsKey("Level 3"));
+            Assert.AreEqual("Power Attack", session.Character.feats["Fighter 2"]);
+            Assert.AreEqual("Iron Will", session.Character.feats["Level 3"]);
+            Assert.IsFalse(session.RememberedFeats.ContainsKey("Fighter 2"));
+            Assert.IsFalse(session.RememberedFeats.ContainsKey("Level 3"));
+        }
     }
 }

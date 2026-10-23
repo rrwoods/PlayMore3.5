@@ -112,8 +112,10 @@ namespace PlayMore35.Tests {
 
                 // Give character Track and Endurance feats
                 session.Mutate(c => {
-                    c.feats["General 1"] = "Track";
-                    c.feats["General 3"] = "Endurance";
+                    c.classLevels.Add("Barbarian");
+                    c.classLevels.Add("Barbarian");
+                    c.feats["Level 1"] = "Track";
+                    c.feats["Level 3"] = "Endurance";
                 });
 
                 var textEffects = session.GetTextEffects();

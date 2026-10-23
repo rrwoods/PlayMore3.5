@@ -239,11 +239,11 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 39, 52; ADR-0012
         [TestMethod]
         public void Feats_MartialStudyAndMartialStance_Level1_InternalBonusDoesNotStack() {
-            var character = new Character();
+            var character = new Character { race = "human" };
             character.classLevels.Clear();
             character.classLevels.Add("Fighter");
             character.feats["Level 1"] = "Martial Study";
-            character.feats["Human Bonus"] = "Martial Stance";
+            character.feats["Human"] = "Martial Stance";
 
             var session = new CharacterSession(character, catalog);
 

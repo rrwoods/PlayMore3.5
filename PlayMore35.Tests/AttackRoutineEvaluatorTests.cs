@@ -23,9 +23,10 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["CHA"] = 10;
 
             if (feats != null) {
-                int index = 1;
+                var slots = new[] { "Level 1", "Fighter 1", "Fighter 2", "Level 3", "Fighter 4", "Level 6", "Fighter 6" };
+                int index = 0;
                 foreach (var feat in feats) {
-                    character.feats[index.ToString()] = feat;
+                    character.feats[slots[index]] = feat;
                     index++;
                 }
             }

@@ -520,6 +520,12 @@ namespace PlayMore35 {
                 }
                 foreach (ComboBox featBox in feats) {
                     string slot = (string)featBox.Tag;
+                    if (string.IsNullOrWhiteSpace(featBox.Text)) {
+                        c.feats.Remove(slot);
+                    }
+                }
+                foreach (ComboBox featBox in feats) {
+                    string slot = (string)featBox.Tag;
                     var keysToRemove = c.featChoices.Keys
                         .Where(k => k == slot || k.StartsWith(slot + ":"))
                         .ToList();

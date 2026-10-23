@@ -18,7 +18,12 @@ namespace PlayMore35.Global {
         private readonly SubsystemRegistry subsystems = new SubsystemRegistry();
         private int normalSizeCategory;
 
+        private readonly Dictionary<string, string> rememberedFeats = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> rememberedFeatChoices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         public IReadOnlyCharacter Character => readOnlyCharacter;
+        public IReadOnlyDictionary<string, string> RememberedFeats => rememberedFeats;
+        public IReadOnlyDictionary<string, string> RememberedFeatChoices => rememberedFeatChoices;
         public Timeline Timeline => character?.Timeline;
         public IRulesCatalog Catalog => catalog;
         public SubsystemRegistry Subsystems => subsystems;
@@ -214,6 +219,8 @@ namespace PlayMore35.Global {
                     effects.AddStats(@class.NewStats);
                 }
             }
+
+            ReconcileFeats();
 
             foreach (var feat in character.feats) {
                 string featSlot = feat.Key;
@@ -633,6 +640,84 @@ namespace PlayMore35.Global {
                 }
             }
             return feats;
+        }
+
+        private static bool MatchesFeatSlot(string choiceKey, string slot) =>
+            string.Equals(choiceKey, slot, StringComparison.OrdinalIgnoreCase) ||
+            choiceKey.StartsWith(slot + ":", StringComparison.OrdinalIgnoreCase);
+
+        private void ReconcileFeats() {
+            if (character == null) return;
+
+            var activeSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var levelSlots in GetFeatSlots().Values) {
+                foreach (var slot in levelSlots) {
+                    activeSlots.Add(slot);
+                }
+            }
+
+            // 1. Clean up active slots: if explicitly cleared to empty/whitespace, remove and clear memory
+            var activeKeys = character.feats.Keys.Where(slot => activeSlots.Contains(slot)).ToList();
+            foreach (var slot in activeKeys) {
+                if (string.IsNullOrWhiteSpace(character.feats[slot])) {
+                    character.feats.Remove(slot);
+                    rememberedFeats.Remove(slot);
+                    var choiceKeysToRemove = character.featChoices.Keys.Where(k => MatchesFeatSlot(k, slot)).ToList();
+                    foreach (var ck in choiceKeysToRemove) {
+                        character.featChoices.Remove(ck);
+                        rememberedFeatChoices.Remove(ck);
+                    }
+                } else {
+                    rememberedFeats.Remove(slot);
+                }
+            }
+
+            // 2. Deactivate: move inactive slots and choices from Character to session memory
+            var inactiveSlots = character.feats.Keys.Where(slot => !activeSlots.Contains(slot)).ToList();
+            foreach (var slot in inactiveSlots) {
+                string featName = character.feats[slot];
+                if (!string.IsNullOrWhiteSpace(featName)) {
+                    rememberedFeats[slot] = featName;
+                }
+                character.feats.Remove(slot);
+
+                var matchingChoiceKeys = character.featChoices.Keys.Where(k => MatchesFeatSlot(k, slot)).ToList();
+                foreach (var ck in matchingChoiceKeys) {
+                    string choiceVal = character.featChoices[ck];
+                    if (!string.IsNullOrWhiteSpace(choiceVal)) {
+                        rememberedFeatChoices[ck] = choiceVal;
+                    }
+                    character.featChoices.Remove(ck);
+                }
+            }
+
+            var orphanChoiceKeys = character.featChoices.Keys.Where(k => {
+                string slotName = k.Contains(':') ? k.Substring(0, k.IndexOf(':')) : k;
+                return !activeSlots.Contains(slotName);
+            }).ToList();
+            foreach (var ck in orphanChoiceKeys) {
+                string choiceVal = character.featChoices[ck];
+                if (!string.IsNullOrWhiteSpace(choiceVal)) {
+                    rememberedFeatChoices[ck] = choiceVal;
+                }
+                character.featChoices.Remove(ck);
+            }
+
+            // 3. Restore: for active slots not currently chosen, restore from remembered memory if present
+            foreach (var slot in activeSlots) {
+                if (!character.feats.ContainsKey(slot)) {
+                    if (rememberedFeats.TryGetValue(slot, out var rememberedFeat) && !string.IsNullOrWhiteSpace(rememberedFeat)) {
+                        character.feats[slot] = rememberedFeat;
+                        rememberedFeats.Remove(slot);
+
+                        var choicesToRestore = rememberedFeatChoices.Keys.Where(k => MatchesFeatSlot(k, slot)).ToList();
+                        foreach (var ck in choicesToRestore) {
+                            character.featChoices[ck] = rememberedFeatChoices[ck];
+                            rememberedFeatChoices.Remove(ck);
+                        }
+                    }
+                }
+            }
         }
 
         public int GetFeatSlotLevel(string featSlot) {
