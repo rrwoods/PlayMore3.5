@@ -240,53 +240,14 @@ namespace PlayMore35.Rules {
 
         public SubsystemDefinition GetSubsystem(string name) => (name != null && Subsystems.TryGetValue(name, out var s)) ? s : null;
 
-        public object GetEntity(string type, string name) {
-            if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;
-            switch (type.ToLowerInvariant()) {
-                case "class":
-                    return GetClass(name);
-                case "race":
-                    return GetRace(name);
-                case "feat":
-                    return GetFeat(name);
-                case "weapon":
-                    return GetWeapon(name);
-                case "armor":
-                    return GetArmor(name);
-                case "shield":
-                    return GetShield(name);
-                case "item":
-                    return GetItem(name);
-                case "weaponproperty":
-                    return GetWeaponProperty(name);
-                case "armorproperty":
-                    return GetArmorProperty(name);
-                case "externaleffect":
-                    return GetExternalEffect(name);
-            }
+        public string ResolveTemplate(string template, IReadOnlyDictionary<string, object> choices) =>
+            ResolveTemplateInternal(template, choices);
 
-            if (Subsystems != null) {
-                foreach (var sub in Subsystems.Values) {
-                    if (sub.Taxonomies != null && sub.Taxonomies.TryGetValue(type, out var taxMap)) {
-                        if (taxMap.TryGetValue(name, out var entry)) return entry;
-                    }
-                    if (sub.Elements != null && sub.Elements.TryGetValue(name, out var elem)) {
-                        return elem;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public string ResolveTemplate(string template, IReadOnlyDictionary<string, string> choices) =>
-            ResolveTemplateInternal(this, template, choices);
-
-        internal static string ResolveTemplateInternal(IRulesCatalog catalog, string template, IReadOnlyDictionary<string, string> choices) {
+        internal static string ResolveTemplateInternal(string template, IReadOnlyDictionary<string, object> choices) {
             if (string.IsNullOrEmpty(template)) return "";
             if (!template.Contains("${")) return template;
 
-            string GetChoice(string key) {
+            object GetChoice(string key) {
                 if (choices == null) return null;
                 if (choices.TryGetValue(key, out var val)) return val;
                 var kvp = choices.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase));
@@ -301,15 +262,7 @@ namespace PlayMore35.Rules {
                 if (string.IsNullOrEmpty(path)) return "";
 
                 string[] parts = path.Split('.');
-                if (parts.Length == 1) {
-                    return GetChoice(parts[0]) ?? "";
-                }
-
-                string rootType = parts[0];
-                string rootName = GetChoice(rootType);
-                if (string.IsNullOrEmpty(rootName)) return "";
-
-                object current = catalog?.GetEntity(rootType, rootName);
+                object current = GetChoice(parts[0]);
                 if (current == null) return "";
 
                 for (int i = 1; i < parts.Length; i++) {

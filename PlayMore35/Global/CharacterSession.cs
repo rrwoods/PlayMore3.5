@@ -221,21 +221,20 @@ namespace PlayMore35.Global {
                 var featDef = catalog.GetFeat(featName);
                 if (featDef != null) {
                     var featChoicesList = new List<string>();
-                    var choicesDict = new Dictionary<string, string>(character.featChoices, StringComparer.OrdinalIgnoreCase);
+                    var choicesDict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var kvp in character.featChoices) {
+                        choicesDict[kvp.Key] = kvp.Value;
+                    }
 
                     if (featDef.Choices != null && featDef.Choices.Any()) {
                         foreach (var ch in featDef.Choices) {
-                            string val = "";
-                            if (string.Equals(ch.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
-                                val = ResolveClassChoice(featSlot, ch);
-                            } else if (character.featChoices.TryGetValue($"{featSlot}:{ch.Id}", out var choiceVal) && !string.IsNullOrWhiteSpace(choiceVal)) {
-                                val = choiceVal;
-                            } else if (!string.IsNullOrEmpty(ch.Fallback)) {
-                                val = ch.Fallback;
-                            }
-                            if (!string.IsNullOrEmpty(val)) {
-                                choicesDict[ch.Id] = val;
-                                featChoicesList.Add(val);
+                            object val = ResolveFeatChoice(featSlot, ch);
+                            if (val != null) {
+                                string strVal = val.ToString();
+                                if (!string.IsNullOrEmpty(strVal)) {
+                                    choicesDict[ch.Id] = val;
+                                    featChoicesList.Add(strVal);
+                                }
                             }
                         }
                     } else if (character.featChoices.TryGetValue(featSlot, out var c) && !string.IsNullOrWhiteSpace(c)) {
@@ -671,6 +670,39 @@ namespace PlayMore35.Global {
             }
 
             return adeptClasses[0];
+        }
+
+        public object ResolveFeatChoice(string featSlot, ChoiceDescriptor descriptor) {
+            if (descriptor == null) return null;
+            if (string.Equals(descriptor.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
+                return ResolveClassChoice(featSlot, descriptor);
+            }
+
+            string rawChoice = null;
+            string choiceKey = descriptor.Id;
+            if (!string.IsNullOrEmpty(choiceKey) &&
+                character.featChoices.TryGetValue($"{featSlot}:{choiceKey}", out var val) &&
+                !string.IsNullOrWhiteSpace(val)) {
+                rawChoice = val;
+            } else if (character.featChoices.TryGetValue(featSlot, out var defaultChoice) &&
+                       !string.IsNullOrWhiteSpace(defaultChoice)) {
+                rawChoice = defaultChoice;
+            } else if (!string.IsNullOrEmpty(descriptor.Fallback)) {
+                rawChoice = descriptor.Fallback;
+            }
+
+            if (string.IsNullOrEmpty(rawChoice)) return null;
+
+            if (string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                if (subsystems != null) {
+                    foreach (var engine in subsystems.All) {
+                        var elem = engine.GetElement(rawChoice, this);
+                        if (elem != null) return elem;
+                    }
+                }
+            }
+
+            return rawChoice;
         }
 
         public string ResolveClassChoice(string featSlot, ChoiceDescriptor descriptor) {

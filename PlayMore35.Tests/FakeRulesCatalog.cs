@@ -391,47 +391,8 @@ namespace PlayMore35.Tests {
             return def;
         }
 
-        public object GetEntity(string type, string name) {
-            if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;
-            switch (type.ToLowerInvariant()) {
-                case "class":
-                    return GetClass(name);
-                case "race":
-                    return GetRace(name);
-                case "feat":
-                    return GetFeat(name);
-                case "weapon":
-                    return GetWeapon(name);
-                case "armor":
-                    return GetArmor(name);
-                case "shield":
-                    return GetShield(name);
-                case "item":
-                    return GetItem(name);
-                case "weaponproperty":
-                    return GetWeaponProperty(name);
-                case "armorproperty":
-                    return GetArmorProperty(name);
-                case "externaleffect":
-                    return GetExternalEffect(name);
-            }
-
-            if (SubsystemsMap != null) {
-                foreach (var sub in SubsystemsMap.Values) {
-                    if (sub.Taxonomies != null && sub.Taxonomies.TryGetValue(type, out var taxMap)) {
-                        if (taxMap.TryGetValue(name, out var entry)) return entry;
-                    }
-                    if (sub.Elements != null && sub.Elements.TryGetValue(name, out var elem)) {
-                        return elem;
-                    }
-                }
-            }
-
-            return inner?.GetEntity(type, name);
-        }
-
-        public string ResolveTemplate(string template, IReadOnlyDictionary<string, string> choices) =>
-            GameRulesCatalog.ResolveTemplateInternal(this, template, choices);
+        public string ResolveTemplate(string template, IReadOnlyDictionary<string, object> choices) =>
+            GameRulesCatalog.ResolveTemplateInternal(template, choices);
 
         public IEnumerable<string> ChoicesForKey(string choiceDescription) => inner?.ChoicesForKey(choiceDescription) ?? Enumerable.Empty<string>();
     }

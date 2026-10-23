@@ -1,4 +1,4 @@
-﻿# Temporal Feat Acquisition and Martial Study Binding
+# Temporal Feat Acquisition and Martial Study Binding
 
 ## Context
 Under D&D 3.5e (*Tome of Battle: The Book of Nine Swords*, pp. 32, 52), acquiring martial maneuvers or stances via non-progression access (*Martial Study* and *Martial Stance*) depends strictly on whether the character possessed martial adept levels at the moment of feat acquisition:
@@ -42,8 +42,8 @@ We resolve temporal ordering, target class binding, multi-choice persistence, an
    - In `Maneuver`, `Properties["discipline"]` references the corresponding `MartialDiscipline` entity, which in turn exposes `Properties["keySkill"] = "Balance"`.
    - `feats.json` declares `"class skills": [ "${maneuver.discipline.keySkill}" ]`.
    - `IRulesCatalog.ResolveTemplate(template, choices)` evaluates path expressions without complex expression parsing:
-     - The root `x` resolves via the slot's choice (`choices[x]`). If no sub-properties exist (e.g. `${class}`), it directly returns the choice string.
-     - For nested paths (`"${x.y.z}"`), the catalog retrieves the root entity `catalog.GetEntity(x, choices[x])` and walks the `Properties` dictionaries (`x.Properties["y"]` $\to$ `y.Properties["z"]`). If any choice is unset or key missing, it safely returns `""`.
+     - The root choice `x` resolves via `choices[x]` (from `IReadOnlyDictionary<string, object> choices`). If no sub-properties exist (e.g. `${class}`), it directly formats the value with `.ToString()`.
+     - For nested paths (`"${x.y.z}"`), `choices[x]` provides the pre-resolved root entity (e.g. `SubsystemElement` or any `IPropertyProvider`) without type guesswork, and template resolution walks the `Properties` dictionaries (`x.Properties["y"]` $\to$ `y.Properties["z"]`). If any choice is unset or key missing, it safely returns `""`.
    - `EffectPool` tracks granted class skills. `CharacterSession.IsClassSkill(string skill, int levelIndex)` checks both class definitions and granted skills active at that level.
    - Under human-approved correction `dysfunction:skill-feats-same-level`, the resolved key skill becomes a class skill starting at the feat's acquisition level (`levelIndex >= featAcquisitionLevel - 1`) and persists for all subsequent levels.
 

@@ -626,6 +626,12 @@ namespace PlayMore35.Tests {
 
             // 1. Target class auto-resolves to Warblade
             Assert.AreEqual("Warblade", session.ResolveClassChoice("Level 1", syntheticFeat.Choices[0]));
+            Assert.AreEqual("Warblade", session.ResolveFeatChoice("Level 1", syntheticFeat.Choices[0]));
+
+            // 1b. Maneuver choice resolves to SubsystemElement object
+            var resolvedManeuver = session.ResolveFeatChoice("Level 1", syntheticFeat.Choices[1]);
+            Assert.IsInstanceOfType(resolvedManeuver, typeof(SubsystemElement));
+            Assert.AreEqual("Steel Wind", ((SubsystemElement)resolvedManeuver).Name);
 
             // 2. Class skill template ${maneuver.discipline.keySkill} resolves to Balance (Iron Heart key skill)
             Assert.IsTrue(session.IsClassSkill("Balance", 0), "Template should expand key skill of chosen maneuver to 'Balance'.");

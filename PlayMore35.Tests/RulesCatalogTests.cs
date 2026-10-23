@@ -447,7 +447,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ResolveTemplate_SimpleVariable_ReturnsChoiceValue() {
             var catalog = new GameRulesCatalog();
-            var choices = new Dictionary<string, string> {
+            var choices = new Dictionary<string, object> {
                 ["class"] = "Warblade"
             };
 
@@ -458,8 +458,10 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ResolveTemplate_DotSeparatedPath_TraversesPropertyProviders() {
             var catalog = new GameRulesCatalog();
-            var choices = new Dictionary<string, string> {
-                ["maneuver"] = "Steel Wind"
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            var steelWind = martialDef.Elements["Steel Wind"];
+            var choices = new Dictionary<string, object> {
+                ["maneuver"] = steelWind
             };
 
             Assert.AreEqual("Balance", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices));
@@ -472,6 +474,7 @@ namespace PlayMore35.Tests {
         public void ResolveTemplate_AllNineDisciplines_ResolveCorrectKeySkills() {
             // Source: Tome of Battle, pp. 41-43; docs/rules/subsystems/maneuvers.md
             var catalog = new GameRulesCatalog();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
             var testCases = new Dictionary<string, string> {
                 ["Burning Blade"] = "Tumble",               // Desert Wind
                 ["Crusader's Strike"] = "Intimidate",       // Devoted Spirit
@@ -485,7 +488,8 @@ namespace PlayMore35.Tests {
             };
 
             foreach (var kvp in testCases) {
-                var choices = new Dictionary<string, string> { ["maneuver"] = kvp.Key };
+                var elem = martialDef.Elements[kvp.Key];
+                var choices = new Dictionary<string, object> { ["maneuver"] = elem };
                 string resolved = catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices);
                 Assert.AreEqual(kvp.Value, resolved, $"Maneuver '{kvp.Key}' should resolve key skill to '{kvp.Value}'");
             }
@@ -494,8 +498,10 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ResolveTemplate_PrefixedChoiceKey_ResolvesCorrectly() {
             var catalog = new GameRulesCatalog();
-            var choices = new Dictionary<string, string> {
-                ["Level 1:maneuver"] = "Steel Wind"
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            var steelWind = martialDef.Elements["Steel Wind"];
+            var choices = new Dictionary<string, object> {
+                ["Level 1:maneuver"] = steelWind
             };
 
             Assert.AreEqual("Balance", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices));
@@ -504,17 +510,19 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ResolveTemplate_UnsetOrMissingKey_SafelyReturnsEmptyString() {
             var catalog = new GameRulesCatalog();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            var steelWind = martialDef.Elements["Steel Wind"];
 
             // Empty choices
-            Assert.AreEqual("", catalog.ResolveTemplate("${class}", new Dictionary<string, string>()));
-            Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", new Dictionary<string, string>()));
+            Assert.AreEqual("", catalog.ResolveTemplate("${class}", new Dictionary<string, object>()));
+            Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", new Dictionary<string, object>()));
 
             // Missing entity
-            var choices = new Dictionary<string, string> { ["maneuver"] = "NonExistentManeuver" };
+            var choices = new Dictionary<string, object> { ["maneuver"] = "NonExistentManeuver" };
             Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.discipline.keySkill}", choices));
 
             // Missing property
-            choices["maneuver"] = "Steel Wind";
+            choices["maneuver"] = steelWind;
             Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.nonexistent.keySkill}", choices));
             Assert.AreEqual("", catalog.ResolveTemplate("${maneuver.discipline.nonexistent}", choices));
 

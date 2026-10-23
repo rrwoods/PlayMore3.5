@@ -31,8 +31,7 @@ namespace PlayMore35.Rules {
         ExternalEffect GetExternalEffect(string name);
         SubsystemDefinition GetSubsystem(string name);
 
-        object GetEntity(string type, string name);
-        string ResolveTemplate(string template, IReadOnlyDictionary<string, string> choices);
+        string ResolveTemplate(string template, IReadOnlyDictionary<string, object> choices);
 
         IEnumerable<string> ChoicesForKey(string choiceDescription);
 
