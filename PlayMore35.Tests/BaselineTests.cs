@@ -64,5 +64,64 @@ namespace PlayMore35.Tests {
                 "Visual Studio requires matching <SubType> metadata in PlayMore35.csproj:\n" + string.Join("\n", mismatches)
             );
         }
+
+        [TestMethod]
+        public void PlayMore35Csproj_TopLevelItemGroupsHaveNoDuplicateFiles() {
+            var projectDir = Path.Combine(TestEnvironment.FindRepoRoot(), "PlayMore35");
+            var csprojPath = Path.Combine(projectDir, "PlayMore35.csproj");
+            var doc = new XmlDocument();
+            doc.Load(csprojPath);
+
+            var itemTypesByPath = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            foreach (XmlNode child in doc.DocumentElement.ChildNodes) {
+                if (!(child is XmlElement itemGroup) || itemGroup.Name != "ItemGroup") {
+                    continue;
+                }
+
+                foreach (XmlNode itemNode in itemGroup.ChildNodes) {
+                    if (!(itemNode is XmlElement item) || item.Name == "Reference" || item.Name == "ProjectReference") {
+                        continue;
+                    }
+
+                    var include = item.GetAttribute("Include");
+                    if (string.IsNullOrEmpty(include)) {
+                        continue;
+                    }
+
+                    IEnumerable<string> resolvedPaths;
+                    if (include.IndexOfAny(new[] { '*', '?' }) >= 0) {
+                        var dirPart = Path.GetDirectoryName(include) ?? string.Empty;
+                        var pattern = Path.GetFileName(include);
+                        var searchDir = Path.Combine(projectDir, dirPart);
+                        resolvedPaths = Directory.Exists(searchDir)
+                            ? Directory.GetFiles(searchDir, pattern).Select(f => Path.Combine(dirPart, Path.GetFileName(f)))
+                            : Enumerable.Empty<string>();
+                    } else {
+                        resolvedPaths = new[] { include };
+                    }
+
+                    foreach (var relativePath in resolvedPaths) {
+                        var normalized = relativePath.Replace('/', '\\');
+                        if (!itemTypesByPath.TryGetValue(normalized, out var itemTypes)) {
+                            itemTypes = new List<string>();
+                            itemTypesByPath[normalized] = itemTypes;
+                        }
+                        itemTypes.Add(item.Name);
+                    }
+                }
+            }
+
+            var duplicates = itemTypesByPath
+                .Where(kvp => kvp.Value.Count > 1)
+                .Select(kvp => $"{kvp.Key} ({string.Join(", ", kvp.Value)})")
+                .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            Assert.AreEqual(
+                0,
+                duplicates.Count,
+                "Duplicate top-level ItemGroup entries cause duplicate nodes in Solution Explorer:\n" + string.Join("\n", duplicates)
+            );
+        }
     }
 }
