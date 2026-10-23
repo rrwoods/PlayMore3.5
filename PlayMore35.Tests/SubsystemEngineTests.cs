@@ -435,7 +435,9 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void GameRulesCatalog_CanLoadFullManeuverCatalog_AndResolveAllNineDisciplines() {
             var catalog = new GameRulesCatalog();
-            var maneuvers = catalog.Maneuvers.Values.ToList();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martialDef);
+            var maneuvers = martialDef.Elements.Values.ToList();
 
             Assert.IsTrue(maneuvers.Count >= 190, $"Expected at least 190 maneuvers, got {maneuvers.Count}");
 
@@ -446,10 +448,10 @@ namespace PlayMore35.Tests {
             };
 
             foreach (var disc in disciplines) {
-                var discManeuvers = maneuvers.Where(m => m.Discipline == disc).ToList();
+                var discManeuvers = maneuvers.Where(m => m.GetProperty<string>("discipline") == disc).ToList();
                 Assert.IsTrue(discManeuvers.Count >= 15, $"Discipline '{disc}' should have at least 15 maneuvers, found {discManeuvers.Count}");
                 var first = discManeuvers.First();
-                var fetched = catalog.GetManeuver(first.Name);
+                var fetched = martialDef.Elements.TryGetValue(first.Name, out var elem) ? elem : null;
                 Assert.IsNotNull(fetched, $"Failed to fetch maneuver '{first.Name}' via catalog");
                 Assert.AreEqual(first.Name, fetched.Name);
             }

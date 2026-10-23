@@ -9,7 +9,6 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Tests {
     public class FakeRulesCatalog : IRulesCatalog {
@@ -23,9 +22,7 @@ namespace PlayMore35.Tests {
         public Dictionary<string, ArmorProperty> ArmorPropertiesMap { get; } = new Dictionary<string, ArmorProperty>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, Item> ItemsMap { get; } = new Dictionary<string, Item>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, ExternalEffect> ExternalEffectsMap { get; } = new Dictionary<string, ExternalEffect>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, Maneuver> ManeuversMap { get; } = new Dictionary<string, Maneuver>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, Vestige> VestigesMap { get; } = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, MartialDiscipline> DisciplinesMap { get; } = new Dictionary<string, MartialDiscipline>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, SubsystemDefinition> SubsystemsMap { get; } = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
 
         public IReadOnlyDictionary<string, Race> Races => RacesMap;
@@ -38,9 +35,7 @@ namespace PlayMore35.Tests {
         public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties => ArmorPropertiesMap;
         public IReadOnlyDictionary<string, Item> Items => ItemsMap;
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects => ExternalEffectsMap;
-        public IReadOnlyDictionary<string, Maneuver> Maneuvers => ManeuversMap;
         public IReadOnlyDictionary<string, Vestige> Vestiges => VestigesMap;
-        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines => DisciplinesMap.Count > 0 ? DisciplinesMap : (inner?.Disciplines ?? new Dictionary<string, MartialDiscipline>());
         public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems => SubsystemsMap;
 
         private readonly IRulesCatalog inner;
@@ -52,12 +47,12 @@ namespace PlayMore35.Tests {
         public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters => inner?.CoreParameters ?? new ReadOnlyDictionary<string, ParameterDefinition>(new Dictionary<string, ParameterDefinition>());
         public JToken CoreRulesJson => inner?.CoreRulesJson ?? new JObject();
 
-        public FakeRulesCatalog(params Maneuver[] maneuvers) : this(maneuvers, null, null) { }
-        public FakeRulesCatalog(params Vestige[] vestiges) : this(null, vestiges, null) { }
-        public FakeRulesCatalog(IEnumerable<Maneuver> maneuvers, IRulesCatalog inner) : this(maneuvers, null, inner) { }
-        public FakeRulesCatalog(IEnumerable<Vestige> vestiges, IRulesCatalog inner) : this(null, vestiges, inner) { }
+        public FakeRulesCatalog(params SubsystemElement[] maneuvers) : this(maneuvers, null, null) { }
+        public FakeRulesCatalog(params Vestige[] vestiges) : this((IEnumerable<SubsystemElement>)null, vestiges, null) { }
+        public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers, IRulesCatalog inner) : this(maneuvers, null, inner) { }
+        public FakeRulesCatalog(IEnumerable<Vestige> vestiges, IRulesCatalog inner) : this((IEnumerable<SubsystemElement>)null, vestiges, inner) { }
 
-        public FakeRulesCatalog(IEnumerable<Maneuver> maneuvers = null, IEnumerable<Vestige> vestiges = null, IRulesCatalog inner = null) {
+        public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers = null, IEnumerable<Vestige> vestiges = null, IRulesCatalog inner = null) {
             this.inner = inner;
             if (inner != null) {
                 if (inner.Vestiges != null) {
@@ -65,20 +60,10 @@ namespace PlayMore35.Tests {
                         VestigesMap[kvp.Key] = kvp.Value;
                     }
                 }
-                if (inner.Maneuvers != null) {
-                    foreach (var kvp in inner.Maneuvers) {
-                        ManeuversMap[kvp.Key] = kvp.Value;
-                    }
-                }
                 if (inner.Subsystems != null) {
                     foreach (var kvp in inner.Subsystems) {
                         SubsystemsMap[kvp.Key] = kvp.Value;
                     }
-                }
-            }
-            if (maneuvers != null) {
-                foreach (var m in maneuvers) {
-                    if (m?.Name != null) ManeuversMap[m.Name] = m;
                 }
             }
             if (vestiges != null) {
@@ -90,19 +75,23 @@ namespace PlayMore35.Tests {
                 BuildPactMagicSubsystem();
             }
             if (!SubsystemsMap.ContainsKey("martial_maneuvers") || maneuvers != null) {
-                BuildMartialManeuversSubsystem();
+                BuildMartialManeuversSubsystem(maneuvers);
             }
         }
 
-        public void BuildMartialManeuversSubsystem() {
+        public void BuildMartialManeuversSubsystem(IEnumerable<SubsystemElement> maneuvers = null) {
             var def = new SubsystemDefinition {
                 Id = "martial_maneuvers",
                 Name = "Martial Maneuvers",
                 LevelGating = new LevelGatingDefinition("level")
             };
-            if (inner?.GetSubsystem("martial_maneuvers")?.Disciplines != null) {
-                foreach (var kvp in inner.GetSubsystem("martial_maneuvers").Disciplines) {
-                    def.Disciplines[kvp.Key] = kvp.Value;
+            if (inner?.GetSubsystem("martial_maneuvers")?.Taxonomies != null) {
+                foreach (var taxKvp in inner.GetSubsystem("martial_maneuvers").Taxonomies) {
+                    var map = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var entryKvp in taxKvp.Value) {
+                        map[entryKvp.Key] = entryKvp.Value;
+                    }
+                    def.Taxonomies[taxKvp.Key] = map;
                 }
             }
             def.ElementStatistics["level"] = new List<string>();
@@ -202,30 +191,11 @@ namespace PlayMore35.Tests {
                 ClassesMap["Crusader"] = cr;
             }
 
-            foreach (var m in ManeuversMap.Values) {
-                if (m == null || string.IsNullOrEmpty(m.Name)) continue;
-                var elem = new SubsystemElement {
-                    Name = m.Name,
-                    Type = m.Type.ToString()
-                };
-                elem.SetProperty("level", m.Level);
-                elem.SetProperty("discipline", (object)m.DisciplineDefinition ?? GetDiscipline(m.Discipline) ?? (object)m.Discipline);
-                elem.SetProperty("actionType", m.ActionType);
-                elem.SetProperty("prerequisites", m.Prerequisites);
-                elem.SetProperty("prerequisiteCount", m.PrerequisiteCount);
-                elem.SetProperty("description", m.Description);
-                if (m.Type == ManeuverType.Boost || m.Type == ManeuverType.Counter) {
-                    elem.Verbs["execute"] = new List<SubsystemStep> {
-                        new SubsystemStep {
-                            Type = "action",
-                            Action = new SheetAction { Name = m.Name }.Duration("1 round")
-                        }
-                    };
+            if (maneuvers != null) {
+                foreach (var elem in maneuvers) {
+                    if (elem == null || string.IsNullOrEmpty(elem.Name)) continue;
+                    def.Elements[elem.Name] = elem;
                 }
-                if (m.Effects != null) {
-                    foreach (var eff in m.Effects) elem.AddEffect("benefits", eff);
-                }
-                def.Elements[elem.Name] = elem;
             }
         }
 
@@ -309,14 +279,7 @@ namespace PlayMore35.Tests {
         public ArmorProperty GetArmorProperty(string name) => (name != null && ArmorPropertiesMap.TryGetValue(name, out var val)) ? val : inner?.GetArmorProperty(name);
         public Item GetItem(string name) => (name != null && ItemsMap.TryGetValue(name, out var val)) ? val : inner?.GetItem(name);
         public ExternalEffect GetExternalEffect(string name) => (name != null && ExternalEffectsMap.TryGetValue(name, out var val)) ? val : inner?.GetExternalEffect(name);
-        public Maneuver GetManeuver(string name) => (name != null && ManeuversMap.TryGetValue(name, out var val)) ? val : inner?.GetManeuver(name);
         public Vestige GetVestige(string name) => (name != null && VestigesMap.TryGetValue(name, out var val)) ? val : inner?.GetVestige(name);
-        public MartialDiscipline GetDiscipline(string name) {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (DisciplinesMap.TryGetValue(name, out var val)) return val;
-            if (SubsystemsMap.TryGetValue("martial_maneuvers", out var mDef) && mDef?.Disciplines != null && mDef.Disciplines.TryGetValue(name, out var dVal)) return dVal;
-            return inner?.GetDiscipline(name);
-        }
         public SubsystemDefinition GetSubsystem(string name) => (name != null && SubsystemsMap.TryGetValue(name, out var val)) ? val : inner?.GetSubsystem(name);
 
         public void RegisterSubsystem(SubsystemDefinition def) {
@@ -455,10 +418,6 @@ namespace PlayMore35.Tests {
         public object GetEntity(string type, string name) {
             if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;
             switch (type.ToLowerInvariant()) {
-                case "maneuver":
-                    return GetManeuver(name);
-                case "discipline":
-                    return GetDiscipline(name);
                 case "class":
                     return GetClass(name);
                 case "race":
@@ -481,9 +440,20 @@ namespace PlayMore35.Tests {
                     return GetVestige(name);
                 case "externaleffect":
                     return GetExternalEffect(name);
-                default:
-                    return null;
             }
+
+            if (SubsystemsMap != null) {
+                foreach (var sub in SubsystemsMap.Values) {
+                    if (sub.Taxonomies != null && sub.Taxonomies.TryGetValue(type, out var taxMap)) {
+                        if (taxMap.TryGetValue(name, out var entry)) return entry;
+                    }
+                    if (sub.Elements != null && sub.Elements.TryGetValue(name, out var elem)) {
+                        return elem;
+                    }
+                }
+            }
+
+            return inner?.GetEntity(type, name);
         }
 
         public string ResolveTemplate(string template, IReadOnlyDictionary<string, string> choices) =>

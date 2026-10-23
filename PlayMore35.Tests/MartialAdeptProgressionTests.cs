@@ -8,7 +8,6 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -285,7 +284,9 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 5, 41–44 (Nine Disciplines and ManeuverType Categories)
         [TestMethod]
         public void ManeuversCatalog_LoadsAllDisciplinesAndAllManeuverTypes() {
-            var maneuvers = catalog.Maneuvers.Values.ToList();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martialDef);
+            var maneuvers = martialDef.Elements.Values.ToList();
             Assert.IsTrue(maneuvers.Count >= 190, $"Catalog should contain complete maneuvers, found: {maneuvers.Count}");
 
             string[] expectedDisciplines = {
@@ -295,27 +296,29 @@ namespace PlayMore35.Tests {
             };
 
             foreach (var disc in expectedDisciplines) {
-                Assert.IsTrue(maneuvers.Any(m => m.Discipline == disc), $"Discipline '{disc}' should have maneuvers in catalog.");
+                Assert.IsTrue(maneuvers.Any(m => m.GetProperty<string>("discipline") == disc), $"Discipline '{disc}' should have maneuvers in catalog.");
             }
 
             var types = maneuvers.Select(m => m.Type).Distinct().ToList();
-            Assert.IsTrue(types.Contains(ManeuverType.Strike), "Should contain strikes.");
-            Assert.IsTrue(types.Contains(ManeuverType.Boost), "Should contain boosts.");
-            Assert.IsTrue(types.Contains(ManeuverType.Counter), "Should contain counters.");
-            Assert.IsTrue(types.Contains(ManeuverType.Stance), "Should contain stances.");
-            Assert.IsTrue(types.Contains(ManeuverType.Other), "Should contain other maneuvers (e.g. Iron Heart Surge).");
+            Assert.IsTrue(types.Contains("Strike"), "Should contain strikes.");
+            Assert.IsTrue(types.Contains("Boost"), "Should contain boosts.");
+            Assert.IsTrue(types.Contains("Counter"), "Should contain counters.");
+            Assert.IsTrue(types.Contains("Stance"), "Should contain stances.");
+            Assert.IsTrue(types.Contains("Other"), "Should contain other maneuvers (e.g. Iron Heart Surge).");
 
-            var ihSurge = catalog.GetManeuver("Iron Heart Surge");
+            var ihSurge = martialDef.Elements.TryGetValue("Iron Heart Surge", out var surge) ? surge : null;
             Assert.IsNotNull(ihSurge);
-            Assert.AreEqual(ManeuverType.Other, ihSurge.Type);
-            Assert.AreEqual("Iron Heart", ihSurge.Discipline);
-            Assert.AreEqual(3, ihSurge.Level);
+            Assert.AreEqual("Other", ihSurge.Type);
+            Assert.AreEqual("Iron Heart", ihSurge.GetProperty<string>("discipline"));
+            Assert.AreEqual(3, ihSurge.GetProperty<int>("level"));
         }
 
         // Source: Tome of Battle, pp. 37–95 (Complete Maneuvers Catalog Deserialization and Integrity)
         [TestMethod]
         public void ManeuversCatalog_AllEntriesDeserializeValidly_AndMatchSchema() {
-            var maneuvers = catalog.Maneuvers.Values.ToList();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martialDef);
+            var maneuvers = martialDef.Elements.Values.ToList();
             Assert.IsTrue(maneuvers.Count >= 190, $"Expected full ~190+ maneuver catalog, found: {maneuvers.Count}");
 
             var validDisciplines = new HashSet<string> {
@@ -326,26 +329,36 @@ namespace PlayMore35.Tests {
             var validActionTypes = new HashSet<string> {
                 "standard", "swift", "immediate", "full-round", "move"
             };
+            var validTypes = new HashSet<string> {
+                "Strike", "Boost", "Counter", "Stance", "Other"
+            };
 
             foreach (var m in maneuvers) {
                 Assert.IsFalse(string.IsNullOrWhiteSpace(m.Name), "Maneuver name must not be empty.");
-                Assert.IsTrue(validDisciplines.Contains(m.Discipline), $"Maneuver '{m.Name}' has invalid discipline '{m.Discipline}'.");
-                Assert.IsTrue(m.Level >= 1 && m.Level <= 9, $"Maneuver '{m.Name}' level {m.Level} must be between 1 and 9.");
-                Assert.IsTrue(Enum.IsDefined(typeof(ManeuverType), m.Type), $"Maneuver '{m.Name}' has invalid type '{m.Type}'.");
-                Assert.IsTrue(validActionTypes.Contains(m.ActionType), $"Maneuver '{m.Name}' has invalid action type '{m.ActionType}'.");
-                Assert.IsTrue(m.PrerequisiteCount >= 0, $"Maneuver '{m.Name}' has negative prerequisite count {m.PrerequisiteCount}.");
-                Assert.IsFalse(string.IsNullOrWhiteSpace(m.Description), $"Maneuver '{m.Name}' must have non-empty description.");
+                var disc = m.GetProperty<string>("discipline");
+                var level = m.GetProperty<int>("level");
+                var actionType = m.GetProperty<string>("actionType");
+                var prereqCount = m.GetProperty<int>("prerequisiteCount");
+                var prereqs = m.GetProperty<string>("prerequisites");
+                var desc = m.GetProperty<string>("description");
 
-                if (m.PrerequisiteCount == 0) {
-                    Assert.IsTrue(string.IsNullOrEmpty(m.Prerequisites), $"Maneuver '{m.Name}' with count 0 should have empty prerequisites string.");
+                Assert.IsTrue(validDisciplines.Contains(disc), $"Maneuver '{m.Name}' has invalid discipline '{disc}'.");
+                Assert.IsTrue(level >= 1 && level <= 9, $"Maneuver '{m.Name}' level {level} must be between 1 and 9.");
+                Assert.IsTrue(validTypes.Contains(m.Type), $"Maneuver '{m.Name}' has invalid type '{m.Type}'.");
+                Assert.IsTrue(validActionTypes.Contains(actionType), $"Maneuver '{m.Name}' has invalid action type '{actionType}'.");
+                Assert.IsTrue(prereqCount >= 0, $"Maneuver '{m.Name}' has negative prerequisite count {prereqCount}.");
+                Assert.IsFalse(string.IsNullOrWhiteSpace(desc), $"Maneuver '{m.Name}' must have non-empty description.");
+
+                if (prereqCount == 0) {
+                    Assert.IsTrue(string.IsNullOrEmpty(prereqs), $"Maneuver '{m.Name}' with count 0 should have empty prerequisites string.");
                 } else {
-                    Assert.IsTrue(m.Prerequisites.StartsWith(m.PrerequisiteCount.ToString()),
-                        $"Maneuver '{m.Name}' prerequisite string '{m.Prerequisites}' should start with count {m.PrerequisiteCount}.");
+                    Assert.IsTrue(prereqs.StartsWith(prereqCount.ToString()),
+                        $"Maneuver '{m.Name}' prerequisite string '{prereqs}' should start with count {prereqCount}.");
                 }
             }
 
             foreach (var disc in validDisciplines) {
-                int count = maneuvers.Count(m => m.Discipline == disc);
+                int count = maneuvers.Count(m => m.GetProperty<string>("discipline") == disc);
                 Assert.IsTrue(count >= 15, $"Discipline '{disc}' should have at least 15 maneuvers, found {count}.");
             }
         }
@@ -354,52 +367,54 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void GameRulesCatalog_LoadsManeuversCatalogCleanly() {
             var catalog = new GameRulesCatalog();
-            var all = catalog.Maneuvers.Values.ToList();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martialDef);
+            var all = martialDef.Elements.Values.ToList();
             Assert.IsTrue(all.Count >= 190);
 
-            var strike = catalog.GetManeuver("Steely Strike");
+            var strike = martialDef.Elements.TryGetValue("Steely Strike", out var s) ? s : null;
             Assert.IsNotNull(strike);
-            Assert.AreEqual("Iron Heart", strike.Discipline);
-            Assert.AreEqual(ManeuverType.Strike, strike.Type);
+            Assert.AreEqual("Iron Heart", strike.GetProperty<string>("discipline"));
+            Assert.AreEqual("Strike", strike.Type);
 
-            var stance = catalog.GetManeuver("Punishing Stance");
+            var stance = martialDef.Elements.TryGetValue("Punishing Stance", out var st) ? st : null;
             Assert.IsNotNull(stance);
-            Assert.AreEqual(ManeuverType.Stance, stance.Type);
+            Assert.AreEqual("Stance", stance.Type);
             Assert.IsTrue(stance.Effects.Count > 0, "Punishing Stance should have effects defined.");
 
             // Case-insensitive lookup
-            var caseInsensitive = catalog.GetManeuver("punishing stance");
+            var caseInsensitive = martialDef.Elements.TryGetValue("punishing stance", out var ci) ? ci : null;
             Assert.IsNotNull(caseInsensitive);
         }
 
         // Source: Tome of Battle, pp. 41–44
         [TestMethod]
-        public void Maneuver_JsonSerializationRoundTrip_PreservesAllFields() {
-            var original = new Maneuver {
+        public void SubsystemElement_JsonSerializationRoundTrip_PreservesAllFields() {
+            var original = new SubsystemElement {
                 Name = "Custom Strike",
-                Discipline = "Iron Heart",
-                Level = 3,
-                Type = ManeuverType.Strike,
-                ActionType = "standard",
-                Prerequisites = "1 Iron Heart maneuver",
-                PrerequisiteCount = 1,
-                Description = "A strike delivering special damage."
+                Type = "Strike"
             };
-            original.Effects.Add(new Effect("Custom Strike Effect").AddModifier("Attack", new Modifier(2, "morale")));
+            original.SetProperty("discipline", "Iron Heart");
+            original.SetProperty("level", 3);
+            original.SetProperty("actionType", "standard");
+            original.SetProperty("prerequisites", "1 Iron Heart maneuver");
+            original.SetProperty("prerequisiteCount", 1);
+            original.SetProperty("description", "A strike delivering special damage.");
+            original.AddEffect("benefits", new Effect("Custom Strike Effect").AddModifier("Attack", new Modifier(2, "morale")));
 
             var json = (JObject)original.ToJson();
-            var restored = new Maneuver(json);
+            var restored = new SubsystemElement(json);
 
             Assert.AreEqual(original.Name, restored.Name);
-            Assert.AreEqual(original.Discipline, restored.Discipline);
-            Assert.AreEqual(original.Level, restored.Level);
+            Assert.AreEqual(original.GetProperty<string>("discipline"), restored.GetProperty<string>("discipline"));
+            Assert.AreEqual(original.GetProperty<int>("level"), restored.GetProperty<int>("level"));
             Assert.AreEqual(original.Type, restored.Type);
-            Assert.AreEqual(original.ActionType, restored.ActionType);
-            Assert.AreEqual(original.Prerequisites, restored.Prerequisites);
-            Assert.AreEqual(original.PrerequisiteCount, restored.PrerequisiteCount);
-            Assert.AreEqual(original.Description, restored.Description);
-            Assert.AreEqual(1, restored.Effects.Count);
-            Assert.AreEqual("Custom Strike Effect", restored.Effects[0].Name);
+            Assert.AreEqual(original.GetProperty<string>("actionType"), restored.GetProperty<string>("actionType"));
+            Assert.AreEqual(original.GetProperty<string>("prerequisites"), restored.GetProperty<string>("prerequisites"));
+            Assert.AreEqual(original.GetProperty<int>("prerequisiteCount"), restored.GetProperty<int>("prerequisiteCount"));
+            Assert.AreEqual(original.GetProperty<string>("description"), restored.GetProperty<string>("description"));
+            Assert.AreEqual(1, restored.GetEffects("benefits").Count);
+            Assert.AreEqual("Custom Strike Effect", restored.GetEffects("benefits")[0].Name);
         }
 
         // Source: Tome of Battle, pp. 23, 38; ADR-0010

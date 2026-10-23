@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Global;
-using PlayMore35.Subsystems.Maneuvers;
+using PlayMore35.Rules;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemStep : IJsonable {
@@ -238,6 +238,74 @@ namespace PlayMore35.Subsystems {
         }
     }
 
+    public class TaxonomyEntry : IJsonable, IPropertyProvider {
+        private readonly Dictionary<string, object> _properties = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        public string Name {
+            get => _properties.TryGetValue("name", out var v) ? v?.ToString() ?? "" : "";
+            set => _properties["name"] = value;
+        }
+
+        public IReadOnlyDictionary<string, object> Properties => _properties;
+
+        public T GetProperty<T>(string key, T defaultValue = default) {
+            if (string.IsNullOrEmpty(key)) return defaultValue;
+            if (_properties.TryGetValue(key, out var val) && val != null) {
+                if (val is T typedVal) return typedVal;
+                if (typeof(T) == typeof(string)) return (T)(object)val.ToString();
+                try {
+                    var targetType = typeof(T);
+                    var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+                    return (T)Convert.ChangeType(val, underlyingType);
+                } catch {
+                    return defaultValue;
+                }
+            }
+            return defaultValue;
+        }
+
+        public void SetProperty(string key, object value) {
+            if (string.IsNullOrEmpty(key)) return;
+            _properties[key] = value;
+        }
+
+        public TaxonomyEntry() { }
+
+        public TaxonomyEntry(string name, JObject json) {
+            Name = name ?? "";
+            if (json == null) return;
+            foreach (var prop in json.Properties()) {
+                if (prop.Value is JValue jv) {
+                    _properties[prop.Name] = jv.Value;
+                } else if (prop.Value is JArray ja) {
+                    _properties[prop.Name] = ja.Select(t => t is JValue v ? v.Value : (object)t).ToList();
+                } else if (prop.Value is JObject jo) {
+                    _properties[prop.Name] = jo;
+                }
+            }
+            if (!_properties.ContainsKey("name")) {
+                _properties["name"] = Name;
+            }
+        }
+
+        public JToken ToJson() {
+            var json = new JObject();
+            foreach (var kvp in _properties) {
+                if (string.Equals(kvp.Key, "name", StringComparison.OrdinalIgnoreCase)) continue;
+                if (kvp.Value != null) {
+                    if (kvp.Value is IPropertyProvider) {
+                        json[kvp.Key] = kvp.Value.ToString();
+                    } else {
+                        json[kvp.Key] = JToken.FromObject(kvp.Value);
+                    }
+                }
+            }
+            return json;
+        }
+
+        public override string ToString() => Name;
+    }
+
     public class SubsystemDefinition : IJsonable {
         public string Id { get; set; } = "";
         public string Name { get; set; } = "";
@@ -249,7 +317,7 @@ namespace PlayMore35.Subsystems {
         public List<string> RequiredElementProperties { get; } = new List<string>();
         public Dictionary<string, List<string>> ElementStatistics { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         public LevelGatingDefinition LevelGating { get; set; } = null;
-        public Dictionary<string, MartialDiscipline> Disciplines { get; } = new Dictionary<string, MartialDiscipline>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Dictionary<string, TaxonomyEntry>> Taxonomies { get; } = new Dictionary<string, Dictionary<string, TaxonomyEntry>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
@@ -266,10 +334,16 @@ namespace PlayMore35.Subsystems {
                 LevelGating = new LevelGatingDefinition(lgObj);
             }
 
-            if (subJson["disciplines"] is JObject discObj) {
-                foreach (var prop in discObj.Properties()) {
-                    if (prop.Value is JObject dObj) {
-                        Disciplines[prop.Name] = new MartialDiscipline(prop.Name, dObj);
+            if (subJson["taxonomies"] is JObject taxObj) {
+                foreach (var taxProp in taxObj.Properties()) {
+                    if (taxProp.Value is JObject entriesObj) {
+                        var taxMap = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var entryProp in entriesObj.Properties()) {
+                            if (entryProp.Value is JObject entryJson) {
+                                taxMap[entryProp.Name] = new TaxonomyEntry(entryProp.Name, entryJson);
+                            }
+                        }
+                        Taxonomies[taxProp.Name] = taxMap;
                     }
                 }
             }
@@ -358,10 +432,14 @@ namespace PlayMore35.Subsystems {
                                     throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' statistic '{statProp}' must be numeric, but was '{val}'.");
                                 }
                             }
-                            if (Disciplines.Count > 0 && elem.Properties.TryGetValue("discipline", out var discVal) && discVal != null) {
-                                var discName = discVal.ToString();
-                                if (Disciplines.TryGetValue(discName, out var discDef)) {
-                                    elem.SetProperty("discipline", discDef);
+                            if (Taxonomies.Count > 0) {
+                                foreach (var taxKvp in Taxonomies) {
+                                    if (elem.Properties.TryGetValue(taxKvp.Key, out var propVal) && propVal != null) {
+                                        var entryName = propVal.ToString();
+                                        if (taxKvp.Value.TryGetValue(entryName, out var entryDef)) {
+                                            elem.SetProperty(taxKvp.Key, entryDef);
+                                        }
+                                    }
                                 }
                             }
                             Elements[elem.Name] = elem;
@@ -377,10 +455,16 @@ namespace PlayMore35.Subsystems {
                 new JProperty("name", Name)
             );
 
-            if (Disciplines.Count > 0) {
-                var discObj = new JObject();
-                foreach (var kvp in Disciplines) discObj[kvp.Key] = kvp.Value.ToJson();
-                subJson["disciplines"] = discObj;
+            if (Taxonomies.Count > 0) {
+                var taxObj = new JObject();
+                foreach (var taxKvp in Taxonomies) {
+                    var entriesObj = new JObject();
+                    foreach (var entryKvp in taxKvp.Value) {
+                        entriesObj[entryKvp.Key] = entryKvp.Value.ToJson();
+                    }
+                    taxObj[taxKvp.Key] = entriesObj;
+                }
+                subJson["taxonomies"] = taxObj;
             }
 
             if (SlotGroups.Count > 0) {

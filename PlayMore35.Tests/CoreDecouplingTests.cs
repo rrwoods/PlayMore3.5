@@ -150,6 +150,9 @@ namespace PlayMore35.Tests {
             CollectionAssert.DoesNotContain(assemblyTypes, "StanceSlot");
             CollectionAssert.DoesNotContain(assemblyTypes, "ManeuverState");
             CollectionAssert.DoesNotContain(assemblyTypes, "PactMagicEngine");
+            CollectionAssert.DoesNotContain(assemblyTypes, "Maneuver");
+            CollectionAssert.DoesNotContain(assemblyTypes, "MartialDiscipline");
+            CollectionAssert.DoesNotContain(assemblyTypes, "ManeuverType");
 
             Assert.AreEqual(0, typeof(SubsystemEngine).GetInterfaces().Length, "SubsystemEngine must not implement an ISubsystemEngine interface shim.");
             Assert.IsFalse(typeof(SubsystemRegistry).GetMethods(BindingFlags.Public | BindingFlags.Instance).Any(m => m.Name == "Get" && m.IsGenericMethod), "SubsystemRegistry must not expose a generic Get<T> method.");

@@ -11,7 +11,6 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
@@ -299,12 +298,12 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void MartialManeuverEngine_ResolvesCatalogFromContext_OnInit() {
-            var customManeuver = new Maneuver {
+            var customManeuver = new SubsystemElement {
                 Name = "Special Strike",
-                Discipline = "Iron Heart",
-                Level = 1,
-                Type = ManeuverType.Strike
+                Type = "Strike"
             };
+            customManeuver.SetProperty("discipline", "Iron Heart");
+            customManeuver.SetProperty("level", 1);
             var customCatalog = new FakeRulesCatalog(customManeuver);
 
             // Engine constructed with default catalog
@@ -401,36 +400,43 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void MartialDiscipline_CatalogAndProperties_CorrectlyConfigured() {
             var catalog = new GameRulesCatalog();
-            Assert.AreEqual(9, catalog.Disciplines.Count);
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martialDef);
+            Assert.IsTrue(martialDef.Taxonomies.ContainsKey("discipline"));
+            var disciplines = martialDef.Taxonomies["discipline"];
+            Assert.AreEqual(9, disciplines.Count);
 
-            var ironHeart = catalog.GetDiscipline("Iron Heart");
+            var ironHeart = disciplines["Iron Heart"];
             Assert.IsNotNull(ironHeart);
             Assert.AreEqual("Iron Heart", ironHeart.Name);
-            Assert.AreEqual("Balance", ironHeart.KeySkill);
-            CollectionAssert.Contains(ironHeart.Weapons.ToList(), "bastard sword");
+            Assert.AreEqual("Balance", ironHeart.GetProperty<string>("keySkill"));
+            var weapons = ironHeart.GetProperty<List<object>>("weapons")?.Select(x => x.ToString()).ToList();
+            Assert.IsNotNull(weapons);
+            CollectionAssert.Contains(weapons, "bastard sword");
 
             // Case-insensitive IPropertyProvider
             Assert.AreEqual("Iron Heart", ironHeart.Properties["name"]);
             Assert.AreEqual("Balance", ironHeart.Properties["keyskill"]);
             Assert.AreEqual("Balance", ironHeart.Properties["KEYSKILL"]);
-            Assert.AreEqual(ironHeart.Weapons, ironHeart.Properties["weapons"]);
         }
 
         [TestMethod]
         public void Maneuver_ImplementsIPropertyProvider_WithDisciplineObject() {
             var catalog = new GameRulesCatalog();
-            var steelWind = catalog.GetManeuver("Steel Wind");
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martialDef);
+            var steelWind = martialDef.Elements["Steel Wind"];
             Assert.IsNotNull(steelWind);
 
             var provider = steelWind as IPropertyProvider;
             Assert.IsNotNull(provider);
             Assert.AreEqual("Steel Wind", provider.Properties["name"]);
-            Assert.AreEqual(1, provider.Properties["level"]);
+            Assert.AreEqual(1, Convert.ToInt32(provider.Properties["level"]));
 
-            var discipline = provider.Properties["discipline"] as MartialDiscipline;
+            var discipline = provider.Properties["discipline"] as TaxonomyEntry;
             Assert.IsNotNull(discipline);
             Assert.AreEqual("Iron Heart", discipline.Name);
-            Assert.AreEqual("Balance", discipline.KeySkill);
+            Assert.AreEqual("Balance", discipline.GetProperty<string>("keySkill"));
         }
 
         [TestMethod]

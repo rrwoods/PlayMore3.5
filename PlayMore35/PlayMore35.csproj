@@ -114,8 +114,6 @@
     <Compile Include="Subsystems\SubsystemSlot.cs" />
     <Compile Include="Subsystems\SubsystemSlotGroup.cs" />
     <Compile Include="Subsystems\SubsystemState.cs" />
-    <Compile Include="Subsystems\Maneuvers\MartialDiscipline.cs" />
-    <Compile Include="Subsystems\Maneuvers\Maneuver.cs" />
     <Compile Include="UI\HpPanel.cs">
       <SubType>Component</SubType>
     </Compile>

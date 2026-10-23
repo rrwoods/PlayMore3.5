@@ -10,7 +10,6 @@ using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
@@ -161,13 +160,13 @@ namespace PlayMore35.Tests {
         public void ActiveStance_AffectingEquippedWeaponAttacks_RecalculatesRoutines() {
             var attackStanceEffect = new Effect("Stance of the Aggressor")
                 .AddAttackModifier(AttackMatcher.ALL, new Modifier(2, "morale"));
-            var testStance = new Maneuver {
+            var testStance = new SubsystemElement {
                 Name = "Stance of the Aggressor",
-                Discipline = "Iron Heart",
-                Level = 1,
-                Type = ManeuverType.Stance,
-                Effects = new List<Effect> { attackStanceEffect }
+                Type = "Stance"
             };
+            testStance.SetProperty("discipline", "Iron Heart");
+            testStance.SetProperty("level", 1);
+            testStance.AddEffect("benefits", attackStanceEffect);
             var customCatalog = new FakeRulesCatalog(new[] { testStance }, inner: catalog);
             var customEngine = new SubsystemEngine(customCatalog.GetSubsystem("martial_maneuvers"));
 

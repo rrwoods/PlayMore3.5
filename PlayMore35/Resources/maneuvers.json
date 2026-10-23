@@ -18,7 +18,8 @@
       "prerequisiteCount",
       "description"
     ],
-    "disciplines": {
+    "taxonomies": {
+      "discipline": {
       "Desert Wind": {
         "keySkill": "Tumble",
         "weapons": [
@@ -107,7 +108,8 @@
           "halberd"
         ]
       }
-    },
+    }
+  },
     "slot_groups": {
       "readied": {
         "capacity_stat": "maneuvers known:{source}",

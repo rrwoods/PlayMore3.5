@@ -9,7 +9,6 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Rules {
@@ -26,9 +25,7 @@ namespace PlayMore35.Rules {
         public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; private set; }
         public IReadOnlyDictionary<string, Item> Items { get; private set; }
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; private set; }
-        public IReadOnlyDictionary<string, Maneuver> Maneuvers { get; private set; }
         public IReadOnlyDictionary<string, Vestige> Vestiges { get; private set; }
-        public IReadOnlyDictionary<string, MartialDiscipline> Disciplines { get; private set; }
         public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; private set; }
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots { get; private set; }
@@ -68,8 +65,6 @@ namespace PlayMore35.Rules {
                 ArmorProperties = def.ArmorProperties;
                 Items = def.Items;
                 ExternalEffects = def.ExternalEffects;
-                Disciplines = def.Disciplines;
-                Maneuvers = def.Maneuvers;
                 Subsystems = def.Subsystems;
                 Vestiges = def.Vestiges;
                 return;
@@ -179,32 +174,14 @@ namespace PlayMore35.Rules {
                 .ToDictionary(x => x.Effect.Name);
             ExternalEffects = new ReadOnlyDictionary<string, ExternalEffect>(external);
 
-            // 10. Maneuvers, Vestiges, and Subsystems
+            // 10. Subsystems and Vestiges
             var subsystemsMap = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
-            var maneuvers = new Dictionary<string, Maneuver>(StringComparer.OrdinalIgnoreCase);
-            var disciplines = new Dictionary<string, MartialDiscipline>(StringComparer.OrdinalIgnoreCase);
             var maneuversToken = GetResource(Properties.Resources.maneuvers, "maneuvers.json");
 
             if (maneuversToken is JObject maneuversObj) {
                 var martialDef = new SubsystemDefinition(maneuversObj);
                 subsystemsMap[martialDef.Id] = martialDef;
-
-                foreach (var kvp in martialDef.Disciplines) {
-                    disciplines[kvp.Key] = kvp.Value;
-                }
-
-                if (maneuversObj["elements"] is JArray mElemArr) {
-                    foreach (var elemToken in mElemArr.OfType<JObject>()) {
-                        var m = new Maneuver(elemToken);
-                        if (disciplines.TryGetValue(m.Discipline, out var d)) {
-                            m.DisciplineDefinition = d;
-                        }
-                        maneuvers[m.Name] = m;
-                    }
-                }
             }
-            Disciplines = new ReadOnlyDictionary<string, MartialDiscipline>(disciplines);
-            Maneuvers = new ReadOnlyDictionary<string, Maneuver>(maneuvers);
 
             var vestiges = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
             var vestigesToken = GetResource(Properties.Resources.vestiges, "vestiges.json");
@@ -274,20 +251,13 @@ namespace PlayMore35.Rules {
 
         public ExternalEffect GetExternalEffect(string name) => FindEntity(ExternalEffects, name, x => x.Effect?.Name);
 
-        public Maneuver GetManeuver(string name) => FindEntity(Maneuvers, name, x => x.Name);
- 
         public Vestige GetVestige(string name) => FindEntity(Vestiges, name, x => x.Name);
 
-        public MartialDiscipline GetDiscipline(string name) => FindEntity(Disciplines, name, x => x.Name);
         public SubsystemDefinition GetSubsystem(string name) => (name != null && Subsystems.TryGetValue(name, out var s)) ? s : null;
 
         public object GetEntity(string type, string name) {
             if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(name)) return null;
             switch (type.ToLowerInvariant()) {
-                case "maneuver":
-                    return GetManeuver(name);
-                case "discipline":
-                    return GetDiscipline(name);
                 case "class":
                     return GetClass(name);
                 case "race":
@@ -310,9 +280,20 @@ namespace PlayMore35.Rules {
                     return GetVestige(name);
                 case "externaleffect":
                     return GetExternalEffect(name);
-                default:
-                    return null;
             }
+
+            if (Subsystems != null) {
+                foreach (var sub in Subsystems.Values) {
+                    if (sub.Taxonomies != null && sub.Taxonomies.TryGetValue(type, out var taxMap)) {
+                        if (taxMap.TryGetValue(name, out var entry)) return entry;
+                    }
+                    if (sub.Elements != null && sub.Elements.TryGetValue(name, out var elem)) {
+                        return elem;
+                    }
+                }
+            }
+
+            return null;
         }
 
         public string ResolveTemplate(string template, IReadOnlyDictionary<string, string> choices) =>

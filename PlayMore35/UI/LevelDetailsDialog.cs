@@ -359,7 +359,9 @@ namespace PlayMore35 {
                         if (matchedItem != null) {
                             elementBox.SelectedItem = matchedItem;
                         } else {
-                            var extraItem = new ChoiceItem($"[{session.Catalog.GetManeuver(saved)?.Discipline ?? "Unknown"}] {saved}", saved);
+                            var elem = session.Subsystems?.All.Select(sub => sub.GetElement(saved)).FirstOrDefault(e => e != null);
+                            string disc = elem?.GetProperty<string>("discipline") ?? "Unknown";
+                            var extraItem = new ChoiceItem($"[{disc}] {saved}", saved);
                             elementBox.Items.Add(extraItem);
                             elementBox.SelectedItem = extraItem;
                         }

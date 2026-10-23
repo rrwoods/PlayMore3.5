@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 
 namespace PlayMore35.Rules {
     public interface IRulesCatalog {
@@ -18,9 +17,7 @@ namespace PlayMore35.Rules {
         IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; }
         IReadOnlyDictionary<string, Item> Items { get; }
         IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; }
-        IReadOnlyDictionary<string, Maneuver> Maneuvers { get; }
         IReadOnlyDictionary<string, Vestige> Vestiges { get; }
-        IReadOnlyDictionary<string, MartialDiscipline> Disciplines { get; }
         IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; }
 
         Race GetRace(string name);
@@ -33,9 +30,7 @@ namespace PlayMore35.Rules {
         ArmorProperty GetArmorProperty(string name);
         Item GetItem(string name);
         ExternalEffect GetExternalEffect(string name);
-        Maneuver GetManeuver(string name);
         Vestige GetVestige(string name);
-        MartialDiscipline GetDiscipline(string name);
         SubsystemDefinition GetSubsystem(string name);
 
         object GetEntity(string type, string name);

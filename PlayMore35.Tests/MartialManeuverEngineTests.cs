@@ -8,24 +8,24 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
-using PlayMore35.Subsystems.Maneuvers;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Tests {
     [TestClass]
     public class MartialManeuverEngineTests {
 
-        private static Maneuver CreateManeuver(string name, string discipline, int level, ManeuverType type = ManeuverType.Strike, int prereqCount = 0) {
-            return new Maneuver {
+        private static SubsystemElement CreateManeuver(string name, string discipline, int level, string type = "Strike", int prereqCount = 0) {
+            var elem = new SubsystemElement {
                 Name = name,
-                Discipline = discipline,
-                Level = level,
-                Type = type,
-                PrerequisiteCount = prereqCount
+                Type = type
             };
+            elem.SetProperty("discipline", discipline);
+            elem.SetProperty("level", level);
+            elem.SetProperty("prerequisiteCount", prereqCount);
+            return elem;
         }
 
-        private static SubsystemEngine CreateMartialEngine(params Maneuver[] maneuvers) {
+        private static SubsystemEngine CreateMartialEngine(params SubsystemElement[] maneuvers) {
             var catalog = new FakeRulesCatalog(maneuvers);
             if (maneuvers == null || maneuvers.Length == 0) {
                 catalog.BuildMartialManeuversSubsystem();
@@ -161,20 +161,20 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Subsystems_Maneuvers_RejectsNonCanonicalJsonPropertiesWithoutFallback() {
-            // Maneuver: actionType is canonical, action is non-canonical fallback
+            // SubsystemElement: actionType is canonical, action is non-canonical fallback
             var badManeuverJson = new JObject(
                 new JProperty("name", "Test Strike"),
                 new JProperty("action", "standard")
             );
-            var maneuver = new Maneuver(badManeuverJson);
-            Assert.AreEqual("", maneuver.ActionType);
+            var maneuver = new SubsystemElement(badManeuverJson);
+            Assert.AreEqual("", maneuver.GetProperty<string>("actionType", ""));
 
             var canonicalManeuverJson = new JObject(
                 new JProperty("name", "Test Strike"),
                 new JProperty("actionType", "standard")
             );
-            var canManeuver = new Maneuver(canonicalManeuverJson);
-            Assert.AreEqual("standard", canManeuver.ActionType);
+            var canManeuver = new SubsystemElement(canonicalManeuverJson);
+            Assert.AreEqual("standard", canManeuver.GetProperty<string>("actionType"));
 
             // SubsystemSlot: element is canonical, name/maneuverName are non-canonical
             var badSlotJson = new JObject(new JProperty("maneuverName", "Steel Strike"));
@@ -242,7 +242,7 @@ namespace PlayMore35.Tests {
         public void SubsystemEngine_WiresCapacityAndLevelGating_ToCharacterStats() {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
             var m2 = CreateManeuver("Iron Heart Surge", "Iron Heart", 3);
-            var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
             var content = new FakeRulesCatalog(m1, m2, stance);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -285,7 +285,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateChoice_WarnsWhenDisciplinePrerequisitesNotMet() {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
-            var m2 = CreateManeuver("Disarming Strike", "Iron Heart", 2, ManeuverType.Strike, prereqCount: 1);
+            var m2 = CreateManeuver("Disarming Strike", "Iron Heart", 2, "Strike", prereqCount: 1);
             var content = new FakeRulesCatalog(m1, m2);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -307,8 +307,8 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 43-44
         [TestMethod]
         public void ValidateChoice_StancesCountTowardDisciplinePrerequisites() {
-            var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var m2 = CreateManeuver("Disarming Strike", "Iron Heart", 2, ManeuverType.Strike, prereqCount: 1);
+            var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
+            var m2 = CreateManeuver("Disarming Strike", "Iron Heart", 2, "Strike", prereqCount: 1);
             var content = new FakeRulesCatalog(stance, m2);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -656,9 +656,9 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 5, 38, 43
         [TestMethod]
         public void AdoptStance_SetsActive_AndClearsOtherStances_WhenDualStanceNotPermitted() {
-            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
-            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, "Stance");
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, "Stance");
             var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -695,8 +695,8 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 5, 23, 38, 43
         [TestMethod]
         public void AdoptStance_PreservesBothActiveStances_WhenActiveStancesIsTwo() {
-            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, "Stance");
             var content = new FakeRulesCatalog(stance1, stance2);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -719,9 +719,9 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 5, 23, 38, 40, 43
         [TestMethod]
         public void AdoptStance_CapsConcurrentActiveStancesAtTwo_UsingOldestFallback_WhenNoTargetSpecified() {
-            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
-            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, "Stance");
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, "Stance");
             var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -759,9 +759,9 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, p. 23
         [TestMethod]
         public void AdoptStance_WithExplicitReplacementTarget_ReplacesSpecifiedStance_WhenAtCapacity() {
-            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
-            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, "Stance");
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, "Stance");
             var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -789,9 +789,9 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, p. 23
         [TestMethod]
         public void AdoptStances_AdoptsBothStancesSimultaneously_ClearingPrevious() {
-            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
-            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, ManeuverType.Stance);
-            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, ManeuverType.Stance);
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
+            var stance2 = CreateManeuver("Blood in the Water", "Tiger Claw", 1, "Stance");
+            var stance3 = CreateManeuver("Hunter's Sense", "Tiger Claw", 1, "Stance");
             var content = new FakeRulesCatalog(stance1, stance2, stance3);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -817,7 +817,7 @@ namespace PlayMore35.Tests {
         // Source: ADR-0001
         [TestMethod]
         public void Validate_WarnsWhenActiveStancesExceedsCapacity() {
-            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance1 = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
             var content = new FakeRulesCatalog(stance1);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -841,13 +841,13 @@ namespace PlayMore35.Tests {
         public void ContributeEffects_ProjectsActiveStanceModifiers_AndIgnoresInactiveStances() {
             var stanceEffect = new Effect("Punishing Stance Effect")
                 .AddModifier("AC", new Modifier(-2, ModifierTypes.UNTYPED));
-            var stance = new Maneuver {
+            var stance = new SubsystemElement {
                 Name = "Punishing Stance",
-                Discipline = "Iron Heart",
-                Level = 1,
-                Type = ManeuverType.Stance,
-                Effects = new List<Effect> { stanceEffect }
+                Type = "Stance"
             };
+            stance.SetProperty("discipline", "Iron Heart");
+            stance.SetProperty("level", 1);
+            stance.AddEffect("benefits", stanceEffect);
             var content = new FakeRulesCatalog(stance);
 
             var context = new FakeCharacterContext(catalog: content);
@@ -876,15 +876,27 @@ namespace PlayMore35.Tests {
         public void ExpendVerb_SchedulesSheetActionForBoostAndCounter_AndExpiresOnTimelineAdvance() {
             var boostEffect = new Effect("Wind Stride Effect")
                 .AddModifier("Speed", new Modifier(10, ModifierTypes.ENHANCEMENT));
-            var boost = new Maneuver {
+            var boost = new SubsystemElement {
                 Name = "Wind Stride",
-                Discipline = "Desert Wind",
-                Level = 1,
-                Type = ManeuverType.Boost,
-                Effects = new List<Effect> { boostEffect }
+                Type = "Boost"
             };
-            var counter = CreateManeuver("Fire Riposte", "Desert Wind", 2, ManeuverType.Counter);
-            var strike = CreateManeuver("Steel Strike", "Iron Heart", 1, ManeuverType.Strike);
+            boost.SetProperty("discipline", "Desert Wind");
+            boost.SetProperty("level", 1);
+            boost.AddEffect("benefits", boostEffect);
+            boost.Verbs["execute"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "action",
+                    Action = new SheetAction { Name = "Wind Stride" }.Duration("1 round")
+                }
+            };
+            var counter = CreateManeuver("Fire Riposte", "Desert Wind", 2, "Counter");
+            counter.Verbs["execute"] = new List<SubsystemStep> {
+                new SubsystemStep {
+                    Type = "action",
+                    Action = new SheetAction { Name = "Fire Riposte" }.Duration("1 round")
+                }
+            };
+            var strike = CreateManeuver("Steel Strike", "Iron Heart", 1, "Strike");
             var content = new FakeRulesCatalog(boost, counter, strike);
 
             var character = new Character();
@@ -1075,7 +1087,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void AssignSlot_AndClearSlot_Readied_MutateSlotsCorrectly() {
-            var strike = CreateManeuver("Steel Wind", "Iron Heart", 1, ManeuverType.Strike);
+            var strike = CreateManeuver("Steel Wind", "Iron Heart", 1, "Strike");
             var content = new FakeRulesCatalog(strike);
             var context = new FakeCharacterContext(catalog: content);
             SetStat(context.Effects, "maneuvers known:warblade", 2);
@@ -1090,7 +1102,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void AssignSlot_AndClearSlot_Stances_MutateSlotsCorrectly() {
-            var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, ManeuverType.Stance);
+            var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
             var content = new FakeRulesCatalog(stance);
             var context = new FakeCharacterContext(catalog: content);
             SetStat(context.Effects, "stances known:warblade", 2);
