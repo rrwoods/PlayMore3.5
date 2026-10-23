@@ -8,8 +8,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features
 
-### Subsystem-projected effects shouldn't exist when they don't need to
-
 ### Martial Study while having martial adept levels (Tome of Battle p. 32)
 - A character with martial adept levels who takes Martial Study adds the learned maneuver to their maneuvers known for one of their martial adept classes.
 - A character who takes Martial Study and then later takes martial adept levels DOES NOT get to do this; the Martial Study maneuver remains a feat-sourced maneuver known (with no recovery method).
@@ -36,6 +34,8 @@ Features required for the author's primary active character, alongside immediate
 
 
 ### Level 7: Traditional Spellcasting
+- **Prerequisite**: Subsystem-projected effects/statistics shouldn't exist when they don't need to
+  - Once we add spellcasting, if every spell in the catalog projected its stats and effects at all times, we would have thousands of stats (because there are thousands of spells).  We need some way of only loading a stat or effect into memory when it's relevant to do so.  (this is a /wayfinder task, I don't have a design idea)
 - **[ODRIC 7] Vancian Spellcasting System**:
   - Support both prepared (Cleric, Wizard) and spontaneous (Sorcerer, Favored Soul) spellcasting.
   - Tracking spell slots per day by spell level, spells known/prepared, and casting consumption.
