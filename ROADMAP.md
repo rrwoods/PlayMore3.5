@@ -6,7 +6,14 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ---
 
-## Tier 0: Important and Immediate Consequences of Recently-Implemented Features
+## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
+
+### Subsystems should each own their UI, not MainForm.  (/wayfinder)
+- MainForm currently has literacy of the pact magic subsystem and uses it to render the Vestiges tab.
+- Instead, I would like the pact magic subsystem to own the content of Vestiges tab (and each subsystem in the future to own its own UI tab), but how do we make this happen now that subsystems are content-driven instead of code-driven?
+- Instead of having a fixed pagVestiges representing the Vestiges tab, we should iterate over each subsystem and make its tab from its content-driven UI definition.
+- In MainForm.UpdateSubsystemTabs, instead of checking specific subsystem keys, we should iterate over each subsystem and show its tab if it's active.  (For now we have no maneuvers UI defined; its tab can be blank.)
+- In addition to the dedicated subsystem tabs, each subsystem needs to define a composable panel for choosing elements.  That composable panel probably gets used on its tab, but it might also get used in other places, like (eventually) the level details dialog for e.g. Martial Study's maneuver choice (but not yet, we're not defining Maneuvers UI yet).  The Vestiges tab should leverage this for choosing a vestige to bind.
 
 ### Martial Study while having martial adept levels (Tome of Battle p. 32)
 - A character with martial adept levels who takes Martial Study adds the learned maneuver to their maneuvers known for one of their martial adept classes.
@@ -22,6 +29,13 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - Known maneuvers and stances is a build-time choice, and should be present in the level details view.  The player should be able to search for maneuvers there, and the text of what comes up should be sourced from docs/rules/content/maneuvers/\*.md.  While we're here, the "..." button that brings up the level details view should get a highlight of some sort whenever there's an unfilled choice for that level (like picking a maneuver known, or the weapon choice for Weapon Focus).
   - We will need to update the Martial Study and Martial Stance choices to use this UI as well.
 - Readied maneuvers and current stance is a play-time choice, and we need a new Maneuvers tab (like the Vestiges tab for pact magic).  We need to think A LOT about how to lay this out and what the interaction paradigms are.  The "maneuvers as cards" analogy is very good and we should use it.
+
+### First-class content tagging
+- Almost every piece of content that exists (classes, feats, subsystem elements, races, items, weapons, armor, properties) needs a "tags" property defined in the json, to be able to be referred to by various player choice vectors.  For example, when Martial Study asks the player to choose one of their "adept" classes, "adept" should be a tag on each of the three martial adept classes in classes.json.
+
+### Choices in the level details dialog should be able to filter on almost anything  (/wayfinder)
+- For example, the feat "Exotic Weapon Proficiency" currently defines its "choice" as "exotic weapon", and that choice list is hardcoded.  Instead, we should be able to say that its choice type is "weapon", and use a separate filter property on the choice to filter it down to weapons which have at least one AttackMode whose Proficiency is exotic.
+- Best I can think of here is to store the raw json alongside every instance, and use that for filtering, but this seems very icky.
 
 
 ---
@@ -210,7 +224,8 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
   - Multiline evade display (Darkstalker, Hide in Plain Sight).
   - Variable ActionResource recharge times (prompt for roll result).
   - Unscheduling actions (e.g. Expel Vestige unscheduling unbind actions).
-  - Dedicated Aura section (after Senses before Languages).
+  - Dedicated Aura section (after Senses before Languages). (What is this actually for, again?  Look through official sourcebooks for "Aura" lines in stat blocks, and evaluate whether this is actually needed, or if all the stuff they put here should be in other places.)
+  - There's an effect that says "can't run or charge", which is categorized as Movement.  But, the "charging" box under Atk Options is not grayed out.  Make a way for effects to "disable" toggles on the UI -- that is, gray them out; enable-don't-enforce.  Look for other effects that should probably do this.
 - **Character Building UX**:
   - Alternate Class Features (ACFs) support, replacing features or feature groups.
   - Use `TableLayoutPanel` and `FlowLayoutPanel` for class levels and feats layout.
