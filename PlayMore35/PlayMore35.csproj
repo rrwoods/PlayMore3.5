@@ -136,7 +136,6 @@
     <Compile Include="CharacterChoices\ReadOnlyCharacter.cs" />
     <Compile Include="CharacterChoices\GpTransaction.cs" />
     <Compile Include="CharacterChoices\XpSessionEntry.cs" />
-    <Compile Include="CharacterChoices\Vestige.cs" />
     <Compile Include="CharacterChoices\WeaponChoice.cs" />
     <Compile Include="CharacterChoices\AttackRoutine.cs" />
     <Compile Include="CharacterChoices\AttackRoutineEvaluator.cs" />

@@ -194,11 +194,15 @@ namespace PlayMore35.Tests {
             }
 
             // Assert all text categories loaded from vestiges.json exist in valid categories
-            foreach (var vestige in catalog.Vestiges.Values) {
-                foreach (var text in vestige.Influence.Text) {
-                    Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown vestige influence category: {text.Category}");
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            foreach (var vestige in pactDef.Elements.Values) {
+                foreach (var influence in vestige.GetEffects("influence")) {
+                    foreach (var text in influence.Text) {
+                        Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown vestige influence category: {text.Category}");
+                    }
                 }
-                foreach (var ability in vestige.Abilities) {
+                foreach (var ability in vestige.GetEffects("abilities")) {
                     foreach (var text in ability.Text) {
                         Assert.IsTrue(validCategories.Contains(text.Category), $"Unknown vestige ability category: {text.Category}");
                     }
@@ -237,63 +241,64 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void VestigesCatalog_InfluenceCategories_MatchSection0Requirements() {
             var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
 
-            var amon = catalog.GetVestige("Amon");
+            var amon = pactDef.Elements["Amon"];
             Assert.IsNotNull(amon);
-            Assert.AreEqual(CONDITION, amon.Influence.Text[0].Category);
+            Assert.AreEqual(CONDITION, amon.GetEffects("influence")[0].Text[0].Category);
 
-            var aym = catalog.GetVestige("Aym");
+            var aym = pactDef.Elements["Aym"];
             Assert.IsNotNull(aym);
-            Assert.AreEqual(SOCIAL, aym.Influence.Text[0].Category);
+            Assert.AreEqual(SOCIAL, aym.GetEffects("influence")[0].Text[0].Category);
 
-            var leraje = catalog.GetVestige("Leraje");
+            var leraje = pactDef.Elements["Leraje"];
             Assert.IsNotNull(leraje);
-            Assert.AreEqual(SOCIAL, leraje.Influence.Text[1].Category);
+            Assert.AreEqual(SOCIAL, leraje.GetEffects("influence")[0].Text[1].Category);
 
-            var naberius = catalog.GetVestige("Naberius");
+            var naberius = pactDef.Elements["Naberius"];
             Assert.IsNotNull(naberius);
-            Assert.AreEqual(SOCIAL, naberius.Influence.Text[0].Category);
+            Assert.AreEqual(SOCIAL, naberius.GetEffects("influence")[0].Text[0].Category);
 
-            var ronove = catalog.GetVestige("Ronove");
+            var ronove = pactDef.Elements["Ronove"];
             Assert.IsNotNull(ronove);
-            Assert.AreEqual(2, ronove.Influence.Text.Count);
-            Assert.AreEqual(SOCIAL, ronove.Influence.Text[0].Category);
-            Assert.AreEqual(CONDITION, ronove.Influence.Text[1].Category);
+            var ronoveInfluence = ronove.GetEffects("influence")[0];
+            Assert.AreEqual(2, ronoveInfluence.Text.Count);
+            Assert.AreEqual(SOCIAL, ronoveInfluence.Text[0].Category);
+            Assert.AreEqual(CONDITION, ronoveInfluence.Text[1].Category);
 
-            var haagenti = catalog.GetVestige("Haagenti");
+            var haagenti = pactDef.Elements["Haagenti"];
             Assert.IsNotNull(haagenti);
-            Assert.AreEqual(SOCIAL, haagenti.Influence.Text[0].Category);
+            Assert.AreEqual(SOCIAL, haagenti.GetEffects("influence")[0].Text[0].Category);
 
-            var malphas = catalog.GetVestige("Malphas");
+            var malphas = pactDef.Elements["Malphas"];
             Assert.IsNotNull(malphas);
-            Assert.AreEqual(SOCIAL, malphas.Influence.Text[0].Category);
+            Assert.AreEqual(SOCIAL, malphas.GetEffects("influence")[0].Text[0].Category);
         }
 
         // Source: Tome of Magic, pp. 16–50
         [TestMethod]
         public void GameRulesCatalog_LoadsVestiges_FromResources() {
             var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
 
-            Assert.IsNotNull(catalog.Vestiges, "Vestiges dictionary must be initialized.");
-            Assert.IsTrue(catalog.Vestiges.Count >= 9, $"Expected at least 9 vestiges, got {catalog.Vestiges.Count}");
+            Assert.IsNotNull(pactDef, "Pact magic subsystem must be initialized.");
+            Assert.IsNotNull(pactDef.Elements, "Vestiges dictionary must be initialized.");
+            Assert.IsTrue(pactDef.Elements.Count >= 9, $"Expected at least 9 vestiges, got {pactDef.Elements.Count}");
 
-            var amon = catalog.GetVestige("Amon");
-            Assert.IsNotNull(amon, "Amon should be present in catalog.");
+            Assert.IsTrue(pactDef.Elements.TryGetValue("Amon", out var amon), "Amon should be present in catalog.");
             Assert.AreEqual("Amon", amon.Name);
-            Assert.AreEqual(1, amon.Level);
-            Assert.AreEqual(20, amon.BindingDc);
-            Assert.IsNotNull(amon.Influence);
-            Assert.IsTrue(amon.Abilities.Count > 0, "Amon should have abilities.");
+            Assert.AreEqual(1, amon.GetProperty<int>("level"));
+            Assert.AreEqual(20, amon.GetProperty<int>("binding DC"));
+            Assert.IsTrue(amon.GetEffects("influence").Count > 0, "Amon should have influence.");
+            Assert.IsTrue(amon.GetEffects("abilities").Count > 0, "Amon should have abilities.");
 
-            // Case-insensitive lookup
-            var amonLower = catalog.GetVestige("amon");
-            Assert.IsNotNull(amonLower, "Vestige lookup should be case-insensitive.");
+            // Case-insensitive lookup via Dictionary
+            Assert.IsTrue(pactDef.Elements.TryGetValue("amon", out var amonLower), "Vestige lookup should be case-insensitive.");
             Assert.AreEqual("Amon", amonLower.Name);
 
             // Missing / null / empty
-            Assert.IsNull(catalog.GetVestige("NonExistentVestige"));
-            Assert.IsNull(catalog.GetVestige(null));
-            Assert.IsNull(catalog.GetVestige(""));
+            Assert.IsFalse(pactDef.Elements.ContainsKey("NonExistentVestige"));
         }
 
         [TestMethod]
@@ -335,8 +340,8 @@ namespace PlayMore35.Tests {
                     new JProperty("influence", new JArray(influence.ToJson()))
                 ))
             );
-            var customVestige = new Vestige(json);
-            var customCatalog = new FakeRulesCatalog(customVestige);
+            var customVestige = new SubsystemElement(json);
+            var customCatalog = new FakeRulesCatalog(vestiges: new[] { customVestige });
 
             // Engine constructed with default catalog
             var defaultCatalog = new GameRulesCatalog();

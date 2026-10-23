@@ -22,7 +22,6 @@ namespace PlayMore35.Tests {
         public Dictionary<string, ArmorProperty> ArmorPropertiesMap { get; } = new Dictionary<string, ArmorProperty>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, Item> ItemsMap { get; } = new Dictionary<string, Item>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, ExternalEffect> ExternalEffectsMap { get; } = new Dictionary<string, ExternalEffect>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, Vestige> VestigesMap { get; } = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, SubsystemDefinition> SubsystemsMap { get; } = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
 
         public IReadOnlyDictionary<string, Race> Races => RacesMap;
@@ -35,7 +34,6 @@ namespace PlayMore35.Tests {
         public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties => ArmorPropertiesMap;
         public IReadOnlyDictionary<string, Item> Items => ItemsMap;
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects => ExternalEffectsMap;
-        public IReadOnlyDictionary<string, Vestige> Vestiges => VestigesMap;
         public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems => SubsystemsMap;
 
         private readonly IRulesCatalog inner;
@@ -48,31 +46,19 @@ namespace PlayMore35.Tests {
         public JToken CoreRulesJson => inner?.CoreRulesJson ?? new JObject();
 
         public FakeRulesCatalog(params SubsystemElement[] maneuvers) : this(maneuvers, null, null) { }
-        public FakeRulesCatalog(params Vestige[] vestiges) : this((IEnumerable<SubsystemElement>)null, vestiges, null) { }
         public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers, IRulesCatalog inner) : this(maneuvers, null, inner) { }
-        public FakeRulesCatalog(IEnumerable<Vestige> vestiges, IRulesCatalog inner) : this((IEnumerable<SubsystemElement>)null, vestiges, inner) { }
 
-        public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers = null, IEnumerable<Vestige> vestiges = null, IRulesCatalog inner = null) {
+        public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers = null, IEnumerable<SubsystemElement> vestiges = null, IRulesCatalog inner = null) {
             this.inner = inner;
             if (inner != null) {
-                if (inner.Vestiges != null) {
-                    foreach (var kvp in inner.Vestiges) {
-                        VestigesMap[kvp.Key] = kvp.Value;
-                    }
-                }
                 if (inner.Subsystems != null) {
                     foreach (var kvp in inner.Subsystems) {
                         SubsystemsMap[kvp.Key] = kvp.Value;
                     }
                 }
             }
-            if (vestiges != null) {
-                foreach (var v in vestiges) {
-                    if (v?.Name != null) VestigesMap[v.Name] = v;
-                }
-            }
             if (!SubsystemsMap.ContainsKey("pact_magic") || vestiges != null) {
-                BuildPactMagicSubsystem();
+                BuildPactMagicSubsystem(vestiges);
             }
             if (!SubsystemsMap.ContainsKey("martial_maneuvers") || maneuvers != null) {
                 BuildMartialManeuversSubsystem(maneuvers);
@@ -199,7 +185,7 @@ namespace PlayMore35.Tests {
             }
         }
 
-        public void BuildPactMagicSubsystem() {
+        public void BuildPactMagicSubsystem(IEnumerable<SubsystemElement> vestiges = null) {
             var def = new SubsystemDefinition {
                 Id = "pact_magic",
                 Name = "Pact Magic"
@@ -252,20 +238,11 @@ namespace PlayMore35.Tests {
             def.Projections.Add(new EffectProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
             SubsystemsMap["pact_magic"] = def;
 
-            foreach (var v in VestigesMap.Values) {
-                if (v == null || string.IsNullOrEmpty(v.Name)) continue;
-                var elem = new SubsystemElement {
-                    Name = v.Name
-                };
-                elem.SetProperty("level", v.Level);
-                elem.SetProperty("binding DC", v.BindingDc);
-                if (v.Abilities != null) {
-                    foreach (var a in v.Abilities) elem.AddEffect("abilities", a);
+            if (vestiges != null) {
+                foreach (var elem in vestiges) {
+                    if (elem == null || string.IsNullOrEmpty(elem.Name)) continue;
+                    def.Elements[elem.Name] = elem;
                 }
-                if (v.Influence != null) {
-                    elem.AddEffect("influence", v.Influence);
-                }
-                def.Elements[elem.Name] = elem;
             }
         }
 
@@ -279,7 +256,6 @@ namespace PlayMore35.Tests {
         public ArmorProperty GetArmorProperty(string name) => (name != null && ArmorPropertiesMap.TryGetValue(name, out var val)) ? val : inner?.GetArmorProperty(name);
         public Item GetItem(string name) => (name != null && ItemsMap.TryGetValue(name, out var val)) ? val : inner?.GetItem(name);
         public ExternalEffect GetExternalEffect(string name) => (name != null && ExternalEffectsMap.TryGetValue(name, out var val)) ? val : inner?.GetExternalEffect(name);
-        public Vestige GetVestige(string name) => (name != null && VestigesMap.TryGetValue(name, out var val)) ? val : inner?.GetVestige(name);
         public SubsystemDefinition GetSubsystem(string name) => (name != null && SubsystemsMap.TryGetValue(name, out var val)) ? val : inner?.GetSubsystem(name);
 
         public void RegisterSubsystem(SubsystemDefinition def) {
@@ -436,8 +412,6 @@ namespace PlayMore35.Tests {
                     return GetWeaponProperty(name);
                 case "armorproperty":
                     return GetArmorProperty(name);
-                case "vestige":
-                    return GetVestige(name);
                 case "externaleffect":
                     return GetExternalEffect(name);
             }

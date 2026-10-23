@@ -15,10 +15,15 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class ControllerShrinkageAndIntegrationTests {
 
-        private static Vestige CreateTestVestige(string name, int level = 1, int dc = 15) {
+        private static SubsystemElement CreateTestVestige(string name, int level = 1, int dc = 15) {
             var ability = new Effect($"{name} Ability Effect")
                 .AddModifier("Armor Class", new Modifier(2, "competence"));
             var influence = new Effect($"{name} Influence Effect");
+            influence.Parameter = "defied";
+            influence.associatedAction.Add(
+                new SheetAction { Name = $"Defy {influence.Name}" }
+                    .AdjustParam(influence.ParameterName, 1)
+            );
             var json = new JObject(
                 new JProperty("name", name),
                 new JProperty("level", level),
@@ -28,7 +33,7 @@ namespace PlayMore35.Tests {
                     new JProperty("influence", new JArray(influence.ToJson()))
                 ))
             );
-            return new Vestige(json);
+            return new SubsystemElement(json);
         }
 
         [TestMethod]

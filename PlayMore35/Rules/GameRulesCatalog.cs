@@ -25,7 +25,6 @@ namespace PlayMore35.Rules {
         public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; private set; }
         public IReadOnlyDictionary<string, Item> Items { get; private set; }
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; private set; }
-        public IReadOnlyDictionary<string, Vestige> Vestiges { get; private set; }
         public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; private set; }
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots { get; private set; }
@@ -66,7 +65,6 @@ namespace PlayMore35.Rules {
                 Items = def.Items;
                 ExternalEffects = def.ExternalEffects;
                 Subsystems = def.Subsystems;
-                Vestiges = def.Vestiges;
                 return;
             }
 
@@ -174,7 +172,7 @@ namespace PlayMore35.Rules {
                 .ToDictionary(x => x.Effect.Name);
             ExternalEffects = new ReadOnlyDictionary<string, ExternalEffect>(external);
 
-            // 10. Subsystems and Vestiges
+            // 10. Subsystems
             var subsystemsMap = new Dictionary<string, SubsystemDefinition>(StringComparer.OrdinalIgnoreCase);
             var maneuversToken = GetResource(Properties.Resources.maneuvers, "maneuvers.json");
 
@@ -183,25 +181,14 @@ namespace PlayMore35.Rules {
                 subsystemsMap[martialDef.Id] = martialDef;
             }
 
-            var vestiges = new Dictionary<string, Vestige>(StringComparer.OrdinalIgnoreCase);
             var vestigesToken = GetResource(Properties.Resources.vestiges, "vestiges.json");
 
             if (vestigesToken is JObject vestigesObj) {
                 var pactDef = new SubsystemDefinition(vestigesObj);
                 subsystemsMap[pactDef.Id] = pactDef;
-
-                if (vestigesObj["elements"] is JArray elemArr) {
-                    foreach (var elemToken in elemArr) {
-                        if (elemToken is JObject elemObj) {
-                            var vestige = new Vestige(elemObj);
-                            vestiges[vestige.Name] = vestige;
-                        }
-                    }
-                }
             }
 
             Subsystems = new ReadOnlyDictionary<string, SubsystemDefinition>(subsystemsMap);
-            Vestiges = new ReadOnlyDictionary<string, Vestige>(vestiges);
         }
 
         private JToken GetResource(byte[] resource, string altFilename) {
@@ -251,8 +238,6 @@ namespace PlayMore35.Rules {
 
         public ExternalEffect GetExternalEffect(string name) => FindEntity(ExternalEffects, name, x => x.Effect?.Name);
 
-        public Vestige GetVestige(string name) => FindEntity(Vestiges, name, x => x.Name);
-
         public SubsystemDefinition GetSubsystem(string name) => (name != null && Subsystems.TryGetValue(name, out var s)) ? s : null;
 
         public object GetEntity(string type, string name) {
@@ -276,8 +261,6 @@ namespace PlayMore35.Rules {
                     return GetWeaponProperty(name);
                 case "armorproperty":
                     return GetArmorProperty(name);
-                case "vestige":
-                    return GetVestige(name);
                 case "externaleffect":
                     return GetExternalEffect(name);
             }

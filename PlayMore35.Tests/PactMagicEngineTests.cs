@@ -16,10 +16,15 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class PactMagicEngineTests {
 
-        private static Vestige CreateTestVestige(string name, int level = 1, int dc = 15) {
+        private static SubsystemElement CreateTestVestige(string name, int level = 1, int dc = 15) {
             var ability = new Effect($"{name} Granted Ability")
                 .AddModifier(STR_SCORE, new Modifier(2, "competence"));
             var influence = new Effect($"{name} Influence");
+            influence.Parameter = "defied";
+            influence.associatedAction.Add(
+                new SheetAction { Name = $"Defy {influence.Name}" }
+                    .AdjustParam(influence.ParameterName, 1)
+            );
             var json = new JObject(
                 new JProperty("name", name),
                 new JProperty("level", level),
@@ -29,7 +34,7 @@ namespace PlayMore35.Tests {
                     new JProperty("influence", new JArray(influence.ToJson()))
                 ))
             );
-            return new Vestige(json);
+            return new SubsystemElement(json);
         }
 
         private static void SetStat(EffectPool pool, string statName, int value) {
@@ -40,20 +45,22 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void Vestige_Influence_ConfiguredWithDefiedParameterAndAssociatedAction() {
-            var vestige = CreateTestVestige("Naberius", 1, 15);
+        public void PactMagic_CatalogInfluence_ContainsDefiedParameterAndAssociatedAction() {
+            var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            Assert.IsTrue(pactDef.Elements.ContainsKey("Naberius"));
 
-            Assert.AreEqual("defied", vestige.Influence.Parameter);
-            Assert.AreEqual(1, vestige.Influence.associatedAction.Count);
-            var expectedAction = new SheetAction { Name = "Defy Naberius Influence" }
-                .AdjustParam("Naberius Influence defied", 1);
-            Assert.IsTrue(vestige.Influence.associatedAction[0].Matches(expectedAction));
+            var naberius = pactDef.Elements["Naberius"];
+            var influences = naberius.GetEffects("influence");
+            Assert.AreEqual(1, influences.Count);
 
-            // Round-trip through ToJson/Vestige(JObject) does not duplicate associatedAction
-            var roundTripped = new Vestige((JObject)vestige.ToJson());
-            Assert.AreEqual("defied", roundTripped.Influence.Parameter);
-            Assert.AreEqual(1, roundTripped.Influence.associatedAction.Count);
-            Assert.IsTrue(roundTripped.Influence.associatedAction[0].Matches(expectedAction));
+            var influence = influences[0];
+            Assert.AreEqual("defied", influence.Parameter);
+            Assert.AreEqual(1, influence.associatedAction.Count);
+            var expectedAction = new SheetAction { Name = "Defy Naberius's influence" }
+                .AdjustParam("Naberius's influence defied", 1);
+            Assert.IsTrue(influence.associatedAction[0].Matches(expectedAction));
         }
 
         [TestMethod]
