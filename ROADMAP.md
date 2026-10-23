@@ -96,6 +96,12 @@ Anything in this tier that turns out not to be easy should be deferred.
   - Instead of "next round", have an "end turn" and "begin turn" button (round counters tick down at start of turn).
   - Highlight immediate actions when it's not the player's turn.
   - Using an immediate action consumes the *upcoming turn's swift action*.
+- **Better out-of-combat indication**:
+  - It's easy to forget to start combat before using up abilities.
+  - While not in combat, gray out every toggle and text effect that has an action resource.
+  - Consider a background color change for when you're in combat?
+- **Timeline UX**: (each of these is one separate task)
+  - The date isn't lined up with the text on the buttons...
 - **Chain of calculation**:
   - When hovering a stat on the stats page, highlight other stats it affects in one color and stats affecting it in another.  E.g., when hovering Wisdom modifier, highlight Listen and Spot in the first color and Wisdom score in the second color.
 - **Rounding out Pact Magic**: (each of these is one separate task)
@@ -109,9 +115,10 @@ Anything in this tier that turns out not to be easy should be deferred.
   - Fully document all of binder's statistics and class features.
   - Fully implement binder's class features.
   - Eliminate the "EBL for max vestige level" stat.  Implement a way for effects to be conditional on what downstream thing is being computed.  When "max vestige level" is downstream, Improved Binding adds 2 to "effective binder level".
-
 - **Encumbrance and Carrying Capacity visibility**:
   - Show the player what their weight limits are, and their current load category
+- **Miscellaneous**: (each of these is one separate task)
+  - Make "dmg" and "drn" headers for the ability damage and drain boxes
 
 ---
 
