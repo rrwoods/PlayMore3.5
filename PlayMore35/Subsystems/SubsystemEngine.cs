@@ -98,7 +98,7 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (context.Character?.classLevels != null && context.Catalog != null) {
+            if (context.Character != null && context.Catalog != null) {
                 foreach (var clsName in context.Character.classLevels.Distinct(StringComparer.OrdinalIgnoreCase)) {
                     if (context.Catalog.TryGetClass(clsName, out var cls) && cls.Subsystems != null && cls.Subsystems.ContainsKey(Id)) {
                         AddSource(cls.Name);
@@ -251,29 +251,25 @@ namespace PlayMore35.Subsystems {
             if (state == null) return;
             activeSlotOrder.Clear();
 
-            if (state.Slots != null) {
-                foreach (var kvp in state.Slots) {
-                    var group = GetSlotGroup(kvp.Key);
-                    if (group != null) {
-                        group.ClearAll();
-                        for (int i = 0; i < kvp.Value.Count; i++) {
-                            var s = kvp.Value[i];
-                            if (s != null) {
-                                var copy = new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot);
-                                group[i] = copy;
-                                if (string.Equals(copy.State, "active", StringComparison.OrdinalIgnoreCase)) {
-                                    activeSlotOrder.Add(copy);
-                                }
+            foreach (var kvp in state.Slots) {
+                var group = GetSlotGroup(kvp.Key);
+                if (group != null) {
+                    group.ClearAll();
+                    for (int i = 0; i < kvp.Value.Count; i++) {
+                        var s = kvp.Value[i];
+                        if (s != null) {
+                            var copy = new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot);
+                            group[i] = copy;
+                            if (string.Equals(copy.State, "active", StringComparison.OrdinalIgnoreCase)) {
+                                activeSlotOrder.Add(copy);
                             }
                         }
                     }
                 }
             }
 
-            if (state.Pools != null) {
-                foreach (var kvp in state.Pools) {
-                    poolValues[kvp.Key] = kvp.Value;
-                }
+            foreach (var kvp in state.Pools) {
+                poolValues[kvp.Key] = kvp.Value;
             }
         }
 
@@ -312,7 +308,7 @@ namespace PlayMore35.Subsystems {
         }
 
         public void SyncState() {
-            if (context?.Character?.Subsystems != null) {
+            if (context?.Character != null) {
                 context.Character.Subsystems[Id] = ExportState();
             }
         }
@@ -470,7 +466,7 @@ namespace PlayMore35.Subsystems {
                 foreach (var eff in effectList) {
                     if (!string.IsNullOrEmpty(eff.ParameterName)) {
                         string paramKey = eff.ParameterName;
-                        if (context?.Character?.paramValues != null) {
+                        if (context?.Character != null) {
                             context.Character.paramValues[paramKey] = 0;
                         }
                         if (context?.Effects?.controllableParameters != null &&
@@ -1001,13 +997,13 @@ namespace PlayMore35.Subsystems {
             if (context is ICharacterSession session && !string.IsNullOrEmpty(featSlot)) {
                 return session.ResolveFeatTargetSource(featSlot);
             }
-            if (context?.Character?.featChoices != null &&
+            if (context?.Character != null &&
                 !string.IsNullOrEmpty(featSlot) &&
                 context.Character.featChoices.TryGetValue($"{featSlot}:class", out var explicitClass) &&
                 !string.IsNullOrWhiteSpace(explicitClass)) {
                 return explicitClass;
             }
-            if (context?.Character?.classLevels != null && context?.Catalog != null) {
+            if (context?.Character != null && context?.Catalog != null) {
                 var adept = context.Character.classLevels.FirstOrDefault(c => {
                     return context.Catalog.TryGetClass(c, out var classDef) &&
                         classDef.Subsystems != null &&
@@ -1020,7 +1016,7 @@ namespace PlayMore35.Subsystems {
 
         public void ProjectFeatSlots() {
             var character = context?.Character;
-            if (character?.featChoices == null) return;
+            if (character == null) return;
             if (!slotGroups.ContainsKey("readied") && !slotGroups.ContainsKey("stances")) return;
 
             void ProjectGroup(string groupKey, string choiceSuffix) {
@@ -1284,7 +1280,7 @@ namespace PlayMore35.Subsystems {
         private int GetInitiatorLevelAtCharacterLevel(string source, int level) {
             if (string.IsNullOrWhiteSpace(source)) return 0;
             var character = context?.Character;
-            if (character?.classLevels == null) return 0;
+            if (character == null) return 0;
             int cappedLevel = Math.Min(level, character.classLevels.Count);
             if (cappedLevel <= 0) return 0;
             var classesAtLevel = character.classLevels.Take(cappedLevel).ToList();
@@ -1386,9 +1382,9 @@ namespace PlayMore35.Subsystems {
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var character = context?.Character;
             var session = context as ICharacterSession;
-            int totalLevels = character?.classLevels?.Count ?? 0;
+            int totalLevels = character?.classLevels.Count ?? 0;
             int levelCap = atCharacterLevel.HasValue && atCharacterLevel.Value > 0 ? Math.Min(atCharacterLevel.Value, totalLevels) : totalLevels;
-            var classesAtLevel = atCharacterLevel.HasValue && character?.classLevels != null && levelCap > 0
+            var classesAtLevel = atCharacterLevel.HasValue && character != null && levelCap > 0
                 ? character.classLevels.Take(levelCap).ToList()
                 : null;
 
@@ -1410,7 +1406,7 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (character?.feats != null && character.featChoices != null) {
+            if (character != null) {
                 foreach (var featKvp in character.feats) {
                     string slot = featKvp.Key;
                     if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(slot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;

@@ -33,7 +33,7 @@ namespace PlayMore35 {
             public ChoiceDescriptor WarningDescriptor;
             public Dictionary<string, Control> ChoiceControls = new Dictionary<string, Control>();
             public Dictionary<string, string> AutoResolvedChoices = new Dictionary<string, string>();
-            public bool IsMultiChoice => FeatDef != null && FeatDef.Choices != null && FeatDef.Choices.Any();
+            public bool IsMultiChoice => FeatDef != null && FeatDef.Choices.Any();
         }
 
         private class ChoiceItem {
@@ -198,7 +198,7 @@ namespace PlayMore35 {
                 UpdateWarnings();
                 return;
             }
-            if (featDef.Choices != null && featDef.Choices.Any()) {
+            if (featDef.Choices.Any()) {
                 PrepareDeclarativeChoices(featDef, featSlot, left);
                 return;
             }
@@ -419,7 +419,7 @@ namespace PlayMore35 {
                 }
 
                 var desc = state.WarningDescriptor;
-                if (desc == null && state.FeatDef?.Choices != null) {
+                if (desc == null && state.FeatDef != null) {
                     desc = state.FeatDef.Choices.FirstOrDefault(c => string.Equals(c.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase));
                 }
                 if (desc == null) {
@@ -487,7 +487,7 @@ namespace PlayMore35 {
         public Dictionary<string, string> GetFeatChoices() {
             var result = new Dictionary<string, string>();
             foreach (var state in slotChoiceStates.Values) {
-                if (state.FeatDef != null && state.FeatDef.Choices != null && state.FeatDef.Choices.Any()) {
+                if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
                     foreach (var desc in state.FeatDef.Choices) {
                         string val = "";
                         if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {

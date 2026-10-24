@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,28 +83,74 @@ namespace PlayMore35.CharacterChoices {
         }
 
         public Character(JObject json) {
-            name = (string)json["name"];
-            gender = (string)json["gender"];
-            alignment = (string)json["alignment"];
-            assignedAbilityScores = ((JObject)json["assigned"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
-            bonusLanguages = ((JArray)json["bonus languages"]).Select(x => (string)x).ToList();
-            race = (string)json["race"];
-            classLevels = ((JArray)json["classes"]).Select(x => (string)x).ToList();
-            abilityScoreIncrements = ((JObject)json["incremented"]).Properties()
-                .ToDictionary(x => int.Parse(x.Name), x => (string)x.Value);
-            rolledHitDice = ((JArray)json["hit die rolls"]).Select(x => (int)x).ToList();
-            skillRanks = ((JObject)json["skill ranks"]).Properties().ToDictionary(
-                skill => skill.Name,
-                skill => ((JArray)skill.Value).Select(ranks => (int)ranks).ToList()
-            );
-            feats = ((JObject)json["feats"]).Properties().ToDictionary(x => x.Name, x => (string)x.Value);
-            featChoices = ((JObject)json["feat choices"]).Properties().ToDictionary(x => x.Name, x => (string)x.Value);
-            transactions = ((JArray)json["transactions"]).Select(x => new GpTransaction((JObject)x)).OrderBy(t => t.GameTime).ThenBy(t => t.RealDate).ToList();
-            inventory = ((JObject)json["inventory"]).Properties()
-                .ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value));
-            equipped = new EquippedChoices((JObject)json["equipped"]);
-            sessions = ((JArray)json["sessions"]).Select(x => new XpSessionEntry((JObject)x)).OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList();
-            externalEffects = ((JArray)json["effects"]).Select(x => (string)x).ToList();
+            name = (string?)json["name"] ?? "";
+            gender = (string?)json["gender"] ?? "";
+            alignment = (string?)json["alignment"] ?? "";
+
+            assignedAbilityScores = json["assigned"] is JObject assignedObj
+                ? assignedObj.Properties().ToDictionary(x => x.Name, x => (int)x.Value)
+                : new Dictionary<string, int> {
+                    ["STR"] = 8,
+                    ["DEX"] = 8,
+                    ["CON"] = 8,
+                    ["INT"] = 8,
+                    ["WIS"] = 8,
+                    ["CHA"] = 8,
+                };
+
+            bonusLanguages = json["bonus languages"] is JArray bonusLangArr
+                ? bonusLangArr.Select(x => (string)x!).ToList()
+                : new List<string>();
+
+            race = (string?)json["race"] ?? "";
+
+            classLevels = json["classes"] is JArray classesArr
+                ? classesArr.Select(x => (string)x!).ToList()
+                : new List<string>();
+
+            abilityScoreIncrements = json["incremented"] is JObject incObj
+                ? incObj.Properties().ToDictionary(x => int.Parse(x.Name), x => (string)x.Value!)
+                : new Dictionary<int, string>();
+
+            rolledHitDice = json["hit die rolls"] is JArray hitDiceArr
+                ? hitDiceArr.Select(x => (int)x).ToList()
+                : new List<int>();
+
+            skillRanks = json["skill ranks"] is JObject skillsObj
+                ? skillsObj.Properties().ToDictionary(
+                    skill => skill.Name,
+                    skill => ((JArray)skill.Value).Select(ranks => (int)ranks).ToList()
+                )
+                : new Dictionary<string, List<int>>();
+
+            feats = json["feats"] is JObject featsObj
+                ? featsObj.Properties().ToDictionary(x => x.Name, x => (string)x.Value!)
+                : new Dictionary<string, string>();
+
+            featChoices = json["feat choices"] is JObject featChoicesObj
+                ? featChoicesObj.Properties().ToDictionary(x => x.Name, x => (string)x.Value!)
+                : new Dictionary<string, string>();
+
+            transactions = json["transactions"] is JArray transArr
+                ? transArr.Select(x => new GpTransaction((JObject)x)).OrderBy(t => t.GameTime).ThenBy(t => t.RealDate).ToList()
+                : new List<GpTransaction>();
+
+            inventory = json["inventory"] is JObject invObj
+                ? invObj.Properties().ToDictionary(x => x.Name, x => new InventoryLocation((JObject)x.Value))
+                : new Dictionary<string, InventoryLocation>();
+
+            equipped = json["equipped"] is JObject eqObj
+                ? new EquippedChoices(eqObj)
+                : new EquippedChoices();
+
+            sessions = json["sessions"] is JArray sessArr
+                ? sessArr.Select(x => new XpSessionEntry((JObject)x)).OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList()
+                : new List<XpSessionEntry>();
+
+            externalEffects = json["effects"] is JArray effArr
+                ? effArr.Select(x => (string)x!).ToList()
+                : new List<string>();
+
             Subsystems = new Dictionary<string, SubsystemState>(StringComparer.OrdinalIgnoreCase);
             if (json["subsystems"] is JObject subObj) {
                 foreach (var prop in subObj.Properties()) {
@@ -112,14 +159,24 @@ namespace PlayMore35.CharacterChoices {
                     }
                 }
             }
-            flagValues = ((JObject)json["flag values"]).Properties().ToDictionary(x => x.Name, x => (bool)x.Value);
-            paramValues = ((JObject)json["parameter values"]).Properties().ToDictionary(x => x.Name, x => (int)x.Value);
+
+            flagValues = json["flag values"] is JObject flagsObj
+                ? flagsObj.Properties().ToDictionary(x => x.Name, x => (bool)x.Value)
+                : new Dictionary<string, bool>();
+
+            paramValues = json["parameter values"] is JObject paramsObj
+                ? paramsObj.Properties().ToDictionary(x => x.Name, x => (int)x.Value)
+                : new Dictionary<string, int>();
+
             if (json["routine preferences"] is JObject prefObj) {
                 RoutinePreferences = new AttackRoutinePreferences(prefObj);
             } else {
                 RoutinePreferences = new AttackRoutinePreferences();
             }
-            Timeline = new Timeline((JObject)json["time"]);
+
+            Timeline = json["time"] is JObject timeObj
+                ? new Timeline(timeObj)
+                : new Timeline();
         }
 
         public Character() {

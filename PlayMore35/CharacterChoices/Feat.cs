@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 
@@ -77,6 +78,8 @@ namespace PlayMore35.CharacterChoices {
             json.AddList("stats", NewStats);
             return json;
         }
+
+        public Feat() { }
 
         public Feat(JObject json) {
             Benefit = new Effect((JObject)json["benefit"]);

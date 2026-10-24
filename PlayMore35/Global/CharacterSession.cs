@@ -244,7 +244,7 @@ namespace PlayMore35.Global {
                     choicesDict[kvp.Key] = kvp.Value;
                 }
 
-                if (featDef.Choices != null && featDef.Choices.Any()) {
+                if (featDef.Choices.Any()) {
                     foreach (var ch in featDef.Choices) {
                         object? val = ResolveFeatChoice(featSlot, ch);
                         if (val != null) {
