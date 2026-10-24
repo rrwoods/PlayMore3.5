@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Global {
     public class CharacterSession : ICharacterSession, ICharacterContext {
-        private Character character;
+        private readonly Character character;
         private readonly IReadOnlyCharacter readOnlyCharacter;
         private readonly IRulesCatalog catalog;
         private EffectPool effects;
@@ -24,14 +25,14 @@ namespace PlayMore35.Global {
         public IReadOnlyCharacter Character => readOnlyCharacter;
         public IReadOnlyDictionary<string, string> RememberedFeats => rememberedFeats;
         public IReadOnlyDictionary<string, string> RememberedFeatChoices => rememberedFeatChoices;
-        public Timeline Timeline => character?.Timeline;
+        public Timeline Timeline => character.Timeline;
         public IRulesCatalog Catalog => catalog;
         public SubsystemRegistry Subsystems => subsystems;
 
-        public string CreatureType => effects?.CreatureType ?? "";
-        public IReadOnlyList<string> SubTypes => (effects?.SubTypes ?? new List<string>()).AsReadOnly();
-        public decimal TotalWeight => equippedItems?.TotalWeight() ?? 0m;
-        public decimal EquippedWeight => equippedItems?.EquippedWeight() ?? 0m;
+        public string CreatureType => effects.CreatureType;
+        public IReadOnlyList<string> SubTypes => effects.SubTypes.AsReadOnly();
+        public decimal TotalWeight => equippedItems.TotalWeight();
+        public decimal EquippedWeight => equippedItems.EquippedWeight();
         public int LightLoad => GetStatistic(LIGHT_LOAD).Value;
         public int MediumLoad => GetStatistic(MEDIUM_LOAD).Value;
         public int HeavyLoad => GetStatistic(HEAVY_LOAD).Value;
@@ -48,17 +49,18 @@ namespace PlayMore35.Global {
         List<AttackRoutine> ICharacterContext.GetVisibleRoutines() => GetVisibleRoutines().ToList();
 
         public CharacterSession(Character character, IRulesCatalog catalog) {
-            this.catalog = catalog ?? new GameRulesCatalog();
-            this.character = character ?? new Character();
+            this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+            this.character = character ?? throw new ArgumentNullException(nameof(character));
             this.readOnlyCharacter = new ReadOnlyCharacter(this.character);
 
-            if (this.character.Timeline != null) {
-                this.character.Timeline.Context = this;
-            }
+            this.character.Timeline.Context = this;
 
-            if (this.catalog?.Subsystems != null) {
+            equippedItems = new Equipped();
+            effects = new EffectPool(this.character);
+
+            if (this.catalog.Subsystems != null) {
                 foreach (var subDef in this.catalog.Subsystems.Values) {
-                    string alias = subDef.Id == "pact_magic" ? "vestige" : (subDef.Id == "martial_maneuvers" ? "maneuver" : null);
+                    string? alias = subDef.Id == "pact_magic" ? "vestige" : (subDef.Id == "martial_maneuvers" ? "maneuver" : null);
                     subsystems.Register(new SubsystemEngine(subDef), alias);
                 }
             }
@@ -77,11 +79,9 @@ namespace PlayMore35.Global {
         }
 
         public void Mutate(Action<Character> mutate) {
-            if (mutate == null) return;
+            if (mutate == null) throw new ArgumentNullException(nameof(mutate));
             mutate(character);
-            if (character.Timeline != null) {
-                character.Timeline.Context = this;
-            }
+            character.Timeline.Context = this;
             Recalculate();
         }
 
@@ -89,7 +89,7 @@ namespace PlayMore35.Global {
             [-4] = 0.1m, [-3] = 0.1m, [-2] = 0.1m, [-1] = 0.5m, [0] = 1, [1] = 2, [2] = 5, [3] = 8, [4] = 12
         };
 
-        private Weapon WeaponFromChoice(WeaponChoice choice) {
+        private Weapon? WeaponFromChoice(WeaponChoice? choice) {
             if (choice == null) return null;
             var baseWeapon = catalog.GetWeapon(choice.Name);
             if (baseWeapon == null) return null;
@@ -118,7 +118,7 @@ namespace PlayMore35.Global {
             return weapon;
         }
 
-        private Armor ArmorFromChoice(ArmorChoice choice) {
+        private Armor? ArmorFromChoice(ArmorChoice? choice) {
             if (choice == null) return null;
             var baseArmor = catalog.GetArmor(choice.Name);
             if (baseArmor == null) return null;
@@ -144,7 +144,7 @@ namespace PlayMore35.Global {
             return armor;
         }
 
-        private Shield ShieldFromChoice(ArmorChoice choice) {
+        private Shield? ShieldFromChoice(ArmorChoice? choice) {
             if (choice == null) return null;
             var baseShield = catalog.GetShield(choice.Name);
             if (baseShield == null) return null;
@@ -181,12 +181,10 @@ namespace PlayMore35.Global {
         }
 
         private void ComputeWeight() {
-            if (equippedItems != null) {
-                equippedItems.UnequippedWeight = character.inventory.Values
-                    .Where(x => x.weighs)
-                    .Select(x => WeightAtLocation(x))
-                    .Sum();
-            }
+            equippedItems.UnequippedWeight = character.inventory.Values
+                .Where(x => x.weighs)
+                .Select(x => WeightAtLocation(x))
+                .Sum();
         }
 
         public void Recalculate() {
@@ -235,7 +233,7 @@ namespace PlayMore35.Global {
 
                     if (featDef.Choices != null && featDef.Choices.Any()) {
                         foreach (var ch in featDef.Choices) {
-                            object val = ResolveFeatChoice(featSlot, ch);
+                            object? val = ResolveFeatChoice(featSlot, ch);
                             if (val != null) {
                                 string strVal = val.ToString();
                                 if (!string.IsNullOrEmpty(strVal)) {
@@ -490,7 +488,7 @@ namespace PlayMore35.Global {
 
             character.inventory[from].shields.Remove(shieldChoice);
             character.equipped.OffHandShield = shieldChoice;
-            Shield shield = ShieldFromChoice(shieldChoice);
+            Shield? shield = ShieldFromChoice(shieldChoice);
             if (shield != null && shield.AttackRollPenalty == null) {
                 UnequipWeapon(from, false);
             }
@@ -508,7 +506,7 @@ namespace PlayMore35.Global {
                 character.equipped.SlotlessItems.Add(itemName);
                 RemoveItem(from, itemName, 1);
             } else {
-                string previouslyEquipped = character.equipped.SlottedItems.ContainsKey(to)
+                string? previouslyEquipped = character.equipped.SlottedItems.ContainsKey(to)
                     ? character.equipped.SlottedItems[to]
                     : null;
                 character.equipped.SlottedItems[to] = itemName;
@@ -620,7 +618,7 @@ namespace PlayMore35.Global {
                     }
                 }
             }
-            if (effects?.featSlots != null) {
+            if (effects.featSlots != null) {
                 foreach (var feat in effects.featSlots) {
                     if (feat.Value <= level) {
                         AddFeatSlot(feats, feat.Key, feat.Value);
@@ -647,8 +645,6 @@ namespace PlayMore35.Global {
             choiceKey.StartsWith(slot + ":", StringComparison.OrdinalIgnoreCase);
 
         private void ReconcileFeats() {
-            if (character == null) return;
-
             var activeSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var levelSlots in GetFeatSlots().Values) {
                 foreach (var slot in levelSlots) {
@@ -757,13 +753,13 @@ namespace PlayMore35.Global {
             return adeptClasses[0];
         }
 
-        public object ResolveFeatChoice(string featSlot, ChoiceDescriptor descriptor) {
+        public object? ResolveFeatChoice(string featSlot, ChoiceDescriptor descriptor) {
             if (descriptor == null) return null;
             if (string.Equals(descriptor.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
                 return ResolveClassChoice(featSlot, descriptor);
             }
 
-            string rawChoice = null;
+            string? rawChoice = null;
             string choiceKey = descriptor.Id;
             if (!string.IsNullOrEmpty(choiceKey) &&
                 character.featChoices.TryGetValue($"{featSlot}:{choiceKey}", out var val) &&
@@ -779,11 +775,9 @@ namespace PlayMore35.Global {
             if (string.IsNullOrEmpty(rawChoice)) return null;
 
             if (string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                if (subsystems != null) {
-                    foreach (var engine in subsystems.All) {
-                        var elem = engine.GetElement(rawChoice, this);
-                        if (elem != null) return elem;
-                    }
+                foreach (var engine in subsystems.All) {
+                    var elem = engine.GetElement(rawChoice!, this);
+                    if (elem != null) return elem;
                 }
             }
 
@@ -818,19 +812,19 @@ namespace PlayMore35.Global {
             return cls != null && cls.Subsystems.ContainsKey("martial_maneuvers");
         }
 
-        public bool IsClassEligible(string className, string filter) {
+        public bool IsClassEligible(string className, string? filter) {
             if (string.IsNullOrEmpty(filter)) return true;
             if (string.Equals(filter, "Adept", StringComparison.OrdinalIgnoreCase)) {
                 return IsAdeptClass(className);
             }
             var cls = catalog.GetClass(className);
-            if (cls != null && cls.Subsystems.ContainsKey(filter)) {
+            if (cls != null && cls.Subsystems.ContainsKey(filter!)) {
                 return true;
             }
             return string.Equals(className, filter, StringComparison.OrdinalIgnoreCase);
         }
 
-        public IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string filter = null) {
+        public IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string? filter = null) {
             int cappedLevel = Math.Min(level, character.classLevels.Count);
             if (cappedLevel <= 0) return new List<string>().AsReadOnly();
             var candidateClasses = character.classLevels
@@ -861,7 +855,7 @@ namespace PlayMore35.Global {
             Recalculate();
         }
 
-        public string GetFeatChoice(string featSlot, string key = null) {
+        public string GetFeatChoice(string featSlot, string? key = null) {
             if (string.IsNullOrEmpty(key)) {
                 return character.featChoices.TryGetValue(featSlot, out var choice) ? choice : "";
             }
@@ -870,23 +864,21 @@ namespace PlayMore35.Global {
 
         public IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource) {
             if (string.Equals(domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                if (subsystems != null) {
-                    foreach (var engine in subsystems.All) {
-                        var elements = engine.GetAccessibleElements(filter, targetSource);
-                        if (elements != null && elements.Count > 0) {
-                            return elements;
-                        }
+                foreach (var engine in subsystems.All) {
+                    var elements = engine.GetAccessibleElements(filter, targetSource);
+                    if (elements != null && elements.Count > 0) {
+                        return elements;
                     }
                 }
             }
             if (!string.IsNullOrEmpty(filter)) {
-                var filterChoices = catalog?.ChoicesForKey(filter)?.ToList();
+                var filterChoices = catalog.ChoicesForKey(filter)?.ToList();
                 if (filterChoices != null && filterChoices.Count > 0) {
                     return filterChoices.AsReadOnly();
                 }
             }
             if (!string.IsNullOrEmpty(domain)) {
-                var domainChoices = catalog?.ChoicesForKey(domain)?.ToList();
+                var domainChoices = catalog.ChoicesForKey(domain)?.ToList();
                 if (domainChoices != null && domainChoices.Count > 0) {
                     return domainChoices.AsReadOnly();
                 }
@@ -894,33 +886,40 @@ namespace PlayMore35.Global {
             return new List<string>().AsReadOnly();
         }
 
-        public List<string> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) {
+        public List<string> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices = null) {
             if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
                 return new List<string>();
             }
             var allWarnings = new List<string>();
-            if (subsystems != null) {
-                foreach (var engine in subsystems.All) {
-                    var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
-                    if (warnings != null && warnings.Count > 0) {
-                        allWarnings.AddRange(warnings);
-                    }
+            foreach (var engine in subsystems.All) {
+                var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+                if (warnings != null && warnings.Count > 0) {
+                    allWarnings.AddRange(warnings);
                 }
             }
             return allWarnings;
         }
 
+        private Race GetRequiredRace() {
+            var race = catalog.GetRace(character.race);
+            if (race == null) {
+                throw new InvalidOperationException($"Race '{character.race}' was not found in the rules catalog.");
+            }
+            return race;
+        }
+
         public int GetSizeCategory() {
-            return catalog.GetRace(character.race)?.SizeCategory ?? 0;
+            return GetRequiredRace().SizeCategory;
         }
 
         public int GetStartingIntelligence() {
-            return character.assignedAbilityScores[INT] + (catalog.GetRace(character.race)?.Int ?? 0);
+            return character.assignedAbilityScores[INT] + GetRequiredRace().Int;
         }
 
         public int BaseHp() {
+            var race = GetRequiredRace();
             int conScore = character.assignedAbilityScores[CON] +
-                (catalog.GetRace(character.race)?.Con ?? 0) +
+                race.Con +
                 character.abilityScoreIncrements.Values.Where(x => x == "CON").Count();
             int conMod = (conScore / 2) - 5;
             int hp = 0;
@@ -949,7 +948,7 @@ namespace PlayMore35.Global {
                     return true;
                 }
             }
-            if (effects != null && effects.HasGrantedClassSkill(skill, levelIndex)) {
+            if (effects.HasGrantedClassSkill(skill, levelIndex)) {
                 return true;
             }
             return false;
@@ -1007,10 +1006,10 @@ namespace PlayMore35.Global {
         }
 
         public bool HasFlag(string flag) {
-            return effects?.HasFlag(flag, equippedItems) ?? false;
+            return effects.HasFlag(flag, equippedItems);
         }
 
-        public TimelineRefreshRequirement PerformAction(SheetAction action) {
+        public TimelineRefreshRequirement PerformAction(SheetAction? action) {
             if (action == null) return TimelineRefreshRequirement.None;
             var req = action.Perform(this);
             if (req == TimelineRefreshRequirement.FullReload) {
@@ -1020,22 +1019,21 @@ namespace PlayMore35.Global {
         }
 
         public StatView GetStatistic(string name) {
-            return effects?.GetStatistic(name, equippedItems) ?? new StatView(name ?? "", 0);
+            return effects.GetStatistic(name, equippedItems);
         }
 
         public int GetStatValue(string name, int defaultValue = 0) {
-            return effects?.GetStatValue(name, equippedItems, defaultValue) ?? defaultValue;
+            return effects.GetStatValue(name, equippedItems, defaultValue);
         }
 
         public bool IsStatRelevant(string name) {
-            if (effects != null && effects.stats.TryGetValue(name, out var stat)) {
+            if (effects.stats.TryGetValue(name, out var stat)) {
                 return stat.Relevant(effects, equippedItems);
             }
             return false;
         }
 
         public IEnumerable<StatView> GetRelevantStats(string tag) {
-            if (effects == null) return Enumerable.Empty<StatView>();
             return effects.RelevantStatsWithTag(tag, equippedItems).Select(s => {
                 var (val, expl) = s.GetValue(effects, equippedItems);
                 return new StatView(s.Name, val, expl.AsReadOnly());
@@ -1043,7 +1041,6 @@ namespace PlayMore35.Global {
         }
 
         public IEnumerable<ToggleView> GetControllableFlags() {
-            if (effects == null) return Enumerable.Empty<ToggleView>();
             return effects.controllableFlags.Values.Select(f =>
                 new ToggleView(
                     f.Name,
@@ -1057,7 +1054,6 @@ namespace PlayMore35.Global {
         }
 
         public IEnumerable<ParamView> GetControllableParameters() {
-            if (effects == null) return Enumerable.Empty<ParamView>();
             return effects.controllableParameters.Values.Select(p =>
                 new ParamView(
                     p.Name,
@@ -1069,28 +1065,26 @@ namespace PlayMore35.Global {
         }
 
         public IReadOnlyList<AttackRoutine> GetAllRoutines() {
-            if (effects == null || equippedItems == null) return new List<AttackRoutine>().AsReadOnly();
             int sizeChange = effects.stats[SIZE_CATEGORY].GetValue(effects, equippedItems).value - normalSizeCategory;
             return AttackRoutineEvaluator.EvaluateRoutines(effects, equippedItems, sizeChange).AsReadOnly();
         }
 
         public IReadOnlyList<AttackRoutine> GetVisibleRoutines() {
             var all = GetAllRoutines();
-            var prefs = character?.RoutinePreferences ?? new AttackRoutinePreferences();
+            var prefs = character.RoutinePreferences;
             return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList().AsReadOnly();
         }
 
         public Dictionary<string, List<Text>> GetTextEffects() {
-            return effects?.GetTextEffects(equippedItems) ?? new Dictionary<string, List<Text>>();
+            return effects.GetTextEffects(equippedItems);
         }
 
-        public TimelineAdvanceResult AdvanceTimeline(LengthOfTime duration) {
+        public TimelineAdvanceResult AdvanceTimeline(LengthOfTime? duration) {
             if (duration == null) return new TimelineAdvanceResult();
             return AdvanceTimeline(duration.InRounds());
         }
 
         public TimelineAdvanceResult AdvanceTimeline(long rounds) {
-            if (character.Timeline == null) return new TimelineAdvanceResult();
             character.Timeline.Context = this;
             var result = character.Timeline.Advance(rounds, this);
             Recalculate();
@@ -1098,7 +1092,6 @@ namespace PlayMore35.Global {
         }
 
         public TimelineAdvanceResult SetTime(DateTime time) {
-            if (character.Timeline == null) return new TimelineAdvanceResult();
             character.Timeline.Context = this;
             var result = character.Timeline.SetTime(time, this);
             Recalculate();
@@ -1106,7 +1099,6 @@ namespace PlayMore35.Global {
         }
 
         public TimelineAdvanceResult StartCombat() {
-            if (character.Timeline == null) return new TimelineAdvanceResult();
             character.Timeline.Context = this;
             var result = character.Timeline.StartCombat(this);
             Recalculate();
@@ -1114,7 +1106,6 @@ namespace PlayMore35.Global {
         }
 
         public TimelineAdvanceResult EndCombat() {
-            if (character.Timeline == null) return new TimelineAdvanceResult();
             character.Timeline.Context = this;
             var result = character.Timeline.EndCombat(this);
             return result;

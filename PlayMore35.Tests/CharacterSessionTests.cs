@@ -331,5 +331,48 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(12, session.GetStatistic(Constants.STR_SCORE).Value);
             Assert.AreEqual(10, session.GetStatistic(Constants.DEX_SCORE).Value);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CharacterSession_Constructor_ThrowsArgumentNullException_WhenCharacterIsNull() {
+            new CharacterSession(null, catalog);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CharacterSession_Constructor_ThrowsArgumentNullException_WhenCatalogIsNull() {
+            new CharacterSession(new Character(), null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CharacterSession_Mutate_ThrowsArgumentNullException_WhenMutateActionIsNull() {
+            var session = new CharacterSession(new Character(), catalog);
+            session.Mutate(null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void CharacterSession_GetStartingIntelligence_Throws_WhenRaceNotFoundInCatalog() {
+            var character = new Character { race = "NonExistentRace" };
+            var session = new CharacterSession(character, catalog);
+            session.GetStartingIntelligence();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void CharacterSession_GetSizeCategory_Throws_WhenRaceNotFoundInCatalog() {
+            var character = new Character { race = "NonExistentRace" };
+            var session = new CharacterSession(character, catalog);
+            session.GetSizeCategory();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void CharacterSession_BaseHp_Throws_WhenRaceNotFoundInCatalog() {
+            var character = new Character { race = "NonExistentRace" };
+            var session = new CharacterSession(character, catalog);
+            session.BaseHp();
+        }
     }
 }
