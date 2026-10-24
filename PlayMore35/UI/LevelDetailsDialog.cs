@@ -194,13 +194,16 @@ namespace PlayMore35 {
                 return;
             }
 
-            var featDef = session.Catalog.GetFeat(featName);
-            if (featDef?.Choices != null && featDef.Choices.Any()) {
+            if (!session.Catalog.TryGetFeat(featName, out var featDef)) {
+                UpdateWarnings();
+                return;
+            }
+            if (featDef.Choices != null && featDef.Choices.Any()) {
                 PrepareDeclarativeChoices(featDef, featSlot, left);
                 return;
             }
 
-            string choiceDescription = featDef?.ChoiceDescription ?? "";
+            string choiceDescription = featDef.ChoiceDescription ?? "";
             if (!choiceDescription.Any()) {
                 UpdateWarnings();
                 return;
@@ -454,7 +457,10 @@ namespace PlayMore35 {
         }
 
         public void SelectClass(object sender, EventArgs e) {
-            session.Mutate(c => c.classLevels[levelIndex] = cboClass.Text);
+            string selected = cboClass.Text;
+            if (!string.IsNullOrWhiteSpace(selected)) {
+                session.Mutate(c => c.classLevels[levelIndex] = selected);
+            }
             PrepareFeats();
         }
 
@@ -514,7 +520,10 @@ namespace PlayMore35 {
 
         public void SaveChanges() {
             session.Mutate(c => {
-                c.classLevels[levelIndex] = GetClass();
+                string selectedClass = GetClass();
+                if (!string.IsNullOrWhiteSpace(selectedClass)) {
+                    c.classLevels[levelIndex] = selectedClass;
+                }
                 foreach (var feat in GetFeats()) {
                     c.feats[feat.Key] = feat.Value;
                 }

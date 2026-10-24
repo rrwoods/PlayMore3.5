@@ -10,12 +10,10 @@ namespace PlayMore35.Subsystems {
             var registry = new SubsystemRegistry();
             var catalog = new Rules.GameRulesCatalog();
             var effectiveContext = context ?? new CharacterSession(new Character(), catalog);
-            var pactDef = catalog.GetSubsystem("pact_magic");
-            if (pactDef != null) {
+            if (catalog.TryGetSubsystem("pact_magic", out var pactDef)) {
                 registry.Register(new SubsystemEngine(pactDef, effectiveContext), "vestige");
             }
-            var martialDef = catalog.GetSubsystem("martial_maneuvers");
-            if (martialDef != null) {
+            if (catalog.TryGetSubsystem("martial_maneuvers", out var martialDef)) {
                 registry.Register(new SubsystemEngine(martialDef, effectiveContext), "maneuver");
             }
             return registry;

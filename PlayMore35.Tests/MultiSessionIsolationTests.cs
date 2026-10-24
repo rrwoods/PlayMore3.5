@@ -29,7 +29,7 @@ namespace PlayMore35.Tests {
             character1.assignedAbilityScores["STR"] = 16;
             character1.assignedAbilityScores["DEX"] = 12;
 
-            var character2 = new Character { name = "Monster B", race = "orc" };
+            var character2 = new Character { name = "Monster B", race = "half-orc" };
             character2.classLevels.Add("Barbarian");
             character2.assignedAbilityScores["STR"] = 18;
             character2.assignedAbilityScores["DEX"] = 14;
@@ -43,7 +43,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Fighter A", session1.Character.name);
             Assert.AreEqual("Monster B", session2.Character.name);
             Assert.AreEqual(16, session1.GetStatistic(Constants.STR_SCORE).Value);
-            Assert.AreEqual(18, session2.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(20, session2.GetStatistic(Constants.STR_SCORE).Value); // 18 + 2 half-orc racial
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace PlayMore35.Tests {
 
             var character2 = new Character { name = "Sidekick" };
             character2.classLevels.Clear();
-            character2.classLevels.Add("Rogue");
+            character2.classLevels.Add("Barbarian");
             character2.inventory["Pack"] = new InventoryLocation();
 
             var session1 = new CharacterSession(character1, catalog);
@@ -85,7 +85,7 @@ namespace PlayMore35.Tests {
             // Verify session 2 remains completely pristine and unaffected
             Assert.AreEqual(8, session2.GetStatistic(Constants.STR_SCORE).Value);
             Assert.AreEqual(1, session2.Character.classLevels.Count);
-            Assert.AreEqual("Rogue", session2.Character.classLevels[0]);
+            Assert.AreEqual("Barbarian", session2.Character.classLevels[0]);
             Assert.IsFalse(session2.Character.RoutinePreferences.IsCategoryVisible(RoutineCategory.ArmorSpikesTWF));
             Assert.IsNull(session2.Character.equipped.PrimaryHandWeapon);
             Assert.IsFalse(session2.Character.flagValues.ContainsKey("charging") && session2.Character.flagValues["charging"]);

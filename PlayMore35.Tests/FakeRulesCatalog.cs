@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
@@ -36,7 +38,7 @@ namespace PlayMore35.Tests {
         public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects => ExternalEffectsMap;
         public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems => SubsystemsMap;
 
-        private readonly IRulesCatalog inner;
+        private readonly IRulesCatalog? inner;
 
         public IReadOnlyDictionary<string, int> CoreFeatSlots => inner?.CoreFeatSlots ?? new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
         public IReadOnlyList<Statistic> CoreStats => inner?.CoreStats ?? new List<Statistic>().AsReadOnly();
@@ -46,9 +48,9 @@ namespace PlayMore35.Tests {
         public JToken CoreRulesJson => inner?.CoreRulesJson ?? new JObject();
 
         public FakeRulesCatalog(params SubsystemElement[] maneuvers) : this(maneuvers, null, null) { }
-        public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers, IRulesCatalog inner) : this(maneuvers, null, inner) { }
+        public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers, IRulesCatalog? inner) : this(maneuvers, null, inner) { }
 
-        public FakeRulesCatalog(IEnumerable<SubsystemElement> maneuvers = null, IEnumerable<SubsystemElement> vestiges = null, IRulesCatalog inner = null) {
+        public FakeRulesCatalog(IEnumerable<SubsystemElement>? maneuvers = null, IEnumerable<SubsystemElement>? vestiges = null, IRulesCatalog? inner = null) {
             this.inner = inner;
             if (inner != null) {
                 if (inner.Subsystems != null) {
@@ -146,7 +148,7 @@ namespace PlayMore35.Tests {
             };
             SubsystemsMap["martial_maneuvers"] = def;
 
-            if (GetClass("Warblade") == null) {
+            if (!TryGetClass("Warblade", out _)) {
                 var wb = new CharacterClass { Name = "Warblade" };
                 var wbSub = new SubsystemFeature();
                 wbSub.Verbs["ready"] = def.Verbs["ready"];
@@ -155,7 +157,7 @@ namespace PlayMore35.Tests {
                 wb.Subsystems["martial_maneuvers"] = wbSub;
                 ClassesMap["Warblade"] = wb;
             }
-            if (GetClass("Swordsage") == null) {
+            if (!TryGetClass("Swordsage", out _)) {
                 var ss = new CharacterClass { Name = "Swordsage" };
                 var ssSub = new SubsystemFeature();
                 ssSub.Verbs["ready"] = def.Verbs["ready"];
@@ -164,7 +166,7 @@ namespace PlayMore35.Tests {
                 ss.Subsystems["martial_maneuvers"] = ssSub;
                 ClassesMap["Swordsage"] = ss;
             }
-            if (GetClass("Crusader") == null) {
+            if (!TryGetClass("Crusader", out _)) {
                 var cr = new CharacterClass { Name = "Crusader" };
                 var crSub = new SubsystemFeature();
                 crSub.Verbs["ready"] = new List<SubsystemStep> {
@@ -246,17 +248,214 @@ namespace PlayMore35.Tests {
             }
         }
 
-        public Race GetRace(string name) => (name != null && RacesMap.TryGetValue(name, out var val)) ? val : inner?.GetRace(name);
-        public CharacterClass GetClass(string name) => (name != null && ClassesMap.TryGetValue(name, out var val)) ? val : inner?.GetClass(name);
-        public Feat GetFeat(string name) => (name != null && FeatsMap.TryGetValue(name, out var val)) ? val : inner?.GetFeat(name);
-        public Weapon GetWeapon(string name) => (name != null && WeaponsMap.TryGetValue(name, out var val)) ? val : inner?.GetWeapon(name);
-        public Armor GetArmor(string name) => (name != null && ArmorsMap.TryGetValue(name, out var val)) ? val : inner?.GetArmor(name);
-        public Shield GetShield(string name) => (name != null && ShieldsMap.TryGetValue(name, out var val)) ? val : inner?.GetShield(name);
-        public WeaponProperty GetWeaponProperty(string name) => (name != null && WeaponPropertiesMap.TryGetValue(name, out var val)) ? val : inner?.GetWeaponProperty(name);
-        public ArmorProperty GetArmorProperty(string name) => (name != null && ArmorPropertiesMap.TryGetValue(name, out var val)) ? val : inner?.GetArmorProperty(name);
-        public Item GetItem(string name) => (name != null && ItemsMap.TryGetValue(name, out var val)) ? val : inner?.GetItem(name);
-        public ExternalEffect GetExternalEffect(string name) => (name != null && ExternalEffectsMap.TryGetValue(name, out var val)) ? val : inner?.GetExternalEffect(name);
-        public SubsystemDefinition GetSubsystem(string name) => (name != null && SubsystemsMap.TryGetValue(name, out var val)) ? val : inner?.GetSubsystem(name);
+        public bool TryGetRace(string name, [NotNullWhen(true)] out Race? result) {
+            if (name != null && RacesMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetRace(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public Race GetRace(string name) {
+            if (TryGetRace(name, out var race)) {
+                return race;
+            }
+            throw new KeyNotFoundException($"Race '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetClass(string name, [NotNullWhen(true)] out CharacterClass? result) {
+            if (name != null && ClassesMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetClass(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public CharacterClass GetClass(string name) {
+            if (TryGetClass(name, out var cls)) {
+                return cls;
+            }
+            throw new KeyNotFoundException($"Class '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetFeat(string name, [NotNullWhen(true)] out Feat? result) {
+            if (name != null && FeatsMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetFeat(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public Feat GetFeat(string name) {
+            if (TryGetFeat(name, out var feat)) {
+                return feat;
+            }
+            throw new KeyNotFoundException($"Feat '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetWeapon(string name, [NotNullWhen(true)] out Weapon? result) {
+            if (name != null && WeaponsMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetWeapon(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public Weapon GetWeapon(string name) {
+            if (TryGetWeapon(name, out var weapon)) {
+                return weapon;
+            }
+            throw new KeyNotFoundException($"Weapon '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetArmor(string name, [NotNullWhen(true)] out Armor? result) {
+            if (name != null && ArmorsMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetArmor(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public Armor GetArmor(string name) {
+            if (TryGetArmor(name, out var armor)) {
+                return armor;
+            }
+            throw new KeyNotFoundException($"Armor '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetShield(string name, [NotNullWhen(true)] out Shield? result) {
+            if (name != null && ShieldsMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetShield(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public Shield GetShield(string name) {
+            if (TryGetShield(name, out var shield)) {
+                return shield;
+            }
+            throw new KeyNotFoundException($"Shield '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetWeaponProperty(string name, [NotNullWhen(true)] out WeaponProperty? result) {
+            if (name != null && WeaponPropertiesMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetWeaponProperty(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public WeaponProperty GetWeaponProperty(string name) {
+            if (TryGetWeaponProperty(name, out var prop)) {
+                return prop;
+            }
+            throw new KeyNotFoundException($"WeaponProperty '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetArmorProperty(string name, [NotNullWhen(true)] out ArmorProperty? result) {
+            if (name != null && ArmorPropertiesMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetArmorProperty(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public ArmorProperty GetArmorProperty(string name) {
+            if (TryGetArmorProperty(name, out var prop)) {
+                return prop;
+            }
+            throw new KeyNotFoundException($"ArmorProperty '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetItem(string name, [NotNullWhen(true)] out Item? result) {
+            if (name != null && ItemsMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetItem(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public Item GetItem(string name) {
+            if (TryGetItem(name, out var item)) {
+                return item;
+            }
+            throw new KeyNotFoundException($"Item '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetExternalEffect(string name, [NotNullWhen(true)] out ExternalEffect? result) {
+            if (name != null && ExternalEffectsMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetExternalEffect(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public ExternalEffect GetExternalEffect(string name) {
+            if (TryGetExternalEffect(name, out var ext)) {
+                return ext;
+            }
+            throw new KeyNotFoundException($"ExternalEffect '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetSubsystem(string name, [NotNullWhen(true)] out SubsystemDefinition? result) {
+            if (name != null && SubsystemsMap.TryGetValue(name, out var val)) {
+                result = val;
+                return true;
+            }
+            if (inner != null) {
+                return inner.TryGetSubsystem(name, out result);
+            }
+            result = null;
+            return false;
+        }
+
+        public SubsystemDefinition GetSubsystem(string name) {
+            if (TryGetSubsystem(name, out var s)) {
+                return s;
+            }
+            throw new KeyNotFoundException($"Subsystem '{name}' was not found in the rules catalog.");
+        }
 
         public void RegisterSubsystem(SubsystemDefinition def) {
             if (def != null && !string.IsNullOrEmpty(def.Id)) {

@@ -519,5 +519,166 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("", catalog.ResolveTemplate("", choices));
             Assert.AreEqual("", catalog.ResolveTemplate("${class}", null));
         }
+
+        [TestMethod]
+        public void IRulesCatalog_Lookups_ThrowKeyNotFoundException_WhenMissing() {
+            var catalog = new GameRulesCatalog();
+
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetRace("NonexistentRace"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetClass("NonexistentClass"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetFeat("NonexistentFeat"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetWeapon("NonexistentWeapon"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetArmor("NonexistentArmor"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetShield("NonexistentShield"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetWeaponProperty("NonexistentProp"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetArmorProperty("NonexistentProp"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetItem("NonexistentItem"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetExternalEffect("NonexistentEffect"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetSubsystem("NonexistentSubsystem"));
+        }
+
+        [TestMethod]
+        public void IRulesCatalog_TryGetMethods_ReturnExpectedValues() {
+            var catalog = new GameRulesCatalog();
+
+            Assert.IsTrue(catalog.TryGetRace("human", out var race));
+            Assert.IsNotNull(race);
+            Assert.AreEqual("human", race.Name);
+
+            Assert.IsFalse(catalog.TryGetRace("NonexistentRace", out var missingRace));
+            Assert.IsNull(missingRace);
+
+            Assert.IsTrue(catalog.TryGetClass("Fighter", out var fighter));
+            Assert.IsNotNull(fighter);
+            Assert.AreEqual("Fighter", fighter.Name);
+
+            Assert.IsFalse(catalog.TryGetClass("NonexistentClass", out var missingClass));
+            Assert.IsNull(missingClass);
+
+            Assert.IsTrue(catalog.TryGetFeat("Power Attack", out var feat));
+            Assert.IsNotNull(feat);
+            Assert.AreEqual("Power Attack", feat.Benefit.Name);
+
+            Assert.IsFalse(catalog.TryGetFeat("NonexistentFeat", out var missingFeat));
+            Assert.IsNull(missingFeat);
+
+            Assert.IsTrue(catalog.TryGetWeapon("longsword", out var weapon));
+            Assert.IsNotNull(weapon);
+            Assert.AreEqual("longsword", weapon.Name);
+
+            Assert.IsFalse(catalog.TryGetWeapon("NonexistentWeapon", out var missingWeapon));
+            Assert.IsNull(missingWeapon);
+
+            Assert.IsTrue(catalog.TryGetArmor("full plate", out var armor));
+            Assert.IsNotNull(armor);
+            Assert.AreEqual("full plate", armor.Name);
+
+            Assert.IsFalse(catalog.TryGetArmor("NonexistentArmor", out var missingArmor));
+            Assert.IsNull(missingArmor);
+
+            Assert.IsTrue(catalog.TryGetShield("heavy steel shield", out var shield));
+            Assert.IsNotNull(shield);
+            Assert.AreEqual("heavy steel shield", shield.Name);
+
+            Assert.IsFalse(catalog.TryGetShield("NonexistentShield", out var missingShield));
+            Assert.IsNull(missingShield);
+
+            Assert.IsTrue(catalog.TryGetWeaponProperty("+1", out var wProp));
+            Assert.IsNotNull(wProp);
+            Assert.AreEqual("+1", wProp.Name);
+
+            Assert.IsFalse(catalog.TryGetWeaponProperty("NonexistentProp", out var missingWProp));
+            Assert.IsNull(missingWProp);
+
+            Assert.IsTrue(catalog.TryGetArmorProperty("+1", out var aProp));
+            Assert.IsNotNull(aProp);
+            Assert.AreEqual("+1", aProp.Name);
+
+            Assert.IsFalse(catalog.TryGetArmorProperty("NonexistentProp", out var missingAProp));
+            Assert.IsNull(missingAProp);
+
+            Assert.IsTrue(catalog.TryGetItem("panic button", out var item));
+            Assert.IsNotNull(item);
+            Assert.AreEqual("panic button", item.ItemEffect.Name);
+
+            Assert.IsFalse(catalog.TryGetItem("NonexistentItem", out var missingItem));
+            Assert.IsNull(missingItem);
+
+            Assert.IsTrue(catalog.TryGetExternalEffect("resistance", out var extEffect));
+            Assert.IsNotNull(extEffect);
+            Assert.AreEqual("resistance", extEffect.Effect.Name);
+
+            Assert.IsFalse(catalog.TryGetExternalEffect("NonexistentEffect", out var missingExtEffect));
+            Assert.IsNull(missingExtEffect);
+
+            Assert.IsTrue(catalog.TryGetSubsystem("pact_magic", out var pactDef));
+            Assert.IsNotNull(pactDef);
+            Assert.AreEqual("pact_magic", pactDef.Id);
+
+            Assert.IsFalse(catalog.TryGetSubsystem("NonexistentSubsystem", out var missingSubsystem));
+            Assert.IsNull(missingSubsystem);
+        }
+
+        [TestMethod]
+        public void FakeRulesCatalog_ThrowsKeyNotFoundException_WhenMissing() {
+            var catalog = new FakeRulesCatalog();
+
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetRace("NonexistentRace"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetClass("NonexistentClass"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetFeat("NonexistentFeat"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetWeapon("NonexistentWeapon"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetArmor("NonexistentArmor"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetShield("NonexistentShield"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetWeaponProperty("NonexistentProp"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetArmorProperty("NonexistentProp"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetItem("NonexistentItem"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetExternalEffect("NonexistentEffect"));
+            Assert.ThrowsException<KeyNotFoundException>(() => catalog.GetSubsystem("NonexistentSubsystem"));
+        }
+
+        [TestMethod]
+        public void SavedCharacter_ReferencingNonexistentContent_FailsFastWithInformativeMessage() {
+            var catalog = new GameRulesCatalog();
+
+            var charBadRace = new Character { race = "IllithidDragon" };
+            var exRace = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadRace, catalog));
+            StringAssert.Contains(exRace.Message, "IllithidDragon");
+
+            var charBadClass = new Character { race = "human" };
+            charBadClass.classLevels.Clear();
+            charBadClass.classLevels.Add("Psion");
+            var exClass = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadClass, catalog));
+            StringAssert.Contains(exClass.Message, "Psion");
+
+            var charBadFeat = new Character { race = "human" };
+            charBadFeat.feats["Level 1"] = "EpicSpellcasting";
+            var exFeat = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadFeat, catalog));
+            StringAssert.Contains(exFeat.Message, "EpicSpellcasting");
+
+            var charBadWeapon = new Character { race = "human" };
+            charBadWeapon.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "BFG9000" };
+            var exWeapon = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadWeapon, catalog));
+            StringAssert.Contains(exWeapon.Message, "BFG9000");
+
+            var charBadArmor = new Character { race = "human" };
+            charBadArmor.equipped.DonnedArmor = new ArmorChoice { Name = "PoweredExoskeleton" };
+            var exArmor = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadArmor, catalog));
+            StringAssert.Contains(exArmor.Message, "PoweredExoskeleton");
+
+            var charBadShield = new Character { race = "human" };
+            charBadShield.equipped.OffHandShield = new ArmorChoice { Name = "ForceFieldShield", IsShield = true };
+            var exShield = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadShield, catalog));
+            StringAssert.Contains(exShield.Message, "ForceFieldShield");
+
+            var charBadItem = new Character { race = "human" };
+            charBadItem.equipped.SlotlessItems.Add("InfinityGauntlet");
+            var exItem = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadItem, catalog));
+            StringAssert.Contains(exItem.Message, "InfinityGauntlet");
+
+            var charBadEffect = new Character { race = "human" };
+            charBadEffect.externalEffects.Add("WishSpellSuperBuff");
+            var exEffect = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadEffect, catalog));
+            StringAssert.Contains(exEffect.Message, "WishSpellSuperBuff");
+        }
     }
 }

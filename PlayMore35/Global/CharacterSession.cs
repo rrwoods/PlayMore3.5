@@ -87,28 +87,37 @@ namespace PlayMore35.Global {
 
         private Weapon? WeaponFromChoice(WeaponChoice? choice) {
             if (choice == null) return null;
-            var baseWeapon = catalog.GetWeapon(choice.Name);
-            if (baseWeapon == null) return null;
+            if (!catalog.TryGetWeapon(choice.Name, out var baseWeapon)) {
+                throw new KeyNotFoundException($"Saved character references nonexistent weapon '{choice.Name}'.");
+            }
             Weapon weapon = new Weapon(baseWeapon) {
                 SizeCategory = choice.SizeCategory,
             };
             weapon.Weight *= weightFactors[weapon.SizeCategory];
 
             foreach (string property in choice.MeleeProperties) {
-                var prop = catalog.GetWeaponProperty(property);
-                if (prop != null) weapon.Melee?.atk.Properties.Add(prop);
+                if (!catalog.TryGetWeaponProperty(property, out var prop)) {
+                    throw new KeyNotFoundException($"Saved character references nonexistent weapon property '{property}'.");
+                }
+                weapon.Melee?.atk.Properties.Add(prop);
             }
             foreach (string property in choice.SecondHeadProperties) {
-                var prop = catalog.GetWeaponProperty(property);
-                if (prop != null) weapon.SecondHead?.atk.Properties.Add(prop);
+                if (!catalog.TryGetWeaponProperty(property, out var prop)) {
+                    throw new KeyNotFoundException($"Saved character references nonexistent weapon property '{property}'.");
+                }
+                weapon.SecondHead?.atk.Properties.Add(prop);
             }
             foreach (string property in choice.ThrownProperties) {
-                var prop = catalog.GetWeaponProperty(property);
-                if (prop != null) weapon.Thrown.Properties.Add(prop);
+                if (!catalog.TryGetWeaponProperty(property, out var prop)) {
+                    throw new KeyNotFoundException($"Saved character references nonexistent weapon property '{property}'.");
+                }
+                weapon.Thrown.Properties.Add(prop);
             }
             foreach (string property in choice.ProjectileProperties) {
-                var prop = catalog.GetWeaponProperty(property);
-                if (prop != null) weapon.Projectile?.atk.Properties.Add(prop);
+                if (!catalog.TryGetWeaponProperty(property, out var prop)) {
+                    throw new KeyNotFoundException($"Saved character references nonexistent weapon property '{property}'.");
+                }
+                weapon.Projectile?.atk.Properties.Add(prop);
             }
 
             return weapon;
@@ -116,25 +125,28 @@ namespace PlayMore35.Global {
 
         private Armor? ArmorFromChoice(ArmorChoice? choice) {
             if (choice == null) return null;
-            var baseArmor = catalog.GetArmor(choice.Name);
-            if (baseArmor == null) return null;
+            if (!catalog.TryGetArmor(choice.Name, out var baseArmor)) {
+                throw new KeyNotFoundException($"Saved character references nonexistent armor '{choice.Name}'.");
+            }
             Armor armor = new Armor(baseArmor) {
                 SizeCategory = choice.SizeCategory
             };
             armor.Weight *= weightFactors[armor.SizeCategory];
 
             foreach (string property in choice.ArmorProperties) {
-                var prop = catalog.GetArmorProperty(property);
-                if (prop != null) armor.Properties.Add(prop);
+                if (!catalog.TryGetArmorProperty(property, out var prop)) {
+                    throw new KeyNotFoundException($"Saved character references nonexistent armor property '{property}'.");
+                }
+                armor.Properties.Add(prop);
             }
             if (choice.Spiked) {
                 var spikes = catalog.GetWeapon("armor spikes");
-                if (spikes != null) {
-                    armor.ArmorSpikes = new AttackMode(spikes.Melee?.atk);
-                    foreach (string property in choice.MeleeProperties) {
-                        var prop = catalog.GetWeaponProperty(property);
-                        if (prop != null) armor.ArmorSpikes.Properties.Add(prop);
+                armor.ArmorSpikes = new AttackMode(spikes.Melee?.atk);
+                foreach (string property in choice.MeleeProperties) {
+                    if (!catalog.TryGetWeaponProperty(property, out var prop)) {
+                        throw new KeyNotFoundException($"Saved character references nonexistent weapon property '{property}'.");
                     }
+                    armor.ArmorSpikes.Properties.Add(prop);
                 }
             }
             return armor;
@@ -142,21 +154,26 @@ namespace PlayMore35.Global {
 
         private Shield? ShieldFromChoice(ArmorChoice? choice) {
             if (choice == null) return null;
-            var baseShield = catalog.GetShield(choice.Name);
-            if (baseShield == null) return null;
+            if (!catalog.TryGetShield(choice.Name, out var baseShield)) {
+                throw new KeyNotFoundException($"Saved character references nonexistent shield '{choice.Name}'.");
+            }
             Shield shield = new Shield(baseShield) {
                 SizeCategory = choice.SizeCategory
             };
             shield.Weight *= weightFactors[shield.SizeCategory];
 
             foreach (string property in choice.ArmorProperties) {
-                var prop = catalog.GetArmorProperty(property);
-                if (prop != null) shield.Properties.Add(prop);
+                if (!catalog.TryGetArmorProperty(property, out var prop)) {
+                    throw new KeyNotFoundException($"Saved character references nonexistent armor property '{property}'.");
+                }
+                shield.Properties.Add(prop);
             }
             shield.Spiked = choice.Spiked;
             foreach (string property in choice.MeleeProperties) {
-                var prop = catalog.GetWeaponProperty(property);
-                if (prop != null) shield.ShieldBash.Properties.Add(prop);
+                if (!catalog.TryGetWeaponProperty(property, out var prop)) {
+                    throw new KeyNotFoundException($"Saved character references nonexistent weapon property '{property}'.");
+                }
+                shield.ShieldBash.Properties.Add(prop);
             }
             return shield;
         }
@@ -173,7 +190,12 @@ namespace PlayMore35.Global {
                 location.weapons.Select(x => WeaponFromChoice(x)?.Weight ?? 0).Sum() +
                 location.armor.Select(x => ArmorFromChoice(x)?.Weight ?? 0).Sum() +
                 location.shields.Select(x => ShieldFromChoice(x)?.Weight ?? 0).Sum() +
-                location.items.Select(x => (catalog.GetItem(x.Key)?.Weight ?? 0) * x.Value).Sum();
+                location.items.Select(x => {
+                    if (!catalog.TryGetItem(x.Key, out var item)) {
+                        throw new KeyNotFoundException($"Saved character references nonexistent item '{x.Key}'.");
+                    }
+                    return item.Weight * x.Value;
+                }).Sum();
         }
 
         private void ComputeWeight() {
@@ -190,28 +212,24 @@ namespace PlayMore35.Global {
             effects.GenerateCharacterEffects();
 
             Race race = catalog.GetRace(character.race);
-            if (race != null) {
-                effects.GenerateRaceEffects(race);
-                normalSizeCategory = race.SizeCategory;
-            }
+            effects.GenerateRaceEffects(race);
+            normalSizeCategory = race.SizeCategory;
 
             var classLevels = character.SummarizeClassLevels();
             foreach (var classAndLevel in classLevels) {
                 CharacterClass @class = catalog.GetClass(classAndLevel.Key);
-                if (@class != null) {
-                    effects.GenerateClassEffects(@class, classAndLevel.Value);
-                    for (int level = 0; level < classAndLevel.Value && level < @class.ClassFeatures.Count; level++) {
-                        foreach (Effect feature in @class.ClassFeatures[level]) {
-                            effects.AddEffect(feature);
-                        }
-                        if (level < @class.Flags.Count) {
-                            foreach (FlagDefinition flag in @class.Flags[level]) {
-                                effects.AddFlag(flag);
-                            }
+                effects.GenerateClassEffects(@class, classAndLevel.Value);
+                for (int level = 0; level < classAndLevel.Value && level < @class.ClassFeatures.Count; level++) {
+                    foreach (Effect feature in @class.ClassFeatures[level]) {
+                        effects.AddEffect(feature);
+                    }
+                    if (level < @class.Flags.Count) {
+                        foreach (FlagDefinition flag in @class.Flags[level]) {
+                            effects.AddFlag(flag);
                         }
                     }
-                    effects.AddStats(@class.NewStats);
                 }
+                effects.AddStats(@class.NewStats);
             }
 
             ReconcileFeats();
@@ -220,41 +238,39 @@ namespace PlayMore35.Global {
                 string featSlot = feat.Key;
                 string featName = feat.Value;
                 var featDef = catalog.GetFeat(featName);
-                if (featDef != null) {
-                    var featChoicesList = new List<string>();
-                    var choicesDict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var kvp in character.featChoices) {
-                        choicesDict[kvp.Key] = kvp.Value;
-                    }
+                var featChoicesList = new List<string>();
+                var choicesDict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                foreach (var kvp in character.featChoices) {
+                    choicesDict[kvp.Key] = kvp.Value;
+                }
 
-                    if (featDef.Choices != null && featDef.Choices.Any()) {
-                        foreach (var ch in featDef.Choices) {
-                            object? val = ResolveFeatChoice(featSlot, ch);
-                            if (val != null) {
-                                string strVal = val.ToString();
-                                if (!string.IsNullOrEmpty(strVal)) {
-                                    choicesDict[ch.Id] = val;
-                                    featChoicesList.Add(strVal);
-                                }
+                if (featDef.Choices != null && featDef.Choices.Any()) {
+                    foreach (var ch in featDef.Choices) {
+                        object? val = ResolveFeatChoice(featSlot, ch);
+                        if (val != null) {
+                            string strVal = val.ToString();
+                            if (!string.IsNullOrEmpty(strVal)) {
+                                choicesDict[ch.Id] = val;
+                                featChoicesList.Add(strVal);
                             }
                         }
-                    } else if (character.featChoices.TryGetValue(featSlot, out var c) && !string.IsNullOrWhiteSpace(c)) {
-                        featChoicesList.Add(c);
-                        choicesDict[""] = c;
                     }
+                } else if (character.featChoices.TryGetValue(featSlot, out var c) && !string.IsNullOrWhiteSpace(c)) {
+                    featChoicesList.Add(c);
+                    choicesDict[""] = c;
+                }
 
-                    effects.GenerateFeatEffects(
-                        featDef,
-                        featChoicesList
-                    );
+                effects.GenerateFeatEffects(
+                    featDef,
+                    featChoicesList
+                );
 
-                    if (featDef.ClassSkills.Any()) {
-                        int acquisitionLevel = Math.Max(1, GetFeatSlotLevel(featSlot));
-                        foreach (var template in featDef.ClassSkills) {
-                            string skill = catalog.ResolveTemplate(template, choicesDict);
-                            if (!string.IsNullOrEmpty(skill)) {
-                                effects.GrantClassSkill(skill, acquisitionLevel);
-                            }
+                if (featDef.ClassSkills.Any()) {
+                    int acquisitionLevel = Math.Max(1, GetFeatSlotLevel(featSlot));
+                    foreach (var template in featDef.ClassSkills) {
+                        string skill = catalog.ResolveTemplate(template, choicesDict);
+                        if (!string.IsNullOrEmpty(skill)) {
+                            effects.GrantClassSkill(skill, acquisitionLevel);
                         }
                     }
                 }
@@ -275,7 +291,7 @@ namespace PlayMore35.Global {
 
             character.externalEffects.ForEach(x => {
                 var ext = catalog.GetExternalEffect(x);
-                if (ext != null) effects.GenerateExternalEffect(ext);
+                effects.GenerateExternalEffect(ext);
             });
 
             equippedItems = new Equipped();
@@ -295,15 +311,11 @@ namespace PlayMore35.Global {
 
             foreach (var itemRef in character.equipped.SlottedItems) {
                 Item item = catalog.GetItem(itemRef.Value);
-                if (item != null) {
-                    equippedItems.SlottedItems[itemRef.Key] = item;
-                }
+                equippedItems.SlottedItems[itemRef.Key] = item;
             }
             foreach (string itemName in character.equipped.SlotlessItems) {
                 Item item = catalog.GetItem(itemName);
-                if (item != null) {
-                    equippedItems.SlotlessItems.Add(item);
-                }
+                equippedItems.SlotlessItems.Add(item);
             }
 
             equippedItems.ContributeEffects(effects);
@@ -312,7 +324,7 @@ namespace PlayMore35.Global {
         }
 
         public Equipped.Slot SlotForItem(string itemName) {
-            return catalog.GetItem(itemName)?.ItemSlot ?? Equipped.Slot.SLOTLESS;
+            return catalog.TryGetItem(itemName, out var item) ? item.ItemSlot : Equipped.Slot.SLOTLESS;
         }
 
         public void CountWeight(string locationName, bool weighs) {
@@ -495,8 +507,7 @@ namespace PlayMore35.Global {
         public void EquipItem(string from, Equipped.Slot to, string itemName) {
             if (!character.inventory.ContainsKey(from)) return;
 
-            Item item = catalog.GetItem(itemName);
-            if (item == null || item.ItemSlot != to) return;
+            if (!catalog.TryGetItem(itemName, out var item) || item.ItemSlot != to) return;
 
             if (to == Equipped.Slot.SLOTLESS) {
                 character.equipped.SlotlessItems.Add(itemName);
@@ -607,11 +618,9 @@ namespace PlayMore35.Global {
             int level = character.classLevels.Count;
             SortedDictionary<int, List<string>> feats = new SortedDictionary<int, List<string>>();
             var race = catalog.GetRace(character.race);
-            if (race != null) {
-                foreach (var feat in race.BonusFeats) {
-                    if (feat.Value <= level) {
-                        AddFeatSlot(feats, feat.Key, feat.Value);
-                    }
+            foreach (var feat in race.BonusFeats) {
+                if (feat.Value <= level) {
+                    AddFeatSlot(feats, feat.Key, feat.Value);
                 }
             }
             if (effects.featSlots != null) {
@@ -625,11 +634,9 @@ namespace PlayMore35.Global {
             for (int levelIndex = 0; levelIndex < character.classLevels.Count; levelIndex++) {
                 (string @class, int classLevel) = classLevels[levelIndex];
                 var classDef = catalog.GetClass(@class);
-                if (classDef != null) {
-                    foreach (var feat in classDef.BonusFeats) {
-                        if (feat.Value == classLevel) {
-                            AddFeatSlot(feats, feat.Key, levelIndex + 1);
-                        }
+                foreach (var feat in classDef.BonusFeats) {
+                    if (feat.Value == classLevel) {
+                        AddFeatSlot(feats, feat.Key, levelIndex + 1);
                     }
                 }
             }
@@ -804,8 +811,7 @@ namespace PlayMore35.Global {
         }
 
         public bool IsAdeptClass(string className) {
-            var cls = catalog.GetClass(className);
-            return cls != null && cls.Subsystems.ContainsKey("martial_maneuvers");
+            return catalog.TryGetClass(className, out var cls) && cls.Subsystems.ContainsKey("martial_maneuvers");
         }
 
         public bool IsClassEligible(string className, string? filter) {
@@ -813,8 +819,7 @@ namespace PlayMore35.Global {
             if (string.Equals(filter, "Adept", StringComparison.OrdinalIgnoreCase)) {
                 return IsAdeptClass(className);
             }
-            var cls = catalog.GetClass(className);
-            if (cls != null && cls.Subsystems.ContainsKey(filter!)) {
+            if (catalog.TryGetClass(className, out var cls) && cls.Subsystems.ContainsKey(filter!)) {
                 return true;
             }
             return string.Equals(className, filter, StringComparison.OrdinalIgnoreCase);
@@ -897,11 +902,7 @@ namespace PlayMore35.Global {
         }
 
         private Race GetRequiredRace() {
-            var race = catalog.GetRace(character.race);
-            if (race == null) {
-                throw new InvalidOperationException($"Race '{character.race}' was not found in the rules catalog.");
-            }
-            return race;
+            return catalog.GetRace(character.race);
         }
 
         public int GetSizeCategory() {
@@ -940,7 +941,7 @@ namespace PlayMore35.Global {
         public bool IsClassSkill(string skill, int levelIndex) {
             if (levelIndex < character.classLevels.Count) {
                 var @class = catalog.GetClass(character.classLevels[levelIndex]);
-                if (@class != null && @class.ClassSkills.Contains(skill)) {
+                if (@class.ClassSkills.Contains(skill)) {
                     return true;
                 }
             }
@@ -965,7 +966,7 @@ namespace PlayMore35.Global {
                     intScore++;
                 }
             }
-            int allowed = Math.Max(1, (catalog.GetClass(character.classLevels[levelIndex])?.SkillPoints ?? 2) + ((intScore / 2) - 5));
+            int allowed = Math.Max(1, catalog.GetClass(character.classLevels[levelIndex]).SkillPoints + ((intScore / 2) - 5));
             if (levelIndex == 0) {
                 allowed *= 4;
             }

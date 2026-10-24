@@ -100,8 +100,7 @@ namespace PlayMore35.Subsystems {
 
             if (context.Character?.classLevels != null && context.Catalog != null) {
                 foreach (var clsName in context.Character.classLevels.Distinct(StringComparer.OrdinalIgnoreCase)) {
-                    var cls = context.Catalog.GetClass(clsName);
-                    if (cls != null && cls.Subsystems != null && cls.Subsystems.ContainsKey(Id)) {
+                    if (context.Catalog.TryGetClass(clsName, out var cls) && cls.Subsystems != null && cls.Subsystems.ContainsKey(Id)) {
                         AddSource(cls.Name);
                     }
                 }
@@ -241,8 +240,7 @@ namespace PlayMore35.Subsystems {
                 return elem;
             }
             if (context.Catalog is Rules.IRulesCatalog cat) {
-                var subDef = cat.GetSubsystem(Id);
-                if (subDef != null && subDef.Elements.TryGetValue(elementName, out var catalogElem)) {
+                if (cat.TryGetSubsystem(Id, out var subDef) && subDef.Elements.TryGetValue(elementName, out var catalogElem)) {
                     return catalogElem;
                 }
             }
@@ -823,8 +821,7 @@ namespace PlayMore35.Subsystems {
 
         private List<SubsystemStep>? ResolveVerbSteps(string verbName, string? source) {
             if (!string.IsNullOrEmpty(source) && context?.Catalog != null) {
-                var cls = context.Catalog.GetClass(source);
-                if (cls != null && cls.Subsystems != null && cls.Subsystems.TryGetValue(Id, out var subFeature)) {
+                if (context.Catalog.TryGetClass(source!, out var cls) && cls.Subsystems != null && cls.Subsystems.TryGetValue(Id, out var subFeature)) {
                     if (subFeature.Verbs != null && subFeature.Verbs.TryGetValue(verbName, out var classSteps)) {
                         return classSteps;
                     }
@@ -859,8 +856,10 @@ namespace PlayMore35.Subsystems {
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
                 bool anySourceOverride = slotSources.Any(src =>
-                    context?.Catalog?.GetClass(src)?.Subsystems != null &&
-                    context.Catalog.GetClass(src)!.Subsystems!.TryGetValue(Id, out var sf) &&
+                    context?.Catalog != null &&
+                    context.Catalog.TryGetClass(src, out var cls) &&
+                    cls.Subsystems != null &&
+                    cls.Subsystems.TryGetValue(Id, out var sf) &&
                     sf.Verbs.ContainsKey(verbName));
                 if (anySourceOverride && slotSources.Count > 0) {
                     TimelineRefreshRequirement totalReq = TimelineRefreshRequirement.None;
@@ -1010,8 +1009,9 @@ namespace PlayMore35.Subsystems {
             }
             if (context?.Character?.classLevels != null && context?.Catalog != null) {
                 var adept = context.Character.classLevels.FirstOrDefault(c => {
-                    var classDef = context.Catalog.GetClass(c);
-                    return classDef != null && classDef.Subsystems != null && classDef.Subsystems.ContainsKey(Id);
+                    return context.Catalog.TryGetClass(c, out var classDef) &&
+                        classDef.Subsystems != null &&
+                        classDef.Subsystems.ContainsKey(Id);
                 });
                 if (!string.IsNullOrEmpty(adept)) return adept;
             }

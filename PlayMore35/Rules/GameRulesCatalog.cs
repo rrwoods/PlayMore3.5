@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,34 +15,34 @@ using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Rules {
     public class GameRulesCatalog : IRulesCatalog {
-        private readonly string saveDir;
+        private readonly string? saveDir;
 
-        public IReadOnlyDictionary<string, Race> Races { get; private set; }
-        public IReadOnlyDictionary<string, CharacterClass> Classes { get; private set; }
-        public IReadOnlyDictionary<string, Feat> Feats { get; private set; }
-        public IReadOnlyDictionary<string, Weapon> Weapons { get; private set; }
-        public IReadOnlyDictionary<string, Armor> Armors { get; private set; }
-        public IReadOnlyDictionary<string, Shield> Shields { get; private set; }
-        public IReadOnlyDictionary<string, WeaponProperty> WeaponProperties { get; private set; }
-        public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; private set; }
-        public IReadOnlyDictionary<string, Item> Items { get; private set; }
-        public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; private set; }
-        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; private set; }
+        public IReadOnlyDictionary<string, Race> Races { get; private set; } = null!;
+        public IReadOnlyDictionary<string, CharacterClass> Classes { get; private set; } = null!;
+        public IReadOnlyDictionary<string, Feat> Feats { get; private set; } = null!;
+        public IReadOnlyDictionary<string, Weapon> Weapons { get; private set; } = null!;
+        public IReadOnlyDictionary<string, Armor> Armors { get; private set; } = null!;
+        public IReadOnlyDictionary<string, Shield> Shields { get; private set; } = null!;
+        public IReadOnlyDictionary<string, WeaponProperty> WeaponProperties { get; private set; } = null!;
+        public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; private set; } = null!;
+        public IReadOnlyDictionary<string, Item> Items { get; private set; } = null!;
+        public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; private set; } = null!;
+        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; private set; } = null!;
 
-        public IReadOnlyDictionary<string, int> CoreFeatSlots { get; private set; }
-        public IReadOnlyList<Statistic> CoreStats { get; private set; }
-        public IReadOnlyList<Effect> CoreEffects { get; private set; }
-        public IReadOnlyDictionary<string, FlagDefinition> CoreFlags { get; private set; }
-        public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters { get; private set; }
-        public JToken CoreRulesJson { get; private set; }
+        public IReadOnlyDictionary<string, int> CoreFeatSlots { get; private set; } = null!;
+        public IReadOnlyList<Statistic> CoreStats { get; private set; } = null!;
+        public IReadOnlyList<Effect> CoreEffects { get; private set; } = null!;
+        public IReadOnlyDictionary<string, FlagDefinition> CoreFlags { get; private set; } = null!;
+        public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters { get; private set; } = null!;
+        public JToken CoreRulesJson { get; private set; } = null!;
 
-        private IReadOnlyList<string> weaponNames;
-        private IReadOnlyList<string> martialWeaponNames;
-        private IReadOnlyList<string> exoticWeaponNames;
+        private IReadOnlyList<string> weaponNames = null!;
+        private IReadOnlyList<string> martialWeaponNames = null!;
+        private IReadOnlyList<string> exoticWeaponNames = null!;
         private static readonly IReadOnlyList<string> crossbows = new string[] { "hand crossbow", "light crossbow" };
         private static readonly Lazy<GameRulesCatalog> DefaultCatalog = new Lazy<GameRulesCatalog>(() => new GameRulesCatalog(null, true));
 
-        public GameRulesCatalog(string customSaveDir = null) {
+        public GameRulesCatalog(string? customSaveDir = null) {
             saveDir = customSaveDir;
 
             if (customSaveDir == null) {
@@ -74,7 +76,7 @@ namespace PlayMore35.Rules {
             LoadFromResourcesOrSaveDir();
         }
 
-        private GameRulesCatalog(string customSaveDir, bool forceLoad) {
+        private GameRulesCatalog(string? customSaveDir, bool forceLoad) {
             saveDir = customSaveDir;
             LoadFromResourcesOrSaveDir();
         }
@@ -207,38 +209,144 @@ namespace PlayMore35.Rules {
             return JToken.Parse(json);
         }
 
-        private static T FindEntity<T>(IReadOnlyDictionary<string, T> dictionary, string name, Func<T, string> nameSelector) where T : class {
-            if (string.IsNullOrEmpty(name)) return null;
-            if (dictionary.TryGetValue(name, out var entity)) return entity;
-            return dictionary.Values.FirstOrDefault(x => string.Equals(nameSelector(x), name, StringComparison.OrdinalIgnoreCase));
+        private static bool TryFindEntity<T>(IReadOnlyDictionary<string, T> dictionary, string name, Func<T, string> nameSelector, [NotNullWhen(true)] out T? entity) where T : class {
+            if (string.IsNullOrEmpty(name)) {
+                entity = null;
+                return false;
+            }
+            if (dictionary.TryGetValue(name, out var exact)) {
+                entity = exact;
+                return true;
+            }
+            var matched = dictionary.Values.FirstOrDefault(x => string.Equals(nameSelector(x), name, StringComparison.OrdinalIgnoreCase));
+            if (matched != null) {
+                entity = matched;
+                return true;
+            }
+            entity = null;
+            return false;
+        }
+
+        public bool TryGetRace(string name, [NotNullWhen(true)] out Race? result) {
+            if (string.IsNullOrEmpty(name)) {
+                result = Races[""];
+                return true;
+            }
+            return TryFindEntity(Races, name, x => x.Name, out result);
         }
 
         public Race GetRace(string name) {
-            if (string.IsNullOrEmpty(name)) {
-                return Races[""];
+            if (TryGetRace(name, out var race)) {
+                return race;
             }
-            return FindEntity(Races, name, x => x.Name);
+            throw new KeyNotFoundException($"Race '{name}' was not found in the rules catalog.");
         }
 
-        public CharacterClass GetClass(string name) => FindEntity(Classes, name, x => x.Name);
+        public bool TryGetClass(string name, [NotNullWhen(true)] out CharacterClass? result) =>
+            TryFindEntity(Classes, name, x => x.Name, out result);
 
-        public Feat GetFeat(string name) => FindEntity(Feats, name, x => x.Benefit?.Name);
+        public CharacterClass GetClass(string name) {
+            if (TryGetClass(name, out var cls)) {
+                return cls;
+            }
+            throw new KeyNotFoundException($"Class '{name}' was not found in the rules catalog.");
+        }
 
-        public Weapon GetWeapon(string name) => FindEntity(Weapons, name, x => x.Name);
+        public bool TryGetFeat(string name, [NotNullWhen(true)] out Feat? result) =>
+            TryFindEntity(Feats, name, x => x.Benefit?.Name ?? "", out result);
 
-        public Armor GetArmor(string name) => FindEntity(Armors, name, x => x.Name);
+        public Feat GetFeat(string name) {
+            if (TryGetFeat(name, out var feat)) {
+                return feat;
+            }
+            throw new KeyNotFoundException($"Feat '{name}' was not found in the rules catalog.");
+        }
 
-        public Shield GetShield(string name) => FindEntity(Shields, name, x => x.Name);
+        public bool TryGetWeapon(string name, [NotNullWhen(true)] out Weapon? result) =>
+            TryFindEntity(Weapons, name, x => x.Name, out result);
 
-        public WeaponProperty GetWeaponProperty(string name) => FindEntity(WeaponProperties, name, x => x.Name);
+        public Weapon GetWeapon(string name) {
+            if (TryGetWeapon(name, out var weapon)) {
+                return weapon;
+            }
+            throw new KeyNotFoundException($"Weapon '{name}' was not found in the rules catalog.");
+        }
 
-        public ArmorProperty GetArmorProperty(string name) => FindEntity(ArmorProperties, name, x => x.Name);
+        public bool TryGetArmor(string name, [NotNullWhen(true)] out Armor? result) =>
+            TryFindEntity(Armors, name, x => x.Name, out result);
 
-        public Item GetItem(string name) => FindEntity(Items, name, x => x.ItemEffect?.Name);
+        public Armor GetArmor(string name) {
+            if (TryGetArmor(name, out var armor)) {
+                return armor;
+            }
+            throw new KeyNotFoundException($"Armor '{name}' was not found in the rules catalog.");
+        }
 
-        public ExternalEffect GetExternalEffect(string name) => FindEntity(ExternalEffects, name, x => x.Effect?.Name);
+        public bool TryGetShield(string name, [NotNullWhen(true)] out Shield? result) =>
+            TryFindEntity(Shields, name, x => x.Name, out result);
 
-        public SubsystemDefinition GetSubsystem(string name) => (name != null && Subsystems.TryGetValue(name, out var s)) ? s : null;
+        public Shield GetShield(string name) {
+            if (TryGetShield(name, out var shield)) {
+                return shield;
+            }
+            throw new KeyNotFoundException($"Shield '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetWeaponProperty(string name, [NotNullWhen(true)] out WeaponProperty? result) =>
+            TryFindEntity(WeaponProperties, name, x => x.Name, out result);
+
+        public WeaponProperty GetWeaponProperty(string name) {
+            if (TryGetWeaponProperty(name, out var prop)) {
+                return prop;
+            }
+            throw new KeyNotFoundException($"WeaponProperty '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetArmorProperty(string name, [NotNullWhen(true)] out ArmorProperty? result) =>
+            TryFindEntity(ArmorProperties, name, x => x.Name, out result);
+
+        public ArmorProperty GetArmorProperty(string name) {
+            if (TryGetArmorProperty(name, out var prop)) {
+                return prop;
+            }
+            throw new KeyNotFoundException($"ArmorProperty '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetItem(string name, [NotNullWhen(true)] out Item? result) =>
+            TryFindEntity(Items, name, x => x.ItemEffect?.Name ?? "", out result);
+
+        public Item GetItem(string name) {
+            if (TryGetItem(name, out var item)) {
+                return item;
+            }
+            throw new KeyNotFoundException($"Item '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetExternalEffect(string name, [NotNullWhen(true)] out ExternalEffect? result) =>
+            TryFindEntity(ExternalEffects, name, x => x.Effect?.Name ?? "", out result);
+
+        public ExternalEffect GetExternalEffect(string name) {
+            if (TryGetExternalEffect(name, out var ext)) {
+                return ext;
+            }
+            throw new KeyNotFoundException($"ExternalEffect '{name}' was not found in the rules catalog.");
+        }
+
+        public bool TryGetSubsystem(string name, [NotNullWhen(true)] out SubsystemDefinition? result) {
+            if (!string.IsNullOrEmpty(name) && Subsystems.TryGetValue(name, out var s)) {
+                result = s;
+                return true;
+            }
+            result = null;
+            return false;
+        }
+
+        public SubsystemDefinition GetSubsystem(string name) {
+            if (TryGetSubsystem(name, out var s)) {
+                return s;
+            }
+            throw new KeyNotFoundException($"Subsystem '{name}' was not found in the rules catalog.");
+        }
 
         public string ResolveTemplate(string template, IReadOnlyDictionary<string, object> choices) =>
             ResolveTemplateInternal(template, choices);

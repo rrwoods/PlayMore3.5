@@ -1,4 +1,6 @@
+#nullable enable
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
@@ -30,6 +32,18 @@ namespace PlayMore35.Rules {
         Item GetItem(string name);
         ExternalEffect GetExternalEffect(string name);
         SubsystemDefinition GetSubsystem(string name);
+
+        bool TryGetRace(string name, [NotNullWhen(true)] out Race? result);
+        bool TryGetClass(string name, [NotNullWhen(true)] out CharacterClass? result);
+        bool TryGetFeat(string name, [NotNullWhen(true)] out Feat? result);
+        bool TryGetWeapon(string name, [NotNullWhen(true)] out Weapon? result);
+        bool TryGetArmor(string name, [NotNullWhen(true)] out Armor? result);
+        bool TryGetShield(string name, [NotNullWhen(true)] out Shield? result);
+        bool TryGetWeaponProperty(string name, [NotNullWhen(true)] out WeaponProperty? result);
+        bool TryGetArmorProperty(string name, [NotNullWhen(true)] out ArmorProperty? result);
+        bool TryGetItem(string name, [NotNullWhen(true)] out Item? result);
+        bool TryGetExternalEffect(string name, [NotNullWhen(true)] out ExternalEffect? result);
+        bool TryGetSubsystem(string name, [NotNullWhen(true)] out SubsystemDefinition? result);
 
         string ResolveTemplate(string template, IReadOnlyDictionary<string, object> choices);
 

@@ -352,27 +352,10 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void CharacterSession_GetStartingIntelligence_Throws_WhenRaceNotFoundInCatalog() {
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void CharacterSession_Constructor_ThrowsKeyNotFoundException_WhenRaceNotFoundInCatalog() {
             var character = new Character { race = "NonExistentRace" };
-            var session = new CharacterSession(character, catalog);
-            session.GetStartingIntelligence();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void CharacterSession_GetSizeCategory_Throws_WhenRaceNotFoundInCatalog() {
-            var character = new Character { race = "NonExistentRace" };
-            var session = new CharacterSession(character, catalog);
-            session.GetSizeCategory();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void CharacterSession_BaseHp_Throws_WhenRaceNotFoundInCatalog() {
-            var character = new Character { race = "NonExistentRace" };
-            var session = new CharacterSession(character, catalog);
-            session.BaseHp();
+            new CharacterSession(character, catalog);
         }
     }
 }
