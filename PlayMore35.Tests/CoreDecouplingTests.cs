@@ -89,12 +89,11 @@ namespace PlayMore35.Tests {
         public void SubsystemAction_UnbindVestige_DispatchesThroughSubsystemEngine() {
             var context = new TestContextWithSlottedSubsystem();
             var catalog = new GameRulesCatalog();
-            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"));
+            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), context);
             context.Subsystems.Register(engine, "vestige");
 
             context.Effects.AddStat(new Statistic("number of vestiges"));
             context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(1, ModifierTypes.UNTYPED)));
-            engine.Initialize(context);
 
             engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
             Assert.AreEqual("Aym", engine.GetSlotElement("vestiges", 0));

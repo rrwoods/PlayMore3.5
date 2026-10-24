@@ -30,9 +30,8 @@ namespace PlayMore35.Tests {
             if (maneuvers == null || maneuvers.Length == 0) {
                 catalog.BuildMartialManeuversSubsystem();
             }
-            var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"));
             var context = new FakeCharacterContext(catalog: catalog);
-            engine.Initialize(context);
+            var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"), context);
             return engine;
         }
 
@@ -41,8 +40,7 @@ namespace PlayMore35.Tests {
                 catalog.BuildMartialManeuversSubsystem();
             }
             context.Catalog = catalog;
-            var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"));
-            engine.Initialize(context);
+            var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"), context);
             return engine;
         }
 
@@ -251,7 +249,6 @@ namespace PlayMore35.Tests {
             SetStat(context.Effects, "stances known:warblade", 1);
 
             var engine = CreateMartialEngineWithContext(content, context);
-            engine.Initialize(context);
 
             Assert.AreEqual(3, engine.GetSlotCapacity("readied", "Warblade"));
             Assert.AreEqual(2, engine.GetMaxLevel("readied", "Warblade"));
@@ -780,7 +777,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("active", engine.GetSlotState("stances", 1, "Warblade"));
 
             // Adopt stance 2, explicitly choosing to replace stance 1 (rather than oldest stance 0)
-            engine.ExecuteVerb("adopt_stance", context, "stances", 2, null, "Warblade", new List<int> { 1 });
+            engine.ExecuteVerb("adopt_stance", "stances", 2, null, "Warblade", new List<int> { 1 });
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"), "Stance 0 should remain active");
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 1, "Warblade"), "Stance 1 was explicitly replaced");
             Assert.AreEqual("active", engine.GetSlotState("stances", 2, "Warblade"), "Stance 2 should now be active");
@@ -808,7 +805,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("active", engine.GetSlotState("stances", 2, "Warblade"));
 
             // Change both stances simultaneously in a single swift action
-            engine.ExecuteVerb("adopt_stance", context, "stances", null, null, "Warblade", new List<int> { 0, 1 });
+            engine.ExecuteVerb("adopt_stance", "stances", null, null, "Warblade", new List<int> { 0, 1 });
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1, "Warblade"));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 2, "Warblade"));
@@ -829,7 +826,7 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 1, "Blood in the Water", "active", "Warblade");
 
             // Two active stances with active stances capacity of 1
-            var warnings = engine.Validate(context);
+            var warnings = engine.Validate();
             Assert.IsTrue(warnings.Any(w => w.Contains("Active stances count (2) exceeds active stances capacity (1)")));
 
             var maneuverWarnings = engine.ValidateChoice(null, null, "Punishing Stance", "Warblade");
@@ -860,14 +857,14 @@ namespace PlayMore35.Tests {
             // While inactive, ContributeEffects does not add stance modifier
             var pool = new EffectPool(context.Character);
             SetStat(pool, "AC", 15);
-            engine.ContributeEffects(pool, context);
+            engine.ContributeEffects(pool);
             Assert.AreEqual(15, pool.GetStatValue("AC", null));
 
             // When adopted / active, ContributeEffects applies the -2 penalty
             engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
             var activePool = new EffectPool(context.Character);
             SetStat(activePool, "AC", 15);
-            engine.ContributeEffects(activePool, context);
+            engine.ContributeEffects(activePool);
             Assert.AreEqual(13, activePool.GetStatValue("AC", null));
         }
 
@@ -929,7 +926,7 @@ namespace PlayMore35.Tests {
             // 3. ContributeEffects projects temporary boost effect into EffectPool
             var pool = new EffectPool(character);
             SetStat(pool, "Speed", 30);
-            engine.ContributeEffects(pool, context);
+            engine.ContributeEffects(pool);
             Assert.AreEqual(40, pool.GetStatValue("Speed", null));
 
             // 4. Counter transitions to Expended and schedules SheetAction
@@ -947,7 +944,7 @@ namespace PlayMore35.Tests {
             // 6. ContributeEffects after expiration no longer applies boost effect
             var postExpirationPool = new EffectPool(character);
             SetStat(postExpirationPool, "Speed", 30);
-            engine.ContributeEffects(postExpirationPool, context);
+            engine.ContributeEffects(postExpirationPool);
             Assert.AreEqual(30, postExpirationPool.GetStatValue("Speed", null));
 
             // 7. Maneuver slot remains Expended (does not un-expend)
@@ -975,7 +972,7 @@ namespace PlayMore35.Tests {
         public void SubsystemEngine_FullCatalogStanceActivation_ModifiesStatsAcrossClasses() {
             var content = new GameRulesCatalog();
             var context = new FakeCharacterContext(catalog: content);
-            var engine = new SubsystemEngine(content.GetSubsystem("martial_maneuvers"));
+            var engine = new SubsystemEngine(content.GetSubsystem("martial_maneuvers"), context);
 
             SetStat(context.Effects, "stances known:warblade", 2);
             SetStat(context.Effects, "stances known:swordsage", 1);
@@ -984,8 +981,6 @@ namespace PlayMore35.Tests {
             SetStat(context.Effects, "Land speed", 30);
             SetStat(context.Effects, "Listen", 4);
             SetStat(context.Effects, "Will saves", 3);
-
-            engine.Initialize(context);
 
             engine.AssignSlot("stances", 0, "Punishing Stance", "inactive", "Warblade");
             engine.AssignSlot("stances", 1, "Absolute Steel", "inactive", "Warblade");
@@ -1000,7 +995,7 @@ namespace PlayMore35.Tests {
             SetStat(baselinePool, "Land speed", 30);
             SetStat(baselinePool, "Listen", 4);
             SetStat(baselinePool, "Will saves", 3);
-            engine.ContributeEffects(baselinePool, context);
+            engine.ContributeEffects(baselinePool);
             Assert.AreEqual(15, baselinePool.GetStatValue("AC", null));
             Assert.AreEqual(30, baselinePool.GetStatValue("Land speed", null));
             Assert.AreEqual(4, baselinePool.GetStatValue("Listen", null));
@@ -1011,7 +1006,7 @@ namespace PlayMore35.Tests {
             var wbPool = new EffectPool(context.Character);
             SetStat(wbPool, "AC", 15);
             SetStat(wbPool, "Land speed", 30);
-            engine.ContributeEffects(wbPool, context);
+            engine.ContributeEffects(wbPool);
             Assert.AreEqual(13, wbPool.GetStatValue("AC", null));
 
             // Warblade switches to Absolute Steel (+10 Land speed)
@@ -1019,7 +1014,7 @@ namespace PlayMore35.Tests {
             var wbSpeedPool = new EffectPool(context.Character);
             SetStat(wbSpeedPool, "AC", 15);
             SetStat(wbSpeedPool, "Land speed", 30);
-            engine.ContributeEffects(wbSpeedPool, context);
+            engine.ContributeEffects(wbSpeedPool);
             Assert.AreEqual(15, wbSpeedPool.GetStatValue("AC", null));
             Assert.AreEqual(40, wbSpeedPool.GetStatValue("Land speed", null));
 
@@ -1027,14 +1022,14 @@ namespace PlayMore35.Tests {
             engine.InvokeVerb("adopt_stance", "stances", 0, source: "Swordsage");
             var ssPool = new EffectPool(context.Character);
             SetStat(ssPool, "Listen", 4);
-            engine.ContributeEffects(ssPool, context);
+            engine.ContributeEffects(ssPool);
             Assert.AreEqual(9, ssPool.GetStatValue("Listen", null));
 
             // Crusader activates Bolstering Voice (+2 Will saves)
             engine.InvokeVerb("adopt_stance", "stances", 0, source: "Crusader");
             var crPool = new EffectPool(context.Character);
             SetStat(crPool, "Will saves", 3);
-            engine.ContributeEffects(crPool, context);
+            engine.ContributeEffects(crPool);
             Assert.AreEqual(5, crPool.GetStatValue("Will saves", null));
         }
 
@@ -1043,7 +1038,7 @@ namespace PlayMore35.Tests {
         public void SubsystemEngine_FullCatalogRecovery_OperatesAcrossCrusaderSwordsageAndWarblade() {
             var content = new GameRulesCatalog();
             var context = new FakeCharacterContext(catalog: content);
-            var engine = new SubsystemEngine(content.GetSubsystem("martial_maneuvers"));
+            var engine = new SubsystemEngine(content.GetSubsystem("martial_maneuvers"), context);
 
             SetStat(context.Effects, "maneuvers known:warblade", 2);
             SetStat(context.Effects, "maneuvers readied:warblade", 2);
@@ -1052,8 +1047,6 @@ namespace PlayMore35.Tests {
             SetStat(context.Effects, "maneuvers known:crusader", 3);
             SetStat(context.Effects, "maneuvers readied:crusader", 3);
             SetStat(context.Effects, "maneuvers granted:crusader", 2);
-
-            engine.Initialize(context);
 
             // 1. Warblade: initiate and recover via swift flourish
             engine.AssignSlot("readied", 0, "Steel Wind", "available", "Warblade");

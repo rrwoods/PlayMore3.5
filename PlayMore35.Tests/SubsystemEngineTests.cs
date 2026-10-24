@@ -13,11 +13,36 @@ using PlayMore35.Subsystems;
 namespace PlayMore35.Tests {
     [TestClass]
     public class SubsystemEngineTests {
-        private static SubsystemEngine CreateTestEngine(string id, string name = null) {
+        private static SubsystemEngine CreateTestEngine(string id, string name = null, ICharacterContext context = null) {
             return new SubsystemEngine(new SubsystemDefinition {
                 Id = id,
                 Name = name ?? id
-            });
+            }, context ?? new FakeCharacterContext());
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_Constructor_ThrowsArgumentNullException_OnNullDefinitionOrContext() {
+            var validDef = new SubsystemDefinition { Id = "test", Name = "Test" };
+            var validContext = new FakeCharacterContext();
+
+            Assert.ThrowsException<ArgumentNullException>(() => new SubsystemEngine(null, validContext));
+            Assert.ThrowsException<ArgumentNullException>(() => new SubsystemEngine(validDef, null));
+            Assert.ThrowsException<ArgumentNullException>(() => new SubsystemEngine(null, validContext, new Random()));
+            Assert.ThrowsException<ArgumentNullException>(() => new SubsystemEngine(validDef, null, new Random()));
+        }
+
+        [TestMethod]
+        public void SubsystemSlotGroup_Slots_AreGuaranteedNonNullInstances() {
+            var group = new SubsystemSlotGroup<SubsystemSlot>(3);
+            Assert.AreEqual(3, group.Slots.Count);
+            foreach (var slot in group.Slots) {
+                Assert.IsNotNull(slot);
+                Assert.AreEqual("", slot.Element);
+            }
+
+            group.ClearSlot(1);
+            Assert.IsNotNull(group[1]);
+            Assert.AreEqual("", group[1].Element);
         }
 
         [TestMethod]
@@ -560,14 +585,14 @@ namespace PlayMore35.Tests {
             group.Effects.Add(maxLevelEffect);
             def.SlotGroups["vestiges"] = group;
 
-            var engine = new SubsystemEngine(def);
             var character = new Character { race = "human" };
             var session = new CharacterSession(character, new GameRulesCatalog());
+            var engine = new SubsystemEngine(def, session);
             var pool = new EffectPool(character);
             pool.AddStat(new Statistic("EBL for max vestige level"));
             pool.AddEffect(new Effect("EBL").AddModifier("EBL for max vestige level", new Modifier(3, ModifierTypes.BASE)));
 
-            engine.ContributeEffects(pool, session);
+            engine.ContributeEffects(pool);
 
             Assert.IsTrue(pool.stats.ContainsKey("maximum vestige level"), "Slot group max level stat should be registered in pool.");
             Assert.AreEqual(2, pool.GetStatValue("maximum vestige level", null), "Max level stat should be modified by slot group effects.");
@@ -599,13 +624,12 @@ namespace PlayMore35.Tests {
             elem2.SetProperty("level", 2);
             def.Elements["Savnok"] = elem2;
 
-            var engine = new SubsystemEngine(def);
             var character = new Character { race = "human" };
             var session = new CharacterSession(character, new GameRulesCatalog());
             ICharacterContext ctx = session;
             ctx.Effects.AddStat(new Statistic("maximum vestige level"));
             ctx.Effects.AddEffect(new Effect("Base Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.BASE)));
-            engine.Initialize(session);
+            var engine = new SubsystemEngine(def, session);
 
             // With max vestige level = 1:
             var accessible = engine.GetAccessibleElements(null, null);
@@ -654,13 +678,12 @@ namespace PlayMore35.Tests {
             elem2.SetProperty("level", 2);
             def.Elements["Savnok"] = elem2;
 
-            var engine = new SubsystemEngine(def);
             var character = new Character { race = "human" };
             var session = new CharacterSession(character, new GameRulesCatalog());
             ICharacterContext ctx = session;
             ctx.Effects.AddStat(new Statistic("maximum vestige level"));
             ctx.Effects.AddEffect(new Effect("Base Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.BASE)));
-            engine.Initialize(session);
+            var engine = new SubsystemEngine(def, session);
 
             var descriptor = new ChoiceDescriptor("vestige", "Choose Vestige", "SubsystemElements", "pact_magic");
 

@@ -135,7 +135,6 @@ namespace PlayMore35.Tests {
 
             ctx.Effects.AddStat(new Statistic("number of vestiges"));
             ctx.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(1, ModifierTypes.UNTYPED)));
-            engine.Initialize(session);
 
             engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
             Assert.AreEqual("Aym", engine.GetSlotElement("vestiges", 0));

@@ -61,7 +61,7 @@ namespace PlayMore35.Global {
             if (this.catalog.Subsystems != null) {
                 foreach (var subDef in this.catalog.Subsystems.Values) {
                     string? alias = subDef.Id == "pact_magic" ? "vestige" : (subDef.Id == "martial_maneuvers" ? "maneuver" : null);
-                    subsystems.Register(new SubsystemEngine(subDef), alias);
+                    subsystems.Register(new SubsystemEngine(subDef, this), alias);
                 }
             }
 
@@ -69,10 +69,6 @@ namespace PlayMore35.Global {
                 while (skill.Value.Count < this.character.classLevels.Count) {
                     skill.Value.Add(0);
                 }
-            }
-
-            foreach (var engine in subsystems.All) {
-                engine.Initialize(this);
             }
 
             Recalculate();
@@ -268,12 +264,12 @@ namespace PlayMore35.Global {
                 if (character.Subsystems.TryGetValue(engine.Id, out var state) && state != null) {
                     engine.LoadState(state);
                 }
-                engine.ProjectFeatSlots(this);
+                engine.ProjectFeatSlots();
                 if (engine.IsActive || character.Subsystems.ContainsKey(engine.Id)) {
                     character.Subsystems[engine.Id] = engine.ExportState();
                 }
                 if (engine.IsActive) {
-                    engine.ContributeEffects(effects, this);
+                    engine.ContributeEffects(effects);
                 }
             }
 
@@ -776,7 +772,7 @@ namespace PlayMore35.Global {
 
             if (string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
                 foreach (var engine in subsystems.All) {
-                    var elem = engine.GetElement(rawChoice!, this);
+                    var elem = engine.GetElement(rawChoice!);
                     if (elem != null) return elem;
                 }
             }

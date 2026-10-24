@@ -212,8 +212,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("empty", engine.GetSlot("flasks", 1)?.State);
             Assert.AreEqual("HedgeWizard", engine.GetSlot("flasks", 1)?.Source);
 
-            Assert.AreEqual(4, engine.GetPoolValue("catalyst", session));
-            Assert.AreEqual(2, engine.GetPoolValue("heat", session));
+            Assert.AreEqual(4, engine.GetPoolValue("catalyst"));
+            Assert.AreEqual(2, engine.GetPoolValue("heat"));
         }
 
         [TestMethod]
@@ -235,13 +235,13 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.Character.Subsystems["synthetic_alchemy"].Slots["flasks"].Count);
 
             // 3. Pool operations update Character.Subsystems
-            engine.SetPoolValue("catalyst", 6, session);
+            engine.SetPoolValue("catalyst", 6);
             Assert.AreEqual(6, session.Character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
 
-            engine.ConsumePool("catalyst", 2, session);
+            engine.ConsumePool("catalyst", 2);
             Assert.AreEqual(4, session.Character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
 
-            engine.RechargePool("catalyst", 5, session);
+            engine.RechargePool("catalyst", 5);
             Assert.AreEqual(9, session.Character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
 
             // 4. Transitions update Character.Subsystems
@@ -251,7 +251,7 @@ namespace PlayMore35.Tests {
                 SlotIndex = 0,
                 FromState = "prepared",
                 ToState = "expended"
-            }, session);
+            });
             Assert.AreEqual("expended", session.Character.Subsystems["synthetic_alchemy"].Slots["flasks"][0].State);
         }
 
@@ -270,7 +270,7 @@ namespace PlayMore35.Tests {
             session.Recalculate();
 
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State);
-            Assert.AreEqual(3, engine.GetPoolValue("catalyst", session));
+            Assert.AreEqual(3, engine.GetPoolValue("catalyst"));
         }
 
         [TestMethod]
@@ -281,8 +281,8 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("flasks", 0, "Acid Flask", state: "prepared", source: "GuildAlchemist");
             engine.AssignSlot("flasks", 1, "Fire Flask", state: "empty", source: "HedgeWizard");
             engine.AssignSlot("infusions", 0, "Speed Infusion", state: "active", source: "Alchemist");
-            engine.SetPoolValue("catalyst", 7, session);
-            engine.SetPoolValue("heat", 3, session);
+            engine.SetPoolValue("catalyst", 7);
+            engine.SetPoolValue("heat", 3);
 
             session.Recalculate();
             int activeDex = session.GetStatistic("DEX score").Value;
@@ -308,8 +308,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("active", restoredEngine.GetSlot("infusions", 0)?.State);
             Assert.AreEqual("Alchemist", restoredEngine.GetSlot("infusions", 0)?.Source);
 
-            Assert.AreEqual(7, restoredEngine.GetPoolValue("catalyst", restoredSession));
-            Assert.AreEqual(3, restoredEngine.GetPoolValue("heat", restoredSession));
+            Assert.AreEqual(7, restoredEngine.GetPoolValue("catalyst"));
+            Assert.AreEqual(3, restoredEngine.GetPoolValue("heat"));
 
             // Verify projected effect (active Speed Infusion projects +4 DEX)
             Assert.AreEqual(activeDex, restoredSession.GetStatistic("DEX score").Value);

@@ -199,13 +199,13 @@ namespace PlayMore35.Global {
                 if (engine != null) {
                     var target = new SubsystemTarget(SlotGroup, SlotIndex, Element, Source);
                     if (!string.IsNullOrEmpty(Verb)) {
-                        var req = engine.ExecuteVerb(Verb, context, target);
+                        var req = engine.ExecuteVerb(Verb, target);
                         if (req > requirement) requirement = req;
                     } else if (Transition != null) {
-                        var req = engine.ExecuteTransition(Transition, context, target);
+                        var req = engine.ExecuteTransition(Transition, target);
                         if (req > requirement) requirement = req;
                     } else if (PoolOperation != null) {
-                        var req = engine.ExecutePoolOperation(PoolOperation, context);
+                        var req = engine.ExecutePoolOperation(PoolOperation);
                         if (req > requirement) requirement = req;
                     }
                 }

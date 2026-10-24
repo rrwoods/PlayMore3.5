@@ -168,8 +168,6 @@ namespace PlayMore35.Tests {
             testStance.SetProperty("level", 1);
             testStance.AddEffect("benefits", attackStanceEffect);
             var customCatalog = new FakeRulesCatalog(new[] { testStance }, inner: catalog);
-            var customEngine = new SubsystemEngine(customCatalog.GetSubsystem("martial_maneuvers"));
-
             var character = new Character();
             character.classLevels.Clear();
             for (int i = 0; i < 3; i++) character.classLevels.Add("Warblade"); // BAB +3
@@ -177,8 +175,8 @@ namespace PlayMore35.Tests {
             character.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "greatsword" };
 
             var session = new CharacterSession(character, customCatalog);
+            var customEngine = new SubsystemEngine(customCatalog.GetSubsystem("martial_maneuvers"), session);
             session.Subsystems.Register(customEngine, "maneuver");
-            customEngine.Initialize(session);
             session.Recalculate();
 
             // Greatsword attack without stance: BAB +3 + STR +3 = +6

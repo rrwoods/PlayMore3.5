@@ -480,7 +480,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void SubsystemElement_ImplementsIPropertyProvider_AndExposesGenericProperties() {
             var catalog = new GameRulesCatalog();
-            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"));
+            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), new FakeCharacterContext(catalog: catalog));
             var aym = engine.GetElement("Aym");
             Assert.IsNotNull(aym);
 

@@ -1,18 +1,22 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using PlayMore35.CharacterChoices;
+using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemRegistry {
-        public static SubsystemRegistry CreateDefault() {
+        public static SubsystemRegistry CreateDefault(ICharacterContext? context = null) {
             var registry = new SubsystemRegistry();
             var catalog = new Rules.GameRulesCatalog();
+            var effectiveContext = context ?? new CharacterSession(new Character(), catalog);
             var pactDef = catalog.GetSubsystem("pact_magic");
             if (pactDef != null) {
-                registry.Register(new SubsystemEngine(pactDef), "vestige");
+                registry.Register(new SubsystemEngine(pactDef, effectiveContext), "vestige");
             }
             var martialDef = catalog.GetSubsystem("martial_maneuvers");
             if (martialDef != null) {
-                registry.Register(new SubsystemEngine(martialDef), "maneuver");
+                registry.Register(new SubsystemEngine(martialDef, effectiveContext), "maneuver");
             }
             return registry;
         }
@@ -22,7 +26,7 @@ namespace PlayMore35.Subsystems {
 
         public IEnumerable<SubsystemEngine> All => engines;
 
-        public void Register(SubsystemEngine engine, string alias = null) {
+        public void Register(SubsystemEngine engine, string? alias = null) {
             if (engine == null) throw new ArgumentNullException(nameof(engine));
             if (!string.IsNullOrEmpty(engine.Id)) {
                 if (enginesById.TryGetValue(engine.Id, out var existing)) {
@@ -41,9 +45,9 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public SubsystemEngine Get(string id) {
+        public SubsystemEngine? Get(string? id) {
             if (string.IsNullOrEmpty(id)) return null;
-            return enginesById.TryGetValue(id, out var engine) ? engine : null;
+            return enginesById.TryGetValue(id!, out var engine) ? engine : null;
         }
     }
 }

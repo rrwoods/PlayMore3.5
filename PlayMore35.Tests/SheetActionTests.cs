@@ -109,11 +109,10 @@ namespace PlayMore35.Tests {
 
             var (context, _, _) = CreateTestContext();
             var catalog = new GameRulesCatalog();
-            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"));
+            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), context);
             context.Subsystems.Register(engine);
             context.Effects.AddStat(new Statistic("number of vestiges"));
             context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(3, ModifierTypes.UNTYPED)));
-            engine.Initialize(context);
             engine.AssignSlot("vestiges", 2, "Aym", "good_pact", "Binder");
             Assert.AreEqual("Aym", engine.GetSlotElement("vestiges", 2));
 

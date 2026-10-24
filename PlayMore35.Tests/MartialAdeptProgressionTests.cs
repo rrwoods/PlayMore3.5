@@ -45,10 +45,9 @@ namespace PlayMore35.Tests {
                     }
                 }
 
-                var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"));
                 var ctx = new FakeCharacterContext(effects: pool, catalog: catalog);
-                engine.Initialize(ctx);
-                engine.ContributeEffects(pool, ctx);
+                var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"), ctx);
+                engine.ContributeEffects(pool);
 
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:warblade", null), $"Warblade level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:warblade", null), $"Warblade level {lvl} known");
@@ -87,10 +86,9 @@ namespace PlayMore35.Tests {
                     }
                 }
 
-                var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"));
                 var ctx = new FakeCharacterContext(effects: pool, catalog: catalog);
-                engine.Initialize(ctx);
-                engine.ContributeEffects(pool, ctx);
+                var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"), ctx);
+                engine.ContributeEffects(pool);
 
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:crusader", null), $"Crusader level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:crusader", null), $"Crusader level {lvl} known");
@@ -128,10 +126,9 @@ namespace PlayMore35.Tests {
                     }
                 }
 
-                var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"));
                 var ctx = new FakeCharacterContext(effects: pool, catalog: catalog);
-                engine.Initialize(ctx);
-                engine.ContributeEffects(pool, ctx);
+                var engine = new SubsystemEngine(catalog.GetSubsystem("martial_maneuvers"), ctx);
+                engine.ContributeEffects(pool);
 
                 Assert.AreEqual(lvl, pool.GetStatValue("initiator level:swordsage", null), $"Swordsage level {lvl} IL");
                 Assert.AreEqual(expectedKnown[lvl - 1], pool.GetStatValue("maneuvers known:swordsage", null), $"Swordsage level {lvl} known");

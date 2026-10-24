@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace PlayMore35.Subsystems {
         private readonly Dictionary<string, SubsystemSlotGroup<SubsystemSlot>> slotGroups = new Dictionary<string, SubsystemSlotGroup<SubsystemSlot>>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, int> poolValues = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private readonly List<SubsystemSlot> activeSlotOrder = new List<SubsystemSlot>();
-        private ICharacterContext context;
+        private readonly ICharacterContext context;
 
         public SubsystemDefinition Definition { get; }
         public string Id => Definition.Id;
@@ -20,18 +21,37 @@ namespace PlayMore35.Subsystems {
             get {
                 if (slotGroups.Values.Any(g => g.Capacity > 0)) return true;
                 if (Definition.SlotGroups.Keys.Any(k => GetSlotCapacity(k) > 0)) return true;
-                if (slotGroups.Values.Any(g => g.RawSlots.Any(s => s != null && !string.IsNullOrEmpty(s.Element)))) return true;
-                if (Definition.Pools.Keys.Any(k => GetPoolCapacity(k, context) > 0)) return true;
+                if (slotGroups.Values.Any(g => g.RawSlots.Any(s => !string.IsNullOrEmpty(s.Element)))) return true;
+                if (Definition.Pools.Keys.Any(k => GetPoolCapacity(k) > 0)) return true;
                 return false;
             }
         }
         public Random Rng { get; private set; }
 
-        public SubsystemEngine(SubsystemDefinition definition, Random rng = null) {
+        public SubsystemEngine(SubsystemDefinition definition, ICharacterContext context, Random? rng = null) {
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
             Rng = rng ?? new Random();
             InitializeStorage();
+
+            if (this.context.Character != null) {
+                if (this.context.Character.Subsystems.TryGetValue(Id, out var state) && state != null) {
+                    LoadState(state);
+                }
+            }
+            foreach (var kvp in Definition.Pools) {
+                if (!poolValues.ContainsKey(kvp.Key)) {
+                    int cap = GetPoolCapacity(kvp.Key);
+                    poolValues[kvp.Key] = cap;
+                }
+            }
+            if (this.context.Character != null && (IsActive || this.context.Character.Subsystems.ContainsKey(Id))) {
+                SyncState();
+            }
         }
+
+        public SubsystemEngine(SubsystemDefinition definition, ICharacterContext context)
+            : this(definition, context, new Random()) { }
 
         public void SetRandom(Random rng) {
             Rng = rng ?? new Random();
@@ -44,7 +64,8 @@ namespace PlayMore35.Subsystems {
                 var groupDef = kvp.Value;
                 string groupKey = kvp.Key;
                 var group = new SubsystemSlotGroup<SubsystemSlot>(
-                    capacityProvider: () => ResolveCapacity(groupDef, null, context)
+                    capacityProvider: () => ResolveCapacity(groupDef, null),
+                    slotFactory: () => new SubsystemSlot("", "", "")
                 );
                 slotGroups[groupKey] = group;
             }
@@ -57,14 +78,13 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public List<string> GetActiveSources(EffectPool pool = null, ICharacterContext ctx = null) {
-            var activeContext = ctx ?? context;
+        public List<string> GetActiveSources(EffectPool? pool = null) {
             var sources = new List<string>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            void AddSource(string src) {
+            void AddSource(string? src) {
                 if (string.IsNullOrWhiteSpace(src)) return;
-                string trimmed = src.Trim();
+                string trimmed = src!.Trim();
                 if (seen.Add(trimmed)) {
                     sources.Add(trimmed);
                 }
@@ -72,15 +92,15 @@ namespace PlayMore35.Subsystems {
 
             foreach (var group in slotGroups.Values) {
                 foreach (var s in group.RawSlots) {
-                    if (s != null && !string.IsNullOrEmpty(s.Source)) {
+                    if (!string.IsNullOrEmpty(s.Source)) {
                         AddSource(s.Source);
                     }
                 }
             }
 
-            if (activeContext?.Character?.classLevels != null && activeContext?.Catalog != null) {
-                foreach (var clsName in activeContext.Character.classLevels.Distinct(StringComparer.OrdinalIgnoreCase)) {
-                    var cls = activeContext.Catalog.GetClass(clsName);
+            if (context.Character?.classLevels != null && context.Catalog != null) {
+                foreach (var clsName in context.Character.classLevels.Distinct(StringComparer.OrdinalIgnoreCase)) {
+                    var cls = context.Catalog.GetClass(clsName);
                     if (cls != null && cls.Subsystems != null && cls.Subsystems.ContainsKey(Id)) {
                         AddSource(cls.Name);
                     }
@@ -99,7 +119,7 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            void ScanStatKeys(IEnumerable<string> keys) {
+            void ScanStatKeys(IEnumerable<string>? keys) {
                 if (keys == null) return;
                 foreach (var key in keys) {
                     foreach (var prefix in statPrefixes) {
@@ -111,69 +131,65 @@ namespace PlayMore35.Subsystems {
             }
 
             ScanStatKeys(pool?.stats?.Keys);
-            ScanStatKeys(activeContext?.Effects?.stats?.Keys);
+            ScanStatKeys(context.Effects?.stats?.Keys);
 
             return sources;
         }
 
-        private int ResolveCapacity(SlotGroupDefinition def, string source = null, ICharacterContext ctx = null) {
+        private int ResolveCapacity(SlotGroupDefinition? def, string? source = null) {
             if (def == null) return 0;
-            var activeContext = ctx ?? context;
-            if (activeContext != null && !string.IsNullOrEmpty(def.CapacityStat)) {
+            if (!string.IsNullOrEmpty(def.CapacityStat)) {
                 if (def.CapacityStat.Contains("{source}")) {
                     if (!string.IsNullOrEmpty(source)) {
-                        string statName = def.CapacityStat.Replace("{source}", source.Trim().ToLowerInvariant());
-                        return ResolveStatOrParam(statName, activeContext, def.FixedCapacity);
+                        string statName = def.CapacityStat.Replace("{source}", source!.Trim().ToLowerInvariant());
+                        return ResolveStatOrParam(statName, def.FixedCapacity);
                     }
-                    var sources = GetActiveSources(null, activeContext);
+                    var sources = GetActiveSources(null);
                     if (sources.Count > 0) {
-                        return sources.Sum(s => ResolveStatOrParam(def.CapacityStat.Replace("{source}", s.Trim().ToLowerInvariant()), activeContext, 0));
+                        return sources.Sum(s => ResolveStatOrParam(def.CapacityStat.Replace("{source}", s.Trim().ToLowerInvariant()), 0));
                     }
                     return def.FixedCapacity;
                 }
-                return ResolveStatOrParam(def.CapacityStat, activeContext, def.FixedCapacity);
+                return ResolveStatOrParam(def.CapacityStat, def.FixedCapacity);
             }
             return def.FixedCapacity;
         }
 
-        private int ResolveMaxLevel(SlotGroupDefinition def, string source = null, ICharacterContext ctx = null) {
+        private int ResolveMaxLevel(SlotGroupDefinition? def, string? source = null) {
             if (def?.MaxLevel == null || string.IsNullOrEmpty(def.MaxLevel.Stat)) {
                 return def?.MaxLevel != null ? def.MaxLevel.Base : int.MaxValue;
             }
-            var activeContext = ctx ?? context;
-            if (activeContext == null) return def.MaxLevel.Base;
 
             if (def.MaxLevel.Stat.Contains("{source}")) {
                 if (!string.IsNullOrEmpty(source)) {
-                    string statName = def.MaxLevel.Stat.Replace("{source}", source.Trim().ToLowerInvariant());
-                    return EvaluateMaxLevelStat(def, statName, source, activeContext);
+                    string statName = def.MaxLevel.Stat.Replace("{source}", source!.Trim().ToLowerInvariant());
+                    return EvaluateMaxLevelStat(def, statName, source!);
                 }
-                var sources = GetActiveSources(null, activeContext);
+                var sources = GetActiveSources(null);
                 if (sources.Count == 0) return def.MaxLevel.Base;
-                return sources.Max(s => ResolveMaxLevel(def, s, activeContext));
+                return sources.Max(s => ResolveMaxLevel(def, s));
             }
 
-            return EvaluateMaxLevelStat(def, def.MaxLevel.Stat, null, activeContext);
+            return EvaluateMaxLevelStat(def, def.MaxLevel.Stat, null);
         }
 
-        private int EvaluateMaxLevelStat(SlotGroupDefinition def, string statName, string source, ICharacterContext activeContext) {
-            if (activeContext == null) return def.MaxLevel.Base;
-            bool hasDirectStat = (activeContext.Effects != null && activeContext.Effects.stats.ContainsKey(statName))
-                                 || activeContext.GetStatistic(statName) != null;
+        private int EvaluateMaxLevelStat(SlotGroupDefinition def, string statName, string? source) {
+            bool hasDirectStat = (context.Effects != null && context.Effects.stats.ContainsKey(statName))
+                                 || context.GetStatistic(statName) != null;
             if (hasDirectStat) {
-                return ResolveStatOrParam(statName, activeContext, def.MaxLevel.Base);
+                return ResolveStatOrParam(statName, def.MaxLevel.Base);
             }
             if (def.Effects.Count > 0) {
-                var tempPool = new EffectPool(activeContext.Character ?? new Character());
+                var tempPool = new EffectPool(context.Character ?? new Character());
                 tempPool.AddStat(new Statistic(statName));
                 tempPool.AddEffect(new Effect($"{statName} Base")
                     .AddModifier(statName, new Modifier(def.MaxLevel.Base, ModifierTypes.BASE)));
                 var effects = def.GetEffectsForSource(source);
                 foreach (var eff in effects) {
                     foreach (var token in eff.ToJson().SelectTokens("$..['stat value']")) {
-                        string refStat = (string)token;
+                        string refStat = (string)token!;
                         if (!string.IsNullOrEmpty(refStat) && !tempPool.stats.ContainsKey(refStat)) {
-                            int refVal = ResolveStatOrParam(refStat, activeContext, 0);
+                            int refVal = ResolveStatOrParam(refStat, 0);
                             tempPool.AddStat(new Statistic(refStat));
                             tempPool.AddEffect(new Effect($"{refStat} Base")
                                 .AddModifier(refStat, new Modifier(refVal, ModifierTypes.BASE)));
@@ -181,80 +197,56 @@ namespace PlayMore35.Subsystems {
                     }
                     tempPool.AddEffect(eff);
                 }
-                return tempPool.GetStatistic(statName, activeContext.EquippedItems)?.Value ?? def.MaxLevel.Base;
+                return tempPool.GetStatistic(statName, context.EquippedItems)?.Value ?? def.MaxLevel.Base;
             }
-            return ResolveStatOrParam(statName, activeContext, def.MaxLevel.Base);
+            return ResolveStatOrParam(statName, def.MaxLevel.Base);
         }
 
-        public int GetMaxLevel(string groupName, string source = null, ICharacterContext ctx = null) {
+        public int GetMaxLevel(string groupName, string? source = null) {
             if (string.IsNullOrEmpty(groupName) || !Definition.SlotGroups.TryGetValue(groupName, out var def)) return int.MaxValue;
-            return ResolveMaxLevel(def, source, ctx ?? context);
+            return ResolveMaxLevel(def, source);
         }
 
-        public int GetReadiedCapacity(string groupName, string source = null, ICharacterContext ctx = null) {
+        public int GetReadiedCapacity(string groupName, string? source = null) {
             if (string.IsNullOrEmpty(groupName) || !Definition.SlotGroups.TryGetValue(groupName, out var def)) return 0;
-            if (string.IsNullOrEmpty(def.ReadiedCapacityStat)) return GetSlotCapacity(groupName, source, ctx);
-            var activeContext = ctx ?? context;
-            if (activeContext == null) return 0;
+            if (string.IsNullOrEmpty(def.ReadiedCapacityStat)) return GetSlotCapacity(groupName, source);
             if (def.ReadiedCapacityStat.Contains("{source}")) {
                 if (!string.IsNullOrEmpty(source)) {
-                    string statName = def.ReadiedCapacityStat.Replace("{source}", source.Trim().ToLowerInvariant());
-                    return ResolveStatOrParam(statName, activeContext, 0);
+                    string statName = def.ReadiedCapacityStat.Replace("{source}", source!.Trim().ToLowerInvariant());
+                    return ResolveStatOrParam(statName, 0);
                 }
-                var sources = GetActiveSources(null, activeContext);
-                return sources.Sum(s => ResolveStatOrParam(def.ReadiedCapacityStat.Replace("{source}", s.Trim().ToLowerInvariant()), activeContext, 0));
+                var sources = GetActiveSources(null);
+                return sources.Sum(s => ResolveStatOrParam(def.ReadiedCapacityStat.Replace("{source}", s.Trim().ToLowerInvariant()), 0));
             }
-            return ResolveStatOrParam(def.ReadiedCapacityStat, activeContext, 0);
+            return ResolveStatOrParam(def.ReadiedCapacityStat, 0);
         }
 
-        private int ResolveStatOrParam(string name, ICharacterContext ctx, int defaultValue) {
+        private int ResolveStatOrParam(string? name, int defaultValue) {
             if (string.IsNullOrEmpty(name)) return defaultValue;
-            if (ctx != null) {
-                if (ctx.Effects != null && ctx.Effects.stats.ContainsKey(name)) {
-                    return ctx.GetStatValue(name, defaultValue);
-                }
-                if (ctx.Effects != null && ctx.Effects.controllableParameters.TryGetValue(name, out var p)) {
-                    return p.Value;
-                }
-                if (ctx.Character != null && ctx.Character.paramValues.TryGetValue(name, out var pv)) {
-                    return pv;
-                }
-                return ctx.GetStatValue(name, defaultValue);
+            if (context.Effects != null && context.Effects.stats.ContainsKey(name)) {
+                return context.GetStatValue(name, defaultValue);
             }
-            return defaultValue;
+            if (context.Effects != null && context.Effects.controllableParameters.TryGetValue(name, out var p)) {
+                return p.Value;
+            }
+            if (context.Character != null && context.Character.paramValues.TryGetValue(name, out var pv)) {
+                return pv;
+            }
+            return context.GetStatValue(name, defaultValue);
         }
 
-        public SubsystemElement GetElement(string elementName, ICharacterContext ctx = null) {
+        public SubsystemElement? GetElement(string elementName) {
             if (string.IsNullOrEmpty(elementName)) return null;
             if (Definition.Elements.TryGetValue(elementName, out var elem)) {
                 return elem;
             }
-            var activeContext = ctx ?? context;
-            if (activeContext?.Catalog is Rules.IRulesCatalog cat) {
+            if (context.Catalog is Rules.IRulesCatalog cat) {
                 var subDef = cat.GetSubsystem(Id);
                 if (subDef != null && subDef.Elements.TryGetValue(elementName, out var catalogElem)) {
                     return catalogElem;
                 }
             }
             return null;
-        }
-
-        public void Initialize(ICharacterContext context) {
-            this.context = context;
-            if (context?.Character != null) {
-                if (context.Character.Subsystems.TryGetValue(Id, out var state) && state != null) {
-                    LoadState(state);
-                }
-            }
-            foreach (var kvp in Definition.Pools) {
-                if (!poolValues.ContainsKey(kvp.Key)) {
-                    int cap = GetPoolCapacity(kvp.Key, context);
-                    poolValues[kvp.Key] = cap;
-                }
-            }
-            if (context?.Character != null && (IsActive || context.Character.Subsystems.ContainsKey(Id))) {
-                SyncState();
-            }
         }
 
         public void LoadState(SubsystemState state) {
@@ -296,7 +288,7 @@ namespace PlayMore35.Subsystems {
                 int lastIndex = -1;
                 for (int i = slots.Count - 1; i >= 0; i--) {
                     var s = slots[i];
-                    if (s != null && (!string.IsNullOrEmpty(s.Element) || !string.IsNullOrEmpty(s.State) || !string.IsNullOrEmpty(s.Source))) {
+                    if (!string.IsNullOrEmpty(s.Element) || !string.IsNullOrEmpty(s.State) || !string.IsNullOrEmpty(s.Source)) {
                         lastIndex = i;
                         break;
                     }
@@ -304,11 +296,7 @@ namespace PlayMore35.Subsystems {
                 var list = new List<SubsystemSlot>();
                 for (int i = 0; i <= lastIndex; i++) {
                     var s = slots[i];
-                    if (s != null) {
-                        list.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
-                    } else {
-                        list.Add(new SubsystemSlot());
-                    }
+                    list.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
                 }
                 state.Slots[groupKey] = list;
             }
@@ -346,7 +334,7 @@ namespace PlayMore35.Subsystems {
             var currentSlots = group.RawSlots;
             for (int i = 0; i < currentSlots.Count; i++) {
                 var s = currentSlots[i];
-                if (s != null && string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase)) {
                     indices.Add(i);
                 }
             }
@@ -358,7 +346,7 @@ namespace PlayMore35.Subsystems {
                 int flatIdx = -1;
                 var slots = group.RawSlots;
                 for (int i = 0; i < slots.Count; i++) {
-                    if (slots[i] == null || (string.IsNullOrEmpty(slots[i].Element) && string.IsNullOrEmpty(slots[i].Source))) {
+                    if (string.IsNullOrEmpty(slots[i].Element) && string.IsNullOrEmpty(slots[i].Source)) {
                         flatIdx = i;
                         break;
                     }
@@ -380,7 +368,7 @@ namespace PlayMore35.Subsystems {
                    def.CapacityStat.Contains("{source}");
         }
 
-        private int ResolveFlatSlotIndex(string groupName, int index, string source, bool createIfMissing) {
+        private int ResolveFlatSlotIndex(string groupName, int index, string? source, bool createIfMissing) {
             if (index < 0) return -1;
             var group = GetSlotGroup(groupName);
             if (group == null) return -1;
@@ -394,14 +382,14 @@ namespace PlayMore35.Subsystems {
             // Fallback if slots were assigned without source tag in single-source setup
             if (indices.Count == 0 && index < group.Slots.Count) {
                 var s = group.Slots[index];
-                if (s != null && string.IsNullOrEmpty(s.Source)) {
+                if (string.IsNullOrEmpty(s.Source)) {
                     return index;
                 }
             }
             return -1;
         }
 
-        public void SetSlotState(string groupName, int index, string state, string source = null) {
+        public void SetSlotState(string groupName, int index, string state, string? source = null) {
             var slot = GetSlot(groupName, index, source);
             if (slot != null) {
                 string priorState = slot.State;
@@ -413,12 +401,12 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public SubsystemSlotGroup<SubsystemSlot> GetSlotGroup(string groupName) {
+        public SubsystemSlotGroup<SubsystemSlot>? GetSlotGroup(string groupName) {
             if (string.IsNullOrEmpty(groupName)) return null;
             return slotGroups.TryGetValue(groupName, out var group) ? group : null;
         }
 
-        public IReadOnlyList<SubsystemSlot> GetSlots(string groupName, string source = null) {
+        public IReadOnlyList<SubsystemSlot> GetSlots(string groupName, string? source = null) {
             var group = GetSlotGroup(groupName);
             if (group == null) return new List<SubsystemSlot>();
             if (!string.IsNullOrEmpty(source)) {
@@ -426,14 +414,14 @@ namespace PlayMore35.Subsystems {
                 return indices.Select(i => group[i]).ToList();
             }
             if (Definition.SlotGroups.TryGetValue(groupName, out var def) && !string.IsNullOrEmpty(def.CapacityStat) && def.CapacityStat.Contains("{source}")) {
-                foreach (var src in GetActiveSources(null, context)) {
+                foreach (var src in GetActiveSources(null)) {
                     EnsureSourceSlots(groupName, src);
                 }
             }
             return group.Slots;
         }
 
-        public SubsystemSlot GetSlot(string groupName, int index, string source = null) {
+        public SubsystemSlot? GetSlot(string groupName, int index, string? source = null) {
             var group = GetSlotGroup(groupName);
             if (group == null || index < 0) return null;
             int flatIndex = ResolveFlatSlotIndex(groupName, index, source, createIfMissing: false);
@@ -441,25 +429,25 @@ namespace PlayMore35.Subsystems {
             return group[flatIndex];
         }
 
-        public int GetSlotCapacity(string groupName, string source = null, ICharacterContext ctx = null) {
+        public int GetSlotCapacity(string groupName, string? source = null) {
             if (string.IsNullOrEmpty(groupName) || !Definition.SlotGroups.TryGetValue(groupName, out var def)) return 0;
-            if (string.IsNullOrEmpty(source) && ctx == null && (string.IsNullOrEmpty(def.CapacityStat) || !def.CapacityStat.Contains("{source}"))) {
+            if (string.IsNullOrEmpty(source) && (string.IsNullOrEmpty(def.CapacityStat) || !def.CapacityStat.Contains("{source}"))) {
                 return GetSlotGroup(groupName)?.Capacity ?? 0;
             }
-            return Math.Max(0, ResolveCapacity(def, source, ctx ?? context));
+            return Math.Max(0, ResolveCapacity(def, source));
         }
 
-        public string GetSlotElement(string groupName, int index, string source = null) {
+        public string? GetSlotElement(string groupName, int index, string? source = null) {
             var slot = GetSlot(groupName, index, source);
             return string.IsNullOrEmpty(slot?.Element) ? null : slot.Element;
         }
 
-        public string GetSlotState(string groupName, int index, string source = null) {
+        public string GetSlotState(string groupName, int index, string? source = null) {
             var slot = GetSlot(groupName, index, source);
             return string.IsNullOrEmpty(slot?.State) ? "empty" : slot.State;
         }
 
-        public bool IsSlotLevelValid(string groupName, int slotIndex, string source = null) {
+        public bool IsSlotLevelValid(string groupName, int slotIndex, string? source = null) {
             var slot = GetSlot(groupName, slotIndex, source);
             if (slot == null || string.IsNullOrEmpty(slot.Element)) return true;
 
@@ -472,24 +460,23 @@ namespace PlayMore35.Subsystems {
 
             string effectiveSource = !string.IsNullOrEmpty(source) ? source : slot.Source;
             int elementLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
-            int maxLevel = ResolveMaxLevel(groupDef, effectiveSource, context);
+            int maxLevel = ResolveMaxLevel(groupDef, effectiveSource);
             return elementLevel <= maxLevel;
         }
 
-        public void ResetElementParameters(string elementName, ICharacterContext ctx = null) {
+        public void ResetElementParameters(string elementName) {
             if (string.IsNullOrEmpty(elementName)) return;
-            var activeContext = ctx ?? context;
-            var elem = GetElement(elementName, activeContext);
+            var elem = GetElement(elementName);
             if (elem == null) return;
             foreach (var effectList in elem.Effects.Values) {
                 foreach (var eff in effectList) {
                     if (!string.IsNullOrEmpty(eff.ParameterName)) {
                         string paramKey = eff.ParameterName;
-                        if (activeContext?.Character?.paramValues != null) {
-                            activeContext.Character.paramValues[paramKey] = 0;
+                        if (context?.Character?.paramValues != null) {
+                            context.Character.paramValues[paramKey] = 0;
                         }
-                        if (activeContext?.Effects?.controllableParameters != null &&
-                            activeContext.Effects.controllableParameters.TryGetValue(paramKey, out var param)) {
+                        if (context?.Effects?.controllableParameters != null &&
+                            context.Effects.controllableParameters.TryGetValue(paramKey, out var param)) {
                             param.Value = 0;
                         }
                     }
@@ -497,11 +484,10 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public void AssignSlot(string groupName, int index, string element, string state = null, string source = null, string featSlot = null, ICharacterContext ctx = null) {
+        public void AssignSlot(string groupName, int index, string element, string? state = null, string? source = null, string? featSlot = null) {
             var group = GetSlotGroup(groupName);
             if (group == null) throw new ArgumentException($"Slot group '{groupName}' not found in subsystem '{Id}'.");
             string targetState = !string.IsNullOrEmpty(state) ? state : GetDefaultState(groupName);
-            var activeContext = ctx ?? context;
 
             int flatIndex = ResolveFlatSlotIndex(groupName, index, source, createIfMissing: true);
             var existing = (flatIndex >= 0 && flatIndex < group.Slots.Count) ? group[flatIndex] : null;
@@ -509,10 +495,10 @@ namespace PlayMore35.Subsystems {
                 throw new InvalidOperationException($"Cannot overwrite feat-bound slot at index {index} (bound to feat '{existing.FeatSlot}').");
             }
             if (existing != null && !string.IsNullOrEmpty(existing.Element)) {
-                ResetElementParameters(existing.Element, activeContext);
+                ResetElementParameters(existing.Element);
                 activeSlotOrder.Remove(existing);
             }
-            ResetElementParameters(element, activeContext);
+            ResetElementParameters(element);
             var newSlot = new SubsystemSlot(element, targetState, source ?? existing?.Source, featSlot);
             group[flatIndex] = newSlot;
             if (string.Equals(targetState, "active", StringComparison.OrdinalIgnoreCase)) {
@@ -521,12 +507,7 @@ namespace PlayMore35.Subsystems {
             SyncState();
         }
 
-        public void ClearSlot(string groupName, int index, ICharacterContext ctx) {
-            ClearSlot(groupName, index, null, ctx);
-        }
-
-        public void ClearSlot(string groupName, int index, string source = null, ICharacterContext ctx = null) {
-            var activeContext = ctx ?? context;
+        public void ClearSlot(string groupName, int index, string? source = null) {
             var group = GetSlotGroup(groupName);
             if (group == null || index < 0) return;
             int flatIndex = ResolveFlatSlotIndex(groupName, index, source, createIfMissing: false);
@@ -537,7 +518,7 @@ namespace PlayMore35.Subsystems {
                         throw new InvalidOperationException($"Cannot clear feat-bound slot at index {index} (bound to feat '{existing.FeatSlot}').");
                     }
                     if (!string.IsNullOrEmpty(existing.Element)) {
-                        ResetElementParameters(existing.Element, activeContext);
+                        ResetElementParameters(existing.Element);
                     }
                     activeSlotOrder.Remove(existing);
                     if (!string.IsNullOrEmpty(existing.Source) && IsSourcePartitionedGroup(groupName)) {
@@ -551,54 +532,52 @@ namespace PlayMore35.Subsystems {
             SyncState();
         }
 
-        public int GetPoolCapacity(string poolId, ICharacterContext ctx = null) {
+        public int GetPoolCapacity(string poolId) {
             if (string.IsNullOrEmpty(poolId) || !Definition.Pools.TryGetValue(poolId, out var def)) return 0;
-            var activeContext = ctx ?? context;
-            if (activeContext != null && !string.IsNullOrEmpty(def.CapacityStat)) {
-                return ResolveStatOrParam(def.CapacityStat, activeContext, def.DefaultCapacity);
+            if (context != null && !string.IsNullOrEmpty(def.CapacityStat)) {
+                return ResolveStatOrParam(def.CapacityStat, def.DefaultCapacity);
             }
             return def.DefaultCapacity;
         }
 
-        public int GetPoolValue(string poolId, ICharacterContext ctx = null) {
+        public int GetPoolValue(string poolId) {
             if (string.IsNullOrEmpty(poolId)) return 0;
-            int cap = GetPoolCapacity(poolId, ctx);
+            int cap = GetPoolCapacity(poolId);
             int current = poolValues.TryGetValue(poolId, out var val) ? val : cap;
             return Math.Min(current, cap);
         }
 
-        public void SetPoolValue(string poolId, int value, ICharacterContext ctx = null) {
+        public void SetPoolValue(string poolId, int value) {
             if (string.IsNullOrEmpty(poolId)) return;
-            int cap = GetPoolCapacity(poolId, ctx);
+            int cap = GetPoolCapacity(poolId);
             poolValues[poolId] = Math.Max(0, Math.Min(value, cap));
             SyncState();
         }
 
-        public void ConsumePool(string poolId, int amount, ICharacterContext ctx = null) {
+        public void ConsumePool(string poolId, int amount) {
             if (string.IsNullOrEmpty(poolId) || amount <= 0) return;
-            int current = GetPoolValue(poolId, ctx);
-            SetPoolValue(poolId, current - amount, ctx);
+            int current = GetPoolValue(poolId);
+            SetPoolValue(poolId, current - amount);
         }
 
-        public void RechargePool(string poolId, int amount, ICharacterContext ctx = null) {
+        public void RechargePool(string poolId, int amount) {
             if (string.IsNullOrEmpty(poolId) || amount <= 0) return;
-            int current = GetPoolValue(poolId, ctx);
-            SetPoolValue(poolId, current + amount, ctx);
+            int current = GetPoolValue(poolId);
+            SetPoolValue(poolId, current + amount);
         }
 
-        public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation operation, ICharacterContext ctx) {
+        public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation? operation) {
             if (operation == null || string.IsNullOrEmpty(operation.Pool)) return TimelineRefreshRequirement.None;
-            var activeContext = ctx ?? context;
             string op = operation.Op?.ToLowerInvariant() ?? "consume";
             switch (op) {
                 case "consume":
-                    ConsumePool(operation.Pool, operation.Amount, activeContext);
+                    ConsumePool(operation.Pool, operation.Amount);
                     break;
                 case "recharge":
-                    RechargePool(operation.Pool, operation.Amount, activeContext);
+                    RechargePool(operation.Pool, operation.Amount);
                     break;
                 case "set":
-                    SetPoolValue(operation.Pool, operation.Amount, activeContext);
+                    SetPoolValue(operation.Pool, operation.Amount);
                     break;
             }
             return TimelineRefreshRequirement.RecomputeDerived;
@@ -613,11 +592,11 @@ namespace PlayMore35.Subsystems {
             return string.Equals(slotState, fromState, StringComparison.OrdinalIgnoreCase);
         }
 
-        private List<SubsystemSlot> GetMatchingSlots(SubsystemSlotGroup<SubsystemSlot> group, string fromState, string targetSource) {
+        private List<SubsystemSlot> GetMatchingSlots(SubsystemSlotGroup<SubsystemSlot> group, string fromState, string? targetSource) {
             var result = new List<SubsystemSlot>();
             for (int i = 0; i < group.Slots.Count; i++) {
                 var slot = group.Slots[i];
-                if (slot == null || string.IsNullOrEmpty(slot.Element)) continue;
+                if (string.IsNullOrEmpty(slot.Element)) continue;
                 if (!string.IsNullOrEmpty(targetSource) && !string.Equals(slot.Source, targetSource, StringComparison.OrdinalIgnoreCase)) continue;
                 if (MatchesState(slot.State, fromState)) {
                     result.Add(slot);
@@ -626,31 +605,29 @@ namespace PlayMore35.Subsystems {
             return result;
         }
 
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, ICharacterContext ctx, SubsystemTarget target) {
-            return ExecuteTransition(transition, ctx, target?.SlotIndex, target?.Element, target?.Source);
+        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, SubsystemTarget target) {
+            return ExecuteTransition(transition, target?.SlotIndex, target?.Element, target?.Source);
         }
 
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, ICharacterContext ctx, int? targetSlotIndex = null, string targetElement = null, string targetSource = null) {
+        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, int? targetSlotIndex = null, string? targetElement = null, string? targetSource = null) {
             if (transition == null || string.IsNullOrEmpty(transition.SlotGroup)) return TimelineRefreshRequirement.None;
             var group = GetSlotGroup(transition.SlotGroup);
             if (group == null) return TimelineRefreshRequirement.None;
 
-            var activeContext = ctx ?? context;
             string selector = transition.Selector?.ToLowerInvariant() ?? "invoked";
-            string from = transition.FromState;
-            string to = transition.ToState;
+            string from = transition.FromState ?? "";
+            string to = transition.ToState ?? "";
             Definition.SlotGroups.TryGetValue(transition.SlotGroup, out var groupDef);
             bool anyTransitioned = false;
 
             bool MatchesFrom(SubsystemSlot slot) {
-                if (slot == null || string.IsNullOrEmpty(slot.Element)) return false;
+                if (string.IsNullOrEmpty(slot.Element)) return false;
                 return MatchesState(slot.State, from);
             }
 
             int rawIndex = transition.SlotIndex ?? targetSlotIndex ?? -1;
 
             void TransitionSlot(SubsystemSlot slot) {
-                if (slot == null) return;
                 string priorState = slot.State;
                 string elemName = slot.Element;
 
@@ -659,14 +636,14 @@ namespace PlayMore35.Subsystems {
                         anyTransitioned = true;
                         return;
                     }
-                    int maxActive = Math.Max(1, ResolveStatOrParam(groupDef.MaxActiveStat, activeContext, 1));
+                    int maxActive = Math.Max(1, ResolveStatOrParam(groupDef.MaxActiveStat, 1));
                     var currentlyActive = group.Slots
-                        .Where(s => s != null && !string.IsNullOrEmpty(s.Element) && s != slot && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase))
+                        .Where(s => !string.IsNullOrEmpty(s.Element) && s != slot && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
                     string inactiveState = !string.IsNullOrEmpty(groupDef.DefaultState) ? groupDef.DefaultState : "inactive";
                     while (currentlyActive.Count >= maxActive) {
-                        SubsystemSlot toDeactivate = null;
+                        SubsystemSlot? toDeactivate = null;
                         if (rawIndex >= 0 && transition.SelectedIndices != null && transition.SelectedIndices.Count > 0) {
                             int repFlatIdx = ResolveFlatSlotIndex(transition.SlotGroup, transition.SelectedIndices[0], targetSource, false);
                             if (repFlatIdx >= 0 && repFlatIdx < group.Slots.Count) {
@@ -692,10 +669,10 @@ namespace PlayMore35.Subsystems {
                 slot.State = to;
                 anyTransitioned = true;
                 if (string.Equals(to, "empty", StringComparison.OrdinalIgnoreCase)) {
-                    ResetElementParameters(elemName, activeContext);
+                    ResetElementParameters(elemName);
                     slot.Element = "";
                 } else if (string.Equals(priorState, "poor_pact", StringComparison.OrdinalIgnoreCase) && string.Equals(to, "good_pact", StringComparison.OrdinalIgnoreCase)) {
-                    ResetElementParameters(elemName, activeContext);
+                    ResetElementParameters(elemName);
                 }
             }
 
@@ -706,14 +683,14 @@ namespace PlayMore35.Subsystems {
                             int flatIdx = ResolveFlatSlotIndex(transition.SlotGroup, idx, targetSource, false);
                             if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
                                 var slot = group.Slots[flatIdx];
-                                if (slot != null && MatchesFrom(slot)) {
+                                if (MatchesFrom(slot)) {
                                     TransitionSlot(slot);
                                 }
                             }
                         }
                         break;
                     }
-                    SubsystemSlot targetSlot = null;
+                    SubsystemSlot? targetSlot = null;
                     if (rawIndex >= 0) {
                         int flatIdx = ResolveFlatSlotIndex(transition.SlotGroup, rawIndex, targetSource, false);
                         if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
@@ -723,7 +700,7 @@ namespace PlayMore35.Subsystems {
                     if (targetSlot == null && !string.IsNullOrEmpty(targetElement)) {
                         for (int i = 0; i < group.Slots.Count; i++) {
                             var s = group.Slots[i];
-                            if (s != null && string.Equals(s.Element, targetElement, StringComparison.OrdinalIgnoreCase)) {
+                            if (string.Equals(s.Element, targetElement, StringComparison.OrdinalIgnoreCase)) {
                                 if (string.IsNullOrEmpty(targetSource) || string.Equals(s.Source, targetSource, StringComparison.OrdinalIgnoreCase)) {
                                     targetSlot = s;
                                     break;
@@ -749,7 +726,7 @@ namespace PlayMore35.Subsystems {
                             int flatIdx = ResolveFlatSlotIndex(transition.SlotGroup, idx, targetSource, false);
                             if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
                                 var slot = group.Slots[flatIdx];
-                                if (slot != null && MatchesFrom(slot)) {
+                                if (MatchesFrom(slot)) {
                                     TransitionSlot(slot);
                                 }
                             }
@@ -760,7 +737,7 @@ namespace PlayMore35.Subsystems {
                             int flatIdx = ResolveFlatSlotIndex(transition.SlotGroup, selIndex, targetSource, false);
                             if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
                                 var slot = group.Slots[flatIdx];
-                                if (slot != null && MatchesFrom(slot)) {
+                                if (MatchesFrom(slot)) {
                                     TransitionSlot(slot);
                                 }
                             }
@@ -777,9 +754,9 @@ namespace PlayMore35.Subsystems {
                 case "random":
                     var candidates = GetMatchingSlots(group, from, targetSource);
                     if (candidates.Count == 0 && !string.IsNullOrEmpty(transition.OnEmptyVerb)) {
-                        return ExecuteVerb(transition.OnEmptyVerb, activeContext, transition.SlotGroup, targetSlotIndex, targetElement, targetSource);
+                        return ExecuteVerb(transition.OnEmptyVerb, transition.SlotGroup, targetSlotIndex, targetElement, targetSource);
                     }
-                    int count = ResolveCount(transition.CountExpression, targetSource, activeContext);
+                    int count = ResolveCount(transition.CountExpression, targetSource);
                     if (candidates.Count <= count) {
                         foreach (var c in candidates) {
                             TransitionSlot(c);
@@ -803,7 +780,7 @@ namespace PlayMore35.Subsystems {
             return TimelineRefreshRequirement.FullReload;
         }
 
-        private int ResolveCount(string countExpr, string source, ICharacterContext ctx) {
+        private int ResolveCount(string? countExpr, string? source) {
             if (string.IsNullOrEmpty(countExpr)) return 1;
             if (int.TryParse(countExpr, out int direct)) return Math.Max(0, direct);
 
@@ -812,20 +789,19 @@ namespace PlayMore35.Subsystems {
                 statName = statName.Replace("{source}", source.Trim().ToLowerInvariant());
             }
 
-            if (ctx != null) {
-                return Math.Max(0, ctx.GetStatValue(statName, 1));
+            if (context != null) {
+                return Math.Max(0, context.GetStatValue(statName, 1));
             }
             return 1;
         }
 
-        public TimelineRefreshRequirement InvokeElementVerb(string verbName, SubsystemSlot slot, ICharacterContext ctx) {
+        public TimelineRefreshRequirement InvokeElementVerb(string verbName, SubsystemSlot slot) {
             if (string.IsNullOrEmpty(verbName) || slot == null || string.IsNullOrEmpty(slot.Element)) {
                 return TimelineRefreshRequirement.None;
             }
 
-            var activeContext = ctx ?? context;
-            var elem = GetElement(slot.Element, activeContext);
-            List<SubsystemStep> steps = null;
+            var elem = GetElement(slot.Element);
+            List<SubsystemStep>? steps = null;
 
             if (elem != null && elem.Verbs.TryGetValue(verbName, out var elemSteps)) {
                 steps = elemSteps;
@@ -839,15 +815,15 @@ namespace PlayMore35.Subsystems {
 
             TimelineRefreshRequirement requirement = TimelineRefreshRequirement.None;
             foreach (var step in steps) {
-                var req = ExecuteStep(step, activeContext, slotGroup: null, targetSlotIndex: null, targetElement: slot.Element, targetSource: slot.Source, invokedSlot: slot);
+                var req = ExecuteStep(step, slotGroup: null, targetSlotIndex: null, targetElement: slot.Element, targetSource: slot.Source, invokedSlot: slot);
                 if (req > requirement) requirement = req;
             }
             return requirement;
         }
 
-        private List<SubsystemStep> ResolveVerbSteps(string verbName, string source, ICharacterContext activeContext) {
-            if (!string.IsNullOrEmpty(source) && activeContext?.Catalog != null) {
-                var cls = activeContext.Catalog.GetClass(source);
+        private List<SubsystemStep>? ResolveVerbSteps(string verbName, string? source) {
+            if (!string.IsNullOrEmpty(source) && context?.Catalog != null) {
+                var cls = context.Catalog.GetClass(source);
                 if (cls != null && cls.Subsystems != null && cls.Subsystems.TryGetValue(Id, out var subFeature)) {
                     if (subFeature.Verbs != null && subFeature.Verbs.TryGetValue(verbName, out var classSteps)) {
                         return classSteps;
@@ -860,45 +836,43 @@ namespace PlayMore35.Subsystems {
             return null;
         }
 
-        public TimelineRefreshRequirement InvokeVerb(string verbName, string slotGroup = null, int? slotIndex = null, string elementName = null, string source = null, List<int> selectedIndices = null) {
-            return ExecuteVerb(verbName, context, slotGroup, slotIndex, elementName, source, selectedIndices);
+        public TimelineRefreshRequirement InvokeVerb(string verbName, string? slotGroup = null, int? slotIndex = null, string? elementName = null, string? source = null, List<int>? selectedIndices = null) {
+            return ExecuteVerb(verbName, slotGroup, slotIndex, elementName, source, selectedIndices);
         }
 
-        public TimelineRefreshRequirement ExecuteVerb(string verbName, ICharacterContext ctx, SubsystemTarget target = null) {
-            return ExecuteVerb(verbName, ctx, target?.SlotGroup, target?.SlotIndex, target?.Element, target?.Source, target?.SelectedIndices);
+        public TimelineRefreshRequirement ExecuteVerb(string verbName, SubsystemTarget? target = null) {
+            return ExecuteVerb(verbName, target?.SlotGroup, target?.SlotIndex, target?.Element, target?.Source, target?.SelectedIndices);
         }
 
-        public TimelineRefreshRequirement ExecuteVerb(string verbName, ICharacterContext ctx, string slotGroup = null, int? slotIndex = null, string elementName = null, string source = null, List<int> selectedIndices = null) {
+        public TimelineRefreshRequirement ExecuteVerb(string verbName, string? slotGroup = null, int? slotIndex = null, string? elementName = null, string? source = null, List<int>? selectedIndices = null) {
             if (string.IsNullOrEmpty(verbName)) {
                 return TimelineRefreshRequirement.None;
             }
-
-            var activeContext = ctx ?? context;
 
             // When invoked across all sources (e.g. reset_encounter with source == null and no specific slot targeted),
             // dispatch per source if multiple sources or source-specific verb overrides exist.
             if (string.IsNullOrEmpty(source) && !slotIndex.HasValue && string.IsNullOrEmpty(elementName)) {
                 var slotSources = slotGroups.Values
                     .SelectMany(g => g.Slots)
-                    .Where(s => s != null && !string.IsNullOrEmpty(s.Source))
-                    .Select(s => s.Source)
+                    .Where(s => !string.IsNullOrEmpty(s.Source))
+                    .Select(s => s.Source!)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
                 bool anySourceOverride = slotSources.Any(src =>
-                    activeContext?.Catalog?.GetClass(src)?.Subsystems != null &&
-                    activeContext.Catalog.GetClass(src).Subsystems.TryGetValue(Id, out var sf) &&
+                    context?.Catalog?.GetClass(src)?.Subsystems != null &&
+                    context.Catalog.GetClass(src)!.Subsystems!.TryGetValue(Id, out var sf) &&
                     sf.Verbs.ContainsKey(verbName));
                 if (anySourceOverride && slotSources.Count > 0) {
                     TimelineRefreshRequirement totalReq = TimelineRefreshRequirement.None;
                     foreach (var src in slotSources) {
-                        var r = ExecuteVerb(verbName, activeContext, slotGroup, null, null, src, selectedIndices);
+                        var r = ExecuteVerb(verbName, slotGroup, null, null, src, selectedIndices);
                         if (r > totalReq) totalReq = r;
                     }
                     return totalReq;
                 }
             }
 
-            SubsystemSlot invokedSlot = null;
+            SubsystemSlot? invokedSlot = null;
             if (!string.IsNullOrEmpty(slotGroup)) {
                 var group = GetSlotGroup(slotGroup);
                 if (group != null) {
@@ -909,7 +883,6 @@ namespace PlayMore35.Subsystems {
                         }
                     } else if (!string.IsNullOrEmpty(elementName)) {
                         invokedSlot = group.Slots.FirstOrDefault(s =>
-                            s != null &&
                             string.Equals(s.Element, elementName, StringComparison.OrdinalIgnoreCase) &&
                             (string.IsNullOrEmpty(source) || string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase)));
                     }
@@ -919,14 +892,13 @@ namespace PlayMore35.Subsystems {
                     var grp = kvp.Value;
                     if (slotIndex.HasValue && slotIndex.Value >= 0) {
                         int flatIdx = ResolveFlatSlotIndex(kvp.Key, slotIndex.Value, source, false);
-                        if (flatIdx >= 0 && flatIdx < grp.Slots.Count && grp[flatIdx] != null && !string.IsNullOrEmpty(grp[flatIdx].Element)) {
+                        if (flatIdx >= 0 && flatIdx < grp.Slots.Count && !string.IsNullOrEmpty(grp[flatIdx].Element)) {
                             slotGroup = kvp.Key;
                             invokedSlot = grp[flatIdx];
                             break;
                         }
                     } else if (!string.IsNullOrEmpty(elementName)) {
                         var found = grp.Slots.FirstOrDefault(s =>
-                            s != null &&
                             string.Equals(s.Element, elementName, StringComparison.OrdinalIgnoreCase) &&
                             (string.IsNullOrEmpty(source) || string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase)));
                         if (found != null) {
@@ -938,15 +910,15 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            string effectiveSource = !string.IsNullOrEmpty(source) ? source : invokedSlot?.Source;
-            var steps = ResolveVerbSteps(verbName, effectiveSource, activeContext);
+            string? effectiveSource = !string.IsNullOrEmpty(source) ? source : invokedSlot?.Source;
+            var steps = ResolveVerbSteps(verbName, effectiveSource);
             if (steps == null || steps.Count == 0) {
                 return TimelineRefreshRequirement.None;
             }
 
             TimelineRefreshRequirement requirement = TimelineRefreshRequirement.None;
             foreach (var step in steps) {
-                var req = ExecuteStep(step, activeContext, slotGroup, slotIndex, elementName, effectiveSource, invokedSlot, selectedIndices);
+                var req = ExecuteStep(step, slotGroup, slotIndex, elementName, effectiveSource, invokedSlot, selectedIndices);
                 if (string.Equals(step.Type, "transition", StringComparison.OrdinalIgnoreCase) && req == TimelineRefreshRequirement.None) {
                     break;
                 }
@@ -956,27 +928,27 @@ namespace PlayMore35.Subsystems {
             return requirement;
         }
 
-        private TimelineRefreshRequirement ExecuteStep(SubsystemStep step, ICharacterContext ctx, string slotGroup, int? targetSlotIndex, string targetElement, string targetSource, SubsystemSlot invokedSlot, List<int> selectedIndices = null) {
+        private TimelineRefreshRequirement ExecuteStep(SubsystemStep step, string? slotGroup, int? targetSlotIndex, string? targetElement, string? targetSource, SubsystemSlot? invokedSlot, List<int>? selectedIndices = null) {
             if (step == null) return TimelineRefreshRequirement.None;
             string type = step.Type?.ToLowerInvariant() ?? "";
 
             switch (type) {
                 case "assign":
-                    string groupName = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : slotGroup;
+                    string? groupName = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : slotGroup;
                     string targetState = !string.IsNullOrEmpty(step.ToState) ? step.ToState : "assigned";
                     int selIndex = targetSlotIndex ?? -1;
                     if (selIndex == -1 && !string.IsNullOrEmpty(groupName)) {
                         var slots = GetSlots(groupName, targetSource);
                         for (int i = 0; i < slots.Count; i++) {
-                            if (slots[i] == null || string.IsNullOrEmpty(slots[i].Element)) {
+                            if (string.IsNullOrEmpty(slots[i].Element)) {
                                 selIndex = i;
                                 break;
                             }
                         }
                         if (selIndex == -1) selIndex = slots.Count;
                     }
-                    if (selIndex >= 0) {
-                        AssignSlot(groupName, selIndex, targetElement, targetState, targetSource, null, ctx);
+                    if (selIndex >= 0 && !string.IsNullOrEmpty(groupName) && !string.IsNullOrEmpty(targetElement)) {
+                        AssignSlot(groupName, selIndex, targetElement, targetState, targetSource, null);
                     }
                     return TimelineRefreshRequirement.FullReload;
 
@@ -991,7 +963,7 @@ namespace PlayMore35.Subsystems {
                         SlotIndex = targetSlotIndex,
                         SelectedIndices = selectedIndices
                     };
-                    return ExecuteTransition(transition, ctx, targetSlotIndex, targetElement, targetSource);
+                    return ExecuteTransition(transition, targetSlotIndex, targetElement, targetSource);
 
                 case "invoke_element_verb":
                     var slot = invokedSlot;
@@ -1003,42 +975,42 @@ namespace PlayMore35.Subsystems {
                     if (slot == null && !string.IsNullOrEmpty(targetElement)) {
                         slot = new SubsystemSlot(targetElement, "invoked", targetSource);
                     }
-                    return InvokeElementVerb(step.Verb, slot, ctx);
+                    return slot != null && !string.IsNullOrEmpty(step.Verb) ? InvokeElementVerb(step.Verb, slot) : TimelineRefreshRequirement.None;
 
                 case "action":
                     if (step.Action != null) {
-                        return step.Action.Perform(ctx);
+                        return step.Action.Perform(context);
                     }
                     return TimelineRefreshRequirement.None;
 
                 case "pool":
                     var poolOp = new SubsystemPoolOperation(step.Pool, step.Op, step.Amount);
-                    return ExecutePoolOperation(poolOp, ctx);
+                    return ExecutePoolOperation(poolOp);
 
                 default:
                     return TimelineRefreshRequirement.None;
             }
         }
 
-        private string ResolveFeatTargetSource(string featSlot, ICharacterContext activeContext, IDictionary<string, string> currentChoices = null) {
+        private string ResolveFeatTargetSource(string? featSlot, IDictionary<string, string>? currentChoices = null) {
             if (currentChoices != null &&
                 !string.IsNullOrEmpty(featSlot) &&
                 currentChoices.TryGetValue($"{featSlot}:class", out var curClass) &&
                 !string.IsNullOrWhiteSpace(curClass)) {
                 return curClass;
             }
-            if (activeContext is ICharacterSession session) {
+            if (context is ICharacterSession session && !string.IsNullOrEmpty(featSlot)) {
                 return session.ResolveFeatTargetSource(featSlot);
             }
-            if (activeContext?.Character?.featChoices != null &&
+            if (context?.Character?.featChoices != null &&
                 !string.IsNullOrEmpty(featSlot) &&
-                activeContext.Character.featChoices.TryGetValue($"{featSlot}:class", out var explicitClass) &&
+                context.Character.featChoices.TryGetValue($"{featSlot}:class", out var explicitClass) &&
                 !string.IsNullOrWhiteSpace(explicitClass)) {
                 return explicitClass;
             }
-            if (activeContext?.Character?.classLevels != null && activeContext?.Catalog != null) {
-                var adept = activeContext.Character.classLevels.FirstOrDefault(c => {
-                    var classDef = activeContext.Catalog.GetClass(c);
+            if (context?.Character?.classLevels != null && context?.Catalog != null) {
+                var adept = context.Character.classLevels.FirstOrDefault(c => {
+                    var classDef = context.Catalog.GetClass(c);
                     return classDef != null && classDef.Subsystems != null && classDef.Subsystems.ContainsKey(Id);
                 });
                 if (!string.IsNullOrEmpty(adept)) return adept;
@@ -1046,9 +1018,8 @@ namespace PlayMore35.Subsystems {
             return "Feats";
         }
 
-        public void ProjectFeatSlots(ICharacterContext ctx = null) {
-            var activeContext = ctx ?? context;
-            var character = activeContext?.Character;
+        public void ProjectFeatSlots() {
+            var character = context?.Character;
             if (character?.featChoices == null) return;
             if (!slotGroups.ContainsKey("readied") && !slotGroups.ContainsKey("stances")) return;
 
@@ -1060,8 +1031,8 @@ namespace PlayMore35.Subsystems {
                 foreach (var kvp in character.featChoices) {
                     if (kvp.Key.EndsWith(choiceSuffix, StringComparison.OrdinalIgnoreCase)) {
                         string fSlot = kvp.Key.Substring(0, kvp.Key.Length - choiceSuffix.Length);
-                        if (!string.IsNullOrWhiteSpace(kvp.Value) && GetElement(kvp.Value, activeContext) != null) {
-                            string src = ResolveFeatTargetSource(fSlot, activeContext);
+                        if (!string.IsNullOrWhiteSpace(kvp.Value) && GetElement(kvp.Value) != null) {
+                            string src = ResolveFeatTargetSource(fSlot);
                             activeFeats[fSlot] = (fSlot, kvp.Value, src);
                         }
                     }
@@ -1094,16 +1065,16 @@ namespace PlayMore35.Subsystems {
 
                 // Project each active feat choice after baseClassCapacity for its targetSource
                 foreach (var item in activeFeats.Values) {
-                    int totalCap = GetSlotCapacity(groupKey, item.Source, activeContext);
+                    int totalCap = GetSlotCapacity(groupKey, item.Source);
                     int totalFeatsForSource = activeFeats.Values.Count(f => string.Equals(f.Source, item.Source, StringComparison.OrdinalIgnoreCase));
                     int baseClassCapacity = Math.Max(0, totalCap - totalFeatsForSource);
 
                     var sourceIndices = EnsureSourceSlots(groupKey, item.Source, baseClassCapacity);
-                    SubsystemSlot existingSlot = null;
+                    SubsystemSlot? existingSlot = null;
                     int existingSourceIdx = -1;
                     for (int idx = 0; idx < sourceIndices.Count; idx++) {
                         var s = group[sourceIndices[idx]];
-                        if (s != null && string.Equals(s.FeatSlot, item.FeatSlot, StringComparison.OrdinalIgnoreCase)) {
+                        if (string.Equals(s.FeatSlot, item.FeatSlot, StringComparison.OrdinalIgnoreCase)) {
                             existingSlot = s;
                             existingSourceIdx = idx;
                             break;
@@ -1120,7 +1091,7 @@ namespace PlayMore35.Subsystems {
                             int targetFlat = -1;
                             for (int idx = baseClassCapacity; idx < updatedIndices.Count; idx++) {
                                 var candidate = group[updatedIndices[idx]];
-                                if (candidate == null || string.IsNullOrEmpty(candidate.Element)) {
+                                if (string.IsNullOrEmpty(candidate.Element)) {
                                     targetFlat = updatedIndices[idx];
                                     break;
                                 }
@@ -1136,7 +1107,7 @@ namespace PlayMore35.Subsystems {
                         int targetFlat = -1;
                         for (int idx = baseClassCapacity; idx < updatedIndices.Count; idx++) {
                             var candidate = group[updatedIndices[idx]];
-                            if (candidate == null || (string.IsNullOrEmpty(candidate.Element) && string.IsNullOrEmpty(candidate.FeatSlot))) {
+                            if (string.IsNullOrEmpty(candidate.Element) && string.IsNullOrEmpty(candidate.FeatSlot)) {
                                 targetFlat = updatedIndices[idx];
                                 break;
                             }
@@ -1159,19 +1130,18 @@ namespace PlayMore35.Subsystems {
             SyncState();
         }
 
-        public void ContributeEffects(EffectPool pool, ICharacterContext ctx) {
+        public void ContributeEffects(EffectPool pool) {
             if (pool == null) return;
-            var activeContext = ctx ?? context;
 
-            ProjectFeatSlots(activeContext);
+            ProjectFeatSlots();
 
-            var activeSources = GetActiveSources(pool, activeContext);
+            var activeSources = GetActiveSources(pool);
 
             if ((activeSources.Count > 0 || IsActive) && Definition.ElementStatistics != null && Definition.Elements != null) {
                 var baseEffect = new Effect($"{Definition.Id} Element Statistics Base");
                 bool hasBaseModifiers = false;
                 foreach (var elem in Definition.Elements.Values) {
-                    if (elem == null || string.IsNullOrEmpty(elem.Name)) continue;
+                    if (string.IsNullOrEmpty(elem.Name)) continue;
                     foreach (var kvp in Definition.ElementStatistics) {
                         string statProp = kvp.Key;
                         int baseVal = elem.GetProperty<int>(statProp);
@@ -1235,10 +1205,10 @@ namespace PlayMore35.Subsystems {
 
                     for (int i = 0; i < group.RawSlots.Count; i++) {
                         var slot = group.RawSlots[i];
-                        if (slot == null || string.IsNullOrEmpty(slot.Element)) continue;
+                        if (string.IsNullOrEmpty(slot.Element)) continue;
                         if (!string.Equals(slot.State, rule.State, StringComparison.OrdinalIgnoreCase)) continue;
 
-                        var elem = GetElement(slot.Element, activeContext);
+                        var elem = GetElement(slot.Element);
                         if (elem == null) continue;
 
                         foreach (var effectKey in rule.Effects) {
@@ -1256,15 +1226,15 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (activeContext?.Timeline != null) {
+            if (context?.Timeline != null) {
                 var timelineActions = new List<SheetAction>();
-                if (activeContext.Timeline.ScheduledActions != null) {
-                    foreach (var list in activeContext.Timeline.ScheduledActions.Values) {
+                if (context.Timeline.ScheduledActions != null) {
+                    foreach (var list in context.Timeline.ScheduledActions.Values) {
                         timelineActions.AddRange(list);
                     }
                 }
-                if (activeContext.Timeline.EncounterActions != null) {
-                    timelineActions.AddRange(activeContext.Timeline.EncounterActions);
+                if (context.Timeline.EncounterActions != null) {
+                    timelineActions.AddRange(context.Timeline.EncounterActions);
                 }
                 foreach (var action in timelineActions) {
                     if (action == null) continue;
@@ -1273,7 +1243,7 @@ namespace PlayMore35.Subsystems {
                     }
                     string elemName = !string.IsNullOrEmpty(action.Element) ? action.Element : action.Name;
                     if (string.IsNullOrEmpty(elemName)) continue;
-                    var elem = GetElement(elemName, activeContext);
+                    var elem = GetElement(elemName);
                     if (elem != null) {
                         foreach (var eff in elem.GetEffects("benefits")) {
                             pool.AddEffect(eff);
@@ -1371,7 +1341,7 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            return gatedSlotGroups.Select(g => ResolveMaxLevel(g, targetSource, context)).Max();
+            return gatedSlotGroups.Select(g => ResolveMaxLevel(g, targetSource)).Max();
         }
 
         private bool IsElementWithinLevelGate(SubsystemElement elem, string targetSource = null) {
@@ -1381,10 +1351,10 @@ namespace PlayMore35.Subsystems {
             return elemLevel <= maxAllowed.Value;
         }
 
-        public IReadOnlyList<string> GetAccessibleElements(string filter, string targetSource) {
-            string effectiveSource = targetSource;
+        public IReadOnlyList<string> GetAccessibleElements(string? filter, string? targetSource) {
+            string? effectiveSource = targetSource;
             if (string.IsNullOrWhiteSpace(effectiveSource) && string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
-                effectiveSource = ResolveFeatTargetSource(null, context);
+                effectiveSource = ResolveFeatTargetSource(null);
             }
 
             int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource);
@@ -1392,7 +1362,7 @@ namespace PlayMore35.Subsystems {
             foreach (var elem in Definition.Elements.Values) {
                 if (!MatchesFilter(elem, filter)) continue;
                 if (maxAllowed.HasValue) {
-                    int elemLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
+                    int elemLevel = elem.GetStatistic(Definition.LevelGating!.ElementStatistic, context).Value;
                     if (elemLevel > maxAllowed.Value) continue;
                 }
                 matching.Add(elem);
@@ -1411,7 +1381,7 @@ namespace PlayMore35.Subsystems {
             return matching.Select(e => e.Name).ToList().AsReadOnly();
         }
 
-        private int CountSameDisciplineKnown(string discipline, int? atCharacterLevel = null, string excludeFeatSlot = null, string excludeElementName = null, IDictionary<string, string> currentChoices = null, SubsystemSlot excludeSlot = null) {
+        private int CountSameDisciplineKnown(string discipline, int? atCharacterLevel = null, string? excludeFeatSlot = null, string? excludeElementName = null, IDictionary<string, string>? currentChoices = null, SubsystemSlot? excludeSlot = null) {
             if (string.IsNullOrEmpty(discipline)) return 0;
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var character = context?.Character;
@@ -1424,7 +1394,7 @@ namespace PlayMore35.Subsystems {
 
             foreach (var group in slotGroups.Values) {
                 foreach (var s in group.Slots) {
-                    if (s == null || string.IsNullOrEmpty(s.Element)) continue;
+                    if (string.IsNullOrEmpty(s.Element)) continue;
                     if (excludeSlot != null && ReferenceEquals(s, excludeSlot)) continue;
                     if (!string.IsNullOrEmpty(s.FeatSlot)) {
                         if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(s.FeatSlot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
@@ -1458,7 +1428,7 @@ namespace PlayMore35.Subsystems {
 
             if (currentChoices != null) {
                 foreach (var kvp in currentChoices) {
-                    string slot = null;
+                    string? slot = null;
                     if (kvp.Key.EndsWith(":maneuver", StringComparison.OrdinalIgnoreCase)) {
                         slot = kvp.Key.Substring(0, kvp.Key.Length - ":maneuver".Length);
                     } else if (kvp.Key.EndsWith(":stance", StringComparison.OrdinalIgnoreCase)) {
@@ -1484,7 +1454,7 @@ namespace PlayMore35.Subsystems {
             return count;
         }
 
-        public List<string> ValidateChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null) {
+        public List<string> ValidateChoice(string? featSlot, ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, IDictionary<string, string>? currentChoices = null) {
             if (string.IsNullOrWhiteSpace(choiceValue)) return new List<string>();
             if (descriptor != null) {
                 if (!string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase) &&
@@ -1497,13 +1467,13 @@ namespace PlayMore35.Subsystems {
                         return new List<string>();
                     }
                 } else {
-                    if (GetElement(choiceValue, context) == null) {
+                    if (GetElement(choiceValue) == null) {
                         return new List<string>();
                     }
                 }
             }
-            string filter = descriptor?.Filter;
-            var chosenElem = GetElement(choiceValue, context);
+            string? filter = descriptor?.Filter;
+            var chosenElem = GetElement(choiceValue);
             if (chosenElem == null || !MatchesFilter(chosenElem, filter)) {
                 string typeLabel = (!string.IsNullOrEmpty(filter) &&
                                     !string.Equals(filter, Id, StringComparison.OrdinalIgnoreCase) &&
@@ -1513,9 +1483,9 @@ namespace PlayMore35.Subsystems {
                 return new List<string> { $"'{choiceValue}' is not a valid {typeLabel} in subsystem '{Name}'." };
             }
 
-            string effectiveSource = targetSource;
+            string? effectiveSource = targetSource;
             if (string.IsNullOrWhiteSpace(effectiveSource) && string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
-                effectiveSource = ResolveFeatTargetSource(featSlot, context, currentChoices);
+                effectiveSource = ResolveFeatTargetSource(featSlot, currentChoices);
             }
 
             var session = context as ICharacterSession;
@@ -1533,7 +1503,7 @@ namespace PlayMore35.Subsystems {
             var warnings = new List<string>();
             int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource, acquisitionLevel);
             if (maxAllowed.HasValue) {
-                int elemLevel = chosenElem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
+                int elemLevel = chosenElem.GetStatistic(Definition.LevelGating!.ElementStatistic, context).Value;
                 if (elemLevel > maxAllowed.Value) {
                     string srcSuffix = !string.IsNullOrWhiteSpace(effectiveSource) ? $" for {effectiveSource}" : "";
                     if (string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
@@ -1544,7 +1514,7 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            string disc = chosenElem.GetProperty<string>("discipline");
+            string? disc = chosenElem.GetProperty<string>("discipline");
             if (!string.IsNullOrEmpty(disc)) {
                 int prereqCount = chosenElem.GetProperty<int>("prerequisiteCount", 0);
                 if (string.Equals(chosenElem.Type, "Stance", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(featSlot)) {
@@ -1562,7 +1532,7 @@ namespace PlayMore35.Subsystems {
             if (descriptor == null) {
                 foreach (var grp in slotGroups.Values) {
                     foreach (var s in grp.RawSlots) {
-                        if (s != null && string.Equals(s.Element, chosenElem.Name, StringComparison.OrdinalIgnoreCase) &&
+                        if (string.Equals(s.Element, chosenElem.Name, StringComparison.OrdinalIgnoreCase) &&
                             !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) {
                             warnings.Add($"Maneuver '{chosenElem.Name}' is already learned under source '{s.Source}'.");
                         }
@@ -1572,10 +1542,10 @@ namespace PlayMore35.Subsystems {
                 if (!string.IsNullOrEmpty(effectiveSource) && Definition.SlotGroups.TryGetValue("readied", out var readiedGroupDef) && !string.IsNullOrEmpty(readiedGroupDef.ReadiedCapacityStat)) {
                     var readiedGroup = GetSlotGroup("readied");
                     if (readiedGroup != null) {
-                        var sourceSlots = readiedGroup.RawSlots.Where(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)).ToList();
+                        var sourceSlots = readiedGroup.RawSlots.Where(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)).ToList();
                         if (sourceSlots.Count > 0) {
                             int readiedCount = sourceSlots.Count(s => !string.Equals(s.State, readiedGroupDef.DefaultState, StringComparison.OrdinalIgnoreCase));
-                            int maxReadied = GetReadiedCapacity("readied", effectiveSource, context);
+                            int maxReadied = GetReadiedCapacity("readied", effectiveSource);
                             if (readiedCount > maxReadied) {
                                 warnings.Add($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.");
                             } else if (readiedCount < maxReadied) {
@@ -1590,8 +1560,8 @@ namespace PlayMore35.Subsystems {
                     !string.IsNullOrEmpty(stanceGroupDef.MaxActiveStat)) {
                     var stanceGroup = GetSlotGroup("stances");
                     if (stanceGroup != null) {
-                        int activeCount = stanceGroup.RawSlots.Count(s => s != null && !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase));
-                        int maxActive = ResolveStatOrParam(stanceGroupDef.MaxActiveStat, context, 0);
+                        int activeCount = stanceGroup.RawSlots.Count(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase));
+                        int maxActive = ResolveStatOrParam(stanceGroupDef.MaxActiveStat, 0);
                         if (activeCount > maxActive) {
                             warnings.Add($"Active stances count ({activeCount}) exceeds active stances capacity ({maxActive}).");
                         }
@@ -1602,8 +1572,7 @@ namespace PlayMore35.Subsystems {
             return warnings;
         }
 
-        public List<string> Validate(ICharacterContext ctx = null) {
-            var activeContext = ctx ?? context;
+        public List<string> Validate() {
             var warnings = new List<string>();
             var seenElements = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -1614,13 +1583,13 @@ namespace PlayMore35.Subsystems {
 
                 for (int i = 0; i < group.Slots.Count; i++) {
                     var slot = group.Slots[i];
-                    if (slot == null || string.IsNullOrEmpty(slot.Element)) continue;
+                    if (string.IsNullOrEmpty(slot.Element)) continue;
 
                     if (!seenElements.Add(slot.Element)) {
                         warnings.Add($"Duplicate element '{slot.Element}' in slot group '{groupKey}'.");
                     }
 
-                    var elem = GetElement(slot.Element, activeContext);
+                    var elem = GetElement(slot.Element);
                     if (elem == null) {
                         warnings.Add($"Unknown element '{slot.Element}' in slot group '{groupKey}'.");
                         continue;
@@ -1636,8 +1605,8 @@ namespace PlayMore35.Subsystems {
                     }
 
                     if (Definition.LevelGating != null && !string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic) && groupDef?.MaxLevel != null) {
-                        int elemLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, activeContext).Value;
-                        int maxLevel = ResolveMaxLevel(groupDef, slot.Source, activeContext);
+                        int elemLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
+                        int maxLevel = ResolveMaxLevel(groupDef, slot.Source);
                         if (elemLevel > maxLevel) {
                             warnings.Add($"{elem.Name} (level {elemLevel}) exceeds maximum level {maxLevel} for {slot.Source ?? groupKey}.");
                         }
@@ -1645,27 +1614,28 @@ namespace PlayMore35.Subsystems {
 
                     int prereqCount = elem.GetProperty<int>("prerequisiteCount", 0);
                     if (prereqCount > 0) {
-                        string disc = elem.GetProperty<string>("discipline");
-                        int totalInDisc = CountSameDisciplineKnown(disc);
-                        if (totalInDisc < prereqCount) {
-                            warnings.Add($"{elem.Name} requires {prereqCount} {disc} maneuver(s), but only {totalInDisc} known.");
+                        string? disc = elem.GetProperty<string>("discipline");
+                        if (!string.IsNullOrEmpty(disc)) {
+                            int totalInDisc = CountSameDisciplineKnown(disc);
+                            if (totalInDisc < prereqCount) {
+                                warnings.Add($"{elem.Name} requires {prereqCount} {disc} maneuver(s), but only {totalInDisc} known.");
+                            }
                         }
                     }
                 }
 
                 if (groupDef != null && !string.IsNullOrEmpty(groupDef.ReadiedCapacityStat)) {
                     var sources = group.Slots
-                        .Where(s => s != null && !string.IsNullOrEmpty(s.Element) && !string.IsNullOrEmpty(s.Source))
-                        .Select(s => s.Source)
+                        .Where(s => !string.IsNullOrEmpty(s.Element) && !string.IsNullOrEmpty(s.Source))
+                        .Select(s => s.Source!)
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .ToList();
                     foreach (var src in sources) {
                         int readiedCount = group.Slots.Count(s =>
-                            s != null &&
                             !string.IsNullOrEmpty(s.Element) &&
                             string.Equals(s.Source, src, StringComparison.OrdinalIgnoreCase) &&
                             !string.Equals(s.State, groupDef.DefaultState, StringComparison.OrdinalIgnoreCase));
-                        int maxReadied = GetReadiedCapacity(groupKey, src, activeContext);
+                        int maxReadied = GetReadiedCapacity(groupKey, src);
                         if (readiedCount > maxReadied) {
                             warnings.Add($"{src} has {readiedCount} readied maneuvers, exceeding maximum of {maxReadied}.");
                         }
@@ -1674,10 +1644,9 @@ namespace PlayMore35.Subsystems {
 
                 if (groupDef != null && !string.IsNullOrEmpty(groupDef.MaxActiveStat)) {
                     int activeCount = group.Slots.Count(s =>
-                        s != null &&
                         !string.IsNullOrEmpty(s.Element) &&
                         string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase));
-                    int maxActive = ResolveStatOrParam(groupDef.MaxActiveStat, activeContext, 0);
+                    int maxActive = ResolveStatOrParam(groupDef.MaxActiveStat, 0);
                     if (activeCount > maxActive) {
                         warnings.Add($"Active stances count ({activeCount}) exceeds active stances capacity ({maxActive}).");
                     }

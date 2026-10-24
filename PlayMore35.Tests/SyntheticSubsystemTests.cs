@@ -30,7 +30,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void SubsystemEngine_InstantiatesFromDefinition_WithAllDeclarativeProperties() {
             var def = FakeRulesCatalog.CreateSyntheticAlchemySubsystem();
-            var engine = new SubsystemEngine(def);
+            var engine = new SubsystemEngine(def, new FakeCharacterContext());
 
             Assert.AreEqual("synthetic_alchemy", engine.Id);
             Assert.AreEqual("Synthetic Alchemy", engine.Name);
@@ -62,7 +62,7 @@ namespace PlayMore35.Tests {
                 SlotIndex = 0
             };
 
-            var req = engine.ExecuteTransition(transition, session);
+            var req = engine.ExecuteTransition(transition);
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
 
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State);
@@ -77,7 +77,7 @@ namespace PlayMore35.Tests {
                 ToState = "expended",
                 SlotIndex = 1
             };
-            engine.ExecuteTransition(nonMatchingTransition, session);
+            engine.ExecuteTransition(nonMatchingTransition);
             Assert.AreEqual("empty", engine.GetSlot("flasks", 1).State);
         }
 
@@ -96,7 +96,7 @@ namespace PlayMore35.Tests {
                 FromState = "expended",
                 ToState = "prepared"
             };
-            engine.ExecuteTransition(transitionSourceA, session, targetSource: "GuildAlchemist");
+            engine.ExecuteTransition(transitionSourceA, targetSource: "GuildAlchemist");
 
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 0).State);
             Assert.AreEqual("expended", engine.GetSlot("flasks", 1).State); // Not matched by source
@@ -109,7 +109,7 @@ namespace PlayMore35.Tests {
                 FromState = "expended",
                 ToState = "prepared"
             };
-            engine.ExecuteTransition(transitionAll, session);
+            engine.ExecuteTransition(transitionAll);
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 1).State);
         }
 
@@ -129,7 +129,7 @@ namespace PlayMore35.Tests {
                 SelectedIndices = new List<int> { 1 }
             };
 
-            engine.ExecuteTransition(selectTransition, session);
+            engine.ExecuteTransition(selectTransition);
 
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State);
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 1).State);
@@ -152,7 +152,7 @@ namespace PlayMore35.Tests {
                 CountExpression = "2"
             };
 
-            engine1.ExecuteTransition(randomTransition, session1);
+            engine1.ExecuteTransition(randomTransition);
             var statesRun1 = new[] {
                 engine1.GetSlot("flasks", 0).State,
                 engine1.GetSlot("flasks", 1).State,
@@ -167,7 +167,7 @@ namespace PlayMore35.Tests {
             engine2.AssignSlot("flasks", 1, "Flask 1", state: "empty");
             engine2.AssignSlot("flasks", 2, "Flask 2", state: "empty");
 
-            engine2.ExecuteTransition(randomTransition, session2);
+            engine2.ExecuteTransition(randomTransition);
             var statesRun2 = new[] {
                 engine2.GetSlot("flasks", 0).State,
                 engine2.GetSlot("flasks", 1).State,
@@ -186,7 +186,7 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("flasks", 0, "Acid Flask", state: "prepared");
 
             // Execute "throw" verb: Step 1 = transition prepared -> expended; Step 2 = invoke element verb execute
-            var req = engine.ExecuteVerb("throw", session, slotGroup: "flasks", slotIndex: 0);
+            var req = engine.ExecuteVerb("throw", slotGroup: "flasks", slotIndex: 0);
 
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State, "Slot 0 should transition to expended.");
             Assert.AreEqual(1, session.Character.paramValues["acid_splash_count"], "Acid Flask's execute verb should increment acid_splash_count parameter.");
@@ -199,7 +199,7 @@ namespace PlayMore35.Tests {
             session.SetParameter("acid_splash_count", 0);
             var slot = new SubsystemSlot("Acid Flask", "prepared");
 
-            var req = engine.InvokeElementVerb("execute", slot, session);
+            var req = engine.InvokeElementVerb("execute", slot);
 
             Assert.AreEqual(1, session.Character.paramValues["acid_splash_count"]);
         }
@@ -211,7 +211,7 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("flasks", 0, "Fire Flask", state: "prepared");
 
             // Fire Flask omits verbs.execute, so it cleanly falls back to subsystem default_element_verbs.execute (no-op)
-            var req = engine.ExecuteVerb("throw", session, slotGroup: "flasks", slotIndex: 0);
+            var req = engine.ExecuteVerb("throw", slotGroup: "flasks", slotIndex: 0);
 
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State);
         }
@@ -222,45 +222,43 @@ namespace PlayMore35.Tests {
 
             // Set dynamic catalyst_capacity on character
             session.SetParameter("catalyst_capacity", 8);
-            // Recompute initial pool values against context
-            engine.Initialize(session);
 
-            Assert.AreEqual(8, engine.GetPoolCapacity("catalyst", session));
-            Assert.AreEqual(8, engine.GetPoolValue("catalyst", session));
+            Assert.AreEqual(8, engine.GetPoolCapacity("catalyst"));
+            Assert.AreEqual(8, engine.GetPoolValue("catalyst"));
 
             // Consume 3
-            engine.ConsumePool("catalyst", 3, session);
-            Assert.AreEqual(5, engine.GetPoolValue("catalyst", session));
+            engine.ConsumePool("catalyst", 3);
+            Assert.AreEqual(5, engine.GetPoolValue("catalyst"));
 
             // Consume 10 (clamps to 0)
-            engine.ConsumePool("catalyst", 10, session);
-            Assert.AreEqual(0, engine.GetPoolValue("catalyst", session));
+            engine.ConsumePool("catalyst", 10);
+            Assert.AreEqual(0, engine.GetPoolValue("catalyst"));
 
             // Recharge 4
-            engine.RechargePool("catalyst", 4, session);
-            Assert.AreEqual(4, engine.GetPoolValue("catalyst", session));
+            engine.RechargePool("catalyst", 4);
+            Assert.AreEqual(4, engine.GetPoolValue("catalyst"));
 
             // Recharge 20 (clamps to capacity 8)
-            engine.RechargePool("catalyst", 20, session);
-            Assert.AreEqual(8, engine.GetPoolValue("catalyst", session));
+            engine.RechargePool("catalyst", 20);
+            Assert.AreEqual(8, engine.GetPoolValue("catalyst"));
 
             // Set 6
-            engine.SetPoolValue("catalyst", 6, session);
-            Assert.AreEqual(6, engine.GetPoolValue("catalyst", session));
+            engine.SetPoolValue("catalyst", 6);
+            Assert.AreEqual(6, engine.GetPoolValue("catalyst"));
 
             // Set 15 (clamps to 8)
-            engine.SetPoolValue("catalyst", 15, session);
-            Assert.AreEqual(8, engine.GetPoolValue("catalyst", session));
+            engine.SetPoolValue("catalyst", 15);
+            Assert.AreEqual(8, engine.GetPoolValue("catalyst"));
 
             // Set -5 (clamps to 0)
-            engine.SetPoolValue("catalyst", -5, session);
-            Assert.AreEqual(0, engine.GetPoolValue("catalyst", session));
+            engine.SetPoolValue("catalyst", -5);
+            Assert.AreEqual(0, engine.GetPoolValue("catalyst"));
 
             // Dynamic capacity reduction: capacity stat drops to 5
             session.SetParameter("catalyst_capacity", 5);
-            engine.SetPoolValue("catalyst", 5, session);
-            Assert.AreEqual(5, engine.GetPoolCapacity("catalyst", session));
-            Assert.AreEqual(5, engine.GetPoolValue("catalyst", session));
+            engine.SetPoolValue("catalyst", 5);
+            Assert.AreEqual(5, engine.GetPoolCapacity("catalyst"));
+            Assert.AreEqual(5, engine.GetPoolValue("catalyst"));
         }
 
         [TestMethod]
@@ -268,30 +266,30 @@ namespace PlayMore35.Tests {
             var (session, _, engine) = CreateSyntheticSession();
 
             // Catalyst starts at default capacity 10; Heat starts at default capacity 5
-            engine.ConsumePool("catalyst", 7, session);
-            engine.ConsumePool("heat", 4, session);
+            engine.ConsumePool("catalyst", 7);
+            engine.ConsumePool("heat", 4);
 
-            Assert.AreEqual(3, engine.GetPoolValue("catalyst", session));
-            Assert.AreEqual(1, engine.GetPoolValue("heat", session));
+            Assert.AreEqual(3, engine.GetPoolValue("catalyst"));
+            Assert.AreEqual(1, engine.GetPoolValue("heat"));
 
             // End combat does NOT reset pools ambiently
             session.EndCombat();
-            Assert.AreEqual(3, engine.GetPoolValue("catalyst", session), "Catalyst pool must not reset ambiently on EndCombat.");
-            Assert.AreEqual(1, engine.GetPoolValue("heat", session), "Heat pool must not reset ambiently on EndCombat.");
+            Assert.AreEqual(3, engine.GetPoolValue("catalyst"), "Catalyst pool must not reset ambiently on EndCombat.");
+            Assert.AreEqual(1, engine.GetPoolValue("heat"), "Heat pool must not reset ambiently on EndCombat.");
 
             // Pool recharge via declarative SheetAction (e.g. resting or player action)
             session.PerformAction(new SheetAction {
                 Subsystem = "synthetic_alchemy",
                 PoolOperation = new SubsystemPoolOperation("catalyst", "recharge", 7)
             });
-            Assert.AreEqual(10, engine.GetPoolValue("catalyst", session), "Catalyst pool should recharge to full via SheetAction.");
+            Assert.AreEqual(10, engine.GetPoolValue("catalyst"), "Catalyst pool should recharge to full via SheetAction.");
 
             // Pool set via declarative SheetAction
             session.PerformAction(new SheetAction {
                 Subsystem = "synthetic_alchemy",
                 PoolOperation = new SubsystemPoolOperation("heat", "set", 5)
             });
-            Assert.AreEqual(5, engine.GetPoolValue("heat", session), "Heat pool should be set to 5 via SheetAction.");
+            Assert.AreEqual(5, engine.GetPoolValue("heat"), "Heat pool should be set to 5 via SheetAction.");
         }
 
         [TestMethod]
@@ -312,7 +310,7 @@ namespace PlayMore35.Tests {
                 SlotIndex = 0,
                 FromState = "inactive",
                 ToState = "active"
-            }, session);
+            });
             session.Recalculate();
 
             int activeDex = session.GetStatistic("DEX score").Value;
@@ -325,7 +323,7 @@ namespace PlayMore35.Tests {
                 SlotIndex = 0,
                 FromState = "active",
                 ToState = "inactive"
-            }, session);
+            });
             session.Recalculate();
 
             int inactiveDex = session.GetStatistic("DEX score").Value;
@@ -375,7 +373,7 @@ namespace PlayMore35.Tests {
             };
 
             var reqPool = session.PerformAction(poolAction);
-            Assert.AreEqual(6, engine.GetPoolValue("catalyst", session));
+            Assert.AreEqual(6, engine.GetPoolValue("catalyst"));
         }
 
         [TestMethod]
@@ -483,13 +481,13 @@ namespace PlayMore35.Tests {
                 SlotIndex = 0,
                 FromState = "inactive",
                 ToState = "active"
-            }, session);
+            });
             session.Recalculate();
             Assert.AreEqual(baseStr + 2, session.GetStatistic("STR score").Value);
 
             // 3. Verb execution with fallback check
             session.SetParameter("acid_splash_count", 0);
-            engine.ExecuteVerb("throw", session, slotGroup: "flasks", slotIndex: 0);
+            engine.ExecuteVerb("throw", slotGroup: "flasks", slotIndex: 0);
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State);
             Assert.AreEqual(1, session.Character.paramValues["acid_splash_count"]);
 
@@ -500,17 +498,17 @@ namespace PlayMore35.Tests {
                 FromState = "empty",
                 ToState = "prepared",
                 CountExpression = "1"
-            }, session);
+            });
             Assert.AreEqual(1, engine.GetSlots("flasks").Count(s => s?.State == "prepared"));
 
             // 5. Pool operation via SheetAction
-            engine.ConsumePool("heat", 3, session);
-            Assert.AreEqual(2, engine.GetPoolValue("heat", session));
+            engine.ConsumePool("heat", 3);
+            Assert.AreEqual(2, engine.GetPoolValue("heat"));
             session.PerformAction(new SheetAction {
                 Subsystem = "synthetic_alchemy",
                 PoolOperation = new SubsystemPoolOperation("heat", "recharge", 3)
             });
-            Assert.AreEqual(5, engine.GetPoolValue("heat", session));
+            Assert.AreEqual(5, engine.GetPoolValue("heat"));
 
             // Complete zero content literacy verified end-to-end
             Assert.IsNotNull(engine);

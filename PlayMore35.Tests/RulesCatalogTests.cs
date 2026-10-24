@@ -311,19 +311,13 @@ namespace PlayMore35.Tests {
             customManeuver.SetProperty("level", 1);
             var customCatalog = new FakeRulesCatalog(customManeuver);
 
-            // Engine constructed with default catalog
+            // Engine constructed with context referencing customCatalog
             var defaultCatalog = new GameRulesCatalog();
-            var engine = new SubsystemEngine(defaultCatalog.GetSubsystem("martial_maneuvers"));
             var context = new FakeCharacterContext(catalog: customCatalog);
-
-            // Before initialize, engine does not know about customManeuver
-            Assert.IsNull(engine.GetElement("Special Strike"));
-
-            // Initialize resolves context.Catalog
-            engine.Initialize(context);
+            var engine = new SubsystemEngine(defaultCatalog.GetSubsystem("martial_maneuvers"), context);
 
             var postWarnings = engine.ValidateChoice(null, null, "Special Strike", "Warblade");
-            Assert.IsFalse(postWarnings.Any(w => w.Contains("not recognized") || w.Contains("not a valid")), "Initialized engine must recognize maneuver from context.Catalog.");
+            Assert.IsFalse(postWarnings.Any(w => w.Contains("not recognized") || w.Contains("not a valid")), "Engine must recognize maneuver from context.Catalog.");
             Assert.IsNotNull(engine.GetElement("Special Strike"));
         }
 
@@ -343,23 +337,17 @@ namespace PlayMore35.Tests {
             var customVestige = new SubsystemElement(json);
             var customCatalog = new FakeRulesCatalog(vestiges: new[] { customVestige });
 
-            // Engine constructed with default catalog
+            // Engine constructed with context referencing customCatalog
             var defaultCatalog = new GameRulesCatalog();
-            var engine = new SubsystemEngine(defaultCatalog.GetSubsystem("pact_magic"));
             var context = new FakeCharacterContext(catalog: customCatalog);
+            var engine = new SubsystemEngine(defaultCatalog.GetSubsystem("pact_magic"), context);
             context.Effects.AddStat(new Statistic("number of vestiges"));
             context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(1, ModifierTypes.UNTYPED)));
             context.Effects.AddStat(new Statistic("maximum vestige level"));
             context.Effects.AddEffect(new Effect("Max Level").AddModifier("maximum vestige level", new Modifier(5, ModifierTypes.UNTYPED)));
 
-            // Before initialize, engine uses default catalog
-            Assert.IsNull(engine.GetElement("Test Vestige"));
-
-            // Initialize resolves context.Catalog
-            engine.Initialize(context);
-
-            Assert.IsNotNull(engine.GetElement("Test Vestige"), "Initialized engine must resolve custom vestige from context.Catalog.");
-            Assert.AreEqual(22, engine.GetElement("Test Vestige").GetProperty<int>("binding DC"), "Initialized engine must resolve DC from context.Catalog.");
+            Assert.IsNotNull(engine.GetElement("Test Vestige"), "Engine must resolve custom vestige from context.Catalog.");
+            Assert.AreEqual(22, engine.GetElement("Test Vestige").GetProperty<int>("binding DC"), "Engine must resolve DC from context.Catalog.");
 
             engine.AssignSlot("vestiges", 0, "Test Vestige", "good_pact", "Binder");
             Assert.AreEqual("Test Vestige", engine.GetSlotElement("vestiges", 0));
