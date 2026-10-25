@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿#nullable enable
+using System.Windows.Forms;
 
 namespace PlayMore35 {
     public partial class PickTime : Form {

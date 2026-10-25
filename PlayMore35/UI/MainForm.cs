@@ -1,3 +1,4 @@
+#nullable enable
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
@@ -1632,12 +1633,6 @@ namespace PlayMore35 {
         }
 
         private void ConfigureAttackRoutines_Click(object sender, EventArgs e) {
-            if (session?.Character == null) {
-                return;
-            }
-            if (session.Character.RoutinePreferences == null) {
-                session.Mutate(c => c.RoutinePreferences = new AttackRoutinePreferences());
-            }
             using (var dialog = new ConfigureAttackRoutinesDialog(session.Character.RoutinePreferences)) {
                 if (dialog.ShowDialog(this) == DialogResult.OK) {
                     RefreshEffects();

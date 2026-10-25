@@ -1,4 +1,5 @@
-﻿using static PlayMore35.Effects.Constants;
+﻿#nullable enable
+using static PlayMore35.Effects.Constants;
 
 using System.Collections.Generic;
 using PlayMore35.Effects;

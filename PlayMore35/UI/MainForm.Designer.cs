@@ -1,3 +1,4 @@
+#nullable enable
 namespace PlayMore35 {
     partial class MainForm {
         /// <summary>

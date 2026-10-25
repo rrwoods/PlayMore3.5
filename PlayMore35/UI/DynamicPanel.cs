@@ -1,4 +1,5 @@
-﻿using PlayMore35.Effects;
+﻿#nullable enable
+using PlayMore35.Effects;
 using PlayMore35.Global;
 using System.Collections.Generic;
 using System.Windows.Forms;

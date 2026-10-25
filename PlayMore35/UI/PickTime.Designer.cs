@@ -1,4 +1,5 @@
-﻿namespace PlayMore35 {
+﻿#nullable enable
+namespace PlayMore35 {
     partial class PickTime {
         /// <summary>
         /// Required designer variable.

@@ -1,3 +1,4 @@
+#nullable enable
 using PlayMore35.Global;
 using System;
 using System.Drawing;
