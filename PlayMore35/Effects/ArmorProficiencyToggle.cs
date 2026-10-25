@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
 
 namespace PlayMore35.Effects {

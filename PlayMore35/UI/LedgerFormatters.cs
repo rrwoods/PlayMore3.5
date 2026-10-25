@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 
 namespace PlayMore35.UI {
     public static class LedgerFormatters {

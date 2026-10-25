@@ -1,4 +1,3 @@
-#nullable enable
 using PlayMore35.Global;
 using PlayMore35.Effects;
 using static PlayMore35.Global.FormUtils;

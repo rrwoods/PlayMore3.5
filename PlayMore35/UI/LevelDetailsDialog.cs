@@ -1,4 +1,3 @@
-#nullable enable
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using PlayMore35.UI;

@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace PlayMore35.Effects {
+﻿namespace PlayMore35.Effects {
     public class Constants {
         public static readonly string STR = "STR";
         public static readonly string DEX = "DEX";

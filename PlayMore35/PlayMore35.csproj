@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>

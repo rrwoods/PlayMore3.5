@@ -1,4 +1,3 @@
-#nullable enable
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 using PlayMore35.Items;

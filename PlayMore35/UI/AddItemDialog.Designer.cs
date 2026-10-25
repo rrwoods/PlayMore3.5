@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace PlayMore35 {
+﻿namespace PlayMore35 {
     partial class AddItemDialog {
         /// <summary>
         /// Required designer variable.

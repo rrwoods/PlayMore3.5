@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace PlayMore35.UI {
+﻿namespace PlayMore35.UI {
     partial class RollPrompt {
         /// <summary>
         /// Required designer variable.

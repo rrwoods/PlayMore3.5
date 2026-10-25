@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class FixedAmount : IAmount {

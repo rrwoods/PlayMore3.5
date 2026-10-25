@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace PlayMore35.Effects {
+﻿namespace PlayMore35.Effects {
     public interface ISubjectMatcher<MatchType> : IJsonable {
         bool Matches(MatchType thing);
         ISubjectMatcher<MatchType> ApplyChoice(string choice);
