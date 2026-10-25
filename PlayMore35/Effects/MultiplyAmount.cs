@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
@@ -14,8 +15,8 @@ namespace PlayMore35.Effects {
         }
 
         public MultiplyAmount(JObject json) {
-            Variable = Amount.FromJson(json["variable"]);
-            Scalar = (decimal)json["scalar"];
+            Variable = Amount.FromJson(json["variable"]!)!;
+            Scalar = (decimal)json["scalar"]!;
         }
 
         public MultiplyAmount(decimal multiplier, IAmount amount) {

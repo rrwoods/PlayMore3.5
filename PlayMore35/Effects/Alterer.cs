@@ -1,9 +1,10 @@
+#nullable enable
 using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class Alterer<AlterType, SubjectType> : IJsonable where AlterType : IJsonable {
-        public AlterType mod;
-        public ISubjectMatcher<SubjectType> affects;
+        public AlterType mod = default!;
+        public ISubjectMatcher<SubjectType> affects = default!;
         public IToggle Toggle = AlwaysOn.Instance;
 
         public JToken ToJson() {

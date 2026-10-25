@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,111 +89,111 @@ namespace PlayMore35.Effects {
         }
 
         public Effect(JObject json) {
-            Name = (string)json["name"];
+            Name = (string?)json["name"] ?? "";
             if (json["parameter"] != null) {
-                Parameter = (string)json["parameter"];
+                Parameter = (string?)json["parameter"] ?? "";
             }
             if (json["active"] != null) {
-                Toggle = Effects.Toggle.FromJson(json["active"]);
+                Toggle = Effects.Toggle.FromJson(json["active"]) ?? AlwaysOn.Instance;
             }
             if (json["extra attacks"] != null) {
-                ExtraAttacks.AddRange(json["extra attacks"].Select(x => new Alterer<ExtraAttack, Attack> {
-                    affects = new AttackMatcher((JObject)x["affects"]),
-                    mod = new ExtraAttack((JObject)x["mod"]),
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                ExtraAttacks.AddRange(json["extra attacks"]!.Select(x => new Alterer<ExtraAttack, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]!),
+                    mod = new ExtraAttack((JObject)x["mod"]!),
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["attack"] != null) {
-                AttackModifiers.AddRange(json["attack"].Select(x => new Alterer<Modifier, Attack> {
-                    affects = new AttackMatcher((JObject)x["affects"]),
-                    mod = new Modifier((JObject)x["mod"]) {
+                AttackModifiers.AddRange(json["attack"]!.Select(x => new Alterer<Modifier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]!),
+                    mod = new Modifier((JObject)x["mod"]!) {
                         Name = Name
                     },
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["damage"] != null) {
-                DamageModifiers.AddRange(json["damage"].Select(x => new Alterer<Modifier, Attack> {
-                    affects = new AttackMatcher((JObject)x["affects"]),
-                    mod = new Modifier((JObject)x["mod"]) {
+                DamageModifiers.AddRange(json["damage"]!.Select(x => new Alterer<Modifier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]!),
+                    mod = new Modifier((JObject)x["mod"]!) {
                         Name = Name
                     },
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["dice"] != null) {
-                ExtraDice.AddRange(json["dice"].Select(x => new Alterer<DiceGroup, Attack> {
-                    affects = new AttackMatcher((JObject)x["affects"]),
-                    mod = new DiceGroup((JObject)x["mod"]) {
+                ExtraDice.AddRange(json["dice"]!.Select(x => new Alterer<DiceGroup, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]!),
+                    mod = new DiceGroup((JObject)x["mod"]!) {
                         Name = Name
                     },
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["threat"] != null) {
-                ThreatModifiers.AddRange(json["threat"].Select(x => new Alterer<Modifier, Attack> {
-                    affects = new AttackMatcher((JObject)x["affects"]),
-                    mod = new Modifier((JObject)x["mod"]) {
+                ThreatModifiers.AddRange(json["threat"]!.Select(x => new Alterer<Modifier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]!),
+                    mod = new Modifier((JObject)x["mod"]!) {
                         Name = Name
                     },
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["range"] != null) {
-                RangeMultipliers.AddRange(json["range"].Select(x => new Alterer<Multiplier, Attack> {
-                    affects = new AttackMatcher((JObject)x["affects"]),
-                    mod = new Multiplier((decimal)x["mod"]) {
+                RangeMultipliers.AddRange(json["range"]!.Select(x => new Alterer<Multiplier, Attack> {
+                    affects = new AttackMatcher((JObject)x["affects"]!),
+                    mod = new Multiplier((decimal)x["mod"]!) {
                         Name = Name
                     },
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["modifiers"] != null) {
-                Modifiers.AddRange(json["modifiers"].Select(x => new Alterer<Modifier, Statistic> {
-                    affects = new StatisticMatcher((string)x["affects"]),
-                    mod = new Modifier((JObject)x["mod"]) {
+                Modifiers.AddRange(json["modifiers"]!.Select(x => new Alterer<Modifier, Statistic> {
+                    affects = new StatisticMatcher((string)x["affects"]!),
+                    mod = new Modifier((JObject)x["mod"]!) {
                         Name = Name
                     },
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["multipliers"] != null) {
-                Multipliers.AddRange(json["multipliers"].Select(x => new Alterer<Multiplier, Statistic> {
-                    affects = new StatisticMatcher((string)x["affects"]),
-                    mod = new Multiplier((decimal)x["mod"]) {
+                Multipliers.AddRange(json["multipliers"]!.Select(x => new Alterer<Multiplier, Statistic> {
+                    affects = new StatisticMatcher((string)x["affects"]!),
+                    mod = new Multiplier((decimal)x["mod"]!) {
                         Name = Name
                     },
-                    Toggle = x["active"] != null ? Effects.Toggle.FromJson(x["active"]) : AlwaysOn.Instance
+                    Toggle = x["active"] != null ? (Effects.Toggle.FromJson(x["active"]) ?? AlwaysOn.Instance) : AlwaysOn.Instance
                 }));
             }
             if (json["weapon familiarity"] != null) {
-                WeaponFamiliarity.AddRange(json["weapon familiarity"].Select(x => (string)x));
+                WeaponFamiliarity.AddRange(json["weapon familiarity"]!.Select(x => (string)x!));
             }
             if (json["weapon proficiencies"] != null) {
-                WeaponProficiencies.AddRange(json["weapon proficiencies"].Select(x => new AttackMatcher((JObject)x)));
+                WeaponProficiencies.AddRange(json["weapon proficiencies"]!.Select(x => new AttackMatcher((JObject)x!)));
             }
             if (json["armor proficiencies"] != null) {
-                ArmorProficiencies.AddRange(json["armor proficiencies"].Select(x =>
-                    (Armor.WeightCategory) Enum.Parse(typeof(Armor.WeightCategory), (string)x, false)
+                ArmorProficiencies.AddRange(json["armor proficiencies"]!.Select(x =>
+                    (Armor.WeightCategory) Enum.Parse(typeof(Armor.WeightCategory), (string)x!, false)
                 ));
             }
             if (json["exotic armor proficiencies"] != null) {
-                ExoticArmorProficiencies.AddRange(json["exotic armor proficiencies"].Select(x => (string)x));
+                ExoticArmorProficiencies.AddRange(json["exotic armor proficiencies"]!.Select(x => (string)x!));
             }
             if (json["shield proficiencies"] != null) {
-                ShieldProficiencies.AddRange(json["shield proficiencies"].Select(x => x.Equals("tower")));
+                ShieldProficiencies.AddRange(json["shield proficiencies"]!.Select(x => ((string)x!).Equals("tower")));
             }
             if (json["exotic shield proficiencies"] != null) {
-                ExoticShieldProficiencies.AddRange(json["exotic shield proficiencies"].Select(x => (string)x));
+                ExoticShieldProficiencies.AddRange(json["exotic shield proficiencies"]!.Select(x => (string)x!));
             }
             if (json["flags"] != null) {
-                Flags.AddRange(json["flags"].Select(x => (string)x));
+                Flags.AddRange(json["flags"]!.Select(x => (string)x!));
             }
             if (json["text"] != null) {
-                Text.AddRange(json["text"].Select(x => new Text((JObject)x)));
+                Text.AddRange(json["text"]!.Select(x => new Text((JObject)x!)));
             }
             if (json["actions"] != null) {
-                associatedAction.AddRange(json["actions"].Select(x => SheetAction.FromJson((JObject)x)));
+                associatedAction.AddRange(json["actions"]!.Select(x => SheetAction.FromJson((JObject)x!)!));
             }
         }
 
@@ -345,7 +346,7 @@ namespace PlayMore35.Effects {
             }
             // In order to prevent infinite recursion, we have to check whether we care about what this effect
             // does before checking whether it applies.
-            List<Alterer<AlterType, SubjectType>> matching = null;
+            List<Alterer<AlterType, SubjectType>>? matching = null;
             for (int i = 0; i < alterers.Count; i++) {
                 var alt = alterers[i];
                 if (alt.affects.Matches(affecting)) {

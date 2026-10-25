@@ -1,3 +1,4 @@
+#nullable enable
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 
@@ -8,32 +9,28 @@ namespace PlayMore35.Effects {
             get { return on; }
             set {
                 on = value;
-                if (character != null) {
-                    character.flagValues[Name] = value;
-                }
+                character.flagValues[Name] = value;
             }
         }
-        private Character character;
+        private readonly Character character;
 
         public ControllableFlag(FlagDefinition def, Character character)
             : base(def.Name, def.Category, def.Description, def.Show, def.Resource) {
-            this.character = character;
-            character?.flagValues.TryGetValue(Name, out on);
+            this.character = character ?? throw new System.ArgumentNullException(nameof(character));
+            this.character.flagValues.TryGetValue(Name, out on);
         }
 
         public ControllableFlag(JObject json, Character character)
             : base(json) {
-            this.character = character;
-            character?.flagValues.TryGetValue(Name, out on);
+            this.character = character ?? throw new System.ArgumentNullException(nameof(character));
+            this.character.flagValues.TryGetValue(Name, out on);
         }
 
         public ControllableFlag(string name, Character character, bool on = false)
             : base(name) {
-            this.character = character;
+            this.character = character ?? throw new System.ArgumentNullException(nameof(character));
             this.on = on;
-            if (character != null) {
-                character.flagValues[name] = on;
-            }
+            this.character.flagValues[name] = on;
         }
     }
 }

@@ -1,3 +1,4 @@
+#nullable enable
 using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
@@ -7,30 +8,31 @@ namespace PlayMore35.Effects {
     }
 
     public static class Toggle {
-        public static IToggle FromJson(JToken json) {
+        public static IToggle? FromJson(JToken? json) {
+            if (json == null) return null;
             if (json.ToString().Equals("always")) {
                 return AlwaysOn.Instance;
             }
             if (json["all"] != null) {
-                return new AllToggle((JArray)json["all"]);
+                return new AllToggle((JArray)json["all"]!);
             }
             if (json["any"] != null) {
-                return new AnyToggle((JArray)json["any"]);
+                return new AnyToggle((JArray)json["any"]!);
             }
             if (json["choice"] != null) {
-                return new ChoiceToggle((string)json["choice"]);
+                return new ChoiceToggle((string)json["choice"]!);
             }
             if (json["proficient"] != null) {
-                return new ArmorProficiencyToggle((string)json["proficient"]);
+                return new ArmorProficiencyToggle((string)json["proficient"]!);
             }
             if (json["conditional"] != null) {
-                return new ConditionalToggle((JObject)json["conditional"]);
+                return new ConditionalToggle((JObject)json["conditional"]!);
             }
             if (json["flag"] != null) {
-                return new FlagToggle((string)json["flag"]);
+                return new FlagToggle((string)json["flag"]!);
             }
             if (json["not"] != null) {
-                return new UnToggle(FromJson(json["not"]));
+                return new UnToggle(json["not"]!);
             }
             return null;
         }

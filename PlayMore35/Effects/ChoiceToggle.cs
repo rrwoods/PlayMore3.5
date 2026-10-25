@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Items;
@@ -5,12 +6,12 @@ using PlayMore35.Items;
 namespace PlayMore35.Effects {
     public class ChoiceToggle : IToggle {
         private readonly string expected;
-        private readonly string actual;
+        private readonly string? actual;
 
         public string Expected => expected;
-        public string Actual => actual;
+        public string? Actual => actual;
 
-        public ChoiceToggle(string expected, string actual = null) {
+        public ChoiceToggle(string expected, string? actual = null) {
             this.expected = expected ?? "";
             this.actual = actual;
         }

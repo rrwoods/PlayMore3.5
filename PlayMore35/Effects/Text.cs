@@ -1,3 +1,4 @@
+#nullable enable
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 using PlayMore35.Items;
@@ -16,7 +17,7 @@ namespace PlayMore35.Effects {
         public string Description = "";
 
         // Any given effect should only have one Text component that has this, or undefined behavior may result
-        public ActionResource Resource = null;
+        public ActionResource? Resource = null;
 
         public JToken ToJson() {
             JObject json = new JObject(
@@ -30,10 +31,10 @@ namespace PlayMore35.Effects {
         }
 
         public Text(JObject json) {
-            Category = (string)json["category"];
-            Description = (string)json["text"];
+            Category = (string?)json["category"] ?? "";
+            Description = (string?)json["text"] ?? "";
             if (json["resource"] != null) {
-                Resource = new ActionResource((JObject)json["resource"]);
+                Resource = new ActionResource((JObject)json["resource"]!);
             }
         }
 
@@ -45,9 +46,7 @@ namespace PlayMore35.Effects {
             Name = copy.Name;
             ParameterName = copy.ParameterName;
             ParameterLabel = copy.ParameterLabel;
-            associatedAction = copy.associatedAction != null
-                ? new List<SheetAction>(copy.associatedAction)
-                : new List<SheetAction>();
+            associatedAction = new List<SheetAction>(copy.associatedAction);
             Category = copy.Category;
             Description = copy.Description;
             Resource = copy.Resource;

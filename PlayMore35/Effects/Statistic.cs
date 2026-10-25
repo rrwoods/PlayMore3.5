@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using static System.Math;
 
 namespace PlayMore35.Effects {
     public class Statistic : IJsonable {
-        public string Name { get; private set; }
+        public string Name { get; private set; } = "";
         private readonly List<string> tags = new List<string>();
         private int? minValue = null;
         private int? maxValue = null;
@@ -39,21 +40,21 @@ namespace PlayMore35.Effects {
         }
 
         public Statistic(JObject token) {
-            Name = (string)token["name"];
+            Name = (string?)token["name"] ?? "";
             tags.ReadJson("tags", token);
             if (token.ContainsKey("min")) {
-                minValue = (int)token["min"];
+                minValue = (int)token["min"]!;
             }
             if (token.ContainsKey("max")) {
-                maxValue = (int)token["max"];
+                maxValue = (int)token["max"]!;
             }
             if (token.ContainsKey("precision")) {
-                precision = (int)token["precision"];
+                precision = (int)token["precision"]!;
             }
             roundUp = (token["round down"] == null);
             if (token.ContainsKey("ignore")) {
-                foreach (JProperty item in token["ignore"]) {
-                    ignoredModifierTypes[item.Name] = Toggle.FromJson(item.Value);
+                foreach (JProperty item in ((JObject)token["ignore"]!).Properties()) {
+                    ignoredModifierTypes[item.Name] = Toggle.FromJson(item.Value) ?? AlwaysOn.Instance;
                 }
             }
         }

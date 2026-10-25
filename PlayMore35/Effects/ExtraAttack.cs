@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +19,8 @@ namespace PlayMore35.Effects {
         }
 
         public ExtraAttack(JObject json) {
-            AttackPenalty = (int)json["attack penalty"];
-            BonusType = (string)json["bonus type"];
+            AttackPenalty = (int)json["attack penalty"]!;
+            BonusType = (string?)json["bonus type"] ?? "";
         }
 
         // attackPenalty is the penalty to *this extra attack* -- for penalties to all attacks

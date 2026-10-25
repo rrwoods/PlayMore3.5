@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,22 +41,32 @@ namespace PlayMore35.Effects {
         }
 
         public void ReadJson(JToken json) {
-            foreach (JProperty featSlot in json["feats"]) {
-                featSlots[featSlot.Name] = (int)featSlot.Value;
+            if (json["feats"] is JObject featsObj) {
+                foreach (JProperty featSlot in featsObj.Properties()) {
+                    featSlots[featSlot.Name] = (int)featSlot.Value;
+                }
             }
-            foreach (JObject token in json["stats"]) {
-                Statistic s = new Statistic(token);
-                stats[s.Name] = s;
+            if (json["stats"] is JArray statsArr) {
+                foreach (JObject token in statsArr) {
+                    Statistic s = new Statistic(token);
+                    stats[s.Name] = s;
+                }
             }
-            foreach (JObject token in json["effects"]) {
-                AddEffect(new Effect(token));
+            if (json["effects"] is JArray effectsArr) {
+                foreach (JObject token in effectsArr) {
+                    AddEffect(new Effect(token));
+                }
             }
-            foreach (JObject token in json["flags"]) {
-                AddFlag(new ControllableFlag(token, character));
+            if (json["flags"] is JArray flagsArr) {
+                foreach (JObject token in flagsArr) {
+                    AddFlag(new ControllableFlag(token, character));
+                }
             }
-            foreach (JObject token in json["parameters"]) {
-                ControllableParameter parameter = new ControllableParameter(token, character);
-                controllableParameters[parameter.Name] = parameter;
+            if (json["parameters"] is JArray paramsArr) {
+                foreach (JObject token in paramsArr) {
+                    ControllableParameter parameter = new ControllableParameter(token, character);
+                    controllableParameters[parameter.Name] = parameter;
+                }
             }
         }
 
@@ -84,7 +95,7 @@ namespace PlayMore35.Effects {
             return stats[name];
         }
 
-        public StatView GetStatistic(string name, Equipped items) {
+        public StatView GetStatistic(string? name, Equipped items) {
             if (name != null && stats.TryGetValue(name, out var stat)) {
                 var (val, expl) = stat.GetValue(this, items ?? new Equipped());
                 return new StatView(name, val, expl.AsReadOnly());
@@ -92,7 +103,7 @@ namespace PlayMore35.Effects {
             return new StatView(name ?? "", 0);
         }
 
-        public int GetStatValue(string name, Equipped items, int defaultValue = 0) {
+        public int GetStatValue(string? name, Equipped items, int defaultValue = 0) {
             if (name != null && stats.TryGetValue(name, out var stat)) {
                 return stat.GetValue(this, items ?? new Equipped()).value;
             }
@@ -104,7 +115,7 @@ namespace PlayMore35.Effects {
         }
 
         private void RegisterEffectParameter(Effect effect) {
-            if (effect != null && !string.IsNullOrEmpty(effect.ParameterName)) {
+            if (!string.IsNullOrEmpty(effect.ParameterName)) {
                 string paramName = effect.ParameterName;
                 if (!controllableParameters.ContainsKey(paramName)) {
                     controllableParameters[paramName] = new ControllableParameter(paramName, character) {
@@ -115,7 +126,7 @@ namespace PlayMore35.Effects {
             }
         }
 
-        private bool RegisterResourceUses(ActionResource resource, string name) {
+        private bool RegisterResourceUses(ActionResource? resource, string name) {
             string statName = $"{name} uses";
             if (stats.ContainsKey(statName)) {
                 return true;
@@ -430,7 +441,7 @@ namespace PlayMore35.Effects {
         }
 
         public void GenerateFeatEffects(Feat feat, IEnumerable<string> choices) {
-            Effect benefit = feat.Benefit;
+            Effect? benefit = feat.Benefit;
             if (benefit != null && choices != null) {
                 foreach (var choice in choices.Where(c => !string.IsNullOrEmpty(c))) {
                     benefit = benefit.ApplyChoice(choice);

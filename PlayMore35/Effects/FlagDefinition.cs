@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+#nullable enable
+using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
 namespace PlayMore35.Effects {
@@ -7,23 +8,23 @@ namespace PlayMore35.Effects {
         public string Category { get; set; } = "";
         public string Description { get; set; } = "";
         public IToggle Show { get; set; } = AlwaysOn.Instance;
-        public ActionResource Resource { get; set; } = null;
+        public ActionResource? Resource { get; set; } = null;
 
         public FlagDefinition() { }
 
         public FlagDefinition(JObject json) {
-            Name = (string)json["name"] ?? "";
-            Category = (string)json["category"] ?? "";
-            Description = (string)json["description"] ?? "";
+            Name = (string?)json["name"] ?? "";
+            Category = (string?)json["category"] ?? "";
+            Description = (string?)json["description"] ?? "";
             if (json["show"] != null) {
-                Show = Toggle.FromJson(json["show"]);
+                Show = Toggle.FromJson(json["show"]!) ?? AlwaysOn.Instance;
             }
             if (json["resource"] != null) {
-                Resource = new ActionResource((JObject)json["resource"]);
+                Resource = new ActionResource((JObject)json["resource"]!);
             }
         }
 
-        public FlagDefinition(string name, string category = "", string description = "", IToggle show = null, ActionResource resource = null) {
+        public FlagDefinition(string name, string category = "", string description = "", IToggle? show = null, ActionResource? resource = null) {
             Name = name ?? "";
             Category = category ?? "";
             Description = description ?? "";
@@ -37,7 +38,7 @@ namespace PlayMore35.Effects {
                 new JProperty("category", Category),
                 new JProperty("description", Description)
             );
-            if (Show != null && Show != AlwaysOn.Instance) {
+            if (Show != AlwaysOn.Instance) {
                 json.Add(new JProperty("show", Show.ToJson()));
             }
             if (Resource != null) {

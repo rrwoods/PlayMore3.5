@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+#nullable enable
+using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
 namespace PlayMore35.Effects {
@@ -10,9 +11,9 @@ namespace PlayMore35.Effects {
         public ParameterDefinition() { }
 
         public ParameterDefinition(JObject json) {
-            Name = (string)json["name"] ?? "";
-            Category = (string)json["category"] ?? "";
-            Description = (string)json["description"] ?? "";
+            Name = (string?)json["name"] ?? "";
+            Category = (string?)json["category"] ?? "";
+            Description = (string?)json["description"] ?? "";
         }
 
         public ParameterDefinition(string name, string category = "", string description = "") {

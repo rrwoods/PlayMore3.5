@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+#nullable enable
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -26,7 +27,8 @@ namespace PlayMore35.Effects {
         }
 
         public DiceGroup(JToken json) {
-            foreach (string component in ((string)json).Split('+')) {
+            string jsonStr = (string?)json ?? "";
+            foreach (string component in jsonStr.Split('+')) {
                 string die = component;
                 if (component.Contains('-')) {
                     string[] dieAndMinus = component.Split('-');

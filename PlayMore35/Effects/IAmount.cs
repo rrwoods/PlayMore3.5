@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+#nullable enable
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public interface IAmount : IJsonable {
@@ -6,30 +7,31 @@ namespace PlayMore35.Effects {
     }
 
     public static class Amount {
-        public static IAmount FromJson(JToken json) {
+        public static IAmount? FromJson(JToken? json) {
+            if (json == null) return null;
             if (json["controllable"] != null) {
-                return new ControllableAmount((string)json["controllable"]);
+                return new ControllableAmount((string)json["controllable"]!);
             }
             if (json["fixed"] != null) {
-                return new FixedAmount((int)json["fixed"]);
+                return new FixedAmount((int)json["fixed"]!);
             }
             if (json["item value"] != null) {
-                return new ItemAmount((string)json["item value"]);
+                return new ItemAmount((string)json["item value"]!);
             }
             if (json["largest"] != null) {
-                return new LargestAmount((JArray)json["largest"]);
+                return new LargestAmount((JArray)json["largest"]!);
             }
             if (json["lookup"] != null) {
-                return new LookupAmount((JObject)json["lookup"]);
+                return new LookupAmount((JObject)json["lookup"]!);
             }
             if (json["multiply"] != null) {
-                return new MultiplyAmount((JObject)json["multiply"]);
+                return new MultiplyAmount((JObject)json["multiply"]!);
             }
             if (json["smallest"] != null) {
-                return new SmallestAmount((JArray)json["smallest"]);
+                return new SmallestAmount((JArray)json["smallest"]!);
             }
             if (json["stat value"] != null) {
-                return new VariableAmount((string)json["stat value"]);
+                return new VariableAmount((string)json["stat value"]!);
             }
             return null;
         }

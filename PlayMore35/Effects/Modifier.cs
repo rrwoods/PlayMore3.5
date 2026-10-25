@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+#nullable enable
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class Modifier : IJsonable {
         public string Name = "";
-        public string Type { get; private set; }
+        public string Type { get; private set; } = "";
         private readonly List<IAmount> Amounts = new List<IAmount>();
 
         public JToken ToJson() {
@@ -16,8 +17,10 @@ namespace PlayMore35.Effects {
         }
 
         public Modifier(JObject json) {
-            Type = (string)json["type"];
-            Amounts.AddRange(json["amounts"].Select(x => Amount.FromJson(x)));
+            Type = (string?)json["type"] ?? "";
+            if (json["amounts"] != null) {
+                Amounts.AddRange(json["amounts"]!.Select(x => Amount.FromJson(x)!));
+            }
         }
 
         public Modifier(string type) {

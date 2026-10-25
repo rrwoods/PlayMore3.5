@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using Newtonsoft.Json.Linq;
 
@@ -16,9 +17,9 @@ namespace PlayMore35.Effects {
         }
 
         public ConditionalToggle(JObject obj) {
-            Left = Amount.FromJson(obj["left"]);
-            Relationship = (Relation) Enum.Parse(typeof(Relation), (string)obj["relation"], false);
-            Right = Amount.FromJson(obj["right"]);
+            Left = Amount.FromJson(obj["left"]!)!;
+            Relationship = (Relation) Enum.Parse(typeof(Relation), (string)obj["relation"]!, false);
+            Right = Amount.FromJson(obj["right"]!)!;
         }
 
         public ConditionalToggle(IAmount left, Relation relationship, IAmount right) {

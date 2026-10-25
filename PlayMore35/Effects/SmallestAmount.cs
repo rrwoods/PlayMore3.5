@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+#nullable enable
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -11,7 +12,7 @@ namespace PlayMore35.Effects {
         }
 
         public SmallestAmount(JArray array) {
-            Amounts.AddRange(array.Select(x => Amount.FromJson(x)));
+            Amounts.AddRange(array.Select(x => Amount.FromJson(x)!));
         }
 
         public SmallestAmount(params IAmount[] amounts) {

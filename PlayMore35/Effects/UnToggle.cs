@@ -1,3 +1,4 @@
+#nullable enable
 using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
@@ -9,7 +10,10 @@ namespace PlayMore35.Effects {
         }
 
         public UnToggle(IToggle basis) {
-            this.basis = basis;
+            this.basis = basis ?? AlwaysOn.Instance;
+        }
+
+        public UnToggle(JToken json) : this(Toggle.FromJson(json) ?? AlwaysOn.Instance) {
         }
 
         public bool On(EffectPool pool, Items.Equipped items) {

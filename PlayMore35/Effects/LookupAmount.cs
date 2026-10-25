@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -23,15 +24,17 @@ namespace PlayMore35.Effects {
         }
 
         public LookupAmount(JObject json) {
-            Value = Amount.FromJson(json["value"]);
+            Value = Amount.FromJson(json["value"]!)!;
             Table = new Dictionary<int, int>();
-            foreach (JProperty p in json["table"]) {
-                Table[int.Parse(p.Name)] = (int)p.Value;
+            if (json["table"] != null) {
+                foreach (JProperty p in json["table"]!) {
+                    Table[int.Parse(p.Name)] = (int)p.Value;
+                }
             }
 
             if (json["miss adjust"] != null) {
-                MissLookupAdjust = (int)json["miss adjust"];
-                MissValueFactor = (int)json["miss factor"];
+                MissLookupAdjust = (int)json["miss adjust"]!;
+                MissValueFactor = (int)json["miss factor"]!;
             }
         }
 

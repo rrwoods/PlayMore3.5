@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,9 @@ namespace PlayMore35.Effects {
         public string ActionType;
         public LengthOfTime RechargeTime;
 
-        public string Duration; // this is a string because the duration can be stat-dependent
+        public string? Duration; // this is a string because the duration can be stat-dependent
 
-        public SheetAction ActionAfter;
+        public SheetAction? ActionAfter;
 
         // If an ability specifies a number of uses that has a fixed component (for example, anklet of translocation
         // is 2, and a cleric's "3 + CHA" turn attempts is 3), it can go here, and when the effect added to a pool
@@ -25,7 +26,7 @@ namespace PlayMore35.Effects {
 
         // Not serialized; these are computed each time the effect is sent to the UI.
         public int DynamicUses = 0;
-        public List<string> DynamicUsesExplanation;
+        public List<string> DynamicUsesExplanation = new List<string>();
 
         public JToken ToJson() {
             JObject json = new JObject {
@@ -45,28 +46,29 @@ namespace PlayMore35.Effects {
         }
 
         public ActionResource(JObject json) {
-            ActionType = (string)json["action"];
-            RechargeTime = new LengthOfTime((string)json["recharge"]);
+            ActionType = (string?)json["action"] ?? "";
+            RechargeTime = new LengthOfTime((string?)json["recharge"] ?? "");
             if (json["uses"] != null) {
-                StaticUses = (int)json["uses"];
+                StaticUses = (int)json["uses"]!;
             }
             if (json["duration"] != null) {
-                Duration = (string)json["duration"];
+                Duration = (string?)json["duration"];
             }
             if (json["after"] != null) {
-                ActionAfter = SheetAction.FromJson((JObject)json["after"]);
+                ActionAfter = SheetAction.FromJson((JObject)json["after"]!);
             }
         }
 
         public void ComputeUses(string effectName, EffectPool effects, Equipped items) {
-            if (RechargeTime == null || RechargeTime.unit == AT_WILL) {
+            if (RechargeTime.unit == AT_WILL) {
                 return;
             }
             string usesStat = $"{effectName} uses";
             (DynamicUses, DynamicUsesExplanation) = effects.GetStat(usesStat).GetValue(effects, items);
         }
 
-        public LengthOfTime ComputeDuration(EffectPool effects, Equipped items) {
+        public LengthOfTime? ComputeDuration(EffectPool effects, Equipped items) {
+            if (Duration == null) return null;
             return new LengthOfTime(Duration.FillStatValues(effects, items));
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Items;
@@ -23,33 +24,33 @@ namespace PlayMore35.Effects {
         public AttackMatcher(JObject json) {
             foreach (JProperty prop in json.Properties()) {
                 if (prop.Name.Equals("name")) {
-                    matchers.Add(new NameMatcher(((JArray)prop.Value).Select(x => (string)x).ToList()));
+                    matchers.Add(new NameMatcher(((JArray)prop.Value).Select(x => (string)x!).ToList()));
                 } else if (prop.Name.Equals("tag")) {
-                    matchers.Add(new TagMatcher((string)prop.Value));
+                    matchers.Add(new TagMatcher((string)prop.Value!));
                 } else if (prop.Name.Equals("size")) {
                     matchers.Add(new SizeMatcher((int)prop.Value));
                 } else if (prop.Name.Equals("proficiency")) {
                     ProficiencyMatcher matcher = new ProficiencyMatcher();
-                    foreach (JValue value in prop.Value) {
-                        matcher.AddProficiency((Weapon.Proficiency)Enum.Parse(typeof(Weapon.Proficiency), (string)value, false));
+                    foreach (JValue value in (JArray)prop.Value) {
+                        matcher.AddProficiency((Weapon.Proficiency)Enum.Parse(typeof(Weapon.Proficiency), (string)value!, false));
                     }
                     matchers.Add(matcher);
                 } else if (prop.Name.Equals("effort")) {
                     EffortMatcher matcher = new EffortMatcher();
-                    foreach (JValue value in prop.Value) {
-                        matcher.AddEffort((Weapon.Effort)Enum.Parse(typeof(Weapon.Effort), (string)value, false));
+                    foreach (JValue value in (JArray)prop.Value) {
+                        matcher.AddEffort((Weapon.Effort)Enum.Parse(typeof(Weapon.Effort), (string)value!, false));
                     }
                     matchers.Add(matcher);
                 } else if (prop.Name.Equals("hand")) {
                     HandMatcher matcher = new HandMatcher();
-                    foreach (JValue value in prop.Value) {
-                        matcher.AddHand((Weapon.Hand)Enum.Parse(typeof(Weapon.Hand), (string)value, false));
+                    foreach (JValue value in (JArray)prop.Value) {
+                        matcher.AddHand((Weapon.Hand)Enum.Parse(typeof(Weapon.Hand), (string)value!, false));
                     }
                     matchers.Add(matcher);
                 } else if (prop.Name.Equals("range")) {
                     RangeMatcher matcher = new RangeMatcher();
-                    foreach (JValue value in prop.Value) {
-                        matcher.AddRange((Weapon.Range)Enum.Parse(typeof(Weapon.Range), (string)value, false));
+                    foreach (JValue value in (JArray)prop.Value) {
+                        matcher.AddRange((Weapon.Range)Enum.Parse(typeof(Weapon.Range), (string)value!, false));
                     }
                     matchers.Add(matcher);
                 }
@@ -211,7 +212,7 @@ namespace PlayMore35.Effects {
         }
 
         public NameMatcher() {
-
+            Names = new List<string>();
         }
 
         public NameMatcher(List<string> names) {
@@ -235,7 +236,7 @@ namespace PlayMore35.Effects {
         }
 
         public TagMatcher() {
-
+            Tag = "";
         }
 
         public TagMatcher(string tag) {
