@@ -15,16 +15,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - In MainForm.UpdateSubsystemTabs, instead of checking specific subsystem keys, we should iterate over each subsystem and show its tab if it's active.  (For now we have no maneuvers UI defined; its tab can be blank.)
 - In addition to the dedicated subsystem tabs, each subsystem needs to define a composable panel for choosing elements.  That composable panel probably gets used on its tab, but it might also get used in other places, like (eventually) the level details dialog for e.g. Martial Study's maneuver choice (but not yet, we're not defining Maneuvers UI yet).  The Vestiges tab should leverage this for choosing a vestige to bind.
 
-### Martial Study while having martial adept levels (Tome of Battle p. 32)
-- A character with martial adept levels who takes Martial Study adds the learned maneuver to their maneuvers known for one of their martial adept classes.
-- A character who takes Martial Study and then later takes martial adept levels DOES NOT get to do this; the Martial Study maneuver remains a feat-sourced maneuver known (with no recovery method).
-- Currently, PlayMore3.5 has no way of meaningfully distinguishing between these two situations, so we will need a prefactoring to allow various level-based sources (like feats and class levels) to know the level at which they were acquired, or some other way of determining the ordering here.
-
-### Martial Study grants a class skill
-- Martial Study says "the key skill for the discipline of the chosen maneuver becomes a class skill for all your classes".  This requires two new capabilities.
-- Effects in .json-defined catalogs need to be able to determine the discipline of a maneuver choice, and the key skill for that discipline.  This functionality must reside the manuever subsystem to keep from leaking subsystem-specific rules into the core rules logic.
-- Effects in .json-defined catalogs need to be able to set class skills, starting at a specific level.
-
 ### Maneuvers UI
 - Known maneuvers and stances is a build-time choice, and should be present in the level details view.  The player should be able to search for maneuvers there, and the text of what comes up should be sourced from docs/rules/content/maneuvers/\*.md.  While we're here, the "..." button that brings up the level details view should get a highlight of some sort whenever there's an unfilled choice for that level (like picking a maneuver known, or the weapon choice for Weapon Focus).
   - We will need to update the Martial Study and Martial Stance choices to use this UI as well.
