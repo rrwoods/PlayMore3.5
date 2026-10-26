@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PactMagicTabPage & Vestige Picker Prototype - PlayMore3.5 (#182)</title>
+  <style>
+    :root {
+      --bg: #1e1e2e;
+      --card-bg: #252538;
+      --header-bg: #181825;
+      --border: #313244;
+      --text: #cdd6f4;
+      --text-muted: #a6adc8;
+      --accent: #89b4fa;
+      --accent-hover: #b4befe;
+      --win-bg: #f0f0f0;
+      --win-card: #ffffff;
+      --win-text: #000000;
+      --win-text-muted: #666666;
+      --win-border: #7f9db9;
+      --win-border-light: #d0d0d0;
+      --win-active: #0078d7;
+      --win-active-bg: #e5f1fb;
+      --win-hover: #e8e8e8;
+      --warning: #b8860b;
+      --warning-bg: #fff8dc;
+      --danger: #d20f39;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 10px 20px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    header .title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    header .badge {
+      background: #313244;
+      color: #fab387;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .control-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .scenario-select {
+      background: #313244;
+      color: var(--text);
+      border: 1px solid #45475a;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .scenario-select:focus {
+      border-color: var(--accent);
+    }
+
+    /* Main Container */
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Tab Layout Container simulating WinForms MainForm */
+    .tab-viewport {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow: auto;
+      background: #11111b;
+    }
+
+    .winforms-window-wrapper {
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #45475a;
+    }
+
+    .winforms-window-titlebar {
+      background: #2b2d42;
+      color: #e0e0e0;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #3d405b;
+      user-select: none;
+    }
+
+    /* WinForms TabControl Header */
+    .winforms-tab-headers {
+      display: flex;
+      background: #d8d8d8;
+      padding: 4px 4px 0 4px;
+      border-bottom: 1px solid var(--win-border);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-size: 9pt;
+      user-select: none;
+    }
+
+    .winforms-tab-header {
+      padding: 5px 14px;
+      background: #e4e4e4;
+      color: #444;
+      border: 1px solid #b0b0b0;
+      border-bottom: none;
+      margin-right: 2px;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+      cursor: pointer;
+    }
+
+    .winforms-tab-header.active {
+      background: var(--win-bg);
+      color: #000;
+      font-weight: 600;
+      border-color: var(--win-border);
+      position: relative;
+      bottom: -1px;
+      padding-top: 6px;
+      border-bottom: 1px solid var(--win-bg);
+    }
+
+    /* WinForms Client Area: Exactly 1281x623 px */
+    .winforms-client-area {
+      width: 1281px;
+      height: 623px;
+      background: var(--win-bg);
+      color: var(--win-text);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-size: 9pt;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+      border: 1px solid var(--win-border);
+      border-top: none;
+    }
+
+    /* Left Column: Vestige Slots */
+    .vestige-slots-column {
+      border-right: 1px solid var(--win-border-light);
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 10px;
+      gap: 12px;
+    }
+
+    .column-header {
+      font-weight: bold;
+      color: #222;
+      font-size: 9.5pt;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .column-header .slot-count-badge {
+      font-weight: normal;
+      font-size: 8pt;
+      color: #666;
+      background: #e4e4e4;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* Slot Card */
+    .slot-card {
+      background: var(--win-card);
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .slot-card.active-slot {
+      border-color: var(--win-active);
+      box-shadow: 0 0 0 1px var(--win-active);
+      background: #fcfdff;
+    }
+
+    .slot-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 8.5pt;
+      color: #333;
+    }
+
+    .slot-card-header .slot-status {
+      font-size: 7.5pt;
+      font-weight: normal;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: #eee;
+      color: #555;
+    }
+
+    .slot-status.bound {
+      background: #d4edda;
+      color: #155724;
+      font-weight: 600;
+    }
+
+    /* ElementReceptorControl simulation */
+    .element-receptor {
+      height: 28px;
+      border: 1px solid #abadb3;
+      border-radius: 2px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6px;
+      cursor: pointer;
+      font-size: 9pt;
+      transition: all 0.15s;
+    }
+
+    .element-receptor:hover {
+      border-color: #555;
+    }
+
+    .element-receptor.unmade {
+      color: #777;
+      font-style: italic;
+      border-style: dashed;
+      background: #fafafa;
+    }
+
+    .element-receptor.active-selecting {
+      border: 2px solid var(--win-active);
+      background: var(--win-active-bg);
+      font-weight: 600;
+      color: #004578;
+    }
+
+    .receptor-name-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .receptor-clear-btn {
+      color: #888;
+      font-size: 11pt;
+      line-height: 1;
+      padding: 0 4px;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .receptor-clear-btn:hover {
+      color: var(--danger);
+      background: #fee;
+    }
+
+    .warning-badge {
+      color: var(--warning);
+      font-size: 10pt;
+      cursor: help;
+      display: none;
+    }
+
+    .warning-badge.visible {
+      display: inline-block;
+    }
+
+    /* Pact State Controls */
+    .pact-state-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 4px;
+      font-size: 8.5pt;
+    }
+
+    .pact-state-label {
+      font-size: 8pt;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .pact-radio-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-size: 8.5pt;
+      color: #222;
+    }
+
+    .pact-radio-label input[type="radio"] {
+      cursor: pointer;
+    }
+
+    .pact-radio-label.disabled {
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .pact-radio-label.disabled input {
+      cursor: not-allowed;
+    }
+
+    /* Right Space: Vestige Picker */
+    .vestige-picker-space {
+      flex: 1;
+      background: var(--win-bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    /* Variant A: Split Inspector */
+    .variant-a-container {
+      display: flex;
+      height: 100%;
+      gap: 10px;
+    }
+
+    .va-list-panel {
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--win-border-light);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .picker-toolbar {
+      padding: 8px;
+      background: #f7f7f7;
+      border-bottom: 1px solid var(--win-border-light);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .picker-search-input {
+      padding: 5px 8px;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      font-size: 9pt;
+      outline: none;
+    }
+
+    .picker-search-input:focus {
+      border-color: var(--win-active);
+    }
+
+    .picker-filter-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8pt;
+    }
+
+    .picker-filter-row label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .picker-elements-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .vestige-list-item {
+      padding: 6px 8px;
+      border-radius: 3px;
+      margin-bottom: 3px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-size: 9pt;
+    }
+
+    .vestige-list-item:hover {
+      background: var(--win-hover);
+    }
+
+    .vestige-list-item.selected {
+      background: var(--win-active-bg);
+      border-color: var(--win-active);
+      font-weight: 600;
+    }
+
+    .vestige-list-item.invalid {
+      opacity: 0.55;
+    }
+
+    .vestige-item-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .item-level-badge {
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 7.5pt;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .item-dc-badge {
+      font-size: 8pt;
+      color: #666;
+    }
+
+    /* VA Dossier Panel */
+    .va-dossier-panel {
+      flex: 1;
+      background: #fff;
+      border: 1px solid var(--win-border-light);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 14px;
+    }
+
+    .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #0078d7;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .dossier-title {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #004578;
+    }
+
+    .dossier-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 9pt;
+      color: #444;
+      margin-top: 4px;
+    }
+
+    .dossier-section {
+      margin-bottom: 12px;
+    }
+
+    .dossier-section-title {
+      font-size: 9.5pt;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 2px;
+    }
+
+    .dossier-box {
+      background: #f9f9f9;
+      border: 1px solid #e5e5e5;
+      border-radius: 3px;
+      padding: 8px;
+      font-size: 8.5pt;
+      line-height: 1.4;
+      color: #222;
+    }
+
+    .abilities-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ability-card {
+      background: #fdfdfd;
+      border: 1px solid #e0e0e0;
+      border-left: 3px solid #0078d7;
+      border-radius: 2px;
+      padding: 6px 10px;
+      font-size: 8.5pt;
+    }
+
+    .ability-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 2px;
+    }
+
+    .ability-desc {
+      color: #444;
+      line-height: 1.35;
+    }
+
+    .ability-tags {
+      font-size: 7.5pt;
+      color: #666;
+      background: #eee;
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    /* Variant B: Master-Detail Stack */
+    .variant-b-container {
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .vb-level-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+    }
+
+    .vb-tab-btn {
+      padding: 4px 12px;
+      background: #e0e0e0;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 8.5pt;
+    }
+
+    .vb-tab-btn.active {
+      background: var(--win-active);
+      color: #fff;
+      font-weight: bold;
+      border-color: var(--win-active);
+    }
+
+    .vb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+      overflow-y: auto;
+      padding: 4px;
+      flex: 1;
+    }
+
+    .vb-card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .vb-card:hover {
+      border-color: var(--win-active);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .vb-card.selected {
+      border-color: var(--win-active);
+      background: var(--win-active-bg);
+      border-width: 2px;
+    }
+
+    .vb-card-title {
+      font-weight: bold;
+      font-size: 10pt;
+      color: #004578;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .vb-card-summary {
+      font-size: 8pt;
+      color: #555;
+      line-height: 1.3;
+    }
+
+    .vb-powers-list {
+      font-size: 7.5pt;
+      color: #333;
+      list-style-type: disc;
+      padding-left: 14px;
+    }
+
+    /* Variant C: Streamlined Classic */
+    .variant-c-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #fff;
+      border: 1px solid var(--win-border-light);
+      border-radius: 3px;
+    }
+
+    .vc-table-wrapper {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .win-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+    }
+
+    .win-table th {
+      background: #ececec;
+      border-bottom: 1px solid #ccc;
+      border-right: 1px solid #e0e0e0;
+      padding: 5px 8px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      position: sticky;
+      top: 0;
+    }
+
+    .win-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      border-right: 1px solid #f8f8f8;
+      cursor: pointer;
+    }
+
+    .win-table tr:hover td {
+      background: #f5f5f5;
+    }
+
+    .win-table tr.selected td {
+      background: var(--win-active-bg);
+      color: #004578;
+      font-weight: 600;
+    }
+
+    .vc-details-pane {
+      height: 180px;
+      border-top: 2px solid var(--win-border-light);
+      background: #fafafa;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 8.5pt;
+    }
+
+    /* Right State Inspection Sidebar */
+    .state-sidebar {
+      width: 320px;
+      background: var(--header-bg);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+    }
+
+    .sidebar-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-content {
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .state-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px;
+    }
+
+    .state-card-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .log-box {
+      font-family: Consolas, monospace;
+      font-size: 0.75rem;
+      background: #11111b;
+      padding: 6px;
+      border-radius: 3px;
+      max-height: 140px;
+      overflow-y: auto;
+      color: #a6e3a1;
+      white-space: pre-wrap;
+    }
+
+    /* Floating Prototype Switcher */
+    .prototype-switcher {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 24, 37, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid #45475a;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      border-radius: 30px;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 1000;
+      user-select: none;
+    }
+
+    .switcher-btn {
+      background: #313244;
+      color: var(--text);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s;
+    }
+
+    .switcher-btn:hover {
+      background: var(--accent);
+      color: #11111b;
+    }
+
+    .switcher-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      min-width: 250px;
+      text-align: center;
+    }
+
+    .switcher-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="title-group">
+      <h1>PlayMore3.5: PactMagicTabPage Prototype</h1>
+      <span class="badge">#182 Prototype</span>
+      <span class="badge">Subsystem UI Extraction</span>
+    </div>
+    <div class="top-controls">
+      <div class="control-label">Binder Level Scenario:</div>
+      <select id="scenarioSelect" class="scenario-select" onchange="changeScenario(this.value)">
+        <option value="1">Level 1 Binder (1 Slot, Max 1st Level Vestiges)</option>
+        <option value="8">Level 8 Binder (2 Slots, Max 4th Level Vestiges)</option>
+        <option value="14">Level 14 Binder (3 Slots, Max 7th Level Vestiges)</option>
+        <option value="20" selected>Level 20 Binder (4 Slots, Max 8th Level Vestiges)</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- WinForms Simulation Viewport -->
+    <div class="tab-viewport">
+      <div class="winforms-window-wrapper">
+        <div class="winforms-window-titlebar">
+          <span>PlayMore 3.5e Character Sheet - Binder Character (Simulation)</span>
+          <span>1281 × 623 px Host Seam</span>
+        </div>
+
+        <!-- Simulated MainForm TabControl -->
+        <div class="winforms-tab-headers">
+          <div class="winforms-tab-header">Character</div>
+          <div class="winforms-tab-header active">Vestiges (Active)</div>
+          <div class="winforms-tab-header">Inventory</div>
+          <div class="winforms-tab-header">Timeline</div>
+          <div class="winforms-tab-header">Spells</div>
+        </div>
+
+        <!-- Exact 1281x623 Client Area -->
+        <div id="winformsClientArea" class="winforms-client-area">
+
+          <!-- Left Column: Vestige Slots -->
+          <div id="vestigeSlotsColumn" class="vestige-slots-column" style="width: 260px;">
+            <div class="column-header">
+              <span>Vestige Slots</span>
+              <span id="slotCountBadge" class="slot-count-badge">4 Slots</span>
+            </div>
+            <div id="slotsContainer" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Slot Cards rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Right Space: Vestige Picker Host -->
+          <div id="vestigePickerSpace" class="vestige-picker-space">
+            <!-- Variant A, B, or C rendered here -->
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Subsystem & Session State Sidebar -->
+    <div class="state-sidebar">
+      <div class="sidebar-header">
+        <span>Session Subsystem State</span>
+        <span style="font-size: 0.7rem; color: #a6adc8;">Live Reactive View</span>
+      </div>
+      <div class="sidebar-content">
+        <div class="state-card">
+          <div class="state-card-title">Active Selection Target</div>
+          <div id="activeTargetDisplay" style="color: #fab387; font-weight: bold;">Slot 0</div>
+          <div style="font-size: 0.72rem; color: #a6adc8; margin-top: 2px;">
+            Clicking a receptor targets it; choosing a vestige delivers choice to targeted slot.
+          </div>
+        </div>
+
+        <div class="state-card">
+          <div class="state-card-title">Bound Vestiges (Slots)</div>
+          <div id="slotStateDisplay" style="font-size: 0.75rem; line-height: 1.4;">
+            <!-- Rendered by updateStateUI() -->
+          </div>
+        </div>
+
+        <div class="state-card">
+          <div class="state-card-title">Active Symptoms (Sign & Influence)</div>
+          <div id="symptomsDisplay" style="font-size: 0.75rem; color: #cdd6f4; line-height: 1.4;">
+            None
+          </div>
+        </div>
+
+        <div class="state-card">
+          <div class="state-card-title">Dispatched Actions</div>
+          <div id="actionLog" class="log-box">Initialized Pact Magic session.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Prototype Switcher Bar -->
+  <div class="prototype-switcher">
+    <button class="switcher-btn" onclick="cycleVariant(-1)" title="Previous Variant (←)">←</button>
+    <div>
+      <div id="switcherLabel" class="switcher-label">Variant A (Split Inspector)</div>
+      <div class="switcher-hint">Switch with ← / → arrows or URL ?variant=A|B|C</div>
+    </div>
+    <button class="switcher-btn" onclick="cycleVariant(1)" title="Next Variant (→)">→</button>
+  </div>
+
+  <script>
+    // Primary Source Vestiges Catalog (Extracted directly from PlayMore35/Resources/vestiges.json)
+    const VESTIGES_CATALOG = [
+      {
+        name: "Amon",
+        level: 1,
+        bindingDC: 20,
+        sign: "Ram horns curl from your head.",
+        influence: "You despise fire and holy symbols of sun deities. You must extinguish unprotected flames and refuse to carry sun symbols.",
+        abilities: [
+          { name: "Darkvision 60 ft.", type: "Passive", text: "You can see in the dark up to 60 ft." },
+          { name: "Fire Breath", type: "Standard", text: "Breathe line of fire 10 ft/binder level (max 50 ft), dealing 1d6 fire per level, Reflex half. Recharge: 5 rounds." },
+          { name: "Ram Attack", type: "Passive", text: "Natural ram attack dealing 1d6 + 1.5x Str bonus (+1d8 on charge as long as showing Amon's sign)." }
+        ]
+      },
+      {
+        name: "Aym",
+        level: 1,
+        bindingDC: 15,
+        sign: "A starburst rash covers your skin, and your teeth turn to yellow gold.",
+        influence: "You begrudge every coin or item of value given to another. You must give a coin to every dwarf you meet within 1 minute of learning their name.",
+        abilities: [
+          { name: "Dwarven Step", type: "Passive", text: "No movement penalty for wearing medium or heavy armor." },
+          { name: "Halo of Fire", type: "Passive", text: "Adjacent attackers striking with natural weapons or non-reach take 1d6 fire damage." },
+          { name: "Improved Sunder", type: "Feat", text: "Gain Improved Sunder feat benefits without provoking attacks of opportunity." },
+          { name: "Medium Armor Proficiency", type: "Proficiency", text: "Proficient with all medium armors." },
+          { name: "Resistance to Fire 10", type: "Passive", text: "Gain Fire Resistance 10." },
+          { name: "Ruinous Attack", type: "Passive", text: "Melee attacks deal double damage to objects and crystalline structures." }
+        ]
+      },
+      {
+        name: "Leraje",
+        level: 1,
+        bindingDC: 15,
+        sign: "Skin and hair become pale green; eyes turn yellow.",
+        influence: "You must defend your physical prowess; you must challenge anyone who questions your marksmanship or physical ability.",
+        abilities: [
+          { name: "Hide Bonus", type: "Passive", text: "Gain +1 competence bonus per binder level on Hide checks." },
+          { name: "Low-Light Vision", type: "Passive", text: "See twice as far in starlight or torchlight." },
+          { name: "Precise Shot", type: "Feat", text: "Shoot into melee without the standard -4 penalty." },
+          { name: "Ricochet", type: "Standard", text: "Ranged attack with bow bounces to strike a secondary target within 15 ft." },
+          { name: "Bow Proficiencies", type: "Proficiency", text: "Proficient with composite longbow, composite shortbow, longbow, and shortbow." }
+        ]
+      },
+      {
+        name: "Naberius",
+        level: 1,
+        bindingDC: 15,
+        sign: "Voice sounds raspy and croaking like a crow or raven.",
+        influence: "You must speak your mind freely and challenge any perceived insult; you cannot tell an intentional untruth without a Bluff check.",
+        abilities: [
+          { name: "Disguise Self", type: "Standard", text: "Change physical appearance as the spell at will (standard action)." },
+          { name: "Faster Ability Healing", type: "Passive", text: "Recover 1 point of lost ability score per hour, and 1 drained point per day." },
+          { name: "Naberius's Skills", type: "Passive", text: "Can use any untrained skill as if trained, using effective binder level as ranks." },
+          { name: "Persuasive Words", type: "Standard", text: "Command as the spell (DC 10 + 1/2 level + Cha). Recharge: 5 rounds." },
+          { name: "Silver Tongue", type: "Passive", text: "Take 10 on Bluff and Diplomacy; perform rushed Diplomacy as a standard action with no penalty." }
+        ]
+      },
+      {
+        name: "Ronove",
+        level: 1,
+        bindingDC: 15,
+        sign: "Mouth and eyes look gaunt; face is sunken and deathly pale.",
+        influence: "Dislikes physical affection; must reject any embrace, touch, or healing touch unless dying.",
+        abilities: [
+          { name: "Magic & Cold Iron Fists", type: "Passive", text: "Unarmed strikes count as magic and cold iron weapons." },
+          { name: "Far Hand", type: "Standard", text: "Mage hand at will; push or pull objects up to 15 lbs." },
+          { name: "Ronove's Fists", type: "Passive", text: "Unarmed damage scales as a monk of your binder level." },
+          { name: "Sprint", type: "Passive", text: "+10 ft enhancement bonus to base land speed." }
+        ]
+      },
+      {
+        name: "Dahlver-Nar",
+        level: 2,
+        bindingDC: 17,
+        sign: "Dozens of small teeth emerge from your skin in random locations.",
+        influence: "Paranoid and suspicious; must sleep with weapon drawn and cannot accept food from strangers.",
+        abilities: [
+          { name: "Mad Soul", type: "Passive", text: "Immune to madness, confusion, insanity, and non-lethal damage." },
+          { name: "Maddening Moan", type: "Standard", text: "Creatures within 30 ft must save or be shaken for 1 round. Recharge: 5 rounds." },
+          { name: "Natural Armor", type: "Passive", text: "+1 natural armor bonus per 4 binder levels." },
+          { name: "Shield Self", type: "Standard", text: "Designate one creature within 30 ft; it takes half the damage you receive." }
+        ]
+      },
+      {
+        name: "Haagenti",
+        level: 2,
+        bindingDC: 17,
+        sign: "Face becomes bloated and porcine with thick tusks curving from jaw.",
+        influence: "Extreme gluttony; cannot turn down food or drink offered to you.",
+        abilities: [
+          { name: "Confusing Touch", type: "Standard", text: "Touch attack confuses target for 1 round, no save." },
+          { name: "Immunity to Transformation", type: "Passive", text: "Immune to polymorph, petrification, and shapechange effects." },
+          { name: "Shield & Axe Proficiency", type: "Proficiency", text: "Proficient with shields, greataxe, and battleaxe." }
+        ]
+      },
+      {
+        name: "Malphas",
+        level: 2,
+        bindingDC: 15,
+        sign: "Teeth and tongue turn pitch black.",
+        influence: "Greedy for secrets; must open any sealed letter or unlocked container you see.",
+        abilities: [
+          { name: "Bird's Eye Viewing", type: "Standard", text: "Summon a raven or dove scout and see/hear through its senses." },
+          { name: "Invisibility", type: "Standard", text: "Turn invisible as the spell. Recharge: 5 rounds." },
+          { name: "Poison Use", type: "Passive", text: "Never accidentally poison yourself when applying poison to weapons." },
+          { name: "Sudden Strike", type: "Passive", text: "+1d6 sudden strike damage against flat-footed targets (+1d6 per 4 levels)." }
+        ]
+      },
+      {
+        name: "Savnok",
+        level: 2,
+        bindingDC: 20,
+        sign: "Shards of iron armor fuse into your skin, creating a metallic clanking sound.",
+        influence: "Must not yield or retreat in combat; cannot withdraw or fight defensively.",
+        abilities: [
+          { name: "Call Armor", type: "Standard", text: "Summon heavy full plate armor made of iron directly onto your body." },
+          { name: "Heavy Armor Proficiency", type: "Proficiency", text: "Proficient with heavy armor." },
+          { name: "Move Ally", type: "Swift", text: "Swap positions with an adjacent willing ally." }
+        ]
+      }
+    ];
+
+    // State Model
+    const state = {
+      variant: "A",
+      binderLevel: 20,
+      maxVestigeLevel: 8,
+      slotCapacity: 4,
+      activeSlotIndex: 0,
+      activeVestigeDetail: "Amon",
+      hideInvalid: false,
+      searchQuery: "",
+      levelFilter: "all",
+      slots: [
+        { index: 0, vestige: "Amon", pactState: "good_pact" },
+        { index: 1, vestige: "Savnok", pactState: "poor_pact" },
+        { index: 2, vestige: "", pactState: "good_pact" },
+        { index: 3, vestige: "", pactState: "good_pact" }
+      ]
+    };
+
+    // Initialize from URL search param
+    function initVariantFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const v = urlParams.get("variant");
+      if (v && ["A", "B", "C"].includes(v.toUpperCase())) {
+        state.variant = v.toUpperCase();
+      }
+    }
+
+    function setVariant(v) {
+      state.variant = v;
+      const url = new URL(window.location);
+      url.searchParams.set("variant", v);
+      window.history.replaceState({}, "", url);
+      updateView();
+    }
+
+    function cycleVariant(direction) {
+      const variants = ["A", "B", "C"];
+      let idx = variants.indexOf(state.variant);
+      idx = (idx + direction + variants.length) % variants.length;
+      setVariant(variants[idx]);
+    }
+
+    // Keyboard navigation
+    window.addEventListener("keydown", (e) => {
+      if (["input", "textarea", "select"].includes(document.activeElement.tagName.toLowerCase())) {
+        return;
+      }
+      if (e.key === "ArrowLeft") cycleVariant(-1);
+      if (e.key === "ArrowRight") cycleVariant(1);
+    });
+
+    // Scenario Switching
+    function changeScenario(lvlStr) {
+      const lvl = parseInt(lvlStr, 10);
+      state.binderLevel = lvl;
+      if (lvl === 1) {
+        state.slotCapacity = 1;
+        state.maxVestigeLevel = 1;
+      } else if (lvl === 8) {
+        state.slotCapacity = 2;
+        state.maxVestigeLevel = 4;
+      } else if (lvl === 14) {
+        state.slotCapacity = 3;
+        state.maxVestigeLevel = 7;
+      } else {
+        state.slotCapacity = 4;
+        state.maxVestigeLevel = 8;
+      }
+
+      // Adjust slots array
+      while (state.slots.length < state.slotCapacity) {
+        state.slots.push({ index: state.slots.length, vestige: "", pactState: "good_pact" });
+      }
+      if (state.activeSlotIndex >= state.slotCapacity) {
+        state.activeSlotIndex = 0;
+      }
+      log(`Switched scenario to Binder Level ${lvl} (${state.slotCapacity} slots, Max Vestige Level ${state.maxVestigeLevel}).`);
+      updateView();
+    }
+
+    // Logging helper
+    function log(msg) {
+      const box = document.getElementById("actionLog");
+      const time = new Date().toLocaleTimeString();
+      box.innerText = `[${time}] ${msg}\n` + box.innerText;
+    }
+
+    // Primary View Dispatcher
+    function updateView() {
+      // Update switcher label
+      const names = {
+        A: "Variant A (Split Inspector: List + Dossier)",
+        B: "Variant B (Master-Detail Card Stack & Grid)",
+        C: "Variant C (Streamlined DefaultElementPicker)"
+      };
+      document.getElementById("switcherLabel").innerText = names[state.variant];
+
+      // Update Column Width based on variant
+      const col = document.getElementById("vestigeSlotsColumn");
+      if (state.variant === "A") col.style.width = "260px";
+      else if (state.variant === "B") col.style.width = "360px";
+      else if (state.variant === "C") col.style.width = "280px";
+
+      document.getElementById("slotCountBadge").innerText = `${state.slotCapacity} Slot${state.slotCapacity > 1 ? 's' : ''}`;
+
+      // Render Left Slots Column
+      renderSlotsColumn();
+
+      // Render Right Vestige Picker Space
+      const pickerSpace = document.getElementById("vestigePickerSpace");
+      if (state.variant === "A") renderVariantA(pickerSpace);
+      else if (state.variant === "B") renderVariantB(pickerSpace);
+      else if (state.variant === "C") renderVariantC(pickerSpace);
+
+      // Update Live State Inspection
+      updateStateUI();
+    }
+
+    // Render Slots Column
+    function renderSlotsColumn() {
+      const container = document.getElementById("slotsContainer");
+      let html = "";
+
+      for (let i = 0; i < state.slotCapacity; i++) {
+        const slot = state.slots[i] || { index: i, vestige: "", pactState: "good_pact" };
+        const isActive = (state.activeSlotIndex === i);
+        const isBound = Boolean(slot.vestige);
+
+        let statusClass = isBound ? "bound" : "";
+        let statusText = isBound ? "Bound" : "Empty";
+
+        // Receptor Control Visuals
+        let receptorClass = "element-receptor";
+        if (!isBound) receptorClass += " unmade";
+        if (isActive) receptorClass += " active-selecting";
+
+        let receptorContent = "";
+        if (isBound) {
+          receptorContent = `
+            <div class="receptor-name-group">
+              <span>${slot.vestige}</span>
+            </div>
+            <span class="receptor-clear-btn" onclick="clearSlot(${i}, event)" title="Unbind vestige">✕</span>
+          `;
+        } else {
+          receptorContent = `
+            <div class="receptor-name-group">
+              <span>(Choose vestige...)</span>
+            </div>
+          `;
+        }
+
+        // Variant B includes power summary in the slot card
+        let vbSummary = "";
+        if (state.variant === "B" && isBound) {
+          const vData = VESTIGES_CATALOG.find(v => v.name === slot.vestige);
+          if (vData) {
+            vbSummary = `
+              <div style="font-size: 7.5pt; color: #555; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 3px; padding: 4px; margin-top: 4px;">
+                <div style="font-weight: 600; color: #333;">Sign: ${vData.sign}</div>
+                <div style="margin-top: 2px;">Powers: ${vData.abilities.map(a => a.name).join(", ")}</div>
+              </div>
+            `;
+          }
+        }
+
+        html += `
+          <div class="slot-card ${isActive ? 'active-slot' : ''}" onclick="selectSlot(${i})">
+            <div class="slot-card-header">
+              <span>Slot ${i + 1}</span>
+              <span class="slot-status ${statusClass}">${statusText}</span>
+            </div>
+
+            <!-- ElementReceptorControl -->
+            <div class="${receptorClass}">
+              ${receptorContent}
+            </div>
+
+            <!-- Pact State Radio Buttons -->
+            <div class="pact-state-group" onclick="event.stopPropagation()">
+              <span class="pact-state-label">Pact:</span>
+              <label class="pact-radio-label ${!isBound ? 'disabled' : ''}">
+                <input type="radio" name="pactState_${i}" value="good_pact" 
+                       ${slot.pactState === 'good_pact' ? 'checked' : ''} 
+                       ${!isBound ? 'disabled' : ''}
+                       onchange="setPactState(${i}, 'good_pact')">
+                <span>Good</span>
+              </label>
+              <label class="pact-radio-label ${!isBound ? 'disabled' : ''}">
+                <input type="radio" name="pactState_${i}" value="poor_pact" 
+                       ${slot.pactState === 'poor_pact' ? 'checked' : ''} 
+                       ${!isBound ? 'disabled' : ''}
+                       onchange="setPactState(${i}, 'poor_pact')">
+                <span>Poor</span>
+              </label>
+            </div>
+
+            ${vbSummary}
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function selectSlot(idx) {
+      state.activeSlotIndex = idx;
+      const slot = state.slots[idx];
+      if (slot && slot.vestige) {
+        state.activeVestigeDetail = slot.vestige;
+      }
+      log(`Activated receptor for Slot ${idx + 1}.`);
+      updateView();
+    }
+
+    function clearSlot(idx, e) {
+      if (e) e.stopPropagation();
+      const prev = state.slots[idx].vestige;
+      state.slots[idx].vestige = "";
+      state.slots[idx].pactState = "good_pact";
+      log(`Action: Unbound vestige '${prev}' from Slot ${idx + 1} via receptor clear.`);
+      updateView();
+    }
+
+    function setPactState(idx, pState) {
+      state.slots[idx].pactState = pState;
+      log(`Action: Set Slot ${idx + 1} pact state to '${pState}'.`);
+      updateView();
+    }
+
+    function deliverElement(vestigeName) {
+      const activeSlot = state.slots[state.activeSlotIndex];
+      const prev = activeSlot.vestige;
+      activeSlot.vestige = vestigeName;
+      state.activeVestigeDetail = vestigeName;
+      log(`Action: ElementDelivered('${vestigeName}') to Slot ${state.activeSlotIndex + 1} (previous: '${prev || 'none'}').`);
+      updateView();
+    }
+
+    // Filter helper
+    function getFilteredVestiges() {
+      return VESTIGES_CATALOG.filter(v => {
+        if (state.hideInvalid && v.level > state.maxVestigeLevel) return false;
+        if (state.levelFilter !== "all" && v.level !== parseInt(state.levelFilter, 10)) return false;
+        if (state.searchQuery) {
+          const q = state.searchQuery.toLowerCase();
+          const matchesName = v.name.toLowerCase().includes(q);
+          const matchesPower = v.abilities.some(a => a.name.toLowerCase().includes(q));
+          if (!matchesName && !matchesPower) return false;
+        }
+        return true;
+      });
+    }
+
+    // VARIANT A: Split Inspector (List + Rich Dossier Sheet)
+    function renderVariantA(container) {
+      const filtered = getFilteredVestiges();
+      const currentDetail = VESTIGES_CATALOG.find(v => v.name === state.activeVestigeDetail) || filtered[0] || VESTIGES_CATALOG[0];
+      const activeSlot = state.slots[state.activeSlotIndex];
+
+      let listItemsHtml = "";
+      filtered.forEach(v => {
+        const isBoundHere = (activeSlot.vestige === v.name);
+        const isBoundOther = state.slots.some((s, idx) => idx !== state.activeSlotIndex && s.vestige === v.name);
+        const isInvalid = (v.level > state.maxVestigeLevel);
+        const isDetailActive = (currentDetail.name === v.name);
+
+        listItemsHtml += `
+          <div class="vestige-list-item ${isDetailActive ? 'selected' : ''} ${isInvalid ? 'invalid' : ''}" 
+               onclick="state.activeVestigeDetail='${v.name}'; deliverElement('${v.name}');">
+            <div class="vestige-item-left">
+              <span class="item-level-badge">${v.level}${getOrdinal(v.level)}</span>
+              <span>${v.name}</span>
+              ${isBoundHere ? '<span style="font-size:7.5pt; color:#0078d7; font-weight:bold;">✓</span>' : ''}
+              ${isBoundOther ? '<span style="font-size:7.5pt; color:#888;">(Slot elsewhere)</span>' : ''}
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span class="item-dc-badge">DC ${v.bindingDC}</span>
+              ${isInvalid ? '<span class="warning-badge visible" title="Level exceeds maximum binder level">⚠</span>' : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      // Dossier Abilities
+      let abilitiesHtml = "";
+      currentDetail.abilities.forEach(ab => {
+        abilitiesHtml += `
+          <div class="ability-card">
+            <div class="ability-header">
+              <span>${ab.name}</span>
+              <span class="ability-tags">${ab.type}</span>
+            </div>
+            <div class="ability-desc">${ab.text}</div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="variant-a-container">
+          <!-- Vestige Catalog Column -->
+          <div class="va-list-panel">
+            <div class="picker-toolbar">
+              <input type="text" class="picker-search-input" placeholder="Search vestiges or powers..." 
+                     value="${state.searchQuery}" oninput="state.searchQuery=this.value; updateView();">
+              <div class="picker-filter-row">
+                <label>
+                  <input type="checkbox" ${state.hideInvalid ? 'checked' : ''} 
+                         onchange="state.hideInvalid=this.checked; updateView();">
+                  <span>Hide invalid</span>
+                </label>
+                <select style="font-size: 8pt; padding: 2px;" 
+                        onchange="state.levelFilter=this.value; updateView();">
+                  <option value="all" ${state.levelFilter === 'all' ? 'selected' : ''}>All Levels</option>
+                  <option value="1" ${state.levelFilter === '1' ? 'selected' : ''}>1st Level</option>
+                  <option value="2" ${state.levelFilter === '2' ? 'selected' : ''}>2nd Level</option>
+                </select>
+              </div>
+            </div>
+            <div class="picker-elements-scroll">
+              ${listItemsHtml || '<div style="padding: 10px; color: #888; text-align: center;">No matching vestiges</div>'}
+            </div>
+          </div>
+
+          <!-- Rich Dossier Sheet -->
+          <div class="va-dossier-panel">
+            <div class="dossier-header">
+              <div>
+                <div class="dossier-title">${currentDetail.name}</div>
+                <div class="dossier-meta">
+                  <span><strong>Level:</strong> ${currentDetail.level}${getOrdinal(currentDetail.level)}</span>
+                  <span><strong>Binding DC:</strong> ${currentDetail.bindingDC}</span>
+                  <span><strong>Special Requirement:</strong> None</span>
+                </div>
+              </div>
+              <button style="padding: 6px 14px; background: #0078d7; color: white; border: none; border-radius: 3px; font-weight: bold; cursor: pointer;"
+                      onclick="deliverElement('${currentDetail.name}')">
+                Bind to Slot ${state.activeSlotIndex + 1}
+              </button>
+            </div>
+
+            <div class="dossier-section">
+              <div class="dossier-section-title">Physical Sign</div>
+              <div class="dossier-box">
+                <em>${currentDetail.sign}</em>
+                <div style="font-size: 7.5pt; color: #666; margin-top: 4px;">
+                  * Good pact: Binder can suppress this sign at will. Poor pact: Sign must be openly shown.
+                </div>
+              </div>
+            </div>
+
+            <div class="dossier-section">
+              <div class="dossier-section-title">Psychological Influence</div>
+              <div class="dossier-box">
+                ${currentDetail.influence}
+                <div style="font-size: 7.5pt; color: #666; margin-top: 4px;">
+                  * Poor pact: Binder must act according to this influence or suffer a -1 penalty on attacks, saves, and checks.
+                </div>
+              </div>
+            </div>
+
+            <div class="dossier-section">
+              <div class="dossier-section-title">Granted Abilities</div>
+              <div class="abilities-grid">
+                ${abilitiesHtml}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // VARIANT B: Master-Detail Card Stack & Grid
+    function renderVariantB(container) {
+      const filtered = getFilteredVestiges();
+      const activeSlot = state.slots[state.activeSlotIndex];
+
+      let gridHtml = "";
+      filtered.forEach(v => {
+        const isBoundHere = (activeSlot.vestige === v.name);
+        gridHtml += `
+          <div class="vb-card ${isBoundHere ? 'selected' : ''}" onclick="deliverElement('${v.name}')">
+            <div class="vb-card-title">
+              <span>${v.name}</span>
+              <span class="item-level-badge">${v.level}${getOrdinal(v.level)} • DC ${v.bindingDC}</span>
+            </div>
+            <div class="vb-card-summary">
+              <em>${v.sign}</em>
+            </div>
+            <ul class="vb-powers-list">
+              ${v.abilities.map(a => `<li><strong>${a.name}</strong> (${a.type})</li>`).join("")}
+            </ul>
+            ${isBoundHere ? '<div style="font-size: 8pt; color: #0078d7; font-weight: bold; margin-top: auto;">✓ Bound to Slot ' + (state.activeSlotIndex + 1) + '</div>' : ''}
+          </div>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="variant-b-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border: 1px solid #ccc; border-radius: 3px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" class="picker-search-input" style="width: 240px;" placeholder="Filter vestige cards..." 
+                     value="${state.searchQuery}" oninput="state.searchQuery=this.value; updateView();">
+              <label style="font-size: 8.5pt; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" ${state.hideInvalid ? 'checked' : ''} onchange="state.hideInvalid=this.checked; updateView();">
+                <span>Hide unavailable</span>
+              </label>
+            </div>
+            <div style="font-size: 8.5pt; color: #555;">
+              Wiring choice directly to <strong>Slot ${state.activeSlotIndex + 1}</strong>
+            </div>
+          </div>
+
+          <div class="vb-grid">
+            ${gridHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // VARIANT C: Streamlined Classic DefaultElementPicker
+    function renderVariantC(container) {
+      const filtered = getFilteredVestiges();
+      const activeSlot = state.slots[state.activeSlotIndex];
+      const currentDetail = VESTIGES_CATALOG.find(v => v.name === state.activeVestigeDetail) || filtered[0] || VESTIGES_CATALOG[0];
+
+      let rowsHtml = "";
+      filtered.forEach(v => {
+        const isBoundHere = (activeSlot.vestige === v.name);
+        const isSelected = (currentDetail.name === v.name);
+        rowsHtml += `
+          <tr class="${isSelected ? 'selected' : ''}" onclick="state.activeVestigeDetail='${v.name}'; deliverElement('${v.name}');">
+            <td><strong>${v.name}</strong> ${isBoundHere ? '✓' : ''}</td>
+            <td>${v.level}${getOrdinal(v.level)}</td>
+            <td>${v.bindingDC}</td>
+            <td>${v.abilities.map(a => a.name).join(", ")}</td>
+            <td>${v.level <= state.maxVestigeLevel ? 'Valid' : '<span style="color:#b8860b;">Level exceeds max</span>'}</td>
+          </tr>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="variant-c-container">
+          <div class="picker-toolbar" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" class="picker-search-input" style="width: 220px;" placeholder="Search elements..." 
+                     value="${state.searchQuery}" oninput="state.searchQuery=this.value; updateView();">
+              <label style="font-size: 8.5pt; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" ${state.hideInvalid ? 'checked' : ''} onchange="state.hideInvalid=this.checked; updateView();">
+                <span>Hide invalid choices</span>
+              </label>
+            </div>
+            <div style="font-size: 8.5pt; color: #555;">
+              Target: <strong>Slot ${state.activeSlotIndex + 1}</strong>
+            </div>
+          </div>
+
+          <div class="vc-table-wrapper">
+            <table class="win-table">
+              <thead>
+                <tr>
+                  <th style="width: 150px;">Vestige Name</th>
+                  <th style="width: 60px;">Level</th>
+                  <th style="width: 80px;">Binding DC</th>
+                  <th>Key Granted Abilities</th>
+                  <th style="width: 140px;">Status / Warnings</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="vc-details-pane">
+            <div style="font-weight: bold; font-size: 10pt; color: #004578; margin-bottom: 4px;">
+              ${currentDetail.name} (Level ${currentDetail.level}, DC ${currentDetail.bindingDC})
+            </div>
+            <div style="margin-bottom: 6px;"><strong>Sign:</strong> <em>${currentDetail.sign}</em></div>
+            <div style="margin-bottom: 6px;"><strong>Influence:</strong> ${currentDetail.influence}</div>
+            <div>
+              <strong>Abilities:</strong> 
+              ${currentDetail.abilities.map(a => `<strong>${a.name}</strong> (${a.type}): ${a.text}`).join(" | ")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Helper: State Sidebar UI update
+    function updateStateUI() {
+      document.getElementById("activeTargetDisplay").innerText = `Slot ${state.activeSlotIndex + 1} (${state.slots[state.activeSlotIndex]?.vestige || 'Unbound'})`;
+
+      let slotHtml = "";
+      state.slots.slice(0, state.slotCapacity).forEach((s, idx) => {
+        slotHtml += `
+          <div style="margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #313244;">
+            <strong>Slot ${idx + 1}:</strong> ${s.vestige ? `<span style="color:#a6e3a1;">${s.vestige}</span> (${s.pactState})` : '<span style="color:#6c7086;">(Empty)</span>'}
+          </div>
+        `;
+      });
+      document.getElementById("slotStateDisplay").innerHTML = slotHtml;
+
+      // Active signs & influences
+      const boundVestiges = state.slots.slice(0, state.slotCapacity).filter(s => s.vestige);
+      if (boundVestiges.length === 0) {
+        document.getElementById("symptomsDisplay").innerHTML = "None (No vestiges bound).";
+      } else {
+        let symp = "";
+        boundVestiges.forEach(s => {
+          const v = VESTIGES_CATALOG.find(x => x.name === s.vestige);
+          if (v) {
+            const isGood = s.pactState === "good_pact";
+            symp += `
+              <div style="margin-bottom: 6px;">
+                <div style="color: #fab387; font-weight: 600;">${v.name} (${s.pactState})</div>
+                <div>• <strong>Sign:</strong> ${isGood ? `${v.sign} <em style="color:#a6e3a1;">[Suppressed]</em>` : `${v.sign} <em style="color:#f38ba8;">[Visible]</em>`}</div>
+                <div>• <strong>Influence:</strong> ${v.influence}</div>
+              </div>
+            `;
+          }
+        });
+        document.getElementById("symptomsDisplay").innerHTML = symp;
+      }
+    }
+
+    function getOrdinal(n) {
+      if (n === 1) return "st";
+      if (n === 2) return "nd";
+      if (n === 3) return "rd";
+      return "th";
+    }
+
+    // Start
+    initVariantFromUrl();
+    updateView();
+  </script>
+</body>
+</html>
