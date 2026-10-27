@@ -35,6 +35,12 @@ Every subsystem implementation must adhere to these five architectural invariant
    - If an element is chosen or slotted that exceeds standard progression access or slot criteria, the system retains the selection and displays a non-blocking Warning Badge.
    - Table exceptions and campaign house rules are declared via the house rules layer or custom feature grants to tell the software that table fiat applies.
 
+6. **Subsystem UI Ownership and Host Agnosticism (ADR-0016)**:
+   - Dedicated subsystem tabs and element pickers are owned exclusively by subsystem UI providers under `PlayMore35.UI.Subsystems.<SubsystemName>`.
+   - Host forms (`MainForm`) and caller dialogs (`LevelDetailsDialog`) maintain **zero subsystem literacy**. They interact exclusively through the minimal host seam (`ISubsystemUIHost`), the UI registry (`SubsystemUIRegistry`), composable element pickers (`ISubsystemElementPicker`), and element receptors (`ElementReceptorControl`).
+   - Choice delivery is decoupled from receptor presentation; pickers deliver choices via typed events (`ElementDelivered`), leaving pickers open for exploratory workflow.
+   - Core engine classes (`SubsystemEngine`, `CharacterSession`) remain completely headless and UI-agnostic.
+
 ---
 
 ## 2. Known Subsystem Landscape
@@ -81,3 +87,36 @@ Prefactor or extract a shared delegate only when an already-implemented subsyste
 ### 3.4 Non-Progression Access
 - **Feat grants**: Feats grant subsystem access independently of class progression—for example, *Martial Study* grants a maneuver of any discipline within initiator level limits; *Shape Soulmeld* grants access to any class's soulmeld; and *Wild Talent* grants a power point pool without manifester class levels.
 - **Class exception features**: Features like Beguiler's *Advanced Learning* grant access to out-of-list spells meeting specific school and level constraints.
+
+---
+
+## 4. Subsystem UI Architecture & Integration Guidelines
+
+Implementing UI presentation for a subsystem follows the architecture formalized in `docs/adr/0016-subsystem-ui-ownership-and-composable-element-pickers.md`:
+
+### 4.1 Subsystem UI Provider (`ISubsystemUI`)
+- Placed under `PlayMore35.UI.Subsystems.<SubsystemName>`.
+- Implements `ISubsystemUI` to register with `SubsystemUIRegistry`:
+  - `string SubsystemId { get; }`
+  - `bool IsActive(ICharacterSession session)`: Determines if the character has active capabilities in this subsystem (class levels, bound vestiges, martial study feats, etc.).
+  - `TabPage? CreateDedicatedTab(ISubsystemUIHost host)`: Returns a dedicated tab (e.g. `PactMagicTabPage`) or `null` if the subsystem does not require a top-level tab.
+  - `ISubsystemElementPicker CreateElementPicker(ICharacterSession session, ElementPickerContext context)`: Returns a composable element picker.
+
+### 4.2 Minimal Host Seam (`ISubsystemUIHost`)
+- `MainForm` provides a minimal four-member seam to dedicated tabs: `Session`, `RequestRecalculate()`, `RequestEffectsRefresh()`, and `RequestTimelineRefresh()`.
+- Dedicated tabs manage their own control trees, event handlers, and rendering lifecycles internally via standard WinForms events (`TabPage.Enter`).
+
+### 4.3 Composable Element Pickers (`ISubsystemElementPicker`)
+- Implement `ISubsystemElementPicker : IDisposable`, exposing `Control Control { get; }` and choice delivery events (`ElementDelivered`, `ElementsDelivered`).
+- **Decoupled Delivery Paradigm**: Pickers do not define receptor controls; callers own receptor controls and wire delivery events to update them.
+- **Exploratory Workflow**: Delivery fires immediately upon choice, but the picker remains displayed so players can explore options or change their mind.
+- **Fallback**: Subsystems without specialized pickers return `DefaultElementPicker` from `SubsystemUIRegistry`, providing universal search, item warning badges, and preview panels.
+
+### 4.4 Element Receptor (`ElementReceptorControl`)
+- Standard control used across host dialogs (`LevelDetailsDialog`) and dedicated subsystem tabs.
+- Supports three visual states: Unmade / Available (dashed italic), Made / Inactive (standard text + `WarningBadge`), and Active / Currently Selecting (highlighted accent border).
+- Includes inline `✕` clear button to reset choices.
+
+### 4.5 Dice Roll Agency (ADR-0001)
+- UI presentation eliminates automatic modal roll prompts ("they aren't"). Players select states (such as `Good` vs `Poor` pacts) directly via radio buttons or standard controls, empowering table fiat and uninterrupted play.
+

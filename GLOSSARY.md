@@ -283,3 +283,22 @@ _Avoid_: Clock time, game round time
 **Real-World Date**:
 The calendar date when a tabletop session or transaction took place in reality.
 _Avoid_: Wall clock time, session timestamp, real timestamp
+
+### UI & Presentation
+
+**Subsystem UI Provider**:
+A subsystem-owned presentation component implementing `ISubsystemUI` that provides dedicated host tabs, instantiates composable element pickers, and reports active character status.
+_Avoid_: Subsystem UI manager, UI controller, tab provider
+
+**Composable Element Picker**:
+A reusable WinForms control implementing `ISubsystemElementPicker` that renders selectable subsystem elements, delivers choices via typed events, and remains displayed for exploration.
+_Avoid_: Element selector, picker dialog, choice modal
+
+**Element Receptor**:
+A reusable UI control (`ElementReceptorControl`) displaying an unmade or selected subsystem element choice with visual affordances for activation, clearing, and advisory warning badges.
+_Avoid_: Slot box, choice field, selection target
+
+**Subsystem UI Host**:
+A minimal host seam (`ISubsystemUIHost`) provided by the main form to dedicated subsystem tabs for triggering recalculation, effect refreshes, and timeline refreshes without leaking form internals.
+_Avoid_: Form seam, host controller, main form adapter
+
