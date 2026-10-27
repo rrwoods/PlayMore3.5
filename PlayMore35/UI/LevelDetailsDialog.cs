@@ -1,6 +1,8 @@
 using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
+using PlayMore35.Subsystems;
 using PlayMore35.UI;
+using PlayMore35.UI.Subsystems;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,12 +17,16 @@ using static PlayMore35.Global.FormUtils;
 namespace PlayMore35 {
     public partial class LevelDetailsDialog : Form {
         private ICharacterSession session;
+        private readonly SubsystemUIRegistry uiRegistry;
 
         private int levelIndex;
         private List<Label> slotNames = new List<Label>();
         private List<ComboBox> feats = new List<ComboBox>();
         private Dictionary<string, Label> choiceLabels = new Dictionary<string, Label>();
         private Dictionary<string, Control> featChoices = new Dictionary<string, Control>();
+
+        private ElementReceptorControl activeReceptor;
+        private ISubsystemElementPicker activePicker;
 
         private class FeatSlotChoiceState {
             public string FeatSlot;
@@ -65,9 +71,15 @@ namespace PlayMore35 {
         private Dictionary<string, FeatSlotChoiceState> slotChoiceStates = new Dictionary<string, FeatSlotChoiceState>();
         private Dictionary<string, List<Control>> dynamicSlotControls = new Dictionary<string, List<Control>>();
 
-        public LevelDetailsDialog(ICharacterSession session) {
+        public Panel PickerHost => pnlPickerHost;
+
+        public LevelDetailsDialog(ICharacterSession session) : this(session, null) {
+        }
+
+        public LevelDetailsDialog(ICharacterSession session, SubsystemUIRegistry uiRegistry) {
             InitializeComponent();
             this.session = session;
+            this.uiRegistry = uiRegistry ?? SubsystemUIRegistry.CreateDefault();
 
             foreach (string className in session.Catalog.Classes.Keys.OrderBy(x => x)) {
                 cboClass.Items.Add(className);
@@ -84,6 +96,7 @@ namespace PlayMore35 {
         }
 
         private void PrepareFeats() {
+            CollapsePickerHost();
             ClearDynamicControls(this, feats);
             ClearDynamicControls(this, slotNames);
             ClearDynamicControls(this, choiceLabels);
@@ -173,6 +186,7 @@ namespace PlayMore35 {
         }
 
         private void PrepareFeatChoice(string featName, string featSlot, int left) {
+            CollapsePickerHost();
             if (dynamicSlotControls.TryGetValue(featSlot, out var existingControls)) {
                 foreach (var c in existingControls) {
                     Controls.Remove(c);
@@ -329,79 +343,55 @@ namespace PlayMore35 {
                     slotControls.Add(header);
                     Controls.Add(header);
 
-                    WarningBadge badge = new WarningBadge {
-                        Top = header.Top,
-                        Left = left + header.PreferredWidth + 6,
-                        Tag = featSlot,
-                        Name = $"badge_{featSlot}"
-                    };
-                    slotControls.Add(badge);
-                    Controls.Add(badge);
-                    choiceState.WarningBadge = badge;
-                    choiceState.WarningDescriptor = desc;
-
-                    ComboBox elementBox = new ComboBox {
+                    var receptor = new ElementReceptorControl {
                         Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
                         Left = left,
-                        Size = cboFeatChoice.Size,
-                        DropDownWidth = 280,
+                        Width = cboFeatChoice.Width,
                         Tag = $"{featSlot}:{desc.Id}"
                     };
 
-                    string targetClass = ResolveTargetSource(choiceState, desc);
-
-                    var elements = session.GetAccessibleSubsystemElements(desc.Domain, desc.Filter, targetClass);
-                    foreach (var el in elements) {
-                        elementBox.Items.Add(new ChoiceItem(el, ExtractBracketedName(el)));
-                    }
-
                     string saved = session.GetFeatChoice(featSlot, desc.Id);
                     if (!string.IsNullOrWhiteSpace(saved)) {
-                        var matchedItem = elementBox.Items.OfType<ChoiceItem>()
-                            .FirstOrDefault(item => item.Value.Equals(saved, StringComparison.OrdinalIgnoreCase) || item.DisplayText.Equals(saved, StringComparison.OrdinalIgnoreCase));
-                        if (matchedItem != null) {
-                            elementBox.SelectedItem = matchedItem;
+                        var existingElem = session.Subsystems.All.Select(sub => sub.GetElement(saved)).FirstOrDefault(e => e != null);
+                        if (existingElem != null) {
+                            receptor.SelectedElement = existingElem;
                         } else {
-                            var elem = session.Subsystems.All.Select(sub => sub.GetElement(saved)).FirstOrDefault(e => e != null);
-                            string disc = elem?.GetProperty<string>("discipline") ?? "Unknown";
-                            var extraItem = new ChoiceItem($"[{disc}] {saved}", saved);
-                            elementBox.Items.Add(extraItem);
-                            elementBox.SelectedItem = extraItem;
+                            receptor.SelectedElement = new SubsystemElement { Name = saved, Type = desc.Filter ?? desc.Id };
                         }
                     }
 
-                    elementBox.SelectedValueChanged += (s, e) => {
-                        if (elementBox.SelectedItem == null && !string.IsNullOrWhiteSpace(elementBox.Text)) {
-                            string raw = elementBox.Text;
-                            var matched = elementBox.Items.OfType<ChoiceItem>()
-                                .FirstOrDefault(item => item.Value.Equals(raw, StringComparison.OrdinalIgnoreCase) || item.DisplayText.Equals(raw, StringComparison.OrdinalIgnoreCase));
-                            if (matched != null) {
-                                elementBox.SelectedItem = matched;
-                            }
-                        }
+                    receptor.Activated += (s, e) => {
+                        ActivateReceptor(receptor, desc, choiceState);
+                    };
+
+                    receptor.ElementCleared += (s, e) => {
+                        choiceState.WarningBadge?.ClearWarning();
                         UpdateWarnings();
                     };
-                    bool updatingText = false;
-                    elementBox.TextChanged += (s, e) => {
-                        if (updatingText) return;
-                        if (elementBox.SelectedIndex != -1) {
-                            var item = elementBox.SelectedItem as ChoiceItem;
-                            if (item == null || !item.DisplayText.Equals(elementBox.Text, StringComparison.OrdinalIgnoreCase)) {
-                                updatingText = true;
-                                string currentText = elementBox.Text;
-                                elementBox.SelectedIndex = -1;
-                                elementBox.Text = currentText;
-                                updatingText = false;
+
+                    receptor.ElementDelivered += (elem) => {
+                        string deliveredName = elem?.Name;
+                        if (!string.IsNullOrWhiteSpace(deliveredName)) {
+                            string target = ResolveTargetSource(choiceState, desc);
+                            var currentChoices = GetFeatChoices();
+                            currentChoices[$"{featSlot}:{desc.Id}"] = deliveredName;
+                            var warnings = session.ValidateFeatChoice(featSlot, desc, deliveredName, target, currentChoices);
+                            if (warnings != null && warnings.Count > 0) {
+                                receptor.SetWarning(string.Join("\n", warnings));
+                            } else {
+                                receptor.ClearWarning();
                             }
+                        } else {
+                            receptor.ClearWarning();
                         }
                         UpdateWarnings();
                     };
 
-                    slotControls.Add(elementBox);
-                    Controls.Add(elementBox);
-                    choiceState.ChoiceControls[desc.Id] = elementBox;
+                    slotControls.Add(receptor);
+                    Controls.Add(receptor);
+                    choiceState.ChoiceControls[desc.Id] = receptor;
 
-                    currentTop = elementBox.Bottom + 7;
+                    currentTop = receptor.Bottom + 7;
                 }
             }
 
@@ -414,22 +404,22 @@ namespace PlayMore35 {
             var currentChoices = GetFeatChoices();
 
             foreach (var state in slotChoiceStates.Values) {
-                if (state.WarningBadge == null) {
-                    continue;
-                }
-
                 var desc = state.WarningDescriptor;
                 if (desc == null && state.FeatDef != null) {
                     desc = state.FeatDef.Choices.FirstOrDefault(c => string.Equals(c.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase));
                 }
                 if (desc == null) {
-                    state.WarningBadge.ClearWarning();
+                    state.WarningBadge?.ClearWarning();
                     continue;
                 }
 
                 string selectedValue = "";
+                ElementReceptorControl receptor = null;
                 if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
-                    if (ctrl is ComboBox cbo) {
+                    if (ctrl is ElementReceptorControl r) {
+                        receptor = r;
+                        selectedValue = r.SelectedElement?.Name ?? "";
+                    } else if (ctrl is ComboBox cbo) {
                         if (cbo.SelectedItem is ChoiceItem ci && (string.IsNullOrWhiteSpace(cbo.Text) || ci.DisplayText.Equals(cbo.Text, StringComparison.OrdinalIgnoreCase))) {
                             selectedValue = ci.Value;
                         } else {
@@ -441,7 +431,8 @@ namespace PlayMore35 {
                 }
 
                 if (string.IsNullOrWhiteSpace(selectedValue)) {
-                    state.WarningBadge.ClearWarning();
+                    state.WarningBadge?.ClearWarning();
+                    receptor?.ClearWarning();
                     continue;
                 }
 
@@ -449,9 +440,12 @@ namespace PlayMore35 {
 
                 var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, selectedValue, target, currentChoices);
                 if (warnings.Count > 0) {
-                    state.WarningBadge.SetWarning(string.Join("\n", warnings));
+                    string message = string.Join("\n", warnings);
+                    state.WarningBadge?.SetWarning(message);
+                    receptor?.SetWarning(message);
                 } else {
-                    state.WarningBadge.ClearWarning();
+                    state.WarningBadge?.ClearWarning();
+                    receptor?.ClearWarning();
                 }
             }
         }
@@ -491,7 +485,9 @@ namespace PlayMore35 {
                     foreach (var desc in state.FeatDef.Choices) {
                         string val = "";
                         if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
-                            if (ctrl is ComboBox cbo) {
+                            if (ctrl is ElementReceptorControl r) {
+                                val = r.SelectedElement?.Name ?? "";
+                            } else if (ctrl is ComboBox cbo) {
                                 if (cbo.SelectedItem is ChoiceItem ci && (string.IsNullOrWhiteSpace(cbo.Text) || ci.DisplayText.Equals(cbo.Text, StringComparison.OrdinalIgnoreCase))) {
                                     val = ci.Value;
                                 } else if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
@@ -548,6 +544,111 @@ namespace PlayMore35 {
                     }
                 }
             });
+        }
+
+        private void ActivateReceptor(ElementReceptorControl receptor, ChoiceDescriptor desc, FeatSlotChoiceState state) {
+            if (activeReceptor == receptor && activePicker != null) {
+                return;
+            }
+
+            if (activeReceptor != null) {
+                activeReceptor.IsActiveSelecting = false;
+            }
+
+            activeReceptor = receptor;
+            activeReceptor.IsActiveSelecting = true;
+
+            DisposeActivePicker();
+
+            string elementType = desc.Filter ?? desc.Id;
+            var provider = uiRegistry.GetByElementType(elementType);
+
+            string targetSource = ResolveTargetSource(state, desc);
+            int slotLevel = session.GetFeatSlotLevel(state.FeatSlot);
+            if (slotLevel <= 0) slotLevel = levelIndex + 1;
+
+            var context = new ElementPickerContext {
+                ElementType = elementType,
+                Filter = desc.Filter,
+                AcquisitionLevel = slotLevel,
+                InitialSelections = receptor.SelectedElement != null
+                    ? new[] { receptor.SelectedElement }
+                    : Array.Empty<SubsystemElement>(),
+                WarningProvider = (elem) => {
+                    var currentChoices = GetFeatChoices();
+                    currentChoices[$"{state.FeatSlot}:{desc.Id}"] = elem.Name;
+                    return session.ValidateFeatChoice(state.FeatSlot, desc, elem.Name, targetSource, currentChoices);
+                }
+            };
+
+            activePicker = provider.CreateElementPicker(session, context);
+            activePicker.ElementDelivered += (elem) => {
+                receptor.SelectedElement = elem;
+                if (elem != null) {
+                    var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, elem.Name, targetSource, GetFeatChoices());
+                    if (warnings != null && warnings.Count > 0) {
+                        receptor.SetWarning(string.Join("\n", warnings));
+                    } else {
+                        receptor.ClearWarning();
+                    }
+                } else {
+                    receptor.ClearWarning();
+                }
+                UpdateWarnings();
+            };
+
+            ExpandPickerHost(activePicker.Control);
+        }
+
+        private void ExpandPickerHost(Control pickerControl) {
+            pnlPickerHost.SuspendLayout();
+            pnlPickerHost.Controls.Clear();
+            pickerControl.Dock = DockStyle.Fill;
+            pnlPickerHost.Controls.Add(pickerControl);
+
+            int bottomMost = 120;
+            foreach (var list in dynamicSlotControls.Values) {
+                foreach (var c in list) {
+                    if (c.Bottom > bottomMost) {
+                        bottomMost = c.Bottom;
+                    }
+                }
+            }
+
+            pnlPickerHost.Top = bottomMost + 10;
+            pnlPickerHost.Height = 220;
+            pnlPickerHost.Visible = true;
+            pnlPickerHost.ResumeLayout(true);
+        }
+
+        private void CollapsePickerHost() {
+            if (activeReceptor != null) {
+                activeReceptor.IsActiveSelecting = false;
+                activeReceptor = null;
+            }
+
+            DisposeActivePicker();
+
+            if (pnlPickerHost != null) {
+                pnlPickerHost.Controls.Clear();
+                pnlPickerHost.Visible = false;
+                pnlPickerHost.Height = 0;
+            }
+        }
+
+        private void DisposeActivePicker() {
+            if (activePicker != null) {
+                try {
+                    activePicker.Dispose();
+                } catch {
+                }
+                activePicker = null;
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e) {
+            CollapsePickerHost();
+            base.OnFormClosing(e);
         }
     }
 }

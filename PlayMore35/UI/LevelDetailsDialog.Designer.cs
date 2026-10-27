@@ -1,4 +1,4 @@
-﻿namespace PlayMore35 {
+namespace PlayMore35 {
     partial class LevelDetailsDialog {
         /// <summary>
         /// Required designer variable.
@@ -31,6 +31,7 @@
             this.lblFeatSlot2 = new System.Windows.Forms.Label();
             this.lblFeatChoice = new System.Windows.Forms.Label();
             this.cboFeatChoice = new System.Windows.Forms.ComboBox();
+            this.pnlPickerHost = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // lblClassHeader
@@ -110,6 +111,14 @@
             this.cboFeatChoice.TabIndex = 8;
             this.cboFeatChoice.Visible = false;
             // 
+            // pnlPickerHost
+            // 
+            this.pnlPickerHost.Location = new System.Drawing.Point(17, 120);
+            this.pnlPickerHost.Name = "pnlPickerHost";
+            this.pnlPickerHost.Size = new System.Drawing.Size(631, 0);
+            this.pnlPickerHost.TabIndex = 9;
+            this.pnlPickerHost.Visible = false;
+            // 
             // LevelDetailsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -117,6 +126,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(934, 589);
+            this.Controls.Add(this.pnlPickerHost);
             this.Controls.Add(this.cboFeatChoice);
             this.Controls.Add(this.lblFeatChoice);
             this.Controls.Add(this.lblFeatSlot2);
@@ -148,5 +158,6 @@
         private System.Windows.Forms.Label lblFeatSlot2;
         private System.Windows.Forms.Label lblFeatChoice;
         private System.Windows.Forms.ComboBox cboFeatChoice;
+        private System.Windows.Forms.Panel pnlPickerHost;
     }
 }
