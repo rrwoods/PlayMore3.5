@@ -271,6 +271,20 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\Subsystems\SubsystemUIRegistry.cs" />
+    <Compile Include="UI\Subsystems\PactMagic\VestigeRulesRepository.cs" />
+    <Compile Include="UI\Subsystems\PactMagic\VestigeCardControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Subsystems\PactMagic\VestigeSlotCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Subsystems\PactMagic\PactMagicElementPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Subsystems\PactMagic\PactMagicTabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Subsystems\PactMagic\PactMagicUI.cs" />
     <EmbeddedResource Include="UI\AddItemDialog.resx">
       <DependentUpon>AddItemDialog.cs</DependentUpon>
     </EmbeddedResource>

@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using PlayMore35.Global;
+using PlayMore35.UI.Subsystems.PactMagic;
 
 namespace PlayMore35.UI.Subsystems {
     public class SubsystemUIRegistry {
         public static SubsystemUIRegistry CreateDefault() {
             var registry = new SubsystemUIRegistry();
+            registry.Register(new PactMagicUI(), "vestige");
             return registry;
         }
 
