@@ -8,12 +8,34 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
-### Subsystems should each own their UI, not MainForm.  (/wayfinder)
-- MainForm currently has literacy of the pact magic subsystem and uses it to render the Vestiges tab.
-- Instead, I would like the pact magic subsystem to own the content of Vestiges tab (and each subsystem in the future to own its own UI tab), but how do we make this happen now that subsystems are content-driven instead of code-driven?
-- Instead of having a fixed pagVestiges representing the Vestiges tab, we should iterate over each subsystem and make its tab from its content-driven UI definition.
-- In MainForm.UpdateSubsystemTabs, instead of checking specific subsystem keys, we should iterate over each subsystem and show its tab if it's active.  (For now we have no maneuvers UI defined; its tab can be blank.)
-- In addition to the dedicated subsystem tabs, each subsystem needs to define a composable panel for choosing elements.  That composable panel probably gets used on its tab, but it might also get used in other places, like (eventually) the level details dialog for e.g. Martial Study's maneuver choice (but not yet, we're not defining Maneuvers UI yet).  The Vestiges tab should leverage this for choosing a vestige to bind.
+### New Vestiges tab cleanup
+- RULES ERROR: Good pacts DO NOT suppress signs!  This is a rules citation violation.
+- "Vestige Slots" is bad; no one calls these slots (even though we call them that internally).  Just eliminate that header and the "1 Slot" next to it.
+- Slot panel could use a little more whitespace between Sign - Powers.  Add Influence as well.
+- Slot panel should show a warning badge next to "Bound" when a too-high-level vestige is slotted
+- "Hide unavailable" should be checked by default
+- Vestige cards should be taller, so that no vesatige needs "+n more..." on it.
+- Vestige details panel should be as tall as it needs to be to show all the details.  In particular Aym requires more space for both sub-panels.
+- Vestige search should include the full text of the abilities/influence/signs.
+
+### Subsystem literacy cleanup
+- SubsystemEngine
+  - It's got some weird null checks in it
+  - It's got the string literal "initiator level" in it
+- DefaultElementPicker says "maneuver" and "Stance" in it
+
+### Vestige influence configuration
+- Every vestige individually defining its own influence paramter is very bloated when all of them are identical
+- The subsystem itself should be able to define this for us
+
+### Extend element picker over non-subsystem choices
+- Feats
+- Later, alternate class features
+
+### Eliminate LevelDetailsDialog
+- Move all its functionality into the Character tab directly
+- To prevent the visual explosion of space, make collapsible columns for each choice category (including feats and skills)
+- When choosing something that needs more space (like a feat), expand the row to make room for the picker
 
 ### Maneuvers UI
 - Known maneuvers and stances is a build-time choice, and should be present in the level details view.  The player should be able to search for maneuvers there, and the text of what comes up should be sourced from docs/rules/content/maneuvers/\*.md.  While we're here, the "..." button that brings up the level details view should get a highlight of some sort whenever there's an unfilled choice for that level (like picking a maneuver known, or the weapon choice for Weapon Focus).
@@ -27,15 +49,16 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - For example, the feat "Exotic Weapon Proficiency" currently defines its "choice" as "exotic weapon", and that choice list is hardcoded.  Instead, we should be able to say that its choice type is "weapon", and use a separate filter property on the choice to filter it down to weapons which have at least one AttackMode whose Proficiency is exotic.
 - Best I can think of here is to store the raw json alongside every instance, and use that for filtering, but this seems very icky.
 
+### References for current implementations
+- Full references for classes, even when only part of the class is implemented.
+- Full references for all other content with any implementation
+- This is necessary to prevent the agents from making assumptions like "you can suppress a sign if your pact is good" (you cannot!)
 
 ---
 
 ## Tier 1: Odric & Core UX Priorities
 
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.
-
-### Odric Level Progression
-
 
 ### Level 7: Traditional Spellcasting
 - **Prerequisite**: Subsystem-projected effects/statistics shouldn't exist when they don't need to
