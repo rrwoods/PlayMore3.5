@@ -29,8 +29,18 @@ namespace PlayMore35.UI.Subsystems {
 
             if (elements != null) {
                 _allElements = new List<SubsystemElement>(elements);
-            } else if (!string.IsNullOrEmpty(context.ElementType) && session.Catalog.TryGetSubsystem(context.ElementType!, out var subDef)) {
-                _allElements = new List<SubsystemElement>(subDef.Elements.Values);
+            } else if (!string.IsNullOrEmpty(context.ElementType)) {
+                if (session.Catalog.TryGetSubsystem(context.ElementType!, out var subDef)) {
+                    _allElements = new List<SubsystemElement>(subDef.Elements.Values);
+                } else {
+                    var engine = session.Subsystems.Get(context.ElementType!) ??
+                                 session.Subsystems.All.FirstOrDefault(e => e.Definition.Elements.Values.Any(el => string.Equals(el.Type, context.ElementType, StringComparison.OrdinalIgnoreCase)));
+                    if (engine != null) {
+                        _allElements = new List<SubsystemElement>(engine.Definition.Elements.Values);
+                    } else {
+                        _allElements = new List<SubsystemElement>();
+                    }
+                }
             } else {
                 _allElements = new List<SubsystemElement>();
             }
@@ -149,7 +159,18 @@ namespace PlayMore35.UI.Subsystems {
             _listBox.Items.Add(new ListItem(null, Array.Empty<string>()));
 
             var searchText = _searchBox.Text.Trim();
+            var filter = _context.Filter;
             foreach (var elem in _allElements) {
+                if (!string.IsNullOrEmpty(filter)) {
+                    if (string.Equals(filter, "maneuver", StringComparison.OrdinalIgnoreCase)) {
+                        if (string.Equals(elem.Type, "Stance", StringComparison.OrdinalIgnoreCase)) {
+                            continue;
+                        }
+                    } else if (!string.Equals(elem.Type, filter, StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(searchText) && elem.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) < 0) {
                     continue;
                 }
