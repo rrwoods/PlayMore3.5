@@ -40,6 +40,18 @@ Prefer linear git history:
 - **Synchronous commit execution**: Set `WaitMsBeforeAsync: 10000` when executing `git commit` so pre-commit test hooks complete synchronously.
 - **Reactive wakeup on background tasks**: When a command runs as an asynchronous background task or a subagent is launched, immediately yield the turn without querying `manage_task status` or calling `schedule`. Rely exclusively on the system's reactive wakeup message to resume execution.
 
+### Test execution and diagnostics
+
+- **Bound test runs with timeouts**: Include a hang-timeout flag (such as `--blame-hang-timeout 15s`) when invoking `dotnet test` so test suites return deterministic results quickly.
+- **Target specific fixtures during iteration**: When reproducing a bug or implementing a single ticket, focus execution on the relevant test method or class using `--filter <TargetTest>` to keep iteration loops fast.
+- **Treat prolonged test runs as re-entrant loops**: When a unit test takes longer than 15 seconds on a small test assembly, stop the process, inspect the control's event handlers for circular notification cascades (such as mutually triggering radio button or check state updates), and wrap programmatic state mutations in an update guard flag.
+
+### State exploration and search discipline
+
+- **Treat first-search negative results as proof of absence**: When searching for an element, identifier, or control named in a ticket specification, treat the first empty search result as confirmation that the element does not yet exist. Immediately proceed to write the red test and implement it.
+- **Chain searches only to newly discovered references**: When following up on a search, ensure every subsequent query targets a new symbol, type, or file path discovered in the previous tool output.
+- **Inspect exclusively after state transitions**: Schedule verification and inspection tool calls (`git status`, `git grep`, file reads) after performing a mutating action (`edit_file`, `write_file`, or command execution).
+
 ### Pull requests
 
 When authoring pull request descriptions with Mermaid diagrams:
