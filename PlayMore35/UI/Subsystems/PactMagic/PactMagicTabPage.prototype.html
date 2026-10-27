@@ -718,6 +718,117 @@
       font-size: 8.5pt;
     }
 
+    /* Winning Design: Hybrid (B Layout + C Details Panel + Fixed Size Cards with Scrollbar) */
+    .variant-hybrid-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #fff;
+      border: 1px solid var(--win-border-light);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .vh-top-toolbar {
+      padding: 8px 10px;
+      background: #f7f7f7;
+      border-bottom: 1px solid var(--win-border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .vh-cards-viewport {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-content: flex-start;
+      background: #fafafa;
+    }
+
+    .vh-fixed-card {
+      width: 212px;
+      height: 152px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.15s;
+      overflow: hidden;
+    }
+
+    .vh-fixed-card:hover {
+      border-color: var(--win-active);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .vh-fixed-card.selected {
+      border-color: var(--win-active);
+      background: var(--win-active-bg);
+      border-width: 2px;
+    }
+
+    .vh-fixed-card-title {
+      font-weight: bold;
+      font-size: 9.5pt;
+      color: #004578;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .vh-fixed-card-sign {
+      font-size: 7.5pt;
+      color: #555;
+      font-style: italic;
+      line-height: 1.25;
+      max-height: 32px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .vh-fixed-card-powers {
+      font-size: 7.5pt;
+      color: #333;
+      list-style-type: disc;
+      padding-left: 14px;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .vh-fixed-card-footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7.5pt;
+      color: #666;
+    }
+
+    .vh-details-panel {
+      border-top: 2px solid var(--win-border-light);
+      background: #ffffff;
+      padding: 8px 12px;
+      overflow-y: auto;
+      max-height: 200px;
+      min-height: 85px;
+      font-size: 8.5pt;
+      flex-shrink: 0;
+    }
+
     /* Right State Inspection Sidebar */
     .state-sidebar {
       width: 320px;
@@ -1057,12 +1168,174 @@
           { name: "Heavy Armor Proficiency", type: "Proficiency", text: "Proficient with heavy armor." },
           { name: "Move Ally", type: "Swift", text: "Swap positions with an adjacent willing ally." }
         ]
+      },
+      {
+        name: "Focalor",
+        level: 3,
+        bindingDC: 20,
+        sign: "You weep continuously with salt tears, and your breath smells of sea brine.",
+        influence: "You become sullen and melancholy, grieving over minor setbacks.",
+        abilities: [
+          { name: "Aura of Sadness", type: "Passive", text: "Adjacent enemies take -2 penalty on attacks, saves, and checks." },
+          { name: "Focalor's Breath", type: "Standard", text: "Blind a creature within 30 ft with a gust of wind for 1 round. Recharge: 5 rounds." },
+          { name: "Lightning Strike", type: "Standard", text: "Call 3d6 electricity damage strike from sky on target within 10 ft/level." },
+          { name: "Water Breathing", type: "Passive", text: "Breathe underwater freely." }
+        ]
+      },
+      {
+        name: "Karsus",
+        level: 3,
+        bindingDC: 21,
+        sign: "Blood leaks from your cuticles when you cast a spell or use a vestige ability.",
+        influence: "You become arrogant and condescending, especially towards arcanists and spellcasters.",
+        abilities: [
+          { name: "Karsus's Senses", type: "Passive", text: "Detect magic at will as a continuous effect." },
+          { name: "Karsus's Touch", type: "Standard", text: "Dispel magic by touch as the spell. Recharge: 5 rounds." },
+          { name: "Magic Item Use", type: "Passive", text: "Activate spell trigger and spell completion items as a wizard." }
+        ]
+      },
+      {
+        name: "Paimon",
+        level: 3,
+        bindingDC: 20,
+        sign: "A third eye opens vertically in the middle of your forehead.",
+        influence: "Refuse to dirty your hands; demand utmost etiquette and politeness from companions.",
+        abilities: [
+          { name: "Dance of Death", type: "Standard", text: "Move up to speed and make melee attacks against every creature passed. Recharge: 5 rounds." },
+          { name: "Paimon's Blades", type: "Proficiency", text: "Proficient with rapier and short sword; gain Weapon Finesse." },
+          { name: "Uncanny Dodge", type: "Passive", text: "Retain Dex bonus to AC even when flat-footed." },
+          { name: "Whirlwind Attack", type: "Feat", text: "Gain benefits of Whirlwind Attack feat." }
+        ]
+      },
+      {
+        name: "Andras",
+        level: 4,
+        bindingDC: 24,
+        sign: "Your head sprouts black raven or owl feathers, and your voice takes on a harsh edge.",
+        influence: "Cannot back down from personal challenges or duels of honor.",
+        abilities: [
+          { name: "Mount", type: "Standard", text: "Summon a heavy warhorse or dire wolf mount at will." },
+          { name: "Sow Discord", type: "Standard", text: "Force a target to attack its allies for 1 round. Recharge: 5 rounds." },
+          { name: "Sure Blows", type: "Passive", text: "Threaten critical hits with any weapon on 19-20." },
+          { name: "Weapon Proficiency", type: "Proficiency", text: "Proficient with greatsword, rapier, and lance." }
+        ]
+      },
+      {
+        name: "Buer",
+        level: 4,
+        bindingDC: 20,
+        sign: "Your feet become cloven hooves; your eyes turn goat-like.",
+        influence: "You abhor unnecessary violence; must seek peaceful resolution before drawing steel.",
+        abilities: [
+          { name: "Buer's Purity", type: "Passive", text: "Immune to all poisons and natural diseases." },
+          { name: "Healing Gift", type: "Standard", text: "Cure 1d8 + 1/level damage by touch at will. Recharge: 5 rounds." },
+          { name: "Delay Diseases & Toxins", type: "Passive", text: "Temporarily halt progression of poisons in allies." }
+        ]
+      },
+      {
+        name: "Eurynome",
+        level: 4,
+        bindingDC: 21,
+        sign: "Your skin becomes translucent and wet, weeping foul seawater.",
+        influence: "Cannot break an oath once sworn, no matter how inconvenient.",
+        abilities: [
+          { name: "Animal Friend", type: "Passive", text: "Animals never attack you unless magically compelled." },
+          { name: "Damage Reduction", type: "Passive", text: "Gain DR 2/lawful or DR 5/lawful (scales with level)." },
+          { name: "Water Walking", type: "Passive", text: "Walk on liquid surfaces as if solid ground." },
+          { name: "Warhammer", type: "Standard", text: "Manifest a +1 warhammer made of hardened water." }
+        ]
+      },
+      {
+        name: "Acererak",
+        level: 5,
+        bindingDC: 25,
+        sign: "All your teeth turn into sparkling cut gems.",
+        influence: "Fascinated by tombs, undead, and the trapping of souls; utterly indifferent to living suffering.",
+        abilities: [
+          { name: "Detect Undead", type: "Passive", text: "Detect undead continuously as the spell." },
+          { name: "Hide from Undead", type: "Passive", text: "Mindless undead cannot perceive you." },
+          { name: "Lich's Touch", type: "Standard", text: "Deal 1d6 cold + paralyze target on touch attack. Recharge: 5 rounds." },
+          { name: "Paralyzing Touch", type: "Passive", text: "Immunity to paralysis, cold, and electric damage." }
+        ]
+      },
+      {
+        name: "Balam",
+        level: 5,
+        bindingDC: 25,
+        sign: "Your eyes burn with cold silver light; your shadow behaves independently.",
+        influence: "Distrustful of prophecy; must voice skepticism whenever divination is used.",
+        abilities: [
+          { name: "Cold Rays", type: "Standard", text: "Fire ray dealing 2d6 cold damage. Recharge: 5 rounds." },
+          { name: "Cunning Prescience", type: "Immediate", text: "Add +1 to +5 insight bonus to AC or saving throw." },
+          { name: "Prescience", type: "Passive", text: "Gain +2 insight bonus on initiative, Reflex saves, and AC." }
+        ]
+      },
+      {
+        name: "Dantalion",
+        level: 5,
+        bindingDC: 25,
+        sign: "A multitude of ghostly human faces hover faintly around your head.",
+        influence: "Curious about everything; cannot walk past a closed room without peeking inside.",
+        abilities: [
+          { name: "Awe of Dantalion", type: "Standard", text: "Enemies within 30 ft cannot attack you for 1 round. Recharge: 5 rounds." },
+          { name: "Dantalion's Read", type: "Standard", text: "Read surface thoughts as detect thoughts." },
+          { name: "Thought Travel", type: "Standard", text: "Teleport up to 5 ft per binder level." }
+        ]
+      },
+      {
+        name: "Chupoclops",
+        level: 6,
+        bindingDC: 25,
+        sign: "A translucent phantom web trails behind you wherever you walk.",
+        influence: "Pessimistic and defeatist; must predict failure for every group plan.",
+        abilities: [
+          { name: "Aura of Despair", type: "Passive", text: "Enemies within 10 ft take -2 penalty on saves and attacks." },
+          { name: "Ghost Touch", type: "Passive", text: "Attacks strike incorporeal and ethereal creatures normally." },
+          { name: "Pounce", type: "Passive", text: "Make full attack at the end of a charge." },
+          { name: "Soulsense", type: "Passive", text: "Blindsight 30 ft against living and undead creatures." }
+        ]
+      },
+      {
+        name: "Haures",
+        level: 6,
+        bindingDC: 25,
+        sign: "Your eyes weep blood when you are surprised or injured.",
+        influence: "Obsessed with death and morbid jokes; cannot laugh at innocent humor.",
+        abilities: [
+          { name: "Inaccessible Mind", type: "Passive", text: "Immune to mind-detecting and scrying effects as mind blank." },
+          { name: "Major Image", type: "Standard", text: "Create complex illusions as major image at will. Recharge: 5 rounds." },
+          { name: "Phantasmal Killer", type: "Standard", text: "Manifest target's worst fear as phantasmal killer." }
+        ]
+      },
+      {
+        name: "Eligor",
+        level: 7,
+        bindingDC: 27,
+        sign: "A heavy saddle and barding imprint appears across your skin.",
+        influence: "Despises dishonorable tactics; refuses to attack an unarmed or prone foe.",
+        abilities: [
+          { name: "Eligor's Armor", type: "Passive", text: "+3 enhancement bonus to natural armor; gain heavy horse mount." },
+          { name: "Eligor's Strength", type: "Passive", text: "+4 enhancement bonus to Strength." },
+          { name: "Ride Bonus", type: "Passive", text: "+1 bonus per binder level on Ride checks." }
+        ]
+      },
+      {
+        name: "Halphax",
+        level: 8,
+        bindingDC: 30,
+        sign: "Your skin becomes stony and gray, etched with masonry lines.",
+        influence: "Deeply stubborn; once you take a physical stance or position, you refuse to yield it.",
+        abilities: [
+          { name: "Damage Reduction", type: "Passive", text: "Gain DR 10/adamantine." },
+          { name: "Iron Wall", type: "Standard", text: "Summon wall of iron at will. Recharge: 5 rounds." },
+          { name: "Secure Shelter", type: "Standard", text: "Conjure fortified stone tower as Leomund's secure shelter." }
+        ]
       }
     ];
 
     // State Model
     const state = {
-      variant: "A",
+      variant: "Hybrid",
       binderLevel: 20,
       maxVestigeLevel: 8,
       slotCapacity: 4,
@@ -1083,8 +1356,8 @@
     function initVariantFromUrl() {
       const urlParams = new URLSearchParams(window.location.search);
       const v = urlParams.get("variant");
-      if (v && ["A", "B", "C"].includes(v.toUpperCase())) {
-        state.variant = v.toUpperCase();
+      if (v && ["HYBRID", "A", "B", "C"].includes(v.toUpperCase())) {
+        state.variant = v.toUpperCase() === "HYBRID" ? "Hybrid" : v.toUpperCase();
       }
     }
 
@@ -1097,7 +1370,7 @@
     }
 
     function cycleVariant(direction) {
-      const variants = ["A", "B", "C"];
+      const variants = ["Hybrid", "A", "B", "C"];
       let idx = variants.indexOf(state.variant);
       idx = (idx + direction + variants.length) % variants.length;
       setVariant(variants[idx]);
@@ -1152,6 +1425,7 @@
     function updateView() {
       // Update switcher label
       const names = {
+        Hybrid: "Selected Design: Hybrid (Fixed Cards + Bottom Details)",
         A: "Variant A (Split Inspector: List + Dossier)",
         B: "Variant B (Master-Detail Card Stack & Grid)",
         C: "Variant C (Streamlined DefaultElementPicker)"
@@ -1161,7 +1435,7 @@
       // Update Column Width based on variant
       const col = document.getElementById("vestigeSlotsColumn");
       if (state.variant === "A") col.style.width = "260px";
-      else if (state.variant === "B") col.style.width = "360px";
+      else if (state.variant === "B" || state.variant === "Hybrid") col.style.width = "360px";
       else if (state.variant === "C") col.style.width = "280px";
 
       document.getElementById("slotCountBadge").innerText = `${state.slotCapacity} Slot${state.slotCapacity > 1 ? 's' : ''}`;
@@ -1171,7 +1445,8 @@
 
       // Render Right Vestige Picker Space
       const pickerSpace = document.getElementById("vestigePickerSpace");
-      if (state.variant === "A") renderVariantA(pickerSpace);
+      if (state.variant === "Hybrid") renderVariantHybrid(pickerSpace);
+      else if (state.variant === "A") renderVariantA(pickerSpace);
       else if (state.variant === "B") renderVariantB(pickerSpace);
       else if (state.variant === "C") renderVariantC(pickerSpace);
 
@@ -1213,9 +1488,9 @@
           `;
         }
 
-        // Variant B includes power summary in the slot card
+        // Slot Dashboard summary (Variant B and Hybrid)
         let vbSummary = "";
-        if (state.variant === "B" && isBound) {
+        if ((state.variant === "B" || state.variant === "Hybrid") && isBound) {
           const vData = VESTIGES_CATALOG.find(v => v.name === slot.vestige);
           if (vData) {
             vbSummary = `
@@ -1313,6 +1588,108 @@
         }
         return true;
       });
+    }
+
+    // WINNING DESIGN: Hybrid (Fixed-Size Cards Grid + Dynamic Bottom Details + Slot Dashboard B)
+    function renderVariantHybrid(container) {
+      const filtered = getFilteredVestiges();
+      const activeSlot = state.slots[state.activeSlotIndex];
+      const currentDetail = VESTIGES_CATALOG.find(v => v.name === state.activeVestigeDetail) || filtered[0] || VESTIGES_CATALOG[0];
+
+      let cardsHtml = "";
+      filtered.forEach(v => {
+        const isBoundHere = (activeSlot.vestige === v.name);
+        const isBoundOther = state.slots.some((s, idx) => idx !== state.activeSlotIndex && s.vestige === v.name);
+        const isInvalid = (v.level > state.maxVestigeLevel);
+        const isDetailActive = (currentDetail.name === v.name);
+
+        cardsHtml += `
+          <div class="vh-fixed-card ${isDetailActive ? 'selected' : ''} ${isInvalid ? 'invalid' : ''}" 
+               onclick="state.activeVestigeDetail='${v.name}'; deliverElement('${v.name}');">
+            <div class="vh-fixed-card-title">
+              <span>${v.name}</span>
+              <span class="item-level-badge">${v.level}${getOrdinal(v.level)} • DC ${v.bindingDC}</span>
+            </div>
+            <div class="vh-fixed-card-sign">
+              "${v.sign}"
+            </div>
+            <ul class="vh-fixed-card-powers">
+              ${v.abilities.slice(0, 3).map(a => `<li><strong>${a.name}</strong></li>`).join("")}
+              ${v.abilities.length > 3 ? `<li style="list-style:none; color:#777;">+${v.abilities.length - 3} more...</li>` : ''}
+            </ul>
+            <div class="vh-fixed-card-footer">
+              <span>${isInvalid ? '<span style="color:#b8860b;">⚠ Exceeds level</span>' : '<span style="color:#2e7d32;">✓ Available</span>'}</span>
+              ${isBoundHere ? '<span style="font-weight:bold; color:#0078d7;">Bound (Slot ' + (state.activeSlotIndex + 1) + ')</span>' : ''}
+              ${isBoundOther ? '<span style="color:#888;">(In other slot)</span>' : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      // Bottom details panel: full description anchored to bottom
+      let abilitiesFull = currentDetail.abilities.map(a => `
+        <span style="display:inline-block; margin-right:12px; margin-bottom:4px;">
+          <strong>${a.name}</strong> (${a.type}): <span style="color:#444;">${a.text}</span>
+        </span>
+      `).join("");
+
+      container.innerHTML = `
+        <div class="variant-hybrid-container">
+          <!-- Top Toolbar -->
+          <div class="vh-top-toolbar">
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="text" class="picker-search-input" style="width: 220px;" placeholder="Search catalog..." 
+                     value="${state.searchQuery}" oninput="state.searchQuery=this.value; updateView();">
+              <label style="font-size: 8.5pt; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" ${state.hideInvalid ? 'checked' : ''} onchange="state.hideInvalid=this.checked; updateView();">
+                <span>Hide unavailable</span>
+              </label>
+              <select style="font-size: 8pt; padding: 2px;" onchange="state.levelFilter=this.value; updateView();">
+                <option value="all" ${state.levelFilter === 'all' ? 'selected' : ''}>All Levels (${VESTIGES_CATALOG.length} Vestiges)</option>
+                <option value="1" ${state.levelFilter === '1' ? 'selected' : ''}>1st Level</option>
+                <option value="2" ${state.levelFilter === '2' ? 'selected' : ''}>2nd Level</option>
+                <option value="3" ${state.levelFilter === '3' ? 'selected' : ''}>3rd Level</option>
+                <option value="4" ${state.levelFilter === '4' ? 'selected' : ''}>4th Level</option>
+                <option value="5" ${state.levelFilter === '5' ? 'selected' : ''}>5th Level</option>
+                <option value="6" ${state.levelFilter === '6' ? 'selected' : ''}>6th Level</option>
+                <option value="7" ${state.levelFilter === '7' ? 'selected' : ''}>7th Level</option>
+                <option value="8" ${state.levelFilter === '8' ? 'selected' : ''}>8th Level</option>
+              </select>
+            </div>
+            <div style="font-size: 8.5pt; color: #555;">
+              Target: <strong>Slot ${state.activeSlotIndex + 1}</strong> (${filtered.length} visible, fixed-size cards with scrollbar)
+            </div>
+          </div>
+
+          <!-- Main Scrollable Fixed-Size Cards Grid -->
+          <div class="vh-cards-viewport">
+            ${cardsHtml || '<div style="padding: 20px; color: #888;">No matching vestiges found.</div>'}
+          </div>
+
+          <!-- Lower Details Panel (Anchored to Bottom, Dynamic Height) -->
+          <div class="vh-details-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-weight:bold; font-size:10pt; color:#004578;">
+                ${currentDetail.name} (Level ${currentDetail.level}, Binding DC ${currentDetail.bindingDC})
+              </span>
+              <span style="font-size:8pt; color:#666;">
+                Full Description & Rules Reference (Anchored Bottom Panel)
+              </span>
+            </div>
+            <div style="margin-bottom: 4px; font-size:8pt;">
+              <strong>Physical Sign:</strong> <em>${currentDetail.sign}</em> 
+              <span style="color:#777;">(Good pact: suppress at will; Poor pact: cannot be hidden)</span>
+            </div>
+            <div style="margin-bottom: 4px; font-size:8pt;">
+              <strong>Psychological Influence:</strong> <em>${currentDetail.influence}</em> 
+              <span style="color:#777;">(Poor pact: -1 penalty on attack/saves/checks if violated)</span>
+            </div>
+            <div style="margin-top: 4px; padding-top: 4px; border-top: 1px dotted #ccc; font-size:8pt;">
+              <strong>Granted Abilities:</strong> ${abilitiesFull}
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     // VARIANT A: Split Inspector (List + Rich Dossier Sheet)
