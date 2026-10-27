@@ -259,6 +259,18 @@
     <Compile Include="UI\TimelinePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\Subsystems\ElementPickerContext.cs" />
+    <Compile Include="UI\Subsystems\ISubsystemUI.cs" />
+    <Compile Include="UI\Subsystems\ISubsystemUIHost.cs" />
+    <Compile Include="UI\Subsystems\ISubsystemElementPicker.cs" />
+    <Compile Include="UI\Subsystems\ReceptorState.cs" />
+    <Compile Include="UI\Subsystems\ElementReceptorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Subsystems\DefaultElementPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Subsystems\SubsystemUIRegistry.cs" />
     <EmbeddedResource Include="UI\AddItemDialog.resx">
       <DependentUpon>AddItemDialog.cs</DependentUpon>
     </EmbeddedResource>
