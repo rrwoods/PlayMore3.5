@@ -224,6 +224,8 @@ namespace PlayMore35.Tests {
                 tabPage.Picker.DeliverVestigeByName("Amon");
                 Application.DoEvents();
 
+                Assert.IsTrue(host.TimelineRefreshRequested, "Binding a vestige must request a timeline refresh.");
+
                 var slot0 = tabPage.SlotCards[0];
                 Assert.IsNotNull(slot0.Receptor.SelectedElement);
 

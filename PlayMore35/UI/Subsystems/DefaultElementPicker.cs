@@ -17,11 +17,26 @@ namespace PlayMore35.UI.Subsystems {
         private ListBox _listBox;
         private Panel _detailsPanel;
         private Label _lblDetails;
+        private Button _btnToggleDetails;
+        private bool _isDetailsExpanded = true;
 
         public event Action<SubsystemElement?>? ElementDelivered;
         public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered;
 
         public Control Control => this;
+        public Panel DetailsPane => _detailsPanel;
+        public Button DetailsToggleButton => _btnToggleDetails;
+        public bool IsDetailsExpanded => _isDetailsExpanded;
+
+        public void ToggleDetailsPane() {
+            SetDetailsExpanded(!_isDetailsExpanded);
+        }
+
+        public void SetDetailsExpanded(bool expanded) {
+            _isDetailsExpanded = expanded;
+            _detailsPanel.Visible = expanded;
+            _btnToggleDetails.Text = expanded ? "▼ Hide Details" : "▲ Show Details";
+        }
 
         public DefaultElementPicker(ICharacterSession session, ElementPickerContext context, IEnumerable<SubsystemElement>? elements = null) {
             _session = session ?? throw new ArgumentNullException(nameof(session));
@@ -117,8 +132,17 @@ namespace PlayMore35.UI.Subsystems {
             };
             _hideInvalidCheckBox.CheckedChanged += (s, e) => ApplyFilter();
 
+            _btnToggleDetails = new Button {
+                Text = "▼ Hide Details",
+                Location = new Point(160, 27),
+                Size = new Size(100, 24),
+                UseVisualStyleBackColor = true
+            };
+            _btnToggleDetails.Click += (s, e) => ToggleDetailsPane();
+
             topPanel.Controls.Add(_searchBox);
             topPanel.Controls.Add(_hideInvalidCheckBox);
+            topPanel.Controls.Add(_btnToggleDetails);
 
             _detailsPanel = new Panel {
                 Dock = DockStyle.Bottom,

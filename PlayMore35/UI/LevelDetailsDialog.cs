@@ -42,6 +42,34 @@ namespace PlayMore35 {
             public bool IsMultiChoice => FeatDef != null && FeatDef.Choices.Any();
         }
 
+        public class ElementReceptorBinding {
+            public string FeatSlot { get; }
+            public ChoiceDescriptor Descriptor { get; }
+
+            public ElementReceptorBinding(string featSlot, ChoiceDescriptor descriptor) {
+                FeatSlot = featSlot ?? "";
+                Descriptor = descriptor;
+            }
+
+            public override string ToString() => $"{FeatSlot}:{Descriptor?.Id}";
+            public bool MatchesKey(string key) => string.Equals($"{FeatSlot}:{Descriptor?.Id}", key, StringComparison.OrdinalIgnoreCase);
+
+            public override bool Equals(object obj) {
+                if (obj is ElementReceptorBinding other) {
+                    return string.Equals(FeatSlot, other.FeatSlot, StringComparison.OrdinalIgnoreCase) &&
+                           string.Equals(Descriptor?.Id, other.Descriptor?.Id, StringComparison.OrdinalIgnoreCase);
+                }
+                if (obj is string str) {
+                    return string.Equals($"{FeatSlot}:{Descriptor?.Id}", str, StringComparison.OrdinalIgnoreCase);
+                }
+                return false;
+            }
+
+            public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode($"{FeatSlot}:{Descriptor?.Id}");
+        }
+
+        private readonly Dictionary<ElementReceptorControl, ElementReceptorBinding> receptorBindings = new Dictionary<ElementReceptorControl, ElementReceptorBinding>();
+
         private class ChoiceItem {
             public string DisplayText { get; }
             public string Value { get; }
@@ -73,10 +101,7 @@ namespace PlayMore35 {
 
         public Panel PickerHost => pnlPickerHost;
 
-        public LevelDetailsDialog(ICharacterSession session) : this(session, null) {
-        }
-
-        public LevelDetailsDialog(ICharacterSession session, SubsystemUIRegistry uiRegistry) {
+        public LevelDetailsDialog(ICharacterSession session, SubsystemUIRegistry? uiRegistry = null) {
             InitializeComponent();
             this.session = session;
             this.uiRegistry = uiRegistry ?? SubsystemUIRegistry.CreateDefault();
@@ -107,6 +132,7 @@ namespace PlayMore35 {
                     Controls.Remove(c);
                 }
             }
+            receptorBindings.Clear();
             dynamicSlotControls.Clear();
             slotChoiceStates.Clear();
 
@@ -189,6 +215,9 @@ namespace PlayMore35 {
             CollapsePickerHost();
             if (dynamicSlotControls.TryGetValue(featSlot, out var existingControls)) {
                 foreach (var c in existingControls) {
+                    if (c is ElementReceptorControl r) {
+                        receptorBindings.Remove(r);
+                    }
                     Controls.Remove(c);
                 }
                 dynamicSlotControls.Remove(featSlot);
@@ -343,12 +372,14 @@ namespace PlayMore35 {
                     slotControls.Add(header);
                     Controls.Add(header);
 
+                    var receptorBinding = new ElementReceptorBinding(featSlot, desc);
                     var receptor = new ElementReceptorControl {
                         Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
                         Left = left,
                         Width = cboFeatChoice.Width,
-                        Tag = $"{featSlot}:{desc.Id}"
+                        Tag = receptorBinding
                     };
+                    receptorBindings[receptor] = receptorBinding;
 
                     string saved = session.GetFeatChoice(featSlot, desc.Id);
                     if (!string.IsNullOrWhiteSpace(saved)) {

@@ -184,6 +184,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
             _host.RequestRecalculate();
             _host.RequestEffectsRefresh();
+            _host.RequestTimelineRefresh();
             _picker.UpdateCardBoundIndicators();
         }
 
@@ -203,6 +204,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
             _host.RequestRecalculate();
             _host.RequestEffectsRefresh();
+            _host.RequestTimelineRefresh();
             _picker.UpdateCardBoundIndicators();
         }
 
@@ -215,6 +217,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 engine?.SetSlotState("vestiges", slotIndex, newState);
                 _host.RequestRecalculate();
                 _host.RequestEffectsRefresh();
+                _host.RequestTimelineRefresh();
             }
         }
     }

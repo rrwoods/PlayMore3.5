@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.Subsystems;
 
+/// <summary>
+/// Supplemental rules, lore, physical signs, and behavioral influences for Pact Magic vestiges.
+/// Primary Source: Tome of Magic, pp. 19-72.
+/// See docs/rules/subsystems/pact-magic.md for authoritative subsystem mechanics and citations.
+/// </summary>
 namespace PlayMore35.UI.Subsystems.PactMagic {
     public class VestigeAbilityData {
         public string Name { get; set; } = "";
@@ -19,6 +24,10 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         public List<VestigeAbilityData> Abilities { get; set; } = new List<VestigeAbilityData>();
     }
 
+    /// <summary>
+    /// Repository containing primary source supplemental lore, signs, and influences
+    /// cited from Tome of Magic (pp. 19-72).
+    /// </summary>
     public static class VestigeRulesRepository {
         private static readonly Dictionary<string, VestigeRulesData> _catalog = new Dictionary<string, VestigeRulesData>(StringComparer.OrdinalIgnoreCase);
 
@@ -331,34 +340,67 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         }
 
         public static VestigeRulesData GetRulesData(SubsystemElement element) {
-            if (element != null && _catalog.TryGetValue(element.Name, out var data)) {
-                return data;
+            if (element == null) {
+                return new VestigeRulesData();
             }
 
-            // Fallback dynamically from element properties/effects
-            int lvl = element?.GetProperty<int>("level", 1) ?? 1;
-            int dc = element?.GetProperty<int>("binding DC", 15) ?? 15;
-            var fallback = new VestigeRulesData {
-                Name = element?.Name ?? "",
-                Level = lvl,
-                BindingDC = dc,
-                Sign = $"Manifestation sign of {element?.Name}.",
-                Influence = $"Behavioral influence of {element?.Name}."
+            int lvl = element.GetProperty<int>("level", 1);
+            int dc = element.GetProperty<int>("binding DC", 15);
+
+            _catalog.TryGetValue(element.Name, out var supplemental);
+
+            string sign = element.GetProperty<string>("sign", "") ?? "";
+            if (string.IsNullOrEmpty(sign) && supplemental != null) {
+                sign = supplemental.Sign;
+            }
+
+            string influence = "";
+            var influenceEffects = element.GetEffects("influence");
+            if (influenceEffects.Count > 0 && influenceEffects[0].Text.Count > 0) {
+                influence = influenceEffects[0].Text[0].Description;
+            }
+            if (string.IsNullOrEmpty(influence)) {
+                influence = element.GetProperty<string>("influence", "") ?? "";
+            }
+            if (string.IsNullOrEmpty(influence) && supplemental != null) {
+                influence = supplemental.Influence;
+            }
+
+            var result = new VestigeRulesData {
+                Name = element.Name,
+                Level = lvl > 0 ? lvl : (supplemental?.Level ?? 1),
+                BindingDC = dc > 0 ? dc : (supplemental?.BindingDC ?? 15),
+                Sign = sign,
+                Influence = influence
             };
 
-            if (element != null) {
-                var abilities = element.GetEffects("abilities");
-                foreach (var ab in abilities) {
+            var elementAbilities = element.GetEffects("abilities");
+            if (elementAbilities.Count > 0) {
+                foreach (var ab in elementAbilities) {
                     var desc = ab.Text.Count > 0 ? ab.Text[0].Description : "";
-                    fallback.Abilities.Add(new VestigeAbilityData {
+                    string abilityType = ab.Text.Count > 0 && !string.IsNullOrEmpty(ab.Text[0].Category)
+                        ? ab.Text[0].Category
+                        : "Granted";
+
+                    var suppAb = supplemental?.Abilities.FirstOrDefault(a => string.Equals(a.Name, ab.Name, StringComparison.OrdinalIgnoreCase));
+                    if (suppAb != null) {
+                        abilityType = suppAb.Type;
+                        if (string.IsNullOrEmpty(desc)) {
+                            desc = suppAb.Text;
+                        }
+                    }
+
+                    result.Abilities.Add(new VestigeAbilityData {
                         Name = ab.Name,
-                        Type = "Granted",
+                        Type = abilityType,
                         Text = desc
                     });
                 }
+            } else if (supplemental != null) {
+                result.Abilities.AddRange(supplemental.Abilities);
             }
 
-            return fallback;
+            return result;
         }
     }
 }
