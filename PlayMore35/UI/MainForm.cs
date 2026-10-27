@@ -18,9 +18,10 @@ using static PlayMore35.Properties.Resources;
 using PlayMore35.Effects;
 using PlayMore35.Rules;
 using PlayMore35.UI;
+using PlayMore35.UI.Subsystems;
 
 namespace PlayMore35 {
-    public partial class MainForm : Form {
+    public partial class MainForm : Form, ISubsystemUIHost {
         [DllImport("gdi32.dll")]
         private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -49,11 +50,8 @@ namespace PlayMore35 {
         private int levelBuffer, levelUpBuffer;
         private int skillBufferLeft, skillLabelOffset, skillPointsBuffer;
 
-        private List<Panel> vestigePanels = new List<Panel>();
-        private List<Label> stateLabels = new List<Label>();
-        private List<ListBox> pactStates = new List<ListBox>();
-        private List<List<RadioButton>> vestigeChoices = new List<List<RadioButton>>();
-        private int vestigePanelBuffer, vestigeChoiceBuffer;
+        private readonly SubsystemUIRegistry uiRegistry;
+        private readonly Dictionary<string, TabPage> activeSubsystemTabs = new Dictionary<string, TabPage>(StringComparer.OrdinalIgnoreCase);
 
         private List<DynamicPanel> dynamicPanels = new List<DynamicPanel>();
 
@@ -75,7 +73,22 @@ namespace PlayMore35 {
         private ICharacterSession session;
         public ICharacterSession Session => session;
 
-        public MainForm() {
+        public void RequestRecalculate() {
+            session?.Recalculate();
+        }
+
+        public void RequestEffectsRefresh() {
+            RefreshEffects();
+        }
+
+        public void RequestTimelineRefresh() {
+            timelinePanel?.RefreshTimeline();
+        }
+
+        public MainForm() : this((SubsystemUIRegistry)null) { }
+
+        public MainForm(SubsystemUIRegistry uiRegistry) {
+            this.uiRegistry = uiRegistry ?? SubsystemUIRegistry.CreateDefault();
             InitializeComponent();
 
             ledgerXp.AlignInputControls(dtpSessionDate, txtSessionDesc, txtSessionXp, btnAddSession);
@@ -106,8 +119,11 @@ namespace PlayMore35 {
             scala = new Font(fonts.Families[0], 9.75F);
         }
 
-        public MainForm(ICharacterSession session) : this() {
+        public MainForm(ICharacterSession session) : this(session, null) { }
+
+        public MainForm(ICharacterSession session, SubsystemUIRegistry uiRegistry) : this(uiRegistry) {
             this.session = session;
+            UpdateSubsystemTabs();
         }
 
         public TabPage StatsTab() {
@@ -1310,184 +1326,6 @@ namespace PlayMore35 {
             RefreshEffects();
         }
 
-        // this is what happens when you click on a vestige
-        private EventHandler ChooseVestige(int slotIndex, SubsystemElement vestige) {
-            return (object sender, EventArgs e) => {
-                var pactEngine = session.Subsystems.Get("pact_magic");
-                if (vestige == null) {
-                    session.PerformAction(new SheetAction {
-                        Name = $"Unbind vestige slot {slotIndex}",
-                        Subsystem = "pact_magic",
-                        SlotGroup = "vestiges",
-                        SlotIndex = slotIndex,
-                        Verb = "unbind"
-                    });
-                    stateLabels[slotIndex].Text = "Good pact?";
-                    session.Character.Timeline.Unschedule(new SheetAction {
-                        Subsystem = "pact_magic",
-                        SlotGroup = "vestiges",
-                        SlotIndex = slotIndex,
-                        Verb = "unbind"
-                    });
-                } else {
-                    string verb = pactStates[slotIndex].SelectedIndex == 1 ? "bind_poor_pact" : "bind_good_pact";
-                    session.PerformAction(new SheetAction {
-                        Name = $"Bind {vestige.Name} slot {slotIndex}",
-                        Subsystem = "pact_magic",
-                        SlotGroup = "vestiges",
-                        SlotIndex = slotIndex,
-                        Element = vestige.Name,
-                        Verb = verb,
-                        Source = pactEngine?.GetActiveSources().FirstOrDefault()
-                    });
-                    stateLabels[slotIndex].Text = $"Good pact? (Binding DC {vestige.GetStatistic("binding DC", session).Value})";
-                }
-                session.Recalculate();
-                RefreshEffects();
-            };
-        }
-
-        // this is what happens when you use the action/round handler by right-clicking and choosing bind
-        private EventHandler BindVestige(int slotIndex, SubsystemElement vestige) {
-            return (sender, e) => {
-                var pactEngine = session.Subsystems.Get("pact_magic");
-                bool bindingCheckSuccess = GetRollResult("Binding check") >= vestige.GetStatistic("binding DC", session).Value;
-                string verb = bindingCheckSuccess ? "bind_good_pact" : "bind_poor_pact";
-                session.PerformAction(new SheetAction {
-                    Name = $"Bind {vestige.Name} slot {slotIndex}",
-                    Subsystem = "pact_magic",
-                    SlotGroup = "vestiges",
-                    SlotIndex = slotIndex,
-                    Element = vestige.Name,
-                    Verb = verb,
-                    Source = pactEngine?.GetActiveSources().FirstOrDefault()
-                });
-                var unbindAction = new SheetAction {
-                    Name = $"Unbind vestige slot {slotIndex}",
-                    Subsystem = "pact_magic",
-                    SlotGroup = "vestiges",
-                    SlotIndex = slotIndex,
-                    Verb = "unbind"
-                };
-                session.Character.Timeline.Schedule(unbindAction, "24 hours");
-                var result = session.AdvanceTimeline(21);
-                if (result.RefreshRequirement == TimelineRefreshRequirement.FullReload) {
-                    session.Recalculate();
-                }
-                if (result.RefreshRequirement != TimelineRefreshRequirement.None) {
-                    RefreshEffects();
-                }
-                timelinePanel.RefreshTimeline();
-            };
-        }
-
-        private EventHandler ChangePactState(int slotIndex) {
-            return (object sender, EventArgs e) => {
-                var pactEngine = session.Subsystems.Get("pact_magic");
-                var slot = pactEngine?.GetSlot("vestiges", slotIndex);
-                if (slot != null && !string.IsNullOrEmpty(slot.Element) && slot.State != "empty") {
-                    string newState = pactStates[slotIndex].SelectedIndex == 1 ? "poor_pact" : "good_pact";
-                    pactEngine.SetSlotState("vestiges", slotIndex, newState);
-                }
-                session.Recalculate();
-                RefreshEffects();
-            };
-        }
-
-        private void VestigesTab_Enter(object sender, EventArgs e) {
-            for (int i = 0; i < vestigePanels.Count; i++) {
-                Panel vestigePanel = vestigePanels[i];
-                vestigePanel.Controls.Remove(stateLabels[i]);
-                vestigePanel.Controls.Remove(pactStates[i]);
-                ClearDynamicControls(vestigePanel, vestigeChoices[i]);
-            }
-            stateLabels.Clear();
-            pactStates.Clear();
-            vestigeChoices.Clear();
-            ClearDynamicControls(pagVestiges, vestigePanels);
-            
-            var pactEngine = session.Subsystems.Get("pact_magic");
-            var availableVestiges = (pactEngine?.GetAccessibleElements(null, null) ?? Enumerable.Empty<string>())
-                .Select(name => pactEngine.GetElement(name))
-                .Where(v => v != null)
-                .OrderBy(v => v.Name)
-                .ToList();
-            int numVestiges = pactEngine?.GetSlotGroup("vestiges")?.Capacity ?? session.GetStatistic("number of vestiges").Value;
-
-            int vestigeLeft = pnlVestige1.Left;
-            for (int i = 0; i < numVestiges; i++) {
-                Panel vestigePanel = new Panel {
-                    Top = pnlVestige1.Top,
-                    Left = vestigeLeft,
-                    Size = pnlVestige1.Size,
-                    Anchor = pnlVestige1.Anchor,
-                    AutoScroll = true
-                };
-
-                var slot = pactEngine?.GetSlot("vestiges", i);
-                string currentVestige = (slot != null && slot.State != "empty") ? (slot.Element ?? "") : "";
-                var currentElem = !string.IsNullOrEmpty(currentVestige) ? pactEngine?.GetElement(currentVestige) : null;
-                int? dc = currentElem?.GetStatistic("binding DC", session).Value;
-                Label stateLabel = new Label {
-                    Location = lblPactState.Location,
-                    Text = (dc == null) ? "Pact state" : $"Pact state (Binding DC {dc})",
-                    AutoSize = true
-                };
-                stateLabels.Add(stateLabel);
-                vestigePanel.Controls.Add(stateLabel);
-
-                ListBox state = new ListBox {
-                    Location = lstPactState.Location,
-                    Size = lstPactState.Size
-                };
-                state.Items.Add("Good pact");
-                state.Items.Add("Poor pact");
-                state.SelectedIndex = (slot?.State == "poor_pact") ? 1 : 0;
-                state.Click += ChangePactState(i);
-                pactStates.Add(state);
-                vestigePanel.Controls.Add(state);
-
-                List<RadioButton> choices = new List<RadioButton>();
-                int choiceTop = optVestige1.Top;
-
-                RadioButton noneChoice = new RadioButton {
-                    Top = choiceTop,
-                    Left = optVestige1.Left,
-                    Text = "(None)",
-                    Checked = "" == currentVestige
-                };
-                noneChoice.Click += ChooseVestige(i, null);
-                choices.Add(noneChoice);
-                vestigePanel.Controls.Add(noneChoice);
-                choiceTop += vestigeChoiceBuffer;
-                foreach (SubsystemElement vestige in availableVestiges) {
-                    RadioButton choice = new RadioButton {
-                        Top = choiceTop,
-                        Left = optVestige1.Left,
-                        Text = vestige.Name,
-                        Checked = vestige.Name == currentVestige
-                    };
-                    choice.Click += ChooseVestige(i, vestige);
-
-                    ToolStripMenuItem menuItem = new ToolStripMenuItem {
-                        Text = $"Bind {vestige.Name}"
-                    };
-                    menuItem.Click += BindVestige(i, vestige);
-                    choice.ContextMenuStrip = new ContextMenuStrip();
-                    choice.ContextMenuStrip.Items.Add(menuItem);
-
-                    choices.Add(choice);
-                    vestigePanel.Controls.Add(choice);
-                    choiceTop += vestigeChoiceBuffer;
-                }
-                vestigeChoices.Add(choices);
-
-                vestigePanels.Add(vestigePanel);
-                pagVestiges.Controls.Add(vestigePanel);
-                vestigeLeft += vestigePanelBuffer;
-            }
-        }
-
         private void MainForm_Load(object sender, EventArgs e) {
             Font = scala;
             UpdateXpLedgerBounds();
@@ -1501,8 +1339,6 @@ namespace PlayMore35 {
             levelUpBuffer = btnAddLevel.Top - cboClass.Top;
             skillBufferLeft = lblTotalRanks.Left - lblTotalHp.Left;
             transactionBuffer = lblTransactionAmount2.Top - lblTransactionAmount1.Top;
-            vestigePanelBuffer = pnlVestige2.Left - pnlVestige1.Left;
-            vestigeChoiceBuffer = optVestige2.Top - optVestige1.Top;
 
             // Remove all subsystem pages.  We will re-add them when the character gains access to the systems.
             RemoveSubsystemTabs();
@@ -1510,7 +1346,7 @@ namespace PlayMore35 {
             addItemDialog.Font = scala;
 
             session = session ?? new CharacterSession(new Character(), new GameRulesCatalog());
-            levelDetailsDialog = new LevelDetailsDialog(session) {
+            levelDetailsDialog = new LevelDetailsDialog(session, uiRegistry) {
                 Font = scala
             };
 
@@ -1566,22 +1402,34 @@ namespace PlayMore35 {
         }
 
         private void RemoveSubsystemTabs() {
-            tabMain.TabPages.Remove(pagVestiges);
+            foreach (var kvp in activeSubsystemTabs.ToList()) {
+                tabMain.TabPages.Remove(kvp.Value);
+                activeSubsystemTabs.Remove(kvp.Key);
+            }
         }
 
         private void UpdateSubsystemTabs() {
-            bool hasVestiges = session.Subsystems.Get("pact_magic")?.IsActive == true;
-            bool currentlyShowing = tabMain.TabPages.Contains(pagVestiges);
+            if (session == null) return;
 
-            // What position do the subsystem tabs get added at.
             const int SUBSYSTEMS_INDEX = 1;
+            var providers = uiRegistry.GetAll();
 
-            if (hasVestiges && !currentlyShowing) {
-                tabMain.TabPages.Insert(Math.Min(SUBSYSTEMS_INDEX, tabMain.TabPages.Count), pagVestiges);
-                pagVestiges.Enter -= VestigesTab_Enter;
-                pagVestiges.Enter += VestigesTab_Enter;
-            } else if (!hasVestiges && currentlyShowing) {
-                RemoveSubsystemTabs();
+            foreach (var ui in providers) {
+                bool active = ui.IsActive(session);
+                bool hasTab = activeSubsystemTabs.TryGetValue(ui.SubsystemId, out var existingTab);
+
+                if (active && !hasTab) {
+                    var tab = ui.CreateDedicatedTab(this) as TabPage;
+                    if (tab != null) {
+                        tab.Font = scala;
+                        int insertIndex = Math.Min(SUBSYSTEMS_INDEX, tabMain.TabPages.Count);
+                        tabMain.TabPages.Insert(insertIndex, tab);
+                        activeSubsystemTabs[ui.SubsystemId] = tab;
+                    }
+                } else if (!active && hasTab && existingTab != null) {
+                    tabMain.TabPages.Remove(existingTab);
+                    activeSubsystemTabs.Remove(ui.SubsystemId);
+                }
             }
         }
 
@@ -1589,7 +1437,7 @@ namespace PlayMore35 {
             using (StreamReader reader = new StreamReader(filePath)) {
                 Character loadedCharacter = new Character(JObject.Parse(reader.ReadToEnd()));
                 session = new CharacterSession(loadedCharacter, session.Catalog);
-                levelDetailsDialog = new LevelDetailsDialog(session) {
+                levelDetailsDialog = new LevelDetailsDialog(session, uiRegistry) {
                     Font = scala
                 };
                 UpdateSubsystemTabs();

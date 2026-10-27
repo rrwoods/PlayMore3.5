@@ -15,6 +15,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly Label _lblSymptomsPowers;
         private readonly Label _lblHeader;
         private readonly Label _lblStatus;
+        private bool _isUpdating;
 
         public event EventHandler? SlotActivated;
         public event EventHandler? UnbindClicked;
@@ -91,6 +92,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Checked = true
             };
             _rbGoodPact.CheckedChanged += (s, e) => {
+                if (_isUpdating) return;
                 if (_rbGoodPact.Checked) {
                     PactStateChanged?.Invoke("good_pact");
                     UpdateSymptomsVisuals();
@@ -105,6 +107,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Enabled = false
             };
             _rbPoorPact.CheckedChanged += (s, e) => {
+                if (_isUpdating) return;
                 if (_rbPoorPact.Checked) {
                     PactStateChanged?.Invoke("poor_pact");
                     UpdateSymptomsVisuals();
@@ -148,33 +151,38 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         }
 
         public void SetBoundVestige(SubsystemElement? vestige, string pactState) {
-            _receptor.SelectedElement = vestige;
-            bool isBound = vestige != null;
+            _isUpdating = true;
+            try {
+                _receptor.SelectedElement = vestige;
+                bool isBound = vestige != null;
 
-            _rbGoodPact.Enabled = isBound;
-            _rbPoorPact.Enabled = isBound;
+                _rbGoodPact.Enabled = isBound;
+                _rbPoorPact.Enabled = isBound;
 
-            if (isBound) {
-                if (string.Equals(pactState, "poor_pact", StringComparison.OrdinalIgnoreCase)) {
-                    _rbPoorPact.Checked = true;
+                if (isBound) {
+                    if (string.Equals(pactState, "poor_pact", StringComparison.OrdinalIgnoreCase)) {
+                        _rbPoorPact.Checked = true;
+                    } else {
+                        _rbGoodPact.Checked = true;
+                    }
+                    _lblStatus.Text = "Bound";
+                    _lblStatus.ForeColor = Color.FromArgb(21, 87, 36);
+                    _pnlSymptoms.Visible = true;
+
+                    var rules = VestigeRulesRepository.GetRulesData(vestige!);
+                    _lblSymptomsPowers.Text = "Powers: " + string.Join(", ", rules.Abilities.Select(a => a.Name));
+                    UpdateSymptomsVisuals();
                 } else {
                     _rbGoodPact.Checked = true;
+                    _lblStatus.Text = "Empty";
+                    _lblStatus.ForeColor = Color.FromArgb(102, 102, 102);
+                    _pnlSymptoms.Visible = false;
                 }
-                _lblStatus.Text = "Bound";
-                _lblStatus.ForeColor = Color.FromArgb(21, 87, 36);
-                _pnlSymptoms.Visible = true;
 
-                var rules = VestigeRulesRepository.GetRulesData(vestige!);
-                _lblSymptomsPowers.Text = "Powers: " + string.Join(", ", rules.Abilities.Select(a => a.Name));
-                UpdateSymptomsVisuals();
-            } else {
-                _rbGoodPact.Checked = true;
-                _lblStatus.Text = "Empty";
-                _lblStatus.ForeColor = Color.FromArgb(102, 102, 102);
-                _pnlSymptoms.Visible = false;
+                Invalidate();
+            } finally {
+                _isUpdating = false;
             }
-
-            Invalidate();
         }
 
         public void SetActiveSelecting(bool active) {
