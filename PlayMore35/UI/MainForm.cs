@@ -85,9 +85,8 @@ namespace PlayMore35 {
             timelinePanel?.RefreshTimeline();
         }
 
-        public MainForm() : this((SubsystemUIRegistry)null) { }
-
-        public MainForm(SubsystemUIRegistry uiRegistry) {
+        public MainForm(ICharacterSession? session = null, SubsystemUIRegistry? uiRegistry = null) {
+            this.session = session;
             this.uiRegistry = uiRegistry ?? SubsystemUIRegistry.CreateDefault();
             InitializeComponent();
 
@@ -117,13 +116,10 @@ namespace PlayMore35 {
             AddFontMemResourceEx(fontPtr, (uint)Scala_SansRegular_LF.Length, IntPtr.Zero, ref dummy);
             Marshal.FreeCoTaskMem(fontPtr);
             scala = new Font(fonts.Families[0], 9.75F);
-        }
 
-        public MainForm(ICharacterSession session) : this(session, null) { }
-
-        public MainForm(ICharacterSession session, SubsystemUIRegistry uiRegistry) : this(uiRegistry) {
-            this.session = session;
-            UpdateSubsystemTabs();
+            if (this.session != null) {
+                UpdateSubsystemTabs();
+            }
         }
 
         public TabPage StatsTab() {

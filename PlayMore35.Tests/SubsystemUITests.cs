@@ -224,6 +224,31 @@ namespace PlayMore35.Tests {
             }
         }
 
+        [TestMethod]
+        public void DefaultElementPicker_PreviewDetailsPaneToggle_CollapsesAndExpands() {
+            var session = CreateTestSession();
+            var context = new ElementPickerContext { ElementType = "vestige" };
+            var elements = new List<SubsystemElement> {
+                new SubsystemElement { Name = "Aym", Type = "vestige" }
+            };
+
+            using (var picker = new DefaultElementPicker(session, context, elements)) {
+                Assert.IsTrue(picker.IsDetailsExpanded);
+                Assert.IsTrue(picker.DetailsPane.Visible);
+                Assert.AreEqual("▼ Hide Details", picker.DetailsToggleButton.Text);
+
+                picker.ToggleDetailsPane();
+                Assert.IsFalse(picker.IsDetailsExpanded);
+                Assert.IsFalse(picker.DetailsPane.Visible);
+                Assert.AreEqual("▲ Show Details", picker.DetailsToggleButton.Text);
+
+                picker.ToggleDetailsPane();
+                Assert.IsTrue(picker.IsDetailsExpanded);
+                Assert.IsTrue(picker.DetailsPane.Visible);
+                Assert.AreEqual("▼ Hide Details", picker.DetailsToggleButton.Text);
+            }
+        }
+
         private static ICharacterSession CreateTestSession() {
             var catalog = new GameRulesCatalog();
             var character = new Character {
