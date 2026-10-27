@@ -100,13 +100,6 @@ namespace PlayMore35 {
             this.txtAlignment = new System.Windows.Forms.TextBox();
             this.txtName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.pagVestiges = new System.Windows.Forms.TabPage();
-            this.pnlVestige2 = new System.Windows.Forms.Panel();
-            this.pnlVestige1 = new System.Windows.Forms.Panel();
-            this.lstPactState = new System.Windows.Forms.ListBox();
-            this.lblPactState = new System.Windows.Forms.Label();
-            this.optVestige2 = new System.Windows.Forms.RadioButton();
-            this.optVestige1 = new System.Windows.Forms.RadioButton();
             this.pagInventory = new System.Windows.Forms.TabPage();
             this.ledgerGold = new PlayMore35.UI.TabularLedgerPanel();
             this.dtpTransactionDate = new PlayMore35.UI.DateOverridePicker();
@@ -198,8 +191,6 @@ namespace PlayMore35 {
             this.savesPanel = new PlayMore35.SavesPanel();
             this.tabMain.SuspendLayout();
             this.pagCharacter.SuspendLayout();
-            this.pagVestiges.SuspendLayout();
-            this.pnlVestige1.SuspendLayout();
             this.pagInventory.SuspendLayout();
             this.grpSampleLocation.SuspendLayout();
             this.pagStats.SuspendLayout();
@@ -217,7 +208,6 @@ namespace PlayMore35 {
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabMain.Controls.Add(this.pagCharacter);
-            this.tabMain.Controls.Add(this.pagVestiges);
             this.tabMain.Controls.Add(this.pagInventory);
             this.tabMain.Controls.Add(this.pagStats);
             this.tabMain.Location = new System.Drawing.Point(0, 24);
@@ -1004,84 +994,6 @@ namespace PlayMore35 {
             this.label1.TabIndex = 0;
             this.label1.Text = "Name";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // pagVestiges
-            // 
-            this.pagVestiges.Controls.Add(this.pnlVestige2);
-            this.pagVestiges.Controls.Add(this.pnlVestige1);
-            this.pagVestiges.Location = new System.Drawing.Point(4, 26);
-            this.pagVestiges.Name = "pagVestiges";
-            this.pagVestiges.Size = new System.Drawing.Size(1281, 623);
-            this.pagVestiges.TabIndex = 3;
-            this.pagVestiges.Text = "Vestiges";
-            this.pagVestiges.UseVisualStyleBackColor = true;
-            // 
-            // pnlVestige2
-            // 
-            this.pnlVestige2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.pnlVestige2.Location = new System.Drawing.Point(214, 3);
-            this.pnlVestige2.Name = "pnlVestige2";
-            this.pnlVestige2.Size = new System.Drawing.Size(200, 613);
-            this.pnlVestige2.TabIndex = 1;
-            this.pnlVestige2.Visible = false;
-            // 
-            // pnlVestige1
-            // 
-            this.pnlVestige1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.pnlVestige1.Controls.Add(this.lstPactState);
-            this.pnlVestige1.Controls.Add(this.lblPactState);
-            this.pnlVestige1.Controls.Add(this.optVestige2);
-            this.pnlVestige1.Controls.Add(this.optVestige1);
-            this.pnlVestige1.Location = new System.Drawing.Point(8, 3);
-            this.pnlVestige1.Name = "pnlVestige1";
-            this.pnlVestige1.Size = new System.Drawing.Size(200, 613);
-            this.pnlVestige1.TabIndex = 0;
-            this.pnlVestige1.Visible = false;
-            // 
-            // lstPactState
-            // 
-            this.lstPactState.FormattingEnabled = true;
-            this.lstPactState.ItemHeight = 17;
-            this.lstPactState.Items.AddRange(new object[] {
-            "Good pact",
-            "Poor pact"});
-            this.lstPactState.Location = new System.Drawing.Point(6, 23);
-            this.lstPactState.Name = "lstPactState";
-            this.lstPactState.Size = new System.Drawing.Size(179, 55);
-            this.lstPactState.TabIndex = 4;
-            // 
-            // lblPactState
-            // 
-            this.lblPactState.AutoSize = true;
-            this.lblPactState.Location = new System.Drawing.Point(3, 3);
-            this.lblPactState.Name = "lblPactState";
-            this.lblPactState.Size = new System.Drawing.Size(158, 17);
-            this.lblPactState.TabIndex = 3;
-            this.lblPactState.Text = "Pact state (Binding DC 20)";
-            // 
-            // optVestige2
-            // 
-            this.optVestige2.AutoSize = true;
-            this.optVestige2.Location = new System.Drawing.Point(3, 110);
-            this.optVestige2.Name = "optVestige2";
-            this.optVestige2.Size = new System.Drawing.Size(114, 21);
-            this.optVestige2.TabIndex = 2;
-            this.optVestige2.TabStop = true;
-            this.optVestige2.Text = "Sample vestige";
-            this.optVestige2.UseVisualStyleBackColor = true;
-            // 
-            // optVestige1
-            // 
-            this.optVestige1.AutoSize = true;
-            this.optVestige1.Location = new System.Drawing.Point(3, 90);
-            this.optVestige1.Name = "optVestige1";
-            this.optVestige1.Size = new System.Drawing.Size(114, 21);
-            this.optVestige1.TabIndex = 1;
-            this.optVestige1.TabStop = true;
-            this.optVestige1.Text = "Sample vestige";
-            this.optVestige1.UseVisualStyleBackColor = true;
             // 
             // pagInventory
             // 
@@ -2127,9 +2039,6 @@ namespace PlayMore35 {
             this.tabMain.ResumeLayout(false);
             this.pagCharacter.ResumeLayout(false);
             this.pagCharacter.PerformLayout();
-            this.pagVestiges.ResumeLayout(false);
-            this.pnlVestige1.ResumeLayout(false);
-            this.pnlVestige1.PerformLayout();
             this.pagInventory.ResumeLayout(false);
             this.pagInventory.PerformLayout();
             this.grpSampleLocation.ResumeLayout(false);
@@ -2275,13 +2184,6 @@ namespace PlayMore35 {
         private PlayMore35.UI.TabularLedgerPanel ledgerXp;
         private PlayMore35.UI.DateOverridePicker dtpSessionDate;
         private System.Windows.Forms.Button btnAddItem;
-        private System.Windows.Forms.TabPage pagVestiges;
-        private System.Windows.Forms.Panel pnlVestige1;
-        private System.Windows.Forms.RadioButton optVestige2;
-        private System.Windows.Forms.RadioButton optVestige1;
-        private System.Windows.Forms.Panel pnlVestige2;
-        private System.Windows.Forms.ListBox lstPactState;
-        private System.Windows.Forms.Label lblPactState;
         private System.Windows.Forms.Button btnLevelDetails;
         private System.Windows.Forms.Label lblClassesHeader;
         private System.Windows.Forms.TabPage pagStats;
