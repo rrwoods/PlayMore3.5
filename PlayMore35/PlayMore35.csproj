@@ -238,12 +238,6 @@
     <Compile Include="UI\DescriptionPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="UI\RollPrompt.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\RollPrompt.Designer.cs">
-      <DependentUpon>RollPrompt.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\SavesPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -307,9 +301,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="UI\RollPrompt.resx">
-      <DependentUpon>RollPrompt.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
