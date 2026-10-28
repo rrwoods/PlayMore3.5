@@ -8,14 +8,16 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
-### New Vestiges tab cleanup
-- "Vestige Slots" is bad; no one calls these slots (even though we call them that internally).  Just eliminate that header and the "1 Slot" next to it.
-- Slot panel could use a little more whitespace between Sign - Powers.  Add Influence as well.
-- Slot panel should show a warning badge next to "Bound" when a too-high-level vestige is slotted
-- "Hide unavailable" should be checked by default
-- Vestige cards should be taller, so that no vesatige needs "+n more..." on it.
-- Vestige details panel should be as tall as it needs to be to show all the details.  In particular Aym requires more space for both sub-panels.
-- Vestige search should include the full text of the abilities/influence/signs.
+### New Vestiges tab layout
+- Eliminate slots panel
+  - Clicking a card for an unbound vestige gives button(s) for binding, with good or poor pact
+  - Cards for bound vestiges have an Unbind button
+  - Cards for bound vestiges are pinned to the top, in a single row
+  - This means there's no "receptor" control for the vestige picker, which is fine
+- Move details panel to left side, where slots panel was
+
+### Vestiges tab cleanup
+- Searching still doesn't find ability text (can't search for "swap" and find Savnok, even though it's in the text of Move Ally)
 
 ### Subsystem literacy cleanup
 - SubsystemEngine

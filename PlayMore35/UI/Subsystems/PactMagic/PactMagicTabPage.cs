@@ -11,16 +11,22 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly ISubsystemUIHost _host;
         private readonly Panel _leftColumn;
         private readonly Panel _pickerHost;
-        private readonly FlowLayoutPanel _slotsContainer;
-        private readonly List<VestigeSlotCard> _slotCards = new List<VestigeSlotCard>();
         private readonly PactMagicElementPicker _picker;
 
-        private int _activeSlotIndex = 0;
+        private readonly Label _lblEmptyPrompt;
+        private readonly Panel _pnlDetailsContent;
+        private readonly Label _lblDetailsTitle;
+        private readonly Label _lblDetailsSign;
+        private readonly Label _lblDetailsInfluence;
+        private readonly Label _lblDetailsAbilities;
 
-        public IReadOnlyList<VestigeSlotCard> SlotCards => _slotCards;
         public int SlotsColumnWidth => _leftColumn.Width;
-        public int ActiveSlotIndex => _activeSlotIndex;
         public PactMagicElementPicker Picker => _picker;
+        public string DetailsHeader => _lblDetailsTitle.Text;
+        public string DetailsSignText => _lblDetailsSign.Text;
+        public string DetailsInfluenceText => _lblDetailsInfluence.Text;
+        public string DetailsAbilitiesText => _lblDetailsAbilities.Text;
+        public bool IsEmptyPromptVisible => _lblEmptyPrompt.Visible;
 
         public PactMagicTabPage(ISubsystemUIHost host) {
             _host = host ?? throw new ArgumentNullException(nameof(host));
@@ -32,28 +38,78 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _leftColumn = new Panel {
                 Dock = DockStyle.Left,
                 Width = 360,
-                BackColor = Color.FromArgb(250, 250, 250),
-                Padding = new Padding(10),
-                BorderStyle = BorderStyle.FixedSingle
+                BackColor = Color.White,
+                Padding = new Padding(12),
+                BorderStyle = BorderStyle.FixedSingle,
+                AutoScroll = true
             };
+            _leftColumn.Resize += (s, e) => UpdateDetailsLabelsWidth();
 
-            _slotsContainer = new FlowLayoutPanel {
+            _lblEmptyPrompt = new Label {
                 Dock = DockStyle.Fill,
-                AutoScroll = true,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
-                Padding = new Padding(0, 4, 0, 0)
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Italic),
+                ForeColor = Color.FromArgb(120, 120, 120),
+                Text = "Select a vestige to view sign, influence, and granted abilities.",
+                Visible = true
             };
 
-            _leftColumn.Controls.Add(_slotsContainer);
+            _pnlDetailsContent = new Panel {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                BackColor = Color.Transparent,
+                Visible = false
+            };
+
+            _lblDetailsTitle = new Label {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 11f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(0, 69, 120),
+                Padding = new Padding(0, 0, 0, 8)
+            };
+
+            _lblDetailsSign = new Label {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Regular),
+                ForeColor = Color.FromArgb(68, 68, 68),
+                Padding = new Padding(0, 0, 0, 8)
+            };
+
+            _lblDetailsInfluence = new Label {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Regular),
+                ForeColor = Color.FromArgb(68, 68, 68),
+                Padding = new Padding(0, 0, 0, 8)
+            };
+
+            _lblDetailsAbilities = new Label {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Regular),
+                ForeColor = Color.FromArgb(51, 51, 51)
+            };
+
+            _pnlDetailsContent.Controls.Add(_lblDetailsAbilities);
+            _pnlDetailsContent.Controls.Add(_lblDetailsInfluence);
+            _pnlDetailsContent.Controls.Add(_lblDetailsSign);
+            _pnlDetailsContent.Controls.Add(_lblDetailsTitle);
+
+            _leftColumn.Controls.Add(_lblEmptyPrompt);
+            _leftColumn.Controls.Add(_pnlDetailsContent);
 
             _pickerHost = new Panel {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(10)
+                Padding = new Padding(6)
             };
 
             _picker = new PactMagicElementPicker(_host.Session, new ElementPickerContext { ElementType = "vestige" });
-            _picker.ElementDelivered += OnElementDelivered;
+            _picker.VestigeSelected += OnVestigeSelected;
+            _picker.VestigeBindRequested += OnVestigeBindRequested;
+            _picker.VestigeUnbindRequested += OnVestigeUnbindRequested;
             _pickerHost.Controls.Add(_picker);
 
             Controls.Add(_pickerHost);
@@ -65,6 +121,45 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         }
 
         public void RefreshTab() {
+            _picker.RefreshMaxVestigeLevel();
+            _picker.RefreshBindingState();
+
+            if (_picker.SelectedCard != null) {
+                ShowVestigeDetails(_picker.SelectedCard.RulesData);
+            }
+        }
+
+        private void OnVestigeSelected(VestigeRulesData? rules) {
+            if (rules != null) {
+                ShowVestigeDetails(rules);
+            } else {
+                _pnlDetailsContent.Visible = false;
+                _lblEmptyPrompt.Visible = true;
+            }
+        }
+
+        public void ShowVestigeDetails(VestigeRulesData rules) {
+            _lblEmptyPrompt.Visible = false;
+            _pnlDetailsContent.Visible = true;
+
+            UpdateDetailsLabelsWidth();
+            _lblDetailsTitle.Text = $"{rules.Name} (Level {rules.Level}, Binding DC {rules.BindingDC})";
+            _lblDetailsSign.Text = $"Physical Sign:\n{rules.Sign}\n(Good pact: suppress at will; Poor pact: cannot be hidden)";
+            _lblDetailsInfluence.Text = $"Psychological Influence:\n{rules.Influence}\n(Poor pact: -1 penalty on attack/saves/checks if violated)";
+
+            var abilitiesFormatted = rules.Abilities.Select(a => $"• {a.Name} ({a.Type}): {a.Text}");
+            _lblDetailsAbilities.Text = "Granted Abilities:\n" + string.Join("\n\n", abilitiesFormatted);
+        }
+
+        private void UpdateDetailsLabelsWidth() {
+            int targetWidth = Math.Max(200, _leftColumn.ClientSize.Width - _leftColumn.Padding.Horizontal - 8);
+            _lblDetailsTitle.MaximumSize = new Size(targetWidth, 0);
+            _lblDetailsSign.MaximumSize = new Size(targetWidth, 0);
+            _lblDetailsInfluence.MaximumSize = new Size(targetWidth, 0);
+            _lblDetailsAbilities.MaximumSize = new Size(targetWidth, 0);
+        }
+
+        private void OnVestigeBindRequested(SubsystemElement vestige, string pactState) {
             var session = _host.Session;
             var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
 
@@ -72,130 +167,69 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             if (capacity <= 0) capacity = 1;
             if (capacity > 4) capacity = 4;
 
-            int maxLevel = session.GetStatistic("maximum vestige level")?.Value ?? 8;
-            if (maxLevel <= 0) maxLevel = 8;
-
-            _slotsContainer.SuspendLayout();
-            _slotsContainer.Controls.Clear();
-            _slotCards.Clear();
-
+            // Find first available slot index
+            int targetSlotIndex = -1;
             for (int i = 0; i < capacity; i++) {
-                int slotIndex = i;
-                var card = new VestigeSlotCard(slotIndex);
-                card.SlotActivated += (s, e) => SelectSlot(slotIndex);
-                card.UnbindClicked += (s, e) => UnbindSlot(slotIndex);
-                card.PactStateChanged += pactState => SetSlotPactState(slotIndex, pactState);
-
-                var slot = engine?.GetSlot("vestiges", slotIndex);
-                if (slot != null && !string.IsNullOrEmpty(slot.Element) && slot.State != "empty") {
-                    var elem = engine?.GetElement(slot.Element);
-                    card.SetBoundVestige(elem, slot.State, maxLevel);
-                } else {
-                    card.SetBoundVestige(null, "good_pact", maxLevel);
-                }
-
-                _slotCards.Add(card);
-                _slotsContainer.Controls.Add(card);
-            }
-
-            if (_activeSlotIndex >= capacity) {
-                _activeSlotIndex = 0;
-            }
-
-            UpdateActiveSlotVisuals();
-            _slotsContainer.ResumeLayout(true);
-
-            _picker.SetTargetSlot(_activeSlotIndex);
-            _picker.RefreshMaxVestigeLevel();
-        }
-
-        private void SelectSlot(int index) {
-            _activeSlotIndex = index;
-            UpdateActiveSlotVisuals();
-            _picker.SetTargetSlot(_activeSlotIndex);
-
-            if (index >= 0 && index < _slotCards.Count) {
-                var selectedVestige = _slotCards[index].Receptor.SelectedElement;
-                if (selectedVestige != null) {
-                    _picker.SelectVestigeDetail(selectedVestige.Name);
+                var slot = engine?.GetSlot("vestiges", i);
+                if (slot == null || string.IsNullOrEmpty(slot.Element) || slot.State == "empty") {
+                    targetSlotIndex = i;
+                    break;
                 }
             }
-        }
 
-        private void UpdateActiveSlotVisuals() {
-            for (int i = 0; i < _slotCards.Count; i++) {
-                _slotCards[i].SetActiveSelecting(i == _activeSlotIndex);
+            if (targetSlotIndex < 0) {
+                // At capacity, cannot bind
+                return;
             }
-        }
 
-        private void OnElementDelivered(SubsystemElement? vestige) {
-            if (_activeSlotIndex < 0 || _activeSlotIndex >= _slotCards.Count) return;
-
-            if (vestige != null) {
-                BindSlot(_activeSlotIndex, vestige);
-            } else {
-                UnbindSlot(_activeSlotIndex);
-            }
-        }
-
-        private void BindSlot(int slotIndex, SubsystemElement vestige) {
-            var session = _host.Session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
-
-            string verb = (_slotCards[slotIndex].PoorPactRadio.Checked) ? "bind_poor_pact" : "bind_good_pact";
-            string state = (_slotCards[slotIndex].PoorPactRadio.Checked) ? "poor_pact" : "good_pact";
+            string verb = string.Equals(pactState, "poor_pact", StringComparison.OrdinalIgnoreCase) ? "bind_poor_pact" : "bind_good_pact";
 
             session.PerformAction(new SheetAction {
-                Name = $"Bind {vestige.Name} slot {slotIndex}",
+                Name = $"Bind {vestige.Name} slot {targetSlotIndex}",
                 Subsystem = "pact_magic",
                 SlotGroup = "vestiges",
-                SlotIndex = slotIndex,
+                SlotIndex = targetSlotIndex,
                 Element = vestige.Name,
                 Verb = verb,
                 Source = engine?.GetActiveSources().FirstOrDefault()
             });
 
-            int maxLevel = session.GetStatistic("maximum vestige level")?.Value ?? 8;
-            if (maxLevel <= 0) maxLevel = 8;
-            _slotCards[slotIndex].SetBoundVestige(vestige, state, maxLevel);
-
             _host.RequestRecalculate();
             _host.RequestEffectsRefresh();
             _host.RequestTimelineRefresh();
-            _picker.UpdateCardBoundIndicators();
+
+            _picker.RefreshBindingState();
+            _picker.SelectVestige(vestige.Name);
         }
 
-        private void UnbindSlot(int slotIndex) {
+        private void OnVestigeUnbindRequested(SubsystemElement vestige) {
             var session = _host.Session;
             var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
+
+            int targetIndex = -1;
+            for (int i = 0; i < slots.Count; i++) {
+                if (string.Equals(slots[i].Element, vestige.Name, StringComparison.OrdinalIgnoreCase) && slots[i].State != "empty") {
+                    targetIndex = i;
+                    break;
+                }
+            }
+
+            if (targetIndex < 0) return;
 
             session.PerformAction(new SheetAction {
-                Name = $"Unbind vestige slot {slotIndex}",
+                Name = $"Unbind {vestige.Name} slot {targetIndex}",
                 Subsystem = "pact_magic",
                 SlotGroup = "vestiges",
-                SlotIndex = slotIndex,
+                SlotIndex = targetIndex,
                 Verb = "unbind"
             });
 
-            _slotCards[slotIndex].SetBoundVestige(null, "good_pact");
-
             _host.RequestRecalculate();
             _host.RequestEffectsRefresh();
             _host.RequestTimelineRefresh();
-            _picker.UpdateCardBoundIndicators();
-        }
 
-        private void SetSlotPactState(int slotIndex, string newState) {
-            var session = _host.Session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
-            var slot = engine?.GetSlot("vestiges", slotIndex);
-
-            if (slot != null && !string.IsNullOrEmpty(slot.Element) && slot.State != "empty") {
-                engine?.SetSlotState("vestiges", slotIndex, newState);
-                _host.RequestRecalculate();
-                _host.RequestEffectsRefresh();
-                _host.RequestTimelineRefresh();
-            }
+            _picker.RefreshBindingState();
         }
     }
 }
