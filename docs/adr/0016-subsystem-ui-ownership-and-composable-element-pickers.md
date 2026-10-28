@@ -30,7 +30,6 @@ flowchart TD
         PactUI["PactMagicUI"] -->|"Implements"| ISubUI
         PactUI -->|"Creates Dedicated Tab"| TabPage["PactMagicTabPage"]
         PactUI -->|"Creates Picker"| VestigePicker["PactMagicElementPicker"]
-        TabPage -->|"Embeds (1-4 Slots)"| Receptor
         TabPage -->|"Hosts Target"| VestigePicker
         TabPage -->|"Interacts via Seam"| HostSeam
     end
@@ -128,22 +127,21 @@ public interface ISubsystemElementPicker : IDisposable {
 
 ### 6. Pact Magic Tab & Vestige Picker Implementation Specification
 
-The extracted Pact Magic presentation (`PlayMore35.UI.Subsystems.PactMagic`) implements the approved hybrid architecture verified in prototype issue #182:
+The extracted Pact Magic presentation (`PlayMore35.UI.Subsystems.PactMagic`) implements a streamlined single-pane layout:
 
 1. **`PactMagicTabPage` Layout**:
-   - **Left Column (360 px)**: Dedicated vertical stack of slot cards scaled to character vestige capacity (1 to 4 slots).
-   - **Slot Card Elements**:
-     - Slot header (e.g. `Slot 1`).
-     - `ElementReceptorControl` rendering bound vestige or `(Choose vestige...)` with an inline `✕` unbind button.
-     - `Good` / `Poor` pact radio buttons: disabled when unmade; active and real-time reactive when bound, updating slot state without modal roll prompts.
-     - Active symptoms dashboard: displays active physical sign (with good/poor suppression indicators) and granted power summaries for bound vestiges.
-   - **Receptor Targeting**: Clicking a slot receptor activates it and targets the right-hand picker to that slot.
+   - **Left Column (360 px)**: Dedicated details panel displaying the full rules text, physical sign details, psychological influence, and granted abilities of the selected vestige (or an empty state prompt when unselected).
+   - **Right / Main Area**: Hosts `PactMagicElementPicker`.
 2. **`PactMagicElementPicker` Layout**:
-   - **Main Panel (Fixed-Size Cards Grid)**: Vestiges render as fixed-size cards (212 × 152 px) inside a vertical scroll container (`AutoScroll = true`), scaling to dozens of catalog vestiges without card distortion. Each card displays Name, Level, Binding DC, sign excerpt, and key granted abilities.
-   - **Lower Details Panel (Anchored Bottom)**: Sized dynamically to fit content and anchored to the bottom of the picker space. Displays full *Tome of Magic* rules text, physical sign details, psychological influence, and complete descriptions of all granted abilities.
-   - **Reactive Delivery**: Clicking a vestige card immediately invokes `ElementDelivered(vestige)`, updating the active slot receptor and session state while leaving the picker open.
-3. **Elimination of Dice Roll Prompts**:
-   - Automatic check prompts and modal roll dialogs are removed entirely ("they aren't"). Players select pact states directly via radio buttons, upholding Enable, Don't Enforce (ADR-0001).
+   - **Pinned Bound Row (Top)**: Horizontal row displaying cards for currently bound vestiges (visible only when at least one vestige is bound). Each bound card shows an active **Unbind** button and pact state badge ("Good Pact" or "Poor Pact").
+   - **Toolbar (Top)**: Real-time search query box, "Hide unavailable" checkbox, and Level filter dropdown.
+   - **Cards Grid (Fill)**: Vestiges render as cards (212 × 230 px) inside a responsive scrollable grid (`AutoScroll = true`, `WrapContents = true`).
+   - **Card Action Affordances**:
+     - Selecting an unbound card displays its full details on the left and reveals **Good** and **Poor** pact binding buttons on the card footer.
+     - When character vestige capacity is fully utilized, the binding buttons are replaced with an inline notice: *"At max vestige capacity"*.
+     - Bound vestiges move out of the unbound grid and into the pinned top row.
+3. **Elimination of Dice Roll Prompts & Slots Panel**:
+   - Automatic check prompts and modal roll dialogs are removed entirely. Players bind directly via "Good" and "Poor" buttons, and unbind via the "Unbind" card button, maintaining complete player agency per ADR-0001.
 
 ## Considered Options
 

@@ -269,9 +269,6 @@
     <Compile Include="UI\Subsystems\PactMagic\VestigeCardControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Subsystems\PactMagic\VestigeSlotCard.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Subsystems\PactMagic\PactMagicElementPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>

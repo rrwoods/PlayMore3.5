@@ -11,9 +11,14 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly VestigeRulesData _rulesData;
         private bool _isSelected;
         private bool _isInvalid;
-        private string? _bindingStatusText;
+        private bool _isBound;
+        private string? _pactState;
+        private bool _isAtMaxCapacity;
 
         public event EventHandler? CardClicked;
+        public event EventHandler? GoodPactClicked;
+        public event EventHandler? PoorPactClicked;
+        public event EventHandler? UnbindClicked;
 
         public SubsystemElement Vestige => _vestige;
         public VestigeRulesData RulesData => _rulesData;
@@ -38,11 +43,31 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             }
         }
 
-        public string? BindingStatusText {
-            get => _bindingStatusText;
+        public bool IsBound {
+            get => _isBound;
             set {
-                if (_bindingStatusText != value) {
-                    _bindingStatusText = value;
+                if (_isBound != value) {
+                    _isBound = value;
+                    UpdateCardVisuals();
+                }
+            }
+        }
+
+        public string? PactState {
+            get => _pactState;
+            set {
+                if (_pactState != value) {
+                    _pactState = value;
+                    UpdateCardVisuals();
+                }
+            }
+        }
+
+        public bool IsAtMaxCapacity {
+            get => _isAtMaxCapacity;
+            set {
+                if (_isAtMaxCapacity != value) {
+                    _isAtMaxCapacity = value;
                     UpdateCardVisuals();
                 }
             }
@@ -51,13 +76,24 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly Label _lblTitle;
         private readonly Label _lblSign;
         private readonly Label _lblPowers;
-        private readonly Label _lblFooter;
+        private readonly Panel _pnlActions;
+        private readonly Label _lblStatus;
+        private readonly Button _btnGoodPact;
+        private readonly Button _btnPoorPact;
+        private readonly Button _btnUnbind;
+        private readonly Label _lblCapacityNotice;
+
+        public Button GoodPactButton => _btnGoodPact;
+        public Button PoorPactButton => _btnPoorPact;
+        public Button UnbindButton => _btnUnbind;
+        public Label StatusLabel => _lblStatus;
+        public Label CapacityNoticeLabel => _lblCapacityNotice;
 
         public VestigeCardControl(SubsystemElement vestige, VestigeRulesData rulesData) {
             _vestige = vestige ?? throw new ArgumentNullException(nameof(vestige));
             _rulesData = rulesData ?? throw new ArgumentNullException(nameof(rulesData));
 
-            Size = new Size(212, 220);
+            Size = new Size(212, 230);
             Margin = new Padding(4);
             Padding = new Padding(8);
             Cursor = Cursors.Hand;
@@ -83,14 +119,66 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             };
             _lblSign.Click += (s, e) => OnClick(e);
 
-            _lblFooter = new Label {
+            _pnlActions = new Panel {
                 Dock = DockStyle.Bottom,
-                Height = 18,
-                Font = new Font("Segoe UI", 7.5f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(102, 102, 102),
+                Height = 30,
+                BackColor = Color.Transparent
+            };
+
+            _lblStatus = new Label {
+                Location = new Point(0, 6),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 7.5f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(46, 125, 50),
                 Cursor = Cursors.Hand
             };
-            _lblFooter.Click += (s, e) => OnClick(e);
+            _lblStatus.Click += (s, e) => OnClick(e);
+
+            _btnGoodPact = new Button {
+                Text = "Good",
+                Size = new Size(52, 24),
+                Location = new Point(88, 3),
+                Font = new Font("Segoe UI", 7.5f, FontStyle.Regular),
+                UseVisualStyleBackColor = true,
+                Visible = false
+            };
+            _btnGoodPact.Click += (s, e) => GoodPactClicked?.Invoke(this, EventArgs.Empty);
+
+            _btnPoorPact = new Button {
+                Text = "Poor",
+                Size = new Size(52, 24),
+                Location = new Point(144, 3),
+                Font = new Font("Segoe UI", 7.5f, FontStyle.Regular),
+                UseVisualStyleBackColor = true,
+                Visible = false
+            };
+            _btnPoorPact.Click += (s, e) => PoorPactClicked?.Invoke(this, EventArgs.Empty);
+
+            _btnUnbind = new Button {
+                Text = "Unbind",
+                Size = new Size(65, 24),
+                Location = new Point(131, 3),
+                Font = new Font("Segoe UI", 7.5f, FontStyle.Regular),
+                UseVisualStyleBackColor = true,
+                Visible = false
+            };
+            _btnUnbind.Click += (s, e) => UnbindClicked?.Invoke(this, EventArgs.Empty);
+
+            _lblCapacityNotice = new Label {
+                Location = new Point(60, 6),
+                Size = new Size(136, 20),
+                TextAlign = ContentAlignment.MiddleRight,
+                Font = new Font("Segoe UI", 7f, FontStyle.Italic),
+                ForeColor = Color.FromArgb(180, 100, 0),
+                Text = "At max vestige capacity",
+                Visible = false
+            };
+
+            _pnlActions.Controls.Add(_lblStatus);
+            _pnlActions.Controls.Add(_btnGoodPact);
+            _pnlActions.Controls.Add(_btnPoorPact);
+            _pnlActions.Controls.Add(_btnUnbind);
+            _pnlActions.Controls.Add(_lblCapacityNotice);
 
             _lblPowers = new Label {
                 Dock = DockStyle.Fill,
@@ -102,7 +190,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _lblPowers.Click += (s, e) => OnClick(e);
 
             Controls.Add(_lblPowers);
-            Controls.Add(_lblFooter);
+            Controls.Add(_pnlActions);
             Controls.Add(_lblSign);
             Controls.Add(_lblTitle);
 
@@ -114,24 +202,50 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             return string.Join("\n", abilities.Select(a => $"• {a.Name}"));
         }
 
-        private void UpdateCardVisuals() {
+        public void UpdateCardVisuals() {
             if (_isSelected) {
                 BackColor = Color.FromArgb(229, 241, 251);
             } else {
                 BackColor = Color.White;
             }
 
-            string status = _isInvalid ? "⚠ Exceeds level" : "✓ Available";
-            if (!string.IsNullOrEmpty(_bindingStatusText)) {
-                status += $" | {_bindingStatusText}";
-            }
-            _lblFooter.Text = status;
-            if (_isInvalid) {
-                _lblFooter.ForeColor = Color.DarkGoldenrod;
-            } else if (!string.IsNullOrEmpty(_bindingStatusText)) {
-                _lblFooter.ForeColor = Color.FromArgb(0, 120, 215);
+            if (_isBound) {
+                string pactDisplayName = string.Equals(_pactState, "poor_pact", StringComparison.OrdinalIgnoreCase) ? "Poor Pact" : "Good Pact";
+                _lblStatus.Text = pactDisplayName;
+                _lblStatus.ForeColor = string.Equals(_pactState, "poor_pact", StringComparison.OrdinalIgnoreCase)
+                    ? Color.FromArgb(192, 57, 43)
+                    : Color.FromArgb(0, 120, 215);
+
+                _btnUnbind.Visible = true;
+                _btnGoodPact.Visible = false;
+                _btnPoorPact.Visible = false;
+                _lblCapacityNotice.Visible = false;
             } else {
-                _lblFooter.ForeColor = Color.FromArgb(46, 125, 50);
+                _btnUnbind.Visible = false;
+
+                if (_isInvalid) {
+                    _lblStatus.Text = "⚠ Exceeds";
+                    _lblStatus.ForeColor = Color.DarkGoldenrod;
+                } else {
+                    _lblStatus.Text = "Available";
+                    _lblStatus.ForeColor = Color.FromArgb(46, 125, 50);
+                }
+
+                if (_isSelected && !_isInvalid) {
+                    if (_isAtMaxCapacity) {
+                        _lblCapacityNotice.Visible = true;
+                        _btnGoodPact.Visible = false;
+                        _btnPoorPact.Visible = false;
+                    } else {
+                        _lblCapacityNotice.Visible = false;
+                        _btnGoodPact.Visible = true;
+                        _btnPoorPact.Visible = true;
+                    }
+                } else {
+                    _lblCapacityNotice.Visible = false;
+                    _btnGoodPact.Visible = false;
+                    _btnPoorPact.Visible = false;
+                }
             }
 
             Invalidate();

@@ -13,26 +13,29 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly List<SubsystemElement> _allVestiges;
         private readonly List<VestigeCardControl> _cards = new List<VestigeCardControl>();
 
+        private FlowLayoutPanel _pinnedContainer = null!;
+        private Panel _toolbarPanel = null!;
         private TextBox _searchBox = null!;
         private CheckBox _hideUnavailableCheckBox = null!;
         private ComboBox _cboLevelFilter = null!;
         private FlowLayoutPanel _cardsContainer = null!;
-        private Panel _detailsPanel = null!;
-        private Label _lblDetailsTitle = null!;
-        private Label _lblDetailsSign = null!;
-        private Label _lblDetailsInfluence = null!;
-        private Label _lblDetailsAbilities = null!;
 
         private VestigeCardControl? _selectedCard;
         private int _maxVestigeLevel = 8;
-        private int _targetSlotIndex = 0;
+        private int _capacity = 1;
 
         public event Action<SubsystemElement?>? ElementDelivered;
         public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered;
+        public event Action<SubsystemElement, string>? VestigeBindRequested;
+        public event Action<SubsystemElement>? VestigeUnbindRequested;
+        public event Action<VestigeRulesData?>? VestigeSelected;
 
         public Control Control => this;
         public IReadOnlyList<VestigeCardControl> Cards => _cards;
-        public int VisibleCardsCount => _cards.Count(c => c.Visible);
+        public int VisibleCardsCount => _cards.Count(c => c.Visible && !c.IsBound);
+        public FlowLayoutPanel PinnedContainer => _pinnedContainer;
+        public FlowLayoutPanel CardsContainer => _cardsContainer;
+        public VestigeCardControl? SelectedCard => _selectedCard;
 
         public string SearchQuery {
             get => _searchBox.Text;
@@ -50,11 +53,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             }
         }
 
-        public string DetailsHeader => _lblDetailsTitle.Text;
-        public string DetailsSignText => _lblDetailsSign.Text;
-        public string DetailsInfluenceText => _lblDetailsInfluence.Text;
-        public string DetailsAbilitiesText => _lblDetailsAbilities.Text;
-
         public PactMagicElementPicker(ICharacterSession session, ElementPickerContext context) {
             _session = session ?? throw new ArgumentNullException(nameof(session));
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -68,31 +66,61 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             InitializeComponent();
             RefreshMaxVestigeLevel();
             PopulateCards();
-            ApplyFilter();
-        }
-
-        public void SetTargetSlot(int slotIndex) {
-            _targetSlotIndex = slotIndex;
-            UpdateCardBoundIndicators();
+            RefreshBindingState();
         }
 
         public void RefreshMaxVestigeLevel() {
             var stat = _session.GetStatistic("maximum vestige level");
             _maxVestigeLevel = stat != null && stat.Value > 0 ? stat.Value : 8;
+
+            var engine = _session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            _capacity = engine?.GetSlotGroup("vestiges")?.Capacity ?? _session.GetStatistic("number of vestiges")?.Value ?? 0;
+            if (_capacity <= 0) _capacity = 1;
+            if (_capacity > 4) _capacity = 4;
+
             foreach (var card in _cards) {
                 card.IsInvalid = card.RulesData.Level > _maxVestigeLevel;
             }
             ApplyFilter();
         }
 
-        public void UpdateCardBoundIndicators() {
+        public void RefreshBindingState() {
             var engine = _session.Subsystems.Get("pact_magic") as SubsystemEngine;
             var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
 
+            int boundCount = slots.Count(s => !string.IsNullOrEmpty(s.Element) && s.State != "empty");
+            bool atMaxCapacity = boundCount >= _capacity;
+
+            _pinnedContainer.SuspendLayout();
+            _cardsContainer.SuspendLayout();
+
+            _pinnedContainer.Controls.Clear();
+
             foreach (var card in _cards) {
-                bool isBound = slots.Any(s => string.Equals(s.Element, card.Vestige.Name, StringComparison.OrdinalIgnoreCase) && s.State != "empty");
-                card.BindingStatusText = isBound ? "Bound" : null;
+                var boundSlot = slots.FirstOrDefault(s => string.Equals(s.Element, card.Vestige.Name, StringComparison.OrdinalIgnoreCase) && s.State != "empty");
+                bool isBound = (boundSlot != null);
+
+                card.IsBound = isBound;
+                card.PactState = boundSlot?.State;
+                card.IsAtMaxCapacity = atMaxCapacity;
+
+                if (isBound) {
+                    if (!_pinnedContainer.Controls.Contains(card)) {
+                        _pinnedContainer.Controls.Add(card);
+                    }
+                } else {
+                    if (!_cardsContainer.Controls.Contains(card)) {
+                        _cardsContainer.Controls.Add(card);
+                    }
+                }
             }
+
+            _pinnedContainer.Visible = (_pinnedContainer.Controls.Count > 0);
+
+            _pinnedContainer.ResumeLayout(true);
+            _cardsContainer.ResumeLayout(true);
+
+            ApplyFilter();
         }
 
         public void DeliverVestigeByName(string name) {
@@ -102,10 +130,10 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             }
         }
 
-        public void SelectVestigeDetail(string name) {
+        public void SelectVestige(string name) {
             var card = _cards.FirstOrDefault(c => string.Equals(c.Vestige.Name, name, StringComparison.OrdinalIgnoreCase));
             if (card != null) {
-                UpdateDetailsPanel(card.RulesData);
+                SelectCard(card);
             }
         }
 
@@ -114,7 +142,19 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             Dock = DockStyle.Fill;
             BackColor = SystemColors.Control;
 
-            var topToolbar = new Panel {
+            _pinnedContainer = new FlowLayoutPanel {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                BackColor = Color.FromArgb(240, 244, 248),
+                BorderStyle = BorderStyle.FixedSingle,
+                Padding = new Padding(6),
+                WrapContents = false,
+                AutoScroll = true,
+                Visible = false
+            };
+
+            _toolbarPanel = new Panel {
                 Dock = DockStyle.Top,
                 Height = 36,
                 BackColor = Color.FromArgb(247, 247, 247),
@@ -150,55 +190,9 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _cboLevelFilter.SelectedIndex = 0;
             _cboLevelFilter.SelectedIndexChanged += (s, e) => ApplyFilter();
 
-            topToolbar.Controls.Add(_cboLevelFilter);
-            topToolbar.Controls.Add(_hideUnavailableCheckBox);
-            topToolbar.Controls.Add(_searchBox);
-
-            _detailsPanel = new Panel {
-                Dock = DockStyle.Bottom,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle,
-                Padding = new Padding(8)
-            };
-            _detailsPanel.Resize += (s, e) => UpdateDetailsLabelsWidth();
-
-            _lblDetailsTitle = new Label {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(0, 69, 120),
-                Padding = new Padding(0, 0, 0, 4)
-            };
-
-            _lblDetailsSign = new Label {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                Font = new Font("Segoe UI", 8f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(68, 68, 68),
-                Padding = new Padding(0, 0, 0, 4)
-            };
-
-            _lblDetailsInfluence = new Label {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                Font = new Font("Segoe UI", 8f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(68, 68, 68),
-                Padding = new Padding(0, 0, 0, 4)
-            };
-
-            _lblDetailsAbilities = new Label {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                Font = new Font("Segoe UI", 8f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(51, 51, 51)
-            };
-
-            _detailsPanel.Controls.Add(_lblDetailsAbilities);
-            _detailsPanel.Controls.Add(_lblDetailsInfluence);
-            _detailsPanel.Controls.Add(_lblDetailsSign);
-            _detailsPanel.Controls.Add(_lblDetailsTitle);
+            _toolbarPanel.Controls.Add(_cboLevelFilter);
+            _toolbarPanel.Controls.Add(_hideUnavailableCheckBox);
+            _toolbarPanel.Controls.Add(_searchBox);
 
             _cardsContainer = new FlowLayoutPanel {
                 Dock = DockStyle.Fill,
@@ -208,32 +202,32 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 WrapContents = true
             };
 
+            // Order of controls controls docking hierarchy:
+            // Top docking resolves bottom-to-top or top-to-bottom based on add order.
+            // DockStyle.Fill must be added first or last depending on layout.
+            // Controls added: fill first, then toolbars top.
             Controls.Add(_cardsContainer);
-            Controls.Add(_detailsPanel);
-            Controls.Add(topToolbar);
+            Controls.Add(_toolbarPanel);
+            Controls.Add(_pinnedContainer);
 
             ResumeLayout(false);
         }
 
         private void PopulateCards() {
-            _cardsContainer.SuspendLayout();
-            _cardsContainer.Controls.Clear();
             _cards.Clear();
 
             foreach (var elem in _allVestiges) {
                 var rules = VestigeRulesRepository.GetRulesData(elem);
                 var card = new VestigeCardControl(elem, rules);
                 card.IsInvalid = rules.Level > _maxVestigeLevel;
+
                 card.CardClicked += (s, e) => SelectCard(card);
+                card.GoodPactClicked += (s, e) => OnBindClicked(card, "good_pact");
+                card.PoorPactClicked += (s, e) => OnBindClicked(card, "poor_pact");
+                card.UnbindClicked += (s, e) => OnUnbindClicked(card);
+
                 _cards.Add(card);
-                _cardsContainer.Controls.Add(card);
             }
-
-            if (_cards.Count > 0) {
-                UpdateDetailsPanel(_cards[0].RulesData);
-            }
-
-            _cardsContainer.ResumeLayout(true);
         }
 
         private void SelectCard(VestigeCardControl card) {
@@ -241,39 +235,33 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 c.IsSelected = (c == card);
             }
             _selectedCard = card;
-            UpdateDetailsPanel(card.RulesData);
 
             ElementDelivered?.Invoke(card.Vestige);
             ElementsDelivered?.Invoke(new[] { card.Vestige });
-
-            UpdateCardBoundIndicators();
+            VestigeSelected?.Invoke(card.RulesData);
         }
 
-        private void UpdateDetailsLabelsWidth() {
-            int targetWidth = Math.Max(200, _detailsPanel.ClientSize.Width - _detailsPanel.Padding.Horizontal - 4);
-            _lblDetailsTitle.MaximumSize = new Size(targetWidth, 0);
-            _lblDetailsSign.MaximumSize = new Size(targetWidth, 0);
-            _lblDetailsInfluence.MaximumSize = new Size(targetWidth, 0);
-            _lblDetailsAbilities.MaximumSize = new Size(targetWidth, 0);
+        private void OnBindClicked(VestigeCardControl card, string pactState) {
+            VestigeBindRequested?.Invoke(card.Vestige, pactState);
         }
 
-        private void UpdateDetailsPanel(VestigeRulesData rules) {
-            UpdateDetailsLabelsWidth();
-            _lblDetailsTitle.Text = $"{rules.Name} (Level {rules.Level}, Binding DC {rules.BindingDC})";
-            _lblDetailsSign.Text = $"Physical Sign: {rules.Sign}\n(Good pact: suppress at will; Poor pact: cannot be hidden)";
-            _lblDetailsInfluence.Text = $"Psychological Influence: {rules.Influence}\n(Poor pact: -1 penalty on attack/saves/checks if violated)";
-
-            var abilitiesFormatted = rules.Abilities.Select(a => $"• {a.Name} ({a.Type}): {a.Text}");
-            _lblDetailsAbilities.Text = "Granted Abilities:\n" + string.Join("\n", abilitiesFormatted);
+        private void OnUnbindClicked(VestigeCardControl card) {
+            VestigeUnbindRequested?.Invoke(card.Vestige);
         }
 
         private void ApplyFilter() {
             _cardsContainer.SuspendLayout();
 
             string q = _searchBox.Text.Trim().ToLowerInvariant();
-            int selectedLevel = _cboLevelFilter.SelectedIndex; // 0 = all, 1 = lvl 1, etc.
+            int selectedLevel = _cboLevelFilter.SelectedIndex;
 
             foreach (var card in _cards) {
+                if (card.IsBound) {
+                    // Pinned cards remain visible in pinned container
+                    card.Visible = true;
+                    continue;
+                }
+
                 bool visible = true;
 
                 if (_hideUnavailableCheckBox.Checked && card.RulesData.Level > _maxVestigeLevel) {

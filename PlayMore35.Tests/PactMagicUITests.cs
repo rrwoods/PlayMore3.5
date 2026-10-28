@@ -61,7 +61,11 @@ namespace PlayMore35.Tests {
         public void PactMagicUI_CreateElementPicker_ReturnsPactMagicElementPicker() {
             var catalog = new GameRulesCatalog();
             var character = new Character { race = "Human" };
+            character.classLevels.Add("Binder");
             var session = new CharacterSession(character, catalog);
+            session.Recalculate();
+
+            var host = new MockSubsystemUIHost(session);
             var provider = new PactMagicUI();
 
             var context = new ElementPickerContext { ElementType = "vestige" };
@@ -71,10 +75,10 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void PactMagicTabPage_SlotColumnScaling_DisplaysCorrectNumberOfSlots() {
+        public void PactMagicTabPage_LeftColumn_DisplaysDetailsPanelAndEmptyPromptInitially() {
             var catalog = new GameRulesCatalog();
             var character = new Character { race = "Human" };
-            for (int i = 0; i < 8; i++) character.classLevels.Add("Binder"); // Level 8 Binder has 2 slots
+            character.classLevels.Add("Binder");
             var session = new CharacterSession(character, catalog);
             session.Recalculate();
 
@@ -87,16 +91,16 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                Assert.AreEqual(2, tabPage.SlotCards.Count);
                 Assert.AreEqual(360, tabPage.SlotsColumnWidth);
+                Assert.IsTrue(tabPage.IsEmptyPromptVisible, "Initial state should show empty prompt in details panel.");
             }
         }
 
         [TestMethod]
-        public void PactMagicTabPage_SlotSelection_TargetsPickerAndUpdatesActiveSlot() {
+        public void PactMagicTabPage_SelectingCard_PopulatesLeftDetailsPanel() {
             var catalog = new GameRulesCatalog();
             var character = new Character { race = "Human" };
-            for (int i = 0; i < 8; i++) character.classLevels.Add("Binder");
+            character.classLevels.Add("Binder");
             var session = new CharacterSession(character, catalog);
             session.Recalculate();
 
@@ -109,22 +113,19 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                Assert.AreEqual(0, tabPage.ActiveSlotIndex);
-                Assert.AreEqual(ReceptorState.ActiveSelecting, tabPage.SlotCards[0].Receptor.State);
-                Assert.AreEqual(ReceptorState.Unmade, tabPage.SlotCards[1].Receptor.State);
-
-                // Click slot 1
-                tabPage.SlotCards[1].Receptor.PerformClick();
+                tabPage.Picker.DeliverVestigeByName("Amon");
                 Application.DoEvents();
 
-                Assert.AreEqual(1, tabPage.ActiveSlotIndex);
-                Assert.AreEqual(ReceptorState.Unmade, tabPage.SlotCards[0].Receptor.State);
-                Assert.AreEqual(ReceptorState.ActiveSelecting, tabPage.SlotCards[1].Receptor.State);
+                Assert.IsFalse(tabPage.IsEmptyPromptVisible);
+                Assert.IsTrue(tabPage.DetailsHeader.Contains("Amon"));
+                Assert.IsTrue(tabPage.DetailsSignText.IndexOf("Ram horns", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsTrue(tabPage.DetailsInfluenceText.IndexOf("fire", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsTrue(tabPage.DetailsAbilitiesText.IndexOf("Fire Breath", StringComparison.OrdinalIgnoreCase) >= 0);
             }
         }
 
         [TestMethod]
-        public void PactMagicTabPage_VestigeDelivery_UpdatesSlotReceptorAndBindsInSession() {
+        public void PactMagicTabPage_BindingAndPinnedRow_MovesBoundCardToTopRow() {
             var catalog = new GameRulesCatalog();
             var character = new Character { race = "Human" };
             character.classLevels.Add("Binder");
@@ -141,28 +142,57 @@ namespace PlayMore35.Tests {
                 Application.DoEvents();
 
                 var picker = tabPage.Picker;
+                Assert.IsFalse(picker.PinnedContainer.Visible, "Pinned row should be hidden when zero vestiges are bound.");
+
+                // Select Amon
+                var amonCard = picker.Cards.First(c => c.Vestige.Name == "Amon");
                 picker.DeliverVestigeByName("Amon");
                 Application.DoEvents();
 
-                var slot0 = tabPage.SlotCards[0];
-                Assert.AreEqual(ReceptorState.ActiveSelecting, slot0.Receptor.State);
-                Assert.IsNotNull(slot0.Receptor.SelectedElement);
-                Assert.AreEqual("Amon", slot0.Receptor.SelectedElement?.Name);
+                Assert.IsTrue(amonCard.GoodPactButton.Visible, "Selected unbound card must show Good Pact button.");
+                Assert.IsTrue(amonCard.PoorPactButton.Visible, "Selected unbound card must show Poor Pact button.");
 
+                // Click Good Pact button
+                amonCard.GoodPactButton.PerformClick();
+                Application.DoEvents();
+
+                // Pinned container should now be visible and hold Amon card
+                Assert.IsTrue(picker.PinnedContainer.Visible, "Pinned row must be visible when a vestige is bound.");
+                Assert.AreEqual(1, picker.PinnedContainer.Controls.Count);
+                Assert.AreSame(amonCard, picker.PinnedContainer.Controls[0]);
+                Assert.IsTrue(amonCard.IsBound);
+                Assert.IsTrue(amonCard.UnbindButton.Visible, "Bound card must show Unbind button.");
+                Assert.IsFalse(amonCard.GoodPactButton.Visible);
+                Assert.IsFalse(amonCard.PoorPactButton.Visible);
+
+                // Unbound cards grid must NOT contain Amon
+                Assert.IsFalse(picker.CardsContainer.Controls.Contains(amonCard));
+
+                // Session engine must reflect binding
                 var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
                 Assert.IsNotNull(engine);
-                var assignedSlot = engine.GetSlot("vestiges", 0);
-                Assert.IsNotNull(assignedSlot);
-                Assert.AreEqual("Amon", assignedSlot.Element);
-                Assert.AreEqual("good_pact", assignedSlot.State);
+                var slot0 = engine.GetSlot("vestiges", 0);
+                Assert.IsNotNull(slot0);
+                Assert.AreEqual("Amon", slot0.Element);
+                Assert.AreEqual("good_pact", slot0.State);
+
+                // Unbind Amon
+                amonCard.UnbindButton.PerformClick();
+                Application.DoEvents();
+
+                Assert.IsFalse(picker.PinnedContainer.Visible, "Pinned container should be hidden once all vestiges unbind.");
+                Assert.IsFalse(amonCard.IsBound);
+                Assert.IsTrue(picker.CardsContainer.Controls.Contains(amonCard), "Amon must return to the cards grid.");
+                var unslotted = engine.GetSlot("vestiges", 0);
+                Assert.IsTrue(string.IsNullOrEmpty(unslotted?.Element) || unslotted?.State == "empty");
             }
         }
 
         [TestMethod]
-        public void PactMagicTabPage_GoodPoorRadioButtons_ReactiveWithoutModalPrompts() {
+        public void PactMagicTabPage_MaxCapacity_DisplaysAtMaxCapacityNotice() {
             var catalog = new GameRulesCatalog();
             var character = new Character { race = "Human" };
-            character.classLevels.Add("Binder");
+            character.classLevels.Add("Binder"); // Capacity = 1
             var session = new CharacterSession(character, catalog);
             session.Recalculate();
 
@@ -175,103 +205,23 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                var slot0 = tabPage.SlotCards[0];
-                // Unbound: radios disabled
-                Assert.IsFalse(slot0.GoodPactRadio.Enabled);
-                Assert.IsFalse(slot0.PoorPactRadio.Enabled);
-
-                // Deliver vestige
-                tabPage.Picker.DeliverVestigeByName("Amon");
+                var picker = tabPage.Picker;
+                var amonCard = picker.Cards.First(c => c.Vestige.Name == "Amon");
+                picker.DeliverVestigeByName("Amon");
+                amonCard.GoodPactButton.PerformClick();
                 Application.DoEvents();
 
-                Assert.IsTrue(slot0.GoodPactRadio.Enabled);
-                Assert.IsTrue(slot0.PoorPactRadio.Enabled);
-                Assert.IsTrue(slot0.GoodPactRadio.Checked);
-                Assert.IsFalse(slot0.PoorPactRadio.Checked);
-
-                // Toggle Poor pact
-                slot0.PoorPactRadio.Checked = true;
+                // Character is now at max capacity (1/1).
+                // Select Aym (unbound)
+                var aymCard = picker.Cards.First(c => c.Vestige.Name == "Aym");
+                picker.DeliverVestigeByName("Aym");
                 Application.DoEvents();
 
-                var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
-                Assert.IsNotNull(engine);
-                Assert.AreEqual("poor_pact", engine.GetSlot("vestiges", 0)?.State);
-
-                // Toggle Good pact back
-                slot0.GoodPactRadio.Checked = true;
-                Application.DoEvents();
-                Assert.AreEqual("good_pact", engine.GetSlot("vestiges", 0)?.State);
-            }
-        }
-
-        [TestMethod]
-        public void PactMagicTabPage_UnbindingViaClear_ResetsSlotAndReceptor() {
-            var catalog = new GameRulesCatalog();
-            var character = new Character { race = "Human" };
-            character.classLevels.Add("Binder");
-            var session = new CharacterSession(character, catalog);
-            session.Recalculate();
-
-            var host = new MockSubsystemUIHost(session);
-            using (var form = new Form())
-            using (var tabControl = new TabControl()) {
-                var tabPage = new PactMagicTabPage(host);
-                tabControl.TabPages.Add(tabPage);
-                form.Controls.Add(tabControl);
-                form.Show();
-                Application.DoEvents();
-
-                tabPage.Picker.DeliverVestigeByName("Amon");
-                Application.DoEvents();
-
-                Assert.IsTrue(host.TimelineRefreshRequested, "Binding a vestige must request a timeline refresh.");
-
-                var slot0 = tabPage.SlotCards[0];
-                Assert.IsNotNull(slot0.Receptor.SelectedElement);
-
-                // Click unbind
-                slot0.Receptor.PerformClear();
-                Application.DoEvents();
-
-                Assert.IsNull(slot0.Receptor.SelectedElement);
-                Assert.IsFalse(slot0.GoodPactRadio.Enabled);
-                Assert.IsFalse(slot0.PoorPactRadio.Enabled);
-
-                var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
-                Assert.IsNotNull(engine);
-                var slot = engine.GetSlot("vestiges", 0);
-                Assert.IsTrue(string.IsNullOrEmpty(slot?.Element) || slot?.State == "empty");
-            }
-        }
-
-        [TestMethod]
-        public void PactMagicTabPage_SymptomsDashboard_RendersSignInfluenceAndPowers() {
-            var catalog = new GameRulesCatalog();
-            var character = new Character { race = "Human" };
-            character.classLevels.Add("Binder");
-            var session = new CharacterSession(character, catalog);
-            session.Recalculate();
-
-            var host = new MockSubsystemUIHost(session);
-            using (var form = new Form())
-            using (var tabControl = new TabControl()) {
-                var tabPage = new PactMagicTabPage(host);
-                tabControl.TabPages.Add(tabPage);
-                form.Controls.Add(tabControl);
-                form.Show();
-                Application.DoEvents();
-
-                var slot0 = tabPage.SlotCards[0];
-                Assert.IsFalse(slot0.SymptomsPanel.Visible);
-                Assert.IsTrue(slot0.Height >= 240, $"Slot card height was {slot0.Height}, expected >= 240");
-
-                tabPage.Picker.DeliverVestigeByName("Amon");
-                Application.DoEvents();
-
-                Assert.IsTrue(slot0.SymptomsPanel.Visible);
-                Assert.IsTrue(slot0.SymptomsSignText.IndexOf("Ram horns", StringComparison.OrdinalIgnoreCase) >= 0);
-                Assert.IsTrue(slot0.SymptomsInfluenceText.IndexOf("fire", StringComparison.OrdinalIgnoreCase) >= 0);
-                Assert.IsTrue(slot0.SymptomsPowersText.IndexOf("Fire Breath", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsTrue(aymCard.IsSelected);
+                Assert.IsTrue(aymCard.CapacityNoticeLabel.Visible, "At max capacity, unbound card must display capacity notice.");
+                Assert.IsTrue(aymCard.CapacityNoticeLabel.Text.IndexOf("max vestige capacity", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsFalse(aymCard.GoodPactButton.Visible, "Good pact button must not be visible when at max capacity.");
+                Assert.IsFalse(aymCard.PoorPactButton.Visible, "Poor pact button must not be visible when at max capacity.");
             }
         }
 
@@ -358,107 +308,21 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void VestigeCardControl_BindingIndicator_DisplaysBoundWithoutSlotNumbers() {
-            var catalog = new GameRulesCatalog();
-            var character = new Character { race = "Human" };
-            character.classLevels.Add("Binder");
-            var session = new CharacterSession(character, catalog);
-            session.Recalculate();
+        public void VestigeCardControl_PactState_DisplaysPactStateAndUnbindWhenBound() {
+            var elem = new SubsystemElement { Name = "Amon" };
+            var rules = VestigeRulesRepository.GetRulesData(elem);
 
-            var host = new MockSubsystemUIHost(session);
-            using (var tab = new PactMagicTabPage(host))
-            using (var tabControl = new TabControl())
-            using (var form = new Form()) {
-                tabControl.TabPages.Add(tab);
-                form.Controls.Add(tabControl);
-                form.Show();
-                Application.DoEvents();
+            using (var card = new VestigeCardControl(elem, rules)) {
+                card.IsBound = true;
+                card.PactState = "poor_pact";
 
-                tab.Picker.DeliverVestigeByName("Amon");
-                Application.DoEvents();
+                Assert.AreEqual("Poor Pact", card.StatusLabel.Text);
+                Assert.IsTrue(card.UnbindButton.Visible);
+                Assert.IsFalse(card.GoodPactButton.Visible);
+                Assert.IsFalse(card.PoorPactButton.Visible);
 
-                var amonCard = tab.Picker.Cards.First(c => c.Vestige.Name == "Amon");
-                var footer = amonCard.Controls.OfType<Label>().FirstOrDefault(l => l.Dock == DockStyle.Bottom);
-                Assert.IsNotNull(footer);
-                Assert.IsTrue(footer.Text.Contains("Bound"), $"Footer text expected 'Bound', got: {footer.Text}");
-                Assert.IsFalse(footer.Text.Contains("Slot"), $"Footer text should not contain 'Slot', got: {footer.Text}");
-            }
-        }
-
-        [TestMethod]
-        public void VestigeSlotCard_WarningBadge_ShowsWarningWhenSlottedVestigeExceedsMaxLevel() {
-            using (var card = new VestigeSlotCard(0)) {
-                Assert.IsFalse(card.WarningBadgeVisible);
-
-                // Slotted vestige within max level (Amon is level 1, max level 1)
-                var amon = new SubsystemElement { Name = "Amon" };
-                card.SetBoundVestige(amon, "good_pact", maxVestigeLevel: 1);
-                Assert.IsFalse(card.WarningBadgeVisible);
-
-                // Slotted vestige exceeding max level (Dahlver-Nar is level 2, max level 1)
-                var dahlver = new SubsystemElement { Name = "Dahlver-Nar" };
-                card.SetBoundVestige(dahlver, "good_pact", maxVestigeLevel: 1);
-                Assert.IsTrue(card.WarningBadgeVisible);
-                Assert.IsTrue(card.WarningMessage?.Contains("exceeds") == true);
-
-                // Unbind clears warning
-                card.SetBoundVestige(null, "good_pact", maxVestigeLevel: 1);
-                Assert.IsFalse(card.WarningBadgeVisible);
-            }
-        }
-
-        [TestMethod]
-        public void VestigeSlotCard_Header_MovesStatusToTopLeftAndEliminatesSlotNumber() {
-            using (var card = new VestigeSlotCard(0)) {
-                var pnlHeader = card.Controls.OfType<Panel>().First(p => p.Dock == DockStyle.Top && p.Height <= 25);
-                var statusLabel = pnlHeader.Controls.OfType<Label>().FirstOrDefault(l => l.Text == "Empty");
-                Assert.IsNotNull(statusLabel);
-                Assert.AreEqual(DockStyle.Left, statusLabel.Dock);
-
-                // Header should NOT contain a label saying "Slot 1"
-                var slotLabel = pnlHeader.Controls.OfType<Label>().FirstOrDefault(l => l.Text.StartsWith("Slot "));
-                Assert.IsNull(slotLabel, "Card header must not contain 'Slot n' label");
-            }
-        }
-
-        [TestMethod]
-        public void PactMagicTabPage_LeftColumn_EliminatesVestigeSlotsHeader() {
-            var catalog = new GameRulesCatalog();
-            var character = new Character { race = "Human" };
-            character.classLevels.Add("Binder");
-            var session = new CharacterSession(character, catalog);
-            session.Recalculate();
-
-            var host = new MockSubsystemUIHost(session);
-            using (var tab = new PactMagicTabPage(host)) {
-                var leftCol = tab.Controls.OfType<Panel>().First(p => p.Dock == DockStyle.Left);
-                var headerPanel = leftCol.Controls.OfType<Panel>().FirstOrDefault(p => p.Controls.OfType<Label>().Any(l => l.Text == "Vestige Slots"));
-                Assert.IsNull(headerPanel, "Left column must not contain 'Vestige Slots' header panel");
-            }
-        }
-
-        [TestMethod]
-        public void PactMagicElementPicker_LowerDetailsPanel_DisplaysRulesTextAndAbilities() {
-            var catalog = new GameRulesCatalog();
-            var character = new Character { race = "Human" };
-            character.classLevels.Add("Binder");
-            var session = new CharacterSession(character, catalog);
-            session.Recalculate();
-
-            using (var picker = new PactMagicElementPicker(session, new ElementPickerContext { ElementType = "vestige" })) {
-                using (var form = new Form()) {
-                    form.Controls.Add(picker);
-                    form.Show();
-                    Application.DoEvents();
-
-                    picker.SelectVestigeDetail("Amon");
-                    Application.DoEvents();
-
-                    Assert.IsTrue(picker.DetailsHeader.Contains("Amon"));
-                    Assert.IsTrue(picker.DetailsSignText.Contains("Ram horns"));
-                    Assert.IsTrue(picker.DetailsInfluenceText.Length > 0);
-                    Assert.IsTrue(picker.DetailsAbilitiesText.Contains("Fire Breath"));
-                }
+                card.PactState = "good_pact";
+                Assert.AreEqual("Good Pact", card.StatusLabel.Text);
             }
         }
 
