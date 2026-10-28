@@ -51,6 +51,8 @@ When starting a new feature, select the highest-priority unblocked item from thi
 ### References for current implementations
 - Full references for classes, even when only part of the class is implemented.
 - Full references for all other content with any implementation
+- Full references for all vestiges
+  - Full json for all vestiges, including their signs, then wire the vestige tab's sign display to that data
 - This is necessary to prevent the agents from making assumptions like "you can suppress a sign if your pact is good" (you cannot!)
 
 ---
