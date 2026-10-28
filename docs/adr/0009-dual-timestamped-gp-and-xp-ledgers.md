@@ -1,3 +1,7 @@
+---
+status: accepted
+---
+
 # Dual-Timestamped GP and XP Ledgers
 
 ## Context

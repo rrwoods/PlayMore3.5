@@ -1,4 +1,8 @@
-﻿# Closed Modifier Types Taxonomy and Catalog Auditing
+---
+status: accepted
+---
+
+# Closed Modifier Types Taxonomy and Catalog Auditing
 
 ## Context
 D&D 3.5e mechanics enforce strict bonus stacking rules determined by modifier types (such as enhancement, morale, insight, or untyped). Undefined or ad-hoc modifier type strings bypass stacking logic, causing unpredictable calculation behavior and silent rules violations.

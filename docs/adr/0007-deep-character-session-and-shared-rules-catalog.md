@@ -1,4 +1,8 @@
-﻿# Deep Character Session and Shared Rules Catalog Architecture
+---
+status: partially superseded by ADR-0006
+---
+
+# Deep Character Session and Shared Rules Catalog Architecture
 
 ## Context
 In previous iterations, `Controller` operated as a shallow coordinator exposing raw mutable fields (`Effects`, `Character`, `EquippedItems`, item definitions dictionaries). Presentation panels (`DynamicStatPanel`, `AcPanel`, `AttacksPanel`, `TextEffectPanel`) and dialogs bypassed controller methods to mutate internal dictionaries, state parameters, and effect flags directly. Furthermore, `Controller.Reload()` deserialized and re-parsed JSON definition files from disk and resources on every instance initialization, tightly coupling definition objects (`Race`, `CharacterClass`, `Item`, `ExternalEffect`) to individual `Character` instances via stateful `ControllableFlag` and `ControllableParameter` references.
@@ -19,6 +23,8 @@ We replace the shallow coordinator with a deep character session architecture:
 3. **Two Distinct Seams**:
    - **External Seam (`ICharacterSession`)**: Exposes read-only query projections (`StatView`, `ToggleView`, `ParamView`, `AttackRoutine`) and intent-revealing combat operations (`EquipWeapon`, `DonArmor`, `SetFlag`, `SetParameter`, `AdvanceTimeline`, `ClearSlot`) to UI panels and the Encounter Tracker. Raw collections and `EffectPool` are strictly encapsulated.
    - **Internal Seam (`ICharacterContext`)**: Retained as the internal collaborator interface implemented by `CharacterSession` for subsystems (`ISubsystemEngine`, ADR-0006) and timeline expiration (`SheetAction`, ADR-0005) to push effects and clear slots during recalculation.
+     > [!WARNING]
+     > **Partially Superseded by [ADR-0006](0006-declarative-subsystems-and-primitive-verbs.md)**: Collaborators communicate with the unified concrete `SubsystemEngine` rather than the defunct `ISubsystemEngine`. Polymorphic actions under ADR-0005 were superseded by declarative `SheetAction` primitives.
 
 4. **Transactional Document Mutation Boundary (`session.Mutate(Action<Character>)`)**:
    - Sheet data modifications (biography, assigned ability scores, class levels, skill ranks, feats) execute inside transactional mutation lambdas.

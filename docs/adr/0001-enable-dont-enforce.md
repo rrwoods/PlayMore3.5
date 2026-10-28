@@ -1,4 +1,8 @@
-﻿# Enable, Don't Enforce Rule Validity
+---
+status: accepted
+---
+
+# Enable, Don't Enforce Rule Validity
 
 ## Context
 Dungeons & Dragons 3.5e features intricate prerequisites, equipment restrictions, and stacking constraints. Traditional digital tools enforce these constraints strictly by prohibiting illegal options. At actual gaming tables, Dungeon Masters frequently exercise fiat to waive prerequisites, allow custom items, or modify subsystem interactions.

@@ -1,4 +1,8 @@
-﻿# Structured Rules Reference Schemas and Primary Source Extraction
+---
+status: accepted
+---
+
+# Structured Rules Reference Schemas and Primary Source Extraction
 
 All D&D 3.5e game content in `docs/rules/` is authored as structured reference documentation, and martial maneuvers are extracted directly from primary source text into discipline-partitioned reference files.
 

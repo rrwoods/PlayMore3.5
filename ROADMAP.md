@@ -10,12 +10,11 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ### Subsystem literacy cleanup
 - SubsystemEngine:
-  - It's got some weird null checks in it
   - It's got the string literal "initiator level" in it
-- PactMagicTabPage:
-  - More weird null checks.
+  - It references vestige defiance to generate defiance penalties -- this should be purely configuration driven
 - DefaultElementPicker says "maneuver" and "Stance" in it
 - VestigeRulesRepository is constructing all its data whole cloth instead of pulling it from the rules catalog -- tbh, this shouldn't even need to exist, the GetRulesData function in VestigeRulesRepository should always get all the available info, and if something is missing, it should throw an exception
+- Overzealous null-checks (SubsystemEngine, PactMagicTabPage, probably lots of other places)
 
 ### Vestiges tab cleanup
 - It's not clear that "Good" and "Poor" will bind the vestige.  Add a "Binding check:" label, and change the button text to "Succeed" and "Fail"

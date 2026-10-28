@@ -1,4 +1,8 @@
-﻿# Explicit Constructor Deserialization and Schema Stability
+---
+status: partially superseded by ADR-0006
+---
+
+# Explicit Constructor Deserialization and Schema Stability
 
 ## Context
 Ticket #83 investigated standardizing polymorphic deserialization across `IJsonable` domain models and `ISubsystemState` using Json.NET `TypeNameHandling`, custom `JsonConverter` implementations, external JSON schemas, or typed discriminators. The intent was to eliminate bespoke property-by-property extraction in `Character` and static factory methods like `Amount.FromJson` and `Toggle.FromJson`.
@@ -25,6 +29,9 @@ We explicitly standardize on **explicit constructor-based deserialization and st
    - Backward-compatibility shims and JSON fallbacks remain strictly forbidden under repo guardrails.
 
 4. **Engine-Owned Subsystem State Deserialization**:
+   > [!WARNING]
+   > **Partially Superseded by [ADR-0006](0006-declarative-subsystems-and-primitive-verbs.md)**: Subsystem state is no longer parsed by bespoke engine classes (`PactMagicState.FromJson`). All subsystem state serializes uniformly as a map of subsystem IDs to universal slot groups and numeric pools in `Character.Subsystems`, while preserving explicit constructor deserialization.
+
    - Subsystem state persistence remains modular per ADR-0006: each `ISubsystemEngine` provides its own explicit static factory method (e.g., `PactMagicState.FromJson(JObject)`).
    - `Character` dispatches subsystem state deserialization explicitly by subsystem identifier without reflection.
 

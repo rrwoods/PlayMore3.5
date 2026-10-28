@@ -1,3 +1,7 @@
+---
+status: partially superseded by ADR-0006
+---
+
 # Separation of Systems and Content
 
 ## Context
@@ -26,6 +30,9 @@ We establish the separation of systems and content as a foundational architectur
    - UI presentation dialogs render pickers dynamically from choice metadata. `CharacterSession` persists selections generically via composite keys (`$"{slot}:{choiceId}"`).
 
 5. **Cross-System Interoperability via Generic Seams**:
+   > [!WARNING]
+   > **Partially Superseded by [ADR-0006](0006-declarative-subsystems-and-primitive-verbs.md)**: The pass-through interface `ISubsystemEngine` was deleted under the Falsifiable Deletion Test. Systems communicate via the unified concrete `SubsystemEngine` alongside `ICharacterContext` and `IPropertyProvider`.
+
    - When content bridges multiple systems (e.g., a feat granting a maneuver and a class skill), systems communicate through generic interfaces (`ISubsystemEngine`, `ICharacterContext`, `IPropertyProvider`) and declarative property path templates (e.g., `"${maneuver.discipline.keySkill}"`). Neither system couples to the other's content entities.
 
 6. **Systemic Rules as First-Class Statistics (Absorbed Decision)**:

@@ -17,8 +17,8 @@ The product's immediate priority is supporting the characters currently played b
 
 These core invariants govern every architecture decision, rule calculation, and UI component. They do not bend for convenience:
 
-1. **RAW Fidelity with "Enable, Don't Enforce" (ADR-0001)**:
-   - Calculations strictly reflect official D&D 3.5e Rules-as-Written (stacking rules, size scaling, effort categories, proficiencies, prerequisites).
+1. **RAW Fidelity with "Enable, Don't Enforce" (ADR-0001, ADR-0014)**:
+   - Calculations strictly reflect official D&D 3.5e Rules-as-Written (stacking rules via a closed taxonomy of modifier types, size scaling, effort categories, proficiencies, prerequisites).
    - Build validation logic informs rather than gates: unfulfilled prerequisites or illegal equipment loadouts surface non-obtrusive advisory warning badges (e.g. hoverable alert icons) but never prohibit choices or block tabletop DM fiat.
 2. **Separation of Systems and Content (ADR-0002)**:
    - Systems code (core engine, subsystems, and UI presentation dialogs) and systems files (`rules.json`) operate with zero literacy of specific content names, IDs, or strings, preventing an explosion of special cases.
@@ -29,10 +29,17 @@ These core invariants govern every architecture decision, rule calculation, and 
 4. **Dynamic Recomputation Without Caching (ADR-0004)**:
    - Derived statistics and effect results are not cached. Whenever character state, equipped gear, or conditional toggles change, all statistics recompute on demand directly from the effect pool.
    - Eliminates cache invalidation bugs and stale state anomalies while keeping the calculation engine purely deterministic and functional.
-5. **Strict Local Isolation for Multi-Character State**:
+5. **Strict Local Isolation for Multi-Character State (ADR-0007)**:
+   - `CharacterSession` acts as the living, isolated runtime host combining a character state document with an immutable, shared `IRulesCatalog`.
    - Effects apply to and read from their host character instance exclusively by default.
    - Cross-character interactions (such as Draconic Auras, bardic music, or shared buffs) require explicit scoping to prevent unintended state bleeding across sheets.
-6. **Advisory Action Economy**:
+6. **Schema Stability & Zero Shims (ADR-0008)**:
+   - Character and rules serialization formats are permanent, human-readable DSL contracts.
+   - Domain entities enforce invariants at construction time via explicit constructor deserialization (`new T(JObject)`, `T.FromJson(JToken)`), strictly prohibiting CLR `TypeNameHandling`, reflection routing, and backward-compatibility adapter shims.
+7. **Declarative Subsystems & Headless Presentation (ADR-0005, ADR-0006, ADR-0016)**:
+   - Subsystems operate through a single concrete, content-blind `SubsystemEngine` driven by declarative slot state transitions, element verbs, resource pools, and effect projections.
+   - Domain logic (`Timeline`, `CharacterSession`, `SubsystemEngine`) is 100% headless. Presentation dialogs maintain zero subsystem literacy, interacting via composable element pickers (`ISubsystemElementPicker`) and minimal host seams (`ISubsystemUIHost`).
+8. **Advisory Action Economy**:
    - Action categories (standard, move, swift, immediate, full-round, free) guide the player via advisory highlighting rather than strict turn-locking state machines.
 
 ---
@@ -41,7 +48,7 @@ These core invariants govern every architecture decision, rule calculation, and 
 
 ### Capability 1: Subsystems & Rules Engine Expansion
 *Deepening the rules engine to handle complex supplemental subsystems, rule alterations, and feat mechanics.*
-- **Subsystems Framework**: Generalized engine supporting resource-consuming systems (Vancian Spells, Tome of Battle Maneuvers, Psionics, Mysteries) and effect-in-slot systems (Pact Magic / Vestiges, Meldshaping / Chakras / Essentia, Multiform / Wild Shape).
+- **Subsystems Framework (ADR-0006)**: Generalized, content-blind engine (`SubsystemEngine`) driven by declarative JSON configurations over four domain-agnostic primitives: generic slot state transitions, element verb invocations, clamped numeric resource pools, and slot-state effect projections. Unifies all subsystems (Pact Magic, Tome of Battle Maneuvers, Vancian Spells, Invocations, Psionics, Meldshaping) without bespoke C# subsystem classes or class literacy leaks.
 - **Invocations Support**: Dedicated modeling for Dragonfire Adept draconic invocations by grade (Least, Lesser, Greater, Dark) and sustained 24-hour self-buffs, alongside breath weapon and breath effects. (*Eldritch Blast* and Warlock-specific shapes/essences are deferred).
 - **Feat Prerequisites & `GiveFeat` Mechanics**: Formalize prerequisite checking (`HasFeat`, minimum stats) with advisory warnings; support `GiveFeat` effects that add to character feat sets (e.g., Vow of Poverty, racial bonus feats) and allow ignoring prerequisites via effect or DM fiat.
 - **Rule Disabling & Text Appending**: Support effects that disable baseline rules (e.g., Deepwarden 2 disabling Dex-to-AC and adding Con-to-AC) and text-appending effects that expand baseline class features (e.g., feats that add clauses to Rage).
@@ -68,12 +75,12 @@ These core invariants govern every architecture decision, rule calculation, and 
 *Managing physical gear, magic item combinations, and historical party wealth.*
 - **Interchangeable Slots & Item Merging**: Support interchangeable ring slots (Ring 1 / Ring 2) and official *Magic Item Compendium* item merging (combining secondary properties at 1.5× cost).
 - **Weapon Modes & Augment Crystals**: Assign properties across distinct weapon modes (melee, thrown, projectile), attach/detach augment crystals with advisory level warnings, and support armor spikes / shield bashes.
-- **Timestamped Ledger**: Record gold transactions and XP session awards with dual timestamps: in-game timeline dates and real-world calendar timestamps.
+- **Timestamped Ledger (ADR-0009)**: Record gold transactions and XP session awards with dual timestamps: in-game timeline dates (`game_time`) advancing at round-level resolution, and real-world physical session calendar dates (`real_date`).
 - **Container Modeling**: Support named storage locations (backpacks, pouches), custom containers with weight-negation properties (*Bag of Holding*), and no-effect name-only carried items.
 
 ### Capability 5: Content Extensibility & Monster Compendium
 *Enabling custom content authoring, house rules, and an expandable monster library.*
-- **Layered Rules Architecture**: Clean separation between immutable Core Rules (`rules.json`), Campaign House Rules, and Character State.
+- **Layered Rules Architecture (ADR-0002, ADR-0007)**: Clean separation between the immutable Shared Rules Catalog (`IRulesCatalog`, loading systems files like `rules.json` and content catalogs like `feats.json`), Campaign House Rules, and Character State.
 - **Monster Compendium & Advancer**: Pre-loaded library of printed D&D 3.5e monsters built with Racial Hit Dice, supporting size increases, template additions, and class level advancement.
 - **In-App Content Definition**: User interfaces and data schemas to define homebrew classes, feats, items, races, and Alternate Class Features without modifying engine source code.
 
@@ -91,6 +98,8 @@ To prevent feature bloat and preserve table-ready speed, the following are expli
    - The sheet never locks or disables ability clicks based on action economy expenditure. Tabletop combat involves interruptions, readied actions, and retcons; action tracking remains advisory.
 4. **Mandatory Cloud Sync & Central Server Architecture**:
    - PlayMore35 is a fast, offline-first local desktop application. All character data and house rules live in transparent, user-editable local JSON files.
+5. **Bespoke Subsystem Engines & Polymorphic Shims (ADR-0006, ADR-0008)**:
+   - PlayMore35 does not introduce siloed C# classes for new subsystems, polymorphic action subclasses, or JSON compatibility shims. Subsystems configure generic slot groups, pools, and verbs, while serialization contracts remain permanent.
 
 ---
 

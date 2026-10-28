@@ -1,3 +1,7 @@
+---
+status: accepted
+---
+
 # Declarative Subsystems and Primitive-Verb Engine
 
 ## Context
@@ -37,7 +41,7 @@ We replace all bespoke subsystem engines, interface shims, and class-specific re
    - `SheetAction` is the single mutation model for both instantaneous mutations and duration-based reversions, eliminating all polymorphic subsystem action subclasses.
 
 ## Considered Options
-- **Bespoke C# Subsystem Engines (ADR-0010 model)**: Rejected. Introduces class literacy leaks, hardcodes mechanics in C#, and requires engine recompilation for new subsystems.
+- **Bespoke C# Subsystem Engines ([ADR-0010](archive/0010-sublime-way-subsystem-architecture.md) model)**: Rejected. Introduces class literacy leaks, hardcodes mechanics in C#, and requires engine recompilation for new subsystems.
 - **Pass-Through Interface (`ISubsystemEngine`)**: Rejected under the Falsifiable Deletion Test. With a single concrete `SubsystemEngine` handling all subsystems via data, the interface has zero alternate implementations and adds pure indirection.
 - **Subsystem-Level Recovery Verbs (`recover_all`, `recover_one` in `maneuvers.json`)**: Rejected. Subsystems should not know how specific classes recover maneuvers; classes own their recovery mechanics by calling engine primitives.
 - **Polymorphic Action Subclasses (`UnbindVestigeAction`)**: Rejected. Imperative subclasses break JSON transparency and bypass the declarative action pipeline.
@@ -47,4 +51,3 @@ We replace all bespoke subsystem engines, interface shims, and class-specific re
 - Completely eliminates class literacy leaks from C# engines; core engine code knows zero class, discipline, or subsystem element names.
 - Subsystems and class participation are 100% data-driven, allowing homebrew and future subsystems (Psionics, Incarnum) without C# engine changes.
 - Upholds Enable, Don't Enforce (ADR-0001) and Systems & Content Separation (ADR-0002).
-- Supersedes the recovery and engine structure of ADR-0010 while preserving its slot lifecycle states and dynamic level gating rules.

@@ -1,3 +1,7 @@
+---
+status: partially superseded by ADR-0006
+---
+
 # Temporal Feat Acquisition and Martial Study Binding
 
 ## Context
@@ -34,6 +38,12 @@ We resolve temporal ordering, target class binding, multi-choice persistence, an
    - In `feats.json`, `maneuvers known:$` grants $+1$ to `maneuvers known:<targetClass>`. The non-adept modifiers (`maneuvers readied:feats` and `initiator level:feats`) are conditioned on `{"choice": "Feats"}`, activating only when the target is `"Feats"`.
 
 5. **Locked Slot Projection in Subsystem Engine**:
+   > [!WARNING]
+   > **Partially Superseded by [ADR-0006](0006-declarative-subsystems-and-primitive-verbs.md)**: Feats do not imperatively project slots into a bespoke `MartialManeuverEngine.Known` collection. Instead:
+   > 1. The feat modifies the slot capacity statistic (`maneuvers known:<targetClass>`), creating a capacity-driven slot in the subsystem.
+   > 2. `Effect` provides an element-slotting capability (`element`, `element_type`, `slot_group`) that affects `CharacterSession` dynamically during `Recalculate()`, placing the chosen element into the capacity-created slot in the session's active subsystem state with `Source = featSlot`.
+   > 3. General element retraining and swapping rules remain deferred.
+
    - When a feat-sourced maneuver is chosen in `featChoices`, `MartialManeuverEngine` projects it directly into `Known[targetClass]` as a dedicated known slot.
    - The slot is marked as feat-bound and locked against retraining, upholding *ToB* p. 32 by construction and eliminating duplicate maneuver selection across dialogs.
 

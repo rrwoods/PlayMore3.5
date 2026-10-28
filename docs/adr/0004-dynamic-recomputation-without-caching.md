@@ -1,3 +1,7 @@
+---
+status: accepted
+---
+
 # Dynamic Recomputation Without Caching
 
 ## Context

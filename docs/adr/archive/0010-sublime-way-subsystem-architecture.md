@@ -1,4 +1,11 @@
+---
+status: superseded by ADR-0006
+---
+
 # Sublime Way Subsystem Architecture
+
+> [!WARNING]
+> **Superseded by [ADR-0006](../0006-declarative-subsystems-and-primitive-verbs.md)**: The bespoke `MartialManeuverEngine` architecture, class recovery routines, and `ManeuverSheetAction` were superseded by the unified declarative `SubsystemEngine` and primitive-verb engine.
 
 ## Context
 The Sublime Way martial system (*Tome of Battle: The Book of Nine Swords*) introduces martial maneuvers and stances across nine disciplines. Characters acquire maneuvers and stances through martial adept classes (Warblade, Crusader, Swordsage) or feats (Martial Study, Martial Stance). The subsystem requires modeling two-stage preparation (known vs. readied), class-isolated pools, divergent in-combat recovery mechanics (Crusader card decks, Warblade swift flourishes, Swordsage full-round meditation), and seamless integration with the headless `Timeline` and `EffectPool` without introducing speculative frameworks or violating Enable, Don't Enforce (ADR-0001).

@@ -1,3 +1,7 @@
+---
+status: accepted
+---
+
 # Rules Dysfunction Remediation and Tracking
 
 ## Context

@@ -1,4 +1,8 @@
-﻿# Unified Monster and Character Representation
+---
+status: accepted
+---
+
+# Unified Monster and Character Representation
 
 ## Context
 D&D 3.5e monsters share the underlying rules framework of player characters: they possess ability scores, size categories, natural attacks, feats, skill points, and hit dice. DMs frequently advance monsters by adding racial hit dice, templates, or player class levels. Building a separate, simplified data model for monsters would require duplicating leveling, attack generation, and effect calculation code.

@@ -1,3 +1,7 @@
+---
+status: accepted
+---
+
 # Subsystem UI Ownership and Composable Element Pickers
 
 ## Context

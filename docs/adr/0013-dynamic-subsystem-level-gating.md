@@ -1,3 +1,7 @@
+---
+status: partially superseded by ADR-0006
+---
+
 # Dynamic Subsystem Level Gating
 
 ## Context
@@ -9,6 +13,8 @@ Subsystems with tiered elements (such as martial maneuvers, spells, psionic powe
    - The subsystem engine contributes the maximum stat with a `BASE` modifier to the character's `EffectPool`.
    - Effects from classes, feats, or items can modify the maximum stat. Subsystem-specific progression formulas (such as lookup tables mapping progression stats to maximum element levels) are declared as effects directly on the slot group configuration itself.
    - Note: The imperative projection in `MartialManeuverEngine` (`max maneuver level:<source>`) remains as legacy until retired in #166.
+     > [!WARNING]
+     > **Superseded by [ADR-0006](0006-declarative-subsystems-and-primitive-verbs.md)**: `MartialManeuverEngine` was deleted; slot groups in `SubsystemEngine` own their maximum element level statistics directly.
 2. **Subsystem Level Gating Definition**:
    - A subsystem configuration declares its element-level statistic via `"level_gating": { "element_statistic": "<property_name>" }` (e.g. `"level"`).
    - An element is accessible if its level statistic does not exceed the maximum level of at least one configured slot group.

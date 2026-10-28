@@ -5,7 +5,7 @@ How the engineering skills should consume this repo's domain documentation when 
 ## Before exploring, read these
 
 - **`GLOSSARY.md`** at the repo root: project and engine domain concepts.
-- **`docs/adr/`**: read ADRs relevant to the area you are about to touch.
+- **`docs/adr/`**: read ADRs relevant to the area you are about to touch (ignoring `docs/adr/archive/`, which stores superseded records for historical reference).
 - **`docs/rules/`**: progressive-disclosure 3.5e mechanics (`docs/rules/mechanics/`) and content citations (`docs/rules/content/`). See `docs/agents/rules-template.md`.
 
 ## Use the glossary's vocabulary (and keep 3.5e rules in `docs/rules/`)

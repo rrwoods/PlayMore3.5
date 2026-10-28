@@ -1,3 +1,7 @@
+---
+status: partially superseded by ADR-0006
+---
+
 # Headless Timeline and Sheet Actions
 
 ## Context
@@ -8,7 +12,11 @@ We decouple the `Timeline` and `SheetAction` engine completely from the presenta
 1. `Timeline` operates as a headless domain module managing combat rounds, timestamps, cadence threshold resets, and scheduled action queues.
 2. `Timeline.Advance()`, `StartCombat()`, and `EndCombat()` return a deterministic `TimelineAdvanceResult` indicating whether state changed and the degree of recalculation required (`TimelineRefreshRequirement`: `None`, `RecomputeDerived`, or `FullReload`).
 3. `SheetAction.Perform()` executes against an `ICharacterContext` seam without reference to UI classes.
-4. `SheetAction` supports subsystem-specific actions via decoupled derived classes (`UnbindVestigeAction`). Subsystems register action parsers through a unified seam in `SubsystemRegistry.RegisterDefaultActionParsers()`, which `SheetAction.FromJson()` lazily registers on first access to guarantee standalone deserialization without manual bootstrapping, static constructors, or session instantiation.
+4. `SheetAction` supports subsystem-specific actions via decoupled derived classes (`UnbindVestigeAction`).
+   > [!WARNING]
+   > **Superseded by [ADR-0006](0006-declarative-subsystems-and-primitive-verbs.md)**: Polymorphic subsystem action subclasses (`UnbindVestigeAction`, `ManeuverSheetAction`) and the dynamic action parser registry were eliminated. `SheetAction` is a single unified declarative model handling both instantaneous mutations and duration-based reversions via primitive verbs.
+
+   Subsystems register action parsers through a unified seam in `SubsystemRegistry.RegisterDefaultActionParsers()`, which `SheetAction.FromJson()` lazily registers on first access to guarantee standalone deserialization without manual bootstrapping, static constructors, or session instantiation.
 
 ## Consequences
 - Enables automated headless unit testing for time advancement, duration expiration, and condition reversion without instantiating Windows Forms.
