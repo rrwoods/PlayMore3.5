@@ -11,7 +11,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly ISubsystemUIHost _host;
         private readonly Panel _leftColumn;
         private readonly Panel _pickerHost;
-        private readonly Label _lblSlotCountBadge;
         private readonly FlowLayoutPanel _slotsContainer;
         private readonly List<VestigeSlotCard> _slotCards = new List<VestigeSlotCard>();
         private readonly PactMagicElementPicker _picker;
@@ -38,40 +37,15 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var pnlColHeader = new Panel {
-                Dock = DockStyle.Top,
-                Height = 26
-            };
-
-            var lblColTitle = new Label {
-                Dock = DockStyle.Left,
-                Text = "Vestige Slots",
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(34, 34, 34),
-                AutoSize = true
-            };
-
-            _lblSlotCountBadge = new Label {
-                Dock = DockStyle.Right,
-                Text = "0 Slots",
-                Font = new Font("Segoe UI", 8f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(102, 102, 102),
-                AutoSize = true
-            };
-
-            pnlColHeader.Controls.Add(_lblSlotCountBadge);
-            pnlColHeader.Controls.Add(lblColTitle);
-
             _slotsContainer = new FlowLayoutPanel {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
-                Padding = new Padding(0, 8, 0, 0)
+                Padding = new Padding(0, 4, 0, 0)
             };
 
             _leftColumn.Controls.Add(_slotsContainer);
-            _leftColumn.Controls.Add(pnlColHeader);
 
             _pickerHost = new Panel {
                 Dock = DockStyle.Fill,
@@ -98,7 +72,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             if (capacity <= 0) capacity = 1;
             if (capacity > 4) capacity = 4;
 
-            _lblSlotCountBadge.Text = $"{capacity} Slot{(capacity == 1 ? "" : "s")}";
+            int maxLevel = session.GetStatistic("maximum vestige level")?.Value ?? 8;
+            if (maxLevel <= 0) maxLevel = 8;
 
             _slotsContainer.SuspendLayout();
             _slotsContainer.Controls.Clear();
@@ -114,9 +89,9 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 var slot = engine?.GetSlot("vestiges", slotIndex);
                 if (slot != null && !string.IsNullOrEmpty(slot.Element) && slot.State != "empty") {
                     var elem = engine?.GetElement(slot.Element);
-                    card.SetBoundVestige(elem, slot.State);
+                    card.SetBoundVestige(elem, slot.State, maxLevel);
                 } else {
-                    card.SetBoundVestige(null, "good_pact");
+                    card.SetBoundVestige(null, "good_pact", maxLevel);
                 }
 
                 _slotCards.Add(card);
@@ -180,7 +155,9 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Source = engine?.GetActiveSources().FirstOrDefault()
             });
 
-            _slotCards[slotIndex].SetBoundVestige(vestige, state);
+            int maxLevel = session.GetStatistic("maximum vestige level")?.Value ?? 8;
+            if (maxLevel <= 0) maxLevel = 8;
+            _slotCards[slotIndex].SetBoundVestige(vestige, state, maxLevel);
 
             _host.RequestRecalculate();
             _host.RequestEffectsRefresh();

@@ -344,8 +344,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 return new VestigeRulesData();
             }
 
-            int lvl = element.GetProperty<int>("level", 1);
-            int dc = element.GetProperty<int>("binding DC", 15);
+            int lvl = element.GetProperty<int>("level", 0);
+            int dc = element.GetProperty<int>("binding DC", 0);
 
             _catalog.TryGetValue(element.Name, out var supplemental);
 

@@ -245,7 +245,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void PactMagicTabPage_SymptomsDashboard_RendersSignAndPowers() {
+        public void PactMagicTabPage_SymptomsDashboard_RendersSignInfluenceAndPowers() {
             var catalog = new GameRulesCatalog();
             var character = new Character { race = "Human" };
             character.classLevels.Add("Binder");
@@ -263,12 +263,14 @@ namespace PlayMore35.Tests {
 
                 var slot0 = tabPage.SlotCards[0];
                 Assert.IsFalse(slot0.SymptomsPanel.Visible);
+                Assert.IsTrue(slot0.Height >= 240, $"Slot card height was {slot0.Height}, expected >= 240");
 
                 tabPage.Picker.DeliverVestigeByName("Amon");
                 Application.DoEvents();
 
                 Assert.IsTrue(slot0.SymptomsPanel.Visible);
                 Assert.IsTrue(slot0.SymptomsSignText.IndexOf("Ram horns", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsTrue(slot0.SymptomsInfluenceText.IndexOf("fire", StringComparison.OrdinalIgnoreCase) >= 0);
                 Assert.IsTrue(slot0.SymptomsPowersText.IndexOf("Fire Breath", StringComparison.OrdinalIgnoreCase) >= 0);
             }
         }
@@ -288,8 +290,10 @@ namespace PlayMore35.Tests {
                     Application.DoEvents();
 
                     Assert.IsTrue(picker.Cards.Count > 0);
+                    Assert.IsTrue(picker.HideUnavailable, "Hide unavailable should be checked by default.");
+                    // Level 1 Binder with HideUnavailable checked will only show Level 1 vestiges (5 vestiges)
                     int initialCount = picker.VisibleCardsCount;
-                    Assert.IsTrue(initialCount >= 9);
+                    Assert.AreEqual(5, initialCount);
 
                     picker.SearchQuery = "Amon";
                     Application.DoEvents();
@@ -300,7 +304,136 @@ namespace PlayMore35.Tests {
                     picker.SearchQuery = "";
                     Application.DoEvents();
                     Assert.AreEqual(initialCount, picker.VisibleCardsCount);
+
+                    // Unchecking hide unavailable shows all 9 vestiges
+                    picker.HideUnavailable = false;
+                    Application.DoEvents();
+                    Assert.IsTrue(picker.VisibleCardsCount >= 9);
                 }
+            }
+        }
+
+        [TestMethod]
+        public void PactMagicElementPicker_Search_MatchesAbilitiesInfluenceAndSigns() {
+            var catalog = new GameRulesCatalog();
+            var character = new Character { race = "Human" };
+            character.classLevels.Add("Binder");
+            var session = new CharacterSession(character, catalog);
+            session.Recalculate();
+
+            using (var picker = new PactMagicElementPicker(session, new ElementPickerContext { ElementType = "vestige" })) {
+                picker.HideUnavailable = false; // allow searching all vestiges
+
+                // Search by Sign keyword
+                picker.SearchQuery = "ram horns";
+                Assert.AreEqual(1, picker.VisibleCardsCount);
+                Assert.AreEqual("Amon", picker.Cards.First(c => c.Visible).Vestige.Name);
+
+                // Search by Influence keyword
+                picker.SearchQuery = "dwarf";
+                Assert.AreEqual(1, picker.VisibleCardsCount);
+                Assert.AreEqual("Aym", picker.Cards.First(c => c.Visible).Vestige.Name);
+
+                // Search by Ability descriptive text keyword
+                picker.SearchQuery = "fire";
+                Assert.IsTrue(picker.VisibleCardsCount > 1);
+            }
+        }
+
+        [TestMethod]
+        public void VestigeCardControl_CardHeightAndAbilities_ShowsAllAbilitiesWithoutMoreEllipsis() {
+            var elem = new SubsystemElement { Name = "Aym" };
+            var rules = VestigeRulesRepository.GetRulesData(elem);
+            Assert.AreEqual(6, rules.Abilities.Count);
+
+            using (var card = new VestigeCardControl(elem, rules)) {
+                Assert.IsTrue(card.Height >= 210, $"Card height was {card.Height}, expected >= 210");
+                var powersLabel = card.Controls.OfType<Label>().FirstOrDefault(l => l.Text.Contains("Dwarven Step"));
+                Assert.IsNotNull(powersLabel);
+                Assert.IsFalse(powersLabel.Text.Contains("more..."), "Abilities excerpt should not contain '+n more...'");
+                foreach (var ability in rules.Abilities) {
+                    Assert.IsTrue(powersLabel.Text.Contains(ability.Name), $"Abilities text missing: {ability.Name}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void VestigeCardControl_BindingIndicator_DisplaysBoundWithoutSlotNumbers() {
+            var catalog = new GameRulesCatalog();
+            var character = new Character { race = "Human" };
+            character.classLevels.Add("Binder");
+            var session = new CharacterSession(character, catalog);
+            session.Recalculate();
+
+            var host = new MockSubsystemUIHost(session);
+            using (var tab = new PactMagicTabPage(host))
+            using (var tabControl = new TabControl())
+            using (var form = new Form()) {
+                tabControl.TabPages.Add(tab);
+                form.Controls.Add(tabControl);
+                form.Show();
+                Application.DoEvents();
+
+                tab.Picker.DeliverVestigeByName("Amon");
+                Application.DoEvents();
+
+                var amonCard = tab.Picker.Cards.First(c => c.Vestige.Name == "Amon");
+                var footer = amonCard.Controls.OfType<Label>().FirstOrDefault(l => l.Dock == DockStyle.Bottom);
+                Assert.IsNotNull(footer);
+                Assert.IsTrue(footer.Text.Contains("Bound"), $"Footer text expected 'Bound', got: {footer.Text}");
+                Assert.IsFalse(footer.Text.Contains("Slot"), $"Footer text should not contain 'Slot', got: {footer.Text}");
+            }
+        }
+
+        [TestMethod]
+        public void VestigeSlotCard_WarningBadge_ShowsWarningWhenSlottedVestigeExceedsMaxLevel() {
+            using (var card = new VestigeSlotCard(0)) {
+                Assert.IsFalse(card.WarningBadgeVisible);
+
+                // Slotted vestige within max level (Amon is level 1, max level 1)
+                var amon = new SubsystemElement { Name = "Amon" };
+                card.SetBoundVestige(amon, "good_pact", maxVestigeLevel: 1);
+                Assert.IsFalse(card.WarningBadgeVisible);
+
+                // Slotted vestige exceeding max level (Dahlver-Nar is level 2, max level 1)
+                var dahlver = new SubsystemElement { Name = "Dahlver-Nar" };
+                card.SetBoundVestige(dahlver, "good_pact", maxVestigeLevel: 1);
+                Assert.IsTrue(card.WarningBadgeVisible);
+                Assert.IsTrue(card.WarningMessage?.Contains("exceeds") == true);
+
+                // Unbind clears warning
+                card.SetBoundVestige(null, "good_pact", maxVestigeLevel: 1);
+                Assert.IsFalse(card.WarningBadgeVisible);
+            }
+        }
+
+        [TestMethod]
+        public void VestigeSlotCard_Header_MovesStatusToTopLeftAndEliminatesSlotNumber() {
+            using (var card = new VestigeSlotCard(0)) {
+                var pnlHeader = card.Controls.OfType<Panel>().First(p => p.Dock == DockStyle.Top && p.Height <= 25);
+                var statusLabel = pnlHeader.Controls.OfType<Label>().FirstOrDefault(l => l.Text == "Empty");
+                Assert.IsNotNull(statusLabel);
+                Assert.AreEqual(DockStyle.Left, statusLabel.Dock);
+
+                // Header should NOT contain a label saying "Slot 1"
+                var slotLabel = pnlHeader.Controls.OfType<Label>().FirstOrDefault(l => l.Text.StartsWith("Slot "));
+                Assert.IsNull(slotLabel, "Card header must not contain 'Slot n' label");
+            }
+        }
+
+        [TestMethod]
+        public void PactMagicTabPage_LeftColumn_EliminatesVestigeSlotsHeader() {
+            var catalog = new GameRulesCatalog();
+            var character = new Character { race = "Human" };
+            character.classLevels.Add("Binder");
+            var session = new CharacterSession(character, catalog);
+            session.Recalculate();
+
+            var host = new MockSubsystemUIHost(session);
+            using (var tab = new PactMagicTabPage(host)) {
+                var leftCol = tab.Controls.OfType<Panel>().First(p => p.Dock == DockStyle.Left);
+                var headerPanel = leftCol.Controls.OfType<Panel>().FirstOrDefault(p => p.Controls.OfType<Label>().Any(l => l.Text == "Vestige Slots"));
+                Assert.IsNull(headerPanel, "Left column must not contain 'Vestige Slots' header panel");
             }
         }
 

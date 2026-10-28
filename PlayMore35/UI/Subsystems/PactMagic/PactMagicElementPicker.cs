@@ -90,18 +90,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
 
             foreach (var card in _cards) {
-                string? status = null;
-                for (int i = 0; i < slots.Count; i++) {
-                    if (string.Equals(slots[i].Element, card.Vestige.Name, StringComparison.OrdinalIgnoreCase) && slots[i].State != "empty") {
-                        if (i == _targetSlotIndex) {
-                            status = $"Bound (Slot {i + 1})";
-                        } else {
-                            status = $"(Slot {i + 1})";
-                        }
-                        break;
-                    }
-                }
-                card.BindingStatusText = status;
+                bool isBound = slots.Any(s => string.Equals(s.Element, card.Vestige.Name, StringComparison.OrdinalIgnoreCase) && s.State != "empty");
+                card.BindingStatusText = isBound ? "Bound" : null;
             }
         }
 
@@ -142,7 +132,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Location = new Point(216, 8),
                 Text = "Hide unavailable",
                 AutoSize = true,
-                Font = new Font("Segoe UI", 8.5f)
+                Font = new Font("Segoe UI", 8.5f),
+                Checked = true
             };
             _hideUnavailableCheckBox.CheckedChanged += (s, e) => ApplyFilter();
 
@@ -165,36 +156,41 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
             _detailsPanel = new Panel {
                 Dock = DockStyle.Bottom,
-                Height = 160,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
-                AutoScroll = true,
                 Padding = new Padding(8)
             };
+            _detailsPanel.Resize += (s, e) => UpdateDetailsLabelsWidth();
 
             _lblDetailsTitle = new Label {
                 Dock = DockStyle.Top,
-                Height = 22,
+                AutoSize = true,
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(0, 69, 120)
+                ForeColor = Color.FromArgb(0, 69, 120),
+                Padding = new Padding(0, 0, 0, 4)
             };
 
             _lblDetailsSign = new Label {
                 Dock = DockStyle.Top,
-                Height = 32,
+                AutoSize = true,
                 Font = new Font("Segoe UI", 8f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(68, 68, 68)
+                ForeColor = Color.FromArgb(68, 68, 68),
+                Padding = new Padding(0, 0, 0, 4)
             };
 
             _lblDetailsInfluence = new Label {
                 Dock = DockStyle.Top,
-                Height = 32,
+                AutoSize = true,
                 Font = new Font("Segoe UI", 8f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(68, 68, 68)
+                ForeColor = Color.FromArgb(68, 68, 68),
+                Padding = new Padding(0, 0, 0, 4)
             };
 
             _lblDetailsAbilities = new Label {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
+                AutoSize = true,
                 Font = new Font("Segoe UI", 8f, FontStyle.Regular),
                 ForeColor = Color.FromArgb(51, 51, 51)
             };
@@ -253,7 +249,16 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             UpdateCardBoundIndicators();
         }
 
+        private void UpdateDetailsLabelsWidth() {
+            int targetWidth = Math.Max(200, _detailsPanel.ClientSize.Width - _detailsPanel.Padding.Horizontal - 4);
+            _lblDetailsTitle.MaximumSize = new Size(targetWidth, 0);
+            _lblDetailsSign.MaximumSize = new Size(targetWidth, 0);
+            _lblDetailsInfluence.MaximumSize = new Size(targetWidth, 0);
+            _lblDetailsAbilities.MaximumSize = new Size(targetWidth, 0);
+        }
+
         private void UpdateDetailsPanel(VestigeRulesData rules) {
+            UpdateDetailsLabelsWidth();
             _lblDetailsTitle.Text = $"{rules.Name} (Level {rules.Level}, Binding DC {rules.BindingDC})";
             _lblDetailsSign.Text = $"Physical Sign: {rules.Sign}\n(Good pact: suppress at will; Poor pact: cannot be hidden)";
             _lblDetailsInfluence.Text = $"Psychological Influence: {rules.Influence}\n(Poor pact: -1 penalty on attack/saves/checks if violated)";
@@ -282,7 +287,9 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 if (visible && !string.IsNullOrEmpty(q)) {
                     bool nameMatch = card.Vestige.Name.ToLowerInvariant().Contains(q);
                     bool abilityMatch = card.RulesData.Abilities.Any(a => a.Name.ToLowerInvariant().Contains(q) || a.Text.ToLowerInvariant().Contains(q));
-                    if (!nameMatch && !abilityMatch) {
+                    bool signMatch = !string.IsNullOrEmpty(card.RulesData.Sign) && card.RulesData.Sign.ToLowerInvariant().Contains(q);
+                    bool influenceMatch = !string.IsNullOrEmpty(card.RulesData.Influence) && card.RulesData.Influence.ToLowerInvariant().Contains(q);
+                    if (!nameMatch && !abilityMatch && !signMatch && !influenceMatch) {
                         visible = false;
                     }
                 }

@@ -57,7 +57,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _vestige = vestige ?? throw new ArgumentNullException(nameof(vestige));
             _rulesData = rulesData ?? throw new ArgumentNullException(nameof(rulesData));
 
-            Size = new Size(212, 152);
+            Size = new Size(212, 220);
             Margin = new Padding(4);
             Padding = new Padding(8);
             Cursor = Cursors.Hand;
@@ -111,12 +111,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
         private static string FormatAbilitiesExcerpt(IReadOnlyList<VestigeAbilityData> abilities) {
             if (abilities == null || abilities.Count == 0) return "";
-            var top3 = abilities.Take(3).Select(a => $"• {a.Name}");
-            string text = string.Join("\n", top3);
-            if (abilities.Count > 3) {
-                text += $"\n+{abilities.Count - 3} more...";
-            }
-            return text;
+            return string.Join("\n", abilities.Select(a => $"• {a.Name}"));
         }
 
         private void UpdateCardVisuals() {

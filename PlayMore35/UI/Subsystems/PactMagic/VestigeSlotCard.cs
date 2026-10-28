@@ -12,9 +12,10 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly RadioButton _rbPoorPact;
         private readonly Panel _pnlSymptoms;
         private readonly Label _lblSymptomsSign;
+        private readonly Label _lblSymptomsInfluence;
         private readonly Label _lblSymptomsPowers;
-        private readonly Label _lblHeader;
         private readonly Label _lblStatus;
+        private readonly WarningBadge _warningBadge;
         private bool _isUpdating;
 
         public event EventHandler? SlotActivated;
@@ -27,39 +28,40 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         public RadioButton PoorPactRadio => _rbPoorPact;
         public Panel SymptomsPanel => _pnlSymptoms;
         public string SymptomsSignText => _lblSymptomsSign.Text;
+        public string SymptomsInfluenceText => _lblSymptomsInfluence.Text;
         public string SymptomsPowersText => _lblSymptomsPowers.Text;
+        public bool WarningBadgeVisible => _warningBadge.Visible;
+        public string? WarningMessage => _warningBadge.WarningMessage;
 
         public VestigeSlotCard(int slotIndex) {
             _slotIndex = slotIndex;
 
-            Size = new Size(330, 150);
+            Size = new Size(330, 240);
             Margin = new Padding(0, 0, 0, 10);
             Padding = new Padding(8);
             BackColor = Color.White;
 
             var pnlHeader = new Panel {
                 Dock = DockStyle.Top,
-                Height = 20
-            };
-
-            _lblHeader = new Label {
-                Dock = DockStyle.Left,
-                Text = $"Slot {slotIndex + 1}",
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(51, 51, 51),
-                AutoSize = true
+                Height = 22
             };
 
             _lblStatus = new Label {
-                Dock = DockStyle.Right,
+                Dock = DockStyle.Left,
                 Text = "Empty",
-                Font = new Font("Segoe UI", 8f, FontStyle.Regular),
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 ForeColor = Color.FromArgb(102, 102, 102),
                 AutoSize = true
             };
 
+            _warningBadge = new WarningBadge {
+                Dock = DockStyle.Left,
+                Margin = new Padding(4, 0, 0, 0),
+                Visible = false
+            };
+
+            pnlHeader.Controls.Add(_warningBadge);
             pnlHeader.Controls.Add(_lblStatus);
-            pnlHeader.Controls.Add(_lblHeader);
 
             _receptor = new ElementReceptorControl {
                 Dock = DockStyle.Top,
@@ -122,15 +124,24 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(248, 249, 250),
                 BorderStyle = BorderStyle.FixedSingle,
-                Padding = new Padding(4),
+                Padding = new Padding(6),
                 Visible = false
             };
 
             _lblSymptomsSign = new Label {
                 Dock = DockStyle.Top,
-                Height = 26,
+                Height = 36,
                 Font = new Font("Segoe UI", 7.5f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(68, 68, 68)
+                ForeColor = Color.FromArgb(68, 68, 68),
+                Padding = new Padding(0, 0, 0, 4)
+            };
+
+            _lblSymptomsInfluence = new Label {
+                Dock = DockStyle.Top,
+                Height = 44,
+                Font = new Font("Segoe UI", 7.5f, FontStyle.Regular),
+                ForeColor = Color.FromArgb(68, 68, 68),
+                Padding = new Padding(0, 0, 0, 4)
             };
 
             _lblSymptomsPowers = new Label {
@@ -140,6 +151,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             };
 
             _pnlSymptoms.Controls.Add(_lblSymptomsPowers);
+            _pnlSymptoms.Controls.Add(_lblSymptomsInfluence);
             _pnlSymptoms.Controls.Add(_lblSymptomsSign);
 
             Controls.Add(_pnlSymptoms);
@@ -150,7 +162,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             UpdateVisuals();
         }
 
-        public void SetBoundVestige(SubsystemElement? vestige, string pactState) {
+        public void SetBoundVestige(SubsystemElement? vestige, string pactState, int maxVestigeLevel = 8) {
             _isUpdating = true;
             try {
                 _receptor.SelectedElement = vestige;
@@ -170,12 +182,21 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                     _pnlSymptoms.Visible = true;
 
                     var rules = VestigeRulesRepository.GetRulesData(vestige!);
+                    if (rules.Level > maxVestigeLevel) {
+                        _warningBadge.SetWarning($"Vestige level ({rules.Level}) exceeds maximum vestige level ({maxVestigeLevel}).");
+                    } else {
+                        _warningBadge.ClearWarning();
+                    }
+
+                    _lblSymptomsSign.Text = $"Sign: {rules.Sign}";
+                    _lblSymptomsInfluence.Text = $"Influence: {rules.Influence}";
                     _lblSymptomsPowers.Text = "Powers: " + string.Join(", ", rules.Abilities.Select(a => a.Name));
                     UpdateSymptomsVisuals();
                 } else {
                     _rbGoodPact.Checked = true;
                     _lblStatus.Text = "Empty";
                     _lblStatus.ForeColor = Color.FromArgb(102, 102, 102);
+                    _warningBadge.ClearWarning();
                     _pnlSymptoms.Visible = false;
                 }
 
