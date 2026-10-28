@@ -144,8 +144,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
             UpdateDetailsLabelsWidth();
             _lblDetailsTitle.Text = $"{rules.Name} (Level {rules.Level}, Binding DC {rules.BindingDC})";
-            _lblDetailsSign.Text = $"Physical Sign:\n{rules.Sign}\n(Good pact: suppress at will; Poor pact: cannot be hidden)";
-            _lblDetailsInfluence.Text = $"Psychological Influence:\n{rules.Influence}\n(Poor pact: -1 penalty on attack/saves/checks if violated)";
+            _lblDetailsSign.Text = $"Sign:\n{rules.Sign}";
+            _lblDetailsInfluence.Text = $"Influence:\n{rules.Influence}";
 
             var abilitiesFormatted = rules.Abilities.Select(a => $"• {a.Name} ({a.Type}): {a.Text}");
             _lblDetailsAbilities.Text = "Granted Abilities:\n" + string.Join("\n\n", abilitiesFormatted);
