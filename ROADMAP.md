@@ -9,7 +9,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
 ### New Vestiges tab cleanup
-- RULES ERROR: Good pacts DO NOT suppress signs!  This is a rules citation violation.
 - "Vestige Slots" is bad; no one calls these slots (even though we call them that internally).  Just eliminate that header and the "1 Slot" next to it.
 - Slot panel could use a little more whitespace between Sign - Powers.  Add Influence as well.
 - Slot panel should show a warning badge next to "Bound" when a too-high-level vestige is slotted
