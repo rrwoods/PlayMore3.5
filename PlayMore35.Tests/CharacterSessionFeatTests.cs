@@ -656,7 +656,7 @@ namespace PlayMore35.Tests {
             var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var warbladeSlots = engine.GetSlots("readied", "Warblade");
+            var warbladeSlots = engine.GetSlots("maneuvers", "Warblade");
             var featSlot = warbladeSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Synthetic feat should project into Warblade known slots as a feat-bound slot.");
             Assert.AreEqual("Steel Wind", featSlot.Element);
@@ -665,7 +665,7 @@ namespace PlayMore35.Tests {
             // Attempting to overwrite or clear feat-bound slot throws InvalidOperationException
             int slotIndex = warbladeSlots.ToList().IndexOf(featSlot);
             Assert.ThrowsException<InvalidOperationException>(() => {
-                engine.AssignSlot("readied", slotIndex, "Stone Bones", "unreadied", "Warblade");
+                engine.AssignSlot("maneuvers", slotIndex, "Stone Bones", "unreadied", "Warblade");
             });
         }
 
@@ -685,7 +685,7 @@ namespace PlayMore35.Tests {
             var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
             Assert.IsNotNull(engine);
 
-            var featSlots = engine.GetSlots("readied", "Feats");
+            var featSlots = engine.GetSlots("maneuvers", "Feats");
             var featSlot = featSlots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(featSlot, "Synthetic feat on non-adept should project into Feats pool.");
             Assert.AreEqual("Moment of Perfect Mind", featSlot.Element);

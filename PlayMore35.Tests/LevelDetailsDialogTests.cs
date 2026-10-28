@@ -524,7 +524,7 @@ namespace PlayMore35.Tests {
             // Level 3 Crusader who already has Crusader's Strike (Devoted Spirit)
             var session = CreateAdeptSession("Crusader", "Crusader", "Crusader");
             var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
-            engine.AssignSlot("readied", 0, "Crusader's Strike", source: "Crusader");
+            engine.AssignSlot("maneuvers", 0, "Crusader's Strike", source: "Crusader");
 
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);

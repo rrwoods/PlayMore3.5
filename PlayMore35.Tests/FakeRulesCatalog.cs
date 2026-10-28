@@ -82,21 +82,21 @@ namespace PlayMore35.Tests {
                 }
             }
             def.ElementStatistics["level"] = new List<string>();
-            var readied = new SlotGroupDefinition {
-                Name = "readied",
+            var maneuverGroup = new SlotGroupDefinition {
+                Name = "maneuvers",
                 CapacityStat = "maneuvers known:{source}",
                 ReadiedCapacityStat = "maneuvers readied:{source}",
                 MaxLevel = new MaxLevelDefinition("max maneuver level:{source}", 0),
                 DefaultState = "unreadied"
             };
-            readied.States.AddRange(new[] { "unreadied", "available", "expended", "withheld" });
+            maneuverGroup.States.AddRange(new[] { "unreadied", "available", "expended", "withheld" });
             var maxManeuverTable = new Dictionary<int, int> {
                 { 0, 0 }, { 1, 1 }, { 3, 2 }, { 5, 3 }, { 7, 4 },
                 { 9, 5 }, { 11, 6 }, { 13, 7 }, { 15, 8 }, { 17, 9 }
             };
-            readied.Effects.Add(new Effect("max maneuver level:{source}")
+            maneuverGroup.Effects.Add(new Effect("max maneuver level:{source}")
                 .AddModifier("max maneuver level:{source}", new Modifier(new LookupAmount("initiator level:{source}", maxManeuverTable, -1, 1), ModifierTypes.INTERNAL)));
-            def.SlotGroups["readied"] = readied;
+            def.SlotGroups["maneuvers"] = maneuverGroup;
 
             var stances = new SlotGroupDefinition {
                 Name = "stances",
@@ -111,13 +111,13 @@ namespace PlayMore35.Tests {
             def.Projections.Add(new EffectProjectionRule("stances", "active", "benefits"));
             def.DefaultElementVerbs["execute"] = new List<SubsystemStep>();
             def.Verbs["ready"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "unreadied", ToState = "available" }
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "invoked", FromState = "unreadied", ToState = "available" }
             };
             def.Verbs["unready"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "!unreadied", ToState = "unreadied" }
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "invoked", FromState = "!unreadied", ToState = "unreadied" }
             };
             def.Verbs["expend"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "available", ToState = "expended" },
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "invoked", FromState = "available", ToState = "expended" },
                 new SubsystemStep { Type = "invoke_element_verb", Verb = "execute", Selector = "invoked" }
             };
             def.Verbs["adopt_stance"] = new List<SubsystemStep> {
@@ -130,20 +130,20 @@ namespace PlayMore35.Tests {
                 new SubsystemStep { Type = "transition", SlotGroup = "stances", Selector = "all", FromState = "active", ToState = "inactive" }
             };
             def.Verbs["recover_all"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "all", FromState = "expended", ToState = "available" }
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "all", FromState = "expended", ToState = "available" }
             };
             def.Verbs["recover_select"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "select", CountExpression = "1", FromState = "expended", ToState = "available" }
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "select", CountExpression = "1", FromState = "expended", ToState = "available" }
             };
             def.Verbs["deal"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "all", FromState = "!unreadied", ToState = "withheld" },
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "random", CountExpression = "maneuvers granted:{source}", FromState = "withheld", ToState = "available" }
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "all", FromState = "!unreadied", ToState = "withheld" },
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "random", CountExpression = "maneuvers granted:{source}", FromState = "withheld", ToState = "available" }
             };
             def.Verbs["advance_turn"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "random", CountExpression = "1", FromState = "withheld", ToState = "available", OnEmptyVerb = "deal" }
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "random", CountExpression = "1", FromState = "withheld", ToState = "available", OnEmptyVerb = "deal" }
             };
             def.Verbs["reset_encounter"] = new List<SubsystemStep> {
-                new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "all", FromState = "expended", ToState = "available" }
+                new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "all", FromState = "expended", ToState = "available" }
             };
             SubsystemsMap["martial_maneuvers"] = def;
 
@@ -169,7 +169,7 @@ namespace PlayMore35.Tests {
                 var cr = new CharacterClass { Name = "Crusader" };
                 var crSub = new SubsystemFeature();
                 crSub.Verbs["ready"] = new List<SubsystemStep> {
-                    new SubsystemStep { Type = "transition", SlotGroup = "readied", Selector = "invoked", FromState = "unreadied", ToState = "withheld" }
+                    new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "invoked", FromState = "unreadied", ToState = "withheld" }
                 };
                 crSub.Verbs["deal"] = def.Verbs["deal"];
                 crSub.Verbs["advance_turn"] = def.Verbs["advance_turn"];

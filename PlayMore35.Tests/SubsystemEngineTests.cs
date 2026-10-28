@@ -317,7 +317,7 @@ namespace PlayMore35.Tests {
                 new JProperty("name", "Wind Stride"),
                 new JProperty("subsystem", "martial_maneuvers"),
                 new JProperty("verb", "expend"),
-                new JProperty("slot_group", "readied"),
+                new JProperty("slot_group", "maneuvers"),
                 new JProperty("element", "Wind Stride"),
                 new JProperty("source", "Swordsage")
             );

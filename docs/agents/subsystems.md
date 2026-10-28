@@ -72,7 +72,7 @@ Prefactor or extract a shared delegate only when an already-implemented subsyste
 - **Unrestricted slots**: Binders put vestiges into unrestricted slots up to a capacity derived from character statistics (`number of vestiges`).
 - **Level-restricted slots**: Prepared spellcasters assign spells to slots matching or exceeding the spell's level.
 - **Body-slot & Chakra mapping**: Meldshapers shape soulmelds to body slots (each soulmeld valid for 1–3 specific slots) and bind them to unlocked chakras.
-- **Two-stage slotting**: Initiators populate a "Maneuvers Known" collection, and subsequently ready a subset of those into "Readied Maneuver" combat slots.
+- **Two-stage slotting**: Initiators populate a "Maneuvers Known" collection, and subsequently ready a subset of those for tactical combat initiation.
 
 ### 3.2 Resource Expenditure
 - **Expended slotted elements**: Prepared casters and initiators expend a specific assigned slot upon casting or initiating; recovery replenishes the slot.

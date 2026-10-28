@@ -193,7 +193,7 @@ Eligibility for specific subsystem elements granted outside normal class progres
 _Avoid_: Exception grant, direct grant, bonus access
 
 **Subsystem Slot**:
-A discrete assignment receptacle within a subsystem (such as a vestige bind slot or readied maneuver slot) holding an assigned subsystem element.
+A discrete assignment receptacle within a subsystem (such as a vestige bind slot or maneuver slot) holding an assigned subsystem element.
 _Avoid_: Bind slot, maneuver slot, slot
 
 **Resource Pool**:
@@ -217,7 +217,7 @@ A continuous martial combat posture initiated as a swift action that provides on
 _Avoid_: Maneuver, mode, aura, sustained spell
 
 **Maneuvers Known**:
-The permanent repertoire of Sublime Way martial maneuvers learned through class progression or feats, eligible for preparation into readied slots.
+The permanent repertoire of Sublime Way martial maneuvers learned through class progression or feats, eligible for preparation as readied maneuvers.
 _Avoid_: Known slots, maneuver deck, spellbook
 
 **Feat-Sourced Maneuver**:
@@ -225,7 +225,7 @@ A martial maneuver or stance acquired through non-progression access (such as th
 _Avoid_: Feat maneuver, bonus maneuver, extra maneuver
 
 **Readied Maneuver**:
-A known maneuver assigned to a dedicated subsystem slot during out-of-combat preparation, available for tactical initiation in combat.
+A known maneuver prepared during out-of-combat practice, meditation, or exercise, available for tactical initiation in combat.
 _Avoid_: Prepared spell, memorized maneuver
 
 **Granted Maneuver**:

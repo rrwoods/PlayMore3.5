@@ -385,7 +385,7 @@
             {
               "name": "Recover maneuvers (Warblade)",
               "subsystem": "martial_maneuvers",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "source": "Warblade",
               "verb": "recover"
             }
@@ -579,7 +579,7 @@
           "ready": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "invoked",
               "from": "unreadied",
               "to": "available"
@@ -588,7 +588,7 @@
           "recover": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "all",
               "from": "expended",
               "to": "available"
@@ -597,7 +597,7 @@
           "reset_encounter": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "all",
               "from": "expended",
               "to": "available"
@@ -650,14 +650,14 @@
             {
               "name": "Deal maneuvers (Crusader)",
               "subsystem": "martial_maneuvers",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "source": "Crusader",
               "verb": "deal"
             },
             {
               "name": "Advance turn (Crusader)",
               "subsystem": "martial_maneuvers",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "source": "Crusader",
               "verb": "advance_turn"
             }
@@ -854,7 +854,7 @@
           "ready": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "invoked",
               "from": "unreadied",
               "to": "withheld"
@@ -863,14 +863,14 @@
           "deal": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "all",
               "from": "!unreadied",
               "to": "withheld"
             },
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "random",
               "count": "maneuvers granted:{source}",
               "from": "withheld",
@@ -880,7 +880,7 @@
           "advance_turn": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "random",
               "count": "1",
               "from": "withheld",
@@ -891,14 +891,14 @@
           "reset_encounter": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "all",
               "from": "!unreadied",
               "to": "withheld"
             },
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "random",
               "count": "maneuvers granted:{source}",
               "from": "withheld",
@@ -963,7 +963,7 @@
             {
               "name": "Recover maneuver (Swordsage)",
               "subsystem": "martial_maneuvers",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "source": "Swordsage",
               "verb": "recover"
             }
@@ -1149,7 +1149,7 @@
           "ready": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "invoked",
               "from": "unreadied",
               "to": "available"
@@ -1158,7 +1158,7 @@
           "recover": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "select",
               "count": "1",
               "from": "expended",
@@ -1168,7 +1168,7 @@
           "reset_encounter": [
             {
               "type": "transition",
-              "slot_group": "readied",
+              "slot_group": "maneuvers",
               "selector": "all",
               "from": "expended",
               "to": "available"

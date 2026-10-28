@@ -1016,7 +1016,7 @@ namespace PlayMore35.Subsystems {
         public void ProjectFeatSlots() {
             var character = context?.Character;
             if (character == null) return;
-            if (!slotGroups.ContainsKey("readied") && !slotGroups.ContainsKey("stances")) return;
+            if (!slotGroups.ContainsKey("maneuvers") && !slotGroups.ContainsKey("stances")) return;
 
             void ProjectGroup(string groupKey, string choiceSuffix) {
                 var group = GetSlotGroup(groupKey);
@@ -1116,8 +1116,8 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (slotGroups.ContainsKey("readied")) {
-                ProjectGroup("readied", ":maneuver");
+            if (slotGroups.ContainsKey("maneuvers")) {
+                ProjectGroup("maneuvers", ":maneuver");
             }
             if (slotGroups.ContainsKey("stances")) {
                 ProjectGroup("stances", ":stance");
@@ -1534,17 +1534,22 @@ namespace PlayMore35.Subsystems {
                     }
                 }
 
-                if (!string.IsNullOrEmpty(effectiveSource) && Definition.SlotGroups.TryGetValue("readied", out var readiedGroupDef) && !string.IsNullOrEmpty(readiedGroupDef.ReadiedCapacityStat)) {
-                    var readiedGroup = GetSlotGroup("readied");
-                    if (readiedGroup != null) {
-                        var sourceSlots = readiedGroup.RawSlots.Where(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)).ToList();
-                        if (sourceSlots.Count > 0) {
-                            int readiedCount = sourceSlots.Count(s => !string.Equals(s.State, readiedGroupDef.DefaultState, StringComparison.OrdinalIgnoreCase));
-                            int maxReadied = GetReadiedCapacity("readied", effectiveSource);
-                            if (readiedCount > maxReadied) {
-                                warnings.Add($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.");
-                            } else if (readiedCount < maxReadied) {
-                                warnings.Add($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {effectiveSource}.");
+                if (!string.IsNullOrEmpty(effectiveSource)) {
+                    foreach (var kvp in Definition.SlotGroups) {
+                        var groupDef = kvp.Value;
+                        if (!string.IsNullOrEmpty(groupDef.ReadiedCapacityStat)) {
+                            var group = GetSlotGroup(kvp.Key);
+                            if (group != null) {
+                                var sourceSlots = group.RawSlots.Where(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)).ToList();
+                                if (sourceSlots.Count > 0) {
+                                    int readiedCount = sourceSlots.Count(s => !string.Equals(s.State, groupDef.DefaultState, StringComparison.OrdinalIgnoreCase));
+                                    int maxReadied = GetReadiedCapacity(kvp.Key, effectiveSource);
+                                    if (readiedCount > maxReadied) {
+                                        warnings.Add($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.");
+                                    } else if (readiedCount < maxReadied) {
+                                        warnings.Add($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {effectiveSource}.");
+                                    }
+                                }
                             }
                         }
                     }
@@ -1592,7 +1597,7 @@ namespace PlayMore35.Subsystems {
 
                     if (string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
                         bool isStance = string.Equals(elem.Type, "Stance", StringComparison.OrdinalIgnoreCase);
-                        if (string.Equals(groupKey, "readied", StringComparison.OrdinalIgnoreCase) && isStance) {
+                        if (string.Equals(groupKey, "maneuvers", StringComparison.OrdinalIgnoreCase) && isStance) {
                             warnings.Add($"Stance '{elem.Name}' cannot be assigned to maneuver slot.");
                         } else if (string.Equals(groupKey, "stances", StringComparison.OrdinalIgnoreCase) && !isStance) {
                             warnings.Add($"Maneuver '{elem.Name}' cannot be assigned to stance slot.");

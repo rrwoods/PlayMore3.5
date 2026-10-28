@@ -66,7 +66,7 @@ namespace PlayMore35.Tests {
             var maneuverJson = new JObject(
                 new JProperty("name", "Wind Stride (Swordsage)"),
                 new JProperty("subsystem", "martial_maneuvers"),
-                new JProperty("slot_group", "readied"),
+                new JProperty("slot_group", "maneuvers"),
                 new JProperty("element", "Wind Stride"),
                 new JProperty("source", "Swordsage"),
                 new JProperty("verb", "expend")
@@ -74,7 +74,7 @@ namespace PlayMore35.Tests {
             var parsedManeuver = SheetAction.FromJson(maneuverJson);
             Assert.IsInstanceOfType(parsedManeuver, typeof(SheetAction));
             Assert.AreEqual("martial_maneuvers", parsedManeuver.Subsystem);
-            Assert.AreEqual("readied", parsedManeuver.SlotGroup);
+            Assert.AreEqual("maneuvers", parsedManeuver.SlotGroup);
             Assert.AreEqual("Wind Stride", parsedManeuver.Element);
             Assert.AreEqual("Swordsage", parsedManeuver.Source);
             Assert.AreEqual("expend", parsedManeuver.Verb);
