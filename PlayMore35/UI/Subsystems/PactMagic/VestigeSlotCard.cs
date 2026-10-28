@@ -194,9 +194,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private void UpdateSymptomsVisuals() {
             if (_receptor.SelectedElement != null) {
                 var rules = VestigeRulesRepository.GetRulesData(_receptor.SelectedElement);
-                bool isGood = _rbGoodPact.Checked;
-                string suppression = isGood ? "[Suppressed]" : "[Visible]";
-                _lblSymptomsSign.Text = $"Sign: {rules.Sign} {suppression}";
+                _lblSymptomsSign.Text = $"Sign: {rules.Sign}";
             }
         }
 
