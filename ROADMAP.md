@@ -8,22 +8,19 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
-### New Vestiges tab layout
-- Eliminate slots panel
-  - Clicking a card for an unbound vestige gives button(s) for binding, with good or poor pact
-  - Cards for bound vestiges have an Unbind button
-  - Cards for bound vestiges are pinned to the top, in a single row
-  - This means there's no "receptor" control for the vestige picker, which is fine
-- Move details panel to left side, where slots panel was
-
-### Vestiges tab cleanup
-- Searching still doesn't find ability text (can't search for "swap" and find Savnok, even though it's in the text of Move Ally)
-
 ### Subsystem literacy cleanup
-- SubsystemEngine
+- SubsystemEngine:
   - It's got some weird null checks in it
   - It's got the string literal "initiator level" in it
+- PactMagicTabPage:
+  - More weird null checks.
 - DefaultElementPicker says "maneuver" and "Stance" in it
+- VestigeRulesRepository is constructing all its data whole cloth instead of pulling it from the rules catalog -- tbh, this shouldn't even need to exist, the GetRulesData function in VestigeRulesRepository should always get all the available info, and if something is missing, it should throw an exception
+
+### Vestiges tab cleanup
+- It's not clear that "Good" and "Poor" will bind the vestige.  Add a "Binding check:" label, and change the button text to "Succeed" and "Fail"
+- Details panel could use some formatting love
+- The user should be able to find vestiges by ability text using the search box (e.g., searching for "swap" should find Savnok, since "swap" appears in the text of Savnok's Move Ally ability)
 
 ### Vestige influence configuration
 - Every vestige individually defining its own influence paramter is very bloated when all of them are identical
