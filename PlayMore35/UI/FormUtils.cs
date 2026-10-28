@@ -12,7 +12,6 @@ namespace PlayMore35.Global {
         public static readonly ToolTip TOOLTIP = new ToolTip {
             AutoPopDelay = 32767 // maximum value.
         };
-        private static RollPrompt rollPrompt;
 
         public static List<string> availableFeats;
 
@@ -95,15 +94,6 @@ namespace PlayMore35.Global {
             ToolTipStatLabel(label, explanation);
 
             return label;
-        }
-
-        public static int GetRollResult(string description) {
-            if (rollPrompt == null) {
-                rollPrompt = new RollPrompt();
-            }
-            rollPrompt.SetRollDescription(description);
-            rollPrompt.ShowDialog();
-            return rollPrompt.RollResult();
         }
 
         public static Label LabelStat(Label label, ICharacterSession session, string prefix, string stat, string postfix = "", bool plus = true) {
