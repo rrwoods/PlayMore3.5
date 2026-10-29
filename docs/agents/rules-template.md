@@ -102,7 +102,78 @@ When a feat involves a rules dysfunction, append the two-part dysfunction fields
 - **Human-Approved Correction**: <State the human-approved table ruling in plain tabletop language.>
 ```
 
-#### 3. Compact Unarbitrated Stub Schema (General Rules Skeleton)
+#### 3. Vestige Reference Schema
+
+Vestiges in `docs/rules/content/vestiges.md` (or `docs/rules/content/vestiges/` if split under the 300-line ceiling) follow this structured reference format:
+
+```markdown
+### <Name>
+- **Source**: *Tome of Magic*, p. <Page>
+- **Level**: <Vestige Level (1–8)>
+- **Binding DC**: <Check DC>
+- **Special Requirement**: <Specific requirement to draw seal/summon, or None>
+- **Sign**: <Physical manifestation on the binder's body>
+- **Influence**: <Mandatory action or prohibited behavior triggering the defiance penalty under a Poor Pact>
+- **Granted Abilities**:
+  - **<Ability Name> (<Su | Ex | Sp>)**:
+    - **Action**: <Action & frequency: Standard (every 5 rounds) | Swift | Immediate | Passive | Standard (1/day) | etc.>
+    - **Mechanics**: <Operative mechanical text: targeting, range, duration, save type and DC formula, scaling, and whether showing the Sign is required>
+```
+
+When a vestige involves a rules dysfunction, append the two-part dysfunction fields directly beneath `Granted Abilities`:
+
+```markdown
+- **Rules Dysfunction** (`dysfunction:<id>`): <State the contradiction, omission, or deadlock in rules-as-written.>
+- **Human-Approved Correction**: <State the human-approved table ruling in plain tabletop language.>
+```
+
+Field specifications:
+- **Source**: Primary source citation (*Tome of Magic*, page number).
+- **Level**: Vestige level (1st through 8th level), gating access by Effective Binder Level.
+- **Binding DC**: Target DC for the 1d20 + Effective Binder Level + Cha mod binding check.
+- **Special Requirement**: Environmental, item, or personal prerequisite to draw the seal or summon. Must explicitly state `None` if absent to confirm verification.
+- **Sign**: Observable physical transmutation on the binder's body while bound. Suppressible with Suppress Sign on a Good Pact; unsuppressible on a Poor Pact.
+- **Influence**: The actionable mandatory requirement or prohibition under a Poor Pact. Omits personality flavor text and universal defiance penalty boilerplate per the pure-mechanics and subsystem-scoped rules, relying on the baseline rules in `docs/rules/subsystems/pact-magic.md`.
+- **Granted Abilities**: Structured sub-bullet list for each granted power detailing action cost and frequency/cooldown collapsed together (e.g. `Standard (every 5 rounds)`, `Passive`, `Swift`), followed by complete operative mechanics (including save types, DC formulas, and dependencies on showing the Sign).
+
+Example: Canonical Reference Entry (Amon)
+
+```markdown
+### Amon
+- **Source**: *Tome of Magic*, p. 21
+- **Level**: 1
+- **Binding DC**: 20
+- **Special Requirement**: None
+- **Sign**: You grow a pair of curling ram's horns.
+- **Influence**: You must attempt a saving throw against beneficial spells cast by worshipers of fire, the sun, or law deities.
+- **Granted Abilities**:
+  - **Darkvision 60 ft. (Ex)**:
+    - **Action**: Passive
+    - **Mechanics**: You gain darkvision out to 60 feet. If you already possess darkvision, its range increases by 60 feet.
+  - **Fire Breath (Su)**:
+    - **Action**: Standard (every 5 rounds)
+    - **Mechanics**: You breathe a line of fire extending 10 feet per effective binder level (maximum 50 feet). The breath deals 1d6 fire damage per effective binder level; creatures in the area can attempt a Reflex save (DC 10 + 1/2 EBL + Cha modifier) for half damage.
+  - **Ram Attack (Ex)**:
+    - **Action**: Attack action (natural weapon)
+    - **Mechanics**: Requires showing Amon's sign. You gain a natural ram attack dealing 1d6 damage plus 1-1/2 times your Strength modifier. You can use this ram attack as a primary natural weapon or as a secondary natural weapon (-5 penalty on the attack roll and 1/2 Strength modifier to damage). When charging, your ram attack deals an extra 1d8 damage.
+```
+
+Unarbitrated Vestige Skeleton Schema:
+
+```markdown
+### <Name>
+- **Status**: Unarbitrated Domain Specification
+- **Source**: TODO
+- **Level**: TODO
+- **Binding DC**: TODO
+- **Special Requirement**: TODO
+- **Sign**: TODO
+- **Influence**: TODO
+- **Granted Abilities**:
+  - TODO
+```
+
+#### 4. Compact Unarbitrated Stub Schema (General Rules Skeleton)
 
 For general content catalogs awaiting arbitration (such as feats, items, equipment, and classes), use the compact unarbitrated stub schema:
 
