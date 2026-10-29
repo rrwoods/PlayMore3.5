@@ -1,0 +1,267 @@
+# Vestiges (A-D)
+
+### Acererak
+- **Source**: *Tome of Magic*, p. 19
+- **Level**: 5
+- **Binding DC**: 25
+- **Special Requirement**: You must place a gem about the size of a human tooth or eye in the center of Acererak's seal.
+- **Sign**: A gem replaces one of your teeth. If removed, the gem reverts to a normal tooth, and a new gem appears in its place.
+- **Influence**: You evince a strong hunger for influence and primacy. If presented with an opportunity to fill a void in power over a group of creatures, Acererak requires that you attempt to seize that power.
+- **Granted Abilities**:
+  - **Detect Undead**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can use *detect undead* as the spell (CL = EBL).
+  - **Hide from Undead**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: Become undetectable to undead as the *hide from undead* spell (DC for intelligent undead to ignore the effect is 10 + 1/2 EBL + Cha modifier).
+  - **Lich's Energy Immunities**:
+    - **Action**: Passive
+    - **Mechanics**: You are immune to cold and electricity damage.
+  - **Paralyzing Touch**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Make a touch attack against a living foe to paralyze it for a number of rounds equal to 1/2 EBL (Fortitude negates). That foe can attempt a new save each round as a full-round action.
+  - **Speak with Dead**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: Question the dead as *speak with dead* (CL = EBL).
+  - **Undead Healing**:
+    - **Action**: Passive
+    - **Mechanics**: Negative energy heals you rather than damaging you. If you are a living creature, positive energy still heals you.
+
+### Agares
+- **Source**: *Tome of Magic*, p. 20
+- **Level**: 4
+- **Binding DC**: 22
+- **Special Requirement**: You must draw Agares's seal upon earth or unworked stone.
+- **Sign**: A wracking cough spewing dust and small stones; prevents casting spells with verbal components. You can resist coughing for rounds equal to your Constitution score, after which you cough for 1 round before resisting again.
+- **Influence**: You cannot use the Bluff skill, and must answer all direct questions truthfully and directly.
+- **Granted Abilities**:
+  - **Earth and Air Mastery**:
+    - **Action**: Passive
+    - **Mechanics**: +1 bonus on attack and weapon damage rolls if you and your foe are touching the ground. Airborne foes take a -1 penalty on attack and weapon damage rolls against you.
+  - **Earthshaking Step**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Stomp on the ground, causing every creature within 10 ft. standing or climbing on a ground-connected surface to make a Reflex save or fall prone. You and your earth elemental companion are immune.
+  - **Elemental Companion**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: Summon an earth elemental companion (Small at EBL 1-10, Medium at 11-14, Large at 15-18, Huge at 19+). Dissolves if >30 ft. away at end of turn. If destroyed or dissolved, 1-hour cooldown before resummoning.
+  - **Fear Immunity**:
+    - **Action**: Passive
+    - **Mechanics**: You are immune to fear from both magical and mundane sources.
+  - **True Speech**:
+    - **Action**: Passive
+    - **Mechanics**: You can speak, read, write, and understand all languages spoken by creatures within 30 ft. that you have seen and heard speak. You cannot lie when using an unfamiliar language.
+
+### Amon
+- **Source**: *Tome of Magic*, p. 21
+- **Level**: 1
+- **Binding DC**: 20
+- **Special Requirement**: Amon refuses your call if you have hosted Chupoclops, Eurynome, Karsus, or Leraje within the last 24 hours (and vice versa).
+- **Sign**: You grow a pair of curling ram's horns.
+- **Influence**: You must attempt a saving throw against beneficial spells cast by worshipers of fire, the sun, or law deities.
+- **Granted Abilities**:
+  - **Darkvision**:
+    - **Action**: Passive
+    - **Mechanics**: You gain darkvision out to 60 ft.
+  - **Fire Breath**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Line of length 10 ft. per EBL (max 50 ft.) dealing 1d6 fire damage per EBL (Reflex half).
+  - **Ram Attack**:
+    - **Action**: Attack
+    - **Mechanics**: Requires showing sign. Natural ram attack dealing 1d6 damage + 1-1/2 Str modifier. Deals extra 1d8 damage on a charge.
+
+### Andras
+- **Source**: *Tome of Magic*, p. 22
+- **Level**: 4
+- **Binding DC**: 22
+- **Special Requirement**: None
+- **Sign**: Two useless, gray-feathered wings sprout from your back. They can be hidden beneath clothing, but doing so makes you appear hunchbacked.
+- **Influence**: Because Andras wearies of combat quickly, you must drop any items in hand and withdraw from melee after 10 rounds of battle. You may not take any offensive action for 1d4 rounds thereafter.
+- **Granted Abilities**:
+  - **Mount**:
+    - **Action**: Full-round, 1/day
+    - **Mechanics**: You can summon a heavy warhorse with saddle and heavy lance for up to 1 hour per EBL, or until dismissed or your pact ends.
+  - **Saddle Sure**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +8 bonus on Ride checks.
+  - **Smite Good or Evil**:
+    - **Action**: Attack, every 5 rounds
+    - **Mechanics**: You can make a single melee attack against a good or evil foe, adding your Cha bonus to the attack roll and dealing 1 extra point of damage per EBL. Ineffective against neutral creatures.
+  - **Sow Discord**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Target within 5 ft. per 2 EBL must succeed on a Will save or attack a randomly determined ally within reach with a primary melee attack for lethal damage on its next action (Will negates). Mind-affecting compulsion.
+  - **Sure Blows**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Improved Critical feat with any weapon you wield. If you already have Improved Critical with that weapon, you gain a +4 bonus on rolls to confirm critical threats.
+  - **Weapon Proficiency**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with the greatsword, lance, longsword, and rapier.
+
+### Andromalius
+- **Source**: *Tome of Magic*, p. 23
+- **Level**: 3
+- **Binding DC**: 20
+- **Special Requirement**: You must place two different nonmagical items similar to those Andromalius holds when manifesting within the confines of his seal; they vanish when he appears.
+- **Sign**: You gain an extra digit on each limb (twelve fingers and twelve toes), preventing you from wearing normal gloves or footwear (magic items reshape to fit).
+- **Influence**: You are forbidden to steal, loot dead bodies, remove someone else's possession without permission, or take possession of any object known to be stolen while under authority whose laws forbid it.
+- **Granted Abilities**:
+  - **Jester's Mirth**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: One opponent within range is affected as *Tasha's hideous laughter* (CL = EBL, Will negates); the target can attempt an additional saving throw at the end of each of its turns.
+  - **Locate Item**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can sense the direction of a well-known or accurately visualized item within 100 ft. per EBL.
+  - **See the Unseen**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can use *see invisibility* as the spell (CL = EBL).
+  - **Sense Trickery**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +4 bonus on Sense Motive, Appraise, and Spot checks opposing Disguise, and you automatically notice when a creature uses Sleight of Hand against you.
+  - **Sneak Attack**:
+    - **Action**: Passive
+    - **Mechanics**: You deal an extra 2d6 points of sneak attack damage when flanking or when the target is denied its Dex bonus to AC (within 30 ft. for ranged); increases by +1d6 per 5 EBL above 5th. Stacks with sneak attack from other sources.
+
+### Aym
+- **Source**: *Tome of Magic*, p. 24
+- **Level**: 1
+- **Binding DC**: 15
+- **Special Requirement**: None
+- **Sign**: You bear a star-shaped brand on the palm of your left hand or on your forehead (chosen upon making the pact).
+- **Influence**: You begrudge every coin or valuable item given away. You must give a copper, silver, gold, or platinum piece to every dwarf you meet within 1 minute of learning their name.
+- **Granted Abilities**:
+  - **Dwarven Step**:
+    - **Action**: Passive
+    - **Mechanics**: You can move at your normal land speed while wearing medium or heavy armor.
+  - **Halo of Fire**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can shroud yourself in a wreath of flame. Opponents striking you in melee with non-reach weapons take 1d6 fire damage, and your melee touch attacks deal 1d6 fire damage.
+  - **Improved Sunder**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Improved Sunder feat.
+  - **Medium Armor Proficiency**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with medium armor.
+  - **Resistance to Fire**:
+    - **Action**: Passive
+    - **Mechanics**: You have resistance to fire 10.
+  - **Ruinous Attack**:
+    - **Action**: Passive
+    - **Mechanics**: Your melee attacks deal double damage to objects. At EBL 10+, your melee attacks overcome DR/adamantine.
+
+### Balam
+- **Source**: *Tome of Magic*, p. 25
+- **Level**: 5
+- **Binding DC**: 25
+- **Special Requirement**: You must deal 1 point of slashing damage to yourself or another sentient creature (Int 3+) and place a drop of blood from the wound within Balam's completed seal.
+- **Sign**: Your voice becomes both hollow and guttural.
+- **Influence**: You distrust clerics, paladins, and other devotees of deities. Whenever you enter a temple or holy/unholy site, you must spit on the floor and utter an invective about the place.
+- **Granted Abilities**:
+  - **Balam's Cunning**:
+    - **Action**: Immediate, every 5 rounds
+    - **Mechanics**: You can reroll one attack roll, saving throw, or skill check you have just made, accepting the result of the reroll even if worse.
+  - **Icy Glare**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: Gaze attack (30 ft.) dealing 2d6 cold damage (Will negates).
+  - **Prescience**:
+    - **Action**: Passive
+    - **Mechanics**: You gain an insight bonus equal to +1 per 4 EBL on initiative checks, Reflex saves, and AC.
+  - **Weapon Finesse**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Weapon Finesse feat.
+
+### Buer
+- **Source**: *Tome of Magic*, p. 26
+- **Level**: 4
+- **Binding DC**: 20
+- **Special Requirement**: Buer's seal must be drawn outdoors.
+- **Sign**: Your feet transform into satyr's hooves, preventing you from wearing normal boots or shoes (magic footwear reshapes to fit).
+- **Influence**: Your first melee attack against any living creature other than animals and vermin must be for nonlethal damage, and you cannot make coup de grace attacks.
+- **Granted Abilities**:
+  - **Buer's Knowledge**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +4 bonus on Heal, Knowledge (nature), and Survival checks, and you can make Knowledge (nature) checks untrained.
+  - **Buer's Purity**:
+    - **Action**: Passive
+    - **Mechanics**: You are immune to disease and poison; making a pact with Buer removes existing disease and neutralizes existing poison.
+  - **Delay Diseases and Poisons**:
+    - **Action**: Passive
+    - **Mechanics**: Allies within 30 ft. temporarily ignore the effects of failed saves against poison and disease while remaining within the area.
+  - **Fast Healing**:
+    - **Action**: Passive
+    - **Mechanics**: You gain fast healing 1 (fast healing 2 at EBL 10, 3 at EBL 13, 4 at EBL 16, 5 at EBL 19).
+  - **Healing Gift**:
+    - **Action**: Standard, at-will (1 hp) or Full-round, every 5 rounds (1d8+EBL)
+    - **Mechanics**: Touch a living creature to heal 1 hp (at will) or 1d8 + 1 per EBL (max +10; every 5 rounds). Deals damage to undead.
+  - **Track**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Track feat.
+
+### Chupoclops
+- **Source**: *Tome of Magic*, p. 26
+- **Level**: 6
+- **Binding DC**: 25
+- **Special Requirement**: You must draw Chupoclops's seal with grave dirt, or place the corpse of a sentient creature (Int 3+) over the seal. Refuses call if bound to Amon.
+- **Sign**: Lower jaw enlarges and two sharply pointed tusks grow upward.
+- **Influence**: You must voluntarily fail all saving throws against fear effects or effects imposing a morale penalty.
+- **Granted Abilities**:
+  - **Aura of Despair**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: Enemies within 10 ft. take a -2 penalty on attack rolls, checks, saves, and weapon damage rolls. Mind-affecting fear.
+  - **Ethereal Watcher**:
+    - **Action**: Move, every 5 rounds
+    - **Mechanics**: You can become ethereal as *ethereal jaunt* indefinitely until you take a move, standard, or full-round action.
+  - **Ghost Touch**:
+    - **Action**: Passive
+    - **Mechanics**: Your melee attacks strike incorporeal foes without the normal 50% miss chance.
+  - **Poison Bite**:
+    - **Action**: Attack
+    - **Mechanics**: Requires showing sign. Natural bite attack (1d4 Medium) + Str modifier.
+  - **Pounce**:
+    - **Action**: Full attack (charge)
+    - **Mechanics**: Make a full attack, including bite, at the end of a charge.
+  - **Soulsense**:
+    - **Action**: Passive
+    - **Mechanics**: You gain blindsense 10 ft. against living creatures, and sense life forces continuously as *deathwatch*.
+
+### Dahlver-Nar
+- **Source**: *Tome of Magic*, p. 27
+- **Level**: 2
+- **Binding DC**: 17
+- **Special Requirement**: None
+- **Sign**: Several small teeth grow from your scalp.
+- **Influence**: You cannot undertake any action requiring more than 1 round of concentration (including spells with casting time > 1 round, concentrating on an effect, or making Concentration checks).
+- **Rules Dysfunction** (`dysfunction:dahlver-nar-special-requirement`): Table 1–2 (p. 18) and the sidebar tablet (p. 27) specify Special Requirement: Yes, but the body text contains no special requirement section.
+- **Human-Approved Correction**: Dahlver-Nar has no special requirement to summon or draw his seal.
+- **Granted Abilities**:
+  - **Mad Soul**:
+    - **Action**: Passive
+    - **Mechanics**: You are immune to Wisdom damage, Wisdom drain, madness, insanity, and confusion effects.
+  - **Maddening Moan**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: You emit a frightful moan; every creature within a 30-foot spread must succeed on a Will save or be dazed for 1 round (Will negates). Mind-affecting sonic.
+  - **Natural Armor**:
+    - **Action**: Passive
+    - **Mechanics**: You gain an enhancement bonus to your natural armor equal to 1/2 your Constitution modifier (min +0).
+  - **Shield Self**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can designate one creature within 10 ft. per EBL to share your damage (Will negates). You take half damage from hit point damage effects, and the subject takes the rest. Ends if either dies or distance is exceeded. One target at a time.
+
+### Dantalion
+- **Source**: *Tome of Magic*, p. 28
+- **Level**: 5
+- **Binding DC**: 25
+- **Special Requirement**: None
+- **Sign**: A face appears on your torso like a vestigial twin; its eyes and mouth open to a starry void when an ability is used.
+- **Influence**: Whenever within 100 ft. of a person who is or claims to be a leader, you must attempt to read their thoughts.
+- **Granted Abilities**:
+  - **Awe of Dantalion**:
+    - **Action**: Move, every 5 rounds
+    - **Mechanics**: Any creature that sees you is unable to attack you or target you with a hostile spell for 1 round. Ends if you take any hostile action.
+  - **Dantalion Knows**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +8 bonus on Knowledge checks (requires training).
+  - **Read Thoughts**:
+    - **Action**: Full-round, at-will
+    - **Mechanics**: You can read the surface thoughts of any visible creature within 5 ft. per EBL as long as you concentrate (Will negates; immune for 1 minute on success).
+  - **Thought Travel**:
+    - **Action**: Standard, every 5 rounds (up to EBL/day)
+    - **Mechanics**: You can teleport yourself and gear up to 5 ft. per EBL to any visible unoccupied space.

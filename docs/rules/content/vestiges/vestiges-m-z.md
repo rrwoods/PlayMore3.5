@@ -1,0 +1,253 @@
+# Vestiges (M-Z)
+
+### Malphas
+- **Source**: *Tome of Magic*, p. 39
+- **Level**: 2
+- **Binding DC**: 15
+- **Special Requirement**: None
+- **Sign**: Your teeth and tongue turn black.
+- **Influence**: You fall in love easily and devotedly. If you have access to poison, you must employ it against foes at every opportunity.
+- **Granted Abilities**:
+  - **Bird's Eye Viewing**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can summon a scout dove or raven (using raven statistics) perched on your shoulder; you see and hear through its senses. Dismissing is a standard action.
+  - **Invisibility**:
+    - **Action**: Full-round (Standard at 5th, Move at 10th, Swift at 15th), every 5 rounds
+    - **Mechanics**: You become invisible as *invisibility* for rounds equal to EBL.
+  - **Poison Use**:
+    - **Action**: Passive
+    - **Mechanics**: You never risk accidentally poisoning yourself when handling or applying poison to a weapon.
+  - **Sudden Strike**:
+    - **Action**: Passive
+    - **Mechanics**: You deal an extra 1d6 points of damage against Dexterity-denied foes (within 30 ft. for ranged), plus 1d6 per 4 EBL above 1st. Stacks with sneak attack.
+
+### Marchosias
+- **Source**: *Tome of Magic*, p. 40
+- **Level**: 7
+- **Binding DC**: 30
+- **Special Requirement**: To summon Marchosias, you must at some point in your life have committed an evil act for which you have not apologized, atoned, or made reparations.
+- **Sign**: Your pupils glow with a red-orange light (DC 12 Spot check to notice; does not illuminate or grant darkness visibility).
+- **Influence**: Marchosias requires that you use the death attack he grants you against any foe you catch unawares.
+- **Granted Abilities**:
+  - **Death Attack**:
+    - **Action**: Special
+    - **Mechanics**: After 3 rounds of study, a damaging melee sneak attack kills the target (Fortitude negates) or paralyzes it for 1d6 rounds + 1 round per EBL (Fortitude negates, your choice).
+  - **Fiery Retribution**:
+    - **Action**: Passive
+    - **Mechanics**: You deal an extra 3d6 fire damage against opponents who can deal extra damage from sneak attack, sudden strike, or skirmish (within 30 ft. for ranged).
+  - **Silent and Sure**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +16 competence bonus on Hide and Move Silently checks.
+  - **Smoke Form**:
+    - **Action**: Standard, every 5 rounds (toggle)
+    - **Mechanics**: You can assume gaseous form as *gaseous form* indefinitely (suppressing supernatural abilities). Once returning to normal form, 5-round cooldown before reusing.
+
+### Naberius
+- **Source**: *Tome of Magic*, p. 41
+- **Level**: 1
+- **Binding DC**: 15
+- **Special Requirement**: Requires at least 4 ranks in Bluff or in any Knowledge or Profession skill to summon him.
+- **Sign**: Your voice deepens and acquires a gravelly, growling tone.
+- **Influence**: When presented with a speaker's floor, pulpit, or stage, you must seize the opportunity to speak (shouting down or mocking others) for rounds equal to EBL.
+- **Granted Abilities**:
+  - **Disguise Self**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can alter your appearance as *disguise self* (CL = EBL).
+  - **Faster Ability Healing**:
+    - **Action**: Passive
+    - **Mechanics**: You heal 1 point in each damaged ability score every round, and 1 point in all drained ability scores every hour.
+  - **Naberius's Skills**:
+    - **Action**: Passive
+    - **Mechanics**: Choose trained-only skills equal to your Constitution bonus (min 0) in which you have no ranks; you can use those skills untrained for the duration of the pact.
+  - **Persuasive Words**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Target within 30 ft. is affected as *command* (Will negates). At EBL 14+, functions as *suggestion*.
+  - **Silver Tongue**:
+    - **Action**: Passive
+    - **Mechanics**: You can take 10 on Bluff and Diplomacy checks even if distracted or threatened, and can make rushed Diplomacy checks as a standard action with no penalty.
+
+### Orthos
+- **Source**: *Tome of Magic*, p. 42
+- **Level**: 8
+- **Binding DC**: 35
+- **Special Requirement**: You must summon Orthos within an area of bright illumination.
+- **Sign**: You always seem to be buffeted by a gentle breeze that no one else can feel, stirring your hair and clothing.
+- **Influence**: You must always carry an active light source with brightness at least equal to a candle (uncovered), and you must speak only in a whisper.
+- **Granted Abilities**:
+  - **Blindsight**:
+    - **Action**: Passive
+    - **Mechanics**: You gain blindsight out to 30 ft.
+  - **Displacement**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: You surround yourself with a glamer granting a 50% miss chance against attacks unless the attacker locates you without sight.
+  - **Whirlwind Breath**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: 60-ft. cone deals 1d6 damage per EBL (Reflex half); targets that fail a Fortitude save are knocked prone and pushed 1d4 x 10 ft. away.
+  - **Whispering Wind**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can send a message as *whispering wind* (CL = EBL).
+
+### Otiax
+- **Source**: *Tome of Magic*, p. 43
+- **Level**: 5
+- **Binding DC**: 25
+- **Special Requirement**: None
+- **Sign**: You are surrounded by thin wisps of light blue fog even in the strongest wind.
+- **Influence**: You become agitated around closed doors or gates, and whenever you see a key, you must use it to unlock the corresponding lock.
+- **Granted Abilities**:
+  - **Air Blast**:
+    - **Action**: Attack
+    - **Mechanics**: Requires showing sign. Melee touch attack against a foe within 10 ft. dealing 2d6 bludgeoning damage (no Str bonus). Can make multiple attacks on a full attack and make attacks of opportunity.
+  - **Combat Reflexes**:
+    - **Action**: Passive
+    - **Mechanics**: Requires showing sign. You gain the benefit of the Combat Reflexes feat.
+  - **Concealing Mist**:
+    - **Action**: Full-round, at-will (toggle)
+    - **Mechanics**: Requires showing sign. You shroud yourself in mist granting concealment (20% miss chance). Cannot use this concealment to hide; suppressed by severe wind.
+  - **Open Portal**:
+    - **Action**: Swift, at-will
+    - **Mechanics**: You can open (but not close) a door, chest, or container within 10 ft. per EBL as *open/close*.
+  - **Unlock**:
+    - **Action**: Full-round, every 5 rounds
+    - **Mechanics**: You can unlock a single touched lock with an Open Lock DC <= 2 x EBL.
+
+### Paimon
+- **Source**: *Tome of Magic*, p. 43
+- **Level**: 3
+- **Binding DC**: 20
+- **Special Requirement**: None
+- **Sign**: One side of your mouth becomes wider than the other, as though stretched; it tends to remain slightly open, causing you to drool.
+- **Influence**: Paimon's influence makes you lascivious and bold; you must dance (moving at half speed) whenever you hear music.
+- **Granted Abilities**:
+  - **Dance of Death**:
+    - **Action**: Full-round, every 5 rounds
+    - **Mechanics**: You can move up to your speed and make a single melee attack against any creature you move past, provoking attacks of opportunity normally. You cannot attack any single creature more than once.
+  - **Paimon's Blades**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with the rapier and short sword, and gain the benefit of the Weapon Finesse feat with both.
+  - **Paimon's Dexterity**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +4 bonus to Dexterity.
+  - **Paimon's Skills**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +4 bonus on Perform (dance) and Tumble checks, and can use Tumble untrained.
+  - **Uncanny Dodge**:
+    - **Action**: Passive
+    - **Mechanics**: You retain your Dexterity bonus to AC even if flat-footed or struck by an invisible attacker. If you already have uncanny dodge from another source, you gain improved uncanny dodge instead.
+  - **Whirlwind Attack**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Whirlwind Attack feat.
+
+### Ronove
+- **Source**: *Tome of Magic*, p. 44
+- **Level**: 1
+- **Binding DC**: 15
+- **Special Requirement**: Ronove's seal must be drawn in the soil under the open sky.
+- **Sign**: The flesh of your face settles into a permanent frown (on a Good Pact) or smile (on a Poor Pact), retaining that general expression regardless of your actual feelings.
+- **Influence**: You cannot consume food, beverages, or potions.
+- **Granted Abilities**:
+  - **Cold Iron and Magic Attacks**:
+    - **Action**: Passive
+    - **Mechanics**: Your melee attacks count as magic to overcome DR. At EBL 7+, your melee attacks also count as cold iron.
+  - **Far Hand**:
+    - **Action**: Swift, at-will (manipulate) or Standard, every 5 rounds (bull rush)
+    - **Mechanics**: You can manipulate an unattended object within 10 ft. per EBL as an unseen force (Str = EBL). Alternatively, bull rush a creature within range dealing 1d6 damage (using the force's Str modifier + 2).
+  - **Feather Fall**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: You fall as though under the influence of a *feather fall* spell. You can suppress or activate this ability as a standard action.
+  - **Ronove's Fists**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Improved Unarmed Strike feat, and your unarmed strikes deal damage as a monk of level equal to your EBL.
+  - **Sprint**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +10 ft. enhancement bonus to your base land speed.
+
+### Savnok
+- **Source**: *Tome of Magic*, p. 45
+- **Level**: 2
+- **Binding DC**: 20
+- **Special Requirement**: To summon Savnok, you must have stolen something and made neither reparations nor apology for that act.
+- **Sign**: A piece of an arrow appears under your skin as if healed over (deals no damage, disintegrates and reappears elsewhere if removed).
+- **Influence**: You cannot remove any item of armor or protective gear that improves your Armor Class for any reason.
+- **Granted Abilities**:
+  - **Call Armor**:
+    - **Action**: Full-round, at-will
+    - **Mechanics**: You can summon full plate armor onto your body (+0 masterwork at EBL 2-4, +1 at 5-8, +2 light fortification at 9-12, +2 moderate fortification at 13-16, +4 moderate fortification at 17-19, +4 heavy fortification at 20). Dismissing is a full-round action.
+  - **Heavy Armor Proficiency**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with heavy armor.
+  - **Move Ally**:
+    - **Action**: Standard (Move at 7th, Swift at 13th), every 5 rounds
+    - **Mechanics**: You can swap positions with a visible willing ally within 5 ft. per 2 EBL without provoking attacks of opportunity.
+  - **Savnok's Armor**:
+    - **Action**: Passive
+    - **Mechanics**: While wearing your called armor, you gain DR 1/piercing, plus 1 per 4 EBL above 1st (DR 2 at 4th, DR 3 at 8th, etc.). At EBL 13+, this DR can be overcome only by weapons that are both magic and piercing.
+
+### Shax
+- **Source**: *Tome of Magic*, p. 47
+- **Level**: 6
+- **Binding DC**: 26
+- **Special Requirement**: Seal must be drawn within sight of a pond, stream, or larger body of water.
+- **Sign**: A scar appears around the circumference of your neck, as though your head had been lopped off and then returned to your body to heal.
+- **Influence**: You become possessive and stingy, particularly about territory; you must demand compensation for any service rendered and tax any use of your territory.
+- **Granted Abilities**:
+  - **Freedom of Movement**:
+    - **Action**: Swift, every 5 rounds
+    - **Mechanics**: You gain the benefit of *freedom of movement* as the spell for 1 round.
+  - **Immunity to Electricity**:
+    - **Action**: Passive
+    - **Mechanics**: You are immune to electricity damage.
+  - **Storm Strike**:
+    - **Action**: Swift, at-will
+    - **Mechanics**: Charge a melee attack (or melee touch attack) to deal an extra 1d6 electricity damage and 1d6 sonic damage on your next hit.
+  - **Swim Speed**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a swim speed equal to your land speed, a +8 racial bonus on Swim checks, can always take 10 on Swim checks, and can use the run action while swimming straight.
+
+### Tenebrous
+- **Source**: *Tome of Magic*, p. 48
+- **Level**: 4
+- **Binding DC**: 21
+- **Special Requirement**: Seal must be drawn at night or in an area of deep shadow with little or no daylight exposure.
+- **Sign**: You stand in shadow even in bright light; your shadow never extends more than a few feet (does not grant concealment).
+- **Influence**: You are filled with a sense of detachment and loss; you must never be the first to act in combat (if highest on initiative, you must delay until someone else takes a turn).
+- **Granted Abilities**:
+  - **Deeper Darkness**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: You can surround yourself with *deeper darkness* (CL = EBL) with unlimited duration; adjusting its radius by 10 ft. is a move action.
+  - **See in Darkness**:
+    - **Action**: Passive
+    - **Mechanics**: You can see perfectly through darkness of any kind, including magical darkness.
+  - **Touch of the Void**:
+    - **Action**: Swift, every 5 rounds
+    - **Mechanics**: Charge a melee attack (or melee touch attack) with cold to deal an extra 1d8 cold damage + 1d8 per 4 EBL beyond 7th. At EBL 11+, you can charge your weapon for an entire round.
+  - **Turn/Rebuke Undead**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Turn or rebuke undead as a cleric of your EBL (turn if good, rebuke if evil; choose upon binding if neutral). Classes that grant turning stack with EBL.
+  - **Vessel of Emptiness**:
+    - **Action**: Immediate, 1/day (2/day at 13th, 3/day at 19th)
+    - **Mechanics**: You can use the *flicker* shadow magic mystery as a supernatural ability (CL = EBL).
+
+### Zagan
+- **Source**: *Tome of Magic*, p. 48
+- **Level**: 6
+- **Binding DC**: 25
+- **Special Requirement**: You must kowtow before Zagan's seal, prostrating yourself and addressing him as a deity.
+- **Sign**: You gain a lisp and speak in a sibilant manner.
+- **Influence**: You must slay any snake or snakelike creature you meet, and deface any depictions of snakes or snakelike beings other than Zagan.
+- **Granted Abilities**:
+  - **Aversion**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Target within 30 ft. gains an aversion to you, snakes, and yuan-ti for 5 rounds (Will negates). The target must stay at least 20 ft. away; if unable or attacked, it takes a -4 penalty to Dexterity. Mind-affecting compulsion.
+  - **Constrict**:
+    - **Action**: Passive
+    - **Mechanics**: You deal 1d8 + 1-1/2 Str modifier damage on a successful grapple check in addition to normal unarmed damage.
+  - **Improved Grapple**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Improved Grapple feat, are treated as Large for grapple checks, and deal lethal damage on grapple checks.
+  - **Scent**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the scent special quality.
+  - **Snake Bane**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +2 bonus on melee attacks and deal an extra 2d6 damage against snakes, snakelike creatures, and creatures with natural poison attacks (also applies on grapple checks to deal damage).
