@@ -1,0 +1,226 @@
+# Vestiges (E-L)
+
+### Eligor
+- **Source**: *Tome of Magic*, p. 29
+- **Level**: 7
+- **Binding DC**: 30
+- **Special Requirement**: None
+- **Sign**: One of your hands becomes thickly scaled (color matching mount at summoning).
+- **Influence**: Because Eligor desires revenge on the deities who abandoned him, you must attack a human, elf, or dragon foe in preference to all others whenever you enter combat.
+- **Granted Abilities**:
+  - **Chromatic Strike**:
+    - **Action**: Free, at-will
+    - **Mechanics**: You can charge a melee attack (or melee touch attack) with acid, cold, electricity, or fire to deal an extra 1d6 points of damage of the chosen type on your next hit.
+  - **Eligor's Resilience**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +3 enhancement bonus to natural armor, improving to +4 at EBL 16 and +5 at EBL 20.
+  - **Eligor's Skill in the Saddle**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefits of the Ride-By Attack and Spirited Charge feats.
+  - **Eligor's Strength**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +4 bonus to Strength.
+  - **Heavy Armor Proficiency**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with heavy armor.
+
+### Eurynome
+- **Source**: *Tome of Magic*, p. 30
+- **Level**: 4
+- **Binding DC**: 21
+- **Special Requirement**: Eurynome hates Amon and will not answer your call if you are already bound to him (and vice versa).
+- **Sign**: Your skin becomes clammy, and you leave moist prints on any object your body touches (marks evaporate after 1 minute).
+- **Influence**: You cannot attack a foe unless an ally has already attacked it (no restriction if no allies are present).
+- **Granted Abilities**:
+  - **Animal Friend**:
+    - **Action**: Passive
+    - **Mechanics**: Animals automatically have an initial attitude of friendly toward you.
+  - **Damage Reduction**:
+    - **Action**: Passive
+    - **Mechanics**: You gain DR 2/lawful.
+  - **Eurynome's Maul**:
+    - **Action**: Swift, at-will
+    - **Mechanics**: You can summon a Large magic warhammer (2d6 damage, x3 crit) that you can wield in one hand without penalty. It is a +1 warhammer (+1 anarchic at EBL 11, +1 anarchic adamantine at EBL 15, +3 anarchic adamantine at EBL 19) and disappears if it leaves your grasp for more than 1 round.
+  - **Poison Blood**:
+    - **Action**: Passive
+    - **Mechanics**: Any creature that bites or swallows you takes 1d6 damage (Fortitude negates), and secondary damage of 1d6 per 3 EBL (max 5d6) 1 minute later (Fortitude negates).
+  - **Water Dancing**:
+    - **Action**: Passive
+    - **Mechanics**: You can move on liquid as *water walk*.
+
+### Focalor
+- **Source**: *Tome of Magic*, p. 31
+- **Level**: 3
+- **Binding DC**: 20
+- **Special Requirement**: Focalor's seal must be drawn with a liquid medium.
+- **Sign**: Your eyes constantly weep, regardless of your mood or thoughts.
+- **Influence**: Whenever you kill a creature, you must take 1 round during the next peaceful moment to say a few words of sorrow and regret for the life cut short.
+- **Granted Abilities**:
+  - **Aura of Sadness**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: Adjacent creatures take a -2 penalty on attack rolls, saving throws, and skill checks. Mind-affecting.
+  - **Focalor's Breath**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: One living target within 30 ft. is blinded for 1 round (Fortitude negates).
+  - **Lightning Strike**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: Target within 10 ft. per EBL takes 3d6 electricity damage + 1d6 per 3 EBL above 5th (Reflex half).
+  - **Water Breathing**:
+    - **Action**: Passive
+    - **Mechanics**: You can breathe both water and air easily.
+
+### Geryon
+- **Source**: *Tome of Magic*, p. 32
+- **Level**: 5
+- **Binding DC**: 25
+- **Special Requirement**: You must have at least 5 ranks in either Knowledge (religion) or Knowledge (the planes) to summon Geryon.
+- **Sign**: Two extra pairs of devilish eyes open on your head at eye level, granting all-around vision. Your normal eyes take on the same devilish appearance.
+- **Influence**: You become overly trusting of and loyal to allies even in the face of treachery. You rebel against Geryon's influence if you make a Sense Motive check, read thoughts, or detect lies.
+- **Granted Abilities**:
+  - **Acidic Gaze**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: Requires showing sign. Gaze attack (30 ft.) dealing 2d6 acid damage (Will negates). Allies can be excluded.
+  - **All-Around Vision**:
+    - **Action**: Passive
+    - **Mechanics**: Requires showing sign. You gain a +4 bonus on Spot and Search checks and cannot be flanked, but you cannot avert your eyes against gaze attacks.
+  - **See in Darkness**:
+    - **Action**: Passive
+    - **Mechanics**: Requires showing sign. You can see perfectly in darkness of any kind, including magical darkness.
+  - **Swift Flight**:
+    - **Action**: Swift, every 5 rounds
+    - **Mechanics**: You can fly for 1 round at a speed of 60 ft. with perfect maneuverability.
+
+### Haagenti
+- **Source**: *Tome of Magic*, p. 33
+- **Level**: 2
+- **Binding DC**: 17
+- **Special Requirement**: To summon Haagenti, you must be of Large size or greater, or able to speak Giant.
+- **Sign**: Your features become noticeably uglier, and your bulk expands until you weigh half again as much as normal (150% weight).
+- **Influence**: You must show deference (bow, salute, yield right-of-way) to any creature you perceive as more attractive or charismatic than yourself.
+- **Granted Abilities**:
+  - **Confusing Touch**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Melee touch attack causes confusion for 1 round per 3 EBL (Will negates). At EBL 19+, functions as *maze*.
+  - **Immunity to Transformation**:
+    - **Action**: Free, at-will
+    - **Mechanics**: At the start of your turn, you can resume your normal form as a free action to end form-changing effects such as *polymorph* or petrification.
+  - **Shield Proficiency**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with all shields, including tower shields.
+  - **Weapon Proficiency**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with the battleaxe, greataxe, handaxe, and throwing axe.
+
+### Halphax
+- **Source**: *Tome of Magic*, p. 34
+- **Level**: 8
+- **Binding DC**: 32
+- **Special Requirement**: Halphax's seal must be drawn inside a building, in a corner of the structure.
+- **Sign**: Your body takes on the appearance of cracked stone.
+- **Influence**: If someone threatens a hostage you care about (be it a creature or an item), Halphax requires that you accede to the hostage taker's demands.
+- **Granted Abilities**:
+  - **Damage Reduction**:
+    - **Action**: Passive
+    - **Mechanics**: Requires showing sign. You gain DR 10/adamantine.
+  - **Halphax's Knowledge**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +16 competence bonus on Profession (siege engineer) and Knowledge (architecture and engineering) checks, and can use both untrained.
+  - **Imprison**:
+    - **Action**: Standard, special cooldown
+    - **Mechanics**: Melee touch attack imprisons the target underground as *imprisonment* for rounds equal to EBL (Fortitude negates). On a successful save, 1d4-round cooldown; only one target imprisoned at a time.
+  - **Iron Wall**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: Create a vertical iron wall as *wall of iron* (CL = EBL) lasting 1 minute.
+  - **Secure Shelter**:
+    - **Action**: Standard, at-will (5 rounds after dismissal)
+    - **Mechanics**: Summon a stone cottage as *Leomund's secure shelter* (CL = EBL) within 60 ft. Dismissing is a standard action; cannot summon again for 5 rounds after dismissal. Only one shelter at a time.
+
+### Haures
+- **Source**: *Tome of Magic*, p. 35
+- **Level**: 6
+- **Binding DC**: 25
+- **Special Requirement**: None
+- **Sign**: Your palms are where the backs of your hands should be (like a rakshasa); flipping your hands over leaves thumbs on the wrong sides (no penalty to dexterity, checks, or wielding).
+- **Influence**: You become eccentric, speaking to yourself and imaginary friends; if you encounter and disbelieve an illusion not of your own making, you must not voluntarily enter its area.
+- **Granted Abilities**:
+  - **Inaccessible Mind**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: You are protected from detection, mental influence, and mind-affecting spells and abilities as *mind blank*.
+  - **Incorporeal Movement**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: You ignore difficult terrain, can move through enemies' spaces, and attacks of opportunity against you have a 50% miss chance. Cannot pass through walls.
+  - **Major Image**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: You can create an illusion as *major image* (CL = EBL, Will negates). Only one image at a time; dismiss as standard action.
+  - **Phantasmal Killer**:
+    - **Action**: Standard, every 5 rounds
+    - **Mechanics**: One creature within 10 ft. per EBL is targeted as *phantasmal killer* (Will disbelief, Fortitude negates).
+
+### Ipos
+- **Source**: *Tome of Magic*, p. 36
+- **Level**: 6
+- **Binding DC**: 26
+- **Special Requirement**: You must have at least 5 ranks in Knowledge (arcana) and 5 ranks in either Knowledge (religion) or Knowledge (the planes) to summon Ipos.
+- **Sign**: You grow long, black, clawlike nails.
+- **Influence**: If you encounter a creature that shows interest in a topic about which you have knowledge, Ipos requires that you truthfully edify that individual.
+- **Granted Abilities**:
+  - **Cold Iron Claws**:
+    - **Action**: Attack
+    - **Mechanics**: Requires showing sign. Two natural claw attacks (1d6 Medium) + full Str modifier; overcome DR/cold iron.
+  - **Flash of Insight**:
+    - **Action**: Swift, every 5 rounds
+    - **Mechanics**: You gain *true seeing* as the spell for 1 round.
+  - **Ipos's Influence**:
+    - **Action**: Passive
+    - **Mechanics**: The save DC of each vestige special ability increases by 1, and treat your EBL as 1 higher for determining vestige special abilities.
+  - **Planar Attenuation**:
+    - **Action**: Standard, at-will (toggle)
+    - **Mechanics**: You are protected from negative environmental effects of a chosen plane (as *planar tolerance*). Changing attunement is a standard action.
+  - **Rend**:
+    - **Action**: Passive
+    - **Mechanics**: If you hit a foe with both claw attacks, you deal double normal claw damage + Str modifier in addition to normal damage.
+
+### Karsus
+- **Source**: *Tome of Magic*, p. 37
+- **Level**: 3
+- **Binding DC**: 25
+- **Special Requirement**: Cannot summon within area of active spell. Requires 5 ranks in Knowledge (arcana) or Spellcraft. Refuses call if bound to Amon.
+- **Sign**: Wounds bleed profusely without dealing extra damage.
+- **Influence**: You must make Bluff or Intimidate checks rather than Diplomacy checks to influence others.
+- **Granted Abilities**:
+  - **Heavy Magic**:
+    - **Action**: Passive
+    - **Mechanics**: The save DC of each spell or effect from any magic item you activate increases by +2.
+  - **Karsus's Senses**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: You can detect magical auras within 30 ft. as *detect magic* after 2 rounds of concentration; concentrating for 1 additional round reveals locations and strengths; a 3rd round reveals schools.
+  - **Karsus's Touch**:
+    - **Action**: Standard, every 5 rounds (up to EBL/day)
+    - **Mechanics**: Melee touch attack produces a targeted *dispel magic* (1d20 + EBL, max +20) against each active spell on the target, or suppresses a touched magic item for 1d4 rounds.
+  - **Karsus's Will**:
+    - **Action**: Passive
+    - **Mechanics**: You can use spell trigger items (such as wands and staves) as if you were a wizard of your EBL.
+
+### Leraje
+- **Source**: *Tome of Magic*, p. 38
+- **Level**: 1
+- **Binding DC**: 15
+- **Special Requirement**: To summon Leraje, you must break an arrow crafted by an elf while calling out her name and title. Refuses call if bound to Amon.
+- **Sign**: You look sickly and diseased, and your skin becomes sallow and pockmarked.
+- **Influence**: You cannot attack elves, half-elves, drow, or other creatures of elven blood.
+- **Granted Abilities**:
+  - **Hide Bonus**:
+    - **Action**: Passive
+    - **Mechanics**: You gain a +4 competence bonus on Hide checks.
+  - **Low-Light Vision**:
+    - **Action**: Passive
+    - **Mechanics**: You gain low-light vision (or superior low-light vision, seeing three times standard distance, if already possessing it).
+  - **Precise Shot**:
+    - **Action**: Passive
+    - **Mechanics**: You gain the benefit of the Precise Shot feat.
+  - **Ricochet**:
+    - **Action**: Standard, at-will
+    - **Mechanics**: Make a single ranged attack roll and apply it against two adjacent targets. Precision damage applies to one designated target only.
+  - **Weapon Proficiency**:
+    - **Action**: Passive
+    - **Mechanics**: You are proficient with the composite longbow, composite shortbow, longbow, and shortbow, or gain a +1 competence bonus on attack rolls if already proficient.
