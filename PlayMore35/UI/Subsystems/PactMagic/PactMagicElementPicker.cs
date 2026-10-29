@@ -28,7 +28,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered;
         public event Action<SubsystemElement, string>? VestigeBindRequested;
         public event Action<SubsystemElement>? VestigeUnbindRequested;
-        public event Action<VestigeRulesData?>? VestigeSelected;
+        public event Action<SubsystemElement?>? VestigeSelected;
 
         public Control Control => this;
         public IReadOnlyList<VestigeCardControl> Cards => _cards;
@@ -74,12 +74,11 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _maxVestigeLevel = stat != null && stat.Value > 0 ? stat.Value : 8;
 
             var engine = _session.Subsystems.Get("pact_magic") as SubsystemEngine;
-            _capacity = engine?.GetSlotGroup("vestiges")?.Capacity ?? _session.GetStatistic("number of vestiges")?.Value ?? 0;
-            if (_capacity <= 0) _capacity = 1;
-            if (_capacity > 4) _capacity = 4;
+            var group = engine?.GetSlotGroup("vestiges");
+            _capacity = group?.Capacity ?? _session.GetStatistic("number of vestiges")?.Value ?? 0;
 
             foreach (var card in _cards) {
-                card.IsInvalid = card.RulesData.Level > _maxVestigeLevel;
+                card.IsInvalid = card.Vestige.GetProperty<int>("level") > _maxVestigeLevel;
             }
             ApplyFilter();
         }
@@ -217,9 +216,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _cards.Clear();
 
             foreach (var elem in _allVestiges) {
-                var rules = VestigeRulesRepository.GetRulesData(elem);
-                var card = new VestigeCardControl(elem, rules);
-                card.IsInvalid = rules.Level > _maxVestigeLevel;
+                var card = new VestigeCardControl(elem);
+                card.IsInvalid = elem.GetProperty<int>("level") > _maxVestigeLevel;
 
                 card.CardClicked += (s, e) => SelectCard(card);
                 card.GoodPactClicked += (s, e) => OnBindClicked(card, "good_pact");
@@ -238,7 +236,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
             ElementDelivered?.Invoke(card.Vestige);
             ElementsDelivered?.Invoke(new[] { card.Vestige });
-            VestigeSelected?.Invoke(card.RulesData);
+            VestigeSelected?.Invoke(card.Vestige);
         }
 
         private void OnBindClicked(VestigeCardControl card, string pactState) {
@@ -263,20 +261,25 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 }
 
                 bool visible = true;
+                int vestigeLevel = card.Vestige.GetProperty<int>("level");
 
-                if (_hideUnavailableCheckBox.Checked && card.RulesData.Level > _maxVestigeLevel) {
+                if (_hideUnavailableCheckBox.Checked && vestigeLevel > _maxVestigeLevel) {
                     visible = false;
                 }
 
-                if (selectedLevel > 0 && card.RulesData.Level != selectedLevel) {
+                if (selectedLevel > 0 && vestigeLevel != selectedLevel) {
                     visible = false;
                 }
 
                 if (visible && !string.IsNullOrEmpty(q)) {
                     bool nameMatch = card.Vestige.Name.ToLowerInvariant().Contains(q);
-                    bool abilityMatch = card.RulesData.Abilities.Any(a => a.Name.ToLowerInvariant().Contains(q) || a.Text.ToLowerInvariant().Contains(q));
-                    bool signMatch = !string.IsNullOrEmpty(card.RulesData.Sign) && card.RulesData.Sign.ToLowerInvariant().Contains(q);
-                    bool influenceMatch = !string.IsNullOrEmpty(card.RulesData.Influence) && card.RulesData.Influence.ToLowerInvariant().Contains(q);
+                    bool abilityMatch = card.Vestige.GetEffects("abilities").Any(a =>
+                        a.Name.ToLowerInvariant().Contains(q) ||
+                        a.Text.Any(t => t.Description != null && t.Description.ToLowerInvariant().Contains(q)));
+                    string signText = card.Vestige.GetProperty<string>("sign");
+                    bool signMatch = signText.ToLowerInvariant().Contains(q);
+                    var influenceTexts = card.Vestige.GetEffects("influence").SelectMany(eff => eff.Text).Select(t => t.Description ?? "");
+                    bool influenceMatch = influenceTexts.Any(t => t.ToLowerInvariant().Contains(q));
                     if (!nameMatch && !abilityMatch && !signMatch && !influenceMatch) {
                         visible = false;
                     }

@@ -118,7 +118,7 @@ namespace PlayMore35.Tests {
 
                 Assert.IsFalse(tabPage.IsEmptyPromptVisible);
                 Assert.IsTrue(tabPage.DetailsHeader.Contains("Amon"));
-                Assert.IsTrue(tabPage.DetailsSignText.IndexOf("Ram horns", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsTrue(tabPage.DetailsSignText.IndexOf("curling ram's horns", StringComparison.OrdinalIgnoreCase) >= 0);
                 Assert.IsTrue(tabPage.DetailsInfluenceText.IndexOf("fire", StringComparison.OrdinalIgnoreCase) >= 0);
                 Assert.IsTrue(tabPage.DetailsAbilitiesText.IndexOf("Fire Breath", StringComparison.OrdinalIgnoreCase) >= 0);
             }
@@ -275,7 +275,7 @@ namespace PlayMore35.Tests {
                 picker.HideUnavailable = false; // allow searching all vestiges
 
                 // Search by Sign keyword
-                picker.SearchQuery = "ram horns";
+                picker.SearchQuery = "curling ram's horns";
                 Assert.AreEqual(1, picker.VisibleCardsCount);
                 Assert.AreEqual("Amon", picker.Cards.First(c => c.Visible).Vestige.Name);
 
@@ -292,27 +292,33 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void VestigeCardControl_CardHeightAndAbilities_ShowsAllAbilitiesWithoutMoreEllipsis() {
-            var elem = new SubsystemElement { Name = "Aym" };
-            var rules = VestigeRulesRepository.GetRulesData(elem);
-            Assert.AreEqual(6, rules.Abilities.Count);
+            var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            var elem = pactDef.Elements["Aym"];
+            var abilities = elem.GetEffects("abilities");
+            var distinctAbilities = abilities.Select(a => a.Name).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.AreEqual(6, distinctAbilities.Count);
 
-            using (var card = new VestigeCardControl(elem, rules)) {
+            using (var card = new VestigeCardControl(elem)) {
                 Assert.IsTrue(card.Height >= 210, $"Card height was {card.Height}, expected >= 210");
                 var powersLabel = card.Controls.OfType<Label>().FirstOrDefault(l => l.Text.Contains("Dwarven Step"));
                 Assert.IsNotNull(powersLabel);
                 Assert.IsFalse(powersLabel.Text.Contains("more..."), "Abilities excerpt should not contain '+n more...'");
-                foreach (var ability in rules.Abilities) {
-                    Assert.IsTrue(powersLabel.Text.Contains(ability.Name), $"Abilities text missing: {ability.Name}");
+                foreach (var abilityName in distinctAbilities) {
+                    Assert.IsTrue(powersLabel.Text.Contains(abilityName), $"Abilities text missing: {abilityName}");
                 }
             }
         }
 
         [TestMethod]
         public void VestigeCardControl_PactState_DisplaysPactStateAndUnbindWhenBound() {
-            var elem = new SubsystemElement { Name = "Amon" };
-            var rules = VestigeRulesRepository.GetRulesData(elem);
+            var catalog = new GameRulesCatalog();
+            var pactDef = catalog.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pactDef);
+            var elem = pactDef.Elements["Amon"];
 
-            using (var card = new VestigeCardControl(elem, rules)) {
+            using (var card = new VestigeCardControl(elem)) {
                 card.IsBound = true;
                 card.PactState = "poor_pact";
 

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using PlayMore35.Effects;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.UI.Subsystems.PactMagic {
     public class VestigeCardControl : UserControl {
         private readonly SubsystemElement _vestige;
-        private readonly VestigeRulesData _rulesData;
         private bool _isSelected;
         private bool _isInvalid;
         private bool _isBound;
@@ -21,7 +21,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         public event EventHandler? UnbindClicked;
 
         public SubsystemElement Vestige => _vestige;
-        public VestigeRulesData RulesData => _rulesData;
 
         public bool IsSelected {
             get => _isSelected;
@@ -89,9 +88,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         public Label StatusLabel => _lblStatus;
         public Label CapacityNoticeLabel => _lblCapacityNotice;
 
-        public VestigeCardControl(SubsystemElement vestige, VestigeRulesData rulesData) {
+        public VestigeCardControl(SubsystemElement vestige) {
             _vestige = vestige ?? throw new ArgumentNullException(nameof(vestige));
-            _rulesData = rulesData ?? throw new ArgumentNullException(nameof(rulesData));
 
             Size = new Size(212, 230);
             Margin = new Padding(4);
@@ -99,12 +97,16 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             Cursor = Cursors.Hand;
             BackColor = Color.White;
 
+            int level = _vestige.GetProperty<int>("level");
+            int bindingDc = _vestige.GetProperty<int>("binding DC");
+            string sign = _vestige.GetProperty<string>("sign");
+
             _lblTitle = new Label {
                 Dock = DockStyle.Top,
                 Height = 22,
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 69, 120),
-                Text = $"{_vestige.Name} ({_rulesData.Level}{GetOrdinal(_rulesData.Level)} • DC {_rulesData.BindingDC})",
+                Text = $"{_vestige.Name} ({level}{GetOrdinal(level)} • DC {bindingDc})",
                 Cursor = Cursors.Hand
             };
             _lblTitle.Click += (s, e) => OnClick(e);
@@ -114,7 +116,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Height = 36,
                 Font = new Font("Segoe UI", 7.5f, FontStyle.Italic),
                 ForeColor = Color.FromArgb(85, 85, 85),
-                Text = $"\"{_rulesData.Sign}\"",
+                Text = $"\"{sign}\"",
                 Cursor = Cursors.Hand
             };
             _lblSign.Click += (s, e) => OnClick(e);
@@ -184,7 +186,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 7.5f, FontStyle.Regular),
                 ForeColor = Color.FromArgb(51, 51, 51),
-                Text = FormatAbilitiesExcerpt(_rulesData.Abilities),
+                Text = FormatAbilitiesExcerpt(_vestige.GetEffects("abilities")),
                 Cursor = Cursors.Hand
             };
             _lblPowers.Click += (s, e) => OnClick(e);
@@ -197,9 +199,10 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             UpdateCardVisuals();
         }
 
-        private static string FormatAbilitiesExcerpt(IReadOnlyList<VestigeAbilityData> abilities) {
+        private static string FormatAbilitiesExcerpt(IReadOnlyList<Effect> abilities) {
             if (abilities == null || abilities.Count == 0) return "";
-            return string.Join("\n", abilities.Select(a => $"• {a.Name}"));
+            var distinctNames = abilities.Select(a => a.Name).Distinct(StringComparer.OrdinalIgnoreCase);
+            return string.Join("\n", distinctNames.Select(name => $"• {name}"));
         }
 
         public void UpdateCardVisuals() {

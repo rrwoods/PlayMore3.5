@@ -108,6 +108,7 @@
       "name": "Amon",
       "level": 1,
       "binding DC": 20,
+      "sign": "You grow a pair of curling ram's horns.",
       "effects": {
         "abilities": [
           {
@@ -169,6 +170,7 @@
       "name": "Aym",
       "level": 1,
       "binding DC": 15,
+      "sign": "You bear a star-shaped brand on the palm of your left hand or on your forehead (chosen upon making the pact).",
       "effects": {
         "abilities": [
           {
@@ -281,6 +283,7 @@
       "name": "Leraje",
       "level": 1,
       "binding DC": 15,
+      "sign": "You look sickly and diseased, and your skin becomes sallow and pockmarked.",
       "effects": {
         "abilities": [
           {
@@ -380,6 +383,7 @@
       "name": "Naberius",
       "level": 1,
       "binding DC": 15,
+      "sign": "Your voice deepens and acquires a gravelly, growling tone.",
       "effects": {
         "abilities": [
           {
@@ -463,6 +467,7 @@
       "name": "Ronove",
       "level": 1,
       "binding DC": 15,
+      "sign": "The flesh of your face settles into a permanent frown (on a Good Pact) or smile (on a Poor Pact), retaining that general expression regardless of your actual feelings.",
       "effects": {
         "abilities": [
           {
@@ -577,6 +582,7 @@
       "name": "Dahlver-Nar",
       "level": 2,
       "binding DC": 17,
+      "sign": "Several small teeth grow from your scalp.",
       "effects": {
         "abilities": [
           {
@@ -663,6 +669,7 @@
       "name": "Haagenti",
       "level": 2,
       "binding DC": 17,
+      "sign": "Your features become noticeably uglier, and your bulk expands until you weigh half again as much as normal (150% weight).",
       "effects": {
         "abilities": [
           {
@@ -734,6 +741,7 @@
       "name": "Malphas",
       "level": 2,
       "binding DC": 15,
+      "sign": "Your teeth and tongue turn black.",
       "effects": {
         "abilities": [
           {
@@ -808,6 +816,7 @@
       "name": "Savnok",
       "level": 2,
       "binding DC": 20,
+      "sign": "A piece of an arrow appears under your skin as if healed over (deals no damage, disintegrates and reappears elsewhere if removed).",
       "effects": {
         "abilities": [
           {

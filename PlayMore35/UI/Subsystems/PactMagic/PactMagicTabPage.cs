@@ -125,29 +125,50 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _picker.RefreshBindingState();
 
             if (_picker.SelectedCard != null) {
-                ShowVestigeDetails(_picker.SelectedCard.RulesData);
+                ShowVestigeDetails(_picker.SelectedCard.Vestige);
             }
         }
 
-        private void OnVestigeSelected(VestigeRulesData? rules) {
-            if (rules != null) {
-                ShowVestigeDetails(rules);
+        private void OnVestigeSelected(SubsystemElement? vestige) {
+            if (vestige != null) {
+                ShowVestigeDetails(vestige);
             } else {
                 _pnlDetailsContent.Visible = false;
                 _lblEmptyPrompt.Visible = true;
             }
         }
 
-        public void ShowVestigeDetails(VestigeRulesData rules) {
+        public void ShowVestigeDetails(SubsystemElement vestige) {
             _lblEmptyPrompt.Visible = false;
             _pnlDetailsContent.Visible = true;
 
-            UpdateDetailsLabelsWidth();
-            _lblDetailsTitle.Text = $"{rules.Name} (Level {rules.Level}, Binding DC {rules.BindingDC})";
-            _lblDetailsSign.Text = $"Sign:\n{rules.Sign}";
-            _lblDetailsInfluence.Text = $"Influence:\n{rules.Influence}";
+            int level = vestige.GetProperty<int>("level");
+            int bindingDc = vestige.GetProperty<int>("binding DC");
+            string sign = vestige.GetProperty<string>("sign");
 
-            var abilitiesFormatted = rules.Abilities.Select(a => $"• {a.Name} ({a.Type}): {a.Text}");
+            var influenceEffects = vestige.GetEffects("influence");
+            var influenceTexts = influenceEffects
+                .SelectMany(eff => eff.Text)
+                .Select(t => t.Description)
+                .Where(desc => !string.IsNullOrWhiteSpace(desc));
+            string influence = string.Join("\n\n", influenceTexts);
+
+            UpdateDetailsLabelsWidth();
+            _lblDetailsTitle.Text = $"{vestige.Name} (Level {level}, Binding DC {bindingDc})";
+            _lblDetailsSign.Text = $"Sign:\n{sign}";
+            _lblDetailsInfluence.Text = $"Influence:\n{influence}";
+
+            var abilities = vestige.GetEffects("abilities");
+            var distinctAbilities = abilities
+                .GroupBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First());
+            var abilitiesFormatted = distinctAbilities.Select(a => {
+                string desc = a.Text.Count > 0 ? a.Text[0].Description : "";
+                string type = a.Text.Count > 0 && !string.IsNullOrEmpty(a.Text[0].Category)
+                    ? a.Text[0].Category
+                    : "Passive";
+                return string.IsNullOrEmpty(desc) ? $"• {a.Name} ({type})" : $"• {a.Name} ({type}): {desc}";
+            });
             _lblDetailsAbilities.Text = "Granted Abilities:\n" + string.Join("\n\n", abilitiesFormatted);
         }
 
@@ -162,10 +183,9 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private void OnVestigeBindRequested(SubsystemElement vestige, string pactState) {
             var session = _host.Session;
             var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var group = engine?.GetSlotGroup("vestiges");
 
-            int capacity = engine?.GetSlotGroup("vestiges")?.Capacity ?? session.GetStatistic("number of vestiges")?.Value ?? 0;
-            if (capacity <= 0) capacity = 1;
-            if (capacity > 4) capacity = 4;
+            int capacity = group?.Capacity ?? session.GetStatistic("number of vestiges")?.Value ?? 0;
 
             // Find first available slot index
             int targetSlotIndex = -1;
