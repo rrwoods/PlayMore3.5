@@ -26,7 +26,7 @@ When resolving 3.5e game rules, mechanics, or content citations, follow this thr
 2. **External Markdown Archive (`rules-md/`)**:
    - If the entry in `docs/rules/` is an unarbitrated Rules Skeleton or absent, inspect the external verbatim markdown mirror:  
      `C:/Users/rickr/Documents/D&D notes/resources/rules-md/<Book Name>/<Chapter or Section>.md` (see `docs/agents/sourcebooks.md`).
-   - If the section exists in `rules-md/`, invoke the `/distill-rules` skill to resolve or register the schema, strip narrative fluff, and synthesize the canonical Reference Entry directly into `docs/rules/`. To crosscheck and sanity-check synthesized entries against `rules-md/`, invoke the `/verify-rules` skill.
+   - If the section exists in `rules-md/`, invoke the `/distill-rules` skill to resolve or register the schema, strip narrative fluff, and synthesize the canonical Reference Entry directly into `docs/rules/`. To crosscheck and sanity-check synthesized entries against `rules-md/`, invoke the `/verify-rules` skill. The verbatim markdown mirror serves as the complete point of truth for both distillation and verification.
 3. **Primary Source PDF Extraction**:
    - If the section does not yet exist in `rules-md/`, execute the Three-Phase Conversion Procedure documented in `docs/agents/sourcebooks.md`:
      1. Calibrate page offset and detect text layer vs. scanned image.
