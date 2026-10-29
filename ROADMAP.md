@@ -13,7 +13,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
   - It's got the string literal "initiator level" in it
   - It references vestige defiance to generate defiance penalties -- this should be purely configuration driven
 - DefaultElementPicker says "maneuver" and "Stance" in it
-- VestigeRulesRepository is constructing all its data whole cloth instead of pulling it from the rules catalog -- tbh, this shouldn't even need to exist, the GetRulesData function in VestigeRulesRepository should always get all the available info, and if something is missing, it should throw an exception
 - Overzealous null-checks (SubsystemEngine, PactMagicTabPage, probably lots of other places)
 
 ### Vestiges tab cleanup
