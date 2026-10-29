@@ -4,7 +4,9 @@ How to specify, arbitrate, and verify D&D 3.5e game rules in PlayMore35.
 
 ## The arbitration rule & progressive disclosure library (`docs/rules/`)
 
-Unrecorded D&D 3.5e game rules are **Domain Specifications**, while verified citations recorded in `docs/rules/` are **Environmental Facts** (see `GLOSSARY.md`). Game rules originate exclusively from human-verified primary sources. Treat model pretraining as blind to 3.5e mechanics; all rules awareness enters the engine through human arbitration and is persisted in `docs/rules/`.
+Unrecorded D&D 3.5e game rules are **Domain Specifications**, while verified citations recorded in `docs/rules/` are **Environmental Facts** (see `GLOSSARY.md`). Game rules originate exclusively from human-verified primary sources:
+- **Primary Source Exclusivity**: Primary source PDFs in the reference library are the sole authoritative source of truth for all game rules and mechanics. When a requested sourcebook PDF is inaccessible, uncalibrated, or missing, immediately stop and surface the access issue to the user. All rules documentation and engine mechanics must derive directly from the primary source text or human arbitration.
+- **Model Blindness**: Treat model pretraining as blind to 3.5e mechanics; all rules awareness enters the engine through human arbitration and is persisted in `docs/rules/`.
 
 ### Directory layout
 
@@ -14,11 +16,24 @@ Do not bulk-load `docs/rules/` upfront. Query the filesystem for the specific fi
 - `docs/rules/subsystems/`: Dedicated subsystem arbitration documents (e.g. `maneuvers.md`, `pact-magic.md`).
 - `docs/rules/content/`: 1:1 mirror of `PlayMore35/Resources/<stem>.json`. Stored as `<stem>.md` (or a `<stem>/` subfolder if split under the 300-line ceiling).
 
-### Two-state lookup & write-back workflow
+### Rules lookup hierarchy & write-back workflow
 
-When inspecting a target file in `docs/rules/`:
-1. **Populated citation (Reference Entry)**: The entry contains a verified sourcebook, page number, and mechanical facts without checklist syntax. Treat it as an **Environmental Fact** and use it directly without re-asking the human.
-2. **Rules Skeleton (unarbitrated placeholder) or absent entry**: The entry is an unarbitrated **Domain Specification** awaiting human arbitration (formatted as a compact unarbitrated stub schema with `- **Status**: Unarbitrated Domain Specification` or a maneuver schema skeleton with `TODO` values). An entry remains an unarbitrated Domain Specification even if its sourcebook and page citation are known, until its actionable mechanics are arbitrated and recorded. Request human arbitration using the template below. Once the human provides or confirms the citation and mechanics, **immediately replace the Rules Skeleton (or add the entry) in `docs/rules/` as a fully populated Reference Entry** so future sessions never have to ask again.
+When resolving 3.5e game rules, mechanics, or content citations, follow this three-step lookup sequence:
+
+1. **In-Repo Rules Library (`docs/rules/`)**:
+   - Query the relevant file in `docs/rules/mechanics/`, `docs/rules/subsystems/`, or `docs/rules/content/`.
+   - **Populated citation (Reference Entry)**: If the entry contains a verified sourcebook, page number, and actionable mechanics without placeholder syntax, treat it as an **Environmental Fact** and use it directly.
+2. **External Markdown Archive (`rules-md/`)**:
+   - If the entry in `docs/rules/` is an unarbitrated Rules Skeleton or absent, inspect the external verbatim markdown mirror:  
+     `C:/Users/rickr/Documents/D&D notes/resources/rules-md/<Book Name>/<Chapter or Section>.md` (see `docs/agents/sourcebooks.md`).
+   - If the section exists in `rules-md/`, invoke the `/distill-rules` skill to resolve or register the schema, strip narrative fluff, and synthesize the canonical Reference Entry directly into `docs/rules/`. To crosscheck and sanity-check synthesized entries against `rules-md/`, invoke the `/verify-rules` skill.
+3. **Primary Source PDF Extraction**:
+   - If the section does not yet exist in `rules-md/`, execute the Three-Phase Conversion Procedure documented in `docs/agents/sourcebooks.md`:
+     1. Calibrate page offset and detect text layer vs. scanned image.
+     2. Run `tools/extract_sourcebook_pages.py` in `dnd_pdf` (`BypassSandbox: true`) to dump cleaned text blocks or render page PNGs to `scratch/`.
+     3. Transcribe and author the clean, verbatim markdown file into `rules-md/<Book Name>/<Chapter or Section>.md`.
+     4. Synthesize the canonical Reference Entry into `docs/rules/` (and clean up `scratch/`).
+   - **Human Arbitration Boundary**: Human arbitration is reserved for rules dysfunctions, contradictory rules-as-written, genuine ambiguities, and table fiat per ADR-0001. When human arbitration provides a ruling or clarification, write both the citation and human-approved correction into `docs/rules/` immediately.
 
 ### 300-line growth threshold & splitting protocol
 

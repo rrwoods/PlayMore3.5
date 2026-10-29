@@ -12,9 +12,9 @@ Canonical triage roles mapped to matching labels (`needs-triage`, `needs-info`, 
 
 Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root) for project and engine vocabulary, plus progressively disclosed 3.5e rules and content citations in `docs/rules/`. See `docs/agents/domain.md`, `docs/agents/rules-template.md`, and `docs/agents/subsystems.md`.
 
-### Sourcebooks and PDF extraction
+### Sourcebooks, PDF extraction, and markdown archive
 
-Consulting rules in primary source PDFs (environment, PyMuPDF, image rendering, and scratch scripts): see `docs/agents/sourcebooks.md`.
+Consulting rules in primary source PDFs and the external verbatim markdown archive (`rules-md`), 3-phase extraction procedure, and extraction tooling: see `docs/agents/sourcebooks.md`. To extract and archive new sourcebook chapters, invoke the `/extract-sourcebook` skill. To distill verbatim text from `rules-md` into canonical game mechanics in `docs/rules`, invoke the `/distill-rules` skill. To crosscheck and sanity-check distilled rules against `rules-md`, invoke the `/verify-rules` skill.
 
 ### Product vision
 
@@ -60,6 +60,7 @@ When authoring pull request descriptions with Mermaid diagrams:
 ## Rules arbitration invariant
 
 Unrecorded D&D 3.5e game rules are **Domain Specifications**, while verified citations recorded in `docs/rules/` are **Environmental Facts** (see `GLOSSARY.md`). This invariant binds **all chat turns, grilling rounds, recommendations, planning, and code**:
+- **Primary source exclusivity**: Primary source PDFs in the reference library are the sole authoritative source of truth for all game rules and mechanics. When a requested sourcebook PDF is inaccessible, uncalibrated, or missing, immediately stop and surface the access issue to the user. All rules documentation and engine mechanics must derive directly from the primary source text or human arbitration.
 - **Applies to mechanics and game content only**: Binds actual game rules logic and content definitions (math formulas, stacking, prerequisites, modifiers, subsystem interactions, and `PlayMore35/Resources/*.json` entries). Does not apply to application presentation schema or UI layout categorization (e.g. Column 0 `Exploration` or `Social` section groupings).
 - **Model blindness**: Treat model pretraining as blind to 3.5e mechanics. Game rules originate exclusively from human-verified primary sources.
 - **Two-state resolution & write-back**: Populated citations in `docs/rules/` are Environmental Facts to use directly. `TODO` stubs and absent entries are unarbitrated Domain Specifications requiring human arbitration; write citations back to `docs/rules/` immediately upon arbitration.
