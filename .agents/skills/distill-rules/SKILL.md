@@ -10,9 +10,9 @@ Distill verified primary source text from the external markdown archive (`rules-
 
 ## Preconditions & Invariants
 
-1. **Source Exclusivity**: Input must originate from the persistent verbatim markdown archive:
+1. **Source Exclusivity & Direct Read Access**: Input must originate from the persistent verbatim markdown archive:
    `C:/Users/rickr/Documents/D&D notes/resources/rules-md/<Book Name>/<Chapter or Section>.md`
-   (If the section has not yet been extracted from the primary source PDF, run `/extract-sourcebook` first).
+   (If the section has not yet been extracted from the primary source PDF, run `/extract-sourcebook` first). Read archive files directly using `read_file` without intermediate copy scripts or sandbox bypass.
 2. **Pure Mechanics Invariant**: Rules documentation serves purely as reference facts and schemas. Strictly strip narrative flavor text, atmospheric fiction, and developer commentary. Retain 100% of the operative tabletop rules, formulas, prerequisites, and action economy.
 3. **Tabletop Domain Vocabulary**: Write exclusively in the vocabulary of 3.5e sourcebooks and tabletop play. Reserve C# engine types, stat keys, and software abstractions for engine code and resource files.
 4. **300-Line Growth Ceiling**: Every markdown file in `docs/rules/` must not exceed 300 lines (enforced by `PlayMore35.Tests.RulesLibraryStructureTests`).
@@ -66,11 +66,11 @@ If distilling an entity type without an established schema (e.g. soulmelds, invo
 
 ## Phase 3: Mechanical Distillation
 
-Read the section from `rules-md/`.
+Read the section directly from `rules-md/` using `read_file`.
 
 ### 1. Sizing Strategy
-- **Small Batches (1–5 entities)**: Distill and edit directly into the target file in `docs/rules/` using `edit_file` or `write_file`.
-- **Large Batches (6–30+ entities)**: Write a temporary Python script in `scratch/` (e.g. `scratch/distill_<topic>.py`) to parse entities from `rules-md/`, strip flavor text, apply the schema, and output the formatted markdown block.
+- **Small to Medium Batches (1–15 entities)**: Inspect the archive markdown directly in-context via `read_file` and author/edit the distilled reference entries into `docs/rules/` using `edit_file` or `write_file`.
+- **Large Batches (16–30+ entities)**: If automating extraction of high-volume catalogs via a temporary Python script in `scratch/` (e.g. `scratch/distill_<topic>.py`), invoke the script with `BypassSandbox: true` to access `C:\Users\rickr\Envs\dnd_pdf\Scripts\python.exe`. Have the script parse entities from `rules-md/`, strip flavor text, apply the schema, and output the formatted markdown block.
 
 ### 2. Distillation Invariants
 - **Strip Fluff**: Omit all introductory narrative, physical descriptions, and atmospheric quotes.
