@@ -10,10 +10,10 @@ Sanity-check and crosscheck distilled, mechanics-only reference documentation in
 
 ## Preconditions & References
 
-1. **Authoritative Verbatim Mirror**: The external archive at:
+1. **Authoritative Verbatim Mirror & Direct Read Access**: The external archive at:
    `C:/Users/rickr/Documents/D&D notes/resources/rules-md/<Book Name>/<Chapter or Section>.md`
-   is the single point of truth for verbatim text.
-2. **Sandbox Bypass**: The external archive (`rules-md/`) resides outside the workspace boundary. Never call `read_file` on out-of-workspace paths. Always read or process `rules-md/` files through a script in `scratch/` executed via `run_command` with `BypassSandbox: true`.
+   is the single point of truth for verbatim text. Antigravity permissions grant direct read access across `resources/rules-md/`, so inspect verbatim archive text directly with `read_file`. Scratch scripts and sandbox bypass are not required for reading archive text.
+2. **Write Access for Remediation**: Antigravity permissions grant write access to `C:\Users\rickr\Documents\D&D notes\resources\rules-md`. Verbatim mirror formatting defects or typos discovered during verification can be remediated directly in-place via `edit_file` or `write_file`.
 3. **In-Repo Target**: A file or partitioned directory under:
    `docs/rules/mechanics/`, `docs/rules/subsystems/`, or `docs/rules/content/`.
 4. **Reference Schemas**: The canonical schemas registered in `docs/agents/rules-template.md`.
@@ -35,8 +35,8 @@ Confirm that both paths exist and are accessible before proceeding.
 ## Phase 2: Catalog & Coverage Crosscheck
 
 ### 1. Execution Strategy
-- **Small Batches (1–5 entities)**: Direct inspection of in-repo entries against verbatim text extracted via a command or script.
-- **Large Batches or Whole Chapters (6+ entities)**: Author a temporary verification script in `scratch/` (e.g. `scratch/verify_<topic>.py`) and execute it with `BypassSandbox: true`. The script parses both `rules-md/` and `docs/rules/` (aggregating partitioned directory files), cross-checks entity inventories, physical page citations, prerequisites, formulas, and schema fields, and outputs the verification report directly.
+- **Direct Inspection (Small to Medium Batches, 1–15 entities)**: Read the verbatim archive file directly using `read_file`, compare against the in-repo file in `docs/rules/`, and evaluate coverage and accuracy in-context. No scratch scripts or shell commands required.
+- **Automated Batch Verification (Large Batches or Whole Chapters, 16+ entities)**: Author a temporary verification script in `scratch/` (e.g. `scratch/verify_<topic>.py`). If executed with the dedicated `dnd_pdf` python environment (`C:\Users\rickr\Envs\dnd_pdf\Scripts\python.exe`), set `BypassSandbox: true` because the Python virtual environment is outside the sandbox boundary. The script parses both `rules-md/` and `docs/rules/` (aggregating partitioned directory files), cross-checks entity inventories, physical page citations, prerequisites, formulas, and schema fields, and outputs the verification report directly.
 
 ### 2. Entity Extraction
 - Extract all entity names and physical page citations from `rules-md/` (pattern: `### <Name> (p. <Page>)` or `## <Name> (p. <Page>)`).
@@ -119,6 +119,7 @@ Produce a structured markdown audit report:
 ```
 
 If defects are found:
-- If trivial (missing page number, typo in formula, minor omitted clause), present and execute the targeted `edit_file` fix.
-- If ambiguous or involving conflicting RAW, request human arbitration.
+- **In-repo rules defects**: Present and execute targeted `edit_file` fixes in `docs/rules/`.
+- **Verbatim archive defects**: If the `rules-md/` mirror itself has transcription typos or formatting defects, update it directly using `edit_file` or `write_file` thanks to configured write permissions on `rules-md/`.
+- If ambiguous or involving conflicting RAW, request human arbitration per ADR-0001.
 - Re-run `RulesLibraryStructureTests` until clean.

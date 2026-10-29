@@ -10,7 +10,7 @@ Extract primary source rules from reference PDFs into the persistent external ma
 
 ## Preconditions & Environment
 
-1. **Sandbox Bypass**: The sourcebook library (`resources/books/`) and external markdown archive (`resources/rules-md/`) reside outside the workspace boundary. Always execute extraction scripts, calibration commands, and Python audit tools with `BypassSandbox: true`.
+1. **Direct Archive Access & Sandbox Scope**: Antigravity has read access to `C:\Users\rickr\Documents\D&D notes\resources` and write access to `C:\Users\rickr\Documents\D&D notes\resources\rules-md`. Native tools (`read_file`, `write_file`, `edit_file`) operate directly on `rules-md/`. However, executing extraction scripts via the dedicated `dnd_pdf` virtual environment requires `BypassSandbox: true` because `C:\Users\rickr\Envs` resides outside the sandbox boundary.
 2. **Dedicated Python Environment**: Always invoke Python via `C:\Users\rickr\Envs\dnd_pdf\Scripts\python.exe` (`dnd_pdf` venv with `pymupdf`).
 3. **Encoding Discipline**: Route all text extraction and inspection through UTF-8 scratch files. Writing to UTF-8 files safely preserves typographic ligatures (`fi`, `fl`) against Windows console (`cp1252`) encoding constraints.
 

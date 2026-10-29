@@ -11,8 +11,8 @@ Primary source PDFs in the reference library are the sole authoritative source o
 Reference sourcebook PDFs are located at:
 `C:/Users/rickr/Documents/D&D notes/resources/books/`
 
-### Sandbox Bypass Requirement (`BypassSandbox: true`)
-Because the library path resides outside the workspace boundary, any terminal command or Python script accessing this directory will fail with an access violation under standard sandbox isolation. Always set `BypassSandbox: true` on commands that read or extract from primary source PDFs.
+### Sandbox & Permissions
+Antigravity permissions explicitly grant read access to `C:\Users\rickr\Documents\D&D notes\resources` and write access to `C:\Users\rickr\Documents\D&D notes\resources\rules-md`. Native tools (`read_file`, `write_file`, `edit_file`) operate directly across these directories. However, commands invoking the dedicated Python environment (`dnd_pdf`) still require `BypassSandbox: true` because `C:\Users\rickr\Envs` resides outside the sandbox boundary.
 
 ## 2. Dedicated Python Environment (`dnd_pdf`)
 
@@ -24,7 +24,7 @@ PDF processing is pre-configured in a dedicated virtual environment containing `
 ## 3. Script Execution Protocol
 
 Adhere strictly to repo and workspace script execution rules when inspecting PDFs:
-- **Sandbox bypass**: Always invoke PDF extraction scripts or inspection commands with `BypassSandbox: true` so the process can read from the primary source library.
+- **Sandbox bypass**: Always invoke `dnd_pdf` Python extraction scripts or inspection commands with `BypassSandbox: true` so the process can execute the external virtual environment. Direct inspection of archive files or PDFs via native tools (`read_file`) operates within standard sandbox permissions.
 - **No inline script commands**: Never pass multi-line or chained Python code via `python -c "..."`.
 - **Scratch script workflow**:
   1. Create an empty script file in the conversation scratch directory using PowerShell `New-Item`:
