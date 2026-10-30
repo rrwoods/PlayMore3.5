@@ -387,8 +387,11 @@ namespace PlayMore35.Subsystems {
             if (slot != null) {
                 string priorState = slot.State;
                 slot.State = state ?? "";
-                if (string.Equals(state, "good_pact", StringComparison.OrdinalIgnoreCase) && string.Equals(priorState, "poor_pact", StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(slot.State, "empty", StringComparison.OrdinalIgnoreCase)) {
                     ResetElementParameters(slot.Element);
+                    slot.Element = "";
+                } else if (!string.Equals(priorState, slot.State, StringComparison.OrdinalIgnoreCase)) {
+                    ResetDeactivatedParameters(slot.Element, groupName, priorState, slot.State);
                 }
                 SyncState();
             }
@@ -461,18 +464,39 @@ namespace PlayMore35.Subsystems {
             if (string.IsNullOrEmpty(elementName)) return;
             var elem = GetElement(elementName);
             if (elem == null) return;
-            foreach (var effectList in elem.Effects.Values) {
-                foreach (var eff in effectList) {
-                    if (!string.IsNullOrEmpty(eff.ParameterName)) {
-                        string paramKey = eff.ParameterName;
-                        if (context?.Character != null) {
-                            context.Character.paramValues[paramKey] = 0;
-                        }
-                        if (context?.Effects?.controllableParameters != null &&
-                            context.Effects.controllableParameters.TryGetValue(paramKey, out var param)) {
-                            param.Value = 0;
-                        }
-                    }
+            foreach (var paramKey in Definition.GetElementParameterNames(elem)) {
+                if (context?.Character != null) {
+                    context.Character.paramValues[paramKey] = 0;
+                }
+                if (context?.Effects?.controllableParameters != null &&
+                    context.Effects.controllableParameters.TryGetValue(paramKey, out var param)) {
+                    param.Value = 0;
+                }
+            }
+        }
+
+        public void ResetCategoryParameters(string elementName, string category) {
+            if (string.IsNullOrEmpty(elementName) || string.IsNullOrEmpty(category)) return;
+            var elem = GetElement(elementName);
+            if (elem == null) return;
+            foreach (var paramKey in Definition.GetCategoryParameterNames(elem, category)) {
+                if (context?.Character != null) {
+                    context.Character.paramValues[paramKey] = 0;
+                }
+                if (context?.Effects?.controllableParameters != null &&
+                    context.Effects.controllableParameters.TryGetValue(paramKey, out var param)) {
+                    param.Value = 0;
+                }
+            }
+        }
+
+        private void ResetDeactivatedParameters(string elementName, string slotGroup, string priorState, string newState) {
+            if (string.IsNullOrEmpty(elementName)) return;
+            var priorCategories = Definition.GetProjectedCategories(slotGroup, priorState);
+            var newCategories = Definition.GetProjectedCategories(slotGroup, newState);
+            foreach (var cat in priorCategories) {
+                if (!newCategories.Contains(cat)) {
+                    ResetCategoryParameters(elementName, cat);
                 }
             }
         }
@@ -664,8 +688,8 @@ namespace PlayMore35.Subsystems {
                 if (string.Equals(to, "empty", StringComparison.OrdinalIgnoreCase)) {
                     ResetElementParameters(elemName);
                     slot.Element = "";
-                } else if (string.Equals(priorState, "poor_pact", StringComparison.OrdinalIgnoreCase) && string.Equals(to, "good_pact", StringComparison.OrdinalIgnoreCase)) {
-                    ResetElementParameters(elemName);
+                } else if (!string.Equals(priorState, to, StringComparison.OrdinalIgnoreCase)) {
+                    ResetDeactivatedParameters(elemName, transition.SlotGroup, priorState, to);
                 }
             }
 
@@ -1190,8 +1214,6 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            var defianceParams = new List<string>();
-
             if (Definition.Projections != null) {
                 foreach (var rule in Definition.Projections) {
                     if (string.IsNullOrEmpty(rule.SlotGroup)) continue;
@@ -1207,13 +1229,10 @@ namespace PlayMore35.Subsystems {
                         if (elem == null) continue;
 
                         foreach (var effectKey in rule.Effects) {
-                            var effects = elem.GetEffects(effectKey);
+                            var effects = Definition.GetElementEffects(elem, effectKey);
                             if (effects != null) {
                                 foreach (var eff in effects) {
                                     pool.AddEffect(eff);
-                                    if (string.Equals(effectKey, "influence", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(eff.ParameterName)) {
-                                        defianceParams.Add(eff.ParameterName);
-                                    }
                                 }
                             }
                         }
@@ -1245,23 +1264,6 @@ namespace PlayMore35.Subsystems {
                         }
                     }
                 }
-            }
-
-            if (defianceParams.Any()) {
-                Modifier CreateDefianceModifier() {
-                    Modifier mod = new Modifier(ModifierTypes.UNTYPED);
-                    foreach (string paramKey in defianceParams) {
-                        mod.AddAmount(new MultiplyAmount(-1, new ControllableAmount(paramKey)));
-                    }
-                    return mod;
-                }
-
-                pool.AddEffect(new Effect("Vestige defiance")
-                    .AddAttackModifier(AttackMatcher.ALL, CreateDefianceModifier())
-                    .AddModifier(ALL_SAVES, CreateDefianceModifier())
-                    .AddModifier(ABILITY_CHECKS, CreateDefianceModifier())
-                    .AddModifier(ALL_SKILLS, CreateDefianceModifier())
-                );
             }
         }
 

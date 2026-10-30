@@ -11,7 +11,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 ### Subsystem literacy cleanup
 - SubsystemEngine:
   - It's got the string literal "initiator level" in it
-  - It references vestige defiance to generate defiance penalties -- this should be purely configuration driven
 - DefaultElementPicker says "maneuver" and "Stance" in it
 - Overzealous null-checks (SubsystemEngine, PactMagicTabPage, probably lots of other places)
 
@@ -19,10 +18,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - It's not clear that "Good" and "Poor" will bind the vestige.  Add a "Binding check:" label, and change the button text to "Succeed" and "Fail"
 - Details panel could use some formatting love
 - The user should be able to find vestiges by ability text using the search box (e.g., searching for "swap" should find Savnok, since "swap" appears in the text of Savnok's Move Ally ability)
-
-### Vestige influence configuration
-- Every vestige individually defining its own influence paramter is very bloated when all of them are identical
-- The subsystem itself should be able to define this for us
 
 ### Extend element picker over non-subsystem choices
 - Feats

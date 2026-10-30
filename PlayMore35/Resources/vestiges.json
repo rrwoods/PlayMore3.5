@@ -85,6 +85,88 @@
         }
       ]
     },
+    "effect_templates": {
+      "influence": {
+        "name": "${element}'s influence",
+        "parameter": "defied",
+        "actions": [
+          {
+            "name": "Defy ${element}'s influence",
+            "adjust": {
+              "${element}'s influence defied": 1
+            }
+          }
+        ],
+        "attack": [
+          {
+            "affects": {},
+            "mod": {
+              "type": "untyped",
+              "amounts": [
+                {
+                  "multiply": {
+                    "variable": {
+                      "controllable": "${element}'s influence defied"
+                    },
+                    "scalar": -1
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "affects": "All saves",
+            "mod": {
+              "type": "untyped",
+              "amounts": [
+                {
+                  "multiply": {
+                    "variable": {
+                      "controllable": "${element}'s influence defied"
+                    },
+                    "scalar": -1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "affects": "Ability checks",
+            "mod": {
+              "type": "untyped",
+              "amounts": [
+                {
+                  "multiply": {
+                    "variable": {
+                      "controllable": "${element}'s influence defied"
+                    },
+                    "scalar": -1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "affects": "All skills",
+            "mod": {
+              "type": "untyped",
+              "amounts": [
+                {
+                  "multiply": {
+                    "variable": {
+                      "controllable": "${element}'s influence defied"
+                    },
+                    "scalar": -1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
     "projections": [
       {
         "slot_group": "vestiges",
@@ -146,16 +228,6 @@
         ],
         "influence": [
           {
-            "name": "Amon's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Amon's influence",
-                "adjust": {
-                  "Amon's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Condition",
@@ -259,16 +331,6 @@
         ],
         "influence": [
           {
-            "name": "Aym's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Aym's influence",
-                "adjust": {
-                  "Aym's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Social",
@@ -355,16 +417,6 @@
         ],
         "influence": [
           {
-            "name": "Leraje's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Leraje's influence",
-                "adjust": {
-                  "Leraje's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Actions",
@@ -443,16 +495,6 @@
         ],
         "influence": [
           {
-            "name": "Naberius's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Naberius's influence",
-                "adjust": {
-                  "Naberius's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Social",
@@ -554,16 +596,6 @@
         ],
         "influence": [
           {
-            "name": "Ronove's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Ronove's influence",
-                "adjust": {
-                  "Ronove's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Social",
@@ -645,16 +677,6 @@
         ],
         "influence": [
           {
-            "name": "Dahlver-Nar's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Dahlver-Nar's influence",
-                "adjust": {
-                  "Dahlver-Nar's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Actions",
@@ -717,16 +739,6 @@
         ],
         "influence": [
           {
-            "name": "Haagenti's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Haagenti's influence",
-                "adjust": {
-                  "Haagenti's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Social",
@@ -788,16 +800,6 @@
         ],
         "influence": [
           {
-            "name": "Malphas's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Malphas's influence",
-                "adjust": {
-                  "Malphas's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Social",
@@ -855,16 +857,6 @@
         ],
         "influence": [
           {
-            "name": "Savnok's influence",
-            "parameter": "defied",
-            "actions": [
-              {
-                "name": "Defy Savnok's influence",
-                "adjust": {
-                  "Savnok's influence defied": 1
-                }
-              }
-            ],
             "text": [
               {
                 "category": "Social",

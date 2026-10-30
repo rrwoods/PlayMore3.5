@@ -19,12 +19,8 @@ namespace PlayMore35.Tests {
         private static SubsystemElement CreateTestVestige(string name, int level = 1, int dc = 15) {
             var ability = new Effect($"{name} Granted Ability")
                 .AddModifier(STR_SCORE, new Modifier(2, "competence"));
-            var influence = new Effect($"{name} Influence");
-            influence.Parameter = "defied";
-            influence.associatedAction.Add(
-                new SheetAction { Name = $"Defy {influence.Name}" }
-                    .AdjustParam(influence.ParameterName, 1)
-            );
+            var influence = new Effect("");
+            influence.Text.Add(new Text { Category = "Social", Description = $"{name} begrudges wealth." });
             var json = new JObject(
                 new JProperty("name", name),
                 new JProperty("level", level),
@@ -45,22 +41,32 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void PactMagic_CatalogInfluence_ContainsDefiedParameterAndAssociatedAction() {
+        public void PactMagic_SubsystemDefinition_DeclaresInfluenceEffectTemplate_AndElementsDeclareOnlyText() {
             var catalog = new GameRulesCatalog();
             var pactDef = catalog.GetSubsystem("pact_magic");
             Assert.IsNotNull(pactDef);
-            Assert.IsTrue(pactDef.Elements.ContainsKey("Naberius"));
+            Assert.IsTrue(pactDef.EffectTemplates.ContainsKey("influence"));
+
+            var template = pactDef.EffectTemplates["influence"];
+            Assert.AreEqual("${element}'s influence", (string)template["name"]);
+            Assert.AreEqual("defied", (string)template["parameter"]);
 
             var naberius = pactDef.Elements["Naberius"];
             var influences = naberius.GetEffects("influence");
             Assert.AreEqual(1, influences.Count);
 
             var influence = influences[0];
-            Assert.AreEqual("defied", influence.Parameter);
-            Assert.AreEqual(1, influence.associatedAction.Count);
-            var expectedAction = new SheetAction { Name = "Defy Naberius's influence" }
-                .AdjustParam("Naberius's influence defied", 1);
-            Assert.IsTrue(influence.associatedAction[0].Matches(expectedAction));
+            Assert.AreEqual("", influence.Parameter);
+            Assert.AreEqual(0, influence.associatedAction.Count);
+            Assert.AreEqual(1, influence.Text.Count);
+            Assert.IsFalse(string.IsNullOrEmpty(influence.Text[0].Description));
+
+            var projected = pactDef.GetElementEffects(naberius, "influence").ToList();
+            Assert.AreEqual(1, projected.Count);
+            Assert.AreEqual("Naberius's influence", projected[0].Name);
+            Assert.AreEqual("Naberius's influence defied", projected[0].ParameterName);
+            Assert.AreEqual(1, projected[0].associatedAction.Count);
+            Assert.AreEqual("Defy Naberius's influence", projected[0].associatedAction[0].Name);
         }
 
         [TestMethod]
@@ -162,30 +168,31 @@ namespace PlayMore35.Tests {
             // Ability grants +2 competence to STR score (10 base + 2 = 12)
             Assert.AreEqual(12, session.GetStatistic(STR_SCORE).Value);
             // No influence effect
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name.Contains("Influence")));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name.Contains("influence")));
             // No defiance effect
             Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"));
 
-            // 2. Poor Pact (0 defiances): contributes granted abilities + influence + Vestige defiance (0 penalty)
+            // 2. Poor Pact (0 defiances): contributes granted abilities + influence (0 penalty)
             engine.SetSlotState("vestiges", 0, "poor_pact");
             session.Recalculate();
 
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"));
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"));
             var savesAtZero = session.GetStatistic(FORT_SAVES);
             Assert.AreEqual(2, savesAtZero.Value);
-            Assert.IsFalse(savesAtZero.Explanation.Any(s => s.Contains("Vestige defiance")));
+            Assert.IsFalse(savesAtZero.Explanation.Any(s => s.Contains("influence")));
 
             // 3. Poor Pact (defied twice): retains influence and applies -2 untyped penalty to saves, checks, skills, and attacks
-            session.SetParameter("Aym Influence defied", 2);
+            session.SetParameter("Aym's influence defied", 2);
             session.Recalculate();
 
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
             var savesDefied = session.GetStatistic(FORT_SAVES);
             Assert.AreEqual(0, savesDefied.Value);
-            CollectionAssert.Contains(savesDefied.Explanation.ToList(), "–2 Vestige defiance");
+            CollectionAssert.Contains(savesDefied.Explanation.ToList(), "–2 Aym's influence");
             Assert.AreEqual(-2, session.GetStatistic(CON_CHECKS).Value);
             Assert.AreEqual(-2, session.GetStatistic(CONCENTRATION).Value);
+            Assert.IsFalse(savesDefied.Explanation.Any(s => s.Contains("Vestige defiance")));
         }
 
         // Source: Tome of Magic, p. 10
@@ -211,9 +218,9 @@ namespace PlayMore35.Tests {
             int baseDiplomacy = session.GetStatistic(DIPLOMACY).Value;
             int baseAtk = session.GetAllRoutines().First().Attacks.First().AttackBonus.bonus;
 
-            // With 0 defiances, no "Vestige defiance" entry appears in explanations
-            Assert.IsFalse(session.GetStatistic(FORT_SAVES).Explanation.Any(e => e.Contains("Vestige defiance")));
-            Assert.IsFalse(session.GetAllRoutines().First().Attacks.First().AttackBonus.explanation.Any(e => e.Contains("Vestige defiance")));
+            // With 0 defiances, no defiance entry appears in explanations
+            Assert.IsFalse(session.GetStatistic(FORT_SAVES).Explanation.Any(e => e.Contains("influence")));
+            Assert.IsFalse(session.GetAllRoutines().First().Attacks.First().AttackBonus.explanation.Any(e => e.Contains("influence")));
 
             // Find the associatedActions projected onto text effects
             var textEffects = session.GetTextEffects().Values.SelectMany(t => t).ToList();
@@ -243,24 +250,28 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(2, paramsByName["Naberius's influence defied"]);
             Assert.AreEqual(1, paramsByName["Savnok's influence defied"]);
 
-            // Attacks, saves, ability checks, and skills all take a single aggregated -3 Vestige defiance penalty
+            // Attacks, saves, ability checks, and skills take independent and cumulative penalties (-2 Naberius, -1 Savnok = -3 total)
             var fortAfter = session.GetStatistic(FORT_SAVES);
             Assert.AreEqual(baseFort - 3, fortAfter.Value);
-            Assert.AreEqual(1, fortAfter.Explanation.Count(e => e.Contains("Vestige defiance")));
-            CollectionAssert.Contains(fortAfter.Explanation.ToList(), "–3 Vestige defiance");
+            CollectionAssert.Contains(fortAfter.Explanation.ToList(), "–2 Naberius's influence");
+            CollectionAssert.Contains(fortAfter.Explanation.ToList(), "–1 Savnok's influence");
+            Assert.IsFalse(fortAfter.Explanation.Any(e => e.Contains("Vestige defiance")));
 
             var strCheckAfter = session.GetStatistic(STR_CHECKS);
             Assert.AreEqual(baseStrCheck - 3, strCheckAfter.Value);
-            CollectionAssert.Contains(strCheckAfter.Explanation.ToList(), "–3 Vestige defiance");
+            CollectionAssert.Contains(strCheckAfter.Explanation.ToList(), "–2 Naberius's influence");
+            CollectionAssert.Contains(strCheckAfter.Explanation.ToList(), "–1 Savnok's influence");
 
             var diplomacyAfter = session.GetStatistic(DIPLOMACY);
             Assert.AreEqual(baseDiplomacy - 3, diplomacyAfter.Value);
-            CollectionAssert.Contains(diplomacyAfter.Explanation.ToList(), "–3 Vestige defiance");
+            CollectionAssert.Contains(diplomacyAfter.Explanation.ToList(), "–2 Naberius's influence");
+            CollectionAssert.Contains(diplomacyAfter.Explanation.ToList(), "–1 Savnok's influence");
 
             var atkAfter = session.GetAllRoutines().First().Attacks.First();
             Assert.AreEqual(baseAtk - 3, atkAfter.AttackBonus.bonus);
-            Assert.AreEqual(1, atkAfter.AttackBonus.explanation.Count(e => e.Contains("Vestige defiance")));
-            CollectionAssert.Contains(atkAfter.AttackBonus.explanation, "–3 Vestige defiance");
+            CollectionAssert.Contains(atkAfter.AttackBonus.explanation, "–2 Naberius's influence");
+            CollectionAssert.Contains(atkAfter.AttackBonus.explanation, "–1 Savnok's influence");
+            Assert.IsFalse(atkAfter.AttackBonus.explanation.Any(e => e.Contains("Vestige defiance")));
         }
 
         // Source: Tome of Magic, p. 10
@@ -333,6 +344,18 @@ namespace PlayMore35.Tests {
 
             Assert.IsTrue(string.IsNullOrEmpty(pactEngine.GetSlot("vestiges", 0)?.Element) || pactEngine.GetSlot("vestiges", 0)?.State == "empty");
             Assert.AreEqual(0, session.Character.paramValues["Naberius's influence defied"]);
+            Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
+
+            // 5. Setting slot state to empty via SetSlotState clears element and resets defiance count to 0
+            pactEngine.AssignSlot("vestiges", 0, "Naberius", "poor_pact", "Binder");
+            session.Recalculate();
+            session.SetParameter("Naberius's influence defied", 2);
+            Assert.AreEqual(baseFort - 2, session.GetStatistic(FORT_SAVES).Value);
+
+            pactEngine.SetSlotState("vestiges", 0, "empty");
+            session.Recalculate();
+            Assert.AreEqual(0, session.Character.paramValues["Naberius's influence defied"]);
+            Assert.AreEqual("", pactEngine.GetSlot("vestiges", 0).Element);
             Assert.AreEqual(baseFort, session.GetStatistic(FORT_SAVES).Value);
         }
 
@@ -543,7 +566,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Aym", slot.Element);
             Assert.AreEqual("good_pact", slot.State);
             Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
 
             // 2. Bind poor pact via declarative SheetAction
             session.PerformAction(new SheetAction {
@@ -562,7 +585,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Aym", slot.Element);
             Assert.AreEqual("poor_pact", slot.State);
             Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
 
             // 3. Unbind via declarative SheetAction
             session.PerformAction(new SheetAction {
@@ -576,7 +599,7 @@ namespace PlayMore35.Tests {
             slot = engine.GetSlot("vestiges", 0);
             Assert.IsTrue(string.IsNullOrEmpty(slot.Element) || slot.State == "empty");
             Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Influence"));
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
         }
 
         [TestMethod]
