@@ -701,6 +701,176 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, warningsUnknown.Count);
             StringAssert.Contains(warningsUnknown[0], "'Nonexistent' is not a valid element in subsystem 'Pact Magic'.");
         }
+
+        [TestMethod]
+        public void SubsystemDefinition_EffectTemplates_RoundTripsAndResolvesElementEffectsWithMergedText() {
+            var json = JObject.Parse(@"{
+              ""subsystem"": {
+                ""id"": ""test_subsystem"",
+                ""name"": ""Test Subsystem"",
+                ""effect_templates"": {
+                  ""custom_stance"": {
+                    ""name"": ""${element} Stance"",
+                    ""parameter"": ""active"",
+                    ""actions"": [
+                      {
+                        ""name"": ""Toggle ${element} Stance"",
+                        ""adjust"": {
+                          ""${element} Stance active"": 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              ""elements"": [
+                {
+                  ""name"": ""Iron Shell"",
+                  ""effects"": {
+                    ""custom_stance"": [
+                      {
+                        ""text"": [
+                          {
+                            ""category"": ""Stance"",
+                            ""text"": ""You gain resistance while in Iron Shell stance.""
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }");
+
+            var def = new SubsystemDefinition(json);
+            Assert.IsTrue(def.EffectTemplates.ContainsKey("custom_stance"));
+            Assert.IsNotNull(def.EffectTemplates["custom_stance"]);
+
+            // Round trip test
+            var roundTripped = new SubsystemDefinition((JObject)def.ToJson());
+            Assert.IsTrue(roundTripped.EffectTemplates.ContainsKey("custom_stance"));
+
+            var element = def.Elements["Iron Shell"];
+            var effects = def.GetElementEffects(element, "custom_stance").ToList();
+            Assert.AreEqual(1, effects.Count);
+
+            var effect = effects[0];
+            Assert.AreEqual("Iron Shell Stance", effect.Name);
+            Assert.AreEqual("Iron Shell Stance active", effect.ParameterName);
+            Assert.AreEqual(1, effect.associatedAction.Count);
+            Assert.AreEqual("Toggle Iron Shell Stance", effect.associatedAction[0].Name);
+
+            // Merged prompt text from the element
+            Assert.AreEqual(1, effect.Text.Count);
+            Assert.AreEqual("Stance", effect.Text[0].Category);
+            Assert.AreEqual("You gain resistance while in Iron Shell stance.", effect.Text[0].Description);
+
+            // Parameter names discovery
+            var paramNames = def.GetElementParameterNames(element).ToList();
+            CollectionAssert.Contains(paramNames, "Iron Shell Stance active");
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_ContributeEffects_ProjectsTemplateEffectsAndResetsParametersGenerically() {
+            var json = JObject.Parse(@"{
+              ""subsystem"": {
+                ""id"": ""synthetic"",
+                ""name"": ""Synthetic Subsystem"",
+                ""slot_groups"": {
+                  ""stances"": {
+                    ""states"": [""inactive"", ""active""],
+                    ""default_state"": ""inactive""
+                  }
+                },
+                ""projections"": [
+                  {
+                    ""slot_group"": ""stances"",
+                    ""state"": ""active"",
+                    ""effects"": [""stance_effect""]
+                  }
+                ],
+                ""effect_templates"": {
+                  ""stance_effect"": {
+                    ""name"": ""${element} Stance"",
+                    ""parameter"": ""active"",
+                    ""actions"": [
+                      {
+                        ""name"": ""Toggle ${element} Stance"",
+                        ""adjust"": {
+                          ""${element} Stance active"": 1
+                        }
+                      }
+                    ],
+                    ""modifiers"": [
+                      {
+                        ""affects"": ""Fort saves"",
+                        ""mod"": {
+                          ""type"": ""untyped"",
+                          ""amounts"": [
+                            {
+                              ""multiply"": {
+                                ""variable"": {
+                                  ""controllable"": ""${element} Stance active""
+                                },
+                                ""scalar"": -1
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              ""elements"": [
+                {
+                  ""name"": ""Iron Shell"",
+                  ""effects"": {
+                    ""stance_effect"": [
+                      {
+                        ""text"": [
+                          {
+                            ""category"": ""Stance"",
+                            ""text"": ""You gain resistance in Iron Shell stance.""
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }");
+
+            var def = new SubsystemDefinition(json);
+            var character = new Character { race = "human" };
+            var session = new CharacterSession(character, new GameRulesCatalog());
+            var engine = new SubsystemEngine(def, session);
+            session.Subsystems.Register(engine);
+
+            // Inactive slot -> no projection
+            engine.AssignSlot("stances", 0, "Iron Shell", "inactive");
+            session.Recalculate();
+            var ctx = (ICharacterContext)session;
+            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Iron Shell Stance"));
+
+            // Active slot -> generic projection of template effect
+            engine.SetSlotState("stances", 0, "active");
+            session.Recalculate();
+            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Iron Shell Stance"));
+            Assert.IsTrue(session.GetControllableParameters().Any(p => p.Name == "Iron Shell Stance active"));
+            int baseFort = session.GetStatistic(PlayMore35.Effects.Constants.FORT_SAVES).Value;
+
+            // Parameter value scaling
+            session.SetParameter("Iron Shell Stance active", 3);
+            session.Recalculate();
+            Assert.AreEqual(baseFort - 3, session.GetStatistic(PlayMore35.Effects.Constants.FORT_SAVES).Value);
+
+            // Parameter reset clears parameter on the character and effects
+            engine.ResetElementParameters("Iron Shell");
+            session.Recalculate();
+            Assert.AreEqual(0, session.GetControllableParameters().First(p => p.Name == "Iron Shell Stance active").Value);
+            Assert.AreEqual(baseFort, session.GetStatistic(PlayMore35.Effects.Constants.FORT_SAVES).Value);
+        }
     }
 }
 

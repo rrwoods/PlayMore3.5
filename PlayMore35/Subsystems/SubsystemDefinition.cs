@@ -313,6 +313,7 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> DefaultElementVerbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, PoolDefinition> Pools { get; } = new Dictionary<string, PoolDefinition>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, JObject> EffectTemplates { get; } = new Dictionary<string, JObject>(StringComparer.OrdinalIgnoreCase);
         public List<EffectProjectionRule> Projections { get; } = new List<EffectProjectionRule>();
         public List<string> RequiredElementProperties { get; } = new List<string>();
         public Dictionary<string, List<string>> ElementStatistics { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -380,6 +381,14 @@ namespace PlayMore35.Subsystems {
                         var poolDef = new PoolDefinition(poolObj);
                         if (string.IsNullOrEmpty(poolDef.Id)) poolDef.Id = prop.Name;
                         Pools[prop.Name] = poolDef;
+                    }
+                }
+            }
+
+            if (subJson["effect_templates"] is JObject effTemplatesObj) {
+                foreach (var prop in effTemplatesObj.Properties()) {
+                    if (prop.Value is JObject templateObj) {
+                        EffectTemplates[prop.Name] = (JObject)templateObj.DeepClone();
                     }
                 }
             }
@@ -491,6 +500,14 @@ namespace PlayMore35.Subsystems {
                 subJson["pools"] = poolsObj;
             }
 
+            if (EffectTemplates.Count > 0) {
+                var templatesObj = new JObject();
+                foreach (var kvp in EffectTemplates) {
+                    templatesObj[kvp.Key] = (JObject)kvp.Value.DeepClone();
+                }
+                subJson["effect_templates"] = templatesObj;
+            }
+
             if (Projections.Count > 0) {
                 subJson["projections"] = new JArray(Projections.Select(x => x.ToJson()));
             }
@@ -520,6 +537,87 @@ namespace PlayMore35.Subsystems {
                 root["elements"] = new JArray(Elements.Values.Select(x => x.ToJson()));
             }
             return root;
+        }
+
+        public Effect? ResolveEffectTemplate(string templateKey, SubsystemElement element) {
+            if (string.IsNullOrEmpty(templateKey) || element == null) return null;
+            if (!EffectTemplates.TryGetValue(templateKey, out var templateJson)) return null;
+
+            string elemName = element.Name ?? "";
+            string resolvedJson = templateJson.ToString().Replace("${element}", elemName);
+
+            var effect = new Effect(JObject.Parse(resolvedJson));
+            var declaredEffects = element.GetEffects(templateKey);
+            if (declaredEffects != null) {
+                foreach (var declared in declaredEffects) {
+                    if (declared.Text != null) {
+                        foreach (var t in declared.Text) {
+                            effect.Text.Add(new Text(t));
+                        }
+                    }
+                }
+            }
+            return effect;
+        }
+
+        public IReadOnlyList<Effect> GetElementEffects(SubsystemElement element, string category) {
+            if (element == null || string.IsNullOrEmpty(category)) return new List<Effect>();
+            if (EffectTemplates.ContainsKey(category)) {
+                var templateEffect = ResolveEffectTemplate(category, element);
+                return templateEffect != null ? new List<Effect> { templateEffect } : new List<Effect>();
+            }
+            return element.GetEffects(category);
+        }
+
+        public HashSet<string> GetProjectedCategories(string slotGroup, string state) {
+            var categories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (Projections != null) {
+                foreach (var rule in Projections) {
+                    if (string.Equals(rule.SlotGroup, slotGroup, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(rule.State, state, StringComparison.OrdinalIgnoreCase)) {
+                        foreach (var eff in rule.Effects) {
+                            categories.Add(eff);
+                        }
+                    }
+                }
+            }
+            return categories;
+        }
+
+        public IEnumerable<string> GetCategoryParameterNames(SubsystemElement element, string category) {
+            if (element == null || string.IsNullOrEmpty(category)) yield break;
+            var yielded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (EffectTemplates.TryGetValue(category, out var templateJson)) {
+                var eff = ResolveEffectTemplate(category, element);
+                if (eff != null && !string.IsNullOrEmpty(eff.ParameterName) && yielded.Add(eff.ParameterName)) {
+                    yield return eff.ParameterName;
+                }
+            }
+
+            if (element.Effects.TryGetValue(category, out var effectList)) {
+                foreach (var eff in effectList) {
+                    if (!string.IsNullOrEmpty(eff.ParameterName) && yielded.Add(eff.ParameterName)) {
+                        yield return eff.ParameterName;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<string> GetElementParameterNames(SubsystemElement element) {
+            if (element == null) yield break;
+            var categories = new HashSet<string>(EffectTemplates.Keys, StringComparer.OrdinalIgnoreCase);
+            foreach (var cat in element.Effects.Keys) {
+                categories.Add(cat);
+            }
+            var yielded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var cat in categories) {
+                foreach (var name in GetCategoryParameterNames(element, cat)) {
+                    if (yielded.Add(name)) {
+                        yield return name;
+                    }
+                }
+            }
         }
     }
 }

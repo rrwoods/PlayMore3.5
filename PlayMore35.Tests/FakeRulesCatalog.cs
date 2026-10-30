@@ -237,6 +237,13 @@ namespace PlayMore35.Tests {
 
             def.Projections.Add(new EffectProjectionRule("vestiges", "good_pact", "abilities"));
             def.Projections.Add(new EffectProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
+
+            if (inner != null && inner.TryGetSubsystem("pact_magic", out var innerPact)) {
+                foreach (var kvp in innerPact.EffectTemplates) {
+                    def.EffectTemplates[kvp.Key] = (JObject)kvp.Value.DeepClone();
+                }
+            }
+
             SubsystemsMap["pact_magic"] = def;
 
             if (vestiges != null) {
