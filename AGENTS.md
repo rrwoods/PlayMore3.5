@@ -49,7 +49,8 @@ Prefer linear git history:
 ### State exploration and search discipline
 
 - **Treat first-search negative results as proof of absence**: When searching for an element, identifier, or control named in a ticket specification, treat the first empty search result as confirmation that the element does not yet exist. Immediately proceed to write the red test and implement it.
-- **Chain searches only to newly discovered references**: When following up on a search, ensure every subsequent query targets a new symbol, type, or file path discovered in the previous tool output.
+- **Chain searches exclusively to newly discovered references**: Restrict every follow-up query to a specific symbol, type, or file path discovered in the immediately preceding tool output.
+- **Pivot or escalate on negative discovery**: Exploration serves solely to locate active seams. When two consecutive inspection queries return no new references, or when a ticket refers to a concept absent from the codebase, immediately choose between two actions: proceed to implement the new capability test-first, or halt tool execution and ask the user to clarify the intended design seam.
 - **Inspect exclusively after state transitions**: Schedule verification and inspection tool calls (`git status`, `git grep`, file reads) after performing a mutating action (`edit_file`, `write_file`, or command execution).
 
 ### Pull requests
