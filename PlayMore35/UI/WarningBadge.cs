@@ -33,11 +33,13 @@ namespace PlayMore35.UI {
             if (kind == WarningKind.ItemDependent) {
                 Text = "🛈";
                 ForeColor = Color.DodgerBlue;
+                string tooltip = !string.IsNullOrEmpty(message) ? $"{message}\n(Satisfied by currently equipped items)" : "";
+                FormUtils.ToolTipTextLabel(this, tooltip);
             } else {
                 Text = "⚠";
                 ForeColor = Color.DarkGoldenrod;
+                FormUtils.ToolTipTextLabel(this, message ?? "");
             }
-            FormUtils.ToolTipTextLabel(this, message ?? "");
             Visible = !string.IsNullOrEmpty(message);
         }
 
