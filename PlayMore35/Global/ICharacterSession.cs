@@ -93,5 +93,6 @@ namespace PlayMore35.Global {
         IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource);
         List<string> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null);
         void AddLevel();
+        ICharacterSession GetSessionAtLevel(int level, bool includeEquipped = false);
     }
 }

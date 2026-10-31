@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using PlayMore35.CharacterChoices;
@@ -20,6 +21,8 @@ namespace PlayMore35.Global {
 
         private readonly Dictionary<string, string> rememberedFeats = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> rememberedFeatChoices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession> _levelSessionCache =
+            new ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession>();
 
         public IReadOnlyCharacter Character => readOnlyCharacter;
         public IReadOnlyDictionary<string, string> RememberedFeats => rememberedFeats;
@@ -72,10 +75,15 @@ namespace PlayMore35.Global {
             Recalculate();
         }
 
+        private void InvalidateLevelSnapshots() {
+            _levelSessionCache.Clear();
+        }
+
         public void Mutate(Action<Character> mutate) {
             if (mutate == null) throw new ArgumentNullException(nameof(mutate));
             mutate(character);
             character.Timeline.Context = this;
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -365,6 +373,7 @@ namespace PlayMore35.Global {
                 character.equipped.OffHandWeapon = null;
             }
 
+            InvalidateLevelSnapshots();
             Recalculate();
             return removed;
         }
@@ -373,6 +382,7 @@ namespace PlayMore35.Global {
             ArmorChoice removed = character.equipped.DonnedArmor;
             character.equipped.DonnedArmor = null;
 
+            InvalidateLevelSnapshots();
             Recalculate();
             return removed;
         }
@@ -381,6 +391,7 @@ namespace PlayMore35.Global {
             ArmorChoice removed = character.equipped.OffHandShield;
             character.equipped.OffHandShield = null;
 
+            InvalidateLevelSnapshots();
             Recalculate();
             return removed;
         }
@@ -465,6 +476,7 @@ namespace PlayMore35.Global {
             items.Remove(from);
             AddItem(to, removed, 1);
 
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -478,6 +490,7 @@ namespace PlayMore35.Global {
             }
             AddItem(to, item, 1);
 
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -497,6 +510,7 @@ namespace PlayMore35.Global {
                 }
             }
 
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -509,6 +523,7 @@ namespace PlayMore35.Global {
             UndonArmor(from);
             character.equipped.DonnedArmor = armorChoice;
 
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -524,6 +539,7 @@ namespace PlayMore35.Global {
                 UnequipWeapon(from, false);
             }
 
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -551,6 +567,7 @@ namespace PlayMore35.Global {
                 }
             }
 
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -559,6 +576,7 @@ namespace PlayMore35.Global {
             character.equipped.PrimaryHandWeapon = character.equipped.OffHandWeapon;
             character.equipped.OffHandWeapon = swapChoice;
 
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -745,9 +763,13 @@ namespace PlayMore35.Global {
         public int GetFeatSlotLevel(string featSlot) {
             if (string.IsNullOrEmpty(featSlot)) return 0;
             foreach (var levelEntry in GetFeatSlots()) {
-                if (levelEntry.Value.Contains(featSlot)) {
+                if (levelEntry.Value.Contains(featSlot, StringComparer.OrdinalIgnoreCase)) {
                     return levelEntry.Key;
                 }
+            }
+            if (featSlot.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) &&
+                int.TryParse(featSlot.Substring(6), out int parsedLevel)) {
+                return parsedLevel;
             }
             return 0;
         }
@@ -865,11 +887,13 @@ namespace PlayMore35.Global {
 
         public void SetFeatChoice(string featSlot, string choice) {
             character.featChoices[featSlot] = choice;
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
         public void SetFeatChoice(string featSlot, string key, string choice) {
             character.featChoices[$"{featSlot}:{key}"] = choice;
+            InvalidateLevelSnapshots();
             Recalculate();
         }
 
@@ -1132,6 +1156,80 @@ namespace PlayMore35.Global {
                     skill.Value.Add(0);
                 }
             });
+        }
+
+        public virtual ICharacterSession GetSessionAtLevel(int level, bool includeEquipped = false) {
+            if (level < 1) {
+                throw new ArgumentOutOfRangeException(nameof(level), "Level must be greater than or equal to 1.");
+            }
+            int maxLevel = character.classLevels.Count;
+            if (level > maxLevel) {
+                throw new ArgumentOutOfRangeException(nameof(level), $"Level {level} cannot exceed character level {maxLevel}.");
+            }
+
+            return _levelSessionCache.GetOrAdd((level, includeEquipped), key => CreateSessionAtLevel(key.level, key.includeEquipped));
+        }
+
+        private CharacterSession CreateSessionAtLevel(int level, bool includeEquipped) {
+            var slotLevels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var levelEntry in GetFeatSlots()) {
+                foreach (var slot in levelEntry.Value) {
+                    slotLevels[slot] = levelEntry.Key;
+                }
+            }
+
+            int ResolveSlotLevel(string slot) {
+                if (slotLevels.TryGetValue(slot, out int slotLvl)) return slotLvl;
+                if (slot.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(slot.Substring(6), out int parsedLevel)) {
+                    return parsedLevel;
+                }
+                return 0;
+            }
+
+            var sliced = new Character {
+                name = character.name,
+                gender = character.gender,
+                alignment = character.alignment,
+                race = character.race,
+                bonusLanguages = new List<string>(character.bonusLanguages ?? Enumerable.Empty<string>()),
+                assignedAbilityScores = new Dictionary<string, int>(character.assignedAbilityScores ?? new Dictionary<string, int>()),
+                classLevels = character.classLevels.Take(level).ToList(),
+                abilityScoreIncrements = character.abilityScoreIncrements
+                    .Where(kvp => kvp.Key <= level)
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                rolledHitDice = character.rolledHitDice.Take(level).ToList(),
+                skillRanks = character.skillRanks
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Take(level).ToList()),
+                feats = new Dictionary<string, string>(),
+                featChoices = new Dictionary<string, string>(),
+                equipped = includeEquipped ? character.equipped.Clone() : new EquippedChoices(),
+                inventory = new Dictionary<string, InventoryLocation>(),
+                transactions = new List<GpTransaction>(),
+                sessions = new List<XpSessionEntry>(),
+                externalEffects = new List<string>(),
+                flagValues = new Dictionary<string, bool>(),
+                paramValues = new Dictionary<string, int>(),
+                Timeline = new Timeline(),
+                RoutinePreferences = new AttackRoutinePreferences()
+            };
+
+            foreach (var kvp in character.feats) {
+                int slotLevel = ResolveSlotLevel(kvp.Key);
+                if (slotLevel > 0 && slotLevel <= level) {
+                    sliced.feats[kvp.Key] = kvp.Value;
+                }
+            }
+
+            foreach (var kvp in character.featChoices) {
+                string slot = kvp.Key.Contains(':') ? kvp.Key.Substring(0, kvp.Key.IndexOf(':')) : kvp.Key;
+                int slotLevel = ResolveSlotLevel(slot);
+                if (slotLevel > 0 && slotLevel <= level) {
+                    sliced.featChoices[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return new CharacterSession(sliced, catalog);
         }
     }
 }

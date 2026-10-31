@@ -8,6 +8,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
+using PlayMore35.UI;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -356,6 +357,286 @@ namespace PlayMore35.Tests {
         public void CharacterSession_Constructor_ThrowsKeyNotFoundException_WhenRaceNotFoundInCatalog() {
             var character = new Character { race = "NonExistentRace" };
             new CharacterSession(character, catalog);
+        }
+
+        // Source: System Reference Document 3.5, Character Advancement (https://www.d20srd.org/srd/classes/characterAdvancement.htm)
+        [TestMethod]
+        public void GetSessionAtLevel_InvalidLevels_ThrowsArgumentOutOfRangeException() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter" };
+            var session = new CharacterSession(character, catalog);
+
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => session.GetSessionAtLevel(0));
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => session.GetSessionAtLevel(-1));
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => session.GetSessionAtLevel(3));
+        }
+
+        // Source: System Reference Document 3.5, Character Advancement (https://www.d20srd.org/srd/classes/characterAdvancement.htm)
+        [TestMethod]
+        public void GetSessionAtLevel_HistoricalProgressionTruncation_ReflectsHistoricalStats() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter", "Binder", "Fighter" };
+            character.assignedAbilityScores["STR"] = 16;
+            character.assignedAbilityScores["DEX"] = 12;
+            character.assignedAbilityScores["CON"] = 14;
+            character.assignedAbilityScores["INT"] = 14;
+            character.assignedAbilityScores["WIS"] = 10;
+            character.assignedAbilityScores["CHA"] = 8;
+            character.rolledHitDice = new List<int> { 10, 8, 6, 9 };
+            character.abilityScoreIncrements[4] = "STR";
+            character.skillRanks["Jump"] = new List<int> { 4, 1, 0, 1 };
+            character.skillRanks["Concentration"] = new List<int> { 0, 0, 4, 1 };
+
+            var session = new CharacterSession(character, catalog);
+
+            // Level 1: Fighter 1, BAB 1, Fort 2+2=4, Ref 0+1=1, Will 0+0=0, STR 16, Jump 4, HP 10+2=12
+            var snap1 = session.GetSessionAtLevel(1);
+            Assert.AreEqual(1, snap1.Character.classLevels.Count);
+            Assert.AreEqual(1, snap1.GetStatistic(Constants.BASE_ATTACK_BONUS).Value);
+            Assert.AreEqual(4, snap1.GetStatistic(Constants.FORT_SAVES).Value);
+            Assert.AreEqual(1, snap1.GetStatistic(Constants.REF_SAVES).Value);
+            Assert.AreEqual(0, snap1.GetStatistic(Constants.WILL_SAVES).Value);
+            Assert.AreEqual(16, snap1.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(4, snap1.TotalSkillRanks("Jump"));
+            Assert.AreEqual(0, snap1.TotalSkillRanks("Concentration"));
+            Assert.AreEqual(12, snap1.BaseHp());
+
+            // Level 2: Fighter 2, BAB 2, Fort 3+2=5, Ref 0+1=1, Will 0+0=0, STR 16, Jump 5, HP 12+(8+2)=22
+            var snap2 = session.GetSessionAtLevel(2);
+            Assert.AreEqual(2, snap2.Character.classLevels.Count);
+            Assert.AreEqual(2, snap2.GetStatistic(Constants.BASE_ATTACK_BONUS).Value);
+            Assert.AreEqual(5, snap2.GetStatistic(Constants.FORT_SAVES).Value);
+            Assert.AreEqual(1, snap2.GetStatistic(Constants.REF_SAVES).Value);
+            Assert.AreEqual(0, snap2.GetStatistic(Constants.WILL_SAVES).Value);
+            Assert.AreEqual(5, snap2.TotalSkillRanks("Jump"));
+            Assert.AreEqual(22, snap2.BaseHp());
+
+            // Level 3: Fighter 2 / Binder 1, BAB 2+0=2, Fort 3+2+2=7, Ref 0+0+1=1, Will 0+2+0=2, Concentration 4, HP 22+(6+2)=30
+            var snap3 = session.GetSessionAtLevel(3);
+            Assert.AreEqual(3, snap3.Character.classLevels.Count);
+            Assert.AreEqual(2, snap3.GetStatistic(Constants.BASE_ATTACK_BONUS).Value);
+            Assert.AreEqual(7, snap3.GetStatistic(Constants.FORT_SAVES).Value);
+            Assert.AreEqual(1, snap3.GetStatistic(Constants.REF_SAVES).Value);
+            Assert.AreEqual(2, snap3.GetStatistic(Constants.WILL_SAVES).Value);
+            Assert.AreEqual(4, snap3.TotalSkillRanks("Concentration"));
+            Assert.AreEqual(30, snap3.BaseHp());
+
+            // Level 4: Fighter 3 / Binder 1, BAB 3+0=3, Fort 3+2+2=7, Ref 1+0+1=2, Will 1+2+0=3, STR 17 (+1 increment at level 4), Jump 6, Concentration 5, HP 30+(9+2)=41
+            var snap4 = session.GetSessionAtLevel(4);
+            Assert.AreEqual(4, snap4.Character.classLevels.Count);
+            Assert.AreEqual(3, snap4.GetStatistic(Constants.BASE_ATTACK_BONUS).Value);
+            Assert.AreEqual(7, snap4.GetStatistic(Constants.FORT_SAVES).Value);
+            Assert.AreEqual(2, snap4.GetStatistic(Constants.REF_SAVES).Value);
+            Assert.AreEqual(3, snap4.GetStatistic(Constants.WILL_SAVES).Value);
+            Assert.AreEqual(17, snap4.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(6, snap4.TotalSkillRanks("Jump"));
+            Assert.AreEqual(5, snap4.TotalSkillRanks("Concentration"));
+            Assert.AreEqual(41, snap4.BaseHp());
+        }
+
+        // Source: Dungeon Master's Guide 3.5 p. 214; Complete Warrior p. 16
+        [TestMethod]
+        public void GetSessionAtLevel_IncludeEquippedFalse_CompletelyOmitsEquipmentInventoryTogglesAndExternalEffects() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter", "Fighter", "Fighter" };
+            character.assignedAbilityScores["CON"] = 14;
+            character.inventory["Pack"] = new InventoryLocation();
+
+            var session = new CharacterSession(character, catalog);
+            session.AddItem("Pack", "torc of displacement and Con +2", 1);
+            session.EquipItem("Pack", Equipped.Slot.NECK, "torc of displacement and Con +2");
+            session.AddItem("Pack", "silk rope", 1);
+            session.SetFlag("charging", true);
+            session.SetParameter("Lethal damage", 6);
+
+            Assert.AreEqual(16, session.GetStatistic(Constants.CON_SCORE).Value);
+
+            var snapNoEquip = session.GetSessionAtLevel(1, includeEquipped: false);
+
+            Assert.AreEqual(14, snapNoEquip.GetStatistic(Constants.CON_SCORE).Value, "Intrinsic snapshot must not include equipped stat bonuses.");
+            Assert.AreEqual(0, snapNoEquip.Character.equipped.SlottedItems.Count, "Equipped slotted items must be omitted.");
+            Assert.AreEqual(0, snapNoEquip.Character.equipped.SlotlessItems.Count, "Equipped slotless items must be omitted.");
+            Assert.IsNull(snapNoEquip.Character.equipped.PrimaryHandWeapon, "Equipped weapons must be omitted.");
+            Assert.IsNull(snapNoEquip.Character.equipped.DonnedArmor, "Donned armor must be omitted.");
+            Assert.AreEqual(0, snapNoEquip.Character.inventory.Count, "Carried inventory locations must be omitted.");
+            Assert.AreEqual(0, snapNoEquip.Character.externalEffects.Count, "External effects must be omitted.");
+            Assert.AreEqual(0, snapNoEquip.Character.flagValues.Count, "Combat toggles must be omitted.");
+            Assert.AreEqual(0, snapNoEquip.Character.paramValues.Count, "Controllable parameters must be omitted.");
+            Assert.IsFalse(snapNoEquip.HasFlag("charging"), "Combat flags must not be active in snapshot.");
+            Assert.AreEqual(0, snapNoEquip.GetStatistic("Lethal damage").Value, "Combat parameters must be zeroed in snapshot.");
+            Assert.AreEqual(0m, snapNoEquip.EquippedWeight, "Equipped weight must be zero.");
+            Assert.AreEqual(0m, snapNoEquip.TotalWeight, "Total weight must be zero.");
+        }
+
+        // Source: Dungeon Master's Guide 3.5 p. 214; Complete Warrior p. 16
+        [TestMethod]
+        public void GetSessionAtLevel_IncludeEquippedTrue_AppliesCurrentEquippedItemsWithoutLeakingSubsequentLevels() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter", "Fighter", "Fighter" };
+            character.assignedAbilityScores["CON"] = 14;
+            character.abilityScoreIncrements[4] = "CON";
+            character.inventory["Pack"] = new InventoryLocation();
+
+            var session = new CharacterSession(character, catalog);
+            session.AddItem("Pack", "torc of displacement and Con +2", 1);
+            session.EquipItem("Pack", Equipped.Slot.NECK, "torc of displacement and Con +2");
+            session.AddItem("Pack", "silk rope", 1);
+            session.SetFlag("charging", true);
+
+            // Live character at level 4: 14 base + 1 increment + 2 enhancement = 17
+            Assert.AreEqual(17, session.GetStatistic(Constants.CON_SCORE).Value);
+
+            // Level 1 snapshot with equipped gear: 14 base + 2 enhancement = 16 (level 4 increment not leaked!)
+            var snapEquipped = session.GetSessionAtLevel(1, includeEquipped: true);
+            Assert.AreEqual(16, snapEquipped.GetStatistic(Constants.CON_SCORE).Value, "Equipped snapshot applies gear bonuses to historical baseline.");
+            Assert.AreEqual(1, snapEquipped.Character.classLevels.Count, "Class progression remains strictly truncated to level 1.");
+            Assert.AreEqual(0, snapEquipped.Character.abilityScoreIncrements.Count, "Level 4 ability increment must not leak into level 1 snapshot.");
+
+            // Carried inventory and combat toggles are still omitted
+            Assert.AreEqual(0, snapEquipped.Character.inventory.Count, "Carried inventory remains omitted even with includeEquipped true.");
+            Assert.AreEqual(0, snapEquipped.Character.flagValues.Count, "Combat toggles remain omitted even with includeEquipped true.");
+            Assert.IsFalse(snapEquipped.HasFlag("charging"));
+        }
+
+        // Source: Player's Handbook 3.5 p. 58-59; Tome of Battle p. 44
+        [TestMethod]
+        public void GetSessionAtLevel_IntraLevelFeats_AreCoVisibleRegardlessOfSlotOrder() {
+            var featDef = catalog.GetFeat("Martial Stance");
+            var stanceChoiceDesc = featDef.Choices.First(c => c.Id == "stance");
+
+            // Setup A: Slot "Human" has Martial Study (Burning Blade, Desert Wind), Slot "Level 1" has Martial Stance (Flame's Blessing)
+            var charA = new Character { race = "human" };
+            charA.classLevels = new List<string> { "Fighter" };
+            charA.feats["Human"] = "Martial Study";
+            charA.featChoices["Human:maneuver"] = "Burning Blade";
+            charA.feats["Level 1"] = "Martial Stance";
+            charA.featChoices["Level 1:stance"] = "Flame's Blessing";
+
+            var sessionA = new CharacterSession(charA, catalog);
+            var snapA = sessionA.GetSessionAtLevel(1);
+            var warningsA = snapA.ValidateFeatChoice("Level 1", stanceChoiceDesc, "Flame's Blessing", "Feats");
+            Assert.AreEqual(0, warningsA.Count, "Flame's Blessing prerequisite (1 Desert Wind maneuver) is satisfied by co-level Human slot choice.");
+
+            // Setup B: Reversed slot order - Slot "Level 1" has Martial Study, Slot "Human" has Martial Stance
+            var charB = new Character { race = "human" };
+            charB.classLevels = new List<string> { "Fighter" };
+            charB.feats["Level 1"] = "Martial Study";
+            charB.featChoices["Level 1:maneuver"] = "Burning Blade";
+            charB.feats["Human"] = "Martial Stance";
+            charB.featChoices["Human:stance"] = "Flame's Blessing";
+
+            var sessionB = new CharacterSession(charB, catalog);
+            var snapB = sessionB.GetSessionAtLevel(1);
+            var warningsB = snapB.ValidateFeatChoice("Human", stanceChoiceDesc, "Flame's Blessing", "Feats");
+            Assert.AreEqual(0, warningsB.Count, "Flame's Blessing prerequisite is satisfied regardless of slot assignment order at same acquisition level.");
+        }
+
+        // Source: Tome of Battle: The Book of Nine Swords p. 44
+        [TestMethod]
+        public void GetSessionAtLevel_HigherLevelFeats_AreNotVisibleInEarlierSnapshots() {
+            var featDef = catalog.GetFeat("Martial Stance");
+            var stanceChoiceDesc = featDef.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter", "Fighter" };
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Burning Blade";
+            character.feats["Level 3"] = "Martial Stance";
+            character.featChoices["Level 3:stance"] = "Flame's Blessing";
+
+            var session = new CharacterSession(character, catalog);
+
+            // At level 1 snapshot: Level 3 feat and choices are completely omitted
+            var snap1 = session.GetSessionAtLevel(1);
+            Assert.IsTrue(snap1.Character.feats.ContainsKey("Level 1"));
+            Assert.AreEqual("Martial Study", snap1.Character.feats["Level 1"]);
+            Assert.AreEqual("Burning Blade", snap1.Character.featChoices["Level 1:maneuver"]);
+            Assert.IsFalse(snap1.Character.feats.ContainsKey("Level 3"), "Level 3 feat must not exist in level 1 snapshot.");
+            Assert.IsFalse(snap1.Character.featChoices.ContainsKey("Level 3:stance"), "Level 3 choices must not exist in level 1 snapshot.");
+
+            // At level 3 snapshot: Level 3 feat is present, and satisfies prerequisites from Level 1 choice
+            var snap3 = session.GetSessionAtLevel(3);
+            Assert.IsTrue(snap3.Character.feats.ContainsKey("Level 1"));
+            Assert.IsTrue(snap3.Character.feats.ContainsKey("Level 3"), "Level 3 feat must exist in level 3 snapshot.");
+            Assert.AreEqual("Flame's Blessing", snap3.Character.featChoices["Level 3:stance"]);
+            var warnings3 = snap3.ValidateFeatChoice("Level 3", stanceChoiceDesc, "Flame's Blessing", "Feats");
+            Assert.AreEqual(0, warnings3.Count, "Level 3 snapshot satisfies Desert Wind prerequisite from level 1 choice.");
+        }
+
+        [TestMethod]
+        public void GetSessionAtLevel_LazyCaching_ReturnsSameInstanceUntilMutation() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter" };
+            var session = new CharacterSession(character, catalog);
+
+            var snap1 = session.GetSessionAtLevel(1, false);
+            var snap2 = session.GetSessionAtLevel(1, false);
+            Assert.AreSame(snap1, snap2, "Repeated calls with same level and includeEquipped must return cached instance.");
+
+            var snapEquip1 = session.GetSessionAtLevel(1, true);
+            var snapEquip2 = session.GetSessionAtLevel(1, true);
+            Assert.AreSame(snapEquip1, snapEquip2, "Repeated calls with includeEquipped true must return cached instance.");
+            Assert.AreNotSame(snap1, snapEquip1, "Intrinsic and equipped snapshots must have separate cache keys.");
+
+            var snapLvl2 = session.GetSessionAtLevel(2, false);
+            Assert.AreNotSame(snap1, snapLvl2, "Different levels must have separate cache entries.");
+        }
+
+        [TestMethod]
+        public void GetSessionAtLevel_Mutation_InvalidatesCachedSnapshots() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter" };
+            var session = new CharacterSession(character, catalog);
+
+            var snapBefore = session.GetSessionAtLevel(1);
+
+            // Mutating state clears cache
+            session.Mutate(c => c.name = "MutatedHero");
+
+            var snapAfter = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snapBefore, snapAfter, "Mutate must invalidate level snapshot cache.");
+            Assert.AreEqual("MutatedHero", snapAfter.Character.name);
+        }
+
+        private class SnapshotSpyCharacterSession : CharacterSession {
+            public int GetSessionAtLevelCallCount { get; private set; }
+
+            public SnapshotSpyCharacterSession(Character character, IRulesCatalog catalog)
+                : base(character, catalog) { }
+
+            public override ICharacterSession GetSessionAtLevel(int level, bool includeEquipped = false) {
+                GetSessionAtLevelCallCount++;
+                return base.GetSessionAtLevel(level, includeEquipped);
+            }
+        }
+
+        [TestMethod]
+        public void CombatTicksTimelineRecalculateAndDisplayLevels_DoNotInvokeGetSessionAtLevel() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter" };
+            var spySession = new SnapshotSpyCharacterSession(character, catalog);
+
+            Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount);
+
+            spySession.Recalculate();
+            Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount, "Recalculate must not invoke GetSessionAtLevel.");
+
+            spySession.StartCombat();
+            Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount, "StartCombat must not invoke GetSessionAtLevel.");
+
+            spySession.AdvanceTimeline(1);
+            Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount, "AdvanceTimeline must not invoke GetSessionAtLevel.");
+
+            spySession.Timeline.Advance(1, spySession);
+            Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount, "Timeline.Advance must not invoke GetSessionAtLevel.");
+
+            spySession.EndCombat();
+            Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount, "EndCombat must not invoke GetSessionAtLevel.");
+
+            using (var form = new MainForm(spySession)) {
+                // MainForm constructor executes DisplayLevels()
+                Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount, "DisplayLevels painting must not invoke GetSessionAtLevel.");
+            }
         }
     }
 }

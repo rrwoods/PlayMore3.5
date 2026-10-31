@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +39,17 @@ namespace PlayMore35.CharacterChoices {
             SecondHeadProperties = new List<string>();
             ProjectileProperties = new List<string>();
             ThrownProperties = new List<string>();
+        }
+
+        public WeaponChoice Clone() {
+            return new WeaponChoice {
+                Name = Name,
+                SizeCategory = SizeCategory,
+                MeleeProperties = new List<string>(MeleeProperties ?? Enumerable.Empty<string>()),
+                SecondHeadProperties = new List<string>(SecondHeadProperties ?? Enumerable.Empty<string>()),
+                ProjectileProperties = new List<string>(ProjectileProperties ?? Enumerable.Empty<string>()),
+                ThrownProperties = new List<string>(ThrownProperties ?? Enumerable.Empty<string>())
+            };
         }
 
         public string FullName() {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -54,5 +54,16 @@ namespace PlayMore35.CharacterChoices {
         }
 
         public EquippedChoices() { }
+
+        public EquippedChoices Clone() {
+            return new EquippedChoices {
+                PrimaryHandWeapon = PrimaryHandWeapon?.Clone(),
+                OffHandWeapon = OffHandWeapon?.Clone(),
+                DonnedArmor = DonnedArmor?.Clone(),
+                OffHandShield = OffHandShield?.Clone(),
+                SlottedItems = SlottedItems != null ? new Dictionary<Items.Equipped.Slot, string>(SlottedItems) : new Dictionary<Items.Equipped.Slot, string>(),
+                SlotlessItems = SlotlessItems != null ? new List<string>(SlotlessItems) : new List<string>()
+            };
+        }
     }
 }

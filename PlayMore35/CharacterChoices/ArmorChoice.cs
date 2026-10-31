@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -36,6 +36,17 @@ namespace PlayMore35.CharacterChoices {
             Spiked = false;
             ArmorProperties = new List<string>();
             MeleeProperties = new List<string>();
+        }
+
+        public ArmorChoice Clone() {
+            return new ArmorChoice {
+                Name = Name,
+                SizeCategory = SizeCategory,
+                Spiked = Spiked,
+                ArmorProperties = new List<string>(ArmorProperties ?? Enumerable.Empty<string>()),
+                MeleeProperties = new List<string>(MeleeProperties ?? Enumerable.Empty<string>()),
+                IsShield = IsShield
+            };
         }
 
         public string FullName() {
