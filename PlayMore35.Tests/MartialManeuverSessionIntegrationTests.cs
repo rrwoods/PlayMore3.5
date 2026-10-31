@@ -176,7 +176,7 @@ namespace PlayMore35.Tests {
 
             var session = new CharacterSession(character, customCatalog);
             var customEngine = new SubsystemEngine(customCatalog.GetSubsystem("martial_maneuvers"), session);
-            session.Subsystems.Register(customEngine, "maneuver");
+            session.Subsystems.Register(customEngine);
             session.Recalculate();
 
             // Greatsword attack without stance: BAB +3 + STR +3 = +6

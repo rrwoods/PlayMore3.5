@@ -48,7 +48,9 @@ namespace PlayMore35.UI.Subsystems {
                     _definition = subDef;
                 } else if (session.Subsystems != null) {
                     var engine = session.Subsystems.Get(context.ElementType!) ??
-                                 session.Subsystems.All.FirstOrDefault(e => e.Definition.Elements.Values.Any(el => string.Equals(el.Type, context.ElementType, StringComparison.OrdinalIgnoreCase)));
+                                 session.Subsystems.All.FirstOrDefault(e =>
+                                     e.Definition.SlotGroups.Values.Any(g => string.Equals(g.Filter, context.ElementType, StringComparison.OrdinalIgnoreCase)) ||
+                                     e.Definition.Elements.Values.Any(el => el.MatchesFilter(context.ElementType, e.Definition)));
                     if (engine != null) {
                         _definition = engine.Definition;
                     }

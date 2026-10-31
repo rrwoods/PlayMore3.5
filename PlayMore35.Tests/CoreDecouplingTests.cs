@@ -90,7 +90,7 @@ namespace PlayMore35.Tests {
             var context = new TestContextWithSlottedSubsystem();
             var catalog = new GameRulesCatalog();
             var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), context);
-            context.Subsystems.Register(engine, "vestige");
+            context.Subsystems.Register(engine);
 
             context.Effects.AddStat(new Statistic("number of vestiges"));
             context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(1, ModifierTypes.UNTYPED)));

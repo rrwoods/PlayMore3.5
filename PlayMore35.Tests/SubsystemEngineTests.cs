@@ -46,16 +46,15 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SubsystemRegistry_RegistersAndRetrievesEngines_ByIdAndAlias() {
+        public void SubsystemRegistry_RegistersAndRetrievesEngines_ById() {
             var registry = new SubsystemRegistry();
             var first = CreateTestEngine("fake-first", "Fake First");
             var simple = CreateTestEngine("fake-simple", "Fake Simple");
 
-            registry.Register(first, "first-alias");
+            registry.Register(first);
             registry.Register(simple);
 
             Assert.AreSame(first, registry.Get("fake-first"));
-            Assert.AreSame(first, registry.Get("first-alias"));
             Assert.AreSame(simple, registry.Get("fake-simple"));
 
             CollectionAssert.AreEqual(new[] { first, simple }, registry.All.ToList());
@@ -71,13 +70,11 @@ namespace PlayMore35.Tests {
             var first = CreateTestEngine("fake-first");
             var replacement = CreateTestEngine("fake-first");
 
-            registry.Register(first, "custom-alias");
+            registry.Register(first);
             Assert.AreSame(first, registry.Get("fake-first"));
-            Assert.AreSame(first, registry.Get("custom-alias"));
 
-            registry.Register(replacement, "custom-alias");
+            registry.Register(replacement);
             Assert.AreSame(replacement, registry.Get("fake-first"));
-            Assert.AreSame(replacement, registry.Get("custom-alias"));
             Assert.AreEqual(1, registry.All.Count());
             Assert.AreSame(replacement, registry.All.Single());
         }
@@ -88,14 +85,14 @@ namespace PlayMore35.Tests {
             var engine = registry.Get("pact_magic");
             Assert.IsNotNull(engine);
             Assert.AreSame(engine, registry.Get("pact_magic"));
-            Assert.AreSame(engine, registry.Get("vestige"));
+            Assert.IsNull(registry.Get("vestige"));
             CollectionAssert.Contains(registry.All.ToList(), engine);
 
             var maneuverEngine = registry.Get("martial_maneuvers");
             Assert.IsNotNull(maneuverEngine);
             Assert.IsInstanceOfType(maneuverEngine, typeof(SubsystemEngine));
             Assert.AreSame(maneuverEngine, registry.Get("martial_maneuvers"));
-            Assert.AreSame(maneuverEngine, registry.Get("maneuver"));
+            Assert.IsNull(registry.Get("maneuver"));
             CollectionAssert.Contains(registry.All.ToList(), maneuverEngine);
         }
 
@@ -104,9 +101,7 @@ namespace PlayMore35.Tests {
             var registry = new SubsystemRegistry();
             Assert.AreEqual(0, registry.All.Count());
             Assert.IsNull(registry.Get("pact_magic"));
-            Assert.IsNull(registry.Get("vestige"));
             Assert.IsNull(registry.Get("martial_maneuvers"));
-            Assert.IsNull(registry.Get("maneuver"));
         }
 
         [TestMethod]
@@ -308,7 +303,9 @@ namespace PlayMore35.Tests {
         public void CharacterSession_InitializesSubsystemsWithDefaults() {
             var session = new CharacterSession(new Character(), new PlayMore35.Rules.GameRulesCatalog());
             Assert.IsNotNull(session.Subsystems.Get("pact_magic"));
-            Assert.IsNotNull(session.Subsystems.Get("vestige"));
+            Assert.IsNotNull(session.Subsystems.Get("martial_maneuvers"));
+            Assert.IsNull(session.Subsystems.Get("vestige"));
+            Assert.IsNull(session.Subsystems.Get("maneuver"));
         }
 
         [TestMethod]
