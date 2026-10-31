@@ -8,12 +8,29 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
+### Use Level Snapshots to handle max skill ranks
+- extract Player's Handbook pages 58-60, regarding experience, levels, and multiclassing
+- distill to docs/rules/mechanics/xp-and-levels.md
+  - we are NOT handling multiclassing penalties; values entered into the XP UI are assumed to be final
+- extract Player's Handbook pages 61-86, regarding skills
+- distill to docs/rules/mechanics/skills.md
+  - some skills we have implemented are not in the player's handbook -- that's okay, that's not a discrepancy
+- now that we have level snapshots, use them to handle max skill ranks at each level
+
+### Codebase architecture pass
+- Do a general /improve-codebase-architecture.  Then...
+- There's just ... a lot of code lmao.
+  - there are still too many null guards
+  - look for redundant tests
+  - look for simplification
+
 ### Vestiges tab cleanup
 - It's not clear that "Good" and "Poor" will bind the vestige.  Add a "Binding check:" label, and change the button text to "Succeed" and "Fail"
 - Details panel could use some formatting love
 - The user should be able to find vestiges by ability text using the search box (e.g., searching for "swap" should find Savnok, since "swap" appears in the text of Savnok's Move Ally ability)
 
 ### Extend element picker over non-subsystem choices
+- taller default element picker.  like 3 more lines in the list of items, and quadruple the height of the details pane
 - Feats
 - Later, alternate class features
 
@@ -23,6 +40,7 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - When choosing something that needs more space (like a feat), expand the row to make room for the picker
 
 ### Maneuvers UI
+- extract and distill maneuvers
 - Known maneuvers and stances is a build-time choice, and should be present in the level details view.  The player should be able to search for maneuvers there, and the text of what comes up should be sourced from docs/rules/content/maneuvers/\*.md.  While we're here, the "..." button that brings up the level details view should get a highlight of some sort whenever there's an unfilled choice for that level (like picking a maneuver known, or the weapon choice for Weapon Focus).
   - We will need to update the Martial Study and Martial Stance choices to use this UI as well.
 - Readied maneuvers and current stance is a play-time choice, and we need a new Maneuvers tab (like the Vestiges tab for pact magic).  We need to think A LOT about how to lay this out and what the interaction paradigms are.  The "maneuvers as cards" analogy is very good and we should use it.
