@@ -245,6 +245,30 @@ namespace PlayMore35.Global {
 
             ReconcileFeats();
 
+            equippedItems = new Equipped();
+
+            if (character.equipped.PrimaryHandWeapon != null) {
+                equippedItems.PrimaryHandWeapon = WeaponFromChoice(character.equipped.PrimaryHandWeapon);
+            }
+            if (character.equipped.OffHandWeapon != null) {
+                equippedItems.OffHandWeapon = WeaponFromChoice(character.equipped.OffHandWeapon);
+            }
+            if (character.equipped.DonnedArmor != null) {
+                equippedItems.DonnedArmor = ArmorFromChoice(character.equipped.DonnedArmor);
+            }
+            if (character.equipped.OffHandShield != null) {
+                equippedItems.OffHandShield = ShieldFromChoice(character.equipped.OffHandShield);
+            }
+
+            foreach (var itemRef in character.equipped.SlottedItems) {
+                Item item = catalog.GetItem(itemRef.Value);
+                equippedItems.SlottedItems[itemRef.Key] = item;
+            }
+            foreach (string itemName in character.equipped.SlotlessItems) {
+                Item item = catalog.GetItem(itemName);
+                equippedItems.SlotlessItems.Add(item);
+            }
+
             var activeGrants = new List<(string Subsystem, string SlotGroup, string Element, string Source, string FeatSlot)>();
 
             foreach (var feat in character.feats) {
@@ -305,6 +329,21 @@ namespace PlayMore35.Global {
                 }
             }
 
+            var activeSlottedItems = equippedItems.DonnedArmor == null
+                ? equippedItems.SlottedItems.Values
+                : equippedItems.SlottedItems.Where(x => x.Key != Equipped.Slot.BODY).Select(x => x.Value);
+            foreach (var item in activeSlottedItems.Concat(equippedItems.SlotlessItems)) {
+                if (item?.ItemEffect?.Slots != null) {
+                    foreach (var slotGrant in item.ItemEffect.Slots) {
+                        if (!string.IsNullOrEmpty(slotGrant.Subsystem) &&
+                            !string.IsNullOrEmpty(slotGrant.SlotGroup) &&
+                            !string.IsNullOrEmpty(slotGrant.Element)) {
+                            activeGrants.Add((slotGrant.Subsystem, slotGrant.SlotGroup, slotGrant.Element, slotGrant.Source ?? "Item", "Equipped:" + item.ItemEffect.Name));
+                        }
+                    }
+                }
+            }
+
             foreach (var engine in subsystems.All) {
                 if (character.Subsystems.TryGetValue(engine.Id, out var state) && state != null) {
                     engine.LoadState(state);
@@ -329,30 +368,6 @@ namespace PlayMore35.Global {
                 var ext = catalog.GetExternalEffect(x);
                 effects.GenerateExternalEffect(ext);
             });
-
-            equippedItems = new Equipped();
-
-            if (character.equipped.PrimaryHandWeapon != null) {
-                equippedItems.PrimaryHandWeapon = WeaponFromChoice(character.equipped.PrimaryHandWeapon);
-            }
-            if (character.equipped.OffHandWeapon != null) {
-                equippedItems.OffHandWeapon = WeaponFromChoice(character.equipped.OffHandWeapon);
-            }
-            if (character.equipped.DonnedArmor != null) {
-                equippedItems.DonnedArmor = ArmorFromChoice(character.equipped.DonnedArmor);
-            }
-            if (character.equipped.OffHandShield != null) {
-                equippedItems.OffHandShield = ShieldFromChoice(character.equipped.OffHandShield);
-            }
-
-            foreach (var itemRef in character.equipped.SlottedItems) {
-                Item item = catalog.GetItem(itemRef.Value);
-                equippedItems.SlottedItems[itemRef.Key] = item;
-            }
-            foreach (string itemName in character.equipped.SlotlessItems) {
-                Item item = catalog.GetItem(itemName);
-                equippedItems.SlotlessItems.Add(item);
-            }
 
             equippedItems.ContributeEffects(effects);
 
@@ -933,9 +948,9 @@ namespace PlayMore35.Global {
             return new List<string>().AsReadOnly();
         }
 
-        public List<string> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices = null) {
+        public IReadOnlyList<ValidationWarning> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices = null) {
             if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
-                return new List<string>();
+                return Array.Empty<ValidationWarning>();
             }
 
             int slotLevel = GetFeatSlotLevel(featSlot);
@@ -943,10 +958,40 @@ namespace PlayMore35.Global {
             int acquisitionLevel = slotLevel > 0 ? slotLevel : totalLevels;
 
             if (!_isSnapshot && acquisitionLevel > 0 && acquisitionLevel <= totalLevels) {
-                var snapshot = GetSessionAtLevel(acquisitionLevel, includeEquipped: false);
-                return snapshot.ValidateFeatChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+                var intrinsicSnapshot = (CharacterSession)GetSessionAtLevel(acquisitionLevel, includeEquipped: false);
+                var intrinsicStrings = intrinsicSnapshot.EvaluateRawSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+
+                if (intrinsicStrings.Count == 0) {
+                    return Array.Empty<ValidationWarning>();
+                }
+
+                var equippedSnapshot = (CharacterSession)GetSessionAtLevel(acquisitionLevel, includeEquipped: true);
+                var equippedStrings = equippedSnapshot.EvaluateRawSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+
+                var equippedItemNames = GetEquippedItemNames(character.equipped);
+                string itemSuffix = equippedItemNames.Count > 0
+                    ? $" (satisfied by equipped items: {string.Join(", ", equippedItemNames)})"
+                    : " (satisfied by equipped items)";
+
+                var results = new List<ValidationWarning>();
+                foreach (var w in intrinsicStrings) {
+                    bool isLevelGating = w.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) && w.Contains(" exceeds ");
+                    if (isLevelGating) {
+                        results.Add(new ValidationWarning(w, WarningKind.Unmet));
+                    } else if (!equippedStrings.Contains(w)) {
+                        results.Add(new ValidationWarning($"{w}{itemSuffix}", WarningKind.ItemDependent));
+                    } else {
+                        results.Add(new ValidationWarning(w, WarningKind.Unmet));
+                    }
+                }
+                return results.AsReadOnly();
             }
 
+            var rawWarnings = EvaluateRawSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+            return rawWarnings.Select(w => new ValidationWarning(w, WarningKind.Unmet)).ToList().AsReadOnly();
+        }
+
+        private List<string> EvaluateRawSubsystemWarnings(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices) {
             var allWarnings = new List<string>();
             foreach (var engine in subsystems.All) {
                 var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
@@ -955,6 +1000,34 @@ namespace PlayMore35.Global {
                 }
             }
             return allWarnings;
+        }
+
+        private static IReadOnlyList<string> GetEquippedItemNames(EquippedChoices equipped) {
+            if (equipped == null) return Array.Empty<string>();
+            var names = new List<string>();
+            if (equipped.PrimaryHandWeapon != null && !string.IsNullOrWhiteSpace(equipped.PrimaryHandWeapon.Name)) {
+                names.Add(equipped.PrimaryHandWeapon.Name);
+            }
+            if (equipped.OffHandWeapon != null && !string.IsNullOrWhiteSpace(equipped.OffHandWeapon.Name)) {
+                names.Add(equipped.OffHandWeapon.Name);
+            }
+            if (equipped.DonnedArmor != null && !string.IsNullOrWhiteSpace(equipped.DonnedArmor.Name)) {
+                names.Add(equipped.DonnedArmor.Name);
+            }
+            if (equipped.OffHandShield != null && !string.IsNullOrWhiteSpace(equipped.OffHandShield.Name)) {
+                names.Add(equipped.OffHandShield.Name);
+            }
+            if (equipped.SlottedItems != null) {
+                foreach (var val in equipped.SlottedItems.Values) {
+                    if (!string.IsNullOrWhiteSpace(val)) names.Add(val);
+                }
+            }
+            if (equipped.SlotlessItems != null) {
+                foreach (var val in equipped.SlotlessItems) {
+                    if (!string.IsNullOrWhiteSpace(val)) names.Add(val);
+                }
+            }
+            return names.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         private Race GetRequiredRace() {
@@ -1253,12 +1326,22 @@ namespace PlayMore35.Global {
                     var slotsList = new List<SubsystemSlot>();
                     foreach (var s in slotGrp.Value) {
                         if (!string.IsNullOrEmpty(s.FeatSlot)) {
-                            int slotLevel = ResolveSlotLevel(s.FeatSlot);
-                            if (slotLevel > 0 && slotLevel <= level) {
-                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                            if (s.FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) {
+                                if (includeEquipped) {
+                                    slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                                }
+                            } else {
+                                int slotLevel = ResolveSlotLevel(s.FeatSlot);
+                                if (slotLevel > 0 && slotLevel <= level) {
+                                    slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                                }
                             }
                         } else {
-                            if (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase)) {
+                            if (string.Equals(s.Source, "Item", StringComparison.OrdinalIgnoreCase) || string.Equals(s.Source, "Equipped", StringComparison.OrdinalIgnoreCase)) {
+                                if (includeEquipped) {
+                                    slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                                }
+                            } else if (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase)) {
                                 slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
                             }
                         }

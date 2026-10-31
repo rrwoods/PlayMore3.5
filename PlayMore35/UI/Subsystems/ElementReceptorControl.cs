@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using PlayMore35.Global;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.UI.Subsystems {
@@ -91,6 +93,7 @@ namespace PlayMore35.UI.Subsystems {
         public bool ClearButtonVisible => _clearButton.Visible;
         public bool WarningBadgeVisible => _warningBadge.Visible;
         public string? WarningMessage => _warningBadge.WarningMessage;
+        public WarningKind WarningKind => _warningBadge.Kind;
         public string DisplayText => _label.Text;
 
         public void PerformClick() {
@@ -104,8 +107,18 @@ namespace PlayMore35.UI.Subsystems {
             ElementDelivered?.Invoke(null);
         }
 
-        public void SetWarning(string message) {
-            _warningBadge.SetWarning(message);
+        public void SetWarning(string message, WarningKind kind = WarningKind.Unmet) {
+            _warningBadge.SetWarning(message, kind);
+            UpdateLayout();
+        }
+
+        public void SetWarning(ValidationWarning warning) {
+            _warningBadge.SetWarning(warning);
+            UpdateLayout();
+        }
+
+        public void SetWarnings(IEnumerable<ValidationWarning>? warnings) {
+            _warningBadge.SetWarnings(warnings);
             UpdateLayout();
         }
 

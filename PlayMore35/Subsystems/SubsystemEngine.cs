@@ -1450,10 +1450,14 @@ namespace PlayMore35.Subsystems {
                     if (!string.IsNullOrEmpty(s.FeatSlot)) {
                         if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(s.FeatSlot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
                         if (currentChoices != null && currentChoices.Any(c => c.Key.StartsWith($"{s.FeatSlot}:", StringComparison.OrdinalIgnoreCase) && GetElement(c.Value) != null)) continue;
-                        if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && session != null) {
+                        if (s.FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) {
+                            // Equipped item slot: retained according to snapshot includeEquipped mode
+                        } else if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && session != null) {
                             int slotLevel = session.GetFeatSlotLevel(s.FeatSlot);
                             if (slotLevel <= 0 || slotLevel > levelCap) continue;
                         }
+                    } else if (string.Equals(s.Source, "Item", StringComparison.OrdinalIgnoreCase) || string.Equals(s.Source, "Equipped", StringComparison.OrdinalIgnoreCase)) {
+                        // Equipped item source: retained according to snapshot includeEquipped mode
                     } else if (classesAtLevel != null && !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, "Feats", StringComparison.OrdinalIgnoreCase)) {
                         if (!classesAtLevel.Any(c => string.Equals(c, s.Source, StringComparison.OrdinalIgnoreCase))) continue;
                     }

@@ -408,7 +408,7 @@ namespace PlayMore35 {
                             currentChoices[$"{featSlot}:{desc.Id}"] = deliveredName;
                             var warnings = session.ValidateFeatChoice(featSlot, desc, deliveredName, target, currentChoices);
                             if (warnings != null && warnings.Count > 0) {
-                                receptor.SetWarning(string.Join("\n", warnings));
+                                receptor.SetWarnings(warnings);
                             } else {
                                 receptor.ClearWarning();
                             }
@@ -471,9 +471,8 @@ namespace PlayMore35 {
 
                 var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, selectedValue, target, currentChoices);
                 if (warnings.Count > 0) {
-                    string message = string.Join("\n", warnings);
-                    state.WarningBadge?.SetWarning(message);
-                    receptor?.SetWarning(message);
+                    state.WarningBadge?.SetWarnings(warnings);
+                    receptor?.SetWarnings(warnings);
                 } else {
                     state.WarningBadge?.ClearWarning();
                     receptor?.ClearWarning();
@@ -608,7 +607,7 @@ namespace PlayMore35 {
                 WarningProvider = (elem) => {
                     var currentChoices = GetFeatChoices();
                     currentChoices[$"{state.FeatSlot}:{desc.Id}"] = elem.Name;
-                    return session.ValidateFeatChoice(state.FeatSlot, desc, elem.Name, targetSource, currentChoices);
+                    return session.ValidateFeatChoice(state.FeatSlot, desc, elem.Name, targetSource, currentChoices).Select(w => w.Message).ToList();
                 }
             };
 
@@ -618,7 +617,7 @@ namespace PlayMore35 {
                 if (elem != null) {
                     var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, elem.Name, targetSource, GetFeatChoices());
                     if (warnings != null && warnings.Count > 0) {
-                        receptor.SetWarning(string.Join("\n", warnings));
+                        receptor.SetWarnings(warnings);
                     } else {
                         receptor.ClearWarning();
                     }
