@@ -8,12 +8,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
-### Subsystem literacy cleanup
-- SubsystemEngine:
-  - It's got the string literal "initiator level" in it
-- DefaultElementPicker says "maneuver" and "Stance" in it
-- Overzealous null-checks (SubsystemEngine, PactMagicTabPage, probably lots of other places)
-
 ### Vestiges tab cleanup
 - It's not clear that "Good" and "Poor" will bind the vestige.  Add a "Binding check:" label, and change the button text to "Succeed" and "Fail"
 - Details panel could use some formatting love
