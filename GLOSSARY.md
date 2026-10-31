@@ -92,6 +92,10 @@ _Avoid_: Character build, profile, sheet state
 The character level at which a specific feat slot, class level, or capability was gained during character progression, determining temporal eligibility for prerequisites and non-progression grants.
 _Avoid_: Feat level, grant level, slot level
 
+**Level Snapshot**:
+An evaluative character state projection truncated to a specific acquisition level, capturing class progression, ability increments, skill ranks, and prior build choices for determining temporal prerequisites and level gating.
+_Avoid_: Level slice, historical character, build snapshot
+
 **Monster**:
 A creature entity modeled using the unified Character representation, starting with Racial Hit Dice and capable of standard progression and advancement.
 _Avoid_: NPC statblock, mob, monster definition
