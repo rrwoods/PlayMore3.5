@@ -30,15 +30,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(WarningKind.Unmet, unmet.Kind);
             Assert.AreEqual("Missing prerequisite", unmet.ToString());
 
-            // Implicit string conversion
-            string str = unmet;
-            Assert.AreEqual("Missing prerequisite", str);
-
-            // Implicit creation from string
-            ValidationWarning fromStr = "Another warning";
-            Assert.AreEqual("Another warning", fromStr.Message);
-            Assert.AreEqual(WarningKind.Unmet, fromStr.Kind);
-
             var itemDep = new ValidationWarning("Item reliant", WarningKind.ItemDependent);
             Assert.AreEqual(WarningKind.ItemDependent, itemDep.Kind);
 
@@ -205,9 +196,7 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(1, warnings.Count, "Must emit 1 warning.");
             Assert.AreEqual(WarningKind.ItemDependent, warnings[0].Kind, "Prerequisite satisfied by gear must be categorized as ItemDependent.");
-            StringAssert.Contains(warnings[0].Message, "Requires 1 Devoted Spirit maneuver");
-            StringAssert.Contains(warnings[0].Message, "satisfied by equipped items");
-            StringAssert.Contains(warnings[0].Message, "Crown of the White Raven");
+            Assert.AreEqual("Requires 1 Devoted Spirit maneuver, but only 0 known.", warnings[0].Message);
         }
 
         // Source: Tome of Battle pp. 39, 52; ADR-0017
@@ -316,8 +305,7 @@ namespace PlayMore35.Tests {
 
                 Assert.IsTrue(receptor.WarningBadgeVisible);
                 Assert.AreEqual(WarningKind.ItemDependent, receptor.WarningKind, "Badge on receptor must be ItemDependent when requirement is met through equipped gear.");
-                StringAssert.Contains(receptor.WarningMessage, "satisfied by equipped items");
-                StringAssert.Contains(receptor.WarningMessage, "Crown of the White Raven");
+                StringAssert.Contains(receptor.WarningMessage, "Requires 1 Devoted Spirit maneuver");
             }
         }
     }

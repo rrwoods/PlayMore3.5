@@ -17,10 +17,6 @@ namespace PlayMore35.Global {
 
         public override string ToString() => Message;
 
-        public static implicit operator string(ValidationWarning warning) => warning?.Message ?? string.Empty;
-
-        public static implicit operator ValidationWarning(string message) => new ValidationWarning(message);
-
         public bool Equals(ValidationWarning? other) {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;

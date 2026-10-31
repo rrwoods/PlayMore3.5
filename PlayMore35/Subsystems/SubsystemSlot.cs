@@ -11,6 +11,10 @@ namespace PlayMore35.Subsystems {
         public string Source { get; set; } = "";
         public string? FeatSlot { get; set; } = null;
         public bool IsFeatBound => !string.IsNullOrEmpty(FeatSlot);
+        public bool IsGrantedByEquippedItem =>
+            (!string.IsNullOrEmpty(FeatSlot) && FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) ||
+            string.Equals(Source, "Item", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Source, "Equipped", StringComparison.OrdinalIgnoreCase);
 
         public SubsystemSlot() { }
 

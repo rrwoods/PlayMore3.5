@@ -968,18 +968,19 @@ namespace PlayMore35.Global {
                 var equippedSnapshot = (CharacterSession)GetSessionAtLevel(acquisitionLevel, includeEquipped: true);
                 var equippedStrings = equippedSnapshot.EvaluateRawSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
 
-                var equippedItemNames = GetEquippedItemNames(character.equipped);
-                string itemSuffix = equippedItemNames.Count > 0
-                    ? $" (satisfied by equipped items: {string.Join(", ", equippedItemNames)})"
-                    : " (satisfied by equipped items)";
-
                 var results = new List<ValidationWarning>();
                 foreach (var w in intrinsicStrings) {
-                    bool isLevelGating = w.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) && w.Contains(" exceeds ");
-                    if (isLevelGating) {
-                        results.Add(new ValidationWarning(w, WarningKind.Unmet));
-                    } else if (!equippedStrings.Contains(w)) {
-                        results.Add(new ValidationWarning($"{w}{itemSuffix}", WarningKind.ItemDependent));
+                    if (!equippedStrings.Contains(w)) {
+                        bool isIntrinsicLevelGate = intrinsicSnapshot.Subsystems.All.Any(engine => {
+                            var elem = engine.GetElement(choiceValue);
+                            return elem != null && !engine.IsElementWithinLevelGate(elem, targetSource);
+                        });
+
+                        if (isIntrinsicLevelGate) {
+                            results.Add(new ValidationWarning(w, WarningKind.Unmet));
+                        } else {
+                            results.Add(new ValidationWarning(w, WarningKind.ItemDependent));
+                        }
                     } else {
                         results.Add(new ValidationWarning(w, WarningKind.Unmet));
                     }
@@ -1000,34 +1001,6 @@ namespace PlayMore35.Global {
                 }
             }
             return allWarnings;
-        }
-
-        private static IReadOnlyList<string> GetEquippedItemNames(EquippedChoices equipped) {
-            if (equipped == null) return Array.Empty<string>();
-            var names = new List<string>();
-            if (equipped.PrimaryHandWeapon != null && !string.IsNullOrWhiteSpace(equipped.PrimaryHandWeapon.Name)) {
-                names.Add(equipped.PrimaryHandWeapon.Name);
-            }
-            if (equipped.OffHandWeapon != null && !string.IsNullOrWhiteSpace(equipped.OffHandWeapon.Name)) {
-                names.Add(equipped.OffHandWeapon.Name);
-            }
-            if (equipped.DonnedArmor != null && !string.IsNullOrWhiteSpace(equipped.DonnedArmor.Name)) {
-                names.Add(equipped.DonnedArmor.Name);
-            }
-            if (equipped.OffHandShield != null && !string.IsNullOrWhiteSpace(equipped.OffHandShield.Name)) {
-                names.Add(equipped.OffHandShield.Name);
-            }
-            if (equipped.SlottedItems != null) {
-                foreach (var val in equipped.SlottedItems.Values) {
-                    if (!string.IsNullOrWhiteSpace(val)) names.Add(val);
-                }
-            }
-            if (equipped.SlotlessItems != null) {
-                foreach (var val in equipped.SlotlessItems) {
-                    if (!string.IsNullOrWhiteSpace(val)) names.Add(val);
-                }
-            }
-            return names.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         private Race GetRequiredRace() {
@@ -1325,23 +1298,17 @@ namespace PlayMore35.Global {
                 foreach (var slotGrp in kvp.Value.Slots) {
                     var slotsList = new List<SubsystemSlot>();
                     foreach (var s in slotGrp.Value) {
-                        if (!string.IsNullOrEmpty(s.FeatSlot)) {
-                            if (s.FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) {
-                                if (includeEquipped) {
-                                    slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
-                                }
-                            } else {
-                                int slotLevel = ResolveSlotLevel(s.FeatSlot);
-                                if (slotLevel > 0 && slotLevel <= level) {
-                                    slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
-                                }
+                        if (s.IsGrantedByEquippedItem) {
+                            if (includeEquipped) {
+                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                            }
+                        } else if (!string.IsNullOrEmpty(s.FeatSlot)) {
+                            int slotLevel = ResolveSlotLevel(s.FeatSlot);
+                            if (slotLevel > 0 && slotLevel <= level) {
+                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
                             }
                         } else {
-                            if (string.Equals(s.Source, "Item", StringComparison.OrdinalIgnoreCase) || string.Equals(s.Source, "Equipped", StringComparison.OrdinalIgnoreCase)) {
-                                if (includeEquipped) {
-                                    slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
-                                }
-                            } else if (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase)) {
+                            if (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase)) {
                                 slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
                             }
                         }

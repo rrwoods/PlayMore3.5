@@ -1385,7 +1385,7 @@ namespace PlayMore35.Subsystems {
             return gatedSlotGroups.Select(g => ResolveMaxLevel(g, targetSource)).Max();
         }
 
-        private bool IsElementWithinLevelGate(SubsystemElement elem, string targetSource = null) {
+        public bool IsElementWithinLevelGate(SubsystemElement elem, string? targetSource = null) {
             int? maxAllowed = GetMaxAllowedElementLevel(targetSource);
             if (!maxAllowed.HasValue) return true;
             int elemLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
@@ -1447,17 +1447,15 @@ namespace PlayMore35.Subsystems {
                 foreach (var s in group.Slots) {
                     if (string.IsNullOrEmpty(s.Element)) continue;
                     if (excludeSlot != null && ReferenceEquals(s, excludeSlot)) continue;
-                    if (!string.IsNullOrEmpty(s.FeatSlot)) {
+                    if (s.IsGrantedByEquippedItem) {
+                        // Equipped item grant: retained according to snapshot includeEquipped mode
+                    } else if (!string.IsNullOrEmpty(s.FeatSlot)) {
                         if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(s.FeatSlot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
                         if (currentChoices != null && currentChoices.Any(c => c.Key.StartsWith($"{s.FeatSlot}:", StringComparison.OrdinalIgnoreCase) && GetElement(c.Value) != null)) continue;
-                        if (s.FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) {
-                            // Equipped item slot: retained according to snapshot includeEquipped mode
-                        } else if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && session != null) {
+                        if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && session != null) {
                             int slotLevel = session.GetFeatSlotLevel(s.FeatSlot);
                             if (slotLevel <= 0 || slotLevel > levelCap) continue;
                         }
-                    } else if (string.Equals(s.Source, "Item", StringComparison.OrdinalIgnoreCase) || string.Equals(s.Source, "Equipped", StringComparison.OrdinalIgnoreCase)) {
-                        // Equipped item source: retained according to snapshot includeEquipped mode
                     } else if (classesAtLevel != null && !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, "Feats", StringComparison.OrdinalIgnoreCase)) {
                         if (!classesAtLevel.Any(c => string.Equals(c, s.Source, StringComparison.OrdinalIgnoreCase))) continue;
                     }
