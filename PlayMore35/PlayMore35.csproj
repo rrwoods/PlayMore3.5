@@ -102,6 +102,7 @@
     <Compile Include="Rules\GameRulesCatalog.cs" />
     <Compile Include="Global\ICharacterContext.cs" />
     <Compile Include="Global\ICharacterSession.cs" />
+    <Compile Include="Global\ValidationWarning.cs" />
     <Compile Include="Global\CharacterSession.cs" />
     <Compile Include="Global\StatView.cs" />
     <Compile Include="Global\ToggleView.cs" />
