@@ -13,6 +13,7 @@ namespace PlayMore35.CharacterChoices {
         public string Name = "";
         public string Prerequisites = "";
         public int HitDie = 4;
+        public List<string> Tags = new List<string>();
         public List<string> ClassSkills = new List<string>();
         public int SkillPoints = 2;
 
@@ -69,6 +70,9 @@ namespace PlayMore35.CharacterChoices {
             if (Flags.Any()) {
                 json["flags"] = new JArray(Flags.Select(level => new JArray(level.Select(flag => flag.ToJson()))));
             }
+            if (Tags.Any()) {
+                json["tags"] = new JArray(Tags);
+            }
             json.AddList("stats", NewStats);
             if (BonusFeats.Any()) {
                 json["bonus feats"] = new JObject(BonusFeats.Select(x => new JProperty(x.Key, x.Value)));
@@ -100,6 +104,9 @@ namespace PlayMore35.CharacterChoices {
             Name = (string)json["name"];
             Prerequisites = (string)json["prerequisites"];
             HitDie = (int)json["hit die"];
+            if (json["tags"] != null) {
+                Tags.AddRange(json["tags"]!.Select(x => (string)x!));
+            }
             ClassSkills.AddRange(json["class skills"].Select(x => (string)x));
             SkillPoints = (int)json["skill points"];
             BaseAttackBonus = (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base attack bonus"], false);

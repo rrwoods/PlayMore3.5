@@ -762,7 +762,7 @@ namespace PlayMore35.Global {
             }
 
             int level = GetFeatSlotLevel(featSlot);
-            var adeptClasses = GetEligibleClassesAtLevel(level, "Adept");
+            var adeptClasses = GetEligibleClassesAtLevel(level, "adept");
 
             if (adeptClasses.Count == 0) {
                 return "Feats";
@@ -833,17 +833,15 @@ namespace PlayMore35.Global {
             return eligibleClasses[0];
         }
 
-        public bool IsAdeptClass(string className) {
-            return catalog.TryGetClass(className, out var cls) && cls.Subsystems.ContainsKey("martial_maneuvers");
-        }
-
         public bool IsClassEligible(string className, string? filter) {
             if (string.IsNullOrEmpty(filter)) return true;
-            if (string.Equals(filter, "Adept", StringComparison.OrdinalIgnoreCase)) {
-                return IsAdeptClass(className);
-            }
-            if (catalog.TryGetClass(className, out var cls) && cls.Subsystems.ContainsKey(filter!)) {
-                return true;
+            if (catalog.TryGetClass(className, out var cls)) {
+                if (cls.Tags != null && cls.Tags.Any(t => string.Equals(t, filter, StringComparison.OrdinalIgnoreCase))) {
+                    return true;
+                }
+                if (cls.Subsystems != null && cls.Subsystems.ContainsKey(filter!)) {
+                    return true;
+                }
             }
             return string.Equals(className, filter, StringComparison.OrdinalIgnoreCase);
         }
@@ -863,10 +861,6 @@ namespace PlayMore35.Global {
                 .Where(c => IsClassEligible(c, filter))
                 .ToList()
                 .AsReadOnly();
-        }
-
-        public IReadOnlyList<string> GetEligibleAdeptClassesAtLevel(int level) {
-            return GetEligibleClassesAtLevel(level, "Adept");
         }
 
         public void SetFeatChoice(string featSlot, string choice) {

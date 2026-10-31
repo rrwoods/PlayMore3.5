@@ -984,6 +984,81 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Punishing Stance", stanceSlot.Element);
             Assert.AreEqual("Level 3", stanceSlot.FeatSlot);
         }
+
+        [TestMethod]
+        public void CharacterSession_IsClassEligible_ChecksTags_Subsystems_AndName() {
+            var catalog = new GameRulesCatalog();
+            var character = new Character { race = "Human" };
+            var session = new CharacterSession(character, catalog);
+
+            Assert.IsTrue(session.IsClassEligible("Warblade", "adept"));
+            Assert.IsFalse(session.IsClassEligible("Fighter", "adept"));
+
+            Assert.IsTrue(session.IsClassEligible("Warblade", "martial_maneuvers"));
+            Assert.IsFalse(session.IsClassEligible("Fighter", "martial_maneuvers"));
+
+            Assert.IsTrue(session.IsClassEligible("Fighter", "Fighter"));
+            Assert.IsFalse(session.IsClassEligible("Fighter", "Wizard"));
+
+            Assert.IsTrue(session.IsClassEligible("Fighter", ""));
+            Assert.IsTrue(session.IsClassEligible("Fighter", null));
+        }
+
+        [TestMethod]
+        public void CharacterSession_And_ICharacterSession_HaveNoIsAdeptClassMethod() {
+            var sessionMethod = typeof(CharacterSession).GetMethod("IsAdeptClass", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.IsNull(sessionMethod, "CharacterSession must not define IsAdeptClass.");
+
+            var interfaceMethod = typeof(ICharacterSession).GetMethod("IsAdeptClass", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            Assert.IsNull(interfaceMethod, "ICharacterSession must not define IsAdeptClass.");
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_HasNoInitiatorLevelFormulas() {
+            var ilMethod = typeof(SubsystemEngine).GetMethod("GetInitiatorLevelAtCharacterLevel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.IsNull(ilMethod, "SubsystemEngine must not hardcode GetInitiatorLevelAtCharacterLevel.");
+
+            var evalMethod = typeof(SubsystemEngine).GetMethod("EvaluateMaxLevelForInitiatorLevel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.IsNull(evalMethod, "SubsystemEngine must not hardcode EvaluateMaxLevelForInitiatorLevel.");
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_GetActiveSources_DiscoversFromClassesAndFeats() {
+            var catalog = new GameRulesCatalog();
+
+            // 1. Pure Fighter with no subsystem feats -> zero sources
+            var fighterChar = new Character { race = "Human" };
+            fighterChar.classLevels.Add("Fighter");
+            var fighterSession = new CharacterSession(fighterChar, catalog);
+            var fighterEngine = (SubsystemEngine)fighterSession.Subsystems.Get("martial_maneuvers");
+            var fighterSources = fighterEngine.GetActiveSources();
+            Assert.AreEqual(0, fighterSources.Count);
+
+            // 2. Pure Fighter with Martial Study -> discovers "Feats" source
+            fighterChar.feats["Level 1"] = "Martial Study";
+            fighterSession.Recalculate();
+            fighterSources = fighterEngine.GetActiveSources();
+            Assert.AreEqual(1, fighterSources.Count);
+            Assert.AreEqual("Feats", fighterSources[0]);
+
+            // 3. Warblade with no feats -> discovers "Warblade" source
+            var warbladeChar = new Character { race = "Human" };
+            warbladeChar.classLevels.Clear();
+            warbladeChar.classLevels.Add("Warblade");
+            var warbladeSession = new CharacterSession(warbladeChar, catalog);
+            var warbladeEngine = (SubsystemEngine)warbladeSession.Subsystems.Get("martial_maneuvers");
+            var warbladeSources = warbladeEngine.GetActiveSources();
+            Assert.AreEqual(1, warbladeSources.Count);
+            Assert.AreEqual("Warblade", warbladeSources[0]);
+
+            // 4. Warblade with Martial Study assigned to Warblade -> only "Warblade" source
+            warbladeChar.feats["Level 1"] = "Martial Study";
+            warbladeChar.featChoices["Level 1:class"] = "Warblade";
+            warbladeSession.Recalculate();
+            warbladeSources = warbladeEngine.GetActiveSources();
+            Assert.AreEqual(1, warbladeSources.Count);
+            Assert.AreEqual("Warblade", warbladeSources[0]);
+        }
     }
 }
 

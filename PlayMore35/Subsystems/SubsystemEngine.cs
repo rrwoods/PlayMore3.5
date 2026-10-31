@@ -22,6 +22,7 @@ namespace PlayMore35.Subsystems {
                 if (Definition.SlotGroups.Keys.Any(k => GetSlotCapacity(k) > 0)) return true;
                 if (slotGroups.Values.Any(g => g.RawSlots.Any(s => !string.IsNullOrEmpty(s.Element)))) return true;
                 if (Definition.Pools.Keys.Any(k => GetPoolCapacity(k) > 0)) return true;
+                if (GetActiveSources().Count > 0) return true;
                 return false;
             }
         }
@@ -89,47 +90,37 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            foreach (var group in slotGroups.Values) {
-                foreach (var s in group.RawSlots) {
-                    if (!string.IsNullOrEmpty(s.Source)) {
-                        AddSource(s.Source);
+            if (context.Catalog != null) {
+                var candidateClasses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (context.Character != null) {
+                    foreach (var c in context.Character.classLevels) candidateClasses.Add(c);
+                }
+                var effPool = pool ?? context.Effects;
+                if (effPool != null) {
+                    foreach (var cls in context.Catalog.Classes.Values) {
+                        if (effPool.GetStatValue($"{cls.Name} level", null, 0) > 0) {
+                            candidateClasses.Add(cls.Name);
+                        }
                     }
                 }
-            }
 
-            if (context.Character != null && context.Catalog != null) {
-                foreach (var clsName in context.Character.classLevels.Distinct(StringComparer.OrdinalIgnoreCase)) {
+                foreach (var clsName in candidateClasses) {
                     if (context.Catalog.TryGetClass(clsName, out var cls) && cls.Subsystems != null && cls.Subsystems.ContainsKey(Id)) {
                         AddSource(cls.Name);
                     }
                 }
-            }
 
-            var statPrefixes = new List<string> { "initiator level:" };
-            foreach (var g in Definition.SlotGroups.Values) {
-                if (!string.IsNullOrEmpty(g.CapacityStat) && g.CapacityStat.Contains("{source}")) {
-                    int idx = g.CapacityStat.IndexOf("{source}", StringComparison.OrdinalIgnoreCase);
-                    if (idx > 0) statPrefixes.Add(g.CapacityStat.Substring(0, idx));
-                }
-                if (!string.IsNullOrEmpty(g.ReadiedCapacityStat) && g.ReadiedCapacityStat.Contains("{source}")) {
-                    int idx = g.ReadiedCapacityStat.IndexOf("{source}", StringComparison.OrdinalIgnoreCase);
-                    if (idx > 0) statPrefixes.Add(g.ReadiedCapacityStat.Substring(0, idx));
-                }
-            }
-
-            void ScanStatKeys(IEnumerable<string>? keys) {
-                if (keys == null) return;
-                foreach (var key in keys) {
-                    foreach (var prefix in statPrefixes) {
-                        if (key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && key.Length > prefix.Length) {
-                            AddSource(key.Substring(prefix.Length));
+                if (context.Character != null) {
+                    foreach (var featKvp in context.Character.feats) {
+                        string featSlot = featKvp.Key;
+                        string featName = featKvp.Value;
+                        if (context.Catalog.TryGetFeat(featName, out var feat) && feat.Subsystems != null && feat.Subsystems.Contains(Id)) {
+                            string src = ResolveFeatTargetSource(featSlot);
+                            AddSource(src);
                         }
                     }
                 }
             }
-
-            ScanStatKeys(pool?.stats?.Keys);
-            ScanStatKeys(context.Effects?.stats?.Keys);
 
             return sources;
         }
@@ -145,6 +136,15 @@ namespace PlayMore35.Subsystems {
                     var sources = GetActiveSources(null);
                     if (sources.Count > 0) {
                         return sources.Sum(s => ResolveStatOrParam(def.CapacityStat.Replace("{source}", s.Trim().ToLowerInvariant()), 0));
+                    }
+                    if (context?.Effects != null) {
+                        int prefixIdx = def.CapacityStat.IndexOf("{source}", StringComparison.OrdinalIgnoreCase);
+                        if (prefixIdx > 0) {
+                            string prefix = def.CapacityStat.Substring(0, prefixIdx);
+                            return context.Effects.stats.Keys
+                                .Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                                .Sum(k => ResolveStatOrParam(k, 0));
+                        }
                     }
                     return def.FixedCapacity;
                 }
@@ -172,31 +172,62 @@ namespace PlayMore35.Subsystems {
         }
 
         private int EvaluateMaxLevelStat(SlotGroupDefinition def, string statName, string? source) {
-            bool hasDirectStat = (context.Effects != null && context.Effects.stats.ContainsKey(statName))
-                                 || context.GetStatistic(statName) != null;
+            bool hasDirectStat = context.Effects != null && context.Effects.stats.ContainsKey(statName);
             if (hasDirectStat) {
                 return ResolveStatOrParam(statName, def.MaxLevel.Base);
             }
-            if (def.Effects.Count > 0) {
+
+            var allEffects = new List<Effect>();
+            foreach (var g in Definition.SlotGroups.Values) {
+                allEffects.AddRange(g.GetEffectsForSource(source));
+            }
+            if (context.Catalog != null) {
+                foreach (var featDef in context.Catalog.Feats.Values) {
+                    if (featDef.Subsystems != null && featDef.Subsystems.Contains(Id) && featDef.Benefit != null) {
+                        allEffects.Add(featDef.Benefit.ApplyChoice(source ?? "Feats"));
+                    }
+                }
+            }
+
+            if (allEffects.Count > 0) {
                 var tempPool = new EffectPool(context.Character ?? new Character());
                 tempPool.AddStat(new Statistic(statName));
                 tempPool.AddEffect(new Effect($"{statName} Base")
                     .AddModifier(statName, new Modifier(def.MaxLevel.Base, ModifierTypes.BASE)));
-                var effects = def.GetEffectsForSource(source);
-                foreach (var eff in effects) {
-                    foreach (var token in eff.ToJson().SelectTokens("$..['stat value']")) {
-                        string refStat = (string)token!;
-                        if (!string.IsNullOrEmpty(refStat) && !tempPool.stats.ContainsKey(refStat)) {
-                            int refVal = ResolveStatOrParam(refStat, 0);
-                            tempPool.AddStat(new Statistic(refStat));
-                            tempPool.AddEffect(new Effect($"{refStat} Base")
-                                .AddModifier(refStat, new Modifier(refVal, ModifierTypes.BASE)));
+
+                var allStats = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { statName };
+                foreach (var eff in allEffects) {
+                    var json = eff.ToJson();
+                    foreach (var token in json.SelectTokens("$..['stat value']")) {
+                        string s = (string)token!;
+                        if (!string.IsNullOrEmpty(s)) allStats.Add(s);
+                    }
+                    foreach (var token in json.SelectTokens("$..affects")) {
+                        string s = (string)token!;
+                        if (!string.IsNullOrEmpty(s)) allStats.Add(s);
+                    }
+                }
+
+                foreach (var s in allStats) {
+                    if (!tempPool.stats.ContainsKey(s)) {
+                        int refVal = ResolveStatOrParam(s, 0);
+                        if (s.Equals("character level", StringComparison.OrdinalIgnoreCase) && refVal == 0) {
+                            refVal = context.Character?.classLevels?.Count ?? 0;
+                        }
+                        tempPool.AddStat(new Statistic(s));
+                        if (refVal != 0) {
+                            tempPool.AddEffect(new Effect($"{s} Base")
+                                .AddModifier(s, new Modifier(refVal, ModifierTypes.BASE)));
                         }
                     }
+                }
+
+                foreach (var eff in allEffects) {
                     tempPool.AddEffect(eff);
                 }
                 return tempPool.GetStatistic(statName, context.EquippedItems)?.Value ?? def.MaxLevel.Base;
             }
+
             return ResolveStatOrParam(statName, def.MaxLevel.Base);
         }
 
@@ -1309,65 +1340,12 @@ namespace PlayMore35.Subsystems {
             return elem.MatchesFilter(filter, Definition);
         }
 
-        private int GetInitiatorLevelAtCharacterLevel(string source, int level) {
-            if (string.IsNullOrWhiteSpace(source)) return 0;
-            var character = context?.Character;
-            if (character == null) return 0;
-            int cappedLevel = Math.Min(level, character.classLevels.Count);
-            if (cappedLevel <= 0) return 0;
-            var classesAtLevel = character.classLevels.Take(cappedLevel).ToList();
-
-            if (string.Equals(source, "Feats", StringComparison.OrdinalIgnoreCase)) {
-                return Math.Max(1, classesAtLevel.Count / 2);
-            }
-
-            int classLevels = classesAtLevel.Count(c => string.Equals(c, source, StringComparison.OrdinalIgnoreCase));
-            if (classLevels == 0) return 0;
-            int otherLevels = classesAtLevel.Count - classLevels;
-            return classLevels + (otherLevels / 2);
-        }
-
-        private int EvaluateMaxLevelForInitiatorLevel(SlotGroupDefinition def, string source, int il) {
-            if (def?.MaxLevel == null) return int.MaxValue;
-            if (il <= 0) return def.MaxLevel.Base;
-            string normSrc = (source ?? "feats").Trim().ToLowerInvariant();
-            string statName = def.MaxLevel.Stat.Replace("{source}", normSrc);
-            string ilStat = $"initiator level:{normSrc}";
-            var tempPool = new EffectPool(new Character());
-            tempPool.AddStat(new Statistic(statName));
-            tempPool.AddEffect(new Effect($"{statName} Base")
-                .AddModifier(statName, new Modifier(def.MaxLevel.Base, ModifierTypes.BASE)));
-            tempPool.AddStat(new Statistic(ilStat));
-            tempPool.AddEffect(new Effect($"{ilStat} Base")
-                .AddModifier(ilStat, new Modifier(il, ModifierTypes.BASE)));
-            foreach (var eff in def.GetEffectsForSource(normSrc)) {
-                tempPool.AddEffect(eff);
-            }
-            return tempPool.GetStatistic(statName, null)?.Value ?? def.MaxLevel.Base;
-        }
-
-        private int? GetMaxAllowedElementLevel(string targetSource = null, int? atCharacterLevel = null) {
+        private int? GetMaxAllowedElementLevel(string? targetSource = null) {
             if (Definition.LevelGating == null || string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic)) return null;
             var gatedSlotGroups = Definition.SlotGroups.Values
                 .Where(g => g.MaxLevel != null && !string.IsNullOrEmpty(g.MaxLevel.Stat))
                 .ToList();
             if (gatedSlotGroups.Count == 0) return null;
-
-            int totalCharLevels = context?.Character?.classLevels?.Count ?? 0;
-            if (!string.IsNullOrWhiteSpace(targetSource) && totalCharLevels > 0) {
-                string normSrc = targetSource.Trim().ToLowerInvariant();
-                bool hasDirectMaxLevelStat = gatedSlotGroups.Any(g => {
-                    string statName = g.MaxLevel.Stat.Replace("{source}", normSrc);
-                    return context?.Effects != null && context.Effects.stats.ContainsKey(statName);
-                });
-                int queryLevel = atCharacterLevel.HasValue && atCharacterLevel.Value > 0 ? atCharacterLevel.Value : totalCharLevels;
-                string ilStat = $"initiator level:{normSrc}";
-                bool statMissingInPool = !hasDirectMaxLevelStat && (context?.Effects == null || !context.Effects.stats.ContainsKey(ilStat) || context.GetStatValue(ilStat, 0) == 0);
-                if ((atCharacterLevel.HasValue && queryLevel < totalCharLevels) || statMissingInPool) {
-                    int il = GetInitiatorLevelAtCharacterLevel(targetSource, queryLevel);
-                    return gatedSlotGroups.Select(g => EvaluateMaxLevelForInitiatorLevel(g, targetSource, il)).Max();
-                }
-            }
 
             return gatedSlotGroups.Select(g => ResolveMaxLevel(g, targetSource)).Max();
         }
@@ -1535,7 +1513,7 @@ namespace PlayMore35.Subsystems {
             }
 
             var warnings = new List<string>();
-            int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource, acquisitionLevel);
+            int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource);
             if (maxAllowed.HasValue) {
                 int elemLevel = chosenElem.GetStatistic(Definition.LevelGating!.ElementStatistic, context).Value;
                 if (elemLevel > maxAllowed.Value) {

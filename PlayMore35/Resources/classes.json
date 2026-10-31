@@ -341,6 +341,7 @@
   },
   {
     "name": "Warblade",
+    "tags": [ "adept" ],
     "prerequisites": "",
     "hit die": 12,
     "class skills": [
@@ -609,6 +610,7 @@
   },
   {
     "name": "Crusader",
+    "tags": [ "adept" ],
     "prerequisites": "",
     "hit die": 10,
     "class skills": [
@@ -911,6 +913,7 @@
   },
   {
     "name": "Swordsage",
+    "tags": [ "adept" ],
     "prerequisites": "",
     "hit die": 8,
     "class skills": [

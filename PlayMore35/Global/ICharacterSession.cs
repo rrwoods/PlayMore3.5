@@ -83,8 +83,6 @@ namespace PlayMore35.Global {
         SortedDictionary<int, List<string>> GetFeatSlots();
         int GetFeatSlotLevel(string featSlot);
         string ResolveFeatTargetSource(string featSlot);
-        bool IsAdeptClass(string className);
-        IReadOnlyList<string> GetEligibleAdeptClassesAtLevel(int level);
         IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string filter = null);
         object ResolveFeatChoice(string featSlot, ChoiceDescriptor descriptor);
         string ResolveClassChoice(string featSlot, ChoiceDescriptor descriptor);

@@ -298,6 +298,39 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("${class}", martialStance.Benefit.Slots[0].Source);
         }
 
+        [TestMethod]
+        public void ClassesCatalog_AdeptClasses_DeclareAdeptTags() {
+            var catalog = new GameRulesCatalog();
+            var warblade = catalog.GetClass("Warblade");
+            var crusader = catalog.GetClass("Crusader");
+            var swordsage = catalog.GetClass("Swordsage");
+            var fighter = catalog.GetClass("Fighter");
+
+            Assert.IsNotNull(warblade);
+            Assert.IsTrue(warblade.Tags.Contains("adept"), "Warblade must declare 'adept' tag.");
+
+            Assert.IsNotNull(crusader);
+            Assert.IsTrue(crusader.Tags.Contains("adept"), "Crusader must declare 'adept' tag.");
+
+            Assert.IsNotNull(swordsage);
+            Assert.IsTrue(swordsage.Tags.Contains("adept"), "Swordsage must declare 'adept' tag.");
+
+            Assert.IsNotNull(fighter);
+            Assert.IsFalse(fighter.Tags.Contains("adept"), "Fighter must not declare 'adept' tag.");
+        }
+
+        [TestMethod]
+        public void FeatsCatalog_MartialStudyAndStance_DeclareSubsystems() {
+            var catalog = new GameRulesCatalog();
+            var martialStudy = catalog.GetFeat("Martial Study");
+            Assert.IsNotNull(martialStudy);
+            Assert.IsTrue(martialStudy.Subsystems.Contains("martial_maneuvers"), "Martial Study must declare 'martial_maneuvers' subsystem.");
+
+            var martialStance = catalog.GetFeat("Martial Stance");
+            Assert.IsNotNull(martialStance);
+            Assert.IsTrue(martialStance.Subsystems.Contains("martial_maneuvers"), "Martial Stance must declare 'martial_maneuvers' subsystem.");
+        }
+
         // Source: Tome of Magic, pp. 16–50
         [TestMethod]
         public void GameRulesCatalog_LoadsVestiges_FromResources() {
