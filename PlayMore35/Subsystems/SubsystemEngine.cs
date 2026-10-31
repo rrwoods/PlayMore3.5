@@ -345,6 +345,41 @@ namespace PlayMore35.Subsystems {
             }
         }
 
+        public void TrimSlotsToCapacity() {
+            foreach (var kvp in slotGroups) {
+                string groupKey = kvp.Key;
+                var group = kvp.Value;
+                var sourceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                int unpartitionedCount = 0;
+                int totalCap = GetSlotCapacity(groupKey, null);
+                var slotsToKeep = new List<SubsystemSlot>();
+
+                foreach (var slot in group.RawSlots) {
+                    if (slot.IsFeatBound) {
+                        slotsToKeep.Add(slot);
+                    } else if (!string.IsNullOrEmpty(slot.Source)) {
+                        int cap = GetSlotCapacity(groupKey, slot.Source);
+                        sourceCounts.TryGetValue(slot.Source, out int count);
+                        if (count < cap) {
+                            slotsToKeep.Add(slot);
+                            sourceCounts[slot.Source] = count + 1;
+                        }
+                    } else {
+                        if (unpartitionedCount < totalCap) {
+                            slotsToKeep.Add(slot);
+                            unpartitionedCount++;
+                        }
+                    }
+                }
+
+                group.ClearAll();
+                for (int i = 0; i < slotsToKeep.Count; i++) {
+                    group[i] = slotsToKeep[i];
+                }
+            }
+            SyncState();
+        }
+
         private string GetDefaultState(string groupName) {
             if (!string.IsNullOrEmpty(groupName) && Definition.SlotGroups.TryGetValue(groupName, out var def) && !string.IsNullOrEmpty(def.DefaultState)) {
                 return def.DefaultState;
@@ -1359,7 +1394,7 @@ namespace PlayMore35.Subsystems {
 
         public IReadOnlyList<string> GetAccessibleElements(string? filter, string? targetSource) {
             string? effectiveSource = targetSource;
-            if (string.IsNullOrWhiteSpace(effectiveSource) && string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
+            if (string.IsNullOrWhiteSpace(effectiveSource)) {
                 effectiveSource = ResolveFeatTargetSource(null);
             }
 
@@ -1389,16 +1424,26 @@ namespace PlayMore35.Subsystems {
 
         private int CountSameDisciplineKnown(string discipline, int? atCharacterLevel = null, string? excludeFeatSlot = null, string? excludeElementName = null, IDictionary<string, string>? currentChoices = null, SubsystemSlot? excludeSlot = null) {
             if (string.IsNullOrEmpty(discipline)) return 0;
-            var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var character = context?.Character;
             var session = context as ICharacterSession;
             int totalLevels = character?.classLevels.Count ?? 0;
+
+            if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && atCharacterLevel.Value < totalLevels && session != null) {
+                var snapSession = session.GetSessionAtLevel(atCharacterLevel.Value, includeEquipped: false);
+                var snapEngine = snapSession.Subsystems.Get(Id);
+                if (snapEngine != null && !ReferenceEquals(snapEngine, this)) {
+                    return snapEngine.CountSameDisciplineKnown(discipline, null, excludeFeatSlot, excludeElementName, currentChoices, excludeSlot);
+                }
+            }
+
+            var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int levelCap = atCharacterLevel.HasValue && atCharacterLevel.Value > 0 ? Math.Min(atCharacterLevel.Value, totalLevels) : totalLevels;
             var classesAtLevel = atCharacterLevel.HasValue && character != null && levelCap > 0
                 ? character.classLevels.Take(levelCap).ToList()
                 : null;
 
-            foreach (var group in slotGroups.Values) {
+            foreach (var kvpGroup in slotGroups) {
+                var group = kvpGroup.Value;
                 foreach (var s in group.Slots) {
                     if (string.IsNullOrEmpty(s.Element)) continue;
                     if (excludeSlot != null && ReferenceEquals(s, excludeSlot)) continue;
@@ -1496,7 +1541,7 @@ namespace PlayMore35.Subsystems {
             }
 
             string? effectiveSource = targetSource;
-            if (string.IsNullOrWhiteSpace(effectiveSource) && string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
+            if (string.IsNullOrWhiteSpace(effectiveSource)) {
                 effectiveSource = ResolveFeatTargetSource(featSlot, currentChoices);
             }
 
@@ -1504,9 +1549,6 @@ namespace PlayMore35.Subsystems {
             int? acquisitionLevel = null;
             if (!string.IsNullOrEmpty(featSlot)) {
                 int slotLvl = session?.GetFeatSlotLevel(featSlot) ?? 0;
-                if (slotLvl <= 0) {
-                    slotLvl = context?.Character?.classLevels?.Count ?? 0;
-                }
                 if (slotLvl > 0) {
                     acquisitionLevel = slotLvl;
                 }
@@ -1518,11 +1560,10 @@ namespace PlayMore35.Subsystems {
                 int elemLevel = chosenElem.GetStatistic(Definition.LevelGating!.ElementStatistic, context).Value;
                 if (elemLevel > maxAllowed.Value) {
                     string srcSuffix = !string.IsNullOrWhiteSpace(effectiveSource) ? $" for {effectiveSource}" : "";
-                    if (string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
-                        warnings.Add($"Maneuver level {elemLevel} exceeds maximum maneuver level {maxAllowed.Value}{srcSuffix}.");
-                    } else {
-                        warnings.Add($"Level {elemLevel} exceeds maximum {maxAllowed.Value}{srcSuffix}.");
-                    }
+                    string maxLabel = !string.IsNullOrEmpty(Definition.LevelGating?.MaxLevelLabel)
+                        ? Definition.LevelGating!.MaxLevelLabel!
+                        : "maximum";
+                    warnings.Add($"Level {elemLevel} exceeds {maxLabel} {maxAllowed.Value}{srcSuffix}.");
                 }
             }
 
@@ -1535,7 +1576,8 @@ namespace PlayMore35.Subsystems {
                 if (prereqCount > 0) {
                     int knownInDisc = CountSameDisciplineKnown(disc, acquisitionLevel, featSlot, chosenElem.Name, currentChoices);
                     if (knownInDisc < prereqCount) {
-                        string plural = prereqCount == 1 ? "maneuver" : "maneuvers";
+                        string elemUnit = Definition.PrerequisiteUnit ?? (!string.IsNullOrEmpty(filter) ? filter : "element");
+                        string plural = prereqCount == 1 ? elemUnit : $"{elemUnit}s";
                         warnings.Add($"Requires {prereqCount} {disc} {plural}, but only {knownInDisc} known.");
                     }
                 }
@@ -1546,7 +1588,9 @@ namespace PlayMore35.Subsystems {
                     foreach (var s in grp.RawSlots) {
                         if (string.Equals(s.Element, chosenElem.Name, StringComparison.OrdinalIgnoreCase) &&
                             !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) {
-                            warnings.Add($"Maneuver '{chosenElem.Name}' is already learned under source '{s.Source}'.");
+                            string unit = Definition.PrerequisiteUnit ?? "element";
+                            string titleUnit = char.ToUpperInvariant(unit[0]) + unit.Substring(1);
+                            warnings.Add($"{titleUnit} '{chosenElem.Name}' is already learned under source '{s.Source}'.");
                         }
                     }
                 }
