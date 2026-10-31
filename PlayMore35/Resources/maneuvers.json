@@ -2,8 +2,10 @@
   "subsystem": {
     "id": "martial_maneuvers",
     "name": "Martial Maneuvers",
+    "prerequisite_unit": "maneuver",
     "level_gating": {
-      "element_statistic": "level"
+      "element_statistic": "level",
+      "max_level_label": "maximum maneuver level"
     },
     "element_statistics": {
       "level": []

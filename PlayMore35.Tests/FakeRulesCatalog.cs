@@ -78,7 +78,8 @@ namespace PlayMore35.Tests {
             var def = new SubsystemDefinition {
                 Id = "martial_maneuvers",
                 Name = "Martial Maneuvers",
-                LevelGating = new LevelGatingDefinition("level")
+                PrerequisiteUnit = "maneuver",
+                LevelGating = new LevelGatingDefinition("level", "maximum maneuver level")
             };
             if (inner?.GetSubsystem("martial_maneuvers")?.Taxonomies != null) {
                 foreach (var taxKvp in inner.GetSubsystem("martial_maneuvers").Taxonomies) {

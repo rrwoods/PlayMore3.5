@@ -87,21 +87,25 @@ namespace PlayMore35.Subsystems {
 
     public class LevelGatingDefinition : IJsonable {
         public string ElementStatistic { get; set; } = "";
+        public string? MaxLevelLabel { get; set; } = null;
 
         public LevelGatingDefinition() { }
 
-        public LevelGatingDefinition(string elementStatistic) {
+        public LevelGatingDefinition(string elementStatistic, string? maxLevelLabel = null) {
             ElementStatistic = elementStatistic ?? "";
+            MaxLevelLabel = maxLevelLabel;
         }
 
         public LevelGatingDefinition(JObject json) {
             if (json == null) return;
             ElementStatistic = (string)(json["element_statistic"] ?? "");
+            MaxLevelLabel = (string?)json["max_level_label"];
         }
 
         public JToken ToJson() {
             var json = new JObject();
             if (!string.IsNullOrEmpty(ElementStatistic)) json["element_statistic"] = ElementStatistic;
+            if (!string.IsNullOrEmpty(MaxLevelLabel)) json["max_level_label"] = MaxLevelLabel;
             return json;
         }
     }
@@ -312,6 +316,7 @@ namespace PlayMore35.Subsystems {
     public class SubsystemDefinition : IJsonable {
         public string Id { get; set; } = "";
         public string Name { get; set; } = "";
+        public string? PrerequisiteUnit { get; set; } = null;
         public Dictionary<string, SlotGroupDefinition> SlotGroups { get; } = new Dictionary<string, SlotGroupDefinition>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> DefaultElementVerbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
@@ -333,6 +338,7 @@ namespace PlayMore35.Subsystems {
             if (subJson == null) return;
             Id = (string)(subJson["id"] ?? "");
             Name = (string)(subJson["name"] ?? Id);
+            PrerequisiteUnit = (string?)subJson["prerequisite_unit"];
 
             if (subJson["level_gating"] is JObject lgObj) {
                 LevelGating = new LevelGatingDefinition(lgObj);
@@ -466,6 +472,10 @@ namespace PlayMore35.Subsystems {
                 new JProperty("id", Id),
                 new JProperty("name", Name)
             );
+
+            if (!string.IsNullOrEmpty(PrerequisiteUnit)) {
+                subJson["prerequisite_unit"] = PrerequisiteUnit;
+            }
 
             if (Taxonomies.Count > 0) {
                 var taxObj = new JObject();

@@ -23,6 +23,7 @@ namespace PlayMore35.Global {
         private readonly Dictionary<string, string> rememberedFeatChoices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession> _levelSessionCache =
             new ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession>();
+        private readonly bool _isSnapshot;
 
         public IReadOnlyCharacter Character => readOnlyCharacter;
         public IReadOnlyDictionary<string, string> RememberedFeats => rememberedFeats;
@@ -50,9 +51,13 @@ namespace PlayMore35.Global {
         List<AttackRoutine> ICharacterContext.GetAllRoutines() => GetAllRoutines().ToList();
         List<AttackRoutine> ICharacterContext.GetVisibleRoutines() => GetVisibleRoutines().ToList();
 
-        public CharacterSession(Character character, IRulesCatalog catalog) {
+        public CharacterSession(Character character, IRulesCatalog catalog)
+            : this(character, catalog, false) { }
+
+        internal CharacterSession(Character character, IRulesCatalog catalog, bool isSnapshot) {
             this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             this.character = character ?? throw new ArgumentNullException(nameof(character));
+            _isSnapshot = isSnapshot;
             this.readOnlyCharacter = new ReadOnlyCharacter(this.character);
 
             this.character.Timeline.Context = this;
@@ -932,6 +937,16 @@ namespace PlayMore35.Global {
             if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
                 return new List<string>();
             }
+
+            int slotLevel = GetFeatSlotLevel(featSlot);
+            int totalLevels = character.classLevels.Count;
+            int acquisitionLevel = slotLevel > 0 ? slotLevel : totalLevels;
+
+            if (!_isSnapshot && acquisitionLevel > 0 && acquisitionLevel <= totalLevels) {
+                var snapshot = GetSessionAtLevel(acquisitionLevel, includeEquipped: false);
+                return snapshot.ValidateFeatChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+            }
+
             var allWarnings = new List<string>();
             foreach (var engine in subsystems.All) {
                 var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
@@ -1229,7 +1244,36 @@ namespace PlayMore35.Global {
                 }
             }
 
-            return new CharacterSession(sliced, catalog);
+            foreach (var kvp in character.Subsystems) {
+                var subState = new SubsystemState();
+                foreach (var pool in kvp.Value.Pools) {
+                    subState.Pools[pool.Key] = pool.Value;
+                }
+                foreach (var slotGrp in kvp.Value.Slots) {
+                    var slotsList = new List<SubsystemSlot>();
+                    foreach (var s in slotGrp.Value) {
+                        if (!string.IsNullOrEmpty(s.FeatSlot)) {
+                            int slotLevel = ResolveSlotLevel(s.FeatSlot);
+                            if (slotLevel > 0 && slotLevel <= level) {
+                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                            }
+                        } else {
+                            if (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase)) {
+                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                            }
+                        }
+                    }
+                    subState.Slots[slotGrp.Key] = slotsList;
+                }
+                sliced.Subsystems[kvp.Key] = subState;
+            }
+
+            var snapSession = new CharacterSession(sliced, catalog, isSnapshot: true);
+            foreach (var engine in snapSession.Subsystems.All) {
+                engine.TrimSlotsToCapacity();
+            }
+
+            return snapSession;
         }
     }
 }
