@@ -1269,13 +1269,12 @@ namespace PlayMore35.Subsystems {
 
         private bool MatchesFilter(SubsystemElement elem, string filter) {
             if (string.IsNullOrEmpty(filter)) return true;
-            if (string.Equals(filter, "maneuver", StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
-                return !string.Equals(elem.Type, "Stance", StringComparison.OrdinalIgnoreCase);
+            if (elem == null) return false;
+            if (string.Equals(Id, filter, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Name, filter, StringComparison.OrdinalIgnoreCase)) {
+                return true;
             }
-            return string.Equals(elem.Type, filter, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(Id, filter, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(Name, filter, StringComparison.OrdinalIgnoreCase);
+            return elem.MatchesFilter(filter, Definition);
         }
 
         private int GetInitiatorLevelAtCharacterLevel(string source, int level) {
@@ -1597,12 +1596,9 @@ namespace PlayMore35.Subsystems {
                         continue;
                     }
 
-                    if (string.Equals(Id, "martial_maneuvers", StringComparison.OrdinalIgnoreCase)) {
-                        bool isStance = string.Equals(elem.Type, "Stance", StringComparison.OrdinalIgnoreCase);
-                        if (string.Equals(groupKey, "maneuvers", StringComparison.OrdinalIgnoreCase) && isStance) {
-                            warnings.Add($"Stance '{elem.Name}' cannot be assigned to maneuver slot.");
-                        } else if (string.Equals(groupKey, "stances", StringComparison.OrdinalIgnoreCase) && !isStance) {
-                            warnings.Add($"Maneuver '{elem.Name}' cannot be assigned to stance slot.");
+                    if (groupDef != null && !string.IsNullOrEmpty(groupDef.Filter)) {
+                        if (!MatchesFilter(elem, groupDef.Filter)) {
+                            warnings.Add($"Element '{elem.Name}' does not match filter '{groupDef.Filter}' for slot group '{groupKey}'.");
                         }
                     }
 

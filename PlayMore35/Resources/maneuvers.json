@@ -19,6 +19,23 @@
       "description"
     ],
     "taxonomies": {
+      "type": {
+        "Strike": {
+          "category": "maneuver"
+        },
+        "Boost": {
+          "category": "maneuver"
+        },
+        "Counter": {
+          "category": "maneuver"
+        },
+        "Other": {
+          "category": "maneuver"
+        },
+        "Stance": {
+          "category": "stance"
+        }
+      },
       "discipline": {
       "Desert Wind": {
         "keySkill": "Tumble",
@@ -112,6 +129,7 @@
   },
     "slot_groups": {
       "maneuvers": {
+        "filter": "maneuver",
         "capacity_stat": "maneuvers known:{source}",
         "readied_capacity_stat": "maneuvers readied:{source}",
         "max_level": {
@@ -163,6 +181,7 @@
         ]
       },
       "stances": {
+        "filter": "stance",
         "capacity_stat": "stances known:{source}",
         "max_active_stat": "active stances",
         "max_level": {

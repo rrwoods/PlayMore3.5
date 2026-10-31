@@ -108,6 +108,7 @@ namespace PlayMore35.Subsystems {
 
     public class SlotGroupDefinition : IJsonable {
         public string Name { get; set; } = "";
+        public string? Filter { get; set; }
         public string CapacityStat { get; set; } = null;
         public string ReadiedCapacityStat { get; set; } = null;
         public string MaxActiveStat { get; set; } = null;
@@ -124,6 +125,7 @@ namespace PlayMore35.Subsystems {
         public SlotGroupDefinition(JObject json) {
             if (json == null) return;
             Name = (string)(json["name"] ?? "");
+            Filter = (string)json["filter"];
             CapacityStat = (string)json["capacity_stat"];
             ReadiedCapacityStat = (string)json["readied_capacity_stat"];
             MaxActiveStat = (string)json["max_active_stat"];
@@ -166,6 +168,7 @@ namespace PlayMore35.Subsystems {
         public JToken ToJson() {
             var json = new JObject();
             if (!string.IsNullOrEmpty(Name)) json["name"] = Name;
+            if (!string.IsNullOrEmpty(Filter)) json["filter"] = Filter;
             if (!string.IsNullOrEmpty(CapacityStat)) json["capacity_stat"] = CapacityStat;
             if (!string.IsNullOrEmpty(ReadiedCapacityStat)) json["readied_capacity_stat"] = ReadiedCapacityStat;
             if (!string.IsNullOrEmpty(MaxActiveStat)) json["max_active_stat"] = MaxActiveStat;

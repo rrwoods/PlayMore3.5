@@ -249,6 +249,56 @@ namespace PlayMore35.Tests {
             }
         }
 
+        [TestMethod]
+        public void DefaultElementPicker_FilterManeuvers_IncludesStrikesBoostsCountersOther_AndExcludesStances() {
+            var session = CreateTestSession();
+            var context = new ElementPickerContext {
+                ElementType = "martial_maneuvers",
+                Filter = "maneuver"
+            };
+
+            var elements = new List<SubsystemElement> {
+                new SubsystemElement { Name = "Steel Wind", Type = "Strike" },
+                new SubsystemElement { Name = "Wind Stride", Type = "Boost" },
+                new SubsystemElement { Name = "Fire Riposte", Type = "Counter" },
+                new SubsystemElement { Name = "White Raven Tactics", Type = "Other" },
+                new SubsystemElement { Name = "Punishing Stance", Type = "Stance" }
+            };
+
+            using (var picker = new DefaultElementPicker(session, context, elements)) {
+                var filtered = new List<string>(picker.GetFilteredElementNames());
+                CollectionAssert.Contains(filtered, "Steel Wind");
+                CollectionAssert.Contains(filtered, "Wind Stride");
+                CollectionAssert.Contains(filtered, "Fire Riposte");
+                CollectionAssert.Contains(filtered, "White Raven Tactics");
+                CollectionAssert.DoesNotContain(filtered, "Punishing Stance");
+            }
+        }
+
+        [TestMethod]
+        public void DefaultElementPicker_FilterStances_IncludesOnlyStances() {
+            var session = CreateTestSession();
+            var context = new ElementPickerContext {
+                ElementType = "martial_maneuvers",
+                Filter = "stance"
+            };
+
+            var elements = new List<SubsystemElement> {
+                new SubsystemElement { Name = "Steel Wind", Type = "Strike" },
+                new SubsystemElement { Name = "Wind Stride", Type = "Boost" },
+                new SubsystemElement { Name = "Punishing Stance", Type = "Stance" },
+                new SubsystemElement { Name = "Bolstering Voice", Type = "Stance" }
+            };
+
+            using (var picker = new DefaultElementPicker(session, context, elements)) {
+                var filtered = new List<string>(picker.GetFilteredElementNames());
+                CollectionAssert.DoesNotContain(filtered, "Steel Wind");
+                CollectionAssert.DoesNotContain(filtered, "Wind Stride");
+                CollectionAssert.Contains(filtered, "Punishing Stance");
+                CollectionAssert.Contains(filtered, "Bolstering Voice");
+            }
+        }
+
         private static ICharacterSession CreateTestSession() {
             var catalog = new GameRulesCatalog();
             var character = new Character {

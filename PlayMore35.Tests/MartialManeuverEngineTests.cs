@@ -1108,5 +1108,85 @@ namespace PlayMore35.Tests {
             engine.ClearSlot("stances", 0, "Warblade");
             Assert.IsNull(engine.GetSlotElement("stances", 0, "Warblade"));
         }
+
+        [TestMethod]
+        public void ManeuversCatalog_ParsesTypeTaxonomyAndSlotGroupFiltersCorrectly() {
+            var catalog = new GameRulesCatalog();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martialDef);
+
+            // Verify slot group filters
+            Assert.IsTrue(martialDef.SlotGroups.ContainsKey("maneuvers"));
+            Assert.AreEqual("maneuver", martialDef.SlotGroups["maneuvers"].Filter);
+            Assert.IsTrue(martialDef.SlotGroups.ContainsKey("stances"));
+            Assert.AreEqual("stance", martialDef.SlotGroups["stances"].Filter);
+
+            // Verify taxonomies["type"]
+            Assert.IsTrue(martialDef.Taxonomies.ContainsKey("type"));
+            var typeTax = martialDef.Taxonomies["type"];
+            Assert.IsTrue(typeTax.ContainsKey("Strike"));
+            Assert.AreEqual("maneuver", typeTax["Strike"].GetProperty<string>("category"));
+            Assert.IsTrue(typeTax.ContainsKey("Boost"));
+            Assert.AreEqual("maneuver", typeTax["Boost"].GetProperty<string>("category"));
+            Assert.IsTrue(typeTax.ContainsKey("Counter"));
+            Assert.AreEqual("maneuver", typeTax["Counter"].GetProperty<string>("category"));
+            Assert.IsTrue(typeTax.ContainsKey("Other"));
+            Assert.AreEqual("maneuver", typeTax["Other"].GetProperty<string>("category"));
+            Assert.IsTrue(typeTax.ContainsKey("Stance"));
+            Assert.AreEqual("stance", typeTax["Stance"].GetProperty<string>("category"));
+        }
+
+        // Source: Tome of Battle: The Book of Nine Swords, pp. 38, 43
+        [TestMethod]
+        public void SubsystemEngine_SlotGroupValidation_FlagsMismatchingFilterGenerically() {
+            var strike = CreateManeuver("Steel Wind", "Iron Heart", 1, "Strike");
+            var stance = CreateManeuver("Punishing Stance", "Iron Heart", 1, "Stance");
+            var content = new FakeRulesCatalog(strike, stance);
+            var context = new FakeCharacterContext(catalog: content);
+            SetStat(context.Effects, "maneuvers known:warblade", 2);
+            SetStat(context.Effects, "stances known:warblade", 2);
+            var engine = CreateMartialEngineWithContext(content, context);
+
+            // Assign stance to maneuver slot
+            engine.AssignSlot("maneuvers", 0, "Punishing Stance", source: "Warblade");
+            // Assign strike to stance slot
+            engine.AssignSlot("stances", 0, "Steel Wind", source: "Warblade");
+
+            var warnings = engine.Validate();
+            Assert.IsTrue(warnings.Any(w => w.Contains("Element 'Punishing Stance' does not match filter 'maneuver' for slot group 'maneuvers'")),
+                $"Expected maneuver slot filter warning, got: {string.Join(", ", warnings)}");
+            Assert.IsTrue(warnings.Any(w => w.Contains("Element 'Steel Wind' does not match filter 'stance' for slot group 'stances'")),
+                $"Expected stance slot filter warning, got: {string.Join(", ", warnings)}");
+        }
+
+        [TestMethod]
+        public void SubsystemElement_MatchesFilter_GenericTaxonomyResolution() {
+            var catalog = new GameRulesCatalog();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            var strike = martialDef.Elements.Values.First(e => string.Equals(e.Type, "Strike", StringComparison.OrdinalIgnoreCase));
+            var stance = martialDef.Elements.Values.First(e => string.Equals(e.Type, "Stance", StringComparison.OrdinalIgnoreCase));
+
+            // Null or empty filter matches everything
+            Assert.IsTrue(strike.MatchesFilter(null, martialDef));
+            Assert.IsTrue(strike.MatchesFilter("", martialDef));
+
+            // Filter by element Type directly
+            Assert.IsTrue(strike.MatchesFilter("Strike", martialDef));
+            Assert.IsFalse(strike.MatchesFilter("Stance", martialDef));
+
+            // Filter by taxonomy category
+            Assert.IsTrue(strike.MatchesFilter("maneuver", martialDef));
+            Assert.IsFalse(strike.MatchesFilter("stance", martialDef));
+
+            Assert.IsTrue(stance.MatchesFilter("stance", martialDef));
+            Assert.IsFalse(stance.MatchesFilter("maneuver", martialDef));
+
+            // Filter by subsystem ID and Name
+            Assert.IsTrue(strike.MatchesFilter("martial_maneuvers", martialDef));
+            Assert.IsTrue(strike.MatchesFilter("Martial Maneuvers", martialDef));
+
+            // Filter by taxonomy discipline name
+            Assert.IsTrue(strike.MatchesFilter(strike.GetProperty<string>("discipline"), martialDef));
+        }
     }
 }
