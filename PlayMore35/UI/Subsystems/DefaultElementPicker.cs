@@ -10,6 +10,7 @@ namespace PlayMore35.UI.Subsystems {
     public class DefaultElementPicker : UserControl, ISubsystemElementPicker {
         private readonly ICharacterSession _session;
         private readonly ElementPickerContext _context;
+        private readonly SubsystemDefinition? _definition;
         private readonly List<SubsystemElement> _allElements;
 
         private TextBox _searchBox;
@@ -42,20 +43,34 @@ namespace PlayMore35.UI.Subsystems {
             _session = session ?? throw new ArgumentNullException(nameof(session));
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
-            if (elements != null) {
-                _allElements = new List<SubsystemElement>(elements);
-            } else if (!string.IsNullOrEmpty(context.ElementType)) {
-                if (session.Catalog.TryGetSubsystem(context.ElementType!, out var subDef)) {
-                    _allElements = new List<SubsystemElement>(subDef.Elements.Values);
-                } else {
+            if (!string.IsNullOrEmpty(context.ElementType)) {
+                if (session.Catalog != null && session.Catalog.TryGetSubsystem(context.ElementType!, out var subDef)) {
+                    _definition = subDef;
+                } else if (session.Subsystems != null) {
                     var engine = session.Subsystems.Get(context.ElementType!) ??
                                  session.Subsystems.All.FirstOrDefault(e => e.Definition.Elements.Values.Any(el => string.Equals(el.Type, context.ElementType, StringComparison.OrdinalIgnoreCase)));
                     if (engine != null) {
-                        _allElements = new List<SubsystemElement>(engine.Definition.Elements.Values);
-                    } else {
-                        _allElements = new List<SubsystemElement>();
+                        _definition = engine.Definition;
                     }
                 }
+            }
+
+            if (_definition == null && elements != null) {
+                var firstElem = elements.FirstOrDefault();
+                if (firstElem != null) {
+                    if (session.Catalog?.Subsystems != null) {
+                        _definition = session.Catalog.Subsystems.Values.FirstOrDefault(d => d.Elements.ContainsKey(firstElem.Name));
+                    }
+                    if (_definition == null && session.Subsystems != null) {
+                        _definition = session.Subsystems.All.Select(e => e.Definition).FirstOrDefault(d => d.Elements.ContainsKey(firstElem.Name));
+                    }
+                }
+            }
+
+            if (elements != null) {
+                _allElements = new List<SubsystemElement>(elements);
+            } else if (_definition != null) {
+                _allElements = new List<SubsystemElement>(_definition.Elements.Values);
             } else {
                 _allElements = new List<SubsystemElement>();
             }
@@ -185,14 +200,8 @@ namespace PlayMore35.UI.Subsystems {
             var searchText = _searchBox.Text.Trim();
             var filter = _context.Filter;
             foreach (var elem in _allElements) {
-                if (!string.IsNullOrEmpty(filter)) {
-                    if (string.Equals(filter, "maneuver", StringComparison.OrdinalIgnoreCase)) {
-                        if (string.Equals(elem.Type, "Stance", StringComparison.OrdinalIgnoreCase)) {
-                            continue;
-                        }
-                    } else if (!string.Equals(elem.Type, filter, StringComparison.OrdinalIgnoreCase)) {
-                        continue;
-                    }
+                if (!elem.MatchesFilter(filter, _definition)) {
+                    continue;
                 }
 
                 if (!string.IsNullOrEmpty(searchText) && elem.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) < 0) {

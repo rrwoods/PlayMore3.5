@@ -81,9 +81,22 @@ namespace PlayMore35.Tests {
                     def.Taxonomies[taxKvp.Key] = map;
                 }
             }
+            if (!def.Taxonomies.ContainsKey("type")) {
+                var typeMap = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
+                foreach (var mType in new[] { "Strike", "Boost", "Counter", "Other" }) {
+                    var entry = new TaxonomyEntry { Name = mType };
+                    entry.SetProperty("category", "maneuver");
+                    typeMap[mType] = entry;
+                }
+                var stanceEntry = new TaxonomyEntry { Name = "Stance" };
+                stanceEntry.SetProperty("category", "stance");
+                typeMap["Stance"] = stanceEntry;
+                def.Taxonomies["type"] = typeMap;
+            }
             def.ElementStatistics["level"] = new List<string>();
             var maneuverGroup = new SlotGroupDefinition {
                 Name = "maneuvers",
+                Filter = "maneuver",
                 CapacityStat = "maneuvers known:{source}",
                 ReadiedCapacityStat = "maneuvers readied:{source}",
                 MaxLevel = new MaxLevelDefinition("max maneuver level:{source}", 0),
@@ -100,6 +113,7 @@ namespace PlayMore35.Tests {
 
             var stances = new SlotGroupDefinition {
                 Name = "stances",
+                Filter = "stance",
                 CapacityStat = "stances known:{source}",
                 MaxActiveStat = "active stances",
                 MaxLevel = new MaxLevelDefinition("max maneuver level:{source}", 0),
@@ -181,6 +195,16 @@ namespace PlayMore35.Tests {
             if (maneuvers != null) {
                 foreach (var elem in maneuvers) {
                     if (elem == null || string.IsNullOrEmpty(elem.Name)) continue;
+                    if (def.Taxonomies.Count > 0) {
+                        foreach (var taxKvp in def.Taxonomies) {
+                            if (elem.Properties.TryGetValue(taxKvp.Key, out var propVal) && propVal != null) {
+                                var entryName = propVal.ToString();
+                                if (taxKvp.Value.TryGetValue(entryName, out var entryDef)) {
+                                    elem.SetProperty(taxKvp.Key, entryDef);
+                                }
+                            }
+                        }
+                    }
                     def.Elements[elem.Name] = elem;
                 }
             }

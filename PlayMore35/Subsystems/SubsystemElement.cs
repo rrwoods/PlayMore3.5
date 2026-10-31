@@ -22,6 +22,58 @@ namespace PlayMore35.Subsystems {
             set => _properties["type"] = value;
         }
 
+        public bool MatchesFilter(string? filter, SubsystemDefinition? definition = null) {
+            if (string.IsNullOrEmpty(filter)) return true;
+
+            if (definition != null) {
+                if (string.Equals(definition.Id, filter, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(definition.Name, filter, StringComparison.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+
+            if (string.Equals(Type, filter, StringComparison.OrdinalIgnoreCase)) return true;
+
+            bool MatchesTaxonomyEntry(TaxonomyEntry entry) {
+                if (entry == null) return false;
+                if (string.Equals(entry.Name, filter, StringComparison.OrdinalIgnoreCase)) return true;
+                foreach (var kvp in entry.Properties) {
+                    if (kvp.Value == null) continue;
+                    if (kvp.Value is System.Collections.IEnumerable enumerable && !(kvp.Value is string)) {
+                        foreach (var item in enumerable) {
+                            if (item != null && string.Equals(item.ToString(), filter, StringComparison.OrdinalIgnoreCase)) {
+                                return true;
+                            }
+                        }
+                    } else if (string.Equals(kvp.Value.ToString(), filter, StringComparison.OrdinalIgnoreCase)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            foreach (var entry in _properties.Values.OfType<TaxonomyEntry>()) {
+                if (MatchesTaxonomyEntry(entry)) {
+                    return true;
+                }
+            }
+
+            if (definition?.Taxonomies != null) {
+                foreach (var taxKvp in definition.Taxonomies) {
+                    if (_properties.TryGetValue(taxKvp.Key, out var propVal) && propVal != null) {
+                        var entryName = propVal.ToString();
+                        if (!string.IsNullOrEmpty(entryName) && taxKvp.Value.TryGetValue(entryName, out var entryDef)) {
+                            if (MatchesTaxonomyEntry(entryDef)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public T GetProperty<T>(string key, T defaultValue = default) {
             if (string.IsNullOrEmpty(key)) return defaultValue;
             if (_properties.TryGetValue(key, out var val) && val != null) {
