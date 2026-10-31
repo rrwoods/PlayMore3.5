@@ -1177,6 +1177,7 @@
   },
   {
     "prerequisites": "One martial maneuver",
+    "subsystems": [ "martial_maneuvers" ],
     "stats": [
       { "name": "initiator level:feats" },
       { "name": "stances known:feats" },
@@ -1187,7 +1188,7 @@
         "id": "class",
         "label": "Choose class",
         "domain": "CharacterClasses",
-        "filter": "Adept",
+        "filter": "adept",
         "fallback": "Feats"
       },
       {
@@ -1255,6 +1256,7 @@
     }
   },
   {
+    "subsystems": [ "martial_maneuvers" ],
     "stats": [
       { "name": "initiator level:feats" },
       { "name": "maneuvers known:feats" },
@@ -1266,7 +1268,7 @@
         "id": "class",
         "label": "Choose class",
         "domain": "CharacterClasses",
-        "filter": "Adept",
+        "filter": "adept",
         "fallback": "Feats"
       },
       {

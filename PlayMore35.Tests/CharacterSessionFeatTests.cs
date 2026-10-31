@@ -578,6 +578,13 @@ namespace PlayMore35.Tests {
             string template = "${maneuver.discipline.keySkill}")
         {
             return new Feat(new JObject(
+                new JProperty("subsystems", new JArray("martial_maneuvers")),
+                new JProperty("stats", new JArray(
+                    new JObject(new JProperty("name", "initiator level:feats")),
+                    new JObject(new JProperty("name", "maneuvers known:feats")),
+                    new JObject(new JProperty("name", "maneuvers readied:feats")),
+                    new JObject(new JProperty("name", "stances known:feats"))
+                )),
                 new JProperty("benefit", new JObject(
                     new JProperty("name", featName),
                     new JProperty("slots", new JArray(
@@ -595,6 +602,22 @@ namespace PlayMore35.Tests {
                                 new JProperty("type", "untyped"),
                                 new JProperty("amounts", new JArray(new JObject(new JProperty("fixed", 1))))
                             ))
+                        ),
+                        new JObject(
+                            new JProperty("affects", "initiator level:feats"),
+                            new JProperty("active", new JObject(new JProperty("choice", "Feats"))),
+                            new JProperty("mod", new JObject(
+                                new JProperty("type", "internal"),
+                                new JProperty("amounts", new JArray(new JObject(
+                                    new JProperty("largest", new JArray(
+                                        new JObject(new JProperty("fixed", 1)),
+                                        new JObject(new JProperty("multiply", new JObject(
+                                            new JProperty("variable", new JObject(new JProperty("stat value", "character level"))),
+                                            new JProperty("scalar", 0.5)
+                                        )))
+                                    ))
+                                )))
+                            ))
                         )
                     ))
                 )),
@@ -604,7 +627,7 @@ namespace PlayMore35.Tests {
                         new JProperty("id", "class"),
                         new JProperty("label", "Target Class"),
                         new JProperty("domain", "CharacterClasses"),
-                        new JProperty("filter", "Adept"),
+                        new JProperty("filter", "adept"),
                         new JProperty("fallback", "Feats")
                     ),
                     new JObject(

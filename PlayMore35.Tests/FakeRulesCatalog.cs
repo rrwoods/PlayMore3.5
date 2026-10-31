@@ -27,7 +27,15 @@ namespace PlayMore35.Tests {
 
         public IReadOnlyDictionary<string, Race> Races => RacesMap;
         public IReadOnlyDictionary<string, CharacterClass> Classes => ClassesMap;
-        public IReadOnlyDictionary<string, Feat> Feats => FeatsMap;
+        public IReadOnlyDictionary<string, Feat> Feats {
+            get {
+                if (inner == null) return FeatsMap;
+                var combined = new Dictionary<string, Feat>(StringComparer.OrdinalIgnoreCase);
+                foreach (var kvp in inner.Feats) combined[kvp.Key] = kvp.Value;
+                foreach (var kvp in FeatsMap) combined[kvp.Key] = kvp.Value;
+                return combined;
+            }
+        }
         public IReadOnlyDictionary<string, Weapon> Weapons => WeaponsMap;
         public IReadOnlyDictionary<string, Armor> Armors => ArmorsMap;
         public IReadOnlyDictionary<string, Shield> Shields => ShieldsMap;
