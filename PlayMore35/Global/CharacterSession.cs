@@ -59,8 +59,7 @@ namespace PlayMore35.Global {
 
             if (this.catalog.Subsystems != null) {
                 foreach (var subDef in this.catalog.Subsystems.Values) {
-                    string? alias = subDef.Id == "pact_magic" ? "vestige" : (subDef.Id == "martial_maneuvers" ? "maneuver" : null);
-                    subsystems.Register(new SubsystemEngine(subDef, this), alias);
+                    subsystems.Register(new SubsystemEngine(subDef, this));
                 }
             }
 

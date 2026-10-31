@@ -7,13 +7,12 @@ namespace PlayMore35.Subsystems {
     public class SubsystemRegistry {
         public static SubsystemRegistry CreateDefault(ICharacterContext? context = null) {
             var registry = new SubsystemRegistry();
-            var catalog = new Rules.GameRulesCatalog();
+            var catalog = context?.Catalog ?? new Rules.GameRulesCatalog();
             var effectiveContext = context ?? new CharacterSession(new Character(), catalog);
-            if (catalog.TryGetSubsystem("pact_magic", out var pactDef)) {
-                registry.Register(new SubsystemEngine(pactDef, effectiveContext), "vestige");
-            }
-            if (catalog.TryGetSubsystem("martial_maneuvers", out var martialDef)) {
-                registry.Register(new SubsystemEngine(martialDef, effectiveContext), "maneuver");
+            if (catalog.Subsystems != null) {
+                foreach (var subDef in catalog.Subsystems.Values) {
+                    registry.Register(new SubsystemEngine(subDef, effectiveContext));
+                }
             }
             return registry;
         }
@@ -23,19 +22,13 @@ namespace PlayMore35.Subsystems {
 
         public IEnumerable<SubsystemEngine> All => engines;
 
-        public void Register(SubsystemEngine engine, string? alias = null) {
+        public void Register(SubsystemEngine engine) {
             if (engine == null) throw new ArgumentNullException(nameof(engine));
             if (!string.IsNullOrEmpty(engine.Id)) {
                 if (enginesById.TryGetValue(engine.Id, out var existing)) {
                     engines.Remove(existing);
                 }
                 enginesById[engine.Id] = engine;
-            }
-            if (!string.IsNullOrEmpty(alias)) {
-                if (enginesById.TryGetValue(alias, out var existingAlias)) {
-                    engines.Remove(existingAlias);
-                }
-                enginesById[alias] = engine;
             }
             if (!engines.Contains(engine)) {
                 engines.Add(engine);
