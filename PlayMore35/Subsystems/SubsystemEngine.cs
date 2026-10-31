@@ -308,7 +308,9 @@ namespace PlayMore35.Subsystems {
 
         public void SyncState() {
             if (context?.Character != null) {
-                context.Character.Subsystems[Id] = ExportState();
+                if (IsActive || context.Character.Subsystems.ContainsKey(Id)) {
+                    context.Character.Subsystems[Id] = ExportState();
+                }
             }
         }
 
@@ -1037,37 +1039,131 @@ namespace PlayMore35.Subsystems {
             return "Feats";
         }
 
-        public void ProjectFeatSlots() {
-            var character = context?.Character;
-            if (character == null) return;
-            if (!slotGroups.ContainsKey("maneuvers") && !slotGroups.ContainsKey("stances")) return;
+        public void GrantSlot(string slotGroup, string element, string source, string? featSlot) {
+            if (string.IsNullOrEmpty(slotGroup) || string.IsNullOrEmpty(element) || string.IsNullOrEmpty(source)) return;
+            var group = GetSlotGroup(slotGroup);
+            if (group == null) return;
+            if (GetElement(element) == null) return;
 
-            void ProjectGroup(string groupKey, string choiceSuffix) {
-                var group = GetSlotGroup(groupKey);
-                if (group == null) return;
+            if (IsSourcePartitionedGroup(slotGroup)) {
+                int totalCap = GetSlotCapacity(slotGroup, source);
+                int totalGrantedForSource = group.RawSlots.Count(s =>
+                    s != null &&
+                    string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase) &&
+                    !string.IsNullOrEmpty(s.FeatSlot));
 
-                var activeFeats = new Dictionary<string, (string FeatSlot, string ElementName, string Source)>(StringComparer.OrdinalIgnoreCase);
-                foreach (var kvp in character.featChoices) {
-                    if (kvp.Key.EndsWith(choiceSuffix, StringComparison.OrdinalIgnoreCase)) {
-                        string fSlot = kvp.Key.Substring(0, kvp.Key.Length - choiceSuffix.Length);
-                        if (!string.IsNullOrWhiteSpace(kvp.Value) && GetElement(kvp.Value) != null) {
-                            string src = ResolveFeatTargetSource(fSlot);
-                            activeFeats[fSlot] = (fSlot, kvp.Value, src);
-                        }
+                bool isNew = !group.RawSlots.Any(s =>
+                    s != null &&
+                    string.Equals(s.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase));
+
+                if (isNew) {
+                    totalGrantedForSource++;
+                }
+
+                int baseClassCapacity = Math.Max(0, totalCap - totalGrantedForSource);
+
+                var sourceIndices = EnsureSourceSlots(slotGroup, source, baseClassCapacity);
+                SubsystemSlot? existingSlot = null;
+                int existingSourceIdx = -1;
+                for (int idx = 0; idx < sourceIndices.Count; idx++) {
+                    var s = group[sourceIndices[idx]];
+                    if (!string.IsNullOrEmpty(featSlot) && string.Equals(s.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase)) {
+                        existingSlot = s;
+                        existingSourceIdx = idx;
+                        break;
                     }
                 }
 
-                // Remove stale feat-bound slots or feat-bound slots whose source changed
+                if (existingSlot != null) {
+                    existingSlot.Element = element;
+                    if (existingSourceIdx < baseClassCapacity) {
+                        string defState = GetDefaultState(slotGroup);
+                        group[sourceIndices[existingSourceIdx]] = new SubsystemSlot("", defState, source);
+                        var updatedIndices = EnsureSourceSlots(slotGroup, source, Math.Max(baseClassCapacity + 1, sourceIndices.Count));
+                        int targetFlat = -1;
+                        for (int idx = baseClassCapacity; idx < updatedIndices.Count; idx++) {
+                            var candidate = group[updatedIndices[idx]];
+                            if (string.IsNullOrEmpty(candidate.Element)) {
+                                targetFlat = updatedIndices[idx];
+                                break;
+                            }
+                        }
+                        if (targetFlat == -1) {
+                            var more = EnsureSourceSlots(slotGroup, source, updatedIndices.Count + 1);
+                            targetFlat = more.Last();
+                        }
+                        group[targetFlat] = existingSlot;
+                    }
+                } else {
+                    var updatedIndices = EnsureSourceSlots(slotGroup, source, Math.Max(baseClassCapacity + 1, sourceIndices.Count));
+                    int targetFlat = -1;
+                    for (int idx = baseClassCapacity; idx < updatedIndices.Count; idx++) {
+                        var candidate = group[updatedIndices[idx]];
+                        if (string.IsNullOrEmpty(candidate.Element) && string.IsNullOrEmpty(candidate.FeatSlot)) {
+                            targetFlat = updatedIndices[idx];
+                            break;
+                        }
+                    }
+                    if (targetFlat == -1) {
+                        var more = EnsureSourceSlots(slotGroup, source, updatedIndices.Count + 1);
+                        targetFlat = more.Last();
+                    }
+                    group[targetFlat] = new SubsystemSlot(element, GetDefaultState(slotGroup), source, featSlot);
+                }
+            } else {
+                SubsystemSlot? existingSlot = null;
+                for (int idx = 0; idx < group.RawSlots.Count; idx++) {
+                    var s = group.RawSlots[idx];
+                    if (s != null && !string.IsNullOrEmpty(featSlot) && string.Equals(s.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase)) {
+                        existingSlot = s;
+                        break;
+                    }
+                }
+                if (existingSlot != null) {
+                    existingSlot.Element = element;
+                } else {
+                    int targetIdx = -1;
+                    for (int idx = 0; idx < group.RawSlots.Count; idx++) {
+                        var s = group.RawSlots[idx];
+                        if (s == null || (string.IsNullOrEmpty(s.Element) && string.IsNullOrEmpty(s.FeatSlot))) {
+                            targetIdx = idx;
+                            break;
+                        }
+                    }
+                    if (targetIdx == -1) {
+                        targetIdx = group.RawSlots.Count;
+                    }
+                    group[targetIdx] = new SubsystemSlot(element, GetDefaultState(slotGroup), source, featSlot);
+                }
+            }
+
+            SyncState();
+        }
+
+        public void PruneStaleGrantedSlots(IEnumerable<(string SlotGroup, string Source, string FeatSlot)> activeGrants) {
+            bool hasAnyFeatSlots = slotGroups.Values.Any(g => g.RawSlots.Any(s => s != null && !string.IsNullOrEmpty(s.FeatSlot)));
+            if (!hasAnyFeatSlots) return;
+
+            var activeSet = new HashSet<(string SlotGroup, string Source, string FeatSlot)>(
+                activeGrants.Select(g => (g.SlotGroup.ToLowerInvariant(), g.Source.ToLowerInvariant(), g.FeatSlot.ToLowerInvariant()))
+            );
+
+            bool anyRemoved = false;
+            foreach (var kvp in slotGroups) {
+                var groupKey = kvp.Key;
+                var group = kvp.Value;
                 var kept = new List<SubsystemSlot>();
                 bool removedAny = false;
                 for (int i = 0; i < group.RawSlots.Count; i++) {
                     var s = group.RawSlots[i];
                     if (s == null) continue;
                     if (!string.IsNullOrEmpty(s.FeatSlot)) {
-                        if (!activeFeats.TryGetValue(s.FeatSlot, out var activeInfo) ||
-                            !string.Equals(activeInfo.Source, s.Source, StringComparison.OrdinalIgnoreCase)) {
+                        var key = (groupKey.ToLowerInvariant(), (s.Source ?? "").ToLowerInvariant(), s.FeatSlot!.ToLowerInvariant());
+                        if (!activeSet.Contains(key)) {
                             activeSlotOrder.Remove(s);
                             removedAny = true;
+                            anyRemoved = true;
                             continue;
                         }
                     }
@@ -1081,78 +1177,14 @@ namespace PlayMore35.Subsystems {
                         group[i] = kept[i];
                     }
                 }
-
-                // Project each active feat choice after baseClassCapacity for its targetSource
-                foreach (var item in activeFeats.Values) {
-                    int totalCap = GetSlotCapacity(groupKey, item.Source);
-                    int totalFeatsForSource = activeFeats.Values.Count(f => string.Equals(f.Source, item.Source, StringComparison.OrdinalIgnoreCase));
-                    int baseClassCapacity = Math.Max(0, totalCap - totalFeatsForSource);
-
-                    var sourceIndices = EnsureSourceSlots(groupKey, item.Source, baseClassCapacity);
-                    SubsystemSlot? existingSlot = null;
-                    int existingSourceIdx = -1;
-                    for (int idx = 0; idx < sourceIndices.Count; idx++) {
-                        var s = group[sourceIndices[idx]];
-                        if (string.Equals(s.FeatSlot, item.FeatSlot, StringComparison.OrdinalIgnoreCase)) {
-                            existingSlot = s;
-                            existingSourceIdx = idx;
-                            break;
-                        }
-                    }
-
-                    if (existingSlot != null) {
-                        existingSlot.Element = item.ElementName;
-                        if (existingSourceIdx < baseClassCapacity) {
-                            // Move existingSlot after baseClassCapacity if class slots before it are empty/feat-bound
-                            string defState = GetDefaultState(groupKey);
-                            group[sourceIndices[existingSourceIdx]] = new SubsystemSlot("", defState, item.Source);
-                            var updatedIndices = EnsureSourceSlots(groupKey, item.Source, Math.Max(baseClassCapacity + 1, sourceIndices.Count));
-                            int targetFlat = -1;
-                            for (int idx = baseClassCapacity; idx < updatedIndices.Count; idx++) {
-                                var candidate = group[updatedIndices[idx]];
-                                if (string.IsNullOrEmpty(candidate.Element)) {
-                                    targetFlat = updatedIndices[idx];
-                                    break;
-                                }
-                            }
-                            if (targetFlat == -1) {
-                                var more = EnsureSourceSlots(groupKey, item.Source, updatedIndices.Count + 1);
-                                targetFlat = more.Last();
-                            }
-                            group[targetFlat] = existingSlot;
-                        }
-                    } else {
-                        var updatedIndices = EnsureSourceSlots(groupKey, item.Source, Math.Max(baseClassCapacity + 1, sourceIndices.Count));
-                        int targetFlat = -1;
-                        for (int idx = baseClassCapacity; idx < updatedIndices.Count; idx++) {
-                            var candidate = group[updatedIndices[idx]];
-                            if (string.IsNullOrEmpty(candidate.Element) && string.IsNullOrEmpty(candidate.FeatSlot)) {
-                                targetFlat = updatedIndices[idx];
-                                break;
-                            }
-                        }
-                        if (targetFlat == -1) {
-                            var more = EnsureSourceSlots(groupKey, item.Source, updatedIndices.Count + 1);
-                            targetFlat = more.Last();
-                        }
-                        group[targetFlat] = new SubsystemSlot(item.ElementName, GetDefaultState(groupKey), item.Source, item.FeatSlot);
-                    }
-                }
             }
-
-            if (slotGroups.ContainsKey("maneuvers")) {
-                ProjectGroup("maneuvers", ":maneuver");
+            if (anyRemoved) {
+                SyncState();
             }
-            if (slotGroups.ContainsKey("stances")) {
-                ProjectGroup("stances", ":stance");
-            }
-            SyncState();
         }
 
         public void ContributeEffects(EffectPool pool) {
             if (pool == null) return;
-
-            ProjectFeatSlots();
 
             var activeSources = GetActiveSources(pool);
 
@@ -1394,7 +1426,7 @@ namespace PlayMore35.Subsystems {
                     if (excludeSlot != null && ReferenceEquals(s, excludeSlot)) continue;
                     if (!string.IsNullOrEmpty(s.FeatSlot)) {
                         if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(s.FeatSlot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
-                        if (currentChoices != null && (currentChoices.ContainsKey($"{s.FeatSlot}:maneuver") || currentChoices.ContainsKey($"{s.FeatSlot}:stance"))) continue;
+                        if (currentChoices != null && currentChoices.Any(c => c.Key.StartsWith($"{s.FeatSlot}:", StringComparison.OrdinalIgnoreCase) && GetElement(c.Value) != null)) continue;
                         if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && session != null) {
                             int slotLevel = session.GetFeatSlotLevel(s.FeatSlot);
                             if (slotLevel <= 0 || slotLevel > levelCap) continue;
@@ -1410,13 +1442,16 @@ namespace PlayMore35.Subsystems {
                 foreach (var featKvp in character.feats) {
                     string slot = featKvp.Key;
                     if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(slot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
-                    if (currentChoices != null && (currentChoices.ContainsKey($"{slot}:maneuver") || currentChoices.ContainsKey($"{slot}:stance"))) continue;
+                    if (currentChoices != null && currentChoices.Any(c => c.Key.StartsWith($"{slot}:", StringComparison.OrdinalIgnoreCase) && GetElement(c.Value) != null)) continue;
                     int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
                     if (!atCharacterLevel.HasValue || atCharacterLevel.Value <= 0 || (slotLevel > 0 && slotLevel <= levelCap)) {
-                        if (character.featChoices.TryGetValue($"{slot}:maneuver", out var mName) && !string.IsNullOrWhiteSpace(mName)) {
-                            distinctKnown.Add(mName);
-                        } else if (character.featChoices.TryGetValue($"{slot}:stance", out var sName) && !string.IsNullOrWhiteSpace(sName)) {
-                            distinctKnown.Add(sName);
+                        foreach (var choiceKvp in character.featChoices) {
+                            if (choiceKvp.Key.StartsWith($"{slot}:", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(choiceKvp.Value)) {
+                                var elem = GetElement(choiceKvp.Value);
+                                if (elem != null) {
+                                    distinctKnown.Add(elem.Name);
+                                }
+                            }
                         }
                     }
                 }
@@ -1424,17 +1459,20 @@ namespace PlayMore35.Subsystems {
 
             if (currentChoices != null) {
                 foreach (var kvp in currentChoices) {
+                    if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
+                    var elem = GetElement(kvp.Value);
+                    if (elem == null) continue;
+
                     string? slot = null;
-                    if (kvp.Key.EndsWith(":maneuver", StringComparison.OrdinalIgnoreCase)) {
-                        slot = kvp.Key.Substring(0, kvp.Key.Length - ":maneuver".Length);
-                    } else if (kvp.Key.EndsWith(":stance", StringComparison.OrdinalIgnoreCase)) {
-                        slot = kvp.Key.Substring(0, kvp.Key.Length - ":stance".Length);
+                    int colonIdx = kvp.Key.IndexOf(':');
+                    if (colonIdx > 0) {
+                        slot = kvp.Key.Substring(0, colonIdx);
                     }
-                    if (slot != null && (string.IsNullOrEmpty(excludeFeatSlot) || !string.Equals(slot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase))) {
-                        int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
-                        if ((!atCharacterLevel.HasValue || atCharacterLevel.Value <= 0 || (slotLevel > 0 && slotLevel <= levelCap)) && !string.IsNullOrWhiteSpace(kvp.Value)) {
-                            distinctKnown.Add(kvp.Value);
-                        }
+                    if (slot != null && !string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(slot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    int slotLevel = session?.GetFeatSlotLevel(slot ?? "") ?? 0;
+                    if (!atCharacterLevel.HasValue || atCharacterLevel.Value <= 0 || (slotLevel > 0 && slotLevel <= levelCap)) {
+                        distinctKnown.Add(elem.Name);
                     }
                 }
             }

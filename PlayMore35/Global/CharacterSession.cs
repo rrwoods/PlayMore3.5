@@ -232,6 +232,8 @@ namespace PlayMore35.Global {
 
             ReconcileFeats();
 
+            var activeGrants = new List<(string Subsystem, string SlotGroup, string Element, string Source, string FeatSlot)>();
+
             foreach (var feat in character.feats) {
                 string featSlot = feat.Key;
                 string featName = feat.Value;
@@ -272,13 +274,36 @@ namespace PlayMore35.Global {
                         }
                     }
                 }
+
+                if (featDef.Benefit?.Slots != null && featDef.Benefit.Slots.Any()) {
+                    foreach (var slotGrant in featDef.Benefit.Slots) {
+                        string subsystem = catalog.ResolveTemplate(slotGrant.Subsystem, choicesDict);
+                        string slotGroup = catalog.ResolveTemplate(slotGrant.SlotGroup, choicesDict);
+                        string element = catalog.ResolveTemplate(slotGrant.Element, choicesDict);
+                        string source = catalog.ResolveTemplate(slotGrant.Source, choicesDict);
+
+                        if (!string.IsNullOrEmpty(subsystem) &&
+                            !string.IsNullOrEmpty(slotGroup) &&
+                            !string.IsNullOrEmpty(element) &&
+                            !string.IsNullOrEmpty(source)) {
+                            activeGrants.Add((subsystem, slotGroup, element, source, featSlot));
+                        }
+                    }
+                }
             }
 
             foreach (var engine in subsystems.All) {
                 if (character.Subsystems.TryGetValue(engine.Id, out var state) && state != null) {
                     engine.LoadState(state);
                 }
-                engine.ProjectFeatSlots();
+
+                var engineGrants = activeGrants.Where(g => string.Equals(g.Subsystem, engine.Id, StringComparison.OrdinalIgnoreCase)).ToList();
+                engine.PruneStaleGrantedSlots(engineGrants.Select(g => (g.SlotGroup, g.Source, g.FeatSlot)));
+
+                foreach (var g in engineGrants) {
+                    engine.GrantSlot(g.SlotGroup, g.Element, g.Source, g.FeatSlot);
+                }
+
                 if (engine.IsActive || character.Subsystems.ContainsKey(engine.Id)) {
                     character.Subsystems[engine.Id] = engine.ExportState();
                 }

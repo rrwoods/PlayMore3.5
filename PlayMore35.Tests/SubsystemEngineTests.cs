@@ -46,6 +46,53 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
+        public void SubsystemSlotGrant_SerializationRoundTrip_AndEquality() {
+            var grant = new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "${maneuver}", "${class}");
+            Assert.AreEqual("martial_maneuvers", grant.Subsystem);
+            Assert.AreEqual("maneuvers", grant.SlotGroup);
+            Assert.AreEqual("${maneuver}", grant.Element);
+            Assert.AreEqual("${class}", grant.Source);
+
+            var json = (JObject)grant.ToJson();
+            Assert.AreEqual("martial_maneuvers", (string)json["subsystem"]);
+            Assert.AreEqual("maneuvers", (string)json["slot_group"]);
+            Assert.AreEqual("${maneuver}", (string)json["element"]);
+            Assert.AreEqual("${class}", (string)json["source"]);
+
+            var deserialized = new SubsystemSlotGrant(json);
+            Assert.AreEqual(grant, deserialized);
+            Assert.AreEqual(grant.GetHashCode(), deserialized.GetHashCode());
+
+            var applied = grant.ApplyChoice("Warblade");
+            Assert.AreEqual("Warblade", applied.Source);
+            Assert.AreEqual("${maneuver}", applied.Element);
+        }
+
+        [TestMethod]
+        public void Effect_Slots_SerializationAndDeserialization() {
+            var effect = new Effect("Martial Grant")
+                .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "${maneuver}", "${class}"))
+                .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "stances", "${stance}", "${class}"));
+
+            Assert.AreEqual(2, effect.Slots.Count);
+            var json = (JObject)effect.ToJson();
+            Assert.IsNotNull(json["slots"]);
+            var slotsArr = (JArray)json["slots"];
+            Assert.AreEqual(2, slotsArr.Count);
+
+            var roundTripped = new Effect(json);
+            Assert.AreEqual(2, roundTripped.Slots.Count);
+            Assert.AreEqual("martial_maneuvers", roundTripped.Slots[0].Subsystem);
+            Assert.AreEqual("maneuvers", roundTripped.Slots[0].SlotGroup);
+            Assert.AreEqual("${maneuver}", roundTripped.Slots[0].Element);
+            Assert.AreEqual("${class}", roundTripped.Slots[0].Source);
+
+            var applied = roundTripped.ApplyChoice("Crusader");
+            Assert.AreEqual(2, applied.Slots.Count);
+            Assert.AreEqual("Crusader", applied.Slots[0].Source);
+        }
+
+        [TestMethod]
         public void SubsystemRegistry_RegistersAndRetrievesEngines_ById() {
             var registry = new SubsystemRegistry();
             var first = CreateTestEngine("fake-first", "Fake First");
@@ -867,6 +914,75 @@ namespace PlayMore35.Tests {
             session.Recalculate();
             Assert.AreEqual(0, session.GetControllableParameters().First(p => p.Name == "Iron Shell Stance active").Value);
             Assert.AreEqual(baseFort, session.GetStatistic(PlayMore35.Effects.Constants.FORT_SAVES).Value);
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_HasNoProjectFeatSlotsMethod() {
+            var method = typeof(SubsystemEngine).GetMethod("ProjectFeatSlots", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static);
+            Assert.IsNull(method, "SubsystemEngine must have zero knowledge of feats and no ProjectFeatSlots method.");
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_GrantSlot_And_PruneStaleGrantedSlots_OperateDeterministically() {
+            var catalog = new GameRulesCatalog();
+            var subDef = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(subDef);
+
+            var character = new Character { race = "Human" };
+            character.classLevels.Add("Warblade");
+            var session = new CharacterSession(character, catalog);
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            Assert.IsNotNull(engine);
+
+            // Grant slot for Warblade
+            engine.GrantSlot("maneuvers", "Steel Wind", "Warblade", "Level 1");
+            var slots = engine.GetSlots("maneuvers", "Warblade");
+            var granted = slots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(granted);
+            Assert.AreEqual("Steel Wind", granted.Element);
+            Assert.AreEqual("Level 1", granted.FeatSlot);
+
+            // Update granted slot element
+            engine.GrantSlot("maneuvers", "Mountain Hammer", "Warblade", "Level 1");
+            slots = engine.GetSlots("maneuvers", "Warblade");
+            granted = slots.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(granted);
+            Assert.AreEqual("Mountain Hammer", granted.Element);
+
+            // Pruning removes when not active
+            engine.PruneStaleGrantedSlots(Enumerable.Empty<(string, string, string)>());
+            slots = engine.GetSlots("maneuvers", "Warblade");
+            Assert.IsFalse(slots.Any(s => s != null && s.IsFeatBound));
+        }
+
+        [TestMethod]
+        public void CharacterSession_MartialStudyAndStance_AssignSlotsWithoutEngineFeatInspection() {
+            var catalog = new GameRulesCatalog();
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.classLevels.Add("Warblade");
+            character.classLevels.Add("Warblade");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            character.feats["Level 3"] = "Martial Stance";
+            character.featChoices["Level 3:stance"] = "Punishing Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            Assert.IsNotNull(engine);
+
+            var maneuvers = engine.GetSlots("maneuvers", "Warblade");
+            var maneuverSlot = maneuvers.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(maneuverSlot);
+            Assert.AreEqual("Steel Wind", maneuverSlot.Element);
+            Assert.AreEqual("Level 1", maneuverSlot.FeatSlot);
+
+            var stances = engine.GetSlots("stances", "Warblade");
+            var stanceSlot = stances.FirstOrDefault(s => s != null && s.IsFeatBound);
+            Assert.IsNotNull(stanceSlot);
+            Assert.AreEqual("Punishing Stance", stanceSlot.Element);
+            Assert.AreEqual("Level 3", stanceSlot.FeatSlot);
         }
     }
 }
