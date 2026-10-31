@@ -22,6 +22,8 @@ namespace PlayMore35.Subsystems {
             set => _properties["type"] = value;
         }
 
+        public override string ToString() => Name;
+
         public bool MatchesFilter(string? filter, SubsystemDefinition? definition = null) {
             if (string.IsNullOrEmpty(filter)) return true;
 

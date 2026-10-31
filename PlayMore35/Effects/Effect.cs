@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Subsystems;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Effects {
@@ -43,6 +44,7 @@ namespace PlayMore35.Effects {
         private readonly List<string> Flags = new List<string>();
         public readonly List<Text> Text = new List<Text>();
         public readonly List<SheetAction> associatedAction = new List<SheetAction>();
+        public readonly List<SubsystemSlotGrant> Slots = new List<SubsystemSlotGrant>();
 
         public override string ToString() {
             return Name;
@@ -84,6 +86,7 @@ namespace PlayMore35.Effects {
             json.AddList("flags", Flags);
             json.AddList("text", Text);
             json.AddList("actions", associatedAction);
+            json.AddList("slots", Slots);
             return json;
         }
 
@@ -194,6 +197,9 @@ namespace PlayMore35.Effects {
             if (json["actions"] != null) {
                 associatedAction.AddRange(json["actions"]!.Select(x => SheetAction.FromJson((JObject)x!)!));
             }
+            if (json["slots"] != null) {
+                Slots.AddRange(json["slots"]!.Select(x => new SubsystemSlotGrant((JObject)x!)));
+            }
         }
 
         public Effect ApplyChoice(string choice) {
@@ -223,8 +229,14 @@ namespace PlayMore35.Effects {
             copy.Flags.AddRange(Flags.Select(x => x.Replace("$", choice)));
             copy.Text.AddRange(Text.Select(x => x.ApplyChoice(choice)));
             copy.associatedAction.AddRange(associatedAction);
+            copy.Slots.AddRange(Slots.Select(x => x.ApplyChoice(choice)));
 
             return copy;
+        }
+
+        public Effect AddSlot(SubsystemSlotGrant grant) {
+            Slots.Add(grant);
+            return this;
         }
 
         public Effect SetParameter(string parameter) {

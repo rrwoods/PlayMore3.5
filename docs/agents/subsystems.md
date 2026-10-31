@@ -8,7 +8,7 @@ Every subsystem implementation must adhere to these five architectural invariant
 
 1. **Single Concrete `SubsystemEngine` (No `ISubsystemEngine` Shim)**:
    - All subsystems are evaluated by the concrete `SubsystemEngine` class parameterized by a declarative `SubsystemDefinition` and persisted via universal `SubsystemState`.
-   - `CharacterSession` hosts active `SubsystemEngine` instances uniformly in `SubsystemRegistry` and dispatches `LoadState`, `ProjectFeatSlots`, `ExportState`, and `ContributeEffects` without per-subsystem C# subclasses or interface shims (`ISubsystemEngine`).
+   - `CharacterSession` hosts active `SubsystemEngine` instances uniformly in `SubsystemRegistry` and dispatches `LoadState`, `GrantSlot`, `ExportState`, and `ContributeEffects` without per-subsystem C# subclasses or interface shims (`ISubsystemEngine`).
 
 2. **Declarative State Machines and Primitive Verbs**:
    - Subsystem mechanics—slot groups, finite state machines, level gating, and composite verbs—are defined declaratively in JSON and executed through three primitive verbs (`ExecuteTransition`, `InvokeElementVerb`, and `ExecutePoolOperation`).

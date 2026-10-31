@@ -276,6 +276,28 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(SOCIAL, malphas.GetEffects("influence")[0].Text[0].Category);
         }
 
+        [TestMethod]
+        public void FeatsCatalog_MartialStudyAndStance_DeclareSubsystemSlotGrants() {
+            var catalog = new GameRulesCatalog();
+            var martialStudy = catalog.GetFeat("Martial Study");
+            Assert.IsNotNull(martialStudy);
+            Assert.IsNotNull(martialStudy.Benefit);
+            Assert.AreEqual(1, martialStudy.Benefit.Slots.Count);
+            Assert.AreEqual("martial_maneuvers", martialStudy.Benefit.Slots[0].Subsystem);
+            Assert.AreEqual("maneuvers", martialStudy.Benefit.Slots[0].SlotGroup);
+            Assert.AreEqual("${maneuver}", martialStudy.Benefit.Slots[0].Element);
+            Assert.AreEqual("${class}", martialStudy.Benefit.Slots[0].Source);
+
+            var martialStance = catalog.GetFeat("Martial Stance");
+            Assert.IsNotNull(martialStance);
+            Assert.IsNotNull(martialStance.Benefit);
+            Assert.AreEqual(1, martialStance.Benefit.Slots.Count);
+            Assert.AreEqual("martial_maneuvers", martialStance.Benefit.Slots[0].Subsystem);
+            Assert.AreEqual("stances", martialStance.Benefit.Slots[0].SlotGroup);
+            Assert.AreEqual("${stance}", martialStance.Benefit.Slots[0].Element);
+            Assert.AreEqual("${class}", martialStance.Benefit.Slots[0].Source);
+        }
+
         // Source: Tome of Magic, pp. 16–50
         [TestMethod]
         public void GameRulesCatalog_LoadsVestiges_FromResources() {

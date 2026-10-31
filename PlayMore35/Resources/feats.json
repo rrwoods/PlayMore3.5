@@ -1200,6 +1200,14 @@
     ],
     "benefit": {
       "name": "Martial Stance",
+      "slots": [
+        {
+          "subsystem": "martial_maneuvers",
+          "slot_group": "stances",
+          "element": "${stance}",
+          "source": "${class}"
+        }
+      ],
       "text": [
         {
           "category": "Special Qualities",
@@ -1272,6 +1280,14 @@
     "class skills": [ "${maneuver.discipline.keySkill}" ],
     "benefit": {
       "name": "Martial Study",
+      "slots": [
+        {
+          "subsystem": "martial_maneuvers",
+          "slot_group": "maneuvers",
+          "element": "${maneuver}",
+          "source": "${class}"
+        }
+      ],
       "text": [
         {
           "category": "Special Qualities",

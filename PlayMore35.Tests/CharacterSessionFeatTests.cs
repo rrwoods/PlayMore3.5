@@ -580,6 +580,14 @@ namespace PlayMore35.Tests {
             return new Feat(new JObject(
                 new JProperty("benefit", new JObject(
                     new JProperty("name", featName),
+                    new JProperty("slots", new JArray(
+                        new JObject(
+                            new JProperty("subsystem", "martial_maneuvers"),
+                            new JProperty("slot_group", "maneuvers"),
+                            new JProperty("element", $"${{{elementId}}}"),
+                            new JProperty("source", "${class}")
+                        )
+                    )),
                     new JProperty("modifiers", new JArray(
                         new JObject(
                             new JProperty("affects", "maneuvers known:${class}"),
