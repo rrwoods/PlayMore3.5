@@ -194,8 +194,8 @@ namespace PlayMore35.Global {
                 }
             }
 
-            if (!string.IsNullOrEmpty(Subsystem) && context?.Subsystems != null) {
-                var engine = context.Subsystems.Get(Subsystem);
+            if (!string.IsNullOrEmpty(Subsystem) && context != null) {
+                var engine = context.GetSubsystem(Subsystem);
                 if (engine != null) {
                     var target = new SubsystemTarget(SlotGroup, SlotIndex, Element, Source);
                     if (!string.IsNullOrEmpty(Verb)) {

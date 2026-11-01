@@ -38,7 +38,8 @@ namespace PlayMore35.Tests {
 
         public virtual SubsystemEngine? GetSubsystem(string? id) {
             if (string.IsNullOrEmpty(id)) return null;
-            return SubsystemsMap.TryGetValue(id!, out var engine) ? engine : null;
+            if (SubsystemsMap.TryGetValue(id!, out var engine)) return engine;
+            return Subsystems?.Get(id!);
         }
     }
 }

@@ -72,6 +72,7 @@ namespace PlayMore35.Global {
 
             equippedItems = new Equipped();
             effects = new EffectPool(this.character);
+            subsystems.EngineRegistered += engine => _subsystems[engine.Id] = engine;
 
             if (this.catalog.Subsystems != null) {
                 foreach (var subDef in this.catalog.Subsystems.Values) {
@@ -354,7 +355,7 @@ namespace PlayMore35.Global {
                 }
             }
 
-            foreach (var engine in subsystems.All) {
+            foreach (var engine in _subsystems.Values) {
                 if (character.Subsystems.TryGetValue(engine.Id, out var state) && state != null) {
                     engine.LoadState(state);
                 }
@@ -853,7 +854,7 @@ namespace PlayMore35.Global {
             if (string.IsNullOrEmpty(rawChoice)) return null;
 
             if (string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                foreach (var engine in subsystems.All) {
+                foreach (var engine in _subsystems.Values) {
                     var elem = engine.GetElement(rawChoice!);
                     if (elem != null) return elem;
                 }
@@ -936,7 +937,7 @@ namespace PlayMore35.Global {
 
         public IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource) {
             if (string.Equals(domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                foreach (var engine in subsystems.All) {
+                foreach (var engine in _subsystems.Values) {
                     var elements = engine.GetAccessibleElements(filter, targetSource);
                     if (elements != null && elements.Count > 0) {
                         return elements;
@@ -981,7 +982,7 @@ namespace PlayMore35.Global {
                 var results = new List<ValidationWarning>();
                 foreach (var w in intrinsicStrings) {
                     if (!equippedStrings.Contains(w)) {
-                        bool isIntrinsicLevelGate = intrinsicSnapshot.Subsystems.All.Any(engine => {
+                        bool isIntrinsicLevelGate = intrinsicSnapshot._subsystems.Values.Any(engine => {
                             var elem = engine.GetElement(choiceValue);
                             return elem != null && !engine.IsElementWithinLevelGate(elem, targetSource);
                         });
@@ -1004,7 +1005,7 @@ namespace PlayMore35.Global {
 
         private List<string> EvaluateRawSubsystemWarnings(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices) {
             var allWarnings = new List<string>();
-            foreach (var engine in subsystems.All) {
+            foreach (var engine in _subsystems.Values) {
                 var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
                 if (warnings != null && warnings.Count > 0) {
                     allWarnings.AddRange(warnings);
@@ -1329,7 +1330,7 @@ namespace PlayMore35.Global {
             }
 
             var snapSession = new CharacterSession(sliced, catalog, isSnapshot: true);
-            foreach (var engine in snapSession.Subsystems.All) {
+            foreach (var engine in snapSession._subsystems.Values) {
                 engine.TrimSlotsToCapacity();
             }
 

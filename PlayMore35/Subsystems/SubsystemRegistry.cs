@@ -21,6 +21,7 @@ namespace PlayMore35.Subsystems {
         private readonly Dictionary<string, SubsystemEngine> enginesById = new Dictionary<string, SubsystemEngine>(StringComparer.OrdinalIgnoreCase);
 
         public IEnumerable<SubsystemEngine> All => engines;
+        internal event Action<SubsystemEngine>? EngineRegistered;
 
         public void Register(SubsystemEngine engine) {
             if (engine == null) throw new ArgumentNullException(nameof(engine));
@@ -33,6 +34,7 @@ namespace PlayMore35.Subsystems {
             if (!engines.Contains(engine)) {
                 engines.Add(engine);
             }
+            EngineRegistered?.Invoke(engine);
         }
 
         public SubsystemEngine? Get(string? id) {
