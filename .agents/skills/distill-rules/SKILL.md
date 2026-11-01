@@ -1,12 +1,12 @@
 ---
 name: distill-rules
-description: Distill verbatim primary source text (rules-md/) into structured, mechanics-only reference documentation in docs/rules/.
+description: Distill verbatim primary source text (rules-md/) into structured, mechanics-only reference documentation in docs/rules/ via an interactive grilling session.
 disable-model-invocation: true
 ---
 
 # Distill Rules
 
-Distill verified primary source text from the external markdown archive (`rules-md/`) into canonical, pure-mechanics reference documentation in the in-repo rules library (`docs/rules/`), adhering to the Rules Arbitration Invariant, Tabletop Domain Language, and the 300-line file cap.
+Distill verified primary source text from the external markdown archive (`rules-md/`) into canonical, pure-mechanics reference documentation in the in-repo rules library (`docs/rules/`), using an interactive `/grilling` session to settle structural and content judgment calls, while adhering to the Rules Arbitration Invariant, Tabletop Domain Language, and the 300-line file cap.
 
 ## Preconditions & Invariants
 
@@ -36,31 +36,17 @@ Route the output to the appropriate in-repo directory per `docs/agents/rules-tem
 
 ---
 
-## Phase 2: Schema Resolution & Registration
+## Phase 2: Interactive Shaping & Grilling
 
-Inspect `docs/agents/rules-template.md` under `### Rules reference schemas`.
+Call the Skill tool with "grilling" to walk the design tree with the user before synthesizing documentation:
+- **Destination & Partitioning**: Path under `docs/rules/` (`mechanics/`, `subsystems/`, or `content/`), and proactive subgrouping if projected to exceed the 300-line ceiling.
+- **Schema Selection & Design**: Confirming established schemas (`Feats`, `Maneuvers`, `Vestiges`, or `General Rules Skeleton`) or negotiating a draft schema for novel entity types.
+- **Content Scope & Fluff Pruning**: Boundaries between actionable tabletop mechanics and narrative fluff for descriptive prose, atmospheric sidebars, or table guidance.
+- **Rules Dysfunctions & Table Rulings**: Contradictions in RAW or impossible prerequisites requiring human arbitration per ADR-0001.
 
-### Branch: Does a canonical reference schema already exist for this entity type?
-
-#### Option A: Canonical Schema Exists
-Adopt the established schema directly:
-- **Feats**: 4-part schema (`Status: Verified Reference Entry`, `Source`, `Prerequisites`, `Benefit`).
-- **Maneuvers / Stances**: 6-field schema (`Source`, `Type`, `Level`, `Initiation Action`, `Prerequisites`, `Mechanics`).
-- **Vestiges**: 7-field schema (`Source`, `Level`, `Binding DC`, `Special Requirement`, `Sign`, `Influence`, `Granted Abilities`).
-- **General Rules Skeleton**: Compact unarbitrated stub.
-
-#### Option B: Schema Missing (New Entity or Subsystem Type)
-If distilling an entity type without an established schema (e.g. soulmelds, invocations, prestige classes, items, spells):
-1. **Analyze Source Anatomy**: Identify the invariant mechanical properties across all instances in the primary source text (e.g. action economy, prerequisites, level/grade, saving throws, duration, scaling formulas).
-2. **Draft Reference Schema**:
-   - Define a concise, structured markdown format.
-   - Enforce explicit field names and bullet hierarchies.
-   - Isolate multi-part or branching mechanics into structured sub-bullets.
-   - Exclude narrative descriptions and fluff.
-3. **Align with Maintainer**: If field boundaries or representations are ambiguous, review the proposed schema with the human maintainer.
-4. **Register in `docs/agents/rules-template.md`**:
-   - Append the new schema definition, field specifications, and a canonical populated example entry under `### Rules reference schemas` in `docs/agents/rules-template.md`.
-   - Update `GLOSSARY.md` if new domain terms or concepts were introduced.
+Once the interview completes:
+- Register any newly approved schema in `docs/agents/rules-template.md` under `### Rules reference schemas`.
+- Update `GLOSSARY.md` if new domain terms or concepts were introduced.
 
 ---
 
@@ -93,8 +79,8 @@ Read the section directly from `rules-md/` using `read_file`.
    dotnet test --filter RulesLibraryStructureTests --blame-hang-timeout 15s
    ```
 3. **Subgroup Splitting Protocol**:
-   If the target file exceeds 300 lines or `RulesLibraryStructureTests` fails:
-   - Pause and propose a logical subgrouping with the human maintainer (e.g. splitting `feats.md` into `feats/general.md`, `feats/tactical.md`, or splitting by level/tier).
+   If the target file unexpectedly exceeds 300 lines or `RulesLibraryStructureTests` fails:
+   - Call the Skill tool with "grilling" to propose logical subgrouping options to the maintainer (e.g. splitting `feats.md` into `feats/general.md`, `feats/tactical.md`, or splitting by level/tier).
    - Once agreed, convert `<stem>.md` into a directory `<stem>/` containing the subdivided `.md` files.
    - Re-run `dotnet test --filter RulesLibraryStructureTests` until all files pass.
 
