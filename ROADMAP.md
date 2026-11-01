@@ -8,13 +8,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
-### Use Level Snapshots to handle max skill ranks
-- Update the distill-rules skill to /grill about both content and structure
-- extract Player's Handbook pages 61-86, regarding skills
-- distill to docs/rules/mechanics/skills.md
-  - some skills we have implemented are not in the player's handbook -- that's okay, that's not a discrepancy
-- now that we have level snapshots, use them to handle max skill ranks at each level
-
 ### Codebase architecture pass
 - Do a general /improve-codebase-architecture.  Then...
 - There's just ... a lot of code lmao.

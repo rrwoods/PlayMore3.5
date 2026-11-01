@@ -33,9 +33,28 @@ def clean_ligatures(text: str) -> str:
 
 def clean_soft_hyphens(text: str) -> str:
     """Resolve line-break hyphenations while preserving intended hyphens."""
-    # Remove soft hyphens followed by whitespace or line break
     text = re.sub(r"(\w+)-\s*\n\s*(\w+)", r"\1\2", text)
+    text = re.sub(r"(\w+)-\s+([a-z]+)", r"\1-\2", text)
     return text
+
+
+def to_entity_title(name: str) -> str:
+    """Convert an uppercase entity heading to title case, preserving minor words."""
+    name = re.sub(r"\s+", " ", name.strip())
+    minor = {"of", "and", "in", "the", "for", "to", "a", "an", "on", "at", "by", "from", "with"}
+    words = name.split()
+    titled = []
+    for i, w in enumerate(words):
+        if "-" in w:
+            parts = [p.capitalize() if p.lower() not in minor or i == 0 else p.lower() for p in w.split("-")]
+            titled.append("-".join(parts))
+        else:
+            wl = w.lower()
+            if i > 0 and wl in minor:
+                titled.append(wl)
+            else:
+                titled.append(wl.capitalize())
+    return " ".join(titled)
 
 
 def parse_page_ranges(range_str: str) -> list[int]:
@@ -58,58 +77,239 @@ def parse_page_ranges(range_str: str) -> list[int]:
     return sorted(list(dict.fromkeys(pages)))
 
 
-def sort_blocks_by_column(blocks: list[tuple], page_width: float) -> list[tuple]:
+def get_block_effective_y0(b: dict) -> float:
+    """Calculate vertical position from the first non-empty text line."""
+    for line in b.get("lines", []):
+        line_text = "".join(s["text"] for s in line.get("spans", [])).strip()
+        if line_text:
+            return line["bbox"][1]
+    return b.get("bbox", (0, 0, 0, 0))[1]
+
+
+def sort_blocks_by_column(blocks: list[dict], page_width: float, page_height: float) -> list[dict]:
     """
     Sort text blocks for multi-column pages.
-    Full-width blocks (spanning past middle) stay in vertical y0 order.
-    Column blocks are partitioned into left (x0 < mid) and right (x0 >= mid).
+    Full-width blocks stay in vertical order.
+    Column blocks are partitioned using horizontal midpoint (x0 + x1) / 2.0 < mid_x.
+    Vertical order is calculated from the first non-empty text line.
     """
     mid_x = page_width / 2.0
-    # Determine full-width vs column blocks
     full_width_threshold = page_width * 0.65
 
-    # Group blocks into vertical bands or order:
-    # A standard 2-column layout:
-    # Sort blocks by: is_left_column (0 for span/left, 1 for right), then y0
-    def block_key(b):
-        x0, y0, x1, y1 = b[0], b[1], b[2], b[3]
-        width = x1 - x0
-        is_spanning = width >= full_width_threshold or (x0 < mid_x * 0.7 and x1 > mid_x * 1.3)
-        if is_spanning:
-            col = 0
-        elif x0 < mid_x:
-            col = 1
-        else:
-            col = 2
-        return (col, y0)
-
-    # Sort primarily by column, then top-to-bottom
-    # But wait: if there's a spanning header at top, we want it before columns
     spanning_top = []
     col_left = []
     col_right = []
     spanning_bottom = []
 
     for b in blocks:
-        x0, y0, x1, y1 = b[0], b[1], b[2], b[3]
+        x0, y0, x1, y1 = b["bbox"]
         width = x1 - x0
         is_spanning = width >= full_width_threshold or (x0 < mid_x * 0.7 and x1 > mid_x * 1.3)
+        eff_y = get_block_effective_y0(b)
+
+        # Skip headers/footers in outer margins
+        all_txt = "".join(s["text"] for l in b.get("lines", []) for s in l.get("spans", [])).strip()
+        if eff_y < 42 or y1 > page_height - 42:
+            if all_txt.isdigit() or all_txt.startswith("CHAPTER") or all_txt == "SKILLS":
+                continue
+        if (x1 < 40 or x0 > page_width - 40) and width < 30:
+            if all_txt.isdigit() or "chapter" in all_txt.lower() or "skills" in all_txt.lower():
+                continue
+
         if is_spanning:
-            if y0 < 150:
+            if eff_y < page_height * 0.25:
                 spanning_top.append(b)
             else:
                 spanning_bottom.append(b)
-        elif x0 < mid_x:
-            col_left.append(b)
         else:
-            col_right.append(b)
+            center_x = (x0 + x1) / 2.0
+            if center_x < mid_x:
+                col_left.append(b)
+            else:
+                col_right.append(b)
 
-    spanning_top.sort(key=lambda b: b[1])
-    col_left.sort(key=lambda b: b[1])
-    col_right.sort(key=lambda b: b[1])
-    spanning_bottom.sort(key=lambda b: b[1])
+    spanning_top.sort(key=get_block_effective_y0)
+    col_left.sort(key=get_block_effective_y0)
+    col_right.sort(key=get_block_effective_y0)
+    spanning_bottom.sort(key=get_block_effective_y0)
 
     return spanning_top + col_left + col_right + spanning_bottom
+
+
+def process_page_to_markdown(page: pymupdf.Page, phys_num: int) -> str:
+    """
+    Process a single PDF page into pre-structured Markdown:
+    - Sorts blocks using line-level geometry and horizontal midpoints.
+    - Automatically detects entity headings (Pterra or size >= 11.5pt) and emits '## <Name> (p. <Folio>)'.
+    - Automatically detects multi-column alignments and emits standard GFM tables (| ... |).
+    """
+    pw = page.rect.width
+    ph = page.rect.height
+
+    d = page.get_text("dict")
+    raw_blocks = [b for b in d.get("blocks", []) if b.get("type") == 0]
+    sorted_blocks = sort_blocks_by_column(raw_blocks, pw, ph)
+
+    page_md_parts = []
+
+    for b in sorted_blocks:
+        lines = b.get("lines", [])
+        if not lines:
+            continue
+
+        parsed_items = []
+        for l in lines:
+            ly0 = l["bbox"][1]
+            spans = l.get("spans", [])
+            if not spans:
+                continue
+
+            first_span = spans[0]
+            font = first_span.get("font", "").lower()
+            size = first_span.get("size", 0.0)
+            full_line = "".join(s["text"] for s in spans).strip()
+            if not full_line:
+                continue
+
+            # Major entity heading detection (Pterra font or size >= 11.5pt)
+            if ("pterra" in font or size >= 11.5) and size >= 10.0 and ly0 > 45 and ly0 < ph - 45:
+                if not full_line.startswith("CHAPTER") and not full_line.startswith("Table") and not full_line.isdigit():
+                    raw_name = full_line.split("(")[0].split("[")[0].strip()
+                    if len(raw_name) >= 2:
+                        parsed_items.append(("heading", (raw_name, full_line)))
+                        continue
+
+            # Parse line cells with horizontal splitting (> 12pt gap indicates new column)
+            cur_text = []
+            cur_x0 = None
+            cur_x1 = None
+            cells = []
+            for s in spans:
+                stxt = s["text"]
+                if not stxt.strip():
+                    continue
+                sx0, sy0, sx1, sy1 = s["bbox"]
+                if cur_x0 is None:
+                    cur_x0 = sx0
+                    cur_x1 = sx1
+                    cur_text = [stxt]
+                else:
+                    if sx0 - cur_x1 > 12.0:
+                        cells.append((cur_x0, cur_x1, "".join(cur_text).strip()))
+                        cur_x0 = sx0
+                        cur_x1 = sx1
+                        cur_text = [stxt]
+                    else:
+                        cur_x1 = max(cur_x1, sx1)
+                        cur_text.append(stxt)
+            if cur_x0 is not None:
+                cells.append((cur_x0, cur_x1, "".join(cur_text).strip()))
+
+            if cells:
+                # Merge if y is within 3pt of previous row
+                if parsed_items and parsed_items[-1][0] == "row" and abs(ly0 - parsed_items[-1][1][0]) <= 3.0:
+                    parsed_items[-1][1][1].extend(cells)
+                    parsed_items[-1][1][1].sort(key=lambda c: c[0])
+                else:
+                    parsed_items.append(("row", (ly0, cells)))
+
+        idx = 0
+        while idx < len(parsed_items):
+            item_type, item_data = parsed_items[idx]
+            if item_type == "heading":
+                raw_name, full_line = item_data
+                ent_title = to_entity_title(raw_name)
+                page_md_parts.append(f"\n## {ent_title} (p. {phys_num})\n\n**{clean_ligatures(full_line)}**\n")
+                idx += 1
+                continue
+
+            ly0, cells = item_data
+            if len(cells) >= 2:
+                tbl_start = idx
+                tbl_end = idx
+                while tbl_end < len(parsed_items):
+                    if parsed_items[tbl_end][0] != "row":
+                        break
+                    r_cells = parsed_items[tbl_end][1][1]
+                    if len(r_cells) >= 2:
+                        tbl_end += 1
+                    elif tbl_end > tbl_start and len(r_cells) == 1 and r_cells[0][0] > parsed_items[tbl_start][1][1][0][0] + 25:
+                        tbl_end += 1
+                    else:
+                        break
+
+                multi_count = sum(1 for j in range(tbl_start, tbl_end) if len(parsed_items[j][1][1]) >= 2)
+                if multi_count >= 2:
+                    tbl_rows = [parsed_items[j][1][1] for j in range(tbl_start, tbl_end)]
+                    multi_rows = [r for r in tbl_rows if len(r) >= 2]
+                    all_x0 = sorted(c[0] for r in multi_rows for c in r)
+                    clusters = []
+                    for x in all_x0:
+                        if not clusters or x - clusters[-1][-1] > 12.0:
+                            clusters.append([x])
+                        else:
+                            clusters[-1].append(x)
+                    valid_col_starts = []
+                    for cl in clusters:
+                        min_c, max_c = min(cl), max(cl)
+                        cnt = sum(1 for r in multi_rows if any(min_c - 2.0 <= c[0] <= max_c + 2.0 for c in r))
+                        if cnt >= 2:
+                            valid_col_starts.append(sum(cl) / len(cl))
+                    valid_col_starts.sort()
+                    cols = []
+                    for s in valid_col_starts:
+                        if not cols or s - cols[-1] >= 18.0:
+                            cols.append(s)
+
+                    if len(cols) >= 2:
+                        num_cols = len(cols)
+                        grid = []
+                        for r in tbl_rows:
+                            row_cells = ["" for _ in range(num_cols)]
+                            for x0, x1, txt in r:
+                                col_idx = 0
+                                for ci, bound in enumerate(cols[1:], start=1):
+                                    if x0 >= bound - 8.0:
+                                        col_idx = ci
+                                if row_cells[col_idx]:
+                                    row_cells[col_idx] += " " + txt
+                                else:
+                                    row_cells[col_idx] = txt
+                            grid.append(row_cells)
+
+                        merged_grid = []
+                        for r in grid:
+                            non_empty = [ci for ci, c in enumerate(r) if c.strip()]
+                            if merged_grid and len(non_empty) == 1 and non_empty[0] > 0 and not r[0].strip():
+                                ci = non_empty[0]
+                                merged_grid[-1][ci] = (merged_grid[-1][ci] + " " + r[ci]).strip()
+                            else:
+                                merged_grid.append(r)
+
+                        # Prune empty columns
+                        if merged_grid:
+                            active_cols = [ci for ci in range(num_cols) if any(r[ci].strip() for r in merged_grid)]
+                            if len(active_cols) >= 2 and len(active_cols) < num_cols:
+                                merged_grid = [[r[ci] for ci in active_cols] for r in merged_grid]
+                                num_cols = len(active_cols)
+
+                        if len(merged_grid) >= 2:
+                            header = [clean_ligatures(c.strip()) for c in merged_grid[0]]
+                            aligns = [":---:" if any(header[ci].lower().startswith(k) for k in ["dc", "level", "time", "modifier"]) else ":---" for ci in range(num_cols)]
+                            gfm = ["\n| " + " | ".join(header) + " |", "| " + " | ".join(aligns) + " |"]
+                            for r in merged_grid[1:]:
+                                cl_cells = [clean_soft_hyphens(clean_ligatures(c.strip())) for c in r]
+                                gfm.append("| " + " | ".join(cl_cells) + " |")
+                            page_md_parts.append("\n".join(gfm) + "\n")
+                            idx = tbl_end
+                            continue
+
+            row_txt = " ".join(c[2] for c in cells)
+            row_txt = clean_soft_hyphens(clean_ligatures(row_txt))
+            page_md_parts.append(row_txt)
+            idx += 1
+
+    return "\n".join(page_md_parts)
 
 
 def resolve_pdf_path(book_arg: str, books_dir: Path) -> Path:
@@ -346,16 +546,8 @@ def main():
             page_banner = f"\n{'='*70}\n# Physical Page {phys_num} (PDF Page {pdf_page_1based})\n{'='*70}\n"
             extracted_text_lines.append(page_banner)
 
-            # Extract blocks
-            blocks = page.get_text("blocks")
-            # Filter text blocks (type 0)
-            text_blocks = [b for b in blocks if b[6] == 0 and b[4].strip()]
-            sorted_blocks = sort_blocks_by_column(text_blocks, page.rect.width)
-
-            for b in sorted_blocks:
-                b_text = clean_ligatures(b[4])
-                b_text = clean_soft_hyphens(b_text)
-                extracted_text_lines.append(b_text.strip() + "\n")
+            page_md = process_page_to_markdown(page, phys_num)
+            extracted_text_lines.append(page_md + "\n")
         else:
             scanned_page_count += 1
             pix = page.get_pixmap(dpi=args.dpi)
@@ -366,19 +558,24 @@ def main():
             scan_note = f"\n# Physical Page {phys_num} (PDF Page {pdf_page_1based}): Scanned image rendered to {img_filename}\n"
             extracted_text_lines.append(scan_note)
 
-    # Write consolidated text file
+    # Write consolidated markdown and text files
+    md_out_path = output_dir / f"extracted_{pdf_path.stem}_p{input_pages[0]}-{input_pages[-1]}.md"
     txt_out_path = output_dir / f"extracted_{pdf_path.stem}_p{input_pages[0]}-{input_pages[-1]}.txt"
+    full_output = "\n".join(extracted_text_lines)
+    with open(md_out_path, "w", encoding="utf-8") as f:
+        f.write(full_output)
     with open(txt_out_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(extracted_text_lines))
+        f.write(full_output)
 
     print("\nExtraction Summary:")
-    print(f"  Sourcebook:     {pdf_path.name}")
+    print(f"  Sourcebook:      {pdf_path.name}")
     print(f"  Pages requested: {len(page_mappings)} pages")
-    print(f"  Text-layer:      {text_page_count} pages")
-    print(f"  Image scans:     {scanned_page_count} pages")
-    print(f"  Output text:     {txt_out_path}")
+    print(f"  Text-layer:       {text_page_count} pages")
+    print(f"  Image scans:      {scanned_page_count} pages")
+    print(f"  Output markdown:  {md_out_path}")
+    print(f"  Output text:      {txt_out_path}")
     if rendered_images:
-        print(f"  Rendered images: {len(rendered_images)} PNGs saved to {output_dir}")
+        print(f"  Rendered images:  {len(rendered_images)} PNGs saved to {output_dir}")
 
     doc.close()
 

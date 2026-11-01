@@ -187,6 +187,20 @@ An unarbitrated entry retains `- **Status**: Unarbitrated Domain Specification` 
 
 When human arbitration confirms the primary source and mechanics, replace the Rules Skeleton with the full structured Reference Entry for that content type (citing the primary sourcebook and page, and detailing actionable Environmental Facts).
 
+#### 5. Skill Reference Schema
+
+Skills in `docs/rules/mechanics/` follow a structured, compact reference format optimized for character sheet software (omitting sample DCs and situational DC modifiers):
+
+```markdown
+### <Skill Name>
+- **Source**: *Player's Handbook*, p. <Page>
+- **Key Ability**: <Ability> | **Trained Only**: <Yes | No> | **Armor Check Penalty**: <No | Yes | Double>
+- **Action**: <Action / Time> | **Retry**: <Yes | No | Special>
+- **Synergy**: <Synergies granted and received, or "None">
+- **Mechanics**:
+  - <Operational rules for character sheet modeling: tool/kit requirements, movement speed/mobility interactions, combat/state interactions (e.g. feinting, losing Dex bonus to AC, distraction), special untrained rules>
+```
+
 ### Positive grilling & conversational protocol
 
 When framing frontier questions and recommendations in `/grilling`, `/wayfinder`, or general chat:
