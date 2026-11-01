@@ -13,7 +13,7 @@ Sanity-check and crosscheck distilled, mechanics-only reference documentation in
 1. **Authoritative Verbatim Mirror & Boundary**: The external archive at:
    `C:/Users/rickr/Documents/D&D notes/resources/rules-md/<Book Name>/<Chapter or Section>.md`
    is the complete point of truth for verbatim text during verification. Inspect verbatim archive text directly with `read_file`. Keep verification fully contained to comparing `docs/rules/` and `rules-md/`. Discrepancies within `rules-md/` itself belong directly in the audit report as findings or in-place remediation candidates.
-2. **Write Access for Remediation**: Antigravity permissions grant write access to `C:\Users\rickr\Documents\D&D notes\resources\rules-md`. Verbatim mirror formatting defects or typos discovered during verification can be remediated directly in-place via `edit_file` or `write_file`.
+2. **Audit & Scope Boundaries**: Verification is strictly an audit and reporting operation. Do not mutate in-repo rules files or `rules-md/` during verification. Compare findings against product invariants and anti-goals in `VISION.md` to distinguish genuine mechanical omissions from intentional engine fences.
 3. **In-Repo Target**: A file or partitioned directory under:
    `docs/rules/mechanics/`, `docs/rules/subsystems/`, or `docs/rules/content/`.
 4. **Reference Schemas**: The canonical schemas registered in `docs/agents/rules-template.md`.
@@ -44,6 +44,7 @@ Confirm that both paths exist and are accessible before proceeding.
 
 ### 3. Coverage Assertions
 - **Omission Check**: Identify any entities present in `rules-md/` within the declared scope that are missing from `docs/rules/`.
+  - *Scope Filter*: Crosscheck candidate omissions against `VISION.md` Section 4 (*Anti-goals / The "Fence"*). If an omitted mechanic belongs to an engine anti-goal or intentional manual tracking area (e.g. build blocking, manual XP ledger entries), classify it as an *Out-of-Scope Candidate* rather than a defect.
 - **Orphan Check**: Identify any entities in `docs/rules/` that claim this sourcebook/section but do not exist in `rules-md/`.
 - **Page Citation Accuracy**: Confirm that `- **Source**: *<Sourcebook>*, p. <Page>` in `docs/rules/` exactly matches the physical page recorded in `rules-md/`.
 
@@ -82,17 +83,16 @@ For every entity in scope, perform an itemized crosscheck against the verbatim t
 1. **Schema Compliance**: Check that every entry strictly matches the canonical schema registered in `docs/agents/rules-template.md`.
 2. **Task Checklist Ban**: Ensure no checklist syntax (`- [ ]`) is present.
 3. **300-Line Growth Ceiling**:
-   Run the automated structure test suite:
+   Run the automated structure test suite (use `BypassSandbox: true` if the MSBuild task host blocks inside the sandbox):
    ```powershell
    dotnet test --filter RulesLibraryStructureTests --blame-hang-timeout 15s
    ```
-   (If executing unsandboxed is needed for the MSBuild task host, use `BypassSandbox: true`).
 
 ---
 
-## Phase 5: Verification Report & Remediation
+## Phase 5: Verification Report & Advisory Findings
 
-Produce a structured markdown audit report:
+Produce a structured markdown audit report. **Do not execute edits or mutate files autonomously.** Conclude the turn by presenting the report and proposed diffs to the user for confirmation:
 
 ```markdown
 # Verification Report: <Target File> vs. <Source Section>
@@ -114,12 +114,20 @@ Produce a structured markdown audit report:
 | **Schema Compliance** | PASS / FAIL | Conforms to rules-template.md schema |
 | **300-Line Limit** | PASS / FAIL | Total lines: X / 300 |
 
-## 3. Discrepancies & Remediation Diffs
-<If defects were found, provide exact edit_file target and replacement blocks to resolve each issue>
+## 3. Findings & Proposed Remediations
+
+### A. In-Repo Rule Corrections (Proposed)
+<Provide exact edit_file target and replacement blocks for verified mechanical defects, but DO NOT apply them yet>
+
+### B. Out-of-Scope / Anti-Goal Candidates
+<List omitted mechanics that appear intentionally unautomated or out-of-scope per VISION.md, requesting human confirmation>
+
+### C. Verbatim Mirror Discrepancies
+<List rules-md typos or print defects for review>
 ```
 
-If defects are found:
-- **In-repo rules defects**: Present and execute targeted `edit_file` fixes in `docs/rules/`.
-- **Verbatim archive defects & discrepancies**: If the `rules-md/` mirror itself has transcription typos or formatting defects, update it directly using `edit_file` or `write_file`. When `rules-md/` contains internal discrepancies (such as summary tables conflicting with section bodies), record them directly as audit report findings for human review.
+**Gated Execution Boundary**:
+- Never apply `edit_file` or `write_file` fixes during the verification run.
+- Conclude the turn with the verification report, prompting the user to confirm which proposed remediations (if any) they want applied.
 - If ambiguous or involving conflicting RAW, request human arbitration per ADR-0001.
-- Re-run `RulesLibraryStructureTests` until clean.
+- When the user subsequently instructs you to apply approved remediations, execute the targeted fixes and re-run `RulesLibraryStructureTests` until clean.

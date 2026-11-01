@@ -9,8 +9,8 @@
     $$\text{XP}_{\text{required}}(L) = \frac{(L - 1) \times L}{2} \times 1{,}000$$
   - **Single Level Advancement Limit**: A character can advance only one level at a time per advancement event.
   - **Excess XP Cap on Multi-Level Awards**: If an XP reward would advance a character two or more levels at once, the character advances exactly one level, and their XP total is capped at $1\text{ XP}$ short of the next level threshold:
-    $$\text{Max XP} = \text{XP}_{\text{required}}(L + 2) - 1$$
-    Any excess experience points beyond this cap are not retained.
+    $$\text{Max XP} = \text{XP}_{\text{required}}(L_{\text{new}} + 1) - 1$$
+    where $L_{\text{new}}$ is the newly attained character level. Any excess experience points beyond this cap are not retained.
   - **Training and Practice**: Inability to train, study, or practice skills between adventures permits the Dungeon Master to reduce XP awards or impose XP loss.
 
 ---
@@ -24,7 +24,7 @@
   4. **Ability Score Increase**:
      - Gained at 4th, 8th, 12th, 16th, and 20th **character level** (every four character levels, regardless of individual class levels).
      - Increase one chosen ability score by $+1$ (scores may exceed 18).
-     - **Retroactive Hit Points**: In PlayMore35, maximum hit points is a dynamically computed statistic; increasing Constitution retroactively increases hit points across all character levels:
+     - **Retroactive Hit Points**: Increasing Constitution retroactively increases hit points across all character levels: add $+1$ hit point per character level attained prior to this advancement (the new Constitution modifier then applies directly to the Hit Die roll in Step 5):
        $$\Delta\text{HP} = \Delta\text{CON mod} \times \text{Character Level}$$
   5. **Hit Points**:
      - Roll one Hit Die of the advancing class type, add the current Constitution modifier, and add the result to the character's total hit points.
@@ -79,7 +79,7 @@
   - If a character possesses levels in Cleric and at least 4 levels in Paladin, effective turning level stacks:
     $$\text{Effective Turning Level} = \text{Cleric Level} + \text{Paladin Level} - 3 \quad (\text{Paladin Level} \ge 4)$$
 - **Uncanny Dodge Stacking**:
-  - When a character with Uncanny Dodge would gain Uncanny Dodge a second time from another class (e.g. Barbarian and Rogue), they automatically gain **Improved Uncanny Dodge** instead.
+  - When a character with Uncanny Dodge would gain Uncanny Dodge a second time from another class (e.g. Barbarian and Rogue), they automatically gain **Improved Uncanny Dodge** instead (if they do not already possess it).
   - Barbarian and Rogue levels stack to determine the attacker rogue level required to flank the character:
     $$\text{Minimum Flanker Rogue Level} = \text{Barbarian Level} + \text{Rogue Level} + 4$$
 - **Familiar Stacking**:
