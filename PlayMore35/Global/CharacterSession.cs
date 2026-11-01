@@ -17,6 +17,7 @@ namespace PlayMore35.Global {
         private EffectPool effects;
         private Equipped equippedItems;
         private readonly SubsystemRegistry subsystems = new SubsystemRegistry();
+        private readonly Dictionary<string, SubsystemEngine> _subsystems = new Dictionary<string, SubsystemEngine>(StringComparer.OrdinalIgnoreCase);
         private int normalSizeCategory;
 
         private readonly Dictionary<string, string> rememberedFeats = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -31,6 +32,12 @@ namespace PlayMore35.Global {
         public Timeline Timeline => character.Timeline;
         public IRulesCatalog Catalog => catalog;
         public SubsystemRegistry Subsystems => subsystems;
+        IEnumerable<SubsystemEngine> ICharacterSession.Subsystems => _subsystems.Values;
+
+        public SubsystemEngine? GetSubsystem(string? id) {
+            if (string.IsNullOrEmpty(id)) return null;
+            return _subsystems.TryGetValue(id!, out var engine) ? engine : null;
+        }
 
         public string CreatureType => effects.CreatureType;
         public IReadOnlyList<string> SubTypes => effects.SubTypes.AsReadOnly();
@@ -50,6 +57,7 @@ namespace PlayMore35.Global {
 
         List<AttackRoutine> ICharacterContext.GetAllRoutines() => GetAllRoutines().ToList();
         List<AttackRoutine> ICharacterContext.GetVisibleRoutines() => GetVisibleRoutines().ToList();
+        SubsystemEngine? ICharacterContext.GetSubsystem(string? id) => GetSubsystem(id);
 
         public CharacterSession(Character character, IRulesCatalog catalog)
             : this(character, catalog, false) { }
@@ -67,7 +75,9 @@ namespace PlayMore35.Global {
 
             if (this.catalog.Subsystems != null) {
                 foreach (var subDef in this.catalog.Subsystems.Values) {
-                    subsystems.Register(new SubsystemEngine(subDef, this));
+                    var engine = new SubsystemEngine(subDef, this);
+                    _subsystems[subDef.Id] = engine;
+                    subsystems.Register(engine);
                 }
             }
 

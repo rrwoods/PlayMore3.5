@@ -47,8 +47,8 @@ namespace PlayMore35.UI.Subsystems {
                 if (session.Catalog != null && session.Catalog.TryGetSubsystem(context.ElementType!, out var subDef)) {
                     _definition = subDef;
                 } else if (session.Subsystems != null) {
-                    var engine = session.Subsystems.Get(context.ElementType!) ??
-                                 session.Subsystems.All.FirstOrDefault(e =>
+                    var engine = session.GetSubsystem(context.ElementType!) ??
+                                 session.Subsystems.FirstOrDefault(e =>
                                      e.Definition.SlotGroups.Values.Any(g => string.Equals(g.Filter, context.ElementType, StringComparison.OrdinalIgnoreCase)) ||
                                      e.Definition.Elements.Values.Any(el => el.MatchesFilter(context.ElementType, e.Definition)));
                     if (engine != null) {
@@ -64,7 +64,7 @@ namespace PlayMore35.UI.Subsystems {
                         _definition = session.Catalog.Subsystems.Values.FirstOrDefault(d => d.Elements.ContainsKey(firstElem.Name));
                     }
                     if (_definition == null && session.Subsystems != null) {
-                        _definition = session.Subsystems.All.Select(e => e.Definition).FirstOrDefault(d => d.Elements.ContainsKey(firstElem.Name));
+                        _definition = session.Subsystems.Select(e => e.Definition).FirstOrDefault(d => d.Elements.ContainsKey(firstElem.Name));
                     }
                 }
             }

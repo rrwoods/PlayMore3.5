@@ -8,6 +8,7 @@ using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Rules;
+using PlayMore35.Subsystems;
 using PlayMore35.UI;
 
 namespace PlayMore35.Tests {
@@ -636,6 +637,65 @@ namespace PlayMore35.Tests {
             using (var form = new MainForm(spySession)) {
                 // MainForm constructor executes DisplayLevels()
                 Assert.AreEqual(0, spySession.GetSessionAtLevelCallCount, "DisplayLevels painting must not invoke GetSessionAtLevel.");
+            }
+        }
+
+        [TestMethod]
+        public void ICharacterSession_ExposesGetSubsystem_AndSubsystemsEnumeration() {
+            var method = typeof(ICharacterSession).GetMethod("GetSubsystem", new[] { typeof(string) });
+            Assert.IsNotNull(method, "ICharacterSession must expose GetSubsystem(string? id).");
+            Assert.AreEqual(typeof(SubsystemEngine), method.ReturnType, "GetSubsystem must return SubsystemEngine.");
+
+            var prop = typeof(ICharacterSession).GetProperty("Subsystems");
+            Assert.IsNotNull(prop, "ICharacterSession must expose Subsystems property.");
+            Assert.AreEqual(typeof(IEnumerable<SubsystemEngine>), prop.PropertyType, "ICharacterSession.Subsystems must be IEnumerable<SubsystemEngine>.");
+
+            var contextMethod = typeof(ICharacterContext).GetMethod("GetSubsystem", new[] { typeof(string) });
+            Assert.IsNotNull(contextMethod, "ICharacterContext must expose GetSubsystem(string? id).");
+            Assert.AreEqual(typeof(SubsystemEngine), contextMethod.ReturnType, "ICharacterContext.GetSubsystem must return SubsystemEngine.");
+        }
+
+        [TestMethod]
+        public void CharacterSession_GetSubsystem_RetrievesValidSubsystem_CaseInsensitively() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+
+            var pact1 = session.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pact1, "session.GetSubsystem('pact_magic') must return the engine.");
+            Assert.AreEqual("pact_magic", pact1.Id);
+
+            var pact2 = session.GetSubsystem("PACT_MAGIC");
+            Assert.AreSame(pact1, pact2, "Subsystem retrieval must be case-insensitive.");
+
+            var pact3 = session.GetSubsystem("Pact_Magic");
+            Assert.AreSame(pact1, pact3, "Subsystem retrieval must be case-insensitive.");
+
+            var martial = session.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(martial, "session.GetSubsystem('martial_maneuvers') must return the engine.");
+            Assert.AreEqual("martial_maneuvers", martial.Id);
+        }
+
+        [TestMethod]
+        public void CharacterSession_GetSubsystem_ReturnsNullForMissingNullOrEmpty() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+
+            Assert.IsNull(session.GetSubsystem(null), "GetSubsystem(null) must return null.");
+            Assert.IsNull(session.GetSubsystem(""), "GetSubsystem(\"\") must return null.");
+            Assert.IsNull(session.GetSubsystem("nonexistent_subsystem"), "GetSubsystem with missing key must return null.");
+        }
+
+        [TestMethod]
+        public void CharacterSession_Subsystems_EnumeratesAllCatalogEngines() {
+            var character = new Character();
+            var session = new CharacterSession(character, catalog);
+            ICharacterSession sessionInterface = session;
+
+            var engines = sessionInterface.Subsystems.ToList();
+            Assert.AreEqual(catalog.Subsystems.Count, engines.Count, "Subsystems must enumerate all declared catalog engines.");
+            foreach (var kvp in catalog.Subsystems) {
+                Assert.IsTrue(engines.Any(e => string.Equals(e.Id, kvp.Key, StringComparison.OrdinalIgnoreCase)),
+                    $"Subsystems enumeration must contain engine for catalog subsystem '{kvp.Key}'.");
             }
         }
     }

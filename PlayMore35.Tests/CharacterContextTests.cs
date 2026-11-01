@@ -3,6 +3,7 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
 using PlayMore35.Items;
+using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 using System.Collections.Generic;
 using System.Linq;
@@ -114,6 +115,40 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(16, context.GetStatistic(Constants.STR_SCORE).Value);
             Assert.AreEqual(50, context.GetStatValue("MissingStat", 50));
             Assert.AreEqual(50, ((ICharacterContext)session).GetStatValue("MissingStat", 50));
+        }
+
+        [TestMethod]
+        public void CharacterContext_GetSubsystem_ResolvesViaContext() {
+            var character = new Character();
+            var session = new CharacterSession(character, new GameRulesCatalog());
+            ICharacterContext context = session;
+
+            var pact = context.GetSubsystem("pact_magic");
+            Assert.IsNotNull(pact, "context.GetSubsystem('pact_magic') must return the engine.");
+            Assert.AreEqual("pact_magic", pact.Id);
+
+            var pactUpper = context.GetSubsystem("PACT_MAGIC");
+            Assert.AreSame(pact, pactUpper, "context.GetSubsystem must be case-insensitive.");
+
+            Assert.IsNull(context.GetSubsystem(null), "context.GetSubsystem(null) must return null.");
+            Assert.IsNull(context.GetSubsystem(""), "context.GetSubsystem(\"\") must return null.");
+            Assert.IsNull(context.GetSubsystem("missing_subsystem"), "context.GetSubsystem for missing id must return null.");
+        }
+
+        [TestMethod]
+        public void FakeCharacterContext_GetSubsystem_ResolvesFromSubsystemsMap_CaseInsensitively() {
+            var fakeContext = new FakeCharacterContext();
+            Assert.IsNotNull(fakeContext.SubsystemsMap, "SubsystemsMap must be initialized.");
+
+            var def = new SubsystemDefinition { Id = "test_subsystem" };
+            var engine = new SubsystemEngine(def, fakeContext);
+            fakeContext.SubsystemsMap["test_subsystem"] = engine;
+
+            Assert.AreSame(engine, fakeContext.GetSubsystem("test_subsystem"), "fakeContext.GetSubsystem must return mapped engine.");
+            Assert.AreSame(engine, fakeContext.GetSubsystem("TEST_SUBSYSTEM"), "fakeContext.GetSubsystem must be case-insensitive.");
+            Assert.IsNull(fakeContext.GetSubsystem(null), "GetSubsystem(null) must return null.");
+            Assert.IsNull(fakeContext.GetSubsystem(""), "GetSubsystem(\"\") must return null.");
+            Assert.IsNull(fakeContext.GetSubsystem("unslotted_subsystem"), "GetSubsystem for unmapped key must return null.");
         }
     }
 }

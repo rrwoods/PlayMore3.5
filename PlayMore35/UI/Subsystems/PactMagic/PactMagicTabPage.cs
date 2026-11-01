@@ -182,7 +182,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
         private void OnVestigeBindRequested(SubsystemElement vestige, string pactState) {
             var session = _host.Session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             var group = engine?.GetSlotGroup("vestiges");
 
             int capacity = group?.Capacity ?? session.GetStatistic("number of vestiges")?.Value ?? 0;
@@ -224,7 +224,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
         private void OnVestigeUnbindRequested(SubsystemElement vestige) {
             var session = _host.Session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
 
             int targetIndex = -1;

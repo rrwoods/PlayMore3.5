@@ -1430,7 +1430,7 @@ namespace PlayMore35.Subsystems {
 
             if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && atCharacterLevel.Value < totalLevels && session != null) {
                 var snapSession = session.GetSessionAtLevel(atCharacterLevel.Value, includeEquipped: false);
-                var snapEngine = snapSession.Subsystems.Get(Id);
+                var snapEngine = snapSession.GetSubsystem(Id);
                 if (snapEngine != null && !ReferenceEquals(snapEngine, this)) {
                     return snapEngine.CountSameDisciplineKnown(discipline, null, excludeFeatSlot, excludeElementName, currentChoices, excludeSlot);
                 }

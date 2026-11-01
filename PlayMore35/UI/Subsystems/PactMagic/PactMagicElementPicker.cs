@@ -73,7 +73,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             var stat = _session.GetStatistic("maximum vestige level");
             _maxVestigeLevel = stat != null && stat.Value > 0 ? stat.Value : 8;
 
-            var engine = _session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = _session.GetSubsystem("pact_magic");
             var group = engine?.GetSlotGroup("vestiges");
             _capacity = group?.Capacity ?? _session.GetStatistic("number of vestiges")?.Value ?? 0;
 
@@ -84,7 +84,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         }
 
         public void RefreshBindingState() {
-            var engine = _session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = _session.GetSubsystem("pact_magic");
             var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
 
             int boundCount = slots.Count(s => !string.IsNullOrEmpty(s.Element) && s.State != "empty");

@@ -16,7 +16,7 @@ _Avoid_: Combat runner, battle manager
 
 **Character Session**:
 An isolated, autonomous runtime host managing an active character's live effect evaluation, timeline progression, inventory, and dynamic recalculations during play.
-_Avoid_: Controller, character coordinator, character engine
+_Avoid_: Controller, character coordinator, character engine, subsystem registry
 
 **Enable, Don't Enforce**:
 The design principle that rules and constraints are advisory and calculative, never hard-blocking table fiat or house rules.
@@ -178,7 +178,7 @@ _Avoid_: Slot lifecycle, state graph, status machine
 
 **Subsystem**:
 An encapsulated magic or martial discipline (such as Pact Magic, Martial Maneuvers, Vancian Spellcasting, or Meldshaping) governed by specialized preparation, selection, or recovery mechanics.
-_Avoid_: System, subsystem engine, magic system
+_Avoid_: System, subsystem engine, magic system, subsystem registry
 
 **Subsystem Element**:
 A discrete catalogable unit within a subsystem (such as a spell, martial maneuver, psionic power, vestige, soulmeld, invocation, mystery, or utterance) that a character can learn, prepare, ready, bind, shape, or activate. May be shortened to *Element* when the subsystem context is clear.
