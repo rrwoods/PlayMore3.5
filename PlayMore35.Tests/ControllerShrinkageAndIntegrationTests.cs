@@ -63,7 +63,7 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Binder");
             var session = new CharacterSession(character, catalog);
             ICharacterContext ctx = session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
             Assert.AreEqual(1, engine.GetSlotCapacity("vestiges"));
@@ -126,7 +126,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             var session = new CharacterSession(character, catalog);
             ICharacterContext ctx = session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             Assert.IsNotNull(engine);
 
             ctx.Effects.AddStat(new Statistic("number of vestiges"));

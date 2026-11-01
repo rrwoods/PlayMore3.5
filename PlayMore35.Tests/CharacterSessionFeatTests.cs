@@ -684,7 +684,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, fakeCatalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var warbladeSlots = engine.GetSlots("maneuvers", "Warblade");
@@ -713,7 +713,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Moment of Perfect Mind";
 
             var session = new CharacterSession(character, fakeCatalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var featSlots = engine.GetSlots("maneuvers", "Feats");

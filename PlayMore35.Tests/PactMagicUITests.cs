@@ -169,7 +169,7 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(picker.CardsContainer.Controls.Contains(amonCard));
 
                 // Session engine must reflect binding
-                var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+                var engine = session.GetSubsystem("pact_magic");
                 Assert.IsNotNull(engine);
                 var slot0 = engine.GetSlot("vestiges", 0);
                 Assert.IsNotNull(slot0);

@@ -159,7 +159,7 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(SOCIAL, panel.EffectsPanel.Tag);
 
                 // Bind a vestige with Social influence (Aym) with poor pact so influence is contributed
-                var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+                var pactEngine = session.GetSubsystem("pact_magic");
                 Assert.IsNotNull(pactEngine, "pact_magic SubsystemEngine should be registered.");
                 Assert.IsTrue(pactEngine.IsActive, "pact_magic SubsystemEngine should be active for Binder.");
                 pactEngine.AssignSlot("vestiges", 0, "Aym", "poor_pact", "Binder");

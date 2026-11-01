@@ -11,7 +11,6 @@ namespace PlayMore35.Global {
         EffectPool Effects { get; }
         Equipped EquippedItems { get; }
         Timeline Timeline { get; }
-        SubsystemRegistry Subsystems { get; }
         IRulesCatalog Catalog { get; }
         List<AttackRoutine> GetAllRoutines();
         List<AttackRoutine> GetVisibleRoutines();

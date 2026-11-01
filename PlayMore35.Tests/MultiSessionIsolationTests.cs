@@ -154,7 +154,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Savnok", pactMagic.Slots["vestiges"][0].Element);
             Assert.AreEqual("poor_pact", pactMagic.Slots["vestiges"][0].State);
 
-            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var pactEngine = session.GetSubsystem("pact_magic");
             Assert.IsNotNull(pactEngine, "pact_magic SubsystemEngine should be registered.");
             Assert.IsTrue(pactEngine.IsActive, "pact_magic SubsystemEngine should be active for Binder.");
             Assert.AreEqual(1, pactEngine.GetSlotCapacity("vestiges"));

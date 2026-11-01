@@ -20,7 +20,7 @@ namespace PlayMore35.Tests {
 
             var character = new Character();
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get("synthetic_alchemy") as SubsystemEngine;
+            var engine = session.GetSubsystem("synthetic_alchemy");
             if (rng != null) {
                 engine.SetRandom(rng);
             }

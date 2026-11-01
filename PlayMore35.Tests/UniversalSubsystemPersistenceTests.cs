@@ -21,7 +21,7 @@ namespace PlayMore35.Tests {
 
             var character = new Character();
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get("synthetic_alchemy") as SubsystemEngine;
+            var engine = session.GetSubsystem("synthetic_alchemy");
             return (session, catalog, engine);
         }
 
@@ -201,7 +201,7 @@ namespace PlayMore35.Tests {
 
             // CharacterSession initializes engines from character.Subsystems
             var session = new CharacterSession(character, catalog);
-            var engine = session.Subsystems.Get("synthetic_alchemy") as SubsystemEngine;
+            var engine = session.GetSubsystem("synthetic_alchemy");
             Assert.IsNotNull(engine);
 
             Assert.AreEqual("Acid Flask", engine.GetSlot("flasks", 0)?.Element);
@@ -293,7 +293,7 @@ namespace PlayMore35.Tests {
             // Deserialize into new character and session
             var restoredChar = new Character(json);
             var restoredSession = new CharacterSession(restoredChar, catalog);
-            var restoredEngine = restoredSession.Subsystems.Get("synthetic_alchemy") as SubsystemEngine;
+            var restoredEngine = restoredSession.GetSubsystem("synthetic_alchemy");
 
             Assert.IsNotNull(restoredEngine);
             Assert.AreEqual("Acid Flask", restoredEngine.GetSlot("flasks", 0)?.Element);
@@ -338,7 +338,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             var session = new CharacterSession(character, catalog);
 
-            var engine = session.Subsystems.Get("dormant_system");
+            var engine = session.GetSubsystem("dormant_system");
             Assert.IsNotNull(engine);
             Assert.IsFalse(engine.IsActive);
             Assert.IsFalse(character.Subsystems.ContainsKey("dormant_system"), "Inactive catalog subsystems must not populate empty entries in Character.Subsystems.");

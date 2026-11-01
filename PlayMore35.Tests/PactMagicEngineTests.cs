@@ -86,7 +86,7 @@ namespace PlayMore35.Tests {
             var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestige }, inner: new GameRulesCatalog());
             var character = new Character();
             var session = new CharacterSession(character, contentProvider);
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
 
             // Initially no statistic -> inactive
             Assert.IsFalse(engine.IsActive);
@@ -106,7 +106,7 @@ namespace PlayMore35.Tests {
             for (int i = 0; i < 8; i++) character.classLevels.Add("Binder");
             var session = new CharacterSession(character, contentProvider);
 
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             Assert.AreEqual(2, engine.GetSlotGroup("vestiges").Capacity);
 
             // Bind slot 0 to Aym (good pact)
@@ -143,7 +143,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["CHA"] = 18;
             var session = new CharacterSession(character, contentProvider);
 
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             Assert.AreEqual(20, engine.GetElement("Aym").GetProperty<int>("binding DC"));
             Assert.AreEqual(5, session.GetStatistic("binding check").Value);
         }
@@ -159,7 +159,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["CON"] = 10;
             var session = new CharacterSession(character, contentProvider);
             var ctx = (ICharacterContext)session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
 
             // 1. Good Pact: contributes granted abilities only
             engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
@@ -205,7 +205,7 @@ namespace PlayMore35.Tests {
             character.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "longsword", SizeCategory = 0 };
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
 
-            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var pactEngine = session.GetSubsystem("pact_magic");
             Assert.AreEqual(2, pactEngine.GetSlotGroup("vestiges").Capacity);
 
             // Bind Naberius in slot 0 and Savnok in slot 1, both in poor_pact
@@ -282,7 +282,7 @@ namespace PlayMore35.Tests {
                 character.classLevels.Add("Binder");
             }
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
-            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var pactEngine = session.GetSubsystem("pact_magic");
 
             int baseFort = session.GetStatistic(FORT_SAVES).Value;
 
@@ -365,7 +365,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             character.classLevels.Add("Binder");
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
-            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var pactEngine = session.GetSubsystem("pact_magic");
 
             pactEngine.AssignSlot("vestiges", 0, "Savnok", "poor_pact", "Binder");
             session.Recalculate();
@@ -444,7 +444,7 @@ namespace PlayMore35.Tests {
 
             Assert.IsNotNull(character.Timeline);
             var session = new CharacterSession(character, new PlayMore35.Rules.GameRulesCatalog());
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             Assert.IsNotNull(engine);
             Assert.AreEqual("Savnok", engine.GetSlot("vestiges", 0)?.Element);
 
@@ -470,7 +470,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["STR"] = 10;
             character.assignedAbilityScores["CON"] = 10;
             var session = new CharacterSession(character, contentProvider);
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
 
             // Empty slot is valid
             Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
@@ -547,7 +547,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["CON"] = 10;
             var session = new CharacterSession(character, contentProvider);
             var ctx = (ICharacterContext)session;
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
 
             // 1. Bind good pact via declarative SheetAction
             session.PerformAction(new SheetAction {
@@ -707,7 +707,7 @@ namespace PlayMore35.Tests {
             var catalog = new GameRulesCatalog();
             var session = new CharacterSession(character, catalog);
             var ctx = (ICharacterContext)session;
-            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var pactEngine = session.GetSubsystem("pact_magic");
             Assert.IsNotNull(pactEngine);
 
             var aym = pactEngine.GetElement("Aym");
@@ -822,7 +822,7 @@ namespace PlayMore35.Tests {
             var catalog = new GameRulesCatalog();
             var session = new CharacterSession(character, catalog);
             var ctx = (ICharacterContext)session;
-            var pactEngine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var pactEngine = session.GetSubsystem("pact_magic");
             Assert.IsNotNull(pactEngine);
 
             var aym = pactEngine.GetElement("Aym");

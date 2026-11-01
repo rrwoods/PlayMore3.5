@@ -90,7 +90,7 @@ namespace PlayMore35.Tests {
             var context = new TestContextWithSlottedSubsystem();
             var catalog = new GameRulesCatalog();
             var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), context);
-            context.Subsystems.Register(engine);
+            context.SubsystemsMap["pact_magic"] = engine;
 
             context.Effects.AddStat(new Statistic("number of vestiges"));
             context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(1, ModifierTypes.UNTYPED)));
@@ -152,10 +152,9 @@ namespace PlayMore35.Tests {
             CollectionAssert.DoesNotContain(assemblyTypes, "Maneuver");
             CollectionAssert.DoesNotContain(assemblyTypes, "MartialDiscipline");
             CollectionAssert.DoesNotContain(assemblyTypes, "ManeuverType");
+            CollectionAssert.DoesNotContain(assemblyTypes, "SubsystemRegistry");
 
             Assert.AreEqual(0, typeof(SubsystemEngine).GetInterfaces().Length, "SubsystemEngine must not implement an ISubsystemEngine interface shim.");
-            Assert.IsFalse(typeof(SubsystemRegistry).GetMethods(BindingFlags.Public | BindingFlags.Instance).Any(m => m.Name == "Get" && m.IsGenericMethod), "SubsystemRegistry must not expose a generic Get<T> method.");
-            Assert.IsNull(typeof(SubsystemRegistry).GetMethod("RegisterDefaultActionParsers", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
             Assert.IsNull(typeof(SheetAction).GetMethod("RegisterParser", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
             Assert.IsNull(typeof(SheetAction).GetMethod("ResetParsersForTesting", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
 

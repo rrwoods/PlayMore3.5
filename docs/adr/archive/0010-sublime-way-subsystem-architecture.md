@@ -50,6 +50,6 @@ We structure the Sublime Way around a single cohesive engine `MartialManeuverEng
 - **Class-Locked Partitions**: Rejected in favor of unified `Sources` accommodating both adept classes and non-adept feat grants (`"Feats"`).
 
 ## Consequences
-- Integrates seamlessly with branch 122 prefactorings (`SubsystemSlotGroup`, `ICharacterContext.GetStatValue`, `SubsystemRegistry.CreateDefault()`).
+- Integrates seamlessly with branch 122 prefactorings (`SubsystemSlotGroup`, `ICharacterContext.GetStatValue`, `GameRulesCatalog.Subsystems`).
 - Upholds Enable, Don't Enforce (ADR-0001) by presenting advisory Warning Badges for level caps, missing discipline counts, and cross-class duplicate selections.
 - Guarantees schema stability and explicit constructor deserialization (ADR-0008).

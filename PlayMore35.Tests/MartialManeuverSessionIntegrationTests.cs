@@ -58,7 +58,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(2, session.GetStatistic("stances known:warblade").Value);
             Assert.AreEqual(3, session.GetStatistic("max maneuver level:warblade").Value, string.Join("; ", session.GetStatistic("max maneuver level:warblade").Explanation));
 
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
@@ -88,7 +88,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(4, session.GetStatistic("initiator level:crusader").Value);
             Assert.AreEqual(2, session.GetStatistic("max maneuver level:crusader").Value);
 
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
@@ -113,7 +113,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.GetStatistic("maneuvers known:feats").Value);
             Assert.AreEqual(1, session.GetStatistic("maneuvers readied:feats").Value);
 
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
 
@@ -130,7 +130,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["DEX"] = 10; // 0 DEX mod
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Baseline AC: 10 (no armor, 0 DEX mod)
@@ -175,8 +175,7 @@ namespace PlayMore35.Tests {
             character.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "greatsword" };
 
             var session = new CharacterSession(character, customCatalog);
-            var customEngine = new SubsystemEngine(customCatalog.GetSubsystem("martial_maneuvers"), session);
-            session.Subsystems.Register(customEngine);
+            var customEngine = session.GetSubsystem("martial_maneuvers")!;
             session.Recalculate();
 
             // Greatsword attack without stance: BAB +3 + STR +3 = +6
@@ -217,7 +216,7 @@ namespace PlayMore35.Tests {
             character.rolledHitDice = new List<int> { 12, 10, 10 };
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Initial land speed
@@ -276,7 +275,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["DEX"] = 10;
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
 
             engine.AssignSlot("maneuvers", 0, "Wind Stride", "available", "Warblade");
             engine.AssignSlot("maneuvers", 1, "Steely Strike", "expended", "Warblade");
@@ -297,7 +296,7 @@ namespace PlayMore35.Tests {
 
             // Load into a new CharacterSession
             var restoredSession = new CharacterSession(restoredChar, catalog);
-            var restoredEngine = (SubsystemEngine)restoredSession.Subsystems.Get("martial_maneuvers");
+            var restoredEngine = restoredSession.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(restoredEngine);
             Assert.IsTrue(restoredEngine.IsActive);
 
@@ -329,7 +328,7 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Crusader"); // Level 1 Crusader: 5 known, 5 readied, 2 granted
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             Assert.AreEqual(5, session.GetStatistic("maneuvers known:crusader").Value);
@@ -385,7 +384,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var warbladeSlots = engine.GetSlots("maneuvers", "Warblade");
@@ -407,7 +406,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Moment of Perfect Mind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var featSlots = engine.GetSlots("maneuvers", "Feats");
@@ -429,7 +428,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var warbladeSlots = engine.GetSlots("maneuvers", "Warblade");
@@ -463,7 +462,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var warbladeSlots = engine.GetSlots("maneuvers", "Warblade");
@@ -499,7 +498,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Populate class slots 0, 1, 2
@@ -550,7 +549,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 3:maneuver"] = "Mountain Hammer";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Mountain Hammer must project into Crusader known slots, NOT Warblade
@@ -573,7 +572,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
 
             int featIndex = engine.GetSlots("maneuvers", "Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
             Assert.IsTrue(featIndex >= 0);
@@ -583,7 +582,7 @@ namespace PlayMore35.Tests {
             JToken json = character.ToJson();
             var restoredChar = new Character((JObject)json);
             var restoredSession = new CharacterSession(restoredChar, catalog);
-            var restoredEngine = (SubsystemEngine)restoredSession.Subsystems.Get("martial_maneuvers");
+            var restoredEngine = restoredSession.GetSubsystem("martial_maneuvers")!;
 
             var restoredSlot = restoredEngine.GetSlots("maneuvers", "Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(restoredSlot);
@@ -603,7 +602,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
 
             Assert.IsTrue(engine.GetSlots("maneuvers", "Warblade").Any(s => s != null && string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase)));
 
@@ -628,7 +627,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Warblade has 1 base stance known, feat grants +1 -> total 2
@@ -653,7 +652,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Bolstering Voice";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Non-adept: stances known:feats = 1, active stances = 1
@@ -679,7 +678,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var warbladeSlots = engine.GetSlots("stances", "Warblade");
@@ -713,7 +712,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var warbladeSlots = engine.GetSlots("stances", "Warblade");
@@ -740,7 +739,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Bolstering Voice";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
 
             Assert.IsTrue(engine.GetSlots("stances", "Feats").Any(s => s != null && string.Equals(s.Element, "Bolstering Voice", StringComparison.OrdinalIgnoreCase)));
 
@@ -766,7 +765,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 3:stance"] = "Iron Guard's Glare";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Iron Guard's Glare must project into Crusader stance slots, NOT Warblade
@@ -789,7 +788,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
 
             int featIndex = engine.GetSlots("stances", "Warblade").ToList().FindIndex(s => s != null && s.IsFeatBound);
             Assert.IsTrue(featIndex >= 0);
@@ -799,7 +798,7 @@ namespace PlayMore35.Tests {
             JToken json = character.ToJson();
             var restoredChar = new Character((JObject)json);
             var restoredSession = new CharacterSession(restoredChar, catalog);
-            var restoredEngine = (SubsystemEngine)restoredSession.Subsystems.Get("martial_maneuvers");
+            var restoredEngine = restoredSession.GetSubsystem("martial_maneuvers")!;
 
             var restoredSlot = restoredEngine.GetSlots("stances", "Warblade").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(restoredSlot);
@@ -819,7 +818,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
 
             Assert.IsTrue(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Punishing Stance", StringComparison.OrdinalIgnoreCase)));
 
@@ -844,7 +843,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:maneuver"] = "Steel Wind";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Populate class slot 0 with the EXACT same maneuver name ("Steel Wind")
@@ -885,7 +884,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 1:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Populate class stance slot 0 with the EXACT same stance name ("Punishing Stance")
