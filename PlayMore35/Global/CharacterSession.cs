@@ -16,7 +16,6 @@ namespace PlayMore35.Global {
         private readonly IRulesCatalog catalog;
         private EffectPool effects;
         private Equipped equippedItems;
-        private readonly SubsystemRegistry subsystems = new SubsystemRegistry();
         private readonly Dictionary<string, SubsystemEngine> _subsystems = new Dictionary<string, SubsystemEngine>(StringComparer.OrdinalIgnoreCase);
         private int normalSizeCategory;
 
@@ -31,8 +30,7 @@ namespace PlayMore35.Global {
         public IReadOnlyDictionary<string, string> RememberedFeatChoices => rememberedFeatChoices;
         public Timeline Timeline => character.Timeline;
         public IRulesCatalog Catalog => catalog;
-        public SubsystemRegistry Subsystems => subsystems;
-        IEnumerable<SubsystemEngine> ICharacterSession.Subsystems => _subsystems.Values;
+        public IEnumerable<SubsystemEngine> Subsystems => _subsystems.Values;
 
         public SubsystemEngine? GetSubsystem(string? id) {
             if (string.IsNullOrEmpty(id)) return null;
@@ -52,7 +50,6 @@ namespace PlayMore35.Global {
         EffectPool ICharacterContext.Effects => effects;
         Equipped ICharacterContext.EquippedItems => equippedItems;
         Timeline ICharacterContext.Timeline => Timeline;
-        SubsystemRegistry ICharacterContext.Subsystems => subsystems;
         IRulesCatalog ICharacterContext.Catalog => catalog;
 
         List<AttackRoutine> ICharacterContext.GetAllRoutines() => GetAllRoutines().ToList();
@@ -72,13 +69,11 @@ namespace PlayMore35.Global {
 
             equippedItems = new Equipped();
             effects = new EffectPool(this.character);
-            subsystems.EngineRegistered += engine => _subsystems[engine.Id] = engine;
 
             if (this.catalog.Subsystems != null) {
                 foreach (var subDef in this.catalog.Subsystems.Values) {
                     var engine = new SubsystemEngine(subDef, this);
                     _subsystems[subDef.Id] = engine;
-                    subsystems.Register(engine);
                 }
             }
 

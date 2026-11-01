@@ -93,65 +93,6 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void SubsystemRegistry_RegistersAndRetrievesEngines_ById() {
-            var registry = new SubsystemRegistry();
-            var first = CreateTestEngine("fake-first", "Fake First");
-            var simple = CreateTestEngine("fake-simple", "Fake Simple");
-
-            registry.Register(first);
-            registry.Register(simple);
-
-            Assert.AreSame(first, registry.Get("fake-first"));
-            Assert.AreSame(simple, registry.Get("fake-simple"));
-
-            CollectionAssert.AreEqual(new[] { first, simple }, registry.All.ToList());
-
-            Assert.IsNull(registry.Get("nonexistent"));
-            Assert.IsNull(registry.Get(null));
-            Assert.IsNull(registry.Get(""));
-        }
-
-        [TestMethod]
-        public void SubsystemRegistry_ReRegistration_ReplacesExistingEngineInAllAndGet() {
-            var registry = new SubsystemRegistry();
-            var first = CreateTestEngine("fake-first");
-            var replacement = CreateTestEngine("fake-first");
-
-            registry.Register(first);
-            Assert.AreSame(first, registry.Get("fake-first"));
-
-            registry.Register(replacement);
-            Assert.AreSame(replacement, registry.Get("fake-first"));
-            Assert.AreEqual(1, registry.All.Count());
-            Assert.AreSame(replacement, registry.All.Single());
-        }
-
-        [TestMethod]
-        public void SubsystemRegistry_CreateDefault_RegistersStandardEngines() {
-            var registry = SubsystemRegistry.CreateDefault();
-            var engine = registry.Get("pact_magic");
-            Assert.IsNotNull(engine);
-            Assert.AreSame(engine, registry.Get("pact_magic"));
-            Assert.IsNull(registry.Get("vestige"));
-            CollectionAssert.Contains(registry.All.ToList(), engine);
-
-            var maneuverEngine = registry.Get("martial_maneuvers");
-            Assert.IsNotNull(maneuverEngine);
-            Assert.IsInstanceOfType(maneuverEngine, typeof(SubsystemEngine));
-            Assert.AreSame(maneuverEngine, registry.Get("martial_maneuvers"));
-            Assert.IsNull(registry.Get("maneuver"));
-            CollectionAssert.Contains(registry.All.ToList(), maneuverEngine);
-        }
-
-        [TestMethod]
-        public void SubsystemRegistry_NewInstance_RemainsEmptyForTestIsolation() {
-            var registry = new SubsystemRegistry();
-            Assert.AreEqual(0, registry.All.Count());
-            Assert.IsNull(registry.Get("pact_magic"));
-            Assert.IsNull(registry.Get("martial_maneuvers"));
-        }
-
-        [TestMethod]
         public void SubsystemSlotGroup_AllowsDecoupledAccessAndCapacityTracking_Dynamically() {
             int dynamicCapacity = 2;
             var slotGroup = new SubsystemSlotGroup<string>(() => dynamicCapacity);
@@ -337,22 +278,13 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void CharacterContext_ExposesSubsystemRegistry() {
-            var session = new CharacterSession(new Character(), new PlayMore35.Rules.GameRulesCatalog());
-            Assert.IsNotNull(session.Subsystems);
-            Assert.IsInstanceOfType(session.Subsystems, typeof(SubsystemRegistry));
-
-            ICharacterContext context = session;
-            Assert.IsNotNull(context.Subsystems);
-        }
-
-        [TestMethod]
         public void CharacterSession_InitializesSubsystemsWithDefaults() {
             var session = new CharacterSession(new Character(), new PlayMore35.Rules.GameRulesCatalog());
-            Assert.IsNotNull(session.Subsystems.Get("pact_magic"));
-            Assert.IsNotNull(session.Subsystems.Get("martial_maneuvers"));
-            Assert.IsNull(session.Subsystems.Get("vestige"));
-            Assert.IsNull(session.Subsystems.Get("maneuver"));
+            Assert.AreEqual(2, session.Subsystems.Count());
+            Assert.IsNotNull(session.GetSubsystem("pact_magic"));
+            Assert.IsNotNull(session.GetSubsystem("martial_maneuvers"));
+            Assert.IsNull(session.GetSubsystem("vestige"));
+            Assert.IsNull(session.GetSubsystem("maneuver"));
         }
 
         [TestMethod]
@@ -886,10 +818,11 @@ namespace PlayMore35.Tests {
             }");
 
             var def = new SubsystemDefinition(json);
+            var catalog = new FakeRulesCatalog(inner: new GameRulesCatalog());
+            catalog.SubsystemsMap[def.Id] = def;
             var character = new Character { race = "human" };
-            var session = new CharacterSession(character, new GameRulesCatalog());
-            var engine = new SubsystemEngine(def, session);
-            session.Subsystems.Register(engine);
+            var session = new CharacterSession(character, catalog);
+            var engine = session.GetSubsystem(def.Id)!;
 
             // Inactive slot -> no projection
             engine.AssignSlot("stances", 0, "Iron Shell", "inactive");
@@ -931,7 +864,7 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Add("Warblade");
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             // Grant slot for Warblade
@@ -969,7 +902,7 @@ namespace PlayMore35.Tests {
             character.featChoices["Level 3:stance"] = "Punishing Stance";
 
             var session = new CharacterSession(character, catalog);
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
 
             var maneuvers = engine.GetSlots("maneuvers", "Warblade");
@@ -1030,7 +963,7 @@ namespace PlayMore35.Tests {
             var fighterChar = new Character { race = "Human" };
             fighterChar.classLevels.Add("Fighter");
             var fighterSession = new CharacterSession(fighterChar, catalog);
-            var fighterEngine = (SubsystemEngine)fighterSession.Subsystems.Get("martial_maneuvers");
+            var fighterEngine = fighterSession.GetSubsystem("martial_maneuvers")!;
             var fighterSources = fighterEngine.GetActiveSources();
             Assert.AreEqual(0, fighterSources.Count);
 
@@ -1046,7 +979,7 @@ namespace PlayMore35.Tests {
             warbladeChar.classLevels.Clear();
             warbladeChar.classLevels.Add("Warblade");
             var warbladeSession = new CharacterSession(warbladeChar, catalog);
-            var warbladeEngine = (SubsystemEngine)warbladeSession.Subsystems.Get("martial_maneuvers");
+            var warbladeEngine = warbladeSession.GetSubsystem("martial_maneuvers")!;
             var warbladeSources = warbladeEngine.GetActiveSources();
             Assert.AreEqual(1, warbladeSources.Count);
             Assert.AreEqual("Warblade", warbladeSources[0]);

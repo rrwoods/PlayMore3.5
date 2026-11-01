@@ -36,7 +36,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(context.Effects);
             Assert.IsNotNull(context.EquippedItems);
             Assert.IsNotNull(context.Timeline);
-            Assert.IsNotNull(context.Subsystems);
+            Assert.IsNull(context.GetSubsystem("nonexistent"));
         }
 
         [TestMethod]

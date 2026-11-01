@@ -228,7 +228,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.GetStatValue("maneuvers known:feats", 0));
             Assert.AreEqual(1, session.GetStatValue("maneuvers readied:feats", 0));
 
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive, "SubsystemEngine must be active for level 1 character with Martial Study.");
         }
@@ -251,7 +251,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.GetStatValue("maneuvers known:feats", 0));
             Assert.AreEqual(1, session.GetStatValue("stances known:feats", 0));
 
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = session.GetSubsystem("martial_maneuvers")!;
             Assert.IsNotNull(engine);
             Assert.IsTrue(engine.IsActive);
         }

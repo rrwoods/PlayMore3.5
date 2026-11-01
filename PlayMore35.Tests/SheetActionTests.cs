@@ -110,7 +110,7 @@ namespace PlayMore35.Tests {
             var (context, _, _) = CreateTestContext();
             var catalog = new GameRulesCatalog();
             var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), context);
-            context.Subsystems.Register(engine);
+            context.SubsystemsMap["pact_magic"] = engine;
             context.Effects.AddStat(new Statistic("number of vestiges"));
             context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(3, ModifierTypes.UNTYPED)));
             engine.AssignSlot("vestiges", 2, "Aym", "good_pact", "Binder");
@@ -302,19 +302,18 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("unbind", actions[0].Verb);
         }
 
-        private class ContextWithoutRegistry : FakeCharacterContext, ICharacterContext {
-            public bool RegistryAccessed { get; private set; }
-            SubsystemRegistry ICharacterContext.Subsystems {
-                get {
-                    RegistryAccessed = true;
-                    throw new InvalidOperationException("Legacy SubsystemRegistry property must not be accessed.");
-                }
+        private class SubsystemDispatchSpyContext : FakeCharacterContext {
+            public bool GetSubsystemCalled { get; private set; }
+
+            public override SubsystemEngine? GetSubsystem(string? id) {
+                GetSubsystemCalled = true;
+                return base.GetSubsystem(id);
             }
         }
 
         [TestMethod]
-        public void SheetAction_Perform_DispatchesViaGetSubsystem_WithoutQueryingLegacyRegistry() {
-            var context = new ContextWithoutRegistry();
+        public void SheetAction_Perform_DispatchesViaGetSubsystem() {
+            var context = new SubsystemDispatchSpyContext();
             var catalog = new GameRulesCatalog();
             var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), context);
             context.SubsystemsMap["pact_magic"] = engine;
@@ -332,7 +331,7 @@ namespace PlayMore35.Tests {
 
             var req = action.Perform(context);
 
-            Assert.IsFalse(context.RegistryAccessed, "Perform must not access legacy SubsystemRegistry.");
+            Assert.IsTrue(context.GetSubsystemCalled, "Perform must dispatch via GetSubsystem.");
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             Assert.IsNull(engine.GetSlotElement("vestiges", 1));
         }

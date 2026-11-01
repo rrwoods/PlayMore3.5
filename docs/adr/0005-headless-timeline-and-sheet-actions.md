@@ -16,7 +16,7 @@ We decouple the `Timeline` and `SheetAction` engine completely from the presenta
    > [!WARNING]
    > **Superseded by [ADR-0006](0006-declarative-subsystems-and-primitive-verbs.md)**: Polymorphic subsystem action subclasses (`UnbindVestigeAction`, `ManeuverSheetAction`) and the dynamic action parser registry were eliminated. `SheetAction` is a single unified declarative model handling both instantaneous mutations and duration-based reversions via primitive verbs.
 
-   Subsystems register action parsers through a unified seam in `SubsystemRegistry.RegisterDefaultActionParsers()`, which `SheetAction.FromJson()` lazily registers on first access to guarantee standalone deserialization without manual bootstrapping, static constructors, or session instantiation.
+   Subsystems previously registered action parsers through a unified registry seam, which `SheetAction.FromJson()` lazily registered on first access to guarantee standalone deserialization; replaced under ADR-0006 and ADR-0016 by declarative `SheetAction` models dispatched directly via `ICharacterContext.GetSubsystem()`.
 
 ## Consequences
 - Enables automated headless unit testing for time advancement, duration expiration, and condition reversion without instantiating Windows Forms.
