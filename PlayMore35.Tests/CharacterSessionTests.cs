@@ -698,5 +698,43 @@ namespace PlayMore35.Tests {
                     $"Subsystems enumeration must contain engine for catalog subsystem '{kvp.Key}'.");
             }
         }
+
+        [TestMethod]
+        public void CharacterSession_SnapshotSlicing_TrimsAndEvaluatesSubsystems() {
+            var character = new Character { race = "human" };
+            for (int i = 0; i < 10; i++) character.classLevels.Add("Warblade");
+
+            var warbladeState = new SubsystemState();
+            warbladeState.Slots["maneuvers"] = new List<SubsystemSlot> {
+                new SubsystemSlot("Steel Wind", "unreadied", "Warblade"),
+                new SubsystemSlot("Steely Strike", "unreadied", "Warblade"),
+                new SubsystemSlot("Disarming Strike", "unreadied", "Warblade"),
+                new SubsystemSlot("Crusader's Strike", "unreadied", "Warblade")
+            };
+            character.Subsystems["martial_maneuvers"] = warbladeState;
+
+            var session = new CharacterSession(character, catalog);
+
+            var stanceDesc = new ChoiceDescriptor("stance", "Choose Stance", "SubsystemElements", "martial_maneuvers");
+            var lvl1Warnings = session.ValidateFeatChoice("Level 1", stanceDesc, "Martial Spirit", "Warblade");
+            Assert.IsTrue(lvl1Warnings.Count > 0, "Level 1 snapshot must prune maneuvers beyond capacity so Devoted Spirit prereq is unmet.");
+
+            var lvl9Warnings = session.ValidateFeatChoice("Level 9", stanceDesc, "Martial Spirit", "Warblade");
+            Assert.AreEqual(0, lvl9Warnings.Count, "Level 9 snapshot retains Slot 3 so Devoted Spirit prereq is satisfied.");
+        }
+
+        [TestMethod]
+        public void CharacterSession_ResolveSubsystemElementChoices_ResolvesViaDirectEngines() {
+            var character = new Character { race = "human" };
+            character.classLevels.Add("Warblade");
+            var session = new CharacterSession(character, catalog);
+
+            var desc = new ChoiceDescriptor("maneuver", "Choose Maneuver", "SubsystemElements", "maneuver");
+            session.SetFeatChoice("Level 1", "maneuver", "Steel Wind");
+
+            var elem = session.ResolveFeatChoice("Level 1", desc) as SubsystemElement;
+            Assert.IsNotNull(elem, "ResolveFeatChoice must resolve element from direct subsystem engine.");
+            Assert.AreEqual("Steel Wind", elem.Name);
+        }
     }
 }
