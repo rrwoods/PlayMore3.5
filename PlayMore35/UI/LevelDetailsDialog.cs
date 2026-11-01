@@ -383,7 +383,7 @@ namespace PlayMore35 {
 
                     string saved = session.GetFeatChoice(featSlot, desc.Id);
                     if (!string.IsNullOrWhiteSpace(saved)) {
-                        var existingElem = session.Subsystems.All.Select(sub => sub.GetElement(saved)).FirstOrDefault(e => e != null);
+                        var existingElem = session.Subsystems.Select(sub => sub.GetElement(saved)).FirstOrDefault(e => e != null);
                         if (existingElem != null) {
                             receptor.SelectedElement = existingElem;
                         } else {

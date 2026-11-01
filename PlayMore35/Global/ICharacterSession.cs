@@ -13,7 +13,8 @@ namespace PlayMore35.Global {
         IReadOnlyDictionary<string, string> RememberedFeatChoices { get; }
         Timeline Timeline { get; }
         IRulesCatalog Catalog { get; }
-        SubsystemRegistry Subsystems { get; }
+        IEnumerable<SubsystemEngine> Subsystems { get; }
+        SubsystemEngine? GetSubsystem(string? id);
 
         string CreatureType { get; }
         IReadOnlyList<string> SubTypes { get; }

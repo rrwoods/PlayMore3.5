@@ -14,6 +14,7 @@ namespace PlayMore35.Tests {
         public Equipped EquippedItems { get; set; }
         public Timeline Timeline => Character?.Timeline;
         public SubsystemRegistry Subsystems { get; } = new SubsystemRegistry();
+        public Dictionary<string, SubsystemEngine> SubsystemsMap { get; } = new Dictionary<string, SubsystemEngine>(StringComparer.OrdinalIgnoreCase);
         public IRulesCatalog Catalog { get; set; }
 
         public FakeCharacterContext(Character character = null, EffectPool effects = null, Equipped equipped = null, IRulesCatalog catalog = null) {
@@ -34,5 +35,10 @@ namespace PlayMore35.Tests {
 
         public virtual int GetStatValue(string name, int defaultValue = 0) =>
             Effects?.GetStatValue(name, EquippedItems, defaultValue) ?? defaultValue;
+
+        public virtual SubsystemEngine? GetSubsystem(string? id) {
+            if (string.IsNullOrEmpty(id)) return null;
+            return SubsystemsMap.TryGetValue(id!, out var engine) ? engine : null;
+        }
     }
 }

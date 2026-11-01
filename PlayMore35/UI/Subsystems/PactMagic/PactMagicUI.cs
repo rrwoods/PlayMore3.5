@@ -11,7 +11,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         public bool IsActive(ICharacterSession session) {
             if (session == null) return false;
 
-            var engine = session.Subsystems.Get("pact_magic") as SubsystemEngine;
+            var engine = session.GetSubsystem("pact_magic");
             if (engine != null && engine.IsActive) return true;
 
             var capacityStat = session.GetStatistic("number of vestiges");

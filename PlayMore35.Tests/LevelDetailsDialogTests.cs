@@ -523,7 +523,7 @@ namespace PlayMore35.Tests {
         public void MartialStance_PrerequisiteMetByEarlierManeuver_NoWarningBadge() {
             // Level 3 Crusader who already has Crusader's Strike (Devoted Spirit)
             var session = CreateAdeptSession("Crusader", "Crusader", "Crusader");
-            var engine = (SubsystemEngine)session.Subsystems.Get("martial_maneuvers");
+            var engine = (SubsystemEngine)session.GetSubsystem("martial_maneuvers");
             engine.AssignSlot("maneuvers", 0, "Crusader's Strike", source: "Crusader");
 
             using (var dialog = new LevelDetailsDialog(session)) {

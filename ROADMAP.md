@@ -9,8 +9,7 @@ When starting a new feature, select the highest-priority unblocked item from thi
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
 ### Codebase architecture pass
-- Do a general /improve-codebase-architecture.  Then...
-- There's just ... a lot of code lmao.
+- There's just ... a lot of code lmao.  /improve-codebase-architecture candidates:
   - there are still too many null guards
   - look for redundant tests
   - look for simplification
