@@ -28,16 +28,30 @@ namespace PlayMore35.Tests {
             var unmet = new ValidationWarning("Missing prerequisite", WarningKind.Unmet);
             Assert.AreEqual("Missing prerequisite", unmet.Message);
             Assert.AreEqual(WarningKind.Unmet, unmet.Kind);
+            Assert.AreEqual(ValidationCategory.General, unmet.Category);
             Assert.AreEqual("Missing prerequisite", unmet.ToString());
 
             var itemDep = new ValidationWarning("Item reliant", WarningKind.ItemDependent);
             Assert.AreEqual(WarningKind.ItemDependent, itemDep.Kind);
+            Assert.AreEqual(ValidationCategory.General, itemDep.Category);
+
+            var levelGate = new ValidationWarning("Max level exceeded", ValidationCategory.LevelGate);
+            Assert.AreEqual(WarningKind.Unmet, levelGate.Kind);
+            Assert.AreEqual(ValidationCategory.LevelGate, levelGate.Category);
+
+            var prereqDep = new ValidationWarning("Requires feat", WarningKind.ItemDependent, ValidationCategory.Prerequisite);
+            Assert.AreEqual(WarningKind.ItemDependent, prereqDep.Kind);
+            Assert.AreEqual(ValidationCategory.Prerequisite, prereqDep.Category);
 
             // Equality & HashCode
             var unmetCopy = new ValidationWarning("Missing prerequisite", WarningKind.Unmet);
             Assert.AreEqual(unmet, unmetCopy);
             Assert.AreEqual(unmet.GetHashCode(), unmetCopy.GetHashCode());
             Assert.AreNotEqual(unmet, itemDep);
+
+            var generalWarning = new ValidationWarning("Same message", WarningKind.Unmet, ValidationCategory.General);
+            var prereqWarning = new ValidationWarning("Same message", WarningKind.Unmet, ValidationCategory.Prerequisite);
+            Assert.AreNotEqual(generalWarning, prereqWarning);
         }
 
         [TestMethod]

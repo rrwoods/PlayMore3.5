@@ -26,6 +26,10 @@ _Avoid_: Strict validation, hard enforcement, rule blocking
 A non-blocking visual indicator alerting the player that a prerequisite or rule constraint is currently unmet without preventing the choice.
 _Avoid_: Error badge, validation failure, blocker
 
+**Validation Category**:
+The structural taxonomy classification of a progression constraint (such as level gate, prerequisite, capacity, or source conflict) governing whether a warning can qualify for item-dependent advisory status.
+_Avoid_: Warning type, validation type, constraint reason, error kind
+
 ### Rules & State
 
 **System**:
@@ -87,6 +91,14 @@ _Avoid_: Checked item, populated stub, rule entry
 **Character State**:
 The personal saved data of a player character, including permanent choices, current inventory, and transient combat effects.
 _Avoid_: Character build, profile, sheet state
+
+**Progression Choice**:
+A character build selection made at a specific acquisition level (such as a feat, class level, martial maneuver, spell, or vestige) subject to level gating and prerequisite validation.
+_Avoid_: Build choice, character option, level selection, build decision
+
+**Progression Choice Context**:
+An evaluative descriptor encapsulating acquisition level, choice domain, target source, and candidate value for uniform prerequisite and level-gate validation.
+_Avoid_: Validation context, choice request, choice descriptor, validation parameters
 
 **Acquisition Level**:
 The character level at which a specific feat slot, class level, or capability was gained during character progression, determining temporal eligibility for prerequisites and non-progression grants.

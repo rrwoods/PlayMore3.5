@@ -1065,48 +1065,39 @@ namespace PlayMore35.Global {
 
             if (!_isSnapshot && acquisitionLevel > 0 && acquisitionLevel <= totalLevels) {
                 var intrinsicSnapshot = (CharacterSession)GetSessionAtLevel(acquisitionLevel, includeEquipped: false);
-                var intrinsicStrings = intrinsicSnapshot.EvaluateRawSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+                var intrinsicWarnings = intrinsicSnapshot.EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
 
-                if (intrinsicStrings.Count == 0) {
+                if (intrinsicWarnings.Count == 0) {
                     return Array.Empty<ValidationWarning>();
                 }
 
                 var equippedSnapshot = (CharacterSession)GetSessionAtLevel(acquisitionLevel, includeEquipped: true);
-                var equippedStrings = equippedSnapshot.EvaluateRawSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+                var equippedWarnings = equippedSnapshot.EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
 
                 var results = new List<ValidationWarning>();
-                foreach (var w in intrinsicStrings) {
-                    if (!equippedStrings.Contains(w)) {
-                        bool isIntrinsicLevelGate = intrinsicSnapshot._subsystems.Values.Any(engine => {
-                            var elem = engine.GetElement(choiceValue);
-                            return elem != null && !engine.IsElementWithinLevelGate(elem, targetSource);
-                        });
-
-                        if (isIntrinsicLevelGate) {
-                            results.Add(new ValidationWarning(w, WarningKind.Unmet));
-                        } else {
-                            results.Add(new ValidationWarning(w, WarningKind.ItemDependent));
-                        }
+                foreach (var w in intrinsicWarnings) {
+                    bool satisfiedInEquipped = !equippedWarnings.Any(ew => ew.Category == w.Category && string.Equals(ew.Message, w.Message, StringComparison.Ordinal));
+                    if (satisfiedInEquipped && w.Category == ValidationCategory.Prerequisite) {
+                        results.Add(new ValidationWarning(w.Message, WarningKind.ItemDependent, w.Category));
                     } else {
-                        results.Add(new ValidationWarning(w, WarningKind.Unmet));
+                        results.Add(w);
                     }
                 }
                 return results.AsReadOnly();
             }
 
-            var rawWarnings = EvaluateRawSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
-            return rawWarnings.Select(w => new ValidationWarning(w, WarningKind.Unmet)).ToList().AsReadOnly();
+            return EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
         }
 
-        private List<string> EvaluateRawSubsystemWarnings(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices) {
-            var allWarnings = new List<string>();
+        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices) {
+            var allWarnings = new List<ValidationWarning>();
             foreach (var engine in _subsystems.Values) {
                 var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
                 if (warnings != null && warnings.Count > 0) {
                     allWarnings.AddRange(warnings);
                 }
             }
-            return allWarnings;
+            return allWarnings.AsReadOnly();
         }
 
         private Race GetRequiredRace() {

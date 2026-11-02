@@ -1513,21 +1513,21 @@ namespace PlayMore35.Subsystems {
             return count;
         }
 
-        public List<string> ValidateChoice(string? featSlot, ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, IDictionary<string, string>? currentChoices = null) {
-            if (string.IsNullOrWhiteSpace(choiceValue)) return new List<string>();
+        public IReadOnlyList<ValidationWarning> ValidateChoice(string? featSlot, ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, IDictionary<string, string>? currentChoices = null) {
+            if (string.IsNullOrWhiteSpace(choiceValue)) return Array.Empty<ValidationWarning>();
             if (descriptor != null) {
                 if (!string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase) &&
                     !string.Equals(descriptor.Domain, Id, StringComparison.OrdinalIgnoreCase)) {
-                    return new List<string>();
+                    return Array.Empty<ValidationWarning>();
                 }
                 if (!string.IsNullOrEmpty(descriptor.Filter)) {
                     bool hasFilterMatches = Definition.Elements.Values.Any(e => MatchesFilter(e, descriptor.Filter));
                     if (!hasFilterMatches) {
-                        return new List<string>();
+                        return Array.Empty<ValidationWarning>();
                     }
                 } else {
                     if (GetElement(choiceValue) == null) {
-                        return new List<string>();
+                        return Array.Empty<ValidationWarning>();
                     }
                 }
             }
@@ -1539,7 +1539,9 @@ namespace PlayMore35.Subsystems {
                                     !string.Equals(filter, Name, StringComparison.OrdinalIgnoreCase))
                     ? filter
                     : "element";
-                return new List<string> { $"'{choiceValue}' is not a valid {typeLabel} in subsystem '{Name}'." };
+                return new List<ValidationWarning> {
+                    new ValidationWarning($"'{choiceValue}' is not a valid {typeLabel} in subsystem '{Name}'.", ValidationCategory.Invalid)
+                };
             }
 
             string? effectiveSource = targetSource;
@@ -1556,7 +1558,7 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            var warnings = new List<string>();
+            var warnings = new List<ValidationWarning>();
             int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource);
             if (maxAllowed.HasValue) {
                 int elemLevel = chosenElem.GetStatistic(Definition.LevelGating!.ElementStatistic, context).Value;
@@ -1565,7 +1567,7 @@ namespace PlayMore35.Subsystems {
                     string maxLabel = !string.IsNullOrEmpty(Definition.LevelGating?.MaxLevelLabel)
                         ? Definition.LevelGating!.MaxLevelLabel!
                         : "maximum";
-                    warnings.Add($"Level {elemLevel} exceeds {maxLabel} {maxAllowed.Value}{srcSuffix}.");
+                    warnings.Add(new ValidationWarning($"Level {elemLevel} exceeds {maxLabel} {maxAllowed.Value}{srcSuffix}.", ValidationCategory.LevelGate));
                 }
             }
 
@@ -1580,7 +1582,7 @@ namespace PlayMore35.Subsystems {
                     if (knownInDisc < prereqCount) {
                         string elemUnit = Definition.PrerequisiteUnit ?? (!string.IsNullOrEmpty(filter) ? filter : "element");
                         string plural = prereqCount == 1 ? elemUnit : $"{elemUnit}s";
-                        warnings.Add($"Requires {prereqCount} {disc} {plural}, but only {knownInDisc} known.");
+                        warnings.Add(new ValidationWarning($"Requires {prereqCount} {disc} {plural}, but only {knownInDisc} known.", ValidationCategory.Prerequisite));
                     }
                 }
             }
@@ -1592,7 +1594,7 @@ namespace PlayMore35.Subsystems {
                             !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) {
                             string unit = Definition.PrerequisiteUnit ?? "element";
                             string titleUnit = char.ToUpperInvariant(unit[0]) + unit.Substring(1);
-                            warnings.Add($"{titleUnit} '{chosenElem.Name}' is already learned under source '{s.Source}'.");
+                            warnings.Add(new ValidationWarning($"{titleUnit} '{chosenElem.Name}' is already learned under source '{s.Source}'.", ValidationCategory.SourceConflict));
                         }
                     }
                 }
@@ -1608,9 +1610,9 @@ namespace PlayMore35.Subsystems {
                                     int readiedCount = sourceSlots.Count(s => !string.Equals(s.State, groupDef.DefaultState, StringComparison.OrdinalIgnoreCase));
                                     int maxReadied = GetReadiedCapacity(kvp.Key, effectiveSource);
                                     if (readiedCount > maxReadied) {
-                                        warnings.Add($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.");
+                                        warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
                                     } else if (readiedCount < maxReadied) {
-                                        warnings.Add($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {effectiveSource}.");
+                                        warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
                                     }
                                 }
                             }
@@ -1626,7 +1628,7 @@ namespace PlayMore35.Subsystems {
                         int activeCount = stanceGroup.RawSlots.Count(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase));
                         int maxActive = ResolveStatOrParam(stanceGroupDef.MaxActiveStat, 0);
                         if (activeCount > maxActive) {
-                            warnings.Add($"Active stances count ({activeCount}) exceeds active stances capacity ({maxActive}).");
+                            warnings.Add(new ValidationWarning($"Active stances count ({activeCount}) exceeds active stances capacity ({maxActive}).", ValidationCategory.Capacity));
                         }
                     }
                 }

@@ -372,7 +372,7 @@ namespace PlayMore35.Tests {
             var engine = new SubsystemEngine(defaultCatalog.GetSubsystem("martial_maneuvers"), context);
 
             var postWarnings = engine.ValidateChoice(null, null, "Special Strike", "Warblade");
-            Assert.IsFalse(postWarnings.Any(w => w.Contains("not recognized") || w.Contains("not a valid")), "Engine must recognize maneuver from context.Catalog.");
+            Assert.IsFalse(postWarnings.Any(w => w.Message.Contains("not recognized") || w.Message.Contains("not a valid")), "Engine must recognize maneuver from context.Catalog.");
             Assert.IsNotNull(engine.GetElement("Special Strike"));
         }
 
