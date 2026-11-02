@@ -858,5 +858,379 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(elem, "ResolveFeatChoice must resolve element from direct subsystem engine.");
             Assert.AreEqual("Steel Wind", elem.Name);
         }
+
+        private class RecalculateSpySession : CharacterSession {
+            public int RecalculateCallCount { get; set; }
+
+            public RecalculateSpySession(Character character, IRulesCatalog catalog)
+                : base(character, catalog) {
+                RecalculateCallCount = 0;
+            }
+
+            public override void Recalculate() {
+                RecalculateCallCount++;
+                base.Recalculate();
+            }
+        }
+
+        [TestMethod]
+        public void EquipmentMutations_EvictCachedSnapshotsInLevelSessionCache() {
+            var character = new Character { race = "human" };
+            character.classLevels.Add("Fighter");
+            character.inventory["Pack"] = new InventoryLocation();
+
+            var session = new CharacterSession(character, catalog);
+
+            var sword = new WeaponChoice { Name = "longsword" };
+            var dagger = new WeaponChoice { Name = "dagger" };
+            var armor = new ArmorChoice { Name = "full plate" };
+            var shield = new ArmorChoice { Name = "heavy steel shield", IsShield = true };
+
+            session.Character.inventory["Pack"].weapons.Add(sword);
+            session.Character.inventory["Pack"].weapons.Add(dagger);
+            session.Character.inventory["Pack"].armor.Add(armor);
+            session.Character.inventory["Pack"].shields.Add(shield);
+            session.AddItem("Pack", "torc of displacement and Con +2", 1);
+            session.AddItem("Pack", "panic button", 1);
+
+            // 1. EquipWeapon
+            var snap = session.GetSessionAtLevel(1);
+            session.EquipWeapon("Pack", true, sword);
+            var nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "EquipWeapon must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 2. DonArmor
+            session.DonArmor("Pack", armor);
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "DonArmor must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 3. EquipShield
+            session.EquipShield("Pack", shield);
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "EquipShield must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 4. EquipItem (slotted)
+            session.EquipItem("Pack", Equipped.Slot.NECK, "torc of displacement and Con +2");
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "EquipItem must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 5. UnequipItem
+            session.UnequipItem(Equipped.Slot.NECK, "Pack");
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "UnequipItem must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 6. EquipItem (slotless)
+            session.EquipItem("Pack", Equipped.Slot.SLOTLESS, "panic button");
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "EquipItem (slotless) must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 7. UnequipSlotlessItem
+            session.UnequipSlotlessItem("Pack", "panic button");
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "UnequipSlotlessItem must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 8. SwapWeapons (equip secondary weapon first)
+            session.Character.inventory["Pack"].weapons.Add(dagger);
+            session.EquipWeapon("Pack", false, dagger);
+            snap = session.GetSessionAtLevel(1);
+            session.SwapWeapons();
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "SwapWeapons must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 9. RemoveEquippedWeapon
+            session.RemoveEquippedWeapon(false);
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "RemoveEquippedWeapon must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 10. RemoveDonnedArmor
+            session.RemoveDonnedArmor();
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "RemoveDonnedArmor must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 11. RemoveEquippedShield
+            session.Character.inventory["Pack"].shields.Add(shield);
+            session.EquipShield("Pack", shield);
+            snap = session.GetSessionAtLevel(1);
+            session.RemoveEquippedShield();
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "RemoveEquippedShield must evict snapshot cache.");
+            snap = nextSnap;
+
+            // Re-equip to test UnequipWeapon, UndonArmor, UnequipShield
+            session.Character.inventory["Pack"].weapons.Add(sword);
+            session.Character.inventory["Pack"].armor.Add(armor);
+            session.Character.inventory["Pack"].shields.Add(shield);
+            session.EquipWeapon("Pack", true, sword);
+            session.DonArmor("Pack", armor);
+            session.EquipShield("Pack", shield);
+            snap = session.GetSessionAtLevel(1);
+
+            // 12. UnequipWeapon
+            session.UnequipWeapon("Pack", true);
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "UnequipWeapon must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 13. UndonArmor
+            session.UndonArmor("Pack");
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "UndonArmor must evict snapshot cache.");
+            snap = nextSnap;
+
+            // 14. UnequipShield
+            session.UnequipShield("Pack");
+            nextSnap = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snap, nextSnap, "UnequipShield must evict snapshot cache.");
+        }
+
+        [TestMethod]
+        public void CompoundEquipmentActions_TriggerRecalculateExactlyOnce() {
+            var character = new Character { race = "human" };
+            character.classLevels.Add("Fighter");
+            character.inventory["Pack"] = new InventoryLocation();
+
+            var spy = new RecalculateSpySession(character, catalog);
+
+            var sword1 = new WeaponChoice { Name = "longsword" };
+            var sword2 = new WeaponChoice { Name = "greatsword" };
+            var offHandDagger = new WeaponChoice { Name = "dagger" };
+            var armor1 = new ArmorChoice { Name = "full plate" };
+            var armor2 = new ArmorChoice { Name = "breastplate" };
+            var heavyShield = new ArmorChoice { Name = "heavy steel shield", IsShield = true };
+
+            spy.Character.inventory["Pack"].weapons.Add(sword1);
+            spy.Character.inventory["Pack"].weapons.Add(sword2);
+            spy.Character.inventory["Pack"].weapons.Add(offHandDagger);
+            spy.Character.inventory["Pack"].armor.Add(armor1);
+            spy.Character.inventory["Pack"].armor.Add(armor2);
+            spy.Character.inventory["Pack"].shields.Add(heavyShield);
+
+            // Equip sword1 into primary hand
+            spy.EquipWeapon("Pack", true, sword1);
+
+            // 1. EquipWeapon displacing existing primary weapon
+            spy.RecalculateCallCount = 0;
+            spy.EquipWeapon("Pack", true, sword2);
+            Assert.AreEqual(1, spy.RecalculateCallCount, "EquipWeapon replacing existing weapon must recalculate exactly once.");
+            Assert.AreEqual(sword2, spy.Character.equipped.PrimaryHandWeapon);
+            Assert.IsTrue(spy.Character.inventory["Pack"].weapons.Contains(sword1));
+
+            // Equip heavy shield in off-hand
+            spy.EquipShield("Pack", heavyShield);
+
+            // 2. EquipWeapon (off-hand) displacing a non-buckler shield
+            spy.RecalculateCallCount = 0;
+            spy.EquipWeapon("Pack", false, offHandDagger);
+            Assert.AreEqual(1, spy.RecalculateCallCount, "EquipWeapon in off-hand displacing shield must recalculate exactly once.");
+            Assert.AreEqual(offHandDagger, spy.Character.equipped.OffHandWeapon);
+            Assert.IsNull(spy.Character.equipped.OffHandShield);
+            Assert.IsTrue(spy.Character.inventory["Pack"].shields.Contains(heavyShield));
+
+            // 3. EquipShield displacing existing off-hand weapon
+            spy.RecalculateCallCount = 0;
+            spy.EquipShield("Pack", heavyShield);
+            Assert.AreEqual(1, spy.RecalculateCallCount, "EquipShield displacing off-hand weapon must recalculate exactly once.");
+            Assert.AreEqual(heavyShield, spy.Character.equipped.OffHandShield);
+            Assert.IsNull(spy.Character.equipped.OffHandWeapon);
+            Assert.IsTrue(spy.Character.inventory["Pack"].weapons.Contains(offHandDagger));
+
+            // Don armor1
+            spy.DonArmor("Pack", armor1);
+
+            // 4. DonArmor displacing existing donned armor
+            spy.RecalculateCallCount = 0;
+            spy.DonArmor("Pack", armor2);
+            Assert.AreEqual(1, spy.RecalculateCallCount, "DonArmor displacing existing armor must recalculate exactly once.");
+            Assert.AreEqual(armor2, spy.Character.equipped.DonnedArmor);
+            Assert.IsTrue(spy.Character.inventory["Pack"].armor.Contains(armor1));
+
+            // 5. UnequipWeapon
+            spy.RecalculateCallCount = 0;
+            spy.UnequipWeapon("Pack", true);
+            Assert.AreEqual(1, spy.RecalculateCallCount, "UnequipWeapon must recalculate exactly once.");
+            Assert.IsNull(spy.Character.equipped.PrimaryHandWeapon);
+
+            // 6. UndonArmor
+            spy.RecalculateCallCount = 0;
+            spy.UndonArmor("Pack");
+            Assert.AreEqual(1, spy.RecalculateCallCount, "UndonArmor must recalculate exactly once.");
+            Assert.IsNull(spy.Character.equipped.DonnedArmor);
+
+            // 7. UnequipShield
+            spy.RecalculateCallCount = 0;
+            spy.UnequipShield("Pack");
+            Assert.AreEqual(1, spy.RecalculateCallCount, "UnequipShield must recalculate exactly once.");
+            Assert.IsNull(spy.Character.equipped.OffHandShield);
+        }
+
+        [TestMethod]
+        public void InvalidEquipmentOperations_ReturnEarlyWithoutInvalidatingCacheOrRecalculating() {
+            var character = new Character { race = "human" };
+            character.classLevels.Add("Fighter");
+            character.inventory["Pack"] = new InventoryLocation();
+
+            var spy = new RecalculateSpySession(character, catalog);
+
+            var initialSnap = spy.GetSessionAtLevel(1);
+            spy.RecalculateCallCount = 0;
+
+            // 1. RemoveEquippedWeapon when empty
+            var weaponRemoved = spy.RemoveEquippedWeapon(true);
+            Assert.IsNull(weaponRemoved);
+            Assert.AreEqual(0, spy.RecalculateCallCount, "Invalid RemoveEquippedWeapon must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1), "Invalid RemoveEquippedWeapon must not evict snapshot cache.");
+
+            weaponRemoved = spy.RemoveEquippedWeapon(false);
+            Assert.IsNull(weaponRemoved);
+            Assert.AreEqual(0, spy.RecalculateCallCount);
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 2. RemoveDonnedArmor when empty
+            var armorRemoved = spy.RemoveDonnedArmor();
+            Assert.IsNull(armorRemoved);
+            Assert.AreEqual(0, spy.RecalculateCallCount, "Invalid RemoveDonnedArmor must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 3. RemoveEquippedShield when empty
+            var shieldRemoved = spy.RemoveEquippedShield();
+            Assert.IsNull(shieldRemoved);
+            Assert.AreEqual(0, spy.RecalculateCallCount, "Invalid RemoveEquippedShield must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 4. UnequipWeapon when empty or invalid location
+            spy.UnequipWeapon("Pack", true);
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipWeapon on empty slot must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.UnequipWeapon("NonExistent", true);
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipWeapon with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 5. UndonArmor when empty or invalid location
+            spy.UndonArmor("Pack");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UndonArmor on empty slot must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.UndonArmor("NonExistent");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UndonArmor with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 6. UnequipShield when empty or invalid location
+            spy.UnequipShield("Pack");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipShield on empty slot must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.UnequipShield("NonExistent");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipShield with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 7. UnequipItem when empty or invalid location
+            spy.UnequipItem(Equipped.Slot.NECK, "Pack");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipItem on empty slot must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.UnequipItem(Equipped.Slot.NECK, "NonExistent");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipItem with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 8. UnequipSlotlessItem when not equipped or invalid location
+            spy.UnequipSlotlessItem("Pack", "panic button");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipSlotlessItem when not equipped must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.UnequipSlotlessItem("NonExistent", "panic button");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipSlotlessItem with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 9. EquipWeapon with missing weapon or invalid location
+            spy.EquipWeapon("Pack", true, new WeaponChoice { Name = "longsword" });
+            Assert.AreEqual(0, spy.RecalculateCallCount, "EquipWeapon with unpossessed weapon must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.EquipWeapon("NonExistent", true, new WeaponChoice { Name = "longsword" });
+            Assert.AreEqual(0, spy.RecalculateCallCount, "EquipWeapon with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 10. DonArmor with missing armor or invalid location
+            spy.DonArmor("Pack", new ArmorChoice { Name = "full plate" });
+            Assert.AreEqual(0, spy.RecalculateCallCount, "DonArmor with unpossessed armor must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.DonArmor("NonExistent", new ArmorChoice { Name = "full plate" });
+            Assert.AreEqual(0, spy.RecalculateCallCount, "DonArmor with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 11. EquipShield with missing shield or invalid location
+            spy.EquipShield("Pack", new ArmorChoice { Name = "heavy steel shield", IsShield = true });
+            Assert.AreEqual(0, spy.RecalculateCallCount, "EquipShield with unpossessed shield must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.EquipShield("NonExistent", new ArmorChoice { Name = "heavy steel shield", IsShield = true });
+            Assert.AreEqual(0, spy.RecalculateCallCount, "EquipShield with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 12. EquipItem with missing item, invalid location, or mismatched slot
+            spy.EquipItem("Pack", Equipped.Slot.NECK, "torc of displacement and Con +2");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "EquipItem with unpossessed item must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.EquipItem("NonExistent", Equipped.Slot.NECK, "torc of displacement and Con +2");
+            Assert.AreEqual(0, spy.RecalculateCallCount, "EquipItem with invalid location must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            spy.AddItem("Pack", "torc of displacement and Con +2", 1);
+            spy.EquipItem("Pack", Equipped.Slot.FEET, "torc of displacement and Con +2"); // Wrong slot
+            Assert.AreEqual(0, spy.RecalculateCallCount, "EquipItem with mismatched slot must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+
+            // 13. SwapWeapons when both hands empty
+            spy.SwapWeapons();
+            Assert.AreEqual(0, spy.RecalculateCallCount, "SwapWeapons when both hands empty must not recalculate.");
+            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
+        }
+
+        [TestMethod]
+        public void CombatTimelineOperations_ExecuteRecalculation_WithoutEvictingLevelSessionCache() {
+            var character = new Character { race = "human" };
+            character.classLevels.Add("Fighter");
+
+            var spy = new RecalculateSpySession(character, catalog);
+
+            var snap = spy.GetSessionAtLevel(1);
+
+            // 1. AdvanceTimeline
+            spy.RecalculateCallCount = 0;
+            spy.AdvanceTimeline(1);
+            Assert.AreEqual(1, spy.RecalculateCallCount, "AdvanceTimeline must recalculate.");
+            Assert.AreSame(snap, spy.GetSessionAtLevel(1), "AdvanceTimeline must not evict level session cache.");
+
+            // 2. SetTime
+            spy.RecalculateCallCount = 0;
+            spy.SetTime(DateTime.UtcNow.AddMinutes(5));
+            Assert.AreEqual(1, spy.RecalculateCallCount, "SetTime must recalculate.");
+            Assert.AreSame(snap, spy.GetSessionAtLevel(1), "SetTime must not evict level session cache.");
+
+            // 3. StartCombat
+            spy.RecalculateCallCount = 0;
+            spy.StartCombat();
+            Assert.AreEqual(1, spy.RecalculateCallCount, "StartCombat must recalculate.");
+            Assert.AreSame(snap, spy.GetSessionAtLevel(1), "StartCombat must not evict level session cache.");
+
+            // 4. EndCombat
+            spy.RecalculateCallCount = 0;
+            spy.EndCombat();
+            Assert.AreEqual(1, spy.RecalculateCallCount, "EndCombat must recalculate.");
+            Assert.AreSame(snap, spy.GetSessionAtLevel(1), "EndCombat must not evict level session cache.");
+        }
     }
 }
