@@ -276,7 +276,7 @@ namespace PlayMore35.Tests {
             var engine = CreateMartialEngineWithContext(content, context);
 
             var warnings = engine.ValidateChoice(null, null, "Iron Heart Surge", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Contains("exceeds maximum maneuver level 2")));
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("exceeds maximum maneuver level 2") && w.Category == ValidationCategory.LevelGate));
         }
 
         // Source: Tome of Battle, pp. 43-44
@@ -293,13 +293,13 @@ namespace PlayMore35.Tests {
 
             // Initially no Iron Heart maneuvers known -> warning
             var warnings = engine.ValidateChoice(null, null, "Disarming Strike", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Contains("Requires 1 Iron Heart maneuver, but only 0 known")));
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Requires 1 Iron Heart maneuver, but only 0 known") && w.Category == ValidationCategory.Prerequisite));
 
             // Learn Steel Strike -> prerequisite satisfied
             engine.AssignSlot("maneuvers", 0, "Steel Strike", source: "Warblade");
 
             var satisfiedWarnings = engine.ValidateChoice(null, null, "Disarming Strike", "Warblade");
-            Assert.IsFalse(satisfiedWarnings.Any(w => w.Contains("Requires 1 Iron Heart")));
+            Assert.IsFalse(satisfiedWarnings.Any(w => w.Message.Contains("Requires 1 Iron Heart")));
         }
 
         // Source: Tome of Battle, pp. 43-44
@@ -319,7 +319,7 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 0, "Punishing Stance", source: "Warblade");
 
             var warnings = engine.ValidateChoice(null, null, "Disarming Strike", "Warblade");
-            Assert.IsFalse(warnings.Any(w => w.Contains("Requires 1 Iron Heart")));
+            Assert.IsFalse(warnings.Any(w => w.Message.Contains("Requires 1 Iron Heart")));
         }
 
         // Source: Tome of Battle, p. 40
@@ -337,7 +337,7 @@ namespace PlayMore35.Tests {
 
             // Attempting to learn Steel Strike under Crusader produces a cross-class duplicate warning
             var warnings = engine.ValidateChoice(null, null, "Steel Strike", "Crusader");
-            Assert.IsTrue(warnings.Any(w => w.Contains("already learned under source 'Warblade'")));
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("already learned under source 'Warblade'") && w.Category == ValidationCategory.SourceConflict));
         }
 
         // Source: Tome of Battle, p. 38
@@ -357,7 +357,7 @@ namespace PlayMore35.Tests {
 
             // Total readied is 2, capacity is 1
             var warnings = engine.ValidateChoice(null, null, "Steel Strike", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Contains("Readied maneuvers count (2) exceeds readied capacity (1)")));
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Readied maneuvers count (2) exceeds readied capacity (1)") && w.Category == ValidationCategory.Capacity));
         }
 
         // Source: Tome of Battle, p. 38
@@ -377,7 +377,7 @@ namespace PlayMore35.Tests {
 
             // Total readied is 1, capacity is 2
             var warnings = engine.ValidateChoice(null, null, "Steel Strike", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Contains("Readied maneuvers count (1) is below readied capacity (2) for Warblade.")));
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Readied maneuvers count (1) is below readied capacity (2) for Warblade.") && w.Category == ValidationCategory.Capacity));
         }
 
         // Source: Tome of Battle, p. 38
@@ -831,7 +831,7 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(warnings.Any(w => w.Contains("Active stances count (2) exceeds active stances capacity (1)")));
 
             var maneuverWarnings = engine.ValidateChoice(null, null, "Punishing Stance", "Warblade");
-            Assert.IsTrue(maneuverWarnings.Any(w => w.Contains("Active stances count (2) exceeds active stances capacity (1)")));
+            Assert.IsTrue(maneuverWarnings.Any(w => w.Message.Contains("Active stances count (2) exceeds active stances capacity (1)") && w.Category == ValidationCategory.Capacity));
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43

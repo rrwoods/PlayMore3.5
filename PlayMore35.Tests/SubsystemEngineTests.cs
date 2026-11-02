@@ -670,12 +670,35 @@ namespace PlayMore35.Tests {
             // Savnok is level 2 > 1 -> advisory warning
             var warningsSavnok = engine.ValidateChoice("feat_0", descriptor, "Savnok", "Binder");
             Assert.AreEqual(1, warningsSavnok.Count);
-            StringAssert.Contains(warningsSavnok[0], "Level 2 exceeds maximum 1 for Binder.");
+            Assert.AreEqual(ValidationCategory.LevelGate, warningsSavnok[0].Category);
+            StringAssert.Contains(warningsSavnok[0].Message, "Level 2 exceeds maximum 1 for Binder.");
 
             // Unknown element -> invalid element warning
             var warningsUnknown = engine.ValidateChoice("feat_0", descriptor, "Nonexistent", "Binder");
             Assert.AreEqual(1, warningsUnknown.Count);
-            StringAssert.Contains(warningsUnknown[0], "'Nonexistent' is not a valid element in subsystem 'Pact Magic'.");
+            Assert.AreEqual(ValidationCategory.Invalid, warningsUnknown[0].Category);
+            StringAssert.Contains(warningsUnknown[0].Message, "'Nonexistent' is not a valid element in subsystem 'Pact Magic'.");
+        }
+
+        // Source: Tome of Battle, pp. 43–44 (Stances and Maneuver types)
+        [TestMethod]
+        public void SubsystemEngine_ValidateChoice_EmitsInvalidWarning_WhenElementDoesNotMatchFilter() {
+            var def = new SubsystemDefinition {
+                Id = "martial_maneuvers",
+                Name = "Martial Maneuvers"
+            };
+            var strike = new SubsystemElement { Name = "Steel Strike", Type = "Strike" };
+            var stance = new SubsystemElement { Name = "Punishing Stance", Type = "Stance" };
+            def.Elements["Steel Strike"] = strike;
+            def.Elements["Punishing Stance"] = stance;
+
+            var engine = new SubsystemEngine(def, new FakeCharacterContext());
+            var stanceDescriptor = new ChoiceDescriptor("stance", "Choose Stance", "SubsystemElements", filter: "Stance");
+
+            var warnings = engine.ValidateChoice("feat_0", stanceDescriptor, "Steel Strike", "Warblade");
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(ValidationCategory.Invalid, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "'Steel Strike' is not a valid Stance in subsystem 'Martial Maneuvers'.");
         }
 
         [TestMethod]

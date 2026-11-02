@@ -42,6 +42,7 @@ Prefer linear git history:
 
 ### Test execution and diagnostics
 
+- **Sandbox bypass for WinForms test runs**: Compiling Windows Forms `.resx` resources in `.NET Framework 4.8` spawns an out-of-process 32-bit `MSBuild.exe` task host (`GenerateResource`). Run `dotnet test` and `dotnet build` with `BypassSandbox: true` to prevent `MSB4216` sandbox process creation errors.
 - **Bound test runs with timeouts**: Include a hang-timeout flag (such as `--blame-hang-timeout 15s`) when invoking `dotnet test` so test suites return deterministic results quickly.
 - **Target specific fixtures during iteration**: When reproducing a bug or implementing a single ticket, focus execution on the relevant test method or class using `--filter <TargetTest>` to keep iteration loops fast.
 - **Treat prolonged test runs as re-entrant loops**: When a unit test takes longer than 15 seconds on a small test assembly, stop the process, inspect the control's event handlers for circular notification cascades (such as mutually triggering radio button or check state updates), and wrap programmatic state mutations in an update guard flag.

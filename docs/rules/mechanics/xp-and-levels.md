@@ -133,3 +133,20 @@
 | 18th | 153,000 | 7th | — | 21 | 10.5 |
 | 19th | 171,000 | — | — | 22 | 11 |
 | 20th | 190,000 | — | 5th (+1) | 23 | 11.5 |
+
+---
+
+## 7. Class Prerequisites and Qualification Timing
+
+### Prerequisite Evaluation Timing for Class Entry
+- **Primary Source**: *Player's Handbook*, pp. 22, 58
+- **Prior Qualification Required**: In the step-by-step level advancement procedure (*PHB*, p. 58), selecting a class occurs in **Step 1: Choose Class**, prior to gaining Base Attack Bonus (Step 2), base save bonuses (Step 3), ability score increases (Step 4), Hit Dice (Step 5), skill points (Step 6), feats (Step 7), or spells (Step 8).
+- **Evaluation Baseline ($L - 1$)**: Prerequisites for entering a new class or prestige class must be met strictly prior to advancing that level ($L - 1$). Benefits, skill ranks, ability score increments, or feats gained at character level $L$ cannot be used to qualify for the class chosen at level $L$.
+- **1st Character Level ($L = 0$)**: Class selection at 1st character level is evaluated against the baseline character state prior to class progression ($L = 0$: racial traits and base assigned ability scores).
+
+### Meeting Class and Feat Prerequisites with Magic Items
+- **Primary Source**: *Complete Warrior*, p. 16 ("Meeting Class Prerequisites")
+- **Ability Enhancements Permitted**: A character may meet the ability score prerequisites for a prestige class or feat with the aid of a magic item that enhances an ability score.
+- **Loss of Prerequisites**: If a character ceases to meet the prerequisites of a prestige class (such as removing, losing, or deactivating an ability-enhancing magic item), they temporarily lose all special abilities, spells, and features granted by that prestige class until the prerequisites are satisfied again.
+- **PlayMore35 Advisory Modeling**: Evaluated non-blockingly via dual-pass validation (ADR-0017). When a class or feat prerequisite is unmet intrinsically at acquisition level $L - 1$ but satisfied by equipped items, PlayMore35 emits an advisory **Item-Dependent** warning badge (`🛈`), signaling that qualification depends on current equipment.
+
