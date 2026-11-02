@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
@@ -597,6 +598,127 @@ namespace PlayMore35.Tests {
             var snapAfter = session.GetSessionAtLevel(1);
             Assert.AreNotSame(snapBefore, snapAfter, "Mutate must invalidate level snapshot cache.");
             Assert.AreEqual("MutatedHero", snapAfter.Character.name);
+        }
+
+        [TestMethod]
+        public void CharacterSession_MutateWithReturn_AppliesChangesAndReturnsValueAndRecomputes() {
+            var character = new Character { race = "human" };
+            character.classLevels = new List<string> { "Fighter", "Fighter" };
+            var session = new CharacterSession(character, catalog);
+
+            var snapBefore = session.GetSessionAtLevel(1);
+
+            int result = session.Mutate(c => {
+                c.assignedAbilityScores["STR"] = 18;
+                return c.assignedAbilityScores["STR"];
+            });
+
+            Assert.AreEqual(18, result);
+            Assert.AreEqual(18, session.Character.assignedAbilityScores["STR"]);
+
+            var context = (ICharacterContext)session;
+            var strVal = context.Effects.GetStat("STR score").GetValue(context.Effects, context.EquippedItems).value;
+            Assert.AreEqual(18, strVal, "STR score must be evaluated dynamically from mutation.");
+
+            var snapAfter = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snapBefore, snapAfter, "Mutate<T> must invalidate level snapshot cache.");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CharacterSession_MutateWithReturn_ThrowsArgumentNullException_WhenMutateFuncIsNull() {
+            var session = new CharacterSession(new Character(), catalog);
+            session.Mutate<int>((Func<Character, int>)null!);
+        }
+
+        [TestMethod]
+        public void SetFeatChoice_DirectChoice_InvalidatesCachedSnapshotsAndRecalculatesDependentStats() {
+            var syntheticFeat = new Feat(new JObject(
+                new JProperty("benefit", new JObject(
+                    new JProperty("name", "Synthetic Direct Feat"),
+                    new JProperty("modifiers", new JArray(
+                        new JObject(
+                            new JProperty("affects", "$"),
+                            new JProperty("mod", new JObject(
+                                new JProperty("type", "untyped"),
+                                new JProperty("amounts", new JArray(new JObject(new JProperty("fixed", 3))))
+                            ))
+                        )
+                    ))
+                )),
+                new JProperty("choice", "skill"),
+                new JProperty("stats", new JArray(
+                    new JObject(new JProperty("name", "Climb"))
+                ))
+            ));
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+
+            var session = new CharacterSession(character, fakeCatalog);
+            var climbBefore = session.GetStatistic("Climb").Value;
+            var snapBefore = session.GetSessionAtLevel(1);
+
+            session.SetFeatChoice("Level 1", "Climb");
+
+            var snapAfter = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snapBefore, snapAfter, "SetFeatChoice must invalidate level snapshot cache.");
+            Assert.AreEqual("Climb", session.GetFeatChoice("Level 1"));
+            Assert.AreEqual(climbBefore + 3, session.GetStatistic("Climb").Value, "SetFeatChoice must recalculate dependent statistics.");
+            Assert.AreEqual(climbBefore + 3, snapAfter.GetStatistic("Climb").Value, "New snapshot must reflect updated feat choice.");
+        }
+
+        [TestMethod]
+        public void SetFeatChoice_CompositeKeyChoice_InvalidatesCachedSnapshotsAndRecalculatesDependentStats() {
+            var syntheticFeat = new Feat(new JObject(
+                new JProperty("benefit", new JObject(
+                    new JProperty("name", "Synthetic Weapon Focus"),
+                    new JProperty("modifiers", new JArray(
+                        new JObject(
+                            new JProperty("affects", "attack bonus:$"),
+                            new JProperty("mod", new JObject(
+                                new JProperty("type", "untyped"),
+                                new JProperty("amounts", new JArray(new JObject(new JProperty("fixed", 1))))
+                            ))
+                        )
+                    ))
+                )),
+                new JProperty("choices", new JArray(
+                    new JObject(
+                        new JProperty("id", "weapon"),
+                        new JProperty("label", "Choose weapon"),
+                        new JProperty("domain", "Weapons")
+                    )
+                )),
+                new JProperty("stats", new JArray(
+                    new JObject(new JProperty("name", "attack bonus:Longsword"))
+                ))
+            ));
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.FeatsMap[syntheticFeat.Benefit.Name] = syntheticFeat;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+
+            var session = new CharacterSession(character, fakeCatalog);
+            var initialStat = session.GetStatistic("attack bonus:Longsword").Value;
+            Assert.AreEqual(0, initialStat);
+
+            var snapBefore = session.GetSessionAtLevel(1);
+
+            session.SetFeatChoice("Level 1", "weapon", "Longsword");
+
+            var snapAfter = session.GetSessionAtLevel(1);
+            Assert.AreNotSame(snapBefore, snapAfter, "SetFeatChoice with composite key must invalidate level snapshot cache.");
+            Assert.AreEqual("Longsword", session.GetFeatChoice("Level 1", "weapon"));
+            Assert.AreEqual(1, session.GetStatistic("attack bonus:Longsword").Value, "SetFeatChoice with composite key must recalculate dependent statistics.");
+            Assert.AreEqual(1, snapAfter.GetStatistic("attack bonus:Longsword").Value, "New snapshot must reflect updated composite feat choice.");
         }
 
         private class SnapshotSpyCharacterSession : CharacterSession {

@@ -90,6 +90,15 @@ namespace PlayMore35.Global {
             _levelSessionCache.Clear();
         }
 
+        internal T Mutate<T>(Func<Character, T> mutate) {
+            if (mutate == null) throw new ArgumentNullException(nameof(mutate));
+            var result = mutate(character);
+            character.Timeline.Context = this;
+            InvalidateLevelSnapshots();
+            Recalculate();
+            return result;
+        }
+
         public void Mutate(Action<Character> mutate) {
             if (mutate == null) throw new ArgumentNullException(nameof(mutate));
             mutate(character);
@@ -912,15 +921,15 @@ namespace PlayMore35.Global {
         }
 
         public void SetFeatChoice(string featSlot, string choice) {
-            character.featChoices[featSlot] = choice;
-            InvalidateLevelSnapshots();
-            Recalculate();
+            Mutate(c => {
+                c.featChoices[featSlot] = choice;
+            });
         }
 
         public void SetFeatChoice(string featSlot, string key, string choice) {
-            character.featChoices[$"{featSlot}:{key}"] = choice;
-            InvalidateLevelSnapshots();
-            Recalculate();
+            Mutate(c => {
+                c.featChoices[$"{featSlot}:{key}"] = choice;
+            });
         }
 
         public string GetFeatChoice(string featSlot, string? key = null) {
