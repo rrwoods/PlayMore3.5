@@ -34,9 +34,9 @@ namespace PlayMore35.Global {
         void DonArmor(string from, ArmorChoice armorChoice);
         void EquipShield(string from, ArmorChoice shieldChoice);
         void EquipItem(string from, Equipped.Slot to, string itemName);
-        WeaponChoice RemoveEquippedWeapon(bool primary);
-        ArmorChoice RemoveDonnedArmor();
-        ArmorChoice RemoveEquippedShield();
+        WeaponChoice? RemoveEquippedWeapon(bool primary);
+        ArmorChoice? RemoveDonnedArmor();
+        ArmorChoice? RemoveEquippedShield();
         void UnequipWeapon(string to, bool primary);
         void UndonArmor(string to);
         void UnequipShield(string to);

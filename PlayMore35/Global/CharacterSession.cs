@@ -231,7 +231,7 @@ namespace PlayMore35.Global {
                 .Sum();
         }
 
-        public void Recalculate() {
+        public virtual void Recalculate() {
             equippedItems = equippedItems ?? new Equipped();
             effects = new EffectPool(character);
             effects.ReadJson(catalog.CoreRulesJson);
@@ -400,35 +400,51 @@ namespace PlayMore35.Global {
             }
         }
 
-        public WeaponChoice RemoveEquippedWeapon(bool primary) {
-            WeaponChoice removed = primary ? character.equipped.PrimaryHandWeapon : character.equipped.OffHandWeapon;
+        private WeaponChoice? RemoveEquippedWeaponCore(bool primary) {
+            WeaponChoice? removed = primary ? character.equipped.PrimaryHandWeapon : character.equipped.OffHandWeapon;
             if (primary) {
                 character.equipped.PrimaryHandWeapon = null;
             } else {
                 character.equipped.OffHandWeapon = null;
             }
-
-            InvalidateLevelSnapshots();
-            Recalculate();
             return removed;
         }
 
-        public ArmorChoice RemoveDonnedArmor() {
-            ArmorChoice removed = character.equipped.DonnedArmor;
+        public WeaponChoice? RemoveEquippedWeapon(bool primary) {
+            WeaponChoice? current = primary ? character.equipped.PrimaryHandWeapon : character.equipped.OffHandWeapon;
+            if (current == null) {
+                return null;
+            }
+
+            return Mutate(c => RemoveEquippedWeaponCore(primary));
+        }
+
+        private ArmorChoice? RemoveDonnedArmorCore() {
+            ArmorChoice? removed = character.equipped.DonnedArmor;
             character.equipped.DonnedArmor = null;
-
-            InvalidateLevelSnapshots();
-            Recalculate();
             return removed;
         }
 
-        public ArmorChoice RemoveEquippedShield() {
-            ArmorChoice removed = character.equipped.OffHandShield;
-            character.equipped.OffHandShield = null;
+        public ArmorChoice? RemoveDonnedArmor() {
+            if (character.equipped.DonnedArmor == null) {
+                return null;
+            }
 
-            InvalidateLevelSnapshots();
-            Recalculate();
+            return Mutate(c => RemoveDonnedArmorCore());
+        }
+
+        private ArmorChoice? RemoveEquippedShieldCore() {
+            ArmorChoice? removed = character.equipped.OffHandShield;
+            character.equipped.OffHandShield = null;
             return removed;
+        }
+
+        public ArmorChoice? RemoveEquippedShield() {
+            if (character.equipped.OffHandShield == null) {
+                return null;
+            }
+
+            return Mutate(c => RemoveEquippedShieldCore());
         }
 
         public int RemoveItem(string from, string itemName, int quantity) {
@@ -470,119 +486,172 @@ namespace PlayMore35.Global {
             character.inventory.Remove(location);
         }
 
-        public void UnequipWeapon(string to, bool primary) {
-            if (!character.inventory.ContainsKey(to)) return;
-
-            WeaponChoice unequipped = RemoveEquippedWeapon(primary);
+        private void UnequipWeaponCore(string to, bool primary) {
+            WeaponChoice? unequipped = RemoveEquippedWeaponCore(primary);
             if (unequipped != null) {
                 character.inventory[to].weapons.Add(unequipped);
             }
-
-            Recalculate();
         }
 
-        public void UndonArmor(string to) {
-            if (!character.inventory.ContainsKey(to)) return;
+        public void UnequipWeapon(string to, bool primary) {
+            if (string.IsNullOrEmpty(to) || !character.inventory.ContainsKey(to)) {
+                return;
+            }
 
-            ArmorChoice removed = RemoveDonnedArmor();
+            WeaponChoice? current = primary ? character.equipped.PrimaryHandWeapon : character.equipped.OffHandWeapon;
+            if (current == null) {
+                return;
+            }
+
+            Mutate(c => UnequipWeaponCore(to, primary));
+        }
+
+        private void UndonArmorCore(string to) {
+            ArmorChoice? removed = RemoveDonnedArmorCore();
             if (removed != null) {
                 character.inventory[to].armor.Add(removed);
             }
-
-            Recalculate();
         }
 
-        public void UnequipShield(string to) {
-            if (!character.inventory.ContainsKey(to)) return;
+        public void UndonArmor(string to) {
+            if (string.IsNullOrEmpty(to) || !character.inventory.ContainsKey(to)) {
+                return;
+            }
 
-            ArmorChoice removed = RemoveEquippedShield();
+            if (character.equipped.DonnedArmor == null) {
+                return;
+            }
+
+            Mutate(c => UndonArmorCore(to));
+        }
+
+        private void UnequipShieldCore(string to) {
+            ArmorChoice? removed = RemoveEquippedShieldCore();
             if (removed != null) {
                 character.inventory[to].shields.Add(removed);
             }
-
-            Recalculate();
         }
 
-        public void UnequipItem(Equipped.Slot from, string to) {
+        public void UnequipShield(string to) {
+            if (string.IsNullOrEmpty(to) || !character.inventory.ContainsKey(to)) {
+                return;
+            }
+
+            if (character.equipped.OffHandShield == null) {
+                return;
+            }
+
+            Mutate(c => UnequipShieldCore(to));
+        }
+
+        private void UnequipItemCore(Equipped.Slot from, string to) {
             var items = character.equipped.SlottedItems;
             if (!items.ContainsKey(from)) return;
 
             string removed = items[from];
             items.Remove(from);
             AddItem(to, removed, 1);
-
-            InvalidateLevelSnapshots();
-            Recalculate();
         }
 
-        public void UnequipSlotlessItem(string to, string item) {
-            if (!character.equipped.SlotlessItems.Contains(item)) return;
+        public void UnequipItem(Equipped.Slot from, string to) {
+            if (string.IsNullOrEmpty(to) || !character.inventory.ContainsKey(to)) {
+                return;
+            }
 
+            if (!character.equipped.SlottedItems.ContainsKey(from)) {
+                return;
+            }
+
+            Mutate(c => UnequipItemCore(from, to));
+        }
+
+        private void UnequipSlotlessItemCore(string to, string item) {
             character.equipped.SlotlessItems.Remove(item);
             Item toRemove = equippedItems.SlotlessItems.FirstOrDefault(x => x.ItemEffect.Name.Equals(item));
             if (toRemove != null) {
                 equippedItems.SlotlessItems.Remove(toRemove);
             }
             AddItem(to, item, 1);
-
-            InvalidateLevelSnapshots();
-            Recalculate();
         }
 
-        public void EquipWeapon(string from, bool primary, WeaponChoice weaponChoice) {
-            if (!character.inventory.ContainsKey(from) || !character.inventory[from].weapons.Contains(weaponChoice)) {
+        public void UnequipSlotlessItem(string to, string item) {
+            if (string.IsNullOrEmpty(to) || !character.inventory.ContainsKey(to)) {
                 return;
             }
 
+            if (string.IsNullOrEmpty(item) || !character.equipped.SlotlessItems.Contains(item)) {
+                return;
+            }
+
+            Mutate(c => UnequipSlotlessItemCore(to, item));
+        }
+
+        private void EquipWeaponCore(string from, bool primary, WeaponChoice weaponChoice) {
             character.inventory[from].weapons.Remove(weaponChoice);
-            UnequipWeapon(from, primary);
+            UnequipWeaponCore(from, primary);
             if (primary) {
                 character.equipped.PrimaryHandWeapon = weaponChoice;
             } else {
                 character.equipped.OffHandWeapon = weaponChoice;
                 if (equippedItems.OffHandShield != null && equippedItems.OffHandShield.AttackRollPenalty == null) {
-                    UnequipShield(from);
+                    UnequipShieldCore(from);
                 }
             }
+        }
 
-            InvalidateLevelSnapshots();
-            Recalculate();
+        public void EquipWeapon(string from, bool primary, WeaponChoice weaponChoice) {
+            if (string.IsNullOrEmpty(from) || weaponChoice == null) {
+                return;
+            }
+
+            if (!character.inventory.ContainsKey(from) || !character.inventory[from].weapons.Contains(weaponChoice)) {
+                return;
+            }
+
+            Mutate(c => EquipWeaponCore(from, primary, weaponChoice));
+        }
+
+        private void DonArmorCore(string from, ArmorChoice armorChoice) {
+            character.inventory[from].armor.Remove(armorChoice);
+            UndonArmorCore(from);
+            character.equipped.DonnedArmor = armorChoice;
         }
 
         public void DonArmor(string from, ArmorChoice armorChoice) {
+            if (string.IsNullOrEmpty(from) || armorChoice == null) {
+                return;
+            }
+
             if (!character.inventory.ContainsKey(from) || !character.inventory[from].armor.Contains(armorChoice)) {
                 return;
             }
 
-            character.inventory[from].armor.Remove(armorChoice);
-            UndonArmor(from);
-            character.equipped.DonnedArmor = armorChoice;
+            Mutate(c => DonArmorCore(from, armorChoice));
+        }
 
-            InvalidateLevelSnapshots();
-            Recalculate();
+        private void EquipShieldCore(string from, ArmorChoice shieldChoice) {
+            character.inventory[from].shields.Remove(shieldChoice);
+            UnequipShieldCore(from);
+            character.equipped.OffHandShield = shieldChoice;
+            Shield? shield = ShieldFromChoice(shieldChoice);
+            if (shield != null && shield.AttackRollPenalty == null) {
+                UnequipWeaponCore(from, false);
+            }
         }
 
         public void EquipShield(string from, ArmorChoice shieldChoice) {
+            if (string.IsNullOrEmpty(from) || shieldChoice == null) {
+                return;
+            }
+
             if (!character.inventory.ContainsKey(from) || !character.inventory[from].shields.Contains(shieldChoice)) {
                 return;
             }
 
-            character.inventory[from].shields.Remove(shieldChoice);
-            character.equipped.OffHandShield = shieldChoice;
-            Shield? shield = ShieldFromChoice(shieldChoice);
-            if (shield != null && shield.AttackRollPenalty == null) {
-                UnequipWeapon(from, false);
-            }
-
-            InvalidateLevelSnapshots();
-            Recalculate();
+            Mutate(c => EquipShieldCore(from, shieldChoice));
         }
 
-        public void EquipItem(string from, Equipped.Slot to, string itemName) {
-            if (!character.inventory.ContainsKey(from)) return;
-
-            if (!catalog.TryGetItem(itemName, out var item) || item.ItemSlot != to) return;
-
+        private void EquipItemCore(string from, Equipped.Slot to, string itemName) {
             if (to == Equipped.Slot.SLOTLESS) {
                 character.equipped.SlotlessItems.Add(itemName);
                 RemoveItem(from, itemName, 1);
@@ -601,18 +670,40 @@ namespace PlayMore35.Global {
                     }
                 }
             }
-
-            InvalidateLevelSnapshots();
-            Recalculate();
         }
 
-        public void SwapWeapons() {
+        public void EquipItem(string from, Equipped.Slot to, string itemName) {
+            if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(itemName)) {
+                return;
+            }
+
+            if (!character.inventory.ContainsKey(from)) {
+                return;
+            }
+
+            if (!character.inventory[from].items.ContainsKey(itemName) || character.inventory[from].items[itemName] <= 0) {
+                return;
+            }
+
+            if (!catalog.TryGetItem(itemName, out var item) || item.ItemSlot != to) {
+                return;
+            }
+
+            Mutate(c => EquipItemCore(from, to, itemName));
+        }
+
+        private void SwapWeaponsCore() {
             WeaponChoice swapChoice = character.equipped.PrimaryHandWeapon;
             character.equipped.PrimaryHandWeapon = character.equipped.OffHandWeapon;
             character.equipped.OffHandWeapon = swapChoice;
+        }
 
-            InvalidateLevelSnapshots();
-            Recalculate();
+        public void SwapWeapons() {
+            if (character.equipped.PrimaryHandWeapon == character.equipped.OffHandWeapon) {
+                return;
+            }
+
+            Mutate(c => SwapWeaponsCore());
         }
 
         public void MoveItem(string from, string to, object item, int quantity) {
@@ -1222,6 +1313,7 @@ namespace PlayMore35.Global {
         public TimelineAdvanceResult EndCombat() {
             character.Timeline.Context = this;
             var result = character.Timeline.EndCombat(this);
+            Recalculate();
             return result;
         }
 
