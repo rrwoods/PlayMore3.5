@@ -891,7 +891,7 @@ namespace PlayMore35.Tests {
 
             var session = new CharacterSession(character, catalog);
 
-            var stanceDesc = new ChoiceDescriptor("stance", "Choose Stance", "SubsystemElements", "martial_maneuvers");
+            var stanceDesc = catalog.GetFeat("Martial Stance").Choices.First(c => c.Id == "stance");
             var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",

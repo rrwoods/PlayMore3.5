@@ -1574,9 +1574,7 @@ namespace PlayMore35.Subsystems {
             string? disc = chosenElem.GetProperty<string>("discipline");
             if (!string.IsNullOrEmpty(disc)) {
                 int prereqCount = chosenElem.GetProperty<int>("prerequisiteCount", 0);
-                if (string.Equals(chosenElem.Type, "Stance", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(featSlot)) {
-                    prereqCount = Math.Max(1, prereqCount);
-                }
+                prereqCount = Math.Max(descriptor?.MinimumPrerequisiteCount ?? 0, prereqCount);
                 if (prereqCount > 0) {
                     int knownInDisc = CountSameDisciplineKnown(disc, acquisitionLevel, featSlot, chosenElem.Name, currentChoices);
                     if (knownInDisc < prereqCount) {
