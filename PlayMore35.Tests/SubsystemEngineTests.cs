@@ -664,17 +664,17 @@ namespace PlayMore35.Tests {
             var descriptor = new ChoiceDescriptor("vestige", "Choose Vestige", "SubsystemElements", "pact_magic");
 
             // Amon is level 1 <= 1 -> no warnings
-            var warningsAmon = engine.ValidateChoice("feat_0", descriptor, "Amon", "Binder");
+            var warningsAmon = engine.ValidateChoice(descriptor, "Amon", "Binder");
             Assert.AreEqual(0, warningsAmon.Count);
 
             // Savnok is level 2 > 1 -> advisory warning
-            var warningsSavnok = engine.ValidateChoice("feat_0", descriptor, "Savnok", "Binder");
+            var warningsSavnok = engine.ValidateChoice(descriptor, "Savnok", "Binder");
             Assert.AreEqual(1, warningsSavnok.Count);
             Assert.AreEqual(ValidationCategory.LevelGate, warningsSavnok[0].Category);
             StringAssert.Contains(warningsSavnok[0].Message, "Level 2 exceeds maximum 1 for Binder.");
 
             // Unknown element -> invalid element warning
-            var warningsUnknown = engine.ValidateChoice("feat_0", descriptor, "Nonexistent", "Binder");
+            var warningsUnknown = engine.ValidateChoice(descriptor, "Nonexistent", "Binder");
             Assert.AreEqual(1, warningsUnknown.Count);
             Assert.AreEqual(ValidationCategory.Invalid, warningsUnknown[0].Category);
             StringAssert.Contains(warningsUnknown[0].Message, "'Nonexistent' is not a valid element in subsystem 'Pact Magic'.");
@@ -695,7 +695,7 @@ namespace PlayMore35.Tests {
             var engine = new SubsystemEngine(def, new FakeCharacterContext());
             var stanceDescriptor = new ChoiceDescriptor("stance", "Choose Stance", "SubsystemElements", filter: "Stance");
 
-            var warnings = engine.ValidateChoice("feat_0", stanceDescriptor, "Steel Strike", "Warblade");
+            var warnings = engine.ValidateChoice(stanceDescriptor, "Steel Strike", "Warblade");
             Assert.AreEqual(1, warnings.Count);
             Assert.AreEqual(ValidationCategory.Invalid, warnings[0].Category);
             StringAssert.Contains(warnings[0].Message, "'Steel Strike' is not a valid Stance in subsystem 'Martial Maneuvers'.");
@@ -1014,6 +1014,96 @@ namespace PlayMore35.Tests {
             warbladeSources = warbladeEngine.GetActiveSources();
             Assert.AreEqual(1, warbladeSources.Count);
             Assert.AreEqual("Warblade", warbladeSources[0]);
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void SubsystemEngine_ValidateChoice_WorksPurelyThroughDeclarativeActiveSlotState() {
+            var catalog = new GameRulesCatalog();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            var context = new FakeCharacterContext(catalog: catalog);
+            var engine = new SubsystemEngine(martialDef, context);
+
+            var stanceDescriptor = new ChoiceDescriptor("stance", "Choose Stance", "martial_maneuvers", filter: "Stance", minimumPrerequisiteCount: 1);
+
+            // Without any active slots, selecting Flame's Blessing (Desert Wind stance) requires 1 Desert Wind maneuver
+            var warningsBefore = engine.ValidateChoice(stanceDescriptor, "Flame's Blessing", "Feats");
+            Assert.AreEqual(1, warningsBefore.Count);
+            Assert.AreEqual(ValidationCategory.Prerequisite, warningsBefore[0].Category);
+            StringAssert.Contains(warningsBefore[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known.");
+
+            // Directly grant a Desert Wind maneuver slot to the engine (declarative active slot state)
+            engine.GrantSlot("maneuvers", "Burning Blade", "Feats", "Level 1");
+
+            // Now validating Flame's Blessing purely checks slotGroups and satisfies prerequisite without any temporal slicing or character feats lookup
+            var warningsAfter = engine.ValidateChoice(stanceDescriptor, "Flame's Blessing", "Feats");
+            Assert.AreEqual(0, warningsAfter.Count, "Active slot in engine must satisfy discipline prerequisite purely through declarative slot state.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void CharacterSession_MartialStudyAndStance_PrerequisiteValidation_IdenticalOnLiveSessionAndSnapshots() {
+            var catalog = new GameRulesCatalog();
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Study";
+            character.featChoices["Level 1:maneuver"] = "Burning Blade";
+            character.feats["Level 3"] = "Martial Stance";
+
+            var liveSession = new CharacterSession(character, catalog);
+            var snapSession = liveSession.GetSessionAtLevel(3);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 3",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor
+            );
+
+            var liveWarnings = liveSession.ValidateProgressionChoice(context);
+            var snapWarnings = snapSession.ValidateProgressionChoice(context);
+
+            Assert.AreEqual(0, liveWarnings.Count, "Live session must pass prerequisite validation.");
+            Assert.AreEqual(0, snapWarnings.Count, "Snapshot session must pass prerequisite validation identically to live session.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void CharacterSession_MartialStance_PrerequisiteValidation_FailsOnSnapshotPriorToStudyAcquisition() {
+            var catalog = new GameRulesCatalog();
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "Human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.feats["Level 1"] = "Martial Stance";
+            character.feats["Level 3"] = "Martial Study";
+            character.featChoices["Level 3:maneuver"] = "Burning Blade";
+
+            var liveSession = new CharacterSession(character, catalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor
+            );
+
+            var warnings = liveSession.ValidateProgressionChoice(context);
+            Assert.AreEqual(1, warnings.Count, "Validating Level 1 feat choice must fail because prerequisite feat was acquired at Level 3.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known.");
         }
     }
 }

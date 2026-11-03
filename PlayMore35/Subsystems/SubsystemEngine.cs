@@ -1078,21 +1078,9 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        private string ResolveFeatTargetSource(string? featSlot, IDictionary<string, string>? currentChoices = null) {
-            if (currentChoices != null &&
-                !string.IsNullOrEmpty(featSlot) &&
-                currentChoices.TryGetValue($"{featSlot}:class", out var curClass) &&
-                !string.IsNullOrWhiteSpace(curClass)) {
-                return curClass;
-            }
+        private string ResolveFeatTargetSource(string? featSlot = null) {
             if (context is ICharacterSession session && !string.IsNullOrEmpty(featSlot)) {
                 return session.ResolveFeatTargetSource(featSlot);
-            }
-            if (context?.Character != null &&
-                !string.IsNullOrEmpty(featSlot) &&
-                context.Character.featChoices.TryGetValue($"{featSlot}:class", out var explicitClass) &&
-                !string.IsNullOrWhiteSpace(explicitClass)) {
-                return explicitClass;
             }
             if (context?.Character != null && context?.Catalog != null) {
                 var adept = context.Character.classLevels.FirstOrDefault(c => {
@@ -1422,98 +1410,25 @@ namespace PlayMore35.Subsystems {
             return matching.Select(e => e.Name).ToList().AsReadOnly();
         }
 
-        private int CountSameDisciplineKnown(string discipline, int? atCharacterLevel = null, string? excludeFeatSlot = null, string? excludeElementName = null, IDictionary<string, string>? currentChoices = null, SubsystemSlot? excludeSlot = null) {
+        private int CountSameDisciplineKnown(string discipline, string? excludeElementName = null, SubsystemSlot? excludeSlot = null) {
             if (string.IsNullOrEmpty(discipline)) return 0;
-            var character = context?.Character;
-            var session = context as ICharacterSession;
-            int totalLevels = character?.classLevels.Count ?? 0;
-
-            if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && atCharacterLevel.Value < totalLevels && session != null) {
-                var snapSession = session.GetSessionAtLevel(atCharacterLevel.Value, includeEquipped: false);
-                var snapEngine = snapSession.GetSubsystem(Id);
-                if (snapEngine != null && !ReferenceEquals(snapEngine, this)) {
-                    return snapEngine.CountSameDisciplineKnown(discipline, null, excludeFeatSlot, excludeElementName, currentChoices, excludeSlot);
-                }
-            }
 
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            int levelCap = atCharacterLevel.HasValue && atCharacterLevel.Value > 0 ? Math.Min(atCharacterLevel.Value, totalLevels) : totalLevels;
-            var classesAtLevel = atCharacterLevel.HasValue && character != null && levelCap > 0
-                ? character.classLevels.Take(levelCap).ToList()
-                : null;
+            foreach (var s in slotGroups.Values.SelectMany(g => g.Slots)) {
+                if (string.IsNullOrEmpty(s.Element)) continue;
+                if (excludeSlot != null && ReferenceEquals(s, excludeSlot)) continue;
+                if (!string.IsNullOrEmpty(excludeElementName) && string.Equals(s.Element, excludeElementName, StringComparison.OrdinalIgnoreCase)) continue;
 
-            foreach (var kvpGroup in slotGroups) {
-                var group = kvpGroup.Value;
-                foreach (var s in group.Slots) {
-                    if (string.IsNullOrEmpty(s.Element)) continue;
-                    if (excludeSlot != null && ReferenceEquals(s, excludeSlot)) continue;
-                    if (s.IsGrantedByEquippedItem) {
-                        // Equipped item grant: retained according to snapshot includeEquipped mode
-                    } else if (!string.IsNullOrEmpty(s.FeatSlot)) {
-                        if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(s.FeatSlot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
-                        if (currentChoices != null && currentChoices.Any(c => c.Key.StartsWith($"{s.FeatSlot}:", StringComparison.OrdinalIgnoreCase) && GetElement(c.Value) != null)) continue;
-                        if (atCharacterLevel.HasValue && atCharacterLevel.Value > 0 && session != null) {
-                            int slotLevel = session.GetFeatSlotLevel(s.FeatSlot);
-                            if (slotLevel <= 0 || slotLevel > levelCap) continue;
-                        }
-                    } else if (classesAtLevel != null && !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, "Feats", StringComparison.OrdinalIgnoreCase)) {
-                        if (!classesAtLevel.Any(c => string.Equals(c, s.Source, StringComparison.OrdinalIgnoreCase))) continue;
-                    }
-                    distinctKnown.Add(s.Element);
-                }
-            }
-
-            if (character != null) {
-                foreach (var featKvp in character.feats) {
-                    string slot = featKvp.Key;
-                    if (!string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(slot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
-                    if (currentChoices != null && currentChoices.Any(c => c.Key.StartsWith($"{slot}:", StringComparison.OrdinalIgnoreCase) && GetElement(c.Value) != null)) continue;
-                    int slotLevel = session?.GetFeatSlotLevel(slot) ?? 0;
-                    if (!atCharacterLevel.HasValue || atCharacterLevel.Value <= 0 || (slotLevel > 0 && slotLevel <= levelCap)) {
-                        foreach (var choiceKvp in character.featChoices) {
-                            if (choiceKvp.Key.StartsWith($"{slot}:", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(choiceKvp.Value)) {
-                                var elem = GetElement(choiceKvp.Value);
-                                if (elem != null) {
-                                    distinctKnown.Add(elem.Name);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (currentChoices != null) {
-                foreach (var kvp in currentChoices) {
-                    if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
-                    var elem = GetElement(kvp.Value);
-                    if (elem == null) continue;
-
-                    string? slot = null;
-                    int colonIdx = kvp.Key.IndexOf(':');
-                    if (colonIdx > 0) {
-                        slot = kvp.Key.Substring(0, colonIdx);
-                    }
-                    if (slot != null && !string.IsNullOrEmpty(excludeFeatSlot) && string.Equals(slot, excludeFeatSlot, StringComparison.OrdinalIgnoreCase)) continue;
-
-                    int slotLevel = session?.GetFeatSlotLevel(slot ?? "") ?? 0;
-                    if (!atCharacterLevel.HasValue || atCharacterLevel.Value <= 0 || (slotLevel > 0 && slotLevel <= levelCap)) {
-                        distinctKnown.Add(elem.Name);
-                    }
-                }
-            }
-
-            int count = 0;
-            foreach (var name in distinctKnown) {
-                if (!string.IsNullOrEmpty(excludeElementName) && string.Equals(name, excludeElementName, StringComparison.OrdinalIgnoreCase)) continue;
-                var elem = GetElement(name);
+                var elem = GetElement(s.Element);
                 if (elem != null && string.Equals(elem.GetProperty<string>("discipline"), discipline, StringComparison.OrdinalIgnoreCase)) {
-                    count++;
+                    distinctKnown.Add(elem.Name);
                 }
             }
-            return count;
+
+            return distinctKnown.Count;
         }
 
-        public IReadOnlyList<ValidationWarning> ValidateChoice(string? featSlot, ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, IDictionary<string, string>? currentChoices = null) {
+        public IReadOnlyList<ValidationWarning> ValidateChoice(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource = null) {
             if (string.IsNullOrWhiteSpace(choiceValue)) return Array.Empty<ValidationWarning>();
             if (descriptor != null) {
                 if (!string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase) &&
@@ -1546,16 +1461,7 @@ namespace PlayMore35.Subsystems {
 
             string? effectiveSource = targetSource;
             if (string.IsNullOrWhiteSpace(effectiveSource)) {
-                effectiveSource = ResolveFeatTargetSource(featSlot, currentChoices);
-            }
-
-            var session = context as ICharacterSession;
-            int? acquisitionLevel = null;
-            if (!string.IsNullOrEmpty(featSlot)) {
-                int slotLvl = session?.GetFeatSlotLevel(featSlot) ?? 0;
-                if (slotLvl > 0) {
-                    acquisitionLevel = slotLvl;
-                }
+                effectiveSource = ResolveFeatTargetSource(null);
             }
 
             var warnings = new List<ValidationWarning>();
@@ -1576,7 +1482,7 @@ namespace PlayMore35.Subsystems {
                 int prereqCount = chosenElem.GetProperty<int>("prerequisiteCount", 0);
                 prereqCount = Math.Max(descriptor?.MinimumPrerequisiteCount ?? 0, prereqCount);
                 if (prereqCount > 0) {
-                    int knownInDisc = CountSameDisciplineKnown(disc, acquisitionLevel, featSlot, chosenElem.Name, currentChoices);
+                    int knownInDisc = CountSameDisciplineKnown(disc, excludeElementName: chosenElem.Name);
                     if (knownInDisc < prereqCount) {
                         string elemUnit = Definition.PrerequisiteUnit ?? (!string.IsNullOrEmpty(filter) ? filter : "element");
                         string plural = prereqCount == 1 ? elemUnit : $"{elemUnit}s";
@@ -1609,7 +1515,7 @@ namespace PlayMore35.Subsystems {
                                     int maxReadied = GetReadiedCapacity(kvp.Key, effectiveSource);
                                     if (readiedCount > maxReadied) {
                                         warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
-                                    } else if (readiedCount < maxReadied) {
+                                    } else if (readiedCount > 0 && readiedCount < maxReadied) {
                                         warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
                                     }
                                 }

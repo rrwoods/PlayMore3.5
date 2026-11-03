@@ -1126,12 +1126,9 @@ namespace PlayMore35.Global {
                 ? context.AcquisitionLevel
                 : (slotLevel > 0 ? slotLevel : totalLevels);
 
-            var choicesDict = context.CurrentChoices as IDictionary<string, string>
-                ?? (context.CurrentChoices != null ? new Dictionary<string, string>((IDictionary<string, string>)context.CurrentChoices) : null);
-
             return EvaluateDualPass(
                 acquisitionLevel,
-                s => s.EvaluateSubsystemWarnings(context.SlotKey ?? "", context.Descriptor, context.ChoiceValue, context.TargetSource, choicesDict),
+                s => s.EvaluateSubsystemWarnings(context.Descriptor, context.ChoiceValue, context.TargetSource),
                 context.CurrentChoices,
                 context.SlotKey);
         }
@@ -1233,7 +1230,7 @@ namespace PlayMore35.Global {
             return warnings.AsReadOnly();
         }
 
-        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(string featSlot, ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, IDictionary<string, string>? currentChoices) {
+        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource) {
             IEnumerable<SubsystemEngine> candidateEngines = _subsystems.Values;
 
             if (descriptor != null &&
@@ -1257,7 +1254,7 @@ namespace PlayMore35.Global {
 
             var allWarnings = new List<ValidationWarning>();
             foreach (var engine in targetEngines) {
-                var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+                var warnings = engine.ValidateChoice(descriptor, choiceValue, targetSource);
                 if (warnings != null && warnings.Count > 0) {
                     allWarnings.AddRange(warnings);
                 }
@@ -1613,6 +1610,32 @@ namespace PlayMore35.Global {
             }
 
             var snapSession = new CharacterSession(sliced, catalog, isSnapshot: true);
+
+            if (currentChoices != null && level > 0) {
+                foreach (var kvp in currentChoices) {
+                    if (string.IsNullOrWhiteSpace(kvp.Key) || string.IsNullOrWhiteSpace(kvp.Value)) {
+                        continue;
+                    }
+                    if (!string.IsNullOrEmpty(validatingSlotKey) &&
+                        (MatchesFeatSlot(kvp.Key, validatingSlotKey) || string.Equals(kvp.Key, validatingSlotKey, StringComparison.OrdinalIgnoreCase))) {
+                        continue;
+                    }
+                    foreach (var engine in snapSession._subsystems.Values) {
+                        var elem = engine.GetElement(kvp.Value);
+                        if (elem != null) {
+                            string? targetGroup = engine.Definition.SlotGroups.Keys.FirstOrDefault(g => {
+                                engine.Definition.SlotGroups.TryGetValue(g, out var gDef);
+                                return gDef != null && (string.IsNullOrEmpty(gDef.Filter) || elem.MatchesFilter(gDef.Filter, engine.Definition));
+                            });
+                            if (!string.IsNullOrEmpty(targetGroup)) {
+                                string source = engine.GetActiveSources().FirstOrDefault() ?? "Feats";
+                                engine.GrantSlot(targetGroup, elem.Name, source, kvp.Key);
+                            }
+                        }
+                    }
+                }
+            }
+
             foreach (var engine in snapSession._subsystems.Values) {
                 engine.TrimSlotsToCapacity();
             }
