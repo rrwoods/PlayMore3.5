@@ -181,7 +181,7 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
 
 ### 4.1 Core Rules Engine & Mechanics
 - **Feat Prerequisites & `GiveFeat` Engine**:
-  - Prerequisite checking: if prerequisite is not satisfied, flag with non-blocking advisory warning badge.
+  - Deep prerequisite module, instead of parsing strings that represent prerequisites.
   - `GiveFeat` effect: adds to an active character feat set; feat framework uses this, and effects are conditional on prerequisites via `HasFeat` check.
   - Case-by-case prerequisite bypass: text-supported reasons (Monk bonus feats) via effect, or table-supported reasons (DM fiat).
   - Feats granting feats (e.g., *Vow of Poverty*).
