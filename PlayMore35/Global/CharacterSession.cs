@@ -1092,6 +1092,10 @@ namespace PlayMore35.Global {
                 return ValidateClassProgressionChoice(context);
             }
 
+            if (context.Domain == ProgressionChoiceDomain.Feat && context.Descriptor == null && catalog.TryGetFeat(context.ChoiceValue, out _)) {
+                return Array.Empty<ValidationWarning>();
+            }
+
             // ProgressionChoiceDomain.Feat or Subsystem
             int slotLevel = !string.IsNullOrEmpty(context.SlotKey) ? GetFeatSlotLevel(context.SlotKey) : 0;
             int totalLevels = character.classLevels.Count;
@@ -1211,8 +1215,29 @@ namespace PlayMore35.Global {
         }
 
         private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(string featSlot, ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, IDictionary<string, string>? currentChoices) {
+            IEnumerable<SubsystemEngine> candidateEngines = _subsystems.Values;
+
+            if (descriptor != null &&
+                !string.IsNullOrEmpty(descriptor.Domain) &&
+                !string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                candidateEngines = candidateEngines.Where(e =>
+                    string.Equals(e.Id, descriptor.Domain, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(e.Name, descriptor.Domain, StringComparison.OrdinalIgnoreCase));
+            } else if (!string.IsNullOrEmpty(targetSource) &&
+                       !string.Equals(targetSource, "Feats", StringComparison.OrdinalIgnoreCase) &&
+                       catalog.TryGetClass(targetSource, out var cls) &&
+                       cls.Subsystems != null && cls.Subsystems.Count > 0) {
+                candidateEngines = candidateEngines.Where(e => cls.Subsystems.ContainsKey(e.Id));
+            }
+
+            var matchingEngines = candidateEngines
+                .Where(e => e.GetElement(choiceValue) != null)
+                .ToList();
+
+            var targetEngines = matchingEngines.Count > 0 ? matchingEngines : candidateEngines.ToList();
+
             var allWarnings = new List<ValidationWarning>();
-            foreach (var engine in _subsystems.Values) {
+            foreach (var engine in targetEngines) {
                 var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
                 if (warnings != null && warnings.Count > 0) {
                     allWarnings.AddRange(warnings);
