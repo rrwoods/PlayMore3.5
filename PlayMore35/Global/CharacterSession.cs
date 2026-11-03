@@ -1109,18 +1109,6 @@ namespace PlayMore35.Global {
             return EvaluateDualPass(acquisitionLevel, s => s.EvaluateSubsystemWarnings(context.SlotKey ?? "", context.Descriptor, context.ChoiceValue, context.TargetSource, choicesDict));
         }
 
-        public IReadOnlyList<ValidationWarning> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices = null) {
-            if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
-                return Array.Empty<ValidationWarning>();
-            }
-
-            int slotLevel = GetFeatSlotLevel(featSlot);
-            int totalLevels = character.classLevels.Count;
-            int acquisitionLevel = slotLevel > 0 ? slotLevel : totalLevels;
-
-            return EvaluateDualPass(acquisitionLevel, s => s.EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices));
-        }
-
         private IReadOnlyList<ValidationWarning> ValidateClassProgressionChoice(ProgressionChoiceContext context) {
             int acquisitionLevel = context.AcquisitionLevel;
             if (acquisitionLevel <= 0 && !string.IsNullOrEmpty(context.SlotKey)) {

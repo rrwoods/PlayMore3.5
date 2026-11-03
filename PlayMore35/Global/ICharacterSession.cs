@@ -93,7 +93,6 @@ namespace PlayMore35.Global {
         string GetFeatChoice(string featSlot, string key = null);
         IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource);
         IReadOnlyList<ValidationWarning> ValidateProgressionChoice(ProgressionChoiceContext context);
-        IReadOnlyList<ValidationWarning> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string> currentChoices = null);
         void AddLevel();
         ICharacterSession GetSessionAtLevel(int level, bool includeEquipped = false);
     }

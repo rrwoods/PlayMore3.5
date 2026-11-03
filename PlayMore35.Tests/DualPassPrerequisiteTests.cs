@@ -169,7 +169,13 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             // Martial Spirit requires 1 Devoted Spirit maneuver
-            var warnings = session.ValidateFeatChoice("Level 1", stanceDesc, "Martial Spirit", "Feats");
+            var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDesc
+            ));
 
             Assert.AreEqual(1, warnings.Count);
             Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind);
@@ -206,7 +212,13 @@ namespace PlayMore35.Tests {
             // Level 1 slot: Martial Spirit requires 1 Devoted Spirit maneuver.
             // Intrinsically (without gear), Devoted Spirit maneuvers known = 0 -> fails Pass 1.
             // With equipped gear applied to Level 1 snapshot, Crown grants Crusader's Strike -> passes Pass 2.
-            var warnings = session.ValidateFeatChoice("Level 1", stanceDesc, "Martial Spirit", "Feats");
+            var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDesc
+            ));
 
             Assert.AreEqual(1, warnings.Count, "Must emit 1 warning.");
             Assert.AreEqual(WarningKind.ItemDependent, warnings[0].Kind, "Prerequisite satisfied by gear must be categorized as ItemDependent.");
@@ -239,7 +251,13 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, fakeCatalog);
 
             // Level 1 slot choosing Mountain Hammer (Level 2 maneuver)
-            var warnings = session.ValidateFeatChoice("Level 1", desc, "Mountain Hammer", "Feats");
+            var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
 
             Assert.AreEqual(1, warnings.Count);
             Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind, "Subsystem element level gating is strictly intrinsic and must remain WarningKind.Unmet.");
@@ -269,13 +287,25 @@ namespace PlayMore35.Tests {
 
             // Level 1 slot: Crusader class level not yet acquired at character level 1.
             // Live character has Crusader 4 at level 10, but level 1 snapshot must NOT leak later levels.
-            var lvl1Warnings = session.ValidateFeatChoice("Level 1", stanceDesc, "Martial Spirit", "Feats");
+            var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDesc
+            ));
             Assert.AreEqual(1, lvl1Warnings.Count);
             Assert.AreEqual(WarningKind.Unmet, lvl1Warnings[0].Kind, "Subsequent class levels must not leak into Level 1 snapshot.");
             StringAssert.Contains(lvl1Warnings[0].Message, "Requires 1 Devoted Spirit maneuver, but only 0 known");
 
             // Level 3 slot: Crusader WAS acquired at level 2 -> satisfied intrinsically!
-            var lvl3Warnings = session.ValidateFeatChoice("Level 3", stanceDesc, "Martial Spirit", "Feats");
+            var lvl3Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 3",
+                targetSource: "Feats",
+                descriptor: stanceDesc
+            ));
             Assert.AreEqual(0, lvl3Warnings.Count, "Level 3 slot intrinsically satisfies Devoted Spirit requirement.");
         }
 
@@ -777,6 +807,154 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, warnings.Count, "Unrecognized element for Warblade must only emit a warning from Martial Maneuvers, not Pact Magic.");
             Assert.AreEqual(ValidationCategory.Invalid, warnings[0].Category);
             StringAssert.Contains(warnings[0].Message, "'NonexistentManeuver' is not a valid element in subsystem 'Martial Maneuvers'.");
+        }
+
+        [TestMethod]
+        public void ValidateProgressionChoice_ContextNullOrChoiceValueEmpty_ReturnsEmptyWarnings() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+
+            var session = new CharacterSession(character, catalog);
+
+            var nullResult = session.ValidateProgressionChoice(null!);
+            Assert.AreEqual(0, nullResult.Count, "Null context must return empty warnings without throwing.");
+
+            var emptyFeatResult = session.ValidateProgressionChoice(new ProgressionChoiceContext(ProgressionChoiceDomain.Feat, ""));
+            Assert.AreEqual(0, emptyFeatResult.Count, "Empty feat choice value must return empty warnings.");
+
+            var wsSubsystemResult = session.ValidateProgressionChoice(new ProgressionChoiceContext(ProgressionChoiceDomain.Subsystem, "   "));
+            Assert.AreEqual(0, wsSubsystemResult.Count, "Whitespace subsystem choice value must return empty warnings.");
+        }
+
+        // Source: Tome of Battle pp. 22, 43–44, 68; ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassGrantedManeuver_DisciplinePrerequisiteUnmet_EmitsPrerequisiteWarning() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            for (int i = 0; i < 5; i++) character.classLevels.Add("Warblade"); // Level 5 Warblade (IL 5, max maneuver level 3)
+
+            var session = new CharacterSession(character, catalog);
+
+            // Iron Heart Surge is level 3, requires 1 Iron Heart maneuver
+            var contextWithoutPrereq = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Iron Heart Surge",
+                acquisitionLevel: 5,
+                targetSource: "Warblade"
+            );
+
+            var warningsWithout = session.ValidateProgressionChoice(contextWithoutPrereq);
+            Assert.AreEqual(1, warningsWithout.Count, "Lacking 1 Iron Heart maneuver prerequisite must emit 1 warning.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warningsWithout[0].Category);
+            Assert.AreEqual(WarningKind.Unmet, warningsWithout[0].Kind);
+            StringAssert.Contains(warningsWithout[0].Message, "Requires 1 Iron Heart maneuver, but only 0 known");
+
+            // With an Iron Heart maneuver known in current choices, prerequisite is satisfied
+            var choices = new Dictionary<string, string> {
+                ["maneuver_1"] = "Steel Wind"
+            };
+            var contextWithPrereq = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Iron Heart Surge",
+                acquisitionLevel: 5,
+                targetSource: "Warblade",
+                currentChoices: choices
+            );
+
+            var warningsWith = session.ValidateProgressionChoice(contextWithPrereq);
+            Assert.AreEqual(0, warningsWith.Count, "When prerequisite is satisfied via current choices, 0 warnings must be emitted.");
+        }
+
+        // Source: Tome of Magic pp. 19, 21, 48; ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_VestigeChoice_HigherLevelBinder_AllowsHigherTierVestiges() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Binder");
+            character.classLevels.Add("Binder");
+            character.classLevels.Add("Binder"); // Level 3 Binder (max vestige level 2)
+
+            var session = new CharacterSession(character, catalog);
+
+            // Savnok is a 2nd-level vestige: valid for Binder 3
+            var contextSavnok = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Savnok",
+                acquisitionLevel: 3,
+                targetSource: "Binder"
+            );
+
+            var warningsSavnok = session.ValidateProgressionChoice(contextSavnok);
+            Assert.AreEqual(0, warningsSavnok.Count, "2nd-level vestige Savnok must be valid for Level 3 Binder.");
+
+            // Dahlver-Nar is also a 2nd-level vestige: valid for Binder 3
+            var contextDahlver = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Dahlver-Nar",
+                acquisitionLevel: 3,
+                targetSource: "Binder"
+            );
+
+            var warningsDahlver = session.ValidateProgressionChoice(contextDahlver);
+            Assert.AreEqual(0, warningsDahlver.Count, "2nd-level vestige Dahlver-Nar must be valid for Level 3 Binder.");
+        }
+
+        // Source: Tome of Magic p. 19; ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_VestigeChoice_MisspelledVestige_ScopesToPactMagic() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Binder");
+
+            var session = new CharacterSession(character, catalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "NonexistentVestige",
+                acquisitionLevel: 1,
+                targetSource: "Binder"
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(1, warnings.Count, "Unrecognized vestige for Binder must emit Invalid warning from Pact Magic.");
+            Assert.AreEqual(ValidationCategory.Invalid, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "'NonexistentVestige' is not a valid element in subsystem 'Pact Magic'.");
+        }
+
+        // Source: Tome of Magic pp. 19, 21; Complete Warrior p. 16; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_VestigeChoice_LevelGateRemainsUnmetEvenWithEquippedItem() {
+            var beltItem = new Item {
+                ItemSlot = Equipped.Slot.WAIST,
+                ItemEffect = new Effect("Belt of Binder Mastery")
+                    .AddModifier("effective binder level", new Modifier(4, ModifierTypes.ENHANCEMENT)),
+                Weight = 1
+            };
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.ItemsMap["Belt of Binder Mastery"] = beltItem;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Binder"); // Level 1 Binder (max vestige level 1)
+            character.equipped.SlottedItems[Equipped.Slot.WAIST] = "Belt of Binder Mastery";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Savnok is level 2 > max 1 for Binder 1
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Savnok",
+                acquisitionLevel: 1,
+                targetSource: "Binder"
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind, "Vestige level gating is intrinsic and must remain WarningKind.Unmet.");
+            Assert.AreEqual(ValidationCategory.LevelGate, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Level 2 exceeds maximum 1 for Binder.");
         }
     }
 }

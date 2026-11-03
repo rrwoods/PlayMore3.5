@@ -739,11 +739,23 @@ namespace PlayMore35.Tests {
             var desc = syntheticFeat.Choices[1]; // SubsystemElements choice
 
             // Level 1 maneuver: valid
-            var validWarnings = session1.ValidateFeatChoice("Level 1", desc, "Steel Wind", "Feats");
+            var validWarnings = session1.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Steel Wind",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
             Assert.AreEqual(0, validWarnings.Count, "Level 1 maneuver should have 0 warnings for Feats at level 1.");
 
             // Level 2 maneuver (Mountain Hammer, level 2 Stone Dragon): exceeds max maneuver level 1 for Feats
-            var invalidWarnings = session1.ValidateFeatChoice("Level 1", desc, "Mountain Hammer", "Feats");
+            var invalidWarnings = session1.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
             Assert.IsTrue(invalidWarnings.Count > 0);
             StringAssert.Contains(invalidWarnings[0].Message, "exceeds maximum maneuver level 1 for Feats");
 
@@ -758,7 +770,13 @@ namespace PlayMore35.Tests {
             var session2 = new CharacterSession(char2, fakeCatalog);
 
             // Mountain Hammer is valid for Warblade at level 3
-            var warbladeWarnings = session2.ValidateFeatChoice("Level 3", desc, "Mountain Hammer", "Warblade");
+            var warbladeWarnings = session2.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 3",
+                targetSource: "Warblade",
+                descriptor: desc
+            ));
             Assert.AreEqual(0, warbladeWarnings.Count, "Level 2 maneuver should have 0 warnings for Warblade at level 3.");
         }
 
@@ -1056,7 +1074,7 @@ namespace PlayMore35.Tests {
 
         // Source: Tome of Battle pp. 39, 52; ADR-0017
         [TestMethod]
-        public void ValidateFeatChoice_Level1SlotOnLevel10NonAdept_EmitsWarningWhenManeuverExceedsLevel1Gate() {
+        public void ValidateProgressionChoice_Level1SlotOnLevel10NonAdept_EmitsWarningWhenManeuverExceedsLevel1Gate() {
             var martialStudyDef = catalog.GetFeat("Martial Study");
             var desc = martialStudyDef.Choices.First(c => c.Id == "maneuver");
 
@@ -1069,28 +1087,52 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             // Candidate maneuver level 1 (Steel Wind): valid at level 1
-            var validWarnings = session.ValidateFeatChoice("Level 1", desc, "Steel Wind", "Feats");
+            var validWarnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Steel Wind",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
             Assert.AreEqual(0, validWarnings.Count, "Level 1 maneuver must have 0 warnings for Level 1 slot.");
 
             // Candidate maneuver level 2 (Mountain Hammer): exceeds Level 1 acquisition gate (max level 1)
-            var invalidWarnings = session.ValidateFeatChoice("Level 1", desc, "Mountain Hammer", "Feats");
+            var invalidWarnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
             Assert.IsTrue(invalidWarnings.Count > 0, "Level 2 maneuver must emit warning for Level 1 slot on Level 10 character.");
             StringAssert.Contains(invalidWarnings[0].Message, "exceeds maximum maneuver level 1 for Feats");
 
             // On the same Level 10 character, a Level 6 slot has IL 3 -> max level 2
             character.feats["Level 6"] = "Martial Study";
-            var validLvl6Warnings = session.ValidateFeatChoice("Level 6", desc, "Mountain Hammer", "Feats");
+            var validLvl6Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 6",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
             Assert.AreEqual(0, validLvl6Warnings.Count, "Level 2 maneuver is valid for Level 6 slot (IL 3).");
 
             // Level 3 maneuver (Iron Heart Surge) exceeds Level 6 gate (max level 2) even though character level 10 IL is 5
-            var invalidLvl6Warnings = session.ValidateFeatChoice("Level 6", desc, "Iron Heart Surge", "Feats");
+            var invalidLvl6Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Iron Heart Surge",
+                slotKey: "Level 6",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
             Assert.IsTrue(invalidLvl6Warnings.Count > 0, "Level 3 maneuver must emit warning for Level 6 slot.");
             StringAssert.Contains(invalidLvl6Warnings[0].Message, "exceeds maximum maneuver level 2 for Feats");
         }
 
         // Source: Tome of Battle pp. 39, 52; ADR-0017
         [TestMethod]
-        public void ValidateFeatChoice_Level1SlotOnLevel10MartialAdept_EmitsWarningWhenExceedingAcquisitionLevelGate() {
+        public void ValidateProgressionChoice_Level1SlotOnLevel10MartialAdept_EmitsWarningWhenExceedingAcquisitionLevelGate() {
             var martialStudyDef = catalog.GetFeat("Martial Study");
             var desc = martialStudyDef.Choices.First(c => c.Id == "maneuver");
 
@@ -1103,27 +1145,51 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             // Candidate maneuver level 1: valid for Level 1 slot
-            var validWarnings = session.ValidateFeatChoice("Level 1", desc, "Steel Wind", "Warblade");
+            var validWarnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Steel Wind",
+                slotKey: "Level 1",
+                targetSource: "Warblade",
+                descriptor: desc
+            ));
             Assert.AreEqual(0, validWarnings.Count, "Level 1 maneuver must have 0 warnings for Level 1 Warblade slot.");
 
             // Candidate maneuver level 2 (Mountain Hammer): exceeds Level 1 Warblade gate (IL 1 -> max level 1)
-            var invalidWarnings = session.ValidateFeatChoice("Level 1", desc, "Mountain Hammer", "Warblade");
+            var invalidWarnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 1",
+                targetSource: "Warblade",
+                descriptor: desc
+            ));
             Assert.IsTrue(invalidWarnings.Count > 0, "Level 2 maneuver must emit warning for Level 1 slot on Level 10 Warblade.");
             StringAssert.Contains(invalidWarnings[0].Message, "exceeds maximum maneuver level 1 for Warblade");
 
             // Level 3 slot has Warblade IL 3 -> max level 2
             character.feats["Level 3"] = "Martial Study";
-            var validLvl3 = session.ValidateFeatChoice("Level 3", desc, "Mountain Hammer", "Warblade");
+            var validLvl3 = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 3",
+                targetSource: "Warblade",
+                descriptor: desc
+            ));
             Assert.AreEqual(0, validLvl3.Count, "Level 2 maneuver is valid for Level 3 Warblade slot.");
 
-            var invalidLvl3 = session.ValidateFeatChoice("Level 3", desc, "Iron Heart Surge", "Warblade");
+            var invalidLvl3 = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Iron Heart Surge",
+                slotKey: "Level 3",
+                targetSource: "Warblade",
+                descriptor: desc
+            ));
             Assert.IsTrue(invalidLvl3.Count > 0, "Level 3 maneuver must emit warning for Level 3 Warblade slot (max level 2).");
             StringAssert.Contains(invalidLvl3[0].Message, "exceeds maximum maneuver level 2 for Warblade");
         }
 
         // Source: Tome of Battle pp. 39, 52; ADR-0017
         [TestMethod]
-        public void ValidateFeatChoice_MulticlassAdept_EvaluatesInitiatorLevelAndSourceAsOfAcquisitionLevel() {
+        public void ValidateProgressionChoice_MulticlassAdept_EvaluatesInitiatorLevelAndSourceAsOfAcquisitionLevel() {
             var martialStudyDef = catalog.GetFeat("Martial Study");
             var desc = martialStudyDef.Choices.First(c => c.Id == "maneuver");
 
@@ -1137,24 +1203,42 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             // Level 1 slot (Fighter 1): non-adept, source resolves to "Feats", IL 1 -> max level 1
-            var lvl1Warnings = session.ValidateFeatChoice("Level 1", desc, "Mountain Hammer", "Feats");
+            var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: desc
+            ));
             Assert.IsTrue(lvl1Warnings.Count > 0, "Level 2 maneuver must emit warning for Level 1 slot on multiclass character.");
             StringAssert.Contains(lvl1Warnings[0].Message, "exceeds maximum maneuver level 1 for Feats");
 
             // Level 6 slot (after gaining Warblade at level 5): Warblade IL is 1 + (4/2) = 3 -> max level 2
             // Candidate level 2 (Mountain Hammer) is valid for Warblade
-            var lvl6Valid = session.ValidateFeatChoice("Level 6", desc, "Mountain Hammer", "Warblade");
+            var lvl6Valid = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 6",
+                targetSource: "Warblade",
+                descriptor: desc
+            ));
             Assert.AreEqual(0, lvl6Valid.Count, "Level 2 maneuver is valid for Level 6 Warblade slot with IL 3.");
 
             // Candidate level 3 (Iron Heart Surge) exceeds Warblade max level 2 at level 6
-            var lvl6Invalid = session.ValidateFeatChoice("Level 6", desc, "Iron Heart Surge", "Warblade");
+            var lvl6Invalid = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Iron Heart Surge",
+                slotKey: "Level 6",
+                targetSource: "Warblade",
+                descriptor: desc
+            ));
             Assert.IsTrue(lvl6Invalid.Count > 0, "Level 3 maneuver must emit warning for Level 6 Warblade slot.");
             StringAssert.Contains(lvl6Invalid[0].Message, "exceeds maximum maneuver level 2 for Warblade");
         }
 
         // Source: Tome of Battle pp. 39, 44; ADR-0017
         [TestMethod]
-        public void ValidateFeatChoice_DisciplinePrerequisites_EnforcedAsOfAcquisitionLevel() {
+        public void ValidateProgressionChoice_DisciplinePrerequisites_EnforcedAsOfAcquisitionLevel() {
             var martialStanceDef = catalog.GetFeat("Martial Stance");
             var stanceDesc = martialStanceDef.Choices.First(c => c.Id == "stance");
 
@@ -1176,18 +1260,30 @@ namespace PlayMore35.Tests {
 
             // Level 1 slot (Fighter 1): Crusader not yet taken, Devoted Spirit known = 0
             // Martial Stance for Martial Spirit (Devoted Spirit stance, requires 1 Devoted Spirit maneuver)
-            var lvl1Warnings = session.ValidateFeatChoice("Level 1", stanceDesc, "Martial Spirit", "Feats");
+            var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDesc
+            ));
             Assert.IsTrue(lvl1Warnings.Count > 0, "Level 1 slot must fail Devoted Spirit prerequisite since Crusader was not yet taken.");
             StringAssert.Contains(lvl1Warnings[0].Message, "Requires 1 Devoted Spirit maneuver, but only 0 known");
 
             // Level 3 slot (Fighter 1 / Crusader 1 / Fighter 1): Crusader was taken at level 2 -> Devoted Spirit known = 1
-            var lvl3Warnings = session.ValidateFeatChoice("Level 3", stanceDesc, "Martial Spirit", "Feats");
+            var lvl3Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 3",
+                targetSource: "Feats",
+                descriptor: stanceDesc
+            ));
             Assert.AreEqual(0, lvl3Warnings.Count, "Level 3 slot satisfies Devoted Spirit prerequisite from Level 2 Crusader grant.");
         }
 
         // Source: Tome of Battle pp. 39, 44; ADR-0017
         [TestMethod]
-        public void ValidateFeatChoice_AdeptClassSlots_TrimmedToCapacityAtAcquisitionLevel_ForDisciplinePrereqs() {
+        public void ValidateProgressionChoice_AdeptClassSlots_TrimmedToCapacityAtAcquisitionLevel_ForDisciplinePrereqs() {
             var martialStanceDef = catalog.GetFeat("Martial Stance");
             var stanceDesc = martialStanceDef.Choices.First(c => c.Id == "stance");
 
@@ -1210,12 +1306,24 @@ namespace PlayMore35.Tests {
 
             // Level 1 slot: Warblade Level 1 capacity is 3. Slot 3 is pruned in the Level 1 snapshot.
             // Devoted Spirit maneuvers known at Level 1 is 0.
-            var lvl1Warnings = session.ValidateFeatChoice("Level 1", stanceDesc, "Martial Spirit", "Warblade");
+            var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Warblade",
+                descriptor: stanceDesc
+            ));
             Assert.IsTrue(lvl1Warnings.Count > 0, "Level 1 slot must prune maneuvers beyond Level 1 capacity (Slot 3) so Devoted Spirit prereq is unmet.");
             StringAssert.Contains(lvl1Warnings[0].Message, "Requires 1 Devoted Spirit maneuver, but only 0 known");
 
             // Level 9 slot: Warblade Level 9 capacity is 8. Slot 3 is within capacity.
-            var lvl9Warnings = session.ValidateFeatChoice("Level 9", stanceDesc, "Martial Spirit", "Warblade");
+            var lvl9Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 9",
+                targetSource: "Warblade",
+                descriptor: stanceDesc
+            ));
             Assert.AreEqual(0, lvl9Warnings.Count, "Level 9 slot retains Slot 3 so Devoted Spirit prereq is satisfied.");
         }
     }
