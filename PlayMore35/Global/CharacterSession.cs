@@ -1055,17 +1055,27 @@ namespace PlayMore35.Global {
             return new List<string>().AsReadOnly();
         }
 
-        private IReadOnlyList<ValidationWarning> EvaluateDualPass(int evalLevel, Func<CharacterSession, IReadOnlyList<ValidationWarning>> evaluate) {
+        private IReadOnlyList<ValidationWarning> EvaluateDualPass(
+            int evalLevel,
+            Func<CharacterSession, IReadOnlyList<ValidationWarning>> evaluate,
+            IReadOnlyDictionary<string, string>? currentChoices = null,
+            string? validatingSlotKey = null) {
             int totalLevels = character.classLevels.Count;
+            bool hasOverlay = currentChoices != null && currentChoices.Count > 0;
+
             if (!_isSnapshot && evalLevel >= 0 && evalLevel <= totalLevels) {
-                var intrinsicSnapshot = (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: false);
+                var intrinsicSnapshot = hasOverlay
+                    ? CreateSessionAtLevel(evalLevel, includeEquipped: false, currentChoices, validatingSlotKey)
+                    : (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: false);
                 var intrinsicWarnings = evaluate(intrinsicSnapshot);
 
                 if (intrinsicWarnings.Count == 0) {
                     return Array.Empty<ValidationWarning>();
                 }
 
-                var equippedSnapshot = (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: true);
+                var equippedSnapshot = hasOverlay
+                    ? CreateSessionAtLevel(evalLevel, includeEquipped: true, currentChoices, validatingSlotKey)
+                    : (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: true);
                 var equippedWarnings = evaluate(equippedSnapshot);
 
                 var results = new List<ValidationWarning>();
@@ -1078,6 +1088,19 @@ namespace PlayMore35.Global {
                     }
                 }
                 return results.AsReadOnly();
+            }
+
+            if (_isSnapshot && hasOverlay && evalLevel >= 0 && evalLevel <= totalLevels) {
+                bool includeEquipped = character.equipped != null && (
+                    character.equipped.PrimaryHandWeapon != null ||
+                    character.equipped.OffHandWeapon != null ||
+                    character.equipped.DonnedArmor != null ||
+                    character.equipped.OffHandShield != null ||
+                    (character.equipped.SlottedItems != null && character.equipped.SlottedItems.Count > 0) ||
+                    (character.equipped.SlotlessItems != null && character.equipped.SlotlessItems.Count > 0));
+
+                var overlaySnapshot = CreateSessionAtLevel(evalLevel, includeEquipped, currentChoices, validatingSlotKey);
+                return evaluate(overlaySnapshot);
             }
 
             return evaluate(this);
@@ -1106,7 +1129,11 @@ namespace PlayMore35.Global {
             var choicesDict = context.CurrentChoices as IDictionary<string, string>
                 ?? (context.CurrentChoices != null ? new Dictionary<string, string>((IDictionary<string, string>)context.CurrentChoices) : null);
 
-            return EvaluateDualPass(acquisitionLevel, s => s.EvaluateSubsystemWarnings(context.SlotKey ?? "", context.Descriptor, context.ChoiceValue, context.TargetSource, choicesDict));
+            return EvaluateDualPass(
+                acquisitionLevel,
+                s => s.EvaluateSubsystemWarnings(context.SlotKey ?? "", context.Descriptor, context.ChoiceValue, context.TargetSource, choicesDict),
+                context.CurrentChoices,
+                context.SlotKey);
         }
 
         private IReadOnlyList<ValidationWarning> ValidateClassProgressionChoice(ProgressionChoiceContext context) {
@@ -1122,7 +1149,11 @@ namespace PlayMore35.Global {
             }
 
             int evalLevel = Math.Max(0, acquisitionLevel - 1);
-            return EvaluateDualPass(evalLevel, s => s.EvaluateClassWarnings(context.ChoiceValue));
+            return EvaluateDualPass(
+                evalLevel,
+                s => s.EvaluateClassWarnings(context.ChoiceValue),
+                context.CurrentChoices,
+                context.SlotKey);
         }
 
         private static readonly Dictionary<string, (string StatName, string Abbr)> AbilityScoreMap = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase) {
@@ -1463,7 +1494,11 @@ namespace PlayMore35.Global {
             return _levelSessionCache.GetOrAdd((level, includeEquipped), key => CreateSessionAtLevel(key.level, key.includeEquipped));
         }
 
-        private CharacterSession CreateSessionAtLevel(int level, bool includeEquipped) {
+        internal CharacterSession CreateSessionAtLevel(
+            int level,
+            bool includeEquipped,
+            IReadOnlyDictionary<string, string>? currentChoices = null,
+            string? validatingSlotKey = null) {
             var slotLevels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (var levelEntry in GetFeatSlots()) {
                 foreach (var slot in levelEntry.Value) {
@@ -1515,6 +1550,9 @@ namespace PlayMore35.Global {
             }
 
             foreach (var kvp in character.featChoices) {
+                if (!string.IsNullOrEmpty(validatingSlotKey) && MatchesFeatSlot(kvp.Key, validatingSlotKey)) {
+                    continue;
+                }
                 string slot = kvp.Key.Contains(':') ? kvp.Key.Substring(0, kvp.Key.IndexOf(':')) : kvp.Key;
                 int slotLevel = ResolveSlotLevel(slot);
                 if (slotLevel > 0 && slotLevel <= level) {
@@ -1530,6 +1568,11 @@ namespace PlayMore35.Global {
                 foreach (var slotGrp in kvp.Value.Slots) {
                     var slotsList = new List<SubsystemSlot>();
                     foreach (var s in slotGrp.Value) {
+                        if (!string.IsNullOrEmpty(validatingSlotKey) &&
+                            !string.IsNullOrEmpty(s.FeatSlot) &&
+                            MatchesFeatSlot(s.FeatSlot, validatingSlotKey)) {
+                            continue;
+                        }
                         if (s.IsGrantedByEquippedItem) {
                             if (includeEquipped) {
                                 slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
@@ -1548,6 +1591,25 @@ namespace PlayMore35.Global {
                     subState.Slots[slotGrp.Key] = slotsList;
                 }
                 sliced.Subsystems[kvp.Key] = subState;
+            }
+
+            if (currentChoices != null && level > 0) {
+                foreach (var kvp in currentChoices) {
+                    if (string.IsNullOrWhiteSpace(kvp.Key) || string.IsNullOrWhiteSpace(kvp.Value)) {
+                        continue;
+                    }
+                    if (!string.IsNullOrEmpty(validatingSlotKey) && MatchesFeatSlot(kvp.Key, validatingSlotKey)) {
+                        continue;
+                    }
+                    string slot = kvp.Key.Contains(':') ? kvp.Key.Substring(0, kvp.Key.IndexOf(':')) : kvp.Key;
+                    int slotLevel = ResolveSlotLevel(slot);
+                    if (slotLevel <= 0 || slotLevel <= level) {
+                        sliced.featChoices[kvp.Key] = kvp.Value;
+                        if (!kvp.Key.Contains(':') && catalog.TryGetFeat(kvp.Value, out _)) {
+                            sliced.feats[kvp.Key] = kvp.Value;
+                        }
+                    }
+                }
             }
 
             var snapSession = new CharacterSession(sliced, catalog, isSnapshot: true);
