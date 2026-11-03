@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Global;
+using PlayMore35.Items;
 using PlayMore35.Rules;
 using PlayMore35.Subsystems;
 
@@ -1398,6 +1399,286 @@ namespace PlayMore35.Tests {
                 descriptor: zeroPrereqDescriptor
             ));
             Assert.AreEqual(0, warningsWithoutMinimum.Count, "0-minimum descriptor must not impose stance prerequisite threshold when element has 0 prereqs.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_InFlightOverlay_LiveSession_SatisfiesPeerPrerequisites() {
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Human"] = "Martial Study";
+            character.feats["Level 1"] = "Martial Stance";
+
+            var session = new CharacterSession(character, catalog);
+
+            // 1. Without in-flight choices, Flame's Blessing in Level 1 has 0 Desert Wind maneuvers known -> warning
+            var warningsWithout = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor
+            ));
+            Assert.AreEqual(1, warningsWithout.Count);
+            Assert.AreEqual(ValidationCategory.Prerequisite, warningsWithout[0].Category);
+            StringAssert.Contains(warningsWithout[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known");
+
+            // 2. With in-flight CurrentChoices containing Burning Blade for Human slot, Flame's Blessing in Level 1 satisfies prerequisite
+            var inFlightChoices = new Dictionary<string, string> {
+                ["Human:maneuver"] = "Burning Blade",
+                ["Level 1:stance"] = "Flame's Blessing"
+            };
+            var warningsWith = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor,
+                currentChoices: inFlightChoices
+            ));
+            Assert.AreEqual(0, warningsWith.Count, "In-flight peer choice (Burning Blade in Human slot) must satisfy Desert Wind prerequisite for Level 1 stance.");
+
+            // 3. Vice versa: validating Human slot does NOT see itself or satisfy its own prerequisite
+            // If Human slot is Martial Stance and CurrentChoices has ["Human:stance"] = "Flame's Blessing",
+            // validating Flame's Blessing in Human slot must not see itself as fulfilling its own prerequisite.
+            var humanStanceChar = new Character { race = "human" };
+            humanStanceChar.classLevels.Clear();
+            humanStanceChar.classLevels.Add("Fighter");
+            humanStanceChar.feats["Human"] = "Martial Stance";
+
+            var humanStanceSession = new CharacterSession(humanStanceChar, catalog);
+            var selfChoices = new Dictionary<string, string> {
+                ["Human:stance"] = "Flame's Blessing"
+            };
+            var selfWarnings = humanStanceSession.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Human",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor,
+                currentChoices: selfChoices
+            ));
+            Assert.AreEqual(1, selfWarnings.Count, "Validating Human slot must omit its own in-flight choice so it cannot satisfy its own prerequisite.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, selfWarnings[0].Category);
+            StringAssert.Contains(selfWarnings[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_InFlightOverlay_SnapshotSession_SatisfiesPeerPrerequisites() {
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Human"] = "Martial Study";
+            character.feats["Level 1"] = "Martial Stance";
+
+            var session = new CharacterSession(character, catalog);
+            var snapSession = session.GetSessionAtLevel(1);
+
+            // 1. Without in-flight choices on snapshot -> warning
+            var warningsWithout = snapSession.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor
+            ));
+            Assert.AreEqual(1, warningsWithout.Count);
+            Assert.AreEqual(ValidationCategory.Prerequisite, warningsWithout[0].Category);
+
+            // 2. With in-flight choices on snapshot -> 0 warnings
+            var inFlightChoices = new Dictionary<string, string> {
+                ["Human:maneuver"] = "Burning Blade",
+                ["Level 1:stance"] = "Flame's Blessing"
+            };
+            var warningsWith = snapSession.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor,
+                currentChoices: inFlightChoices
+            ));
+            Assert.AreEqual(0, warningsWith.Count, "In-flight overlay on snapshot session must project peer choices and satisfy prerequisites.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_InFlightOverlay_DoesNotPolluteLazyLevelSessionCache() {
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Human"] = "Martial Study";
+            character.feats["Level 1"] = "Martial Stance";
+
+            var session = new CharacterSession(character, catalog);
+
+            // Prime lazy cache
+            var cachedSnapBefore = session.GetSessionAtLevel(1);
+            Assert.IsFalse(cachedSnapBefore.Character.featChoices.ContainsKey("Human:maneuver"));
+
+            // Validate with in-flight overlay
+            var inFlightChoices = new Dictionary<string, string> {
+                ["Human:maneuver"] = "Burning Blade"
+            };
+            var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor,
+                currentChoices: inFlightChoices
+            ));
+            Assert.AreEqual(0, warnings.Count);
+
+            // Cached snapshot must remain clean and unpolluted
+            var cachedSnapAfter = session.GetSessionAtLevel(1);
+            Assert.AreSame(cachedSnapBefore, cachedSnapAfter, "Clean snapshot must still be retrieved from lazy cache.");
+            Assert.IsFalse(cachedSnapAfter.Character.featChoices.ContainsKey("Human:maneuver"), "Cache must not be polluted with in-flight overlay choices.");
+
+            // Validating on clean cached snapshot without CurrentChoices must still emit prerequisite warning
+            var cleanWarnings = cachedSnapAfter.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor
+            ));
+            Assert.AreEqual(1, cleanWarnings.Count);
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_InFlightOverlay_ExcludesPreviouslyCommittedSlotChoices() {
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Human"] = "Martial Study";
+            character.feats["Level 1"] = "Martial Stance";
+            // Pre-committed choices: Level 1 was previously saved as Flame's Blessing
+            character.featChoices["Level 1:stance"] = "Flame's Blessing";
+
+            var session = new CharacterSession(character, catalog);
+
+            // When validating Level 1 slot (with 0 Desert Wind maneuvers), the slot currently being validated
+            // must be excluded from the snapshot's active slots/choices so it does not satisfy itself
+            var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor,
+                currentChoices: new Dictionary<string, string> {
+                    ["Level 1:stance"] = "Flame's Blessing"
+                }
+            ));
+
+            Assert.AreEqual(1, warnings.Count, "Pre-committed choice on the slot being validated must be excluded so it cannot satisfy itself.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_InFlightOverlay_ProjectsGrantedSlotsIntoSubsystemEngineActiveSlots() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Human"] = "Martial Study";
+            character.feats["Level 1"] = "Martial Stance";
+
+            var session = new CharacterSession(character, catalog);
+
+            var inFlightChoices = new Dictionary<string, string> {
+                ["Human:maneuver"] = "Burning Blade",
+                ["Level 1:stance"] = "Flame's Blessing"
+            };
+
+            var snapSession = session.CreateSessionAtLevel(1, includeEquipped: false, inFlightChoices, validatingSlotKey: "Level 1");
+
+            // Verify snapSession state
+            Assert.AreEqual("Burning Blade", snapSession.Character.featChoices["Human:maneuver"]);
+            Assert.IsFalse(snapSession.Character.featChoices.ContainsKey("Level 1:stance"), "Validating slot choice must be omitted from snapSession featChoices.");
+
+            // Verify subsystem active slots
+            var engine = snapSession.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(engine);
+            var maneuversGroup = engine.GetSlotGroup("maneuvers");
+            Assert.IsNotNull(maneuversGroup);
+            Assert.IsTrue(
+                maneuversGroup.Slots.Any(s => string.Equals(s.Element, "Burning Blade", StringComparison.OrdinalIgnoreCase) && string.Equals(s.FeatSlot, "Human", StringComparison.OrdinalIgnoreCase)),
+                "Peer feat (Martial Study in Human slot) must project granted slot into subsystem engine active slot groups.");
+
+            var stancesGroup = engine.GetSlotGroup("stances");
+            Assert.IsNotNull(stancesGroup);
+            Assert.IsFalse(
+                stancesGroup.Slots.Any(s => string.Equals(s.FeatSlot, "Level 1", StringComparison.OrdinalIgnoreCase)),
+                "Slot being validated (Level 1) must not project active slots into snapshot subsystem engine.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_InFlightOverlay_DualPassSatisfiedByGear_CategorizesAsItemDependent() {
+            var itemEffect = new Effect("Ring of the Desert Sun")
+                .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Burning Blade", "Item"));
+            var ringItem = new Item {
+                ItemSlot = Equipped.Slot.RING1,
+                ItemEffect = itemEffect,
+                Weight = 1
+            };
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.ItemsMap["Ring of the Desert Sun"] = ringItem;
+
+            var martialStanceDef = fakeCatalog.GetFeat("Martial Stance");
+            var stanceDesc = martialStanceDef.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.feats["Human"] = "Martial Study";
+            character.feats["Level 1"] = "Martial Stance";
+            character.equipped.SlottedItems[Equipped.Slot.RING1] = "Ring of the Desert Sun";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // In-flight Human slot has Vanguard Strike (Devoted Spirit)
+            // Equipped ring grants Burning Blade (Desert Wind)
+            // Validating Flame's Blessing (level 1 Desert Wind stance requiring 1 Desert Wind maneuver) in Level 1 slot:
+            // Intrinsic: in-flight overlay gives Vanguard Strike, 0 Desert Wind maneuvers -> unmet
+            // Equipped: overlay gives Vanguard Strike + Ring gives Burning Blade -> 1 Desert Wind maneuver -> satisfied -> ItemDependent
+            var inFlightChoices = new Dictionary<string, string> {
+                ["Human:maneuver"] = "Vanguard Strike"
+            };
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDesc,
+                currentChoices: inFlightChoices
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.ItemDependent, warnings[0].Kind, "Prerequisite satisfied by combining in-flight peer choice with gear must be ItemDependent.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known.");
         }
     }
 }
