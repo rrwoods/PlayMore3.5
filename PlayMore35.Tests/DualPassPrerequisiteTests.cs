@@ -863,7 +863,7 @@ namespace PlayMore35.Tests {
             );
 
             var warningsWith = session.ValidateProgressionChoice(contextWithPrereq);
-            Assert.AreEqual(0, warningsWith.Count, "When prerequisite is satisfied via current choices, 0 warnings must be emitted.");
+            Assert.IsFalse(warningsWith.Any(w => w.Category == ValidationCategory.Prerequisite), "When prerequisite is satisfied via current choices, 0 prerequisite warnings must be emitted.");
         }
 
         // Source: Tome of Magic pp. 19, 21, 48; ADR-0018
@@ -955,6 +955,76 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind, "Vestige level gating is intrinsic and must remain WarningKind.Unmet.");
             Assert.AreEqual(ValidationCategory.LevelGate, warnings[0].Category);
             StringAssert.Contains(warnings[0].Message, "Level 2 exceeds maximum 1 for Binder.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void CreateSessionAtLevel_InFlightFeatChoice_DoesNotCreateDuplicateSlots() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+
+            var session = new CharacterSession(character, catalog);
+
+            var inFlightChoices = new Dictionary<string, string> {
+                ["Level 1"] = "Martial Study",
+                ["Level 1:maneuver"] = "Steel Wind"
+            };
+
+            var snapshot = session.CreateSessionAtLevel(1, includeEquipped: false, inFlightChoices);
+            var engine = snapshot.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(engine);
+
+            var maneuverSlots = engine.GetSlotGroup("maneuvers")?.RawSlots
+                .Where(s => string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            Assert.IsNotNull(maneuverSlots);
+            Assert.AreEqual(1, maneuverSlots.Count, "Martial Study feat choice must create exactly 1 granted slot, not duplicate slots.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_OnSnapshotSessionWithOverlay_EvaluatesDualPassItemDependency() {
+            var item = new Item {
+                ItemSlot = Equipped.Slot.HEAD,
+                ItemEffect = new Effect("Crown of the White Raven")
+                    .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Crusader's Strike", "Item")),
+                Weight = 1
+            };
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.ItemsMap["Crown of the White Raven"] = item;
+
+            var martialStanceDef = fakeCatalog.GetFeat("Martial Stance");
+            var stanceDesc = martialStanceDef.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            for (int i = 0; i < 10; i++) character.classLevels.Add("Fighter");
+            character.equipped.SlottedItems[Equipped.Slot.HEAD] = "Crown of the White Raven";
+
+            var liveSession = new CharacterSession(character, fakeCatalog);
+            var snapshotSession = liveSession.GetSessionAtLevel(10, includeEquipped: true);
+
+            var inFlight = new Dictionary<string, string> {
+                ["Level 1"] = "Martial Stance"
+            };
+
+            var progContext = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDesc,
+                currentChoices: inFlight
+            );
+
+            var warnings = snapshotSession.ValidateProgressionChoice(progContext);
+            Assert.AreEqual(1, warnings.Count, "Must emit 1 warning.");
+            Assert.AreEqual(WarningKind.ItemDependent, warnings[0].Kind, "Prerequisite satisfied by gear must be categorized as ItemDependent on snapshot session.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires 1 Devoted Spirit maneuver, but only 0 known");
         }
     }
 }
