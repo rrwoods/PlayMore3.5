@@ -25,6 +25,7 @@ namespace PlayMore35.Global {
         private readonly ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession> _levelSessionCache =
             new ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession>();
         private readonly bool _isSnapshot;
+        internal bool IsSnapshot => _isSnapshot;
 
         public IReadOnlyCharacter Character => readOnlyCharacter;
         public IReadOnlyDictionary<string, string> RememberedFeats => rememberedFeats;
@@ -1063,7 +1064,7 @@ namespace PlayMore35.Global {
             int totalLevels = character.classLevels.Count;
             bool hasOverlay = currentChoices != null && currentChoices.Count > 0;
 
-            if (!_isSnapshot && evalLevel >= 0 && evalLevel <= totalLevels) {
+            if (evalLevel >= 0 && evalLevel <= totalLevels) {
                 var intrinsicSnapshot = hasOverlay
                     ? CreateSessionAtLevel(evalLevel, includeEquipped: false, currentChoices, validatingSlotKey)
                     : (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: false);
@@ -1088,19 +1089,6 @@ namespace PlayMore35.Global {
                     }
                 }
                 return results.AsReadOnly();
-            }
-
-            if (_isSnapshot && hasOverlay && evalLevel >= 0 && evalLevel <= totalLevels) {
-                bool includeEquipped = character.equipped != null && (
-                    character.equipped.PrimaryHandWeapon != null ||
-                    character.equipped.OffHandWeapon != null ||
-                    character.equipped.DonnedArmor != null ||
-                    character.equipped.OffHandShield != null ||
-                    (character.equipped.SlottedItems != null && character.equipped.SlottedItems.Count > 0) ||
-                    (character.equipped.SlotlessItems != null && character.equipped.SlotlessItems.Count > 0));
-
-                var overlaySnapshot = CreateSessionAtLevel(evalLevel, includeEquipped, currentChoices, validatingSlotKey);
-                return evaluate(overlaySnapshot);
             }
 
             return evaluate(this);
@@ -1602,39 +1590,38 @@ namespace PlayMore35.Global {
                     int slotLevel = ResolveSlotLevel(slot);
                     if (slotLevel <= 0 || slotLevel <= level) {
                         sliced.featChoices[kvp.Key] = kvp.Value;
-                        if (!kvp.Key.Contains(':') && catalog.TryGetFeat(kvp.Value, out _)) {
-                            sliced.feats[kvp.Key] = kvp.Value;
+                        if (!kvp.Key.Contains(':')) {
+                            if (catalog.TryGetFeat(kvp.Value, out _)) {
+                                sliced.feats[kvp.Key] = kvp.Value;
+                            } else if (catalog.Subsystems != null) {
+                                foreach (var subDef in catalog.Subsystems.Values) {
+                                    if (subDef.Elements.TryGetValue(kvp.Value, out var elem) && elem != null) {
+                                        string? targetGroup = subDef.SlotGroups.Keys.FirstOrDefault(g => {
+                                            subDef.SlotGroups.TryGetValue(g, out var gDef);
+                                            return gDef != null && (string.IsNullOrEmpty(gDef.Filter) || elem.MatchesFilter(gDef.Filter, subDef));
+                                        });
+                                        if (!string.IsNullOrEmpty(targetGroup)) {
+                                            if (!sliced.Subsystems.TryGetValue(subDef.Id, out var subState)) {
+                                                subState = new SubsystemState();
+                                                sliced.Subsystems[subDef.Id] = subState;
+                                            }
+                                            if (!subState.Slots.TryGetValue(targetGroup, out var slotList)) {
+                                                slotList = new List<SubsystemSlot>();
+                                                subState.Slots[targetGroup] = slotList;
+                                            }
+                                            string source = sliced.classLevels.FirstOrDefault(c => IsClassEligible(c, subDef.Id)) ?? "Feats";
+                                            string defaultState = subDef.SlotGroups[targetGroup].DefaultState;
+                                            slotList.Add(new SubsystemSlot(elem.Name, defaultState, source, null));
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
 
             var snapSession = new CharacterSession(sliced, catalog, isSnapshot: true);
-
-            if (currentChoices != null && level > 0) {
-                foreach (var kvp in currentChoices) {
-                    if (string.IsNullOrWhiteSpace(kvp.Key) || string.IsNullOrWhiteSpace(kvp.Value)) {
-                        continue;
-                    }
-                    if (!string.IsNullOrEmpty(validatingSlotKey) &&
-                        (MatchesFeatSlot(kvp.Key, validatingSlotKey) || string.Equals(kvp.Key, validatingSlotKey, StringComparison.OrdinalIgnoreCase))) {
-                        continue;
-                    }
-                    foreach (var engine in snapSession._subsystems.Values) {
-                        var elem = engine.GetElement(kvp.Value);
-                        if (elem != null) {
-                            string? targetGroup = engine.Definition.SlotGroups.Keys.FirstOrDefault(g => {
-                                engine.Definition.SlotGroups.TryGetValue(g, out var gDef);
-                                return gDef != null && (string.IsNullOrEmpty(gDef.Filter) || elem.MatchesFilter(gDef.Filter, engine.Definition));
-                            });
-                            if (!string.IsNullOrEmpty(targetGroup)) {
-                                string source = engine.GetActiveSources().FirstOrDefault() ?? "Feats";
-                                engine.GrantSlot(targetGroup, elem.Name, source, kvp.Key);
-                            }
-                        }
-                    }
-                }
-            }
 
             foreach (var engine in snapSession._subsystems.Values) {
                 engine.TrimSlotsToCapacity();

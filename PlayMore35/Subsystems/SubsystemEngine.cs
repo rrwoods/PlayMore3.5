@@ -1515,7 +1515,7 @@ namespace PlayMore35.Subsystems {
                                     int maxReadied = GetReadiedCapacity(kvp.Key, effectiveSource);
                                     if (readiedCount > maxReadied) {
                                         warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
-                                    } else if (readiedCount > 0 && readiedCount < maxReadied) {
+                                    } else if (readiedCount < maxReadied) {
                                         warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
                                     }
                                 }
