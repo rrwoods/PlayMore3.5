@@ -404,7 +404,7 @@ namespace PlayMore35 {
                         string deliveredName = elem?.Name;
                         if (!string.IsNullOrWhiteSpace(deliveredName)) {
                             string target = ResolveTargetSource(choiceState, desc);
-                            var currentChoices = GetFeatChoices();
+                            var currentChoices = GetCurrentProgressionChoices();
                             currentChoices[$"{featSlot}:{desc.Id}"] = deliveredName;
                             var progContext = new ProgressionChoiceContext(
                                 ProgressionChoiceDomain.Feat,
@@ -441,7 +441,7 @@ namespace PlayMore35 {
         }
 
         private void UpdateWarnings() {
-            var currentChoices = GetFeatChoices();
+            var currentChoices = GetCurrentProgressionChoices();
 
             foreach (var state in slotChoiceStates.Values) {
                 var desc = state.WarningDescriptor;
@@ -526,6 +526,14 @@ namespace PlayMore35 {
             return Enumerable.Range(0, feats.Count)
                 .Where(i => feats[i].Text.Any())
                 .ToDictionary(i => (string) feats[i].Tag, i => feats[i].Text);
+        }
+
+        private Dictionary<string, string> GetCurrentProgressionChoices() {
+            var choices = GetFeatChoices();
+            foreach (var feat in GetFeats()) {
+                choices[feat.Key] = feat.Value;
+            }
+            return choices;
         }
 
         public Dictionary<string, string> GetFeatChoices() {
@@ -625,7 +633,7 @@ namespace PlayMore35 {
                     ? new[] { receptor.SelectedElement }
                     : Array.Empty<SubsystemElement>(),
                 WarningProvider = (elem) => {
-                    var currentChoices = GetFeatChoices();
+                    var currentChoices = GetCurrentProgressionChoices();
                     currentChoices[$"{state.FeatSlot}:{desc.Id}"] = elem.Name;
                     var progContext = new ProgressionChoiceContext(
                         ProgressionChoiceDomain.Feat,
@@ -651,7 +659,7 @@ namespace PlayMore35 {
                         slotKey: state.FeatSlot,
                         targetSource: targetSource,
                         descriptor: desc,
-                        currentChoices: GetFeatChoices()
+                        currentChoices: GetCurrentProgressionChoices()
                     );
                     var warnings = session.ValidateProgressionChoice(progContext);
                     if (warnings != null && warnings.Count > 0) {
