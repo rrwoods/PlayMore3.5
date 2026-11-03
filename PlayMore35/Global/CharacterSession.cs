@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
@@ -1054,25 +1055,18 @@ namespace PlayMore35.Global {
             return new List<string>().AsReadOnly();
         }
 
-        public IReadOnlyList<ValidationWarning> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices = null) {
-            if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
-                return Array.Empty<ValidationWarning>();
-            }
-
-            int slotLevel = GetFeatSlotLevel(featSlot);
+        private IReadOnlyList<ValidationWarning> EvaluateDualPass(int evalLevel, Func<CharacterSession, IReadOnlyList<ValidationWarning>> evaluate) {
             int totalLevels = character.classLevels.Count;
-            int acquisitionLevel = slotLevel > 0 ? slotLevel : totalLevels;
-
-            if (!_isSnapshot && acquisitionLevel > 0 && acquisitionLevel <= totalLevels) {
-                var intrinsicSnapshot = (CharacterSession)GetSessionAtLevel(acquisitionLevel, includeEquipped: false);
-                var intrinsicWarnings = intrinsicSnapshot.EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+            if (!_isSnapshot && evalLevel >= 0 && evalLevel <= totalLevels) {
+                var intrinsicSnapshot = (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: false);
+                var intrinsicWarnings = evaluate(intrinsicSnapshot);
 
                 if (intrinsicWarnings.Count == 0) {
                     return Array.Empty<ValidationWarning>();
                 }
 
-                var equippedSnapshot = (CharacterSession)GetSessionAtLevel(acquisitionLevel, includeEquipped: true);
-                var equippedWarnings = equippedSnapshot.EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+                var equippedSnapshot = (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: true);
+                var equippedWarnings = evaluate(equippedSnapshot);
 
                 var results = new List<ValidationWarning>();
                 foreach (var w in intrinsicWarnings) {
@@ -1086,10 +1080,137 @@ namespace PlayMore35.Global {
                 return results.AsReadOnly();
             }
 
-            return EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices);
+            return evaluate(this);
         }
 
-        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices) {
+        public IReadOnlyList<ValidationWarning> ValidateProgressionChoice(ProgressionChoiceContext context) {
+            if (context == null || string.IsNullOrWhiteSpace(context.ChoiceValue)) {
+                return Array.Empty<ValidationWarning>();
+            }
+
+            if (context.Domain == ProgressionChoiceDomain.Class) {
+                return ValidateClassProgressionChoice(context);
+            }
+
+            // ProgressionChoiceDomain.Feat or Subsystem
+            int slotLevel = !string.IsNullOrEmpty(context.SlotKey) ? GetFeatSlotLevel(context.SlotKey) : 0;
+            int totalLevels = character.classLevels.Count;
+            int acquisitionLevel = context.AcquisitionLevel > 0
+                ? context.AcquisitionLevel
+                : (slotLevel > 0 ? slotLevel : totalLevels);
+
+            var choicesDict = context.CurrentChoices as IDictionary<string, string>
+                ?? (context.CurrentChoices != null ? new Dictionary<string, string>((IDictionary<string, string>)context.CurrentChoices) : null);
+
+            return EvaluateDualPass(acquisitionLevel, s => s.EvaluateSubsystemWarnings(context.SlotKey ?? "", context.Descriptor, context.ChoiceValue, context.TargetSource, choicesDict));
+        }
+
+        public IReadOnlyList<ValidationWarning> ValidateFeatChoice(string featSlot, ChoiceDescriptor descriptor, string choiceValue, string targetSource, IDictionary<string, string>? currentChoices = null) {
+            if (descriptor == null || string.IsNullOrWhiteSpace(choiceValue)) {
+                return Array.Empty<ValidationWarning>();
+            }
+
+            int slotLevel = GetFeatSlotLevel(featSlot);
+            int totalLevels = character.classLevels.Count;
+            int acquisitionLevel = slotLevel > 0 ? slotLevel : totalLevels;
+
+            return EvaluateDualPass(acquisitionLevel, s => s.EvaluateSubsystemWarnings(featSlot, descriptor, choiceValue, targetSource, currentChoices));
+        }
+
+        private IReadOnlyList<ValidationWarning> ValidateClassProgressionChoice(ProgressionChoiceContext context) {
+            int acquisitionLevel = context.AcquisitionLevel;
+            if (acquisitionLevel <= 0 && !string.IsNullOrEmpty(context.SlotKey)) {
+                if (context.SlotKey!.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(context.SlotKey.Substring(6), out int parsed)) {
+                    acquisitionLevel = parsed;
+                }
+            }
+            if (acquisitionLevel <= 0) {
+                acquisitionLevel = Math.Max(1, character.classLevels.Count);
+            }
+
+            int evalLevel = Math.Max(0, acquisitionLevel - 1);
+            return EvaluateDualPass(evalLevel, s => s.EvaluateClassWarnings(context.ChoiceValue));
+        }
+
+        private static readonly Dictionary<string, (string StatName, string Abbr)> AbilityScoreMap = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase) {
+            ["STR"] = (STR_SCORE, "STR"),
+            ["Strength"] = (STR_SCORE, "STR"),
+            ["DEX"] = (DEX_SCORE, "DEX"),
+            ["Dexterity"] = (DEX_SCORE, "DEX"),
+            ["CON"] = (CON_SCORE, "CON"),
+            ["Constitution"] = (CON_SCORE, "CON"),
+            ["INT"] = (INT_SCORE, "INT"),
+            ["Intelligence"] = (INT_SCORE, "INT"),
+            ["WIS"] = (WIS_SCORE, "WIS"),
+            ["Wisdom"] = (WIS_SCORE, "WIS"),
+            ["CHA"] = (CHA_SCORE, "CHA"),
+            ["Charisma"] = (CHA_SCORE, "CHA")
+        };
+
+        private IReadOnlyList<ValidationWarning> EvaluateClassWarnings(string className) {
+            if (!catalog.TryGetClass(className, out var classDef)) {
+                return new List<ValidationWarning> {
+                    new ValidationWarning($"Class '{className}' is not recognized.", ValidationCategory.Invalid)
+                }.AsReadOnly();
+            }
+
+            if (string.IsNullOrWhiteSpace(classDef.Prerequisites)) {
+                return Array.Empty<ValidationWarning>();
+            }
+
+            var warnings = new List<ValidationWarning>();
+            var clauses = classDef.Prerequisites.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var rawClause in clauses) {
+                string clause = rawClause.Trim();
+                if (string.IsNullOrEmpty(clause)) continue;
+
+                // 1. Base attack bonus: "Base attack bonus +4", "BAB +6", etc.
+                var babMatch = Regex.Match(clause, @"^(?:base attack bonus|bab)\s*\+?(\d+)$", RegexOptions.IgnoreCase);
+                if (babMatch.Success) {
+                    int requiredBab = int.Parse(babMatch.Groups[1].Value);
+                    int actualBab = GetStatistic(Constants.BASE_ATTACK_BONUS)?.Value ?? 0;
+                    if (actualBab < requiredBab) {
+                        warnings.Add(new ValidationWarning($"Requires Base attack bonus +{requiredBab}.", ValidationCategory.Prerequisite));
+                    }
+                    continue;
+                }
+
+                // 2. Ability score: "STR 14", "Strength 13", etc.
+                var abilityMatch = Regex.Match(clause, @"^([A-Za-z]+)\s+(\d+)$", RegexOptions.IgnoreCase);
+                if (abilityMatch.Success && AbilityScoreMap.TryGetValue(abilityMatch.Groups[1].Value, out var abilityInfo)) {
+                    int requiredScore = int.Parse(abilityMatch.Groups[2].Value);
+                    int actualScore = GetStatistic(abilityInfo.StatName)?.Value ?? 0;
+                    if (actualScore < requiredScore) {
+                        warnings.Add(new ValidationWarning($"Requires {abilityInfo.Abbr} {requiredScore}.", ValidationCategory.Prerequisite));
+                    }
+                    continue;
+                }
+
+                // 3. Skill ranks: "Jump 4 ranks", "Hide 8 ranks", etc.
+                var skillMatch = Regex.Match(clause, @"^(.+?)\s+(\d+)\s+ranks?$", RegexOptions.IgnoreCase);
+                if (skillMatch.Success) {
+                    string skillName = skillMatch.Groups[1].Value.Trim();
+                    int requiredRanks = int.Parse(skillMatch.Groups[2].Value);
+                    int actualRanks = TotalSkillRanks(skillName);
+                    if (actualRanks < requiredRanks) {
+                        warnings.Add(new ValidationWarning($"Requires {skillName} {requiredRanks} ranks.", ValidationCategory.Prerequisite));
+                    }
+                    continue;
+                }
+
+                // 4. Feat requirement: check if character has the feat
+                bool hasFeat = character.feats.Values.Any(f => string.Equals(f, clause, StringComparison.OrdinalIgnoreCase));
+                if (!hasFeat) {
+                    warnings.Add(new ValidationWarning($"Requires {clause} feat.", ValidationCategory.Prerequisite));
+                }
+            }
+
+            return warnings.AsReadOnly();
+        }
+
+        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(string featSlot, ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, IDictionary<string, string>? currentChoices) {
             var allWarnings = new List<ValidationWarning>();
             foreach (var engine in _subsystems.Values) {
                 var warnings = engine.ValidateChoice(featSlot, descriptor, choiceValue, targetSource, currentChoices);
@@ -1318,8 +1439,8 @@ namespace PlayMore35.Global {
         }
 
         public virtual ICharacterSession GetSessionAtLevel(int level, bool includeEquipped = false) {
-            if (level < 1) {
-                throw new ArgumentOutOfRangeException(nameof(level), "Level must be greater than or equal to 1.");
+            if (level < 0) {
+                throw new ArgumentOutOfRangeException(nameof(level), "Level must be greater than or equal to 0.");
             }
             int maxLevel = character.classLevels.Count;
             if (level > maxLevel) {
@@ -1406,7 +1527,7 @@ namespace PlayMore35.Global {
                                 slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
                             }
                         } else {
-                            if (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase)) {
+                            if (level > 0 && (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase))) {
                                 slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
                             }
                         }
