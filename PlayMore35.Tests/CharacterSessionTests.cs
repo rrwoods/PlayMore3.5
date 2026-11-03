@@ -368,9 +368,45 @@ namespace PlayMore35.Tests {
             character.classLevels = new List<string> { "Fighter", "Fighter" };
             var session = new CharacterSession(character, catalog);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => session.GetSessionAtLevel(0));
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => session.GetSessionAtLevel(-1));
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => session.GetSessionAtLevel(3));
+        }
+
+        // Source: Player's Handbook 3.5, pp. 22, 58; ADR-0017, ADR-0018
+        [TestMethod]
+        public void GetSessionAtLevel_LevelZero_ProjectsBaselineWithoutClassesOrAdvancement() {
+            var character = new Character { race = "elf" };
+            character.classLevels = new List<string> { "Fighter", "Fighter" };
+            character.assignedAbilityScores["STR"] = 14;
+            character.assignedAbilityScores["DEX"] = 14;
+            character.assignedAbilityScores["CON"] = 14;
+            character.assignedAbilityScores["INT"] = 10;
+            character.assignedAbilityScores["WIS"] = 10;
+            character.assignedAbilityScores["CHA"] = 10;
+            character.rolledHitDice = new List<int> { 10, 8 };
+            character.skillRanks["Jump"] = new List<int> { 4, 1 };
+            character.feats["Level 1"] = "Power Attack";
+
+            var session = new CharacterSession(character, catalog);
+            var snap0 = session.GetSessionAtLevel(0);
+
+            Assert.IsNotNull(snap0);
+            Assert.AreEqual(0, snap0.Character.classLevels.Count, "Level 0 snapshot must have 0 class levels.");
+            Assert.AreEqual(0, snap0.Character.rolledHitDice.Count, "Level 0 snapshot must have 0 rolled hit dice.");
+            Assert.AreEqual(0, snap0.BaseHp(), "Level 0 snapshot base HP must be 0.");
+            Assert.AreEqual(0, snap0.TotalSkillRanks("Jump"), "Level 0 snapshot must have 0 skill ranks.");
+            Assert.AreEqual(0, snap0.Character.feats.Count, "Level 0 snapshot must have 0 feats.");
+            Assert.AreEqual(0, snap0.GetStatistic(Constants.BASE_ATTACK_BONUS).Value, "Level 0 snapshot must have BAB 0.");
+
+            // Ability scores: assigned + racial traits (Elf: +2 DEX, -2 CON)
+            Assert.AreEqual(14, snap0.GetStatistic(Constants.STR_SCORE).Value);
+            Assert.AreEqual(16, snap0.GetStatistic(Constants.DEX_SCORE).Value, "Elf +2 DEX applies at level 0.");
+            Assert.AreEqual(12, snap0.GetStatistic(Constants.CON_SCORE).Value, "Elf -2 CON applies at level 0.");
+
+            // Saves: ability modifiers without class base save bonuses (CON mod = +1, DEX mod = +3, WIS mod = 0)
+            Assert.AreEqual(1, snap0.GetStatistic(Constants.FORT_SAVES).Value);
+            Assert.AreEqual(3, snap0.GetStatistic(Constants.REF_SAVES).Value);
+            Assert.AreEqual(0, snap0.GetStatistic(Constants.WILL_SAVES).Value);
         }
 
         // Source: System Reference Document 3.5, Character Advancement (https://www.d20srd.org/srd/classes/characterAdvancement.htm)

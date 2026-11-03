@@ -322,5 +322,209 @@ namespace PlayMore35.Tests {
                 StringAssert.Contains(receptor.WarningMessage, "Requires 1 Devoted Spirit maneuver");
             }
         }
+
+        // Source: Player's Handbook 3.5, pp. 22, 58; Complete Warrior, p. 16; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_FirstLevelClass_EvaluatesAgainstLevel0Snapshot_WithoutThrowing() {
+            var character = new Character {
+                race = "human",
+                classLevels = new List<string> { "Fighter" }
+            };
+            var session = new CharacterSession(character, catalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Class,
+                "Fighter",
+                acquisitionLevel: 1
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(0, warnings.Count, "First level standard class choice without prerequisites must evaluate cleanly against level 0 state.");
+        }
+
+        // Source: Player's Handbook 3.5, pp. 22, 58; Complete Warrior, p. 16; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_FirstLevelClass_PrerequisitesEvaluatedAgainstLevel0State() {
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            var reqClass = new CharacterClass {
+                Name = "Berserker",
+                Prerequisites = "STR 14"
+            };
+            fakeCatalog.ClassesMap["Berserker"] = reqClass;
+
+            // Character with base STR 12 at level 0 (human)
+            var character = new Character {
+                race = "human",
+                classLevels = new List<string> { "Fighter" }
+            };
+            character.assignedAbilityScores["STR"] = 12;
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Class,
+                "Berserker",
+                acquisitionLevel: 1
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind);
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires STR 14");
+
+            // Now with base STR 14 at level 0: should pass
+            var char14 = new Character {
+                race = "human",
+                classLevels = new List<string> { "Fighter" }
+            };
+            char14.assignedAbilityScores["STR"] = 14;
+            var session14 = new CharacterSession(char14, fakeCatalog);
+            var warnings14 = session14.ValidateProgressionChoice(context);
+            Assert.AreEqual(0, warnings14.Count, "Meeting STR 14 at level 0 must produce 0 warnings.");
+        }
+
+        // Source: Player's Handbook 3.5, pp. 22, 58; Complete Warrior, p. 16; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassChoiceAtLevelL_EvaluatesAgainstLevelLMinus1_NoLeakageOfLevelLBenefits() {
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            var prcClass = new CharacterClass {
+                Name = "Prestige Champion",
+                Prerequisites = "Base attack bonus +4, STR 14, Power Attack, Jump 4 ranks"
+            };
+            fakeCatalog.ClassesMap["Prestige Champion"] = prcClass;
+
+            // Character has 4 levels: 3 levels Fighter, 4th level Fighter.
+            // At level 3 (L - 1):
+            // - BAB = +3 (Fighter 3)
+            // - STR = 13
+            // - Jump ranks = 3
+            // - Feats: only "Weapon Focus" at level 1
+            // At level 4 (L):
+            // - BAB becomes +4
+            // - STR increment at level 4 adds +1 STR (to 14)
+            // - Jump ranks gets +1 (to 4)
+            // - Feats: "Power Attack" taken at level 4 slot
+            var character = new Character {
+                race = "human",
+                classLevels = new List<string> { "Fighter", "Fighter", "Fighter", "Fighter" }
+            };
+            character.assignedAbilityScores["STR"] = 13;
+            character.abilityScoreIncrements[4] = "STR";
+            character.rolledHitDice = new List<int> { 10, 8, 8, 8 };
+            character.skillRanks["Jump"] = new List<int> { 1, 1, 1, 1 };
+            character.feats["Level 1"] = "Weapon Focus";
+            character.feats["Level 4"] = "Power Attack";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Validating Prestige Champion for Level 4 must evaluate against Level 3 (L - 1).
+            // At Level 3: BAB is +3 (needs +4), STR is 13 (needs 14), Jump is 3 (needs 4), lacks Power Attack (acquired at Lvl 4).
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Class,
+                "Prestige Champion",
+                acquisitionLevel: 4
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(4, warnings.Count, "All 4 prerequisites must fail because Level 4 benefits must not leak into Level 4 class selection.");
+            foreach (var w in warnings) {
+                Assert.AreEqual(WarningKind.Unmet, w.Kind);
+                Assert.AreEqual(ValidationCategory.Prerequisite, w.Category);
+            }
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Base attack bonus +4")), "Must warn for BAB +4.");
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("STR 14")), "Must warn for STR 14.");
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Jump 4 ranks")), "Must warn for Jump 4 ranks.");
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Power Attack")), "Must warn for Power Attack.");
+        }
+
+        // Source: Complete Warrior, p. 16 ("Meeting Class Prerequisites"); ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassChoice_DualPassItemQualification_CategorizesAsItemDependent() {
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            var prcClass = new CharacterClass {
+                Name = "Iron Mind",
+                Prerequisites = "STR 14"
+            };
+            fakeCatalog.ClassesMap["Iron Mind"] = prcClass;
+
+            var gauntlets = new Item {
+                ItemSlot = Equipped.Slot.HANDS,
+                ItemEffect = new Effect("Gauntlets of Ogre Power")
+                    .AddModifier(Constants.STR_SCORE, new Modifier(2, ModifierTypes.ENHANCEMENT)),
+                Weight = 1
+            };
+            fakeCatalog.ItemsMap["Gauntlets of Ogre Power"] = gauntlets;
+
+            // Character at level 2 with base STR 12, equipping Gauntlets of Ogre Power
+            var character = new Character {
+                race = "human",
+                classLevels = new List<string> { "Fighter", "Fighter" }
+            };
+            character.assignedAbilityScores["STR"] = 12;
+            character.equipped.SlottedItems[Equipped.Slot.HANDS] = "Gauntlets of Ogre Power";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Validating for level 2 (evaluates against level 1 state):
+            // Intrinsically: STR = 12 < 14 -> fails Pass 1
+            // Equipped: Gauntlets boost STR to 14 -> satisfies Pass 2
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Class,
+                "Iron Mind",
+                acquisitionLevel: 2
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.ItemDependent, warnings[0].Kind, "Prerequisite satisfied by gear in pre-advancement slice must be ItemDependent.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires STR 14");
+        }
+
+        // Source: Complete Warrior, p. 16 ("Meeting Class Prerequisites"); ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassChoice_PartialItemImprovement_RemainsUnmet() {
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            var prcClass = new CharacterClass {
+                Name = "Iron Mind",
+                Prerequisites = "STR 16"
+            };
+            fakeCatalog.ClassesMap["Iron Mind"] = prcClass;
+
+            var gauntlets = new Item {
+                ItemSlot = Equipped.Slot.HANDS,
+                ItemEffect = new Effect("Gauntlets of Ogre Power")
+                    .AddModifier(Constants.STR_SCORE, new Modifier(2, ModifierTypes.ENHANCEMENT)),
+                Weight = 1
+            };
+            fakeCatalog.ItemsMap["Gauntlets of Ogre Power"] = gauntlets;
+
+            // Character at level 2 with base STR 12, equipping Gauntlets of Ogre Power (+2 STR -> 14 < 16)
+            var character = new Character {
+                race = "human",
+                classLevels = new List<string> { "Fighter", "Fighter" }
+            };
+            character.assignedAbilityScores["STR"] = 12;
+            character.equipped.SlottedItems[Equipped.Slot.HANDS] = "Gauntlets of Ogre Power";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Validating for level 2:
+            // Intrinsically at level 1: STR 12 < 16 -> unmet
+            // Equipped at level 1: STR 14 < 16 -> still unmet!
+            // Must remain WarningKind.Unmet (not spuriously marked ItemDependent).
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Class,
+                "Iron Mind",
+                acquisitionLevel: 2
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind, "Prerequisite only partially improved by gear must remain WarningKind.Unmet.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires STR 16");
+        }
     }
 }
