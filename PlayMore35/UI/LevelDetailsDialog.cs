@@ -406,7 +406,16 @@ namespace PlayMore35 {
                             string target = ResolveTargetSource(choiceState, desc);
                             var currentChoices = GetFeatChoices();
                             currentChoices[$"{featSlot}:{desc.Id}"] = deliveredName;
-                            var warnings = session.ValidateFeatChoice(featSlot, desc, deliveredName, target, currentChoices);
+                            var progContext = new ProgressionChoiceContext(
+                                ProgressionChoiceDomain.Feat,
+                                deliveredName,
+                                acquisitionLevel: slotLevel,
+                                slotKey: featSlot,
+                                targetSource: target,
+                                descriptor: desc,
+                                currentChoices: currentChoices
+                            );
+                            var warnings = session.ValidateProgressionChoice(progContext);
                             if (warnings != null && warnings.Count > 0) {
                                 receptor.SetWarnings(warnings);
                             } else {
@@ -468,8 +477,19 @@ namespace PlayMore35 {
                 }
 
                 string target = ResolveTargetSource(state, desc);
+                int slotLevel = session.GetFeatSlotLevel(state.FeatSlot);
+                if (slotLevel <= 0) slotLevel = levelIndex + 1;
 
-                var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, selectedValue, target, currentChoices);
+                var progContext = new ProgressionChoiceContext(
+                    ProgressionChoiceDomain.Feat,
+                    selectedValue,
+                    acquisitionLevel: slotLevel,
+                    slotKey: state.FeatSlot,
+                    targetSource: target,
+                    descriptor: desc,
+                    currentChoices: currentChoices
+                );
+                var warnings = session.ValidateProgressionChoice(progContext);
                 if (warnings.Count > 0) {
                     state.WarningBadge?.SetWarnings(warnings);
                     receptor?.SetWarnings(warnings);
@@ -607,7 +627,16 @@ namespace PlayMore35 {
                 WarningProvider = (elem) => {
                     var currentChoices = GetFeatChoices();
                     currentChoices[$"{state.FeatSlot}:{desc.Id}"] = elem.Name;
-                    return session.ValidateFeatChoice(state.FeatSlot, desc, elem.Name, targetSource, currentChoices).Select(w => w.Message).ToList();
+                    var progContext = new ProgressionChoiceContext(
+                        ProgressionChoiceDomain.Feat,
+                        elem.Name,
+                        acquisitionLevel: slotLevel,
+                        slotKey: state.FeatSlot,
+                        targetSource: targetSource,
+                        descriptor: desc,
+                        currentChoices: currentChoices
+                    );
+                    return session.ValidateProgressionChoice(progContext).Select(w => w.Message).ToList();
                 }
             };
 
@@ -615,7 +644,16 @@ namespace PlayMore35 {
             activePicker.ElementDelivered += (elem) => {
                 receptor.SelectedElement = elem;
                 if (elem != null) {
-                    var warnings = session.ValidateFeatChoice(state.FeatSlot, desc, elem.Name, targetSource, GetFeatChoices());
+                    var progContext = new ProgressionChoiceContext(
+                        ProgressionChoiceDomain.Feat,
+                        elem.Name,
+                        acquisitionLevel: slotLevel,
+                        slotKey: state.FeatSlot,
+                        targetSource: targetSource,
+                        descriptor: desc,
+                        currentChoices: GetFeatChoices()
+                    );
+                    var warnings = session.ValidateProgressionChoice(progContext);
                     if (warnings != null && warnings.Count > 0) {
                         receptor.SetWarnings(warnings);
                     } else {

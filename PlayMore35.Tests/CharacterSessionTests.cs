@@ -552,7 +552,13 @@ namespace PlayMore35.Tests {
 
             var sessionA = new CharacterSession(charA, catalog);
             var snapA = sessionA.GetSessionAtLevel(1);
-            var warningsA = snapA.ValidateFeatChoice("Level 1", stanceChoiceDesc, "Flame's Blessing", "Feats");
+            var warningsA = snapA.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceChoiceDesc
+            ));
             Assert.AreEqual(0, warningsA.Count, "Flame's Blessing prerequisite (1 Desert Wind maneuver) is satisfied by co-level Human slot choice.");
 
             // Setup B: Reversed slot order - Slot "Level 1" has Martial Study, Slot "Human" has Martial Stance
@@ -565,7 +571,13 @@ namespace PlayMore35.Tests {
 
             var sessionB = new CharacterSession(charB, catalog);
             var snapB = sessionB.GetSessionAtLevel(1);
-            var warningsB = snapB.ValidateFeatChoice("Human", stanceChoiceDesc, "Flame's Blessing", "Feats");
+            var warningsB = snapB.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Human",
+                targetSource: "Feats",
+                descriptor: stanceChoiceDesc
+            ));
             Assert.AreEqual(0, warningsB.Count, "Flame's Blessing prerequisite is satisfied regardless of slot assignment order at same acquisition level.");
         }
 
@@ -597,7 +609,13 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(snap3.Character.feats.ContainsKey("Level 1"));
             Assert.IsTrue(snap3.Character.feats.ContainsKey("Level 3"), "Level 3 feat must exist in level 3 snapshot.");
             Assert.AreEqual("Flame's Blessing", snap3.Character.featChoices["Level 3:stance"]);
-            var warnings3 = snap3.ValidateFeatChoice("Level 3", stanceChoiceDesc, "Flame's Blessing", "Feats");
+            var warnings3 = snap3.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 3",
+                targetSource: "Feats",
+                descriptor: stanceChoiceDesc
+            ));
             Assert.AreEqual(0, warnings3.Count, "Level 3 snapshot satisfies Desert Wind prerequisite from level 1 choice.");
         }
 
@@ -874,10 +892,22 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             var stanceDesc = new ChoiceDescriptor("stance", "Choose Stance", "SubsystemElements", "martial_maneuvers");
-            var lvl1Warnings = session.ValidateFeatChoice("Level 1", stanceDesc, "Martial Spirit", "Warblade");
+            var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Warblade",
+                descriptor: stanceDesc
+            ));
             Assert.IsTrue(lvl1Warnings.Count > 0, "Level 1 snapshot must prune maneuvers beyond capacity so Devoted Spirit prereq is unmet.");
 
-            var lvl9Warnings = session.ValidateFeatChoice("Level 9", stanceDesc, "Martial Spirit", "Warblade");
+            var lvl9Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 9",
+                targetSource: "Warblade",
+                descriptor: stanceDesc
+            ));
             Assert.AreEqual(0, lvl9Warnings.Count, "Level 9 snapshot retains Slot 3 so Devoted Spirit prereq is satisfied.");
         }
 
