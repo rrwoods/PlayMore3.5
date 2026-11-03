@@ -7,25 +7,40 @@ using PlayMore35.Effects;
 
 namespace PlayMore35.CharacterChoices {
     public class ChoiceDescriptor : IJsonable {
+        [JsonProperty("id")]
         public string Id { get; }
+
+        [JsonProperty("label")]
         public string Label { get; }
+
+        [JsonProperty("domain")]
         public string Domain { get; }
+
+        [JsonProperty("filter", NullValueHandling = NullValueHandling.Ignore)]
         public string Filter { get; }
+
+        [JsonProperty("fallback", NullValueHandling = NullValueHandling.Ignore)]
         public string Fallback { get; }
+
+        [JsonProperty("dependsOn", NullValueHandling = NullValueHandling.Ignore)]
         public string DependsOn { get; }
 
+        [JsonProperty("minimumPrerequisiteCount", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int MinimumPrerequisiteCount { get; }
+
         [JsonConstructor]
-        public ChoiceDescriptor(string id, string label, string domain, string filter = null, string fallback = null, string dependsOn = null) {
+        public ChoiceDescriptor(string id, string label, string domain, string filter = null, string fallback = null, string dependsOn = null, int minimumPrerequisiteCount = 0) {
             Id = id ?? "";
             Label = label ?? "";
             Domain = domain ?? "";
             Filter = filter ?? "";
             Fallback = fallback ?? "";
             DependsOn = dependsOn ?? "";
+            MinimumPrerequisiteCount = minimumPrerequisiteCount;
         }
 
         public ChoiceDescriptor(JObject json)
-            : this((string)json?["id"], (string)json?["label"], (string)json?["domain"], (string)json?["filter"], (string)json?["fallback"], (string)json?["dependsOn"]) {
+            : this((string)json?["id"], (string)json?["label"], (string)json?["domain"], (string)json?["filter"], (string)json?["fallback"], (string)json?["dependsOn"], (int?)json?["minimumPrerequisiteCount"] ?? 0) {
         }
 
         public JToken ToJson() {
@@ -42,6 +57,9 @@ namespace PlayMore35.CharacterChoices {
             }
             if (!string.IsNullOrEmpty(DependsOn)) {
                 json.Add(new JProperty("dependsOn", DependsOn));
+            }
+            if (MinimumPrerequisiteCount != 0) {
+                json.Add(new JProperty("minimumPrerequisiteCount", MinimumPrerequisiteCount));
             }
             return json;
         }

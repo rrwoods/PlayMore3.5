@@ -1196,7 +1196,8 @@
         "label": "Choose stance",
         "domain": "SubsystemElements",
         "filter": "stance",
-        "dependsOn": "class"
+        "dependsOn": "class",
+        "minimumPrerequisiteCount": 1
       }
     ],
     "benefit": {

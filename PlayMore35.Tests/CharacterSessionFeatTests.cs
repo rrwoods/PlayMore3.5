@@ -352,6 +352,38 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Adept", restored.Filter);
             Assert.AreEqual("Feats", restored.Fallback);
             Assert.AreEqual("priorChoice", restored.DependsOn);
+            Assert.AreEqual(0, restored.MinimumPrerequisiteCount);
+        }
+
+        [TestMethod]
+        public void ChoiceDescriptor_JsonSerializationAndDeserialization_PreservesMinimumPrerequisiteCountWhenSet_AndOmitsWhenZero() {
+            // When MinimumPrerequisiteCount > 0, serialized output includes it and roundtrips
+            var descWithCount = new ChoiceDescriptor("stance", "Choose stance", "SubsystemElements", "stance", dependsOn: "class", minimumPrerequisiteCount: 1);
+            Assert.AreEqual(1, descWithCount.MinimumPrerequisiteCount);
+
+            var tokenWithCount = (JObject)descWithCount.ToJson();
+            Assert.AreEqual(1, (int)tokenWithCount["minimumPrerequisiteCount"]);
+            var restoredFromToken = new ChoiceDescriptor(tokenWithCount);
+            Assert.AreEqual(1, restoredFromToken.MinimumPrerequisiteCount);
+
+            string jsonWithCount = Newtonsoft.Json.JsonConvert.SerializeObject(descWithCount);
+            StringAssert.Contains(jsonWithCount, "\"minimumPrerequisiteCount\":1");
+            var restoredFromJson = Newtonsoft.Json.JsonConvert.DeserializeObject<ChoiceDescriptor>(jsonWithCount);
+            Assert.AreEqual(1, restoredFromJson.MinimumPrerequisiteCount);
+
+            // When MinimumPrerequisiteCount == 0 (default), serialized output omits it
+            var descDefault = new ChoiceDescriptor("stance", "Choose stance", "SubsystemElements", "stance");
+            Assert.AreEqual(0, descDefault.MinimumPrerequisiteCount);
+
+            var tokenDefault = (JObject)descDefault.ToJson();
+            Assert.IsNull(tokenDefault["minimumPrerequisiteCount"]);
+            var restoredFromDefaultToken = new ChoiceDescriptor(tokenDefault);
+            Assert.AreEqual(0, restoredFromDefaultToken.MinimumPrerequisiteCount);
+
+            string jsonDefault = Newtonsoft.Json.JsonConvert.SerializeObject(descDefault);
+            Assert.IsFalse(jsonDefault.Contains("minimumPrerequisiteCount"), "Zero minimumPrerequisiteCount must be omitted from JSON serialization.");
+            var restoredFromDefaultJson = Newtonsoft.Json.JsonConvert.DeserializeObject<ChoiceDescriptor>(jsonDefault);
+            Assert.AreEqual(0, restoredFromDefaultJson.MinimumPrerequisiteCount);
         }
 
         [TestMethod]
@@ -1325,6 +1357,47 @@ namespace PlayMore35.Tests {
                 descriptor: stanceDesc
             ));
             Assert.AreEqual(0, lvl9Warnings.Count, "Level 9 slot retains Slot 3 so Devoted Spirit prereq is satisfied.");
+        }
+
+        // Source: Tome of Battle, p. 52
+        [TestMethod]
+        public void ValidateProgressionChoice_MartialStance_RequiresOneManeuverInDisciplineViaChoiceDescriptorMinimumPrereqCount() {
+            var martialStance = catalog.GetFeat("Martial Stance");
+            Assert.IsNotNull(martialStance);
+            var stanceDescriptor = martialStance.Choices.FirstOrDefault(c => c.Id == "stance");
+            Assert.IsNotNull(stanceDescriptor);
+            Assert.AreEqual(1, stanceDescriptor.MinimumPrerequisiteCount, "Martial Stance descriptor in feats.json must declare minimumPrerequisiteCount: 1.");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+
+            var session = new CharacterSession(character, catalog);
+
+            // 1. With Martial Stance descriptor (minimumPrerequisiteCount = 1), selecting a 0-prereq stance (e.g. Martial Spirit)
+            // with 0 Devoted Spirit maneuvers known emits a prerequisite warning.
+            var warningsWithMinimum = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor
+            ));
+            Assert.AreEqual(1, warningsWithMinimum.Count);
+            Assert.AreEqual(ValidationCategory.Prerequisite, warningsWithMinimum[0].Category);
+            StringAssert.Contains(warningsWithMinimum[0].Message, "Requires 1 Devoted Spirit maneuver, but only 0 known");
+
+            // 2. Data-driven: With a descriptor that has minimumPrerequisiteCount = 0 (or null), selecting Martial Spirit
+            // does NOT emit a prerequisite warning because Martial Spirit has intrinsic prerequisiteCount = 0.
+            var zeroPrereqDescriptor = new ChoiceDescriptor("stance", "Choose stance", "SubsystemElements", "stance", minimumPrerequisiteCount: 0);
+            var warningsWithoutMinimum = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: zeroPrereqDescriptor
+            ));
+            Assert.AreEqual(0, warningsWithoutMinimum.Count, "0-minimum descriptor must not impose stance prerequisite threshold when element has 0 prereqs.");
         }
     }
 }
