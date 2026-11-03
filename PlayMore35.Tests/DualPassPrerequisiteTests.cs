@@ -526,5 +526,257 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
             StringAssert.Contains(warnings[0].Message, "Requires STR 16");
         }
+
+        // Source: Tome of Battle pp. 31, 39; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_FeatSourcedSubsystem_DualPassPrerequisiteSatisfiedByGear_CategorizesAsItemDependent() {
+            var itemEffect = new Effect("Crown of the White Raven")
+                .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Crusader's Strike", "Item"));
+            var crownItem = new Item {
+                ItemSlot = Equipped.Slot.HEAD,
+                ItemEffect = itemEffect,
+                Weight = 1
+            };
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.ItemsMap["Crown of the White Raven"] = crownItem;
+
+            var martialStanceDef = fakeCatalog.GetFeat("Martial Stance");
+            var stanceDesc = martialStanceDef.Choices.First(c => c.Id == "stance");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.equipped.SlottedItems[Equipped.Slot.HEAD] = "Crown of the White Raven";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Martial Spirit",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDesc
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.ItemDependent, warnings[0].Kind, "Prerequisite satisfied by gear must transition to ItemDependent.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires 1 Devoted Spirit maneuver, but only 0 known.");
+        }
+
+        // Source: Tome of Battle pp. 39, 52; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_FeatSourcedSubsystem_LevelGateExceeded_RemainsUnmetEvenWithStatBoostItem() {
+            var beltItem = new Item {
+                ItemSlot = Equipped.Slot.WAIST,
+                ItemEffect = new Effect("Belt of Initiator Mastery")
+                    .AddModifier("initiator level:feats", new Modifier(4, ModifierTypes.ENHANCEMENT))
+                    .AddModifier("initiator level:warblade", new Modifier(4, ModifierTypes.ENHANCEMENT)),
+                Weight = 1
+            };
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.ItemsMap["Belt of Initiator Mastery"] = beltItem;
+
+            var martialStudyDef = fakeCatalog.GetFeat("Martial Study");
+            var desc = martialStudyDef.Choices.First(c => c.Id == "maneuver");
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            for (int i = 0; i < 10; i++) character.classLevels.Add("Fighter");
+            character.equipped.SlottedItems[Equipped.Slot.WAIST] = "Belt of Initiator Mastery";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Mountain Hammer",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: desc
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind, "Level gate must remain Unmet even if gear boosts initiator stats.");
+            Assert.AreEqual(ValidationCategory.LevelGate, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "exceeds maximum maneuver level 1 for Feats");
+        }
+
+        // Source: Tome of Battle pp. 39, 44; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassGrantedSubsystem_DualPassPrerequisiteSatisfiedByGear_CategorizesAsItemDependent() {
+            var itemEffect = new Effect("Iron Heart Ring")
+                .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Steely Strike", "Item"));
+            var ringItem = new Item {
+                ItemSlot = Equipped.Slot.RING1,
+                ItemEffect = itemEffect,
+                Weight = 1
+            };
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.ItemsMap["Iron Heart Ring"] = ringItem;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            for (int i = 0; i < 5; i++) character.classLevels.Add("Warblade");
+            character.equipped.SlottedItems[Equipped.Slot.RING1] = "Iron Heart Ring";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Level 5 Warblade choosing Iron Heart Surge (requires 1 Iron Heart maneuver).
+            // Intrinsically 0 Iron Heart maneuvers known -> fails Pass 1.
+            // With equipped ring granting Steely Strike -> satisfied in Pass 2.
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Iron Heart Surge",
+                acquisitionLevel: 5,
+                targetSource: "Warblade"
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.ItemDependent, warnings[0].Kind, "Prerequisite satisfied by gear must transition to ItemDependent.");
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "Requires 1 Iron Heart maneuver, but only 0 known.");
+        }
+
+        // Source: Tome of Battle pp. 39, 44; ADR-0017, ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassGrantedSubsystem_LevelGateExceeded_RemainsUnmetEvenWithStatBoostItem() {
+            var beltItem = new Item {
+                ItemSlot = Equipped.Slot.WAIST,
+                ItemEffect = new Effect("Belt of Initiator Mastery")
+                    .AddModifier("initiator level:warblade", new Modifier(4, ModifierTypes.ENHANCEMENT)),
+                Weight = 1
+            };
+
+            var fakeCatalog = new FakeRulesCatalog(inner: catalog);
+            fakeCatalog.ItemsMap["Belt of Initiator Mastery"] = beltItem;
+
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+            character.equipped.SlottedItems[Equipped.Slot.WAIST] = "Belt of Initiator Mastery";
+
+            var session = new CharacterSession(character, fakeCatalog);
+
+            // Warblade 1 choosing Mountain Hammer (Level 2 maneuver > max 1 for Warblade 1; 0 prereqs)
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Mountain Hammer",
+                acquisitionLevel: 1,
+                targetSource: "Warblade"
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(WarningKind.Unmet, warnings[0].Kind, "Level gate must remain Unmet even if gear boosts initiator stats.");
+            Assert.AreEqual(ValidationCategory.LevelGate, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "exceeds maximum maneuver level 1 for Warblade");
+        }
+
+        // Source: Tome of Battle pp. 22, 43–44; ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassGrantedSubsystem_ValidChoice_EmitsZeroWarnings() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+
+            var session = new CharacterSession(character, catalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Steely Strike",
+                acquisitionLevel: 1,
+                targetSource: "Warblade"
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+
+            Assert.AreEqual(0, warnings.Count, "Valid maneuver choice must not emit warnings or false invalid warnings from other subsystems.");
+        }
+
+        // Source: Tome of Magic p. 19; ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassGrantedSubsystem_VestigeChoice_ValidatesPactMagicWithoutMartialConflict() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Binder");
+
+            var session = new CharacterSession(character, catalog);
+
+            // Valid vestige at Level 1 (Amon is level 1)
+            var contextAmon = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Amon",
+                acquisitionLevel: 1,
+                targetSource: "Binder"
+            );
+
+            var warningsAmon = session.ValidateProgressionChoice(contextAmon);
+            Assert.AreEqual(0, warningsAmon.Count, "Valid vestige choice must emit 0 warnings.");
+
+            // Level gate exceeded (Savnok is level 2 > max 1 for Binder 1)
+            var contextSavnok = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "Savnok",
+                acquisitionLevel: 1,
+                targetSource: "Binder"
+            );
+
+            var warningsSavnok = session.ValidateProgressionChoice(contextSavnok);
+            Assert.AreEqual(1, warningsSavnok.Count);
+            Assert.AreEqual(WarningKind.Unmet, warningsSavnok[0].Kind);
+            Assert.AreEqual(ValidationCategory.LevelGate, warningsSavnok[0].Category);
+            StringAssert.Contains(warningsSavnok[0].Message, "Level 2 exceeds maximum 1 for Binder.");
+        }
+
+        // Source: Player's Handbook p. 90; ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_StandardFeatChoice_DoesNotFallThroughToSubsystems() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+
+            var session = new CharacterSession(character, catalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Power Attack",
+                slotKey: "Level 1"
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(0, warnings.Count, "Standard non-subsystem feat must not fall through to subsystem engines.");
+        }
+
+        // Source: Tome of Battle pp. 22, 43–44; ADR-0018
+        [TestMethod]
+        public void ValidateProgressionChoice_ClassGrantedSubsystem_MisspelledChoice_ScopesToClassSubsystem() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Warblade");
+
+            var session = new CharacterSession(character, catalog);
+
+            var context = new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Subsystem,
+                "NonexistentManeuver",
+                acquisitionLevel: 1,
+                targetSource: "Warblade"
+            );
+
+            var warnings = session.ValidateProgressionChoice(context);
+            Assert.AreEqual(1, warnings.Count, "Unrecognized element for Warblade must only emit a warning from Martial Maneuvers, not Pact Magic.");
+            Assert.AreEqual(ValidationCategory.Invalid, warnings[0].Category);
+            StringAssert.Contains(warnings[0].Message, "'NonexistentManeuver' is not a valid element in subsystem 'Martial Maneuvers'.");
+        }
     }
 }
