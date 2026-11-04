@@ -28,6 +28,9 @@ namespace PlayMore35.UI.Subsystems {
         public Panel DetailsPane => _detailsPanel;
         public Button DetailsToggleButton => _btnToggleDetails;
         public bool IsDetailsExpanded => _isDetailsExpanded;
+        public Label DetailsLabel => _lblDetails;
+        public string DetailsText => _lblDetails.Text;
+        public ListBox ListBox => _listBox;
 
         public void ToggleDetailsPane() {
             SetDetailsExpanded(!_isDetailsExpanded);
@@ -192,12 +195,30 @@ namespace PlayMore35.UI.Subsystems {
             ResumeLayout(false);
         }
 
+        public (string BadgeText, Color BadgeColor)? GetItemBadge(int index) {
+            if (index < 0 || index >= _listBox.Items.Count) return null;
+            var item = (ListItem)_listBox.Items[index];
+            if (item.Warnings == null || item.Warnings.Count == 0) return null;
+            bool hasUnmet = item.Warnings.Any(w => w.Kind == WarningKind.Unmet);
+            return hasUnmet ? ("⚠", Color.DarkGoldenrod) : ("🛈", Color.DodgerBlue);
+        }
+
+        public IReadOnlyList<ValidationWarning> GetItemWarnings(int index) {
+            if (index < 0 || index >= _listBox.Items.Count) return Array.Empty<ValidationWarning>();
+            var item = (ListItem)_listBox.Items[index];
+            return item.Warnings;
+        }
+
+        public void DrawItemForTest(Graphics g, Rectangle bounds, int index, DrawItemState state = DrawItemState.Default) {
+            ListBox_DrawItem(_listBox, new DrawItemEventArgs(g, _listBox.Font, bounds, index, state));
+        }
+
         private void ApplyFilter() {
             _listBox.BeginUpdate();
             _listBox.Items.Clear();
 
             // Always add (None) option at the top
-            _listBox.Items.Add(new ListItem(null, Array.Empty<string>()));
+            _listBox.Items.Add(new ListItem(null, Array.Empty<ValidationWarning>()));
 
             var searchText = _searchBox.Text.Trim();
             var filter = _context.Filter;
@@ -210,12 +231,12 @@ namespace PlayMore35.UI.Subsystems {
                     continue;
                 }
 
-                IReadOnlyList<string> warnings = Array.Empty<string>();
+                IReadOnlyList<ValidationWarning> warnings = Array.Empty<ValidationWarning>();
                 if (_context.WarningProvider != null) {
-                    warnings = _context.WarningProvider(elem) ?? Array.Empty<string>();
+                    warnings = _context.WarningProvider(elem) ?? Array.Empty<ValidationWarning>();
                 }
 
-                if (_hideInvalidCheckBox.Checked && warnings.Count > 0) {
+                if (_hideInvalidCheckBox.Checked && warnings.Any(w => w.Kind == WarningKind.Unmet)) {
                     continue;
                 }
 
@@ -241,16 +262,22 @@ namespace PlayMore35.UI.Subsystems {
             int textX = bounds.Left + 4;
             int textY = bounds.Top + (bounds.Height - (int)g.MeasureString(text, font).Height) / 2;
 
-            g.DrawString(text, font, brush, textX, textY);
+            try {
+                g.DrawString(text, font, brush, textX, textY);
+            } finally {
+                if (item.Element == null) {
+                    font.Dispose();
+                }
+            }
 
-            if (item.Warnings.Count > 0) {
-                string badge = "⚠";
+            var badge = GetItemBadge(e.Index);
+            if (badge != null) {
                 using (var badgeFont = new Font("Segoe UI", 9f, FontStyle.Bold))
-                using (var badgeBrush = new SolidBrush(Color.DarkGoldenrod)) {
-                    var badgeSize = g.MeasureString(badge, badgeFont);
+                using (var badgeBrush = new SolidBrush(badge.Value.BadgeColor)) {
+                    var badgeSize = g.MeasureString(badge.Value.BadgeText, badgeFont);
                     float badgeX = bounds.Right - badgeSize.Width - 4;
                     float badgeY = bounds.Top + (bounds.Height - badgeSize.Height) / 2;
-                    g.DrawString(badge, badgeFont, badgeBrush, badgeX, badgeY);
+                    g.DrawString(badge.Value.BadgeText, badgeFont, badgeBrush, badgeX, badgeY);
                 }
             }
 
@@ -261,7 +288,9 @@ namespace PlayMore35.UI.Subsystems {
             if (_listBox.SelectedItem is ListItem selectedItem) {
                 if (selectedItem.Element != null) {
                     var desc = selectedItem.Element.GetProperty<string>("description", "");
-                    var warningText = selectedItem.Warnings.Count > 0 ? $"\n\n[Warning: {string.Join("; ", selectedItem.Warnings)}]" : "";
+                    var warningText = selectedItem.Warnings.Count > 0
+                        ? "\n\n" + string.Join("\n", selectedItem.Warnings.Select(FormatWarning))
+                        : "";
                     _lblDetails.Text = $"{selectedItem.Element.Name}\n{desc}{warningText}";
 
                     ElementDelivered?.Invoke(selectedItem.Element);
@@ -274,13 +303,19 @@ namespace PlayMore35.UI.Subsystems {
             }
         }
 
+        private static string FormatWarning(ValidationWarning warning) {
+            return warning.Kind == WarningKind.ItemDependent
+                ? $"[Item-Dependent: {warning.Message} (satisfied by equipped items)]"
+                : $"[Warning: {warning.Message}]";
+        }
+
         private class ListItem {
             public SubsystemElement? Element { get; }
-            public IReadOnlyList<string> Warnings { get; }
+            public IReadOnlyList<ValidationWarning> Warnings { get; }
 
-            public ListItem(SubsystemElement? element, IReadOnlyList<string> warnings) {
+            public ListItem(SubsystemElement? element, IReadOnlyList<ValidationWarning> warnings) {
                 Element = element;
-                Warnings = warnings ?? Array.Empty<string>();
+                Warnings = warnings ?? Array.Empty<ValidationWarning>();
             }
 
             public override string ToString() => Element != null ? Element.Name : "(None)";
