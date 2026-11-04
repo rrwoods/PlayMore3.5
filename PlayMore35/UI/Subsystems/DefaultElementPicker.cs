@@ -28,9 +28,7 @@ namespace PlayMore35.UI.Subsystems {
         public Panel DetailsPane => _detailsPanel;
         public Button DetailsToggleButton => _btnToggleDetails;
         public bool IsDetailsExpanded => _isDetailsExpanded;
-        public Label DetailsLabel => _lblDetails;
         public string DetailsText => _lblDetails.Text;
-        public ListBox ListBox => _listBox;
 
         public void ToggleDetailsPane() {
             SetDetailsExpanded(!_isDetailsExpanded);
@@ -203,13 +201,7 @@ namespace PlayMore35.UI.Subsystems {
             return hasUnmet ? ("⚠", Color.DarkGoldenrod) : ("🛈", Color.DodgerBlue);
         }
 
-        public IReadOnlyList<ValidationWarning> GetItemWarnings(int index) {
-            if (index < 0 || index >= _listBox.Items.Count) return Array.Empty<ValidationWarning>();
-            var item = (ListItem)_listBox.Items[index];
-            return item.Warnings;
-        }
-
-        public void DrawItemForTest(Graphics g, Rectangle bounds, int index, DrawItemState state = DrawItemState.Default) {
+        internal void DrawItemForTest(Graphics g, Rectangle bounds, int index, DrawItemState state = DrawItemState.Default) {
             ListBox_DrawItem(_listBox, new DrawItemEventArgs(g, _listBox.Font, bounds, index, state));
         }
 

@@ -66,14 +66,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             PopulateCards();
             RefreshMaxVestigeLevel();
             RefreshBindingState();
-
-            if (_context.InitialSelections != null && _context.InitialSelections.Count > 0) {
-                var initial = _context.InitialSelections[0];
-                var card = _cards.FirstOrDefault(c => string.Equals(c.Vestige.Name, initial.Name, StringComparison.OrdinalIgnoreCase));
-                if (card != null) {
-                    SelectCard(card);
-                }
-            }
         }
 
         public void RefreshMaxVestigeLevel() {
@@ -96,6 +88,8 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _pinnedContainer.SuspendLayout();
             _cardsContainer.SuspendLayout();
 
+            _pinnedContainer.AutoScrollPosition = Point.Empty;
+            _pinnedContainer.AutoScroll = false;
             _pinnedContainer.Controls.Clear();
 
             if (isProgression) {
@@ -140,6 +134,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 _pinnedContainer.Visible = (_pinnedContainer.Controls.Count > 0);
             }
 
+            _pinnedContainer.AutoScroll = true;
             _pinnedContainer.ResumeLayout(true);
             _cardsContainer.ResumeLayout(true);
 

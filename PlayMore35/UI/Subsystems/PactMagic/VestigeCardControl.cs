@@ -52,20 +52,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             }
         }
 
-        public bool IsInvalid {
-            get => _warnings.Any(w => w.Kind == WarningKind.Unmet);
-            set {
-                if (value) {
-                    if (!_warnings.Any(w => w.Kind == WarningKind.Unmet)) {
-                        Warnings = new[] { new ValidationWarning("Ineligible", WarningKind.Unmet, ValidationCategory.General) };
-                    }
-                } else {
-                    if (_warnings.Any(w => w.Kind == WarningKind.Unmet)) {
-                        Warnings = _warnings.Where(w => w.Kind != WarningKind.Unmet).ToList();
-                    }
-                }
-            }
-        }
+        public bool IsInvalid => _warnings.Any(w => w.Kind == WarningKind.Unmet);
 
         public string StatusToolTip => FormUtils.TOOLTIP.GetToolTip(_lblStatus);
 
