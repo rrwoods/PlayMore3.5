@@ -1,34 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 
 namespace PlayMore35.CharacterChoices {
     public class ChoiceDescriptor : IJsonable {
-        [JsonProperty("id")]
         public string Id { get; }
-
-        [JsonProperty("label")]
         public string Label { get; }
-
-        [JsonProperty("domain")]
         public string Domain { get; }
-
-        [JsonProperty("filter", NullValueHandling = NullValueHandling.Ignore)]
         public string Filter { get; }
-
-        [JsonProperty("fallback", NullValueHandling = NullValueHandling.Ignore)]
         public string Fallback { get; }
-
-        [JsonProperty("dependsOn", NullValueHandling = NullValueHandling.Ignore)]
         public string DependsOn { get; }
-
-        [JsonProperty("minimumPrerequisiteCount", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int MinimumPrerequisiteCount { get; }
 
-        [JsonConstructor]
         public ChoiceDescriptor(string id, string label, string domain, string filter = null, string fallback = null, string dependsOn = null, int minimumPrerequisiteCount = 0) {
             Id = id ?? "";
             Label = label ?? "";

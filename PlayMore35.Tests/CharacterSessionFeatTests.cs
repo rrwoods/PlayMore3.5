@@ -367,24 +367,14 @@ namespace PlayMore35.Tests {
             var restoredFromToken = new ChoiceDescriptor(tokenWithCount);
             Assert.AreEqual(1, restoredFromToken.MinimumPrerequisiteCount);
 
-            string jsonWithCount = Newtonsoft.Json.JsonConvert.SerializeObject(descWithCount);
-            StringAssert.Contains(jsonWithCount, "\"minimumPrerequisiteCount\":1");
-            var restoredFromJson = Newtonsoft.Json.JsonConvert.DeserializeObject<ChoiceDescriptor>(jsonWithCount);
-            Assert.AreEqual(1, restoredFromJson.MinimumPrerequisiteCount);
-
             // When MinimumPrerequisiteCount == 0 (default), serialized output omits it
             var descDefault = new ChoiceDescriptor("stance", "Choose stance", "SubsystemElements", "stance");
             Assert.AreEqual(0, descDefault.MinimumPrerequisiteCount);
 
             var tokenDefault = (JObject)descDefault.ToJson();
-            Assert.IsNull(tokenDefault["minimumPrerequisiteCount"]);
+            Assert.IsNull(tokenDefault["minimumPrerequisiteCount"], "Zero minimumPrerequisiteCount must be omitted from JSON serialization.");
             var restoredFromDefaultToken = new ChoiceDescriptor(tokenDefault);
             Assert.AreEqual(0, restoredFromDefaultToken.MinimumPrerequisiteCount);
-
-            string jsonDefault = Newtonsoft.Json.JsonConvert.SerializeObject(descDefault);
-            Assert.IsFalse(jsonDefault.Contains("minimumPrerequisiteCount"), "Zero minimumPrerequisiteCount must be omitted from JSON serialization.");
-            var restoredFromDefaultJson = Newtonsoft.Json.JsonConvert.DeserializeObject<ChoiceDescriptor>(jsonDefault);
-            Assert.AreEqual(0, restoredFromDefaultJson.MinimumPrerequisiteCount);
         }
 
         [TestMethod]
@@ -814,7 +804,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void ChoiceDescriptor_IsImmutable_HasNoParameterlessConstructor_AndHasJsonConstructor() {
+        public void ChoiceDescriptor_IsImmutable_HasNoParameterlessConstructor() {
             var type = typeof(ChoiceDescriptor);
 
             // 1. No parameterless constructor
@@ -827,11 +817,6 @@ namespace PlayMore35.Tests {
             foreach (var prop in properties) {
                 Assert.IsNull(prop.GetSetMethod(), $"Property {prop.Name} must be get-only (no public setter).");
             }
-
-            // 3. The constructor has [JsonConstructor]
-            var jsonCtor = type.GetConstructors()
-                .FirstOrDefault(c => c.GetCustomAttributes(typeof(Newtonsoft.Json.JsonConstructorAttribute), false).Any());
-            Assert.IsNotNull(jsonCtor, "ChoiceDescriptor must have a constructor decorated with [JsonConstructor].");
         }
 
         [TestMethod]
