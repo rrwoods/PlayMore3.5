@@ -4,13 +4,15 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using PlayMore35.Effects;
+using PlayMore35.Global;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.UI.Subsystems.PactMagic {
     public class VestigeCardControl : UserControl {
         private readonly SubsystemElement _vestige;
         private bool _isSelected;
-        private bool _isInvalid;
+        private IReadOnlyList<ValidationWarning> _warnings = Array.Empty<ValidationWarning>();
+        private bool _isProgressionMode;
         private bool _isBound;
         private string? _pactState;
         private bool _isAtMaxCapacity;
@@ -32,15 +34,40 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             }
         }
 
-        public bool IsInvalid {
-            get => _isInvalid;
+        public IReadOnlyList<ValidationWarning> Warnings {
+            get => _warnings;
             set {
-                if (_isInvalid != value) {
-                    _isInvalid = value;
+                _warnings = value ?? Array.Empty<ValidationWarning>();
+                UpdateCardVisuals();
+            }
+        }
+
+        public bool IsProgressionMode {
+            get => _isProgressionMode;
+            set {
+                if (_isProgressionMode != value) {
+                    _isProgressionMode = value;
                     UpdateCardVisuals();
                 }
             }
         }
+
+        public bool IsInvalid {
+            get => _warnings.Any(w => w.Kind == WarningKind.Unmet);
+            set {
+                if (value) {
+                    if (!_warnings.Any(w => w.Kind == WarningKind.Unmet)) {
+                        Warnings = new[] { new ValidationWarning("Ineligible", WarningKind.Unmet, ValidationCategory.General) };
+                    }
+                } else {
+                    if (_warnings.Any(w => w.Kind == WarningKind.Unmet)) {
+                        Warnings = _warnings.Where(w => w.Kind != WarningKind.Unmet).ToList();
+                    }
+                }
+            }
+        }
+
+        public string StatusToolTip => FormUtils.TOOLTIP.GetToolTip(_lblStatus);
 
         public bool IsBound {
             get => _isBound;
@@ -212,7 +239,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 BackColor = Color.White;
             }
 
-            if (_isBound) {
+            if (_isBound && !_isProgressionMode) {
                 string pactDisplayName = string.Equals(_pactState, "poor_pact", StringComparison.OrdinalIgnoreCase) ? "Poor Pact" : "Good Pact";
                 _lblStatus.Text = pactDisplayName;
                 _lblStatus.ForeColor = string.Equals(_pactState, "poor_pact", StringComparison.OrdinalIgnoreCase)
@@ -220,38 +247,68 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                     : Color.FromArgb(0, 120, 215);
 
                 _btnUnbind.Visible = true;
+                _btnUnbind.Enabled = true;
                 _btnGoodPact.Visible = false;
+                _btnGoodPact.Enabled = false;
                 _btnPoorPact.Visible = false;
+                _btnPoorPact.Enabled = false;
                 _lblCapacityNotice.Visible = false;
+                FormUtils.ToolTipTextLabel(_lblStatus, "");
             } else {
                 _btnUnbind.Visible = false;
+                _btnUnbind.Enabled = false;
 
-                if (_isInvalid) {
-                    _lblStatus.Text = "⚠ Exceeds";
+                var unmet = _warnings.Where(w => w.Kind == WarningKind.Unmet).ToList();
+                var itemDep = _warnings.Where(w => w.Kind == WarningKind.ItemDependent).ToList();
+
+                if (unmet.Count > 0) {
+                    var worst = unmet.FirstOrDefault(w => w.Category == ValidationCategory.LevelGate) ?? unmet[0];
+                    _lblStatus.Text = worst.Category == ValidationCategory.LevelGate ? "⚠ Exceeds" : "⚠ Ineligible";
                     _lblStatus.ForeColor = Color.DarkGoldenrod;
+                    string tooltip = string.Join("\n", _warnings.Select(FormatWarningTooltip));
+                    FormUtils.ToolTipTextLabel(_lblStatus, tooltip);
+                } else if (itemDep.Count > 0) {
+                    _lblStatus.Text = "🛈 Item-Dep";
+                    _lblStatus.ForeColor = Color.DodgerBlue;
+                    string message = string.Join("\n", itemDep.Select(w => w.Message));
+                    string tooltip = $"{message}\n(Satisfied by currently equipped items)";
+                    FormUtils.ToolTipTextLabel(_lblStatus, tooltip);
                 } else {
                     _lblStatus.Text = "Available";
                     _lblStatus.ForeColor = Color.FromArgb(46, 125, 50);
+                    FormUtils.ToolTipTextLabel(_lblStatus, "");
                 }
 
-                if (_isSelected && !_isInvalid) {
+                if (!_isProgressionMode && _isSelected && !IsInvalid) {
                     if (_isAtMaxCapacity) {
                         _lblCapacityNotice.Visible = true;
                         _btnGoodPact.Visible = false;
+                        _btnGoodPact.Enabled = false;
                         _btnPoorPact.Visible = false;
+                        _btnPoorPact.Enabled = false;
                     } else {
                         _lblCapacityNotice.Visible = false;
                         _btnGoodPact.Visible = true;
+                        _btnGoodPact.Enabled = true;
                         _btnPoorPact.Visible = true;
+                        _btnPoorPact.Enabled = true;
                     }
                 } else {
                     _lblCapacityNotice.Visible = false;
                     _btnGoodPact.Visible = false;
+                    _btnGoodPact.Enabled = false;
                     _btnPoorPact.Visible = false;
+                    _btnPoorPact.Enabled = false;
                 }
             }
 
             Invalidate();
+        }
+
+        private static string FormatWarningTooltip(ValidationWarning warning) {
+            return warning.Kind == WarningKind.ItemDependent
+                ? $"{warning.Message} (Satisfied by currently equipped items)"
+                : warning.Message;
         }
 
         protected override void OnPaint(PaintEventArgs e) {
