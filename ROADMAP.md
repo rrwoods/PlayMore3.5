@@ -8,6 +8,10 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
+### Subsystem Literacy
+- SubsystemEngine *still* references "discipline" directly.  Do a full audit for non-approved subsystem literacy!
+- We still have slot name parsing.  It might be time to promote slot keys to something more robust than strings.
+
 ### Codebase architecture pass
 - There's just ... a lot of code lmao.  /improve-codebase-architecture candidates:
   - there are still too many null guards
