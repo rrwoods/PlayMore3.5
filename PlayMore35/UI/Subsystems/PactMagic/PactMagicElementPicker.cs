@@ -21,7 +21,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private FlowLayoutPanel _cardsContainer = null!;
 
         private VestigeCardControl? _selectedCard;
-        private int _maxVestigeLevel = 8;
         private int _capacity = 1;
 
         public event Action<SubsystemElement?>? ElementDelivered;
@@ -64,57 +63,82 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             }
 
             InitializeComponent();
-            RefreshMaxVestigeLevel();
             PopulateCards();
+            RefreshMaxVestigeLevel();
             RefreshBindingState();
+
+            if (_context.InitialSelections != null && _context.InitialSelections.Count > 0) {
+                var initial = _context.InitialSelections[0];
+                var card = _cards.FirstOrDefault(c => string.Equals(c.Vestige.Name, initial.Name, StringComparison.OrdinalIgnoreCase));
+                if (card != null) {
+                    SelectCard(card);
+                }
+            }
         }
 
         public void RefreshMaxVestigeLevel() {
-            var stat = _session.GetStatistic("maximum vestige level");
-            _maxVestigeLevel = stat != null && stat.Value > 0 ? stat.Value : 8;
-
             var engine = _session.GetSubsystem("pact_magic");
             var group = engine?.GetSlotGroup("vestiges");
             _capacity = group?.Capacity ?? _session.GetStatistic("number of vestiges")?.Value ?? 0;
 
             foreach (var card in _cards) {
-                card.IsInvalid = card.Vestige.GetProperty<int>("level") > _maxVestigeLevel;
+                var warnings = _context.WarningProvider != null
+                    ? _context.WarningProvider(card.Vestige)
+                    : Array.Empty<ValidationWarning>();
+                card.Warnings = warnings ?? Array.Empty<ValidationWarning>();
             }
             ApplyFilter();
         }
 
         public void RefreshBindingState() {
-            var engine = _session.GetSubsystem("pact_magic");
-            var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
-
-            int boundCount = slots.Count(s => !string.IsNullOrEmpty(s.Element) && s.State != "empty");
-            bool atMaxCapacity = boundCount >= _capacity;
+            bool isProgression = _context.AcquisitionLevel > 0;
 
             _pinnedContainer.SuspendLayout();
             _cardsContainer.SuspendLayout();
 
             _pinnedContainer.Controls.Clear();
 
-            foreach (var card in _cards) {
-                var boundSlot = slots.FirstOrDefault(s => string.Equals(s.Element, card.Vestige.Name, StringComparison.OrdinalIgnoreCase) && s.State != "empty");
-                bool isBound = (boundSlot != null);
+            if (isProgression) {
+                foreach (var card in _cards) {
+                    card.IsProgressionMode = true;
+                    card.IsBound = false;
+                    card.PactState = null;
+                    card.IsAtMaxCapacity = false;
 
-                card.IsBound = isBound;
-                card.PactState = boundSlot?.State;
-                card.IsAtMaxCapacity = atMaxCapacity;
-
-                if (isBound) {
-                    if (!_pinnedContainer.Controls.Contains(card)) {
-                        _pinnedContainer.Controls.Add(card);
-                    }
-                } else {
                     if (!_cardsContainer.Controls.Contains(card)) {
                         _cardsContainer.Controls.Add(card);
                     }
                 }
-            }
+                _pinnedContainer.Visible = false;
+            } else {
+                var engine = _session.GetSubsystem("pact_magic");
+                var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
 
-            _pinnedContainer.Visible = (_pinnedContainer.Controls.Count > 0);
+                int boundCount = slots.Count(s => !string.IsNullOrEmpty(s.Element) && s.State != "empty");
+                bool atMaxCapacity = boundCount >= _capacity;
+
+                foreach (var card in _cards) {
+                    card.IsProgressionMode = false;
+                    var boundSlot = slots.FirstOrDefault(s => string.Equals(s.Element, card.Vestige.Name, StringComparison.OrdinalIgnoreCase) && s.State != "empty");
+                    bool isBound = (boundSlot != null);
+
+                    card.IsBound = isBound;
+                    card.PactState = boundSlot?.State;
+                    card.IsAtMaxCapacity = atMaxCapacity;
+
+                    if (isBound) {
+                        if (!_pinnedContainer.Controls.Contains(card)) {
+                            _pinnedContainer.Controls.Add(card);
+                        }
+                    } else {
+                        if (!_cardsContainer.Controls.Contains(card)) {
+                            _cardsContainer.Controls.Add(card);
+                        }
+                    }
+                }
+
+                _pinnedContainer.Visible = (_pinnedContainer.Controls.Count > 0);
+            }
 
             _pinnedContainer.ResumeLayout(true);
             _cardsContainer.ResumeLayout(true);
@@ -217,7 +241,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
             foreach (var elem in _allVestiges) {
                 var card = new VestigeCardControl(elem);
-                card.IsInvalid = elem.GetProperty<int>("level") > _maxVestigeLevel;
+                card.IsProgressionMode = _context.AcquisitionLevel > 0;
 
                 card.CardClicked += (s, e) => SelectCard(card);
                 card.GoodPactClicked += (s, e) => OnBindClicked(card, "good_pact");
@@ -254,7 +278,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             int selectedLevel = _cboLevelFilter.SelectedIndex;
 
             foreach (var card in _cards) {
-                if (card.IsBound) {
+                if (card.IsBound && _context.AcquisitionLevel <= 0) {
                     // Pinned cards remain visible in pinned container
                     card.Visible = true;
                     continue;
@@ -263,7 +287,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 bool visible = true;
                 int vestigeLevel = card.Vestige.GetProperty<int>("level");
 
-                if (_hideUnavailableCheckBox.Checked && vestigeLevel > _maxVestigeLevel) {
+                if (_hideUnavailableCheckBox.Checked && card.IsInvalid) {
                     visible = false;
                 }
 

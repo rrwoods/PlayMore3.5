@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 using PlayMore35.Subsystems;
 
@@ -106,7 +107,11 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Padding = new Padding(6)
             };
 
-            _picker = new PactMagicElementPicker(_host.Session, new ElementPickerContext { ElementType = "vestige" });
+            _picker = new PactMagicElementPicker(_host.Session, new ElementPickerContext {
+                ElementType = "vestige",
+                WarningProvider = elem => _host.Session.ValidateProgressionChoice(
+                    new ProgressionChoiceContext(ProgressionChoiceDomain.Subsystem, elem.Name, targetSource: "pact_magic"))
+            });
             _picker.VestigeSelected += OnVestigeSelected;
             _picker.VestigeBindRequested += OnVestigeBindRequested;
             _picker.VestigeUnbindRequested += OnVestigeUnbindRequested;
