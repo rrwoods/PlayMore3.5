@@ -204,7 +204,9 @@ namespace PlayMore35.Tests {
             var session = CreateTestSession();
             var context = new ElementPickerContext {
                 ElementType = "vestige",
-                WarningProvider = elem => elem.Name == "Ronove" ? new[] { "Requires Binder Level 3" } : Array.Empty<string>()
+                WarningProvider = elem => elem.Name == "Ronove"
+                    ? new[] { new ValidationWarning("Requires Binder Level 3", WarningKind.Unmet) }
+                    : Array.Empty<ValidationWarning>()
             };
 
             var elements = new List<SubsystemElement> {
@@ -221,6 +223,179 @@ namespace PlayMore35.Tests {
                 var visibleAfterHide = new List<string>(picker.GetFilteredElementNames());
                 CollectionAssert.Contains(visibleAfterHide, "Aym");
                 CollectionAssert.DoesNotContain(visibleAfterHide, "Ronove");
+            }
+        }
+
+        [TestMethod]
+        public void DefaultElementPicker_HideInvalidChoices_RetainsItemDependentWarnings_AndFiltersUnmet() {
+            var session = CreateTestSession();
+            var context = new ElementPickerContext {
+                ElementType = "vestige",
+                WarningProvider = elem => {
+                    if (elem.Name == "UnmetElem") {
+                        return new[] { new ValidationWarning("Unmet requirement", WarningKind.Unmet) };
+                    }
+                    if (elem.Name == "ItemDepElem") {
+                        return new[] { new ValidationWarning("Item reliant requirement", WarningKind.ItemDependent) };
+                    }
+                    if (elem.Name == "MixedElem") {
+                        return new[] {
+                            new ValidationWarning("Item reliant", WarningKind.ItemDependent),
+                            new ValidationWarning("Unmet", WarningKind.Unmet)
+                        };
+                    }
+                    return Array.Empty<ValidationWarning>();
+                }
+            };
+
+            var elements = new List<SubsystemElement> {
+                new SubsystemElement { Name = "ValidElem", Type = "vestige" },
+                new SubsystemElement { Name = "ItemDepElem", Type = "vestige" },
+                new SubsystemElement { Name = "UnmetElem", Type = "vestige" },
+                new SubsystemElement { Name = "MixedElem", Type = "vestige" }
+            };
+
+            using (var picker = new DefaultElementPicker(session, context, elements)) {
+                var initial = new List<string>(picker.GetFilteredElementNames());
+                CollectionAssert.Contains(initial, "(None)");
+                CollectionAssert.Contains(initial, "ValidElem");
+                CollectionAssert.Contains(initial, "ItemDepElem");
+                CollectionAssert.Contains(initial, "UnmetElem");
+                CollectionAssert.Contains(initial, "MixedElem");
+
+                picker.HideInvalidChoices = true;
+                var filtered = new List<string>(picker.GetFilteredElementNames());
+                CollectionAssert.Contains(filtered, "(None)");
+                CollectionAssert.Contains(filtered, "ValidElem");
+                CollectionAssert.Contains(filtered, "ItemDepElem");
+                CollectionAssert.DoesNotContain(filtered, "UnmetElem");
+                CollectionAssert.DoesNotContain(filtered, "MixedElem");
+            }
+        }
+
+        [TestMethod]
+        public void DefaultElementPicker_ItemBadges_WorstKindPrecedenceAndColors() {
+            var session = CreateTestSession();
+            var context = new ElementPickerContext {
+                ElementType = "vestige",
+                WarningProvider = elem => {
+                    if (elem.Name == "ItemDepElem") {
+                        return new[] { new ValidationWarning("Item reliant requirement", WarningKind.ItemDependent) };
+                    }
+                    if (elem.Name == "UnmetElem") {
+                        return new[] { new ValidationWarning("Unmet requirement", WarningKind.Unmet) };
+                    }
+                    if (elem.Name == "MixedElem") {
+                        return new[] {
+                            new ValidationWarning("Item reliant", WarningKind.ItemDependent),
+                            new ValidationWarning("Unmet requirement", WarningKind.Unmet)
+                        };
+                    }
+                    return Array.Empty<ValidationWarning>();
+                }
+            };
+
+            var elements = new List<SubsystemElement> {
+                new SubsystemElement { Name = "ValidElem", Type = "vestige" },
+                new SubsystemElement { Name = "ItemDepElem", Type = "vestige" },
+                new SubsystemElement { Name = "UnmetElem", Type = "vestige" },
+                new SubsystemElement { Name = "MixedElem", Type = "vestige" }
+            };
+
+            using (var picker = new DefaultElementPicker(session, context, elements)) {
+                // Index 0: (None)
+                Assert.IsNull(picker.GetItemBadge(0));
+
+                // Index 1: ValidElem (no warnings)
+                Assert.IsNull(picker.GetItemBadge(1));
+
+                // Index 2: ItemDepElem (all ItemDependent -> blue 🛈)
+                var itemDepBadge = picker.GetItemBadge(2);
+                Assert.IsNotNull(itemDepBadge);
+                Assert.AreEqual("🛈", itemDepBadge.Value.BadgeText);
+                Assert.AreEqual(Color.DodgerBlue, itemDepBadge.Value.BadgeColor);
+
+                // Index 3: UnmetElem (has Unmet -> goldenrod ⚠)
+                var unmetBadge = picker.GetItemBadge(3);
+                Assert.IsNotNull(unmetBadge);
+                Assert.AreEqual("⚠", unmetBadge.Value.BadgeText);
+                Assert.AreEqual(Color.DarkGoldenrod, unmetBadge.Value.BadgeColor);
+
+                // Index 4: MixedElem (both Unmet and ItemDependent -> goldenrod ⚠ worst-kind precedence)
+                var mixedBadge = picker.GetItemBadge(4);
+                Assert.IsNotNull(mixedBadge);
+                Assert.AreEqual("⚠", mixedBadge.Value.BadgeText);
+                Assert.AreEqual(Color.DarkGoldenrod, mixedBadge.Value.BadgeColor);
+
+                // Exercise owner-draw rendering for all items on a real Graphics surface
+                using (var bmp = new Bitmap(200, 100))
+                using (var g = Graphics.FromImage(bmp)) {
+                    for (int i = 0; i < 5; i++) {
+                        picker.DrawItemForTest(g, new Rectangle(0, i * 20, 200, 20), i);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void DefaultElementPicker_DetailsPane_FormatsWarningMessagesByKind() {
+            var session = CreateTestSession();
+            var context = new ElementPickerContext {
+                ElementType = "vestige",
+                WarningProvider = elem => {
+                    if (elem.Name == "UnmetElem") {
+                        return new[] { new ValidationWarning("Requires Binder Level 3", WarningKind.Unmet) };
+                    }
+                    if (elem.Name == "ItemDepElem") {
+                        return new[] { new ValidationWarning("Requires BAB +3", WarningKind.ItemDependent) };
+                    }
+                    if (elem.Name == "MixedElem") {
+                        return new[] {
+                            new ValidationWarning("Missing prerequisite feat", WarningKind.Unmet),
+                            new ValidationWarning("Requires Str 13", WarningKind.ItemDependent)
+                        };
+                    }
+                    return Array.Empty<ValidationWarning>();
+                }
+            };
+
+            var elemValid = new SubsystemElement { Name = "ValidElem", Type = "vestige" };
+            elemValid.SetProperty("description", "Lore text");
+            var elemUnmet = new SubsystemElement { Name = "UnmetElem", Type = "vestige" };
+            elemUnmet.SetProperty("description", "Unmet lore");
+            var elemItemDep = new SubsystemElement { Name = "ItemDepElem", Type = "vestige" };
+            elemItemDep.SetProperty("description", "ItemDep lore");
+            var elemMixed = new SubsystemElement { Name = "MixedElem", Type = "vestige" };
+            elemMixed.SetProperty("description", "Mixed lore");
+
+            var elements = new List<SubsystemElement> {
+                elemValid,
+                elemUnmet,
+                elemItemDep,
+                elemMixed
+            };
+
+            using (var picker = new DefaultElementPicker(session, context, elements)) {
+                // Select ValidElem
+                picker.SelectElementByName("ValidElem");
+                Assert.AreEqual("ValidElem\nLore text", picker.DetailsText);
+
+                // Select UnmetElem
+                picker.SelectElementByName("UnmetElem");
+                Assert.IsTrue(picker.DetailsText.Contains("UnmetElem\nUnmet lore\n\n[Warning: Requires Binder Level 3]"));
+
+                // Select ItemDepElem
+                picker.SelectElementByName("ItemDepElem");
+                Assert.IsTrue(picker.DetailsText.Contains("ItemDepElem\nItemDep lore\n\n[Item-Dependent: Requires BAB +3 (satisfied by equipped items)]"));
+
+                // Select MixedElem
+                picker.SelectElementByName("MixedElem");
+                Assert.IsTrue(picker.DetailsText.Contains("[Warning: Missing prerequisite feat]"));
+                Assert.IsTrue(picker.DetailsText.Contains("[Item-Dependent: Requires Str 13 (satisfied by equipped items)]"));
+
+                // Select None
+                picker.SelectNone();
+                Assert.AreEqual("(None selected)", picker.DetailsText);
             }
         }
 

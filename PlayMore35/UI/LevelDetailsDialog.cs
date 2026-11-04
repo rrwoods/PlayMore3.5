@@ -644,7 +644,7 @@ namespace PlayMore35 {
                         descriptor: desc,
                         currentChoices: currentChoices
                     );
-                    return session.ValidateProgressionChoice(progContext).Select(w => w.Message).ToList();
+                    return session.ValidateProgressionChoice(progContext);
                 }
             };
 

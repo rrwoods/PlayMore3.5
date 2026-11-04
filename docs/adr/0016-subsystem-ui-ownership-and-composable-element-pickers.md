@@ -96,15 +96,15 @@ public interface ISubsystemElementPicker : IDisposable {
 - **Parameter Configuration (`ElementPickerContext`)**:
   ```csharp
   public class ElementPickerContext {
-      public string ElementType { get; set; } = "";
+      public string? ElementType { get; set; }
       public string? Filter { get; set; }
       public int AcquisitionLevel { get; set; }
       public bool MultiSelect { get; set; }
-      public IReadOnlyList<string> InitialSelections { get; set; } = Array.Empty<string>();
-      public Func<SubsystemElement, IReadOnlyList<string>>? WarningProvider { get; set; }
+      public IReadOnlyList<SubsystemElement>? InitialSelections { get; set; }
+      public Func<SubsystemElement, IReadOnlyList<ValidationWarning>> WarningProvider { get; set; } = _ => Array.Empty<ValidationWarning>();
   }
   ```
-  `WarningProvider` evaluates rules prerequisites advisory warnings without hard blocking, driving item warning badges and the picker's "Hide invalid choices" toggle per ADR-0001.
+  `WarningProvider` evaluates rules prerequisites advisory warnings without hard blocking, returning strongly typed `ValidationWarning` instances to drive dual-state warning badges (goldenrod `⚠` for `WarningKind.Unmet`, blue `🛈` for `WarningKind.ItemDependent` per ADR-0017) and the picker's "Hide invalid choices" toggle (which filters out only choices with unmet warnings, keeping item-dependent choices visible) per ADR-0001.
 
 ### 4. Element Receptor (`ElementReceptorControl`) & Host Integration (`LevelDetailsDialog`)
 
