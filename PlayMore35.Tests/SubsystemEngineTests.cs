@@ -576,7 +576,7 @@ namespace PlayMore35.Tests {
 
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
         [TestMethod]
-        public void SubsystemEngine_GetAccessibleElements_And_IsSlotLevelValid_GatesDynamicallyBySlotGroupMaxLevel() {
+        public void SubsystemEngine_IsSlotLevelValid_GatesDynamicallyBySlotGroupMaxLevel() {
             var def = new SubsystemDefinition {
                 Id = "pact_magic",
                 Name = "Pact Magic"
@@ -608,9 +608,8 @@ namespace PlayMore35.Tests {
             var engine = new SubsystemEngine(def, session);
 
             // With max vestige level = 1:
-            var accessible = engine.GetAccessibleElements(null, null);
-            CollectionAssert.Contains(accessible.ToList(), "Amon");
-            CollectionAssert.DoesNotContain(accessible.ToList(), "Savnok");
+            Assert.IsTrue(engine.IsElementWithinLevelGate(elem1));
+            Assert.IsFalse(engine.IsElementWithinLevelGate(elem2));
 
             // Assign slot 0 to Amon (level 1 <= 1) -> valid
             engine.AssignSlot("vestiges", 0, "Amon", "good_pact");
@@ -622,9 +621,7 @@ namespace PlayMore35.Tests {
 
             // Increase maximum vestige level to 2 dynamically
             ctx.Effects.AddEffect(new Effect("Boost Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.UNTYPED)));
-            accessible = engine.GetAccessibleElements(null, null);
-            CollectionAssert.Contains(accessible.ToList(), "Amon");
-            CollectionAssert.Contains(accessible.ToList(), "Savnok");
+            Assert.IsTrue(engine.IsElementWithinLevelGate(elem2));
             Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 1));
         }
 
@@ -967,6 +964,18 @@ namespace PlayMore35.Tests {
 
             var interfaceMethod = typeof(ICharacterSession).GetMethod("IsAdeptClass", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             Assert.IsNull(interfaceMethod, "ICharacterSession must not define IsAdeptClass.");
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_And_CharacterSession_HaveNoGetAccessibleElementsMethods() {
+            var engineMethod = typeof(SubsystemEngine).GetMethod("GetAccessibleElements", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.IsNull(engineMethod, "SubsystemEngine must not define GetAccessibleElements.");
+
+            var sessionMethod = typeof(CharacterSession).GetMethod("GetAccessibleSubsystemElements", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.IsNull(sessionMethod, "CharacterSession must not define GetAccessibleSubsystemElements.");
+
+            var interfaceMethod = typeof(ICharacterSession).GetMethod("GetAccessibleSubsystemElements", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            Assert.IsNull(interfaceMethod, "ICharacterSession must not define GetAccessibleSubsystemElements.");
         }
 
         [TestMethod]

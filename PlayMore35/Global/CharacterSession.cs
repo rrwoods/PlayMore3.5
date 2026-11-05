@@ -1032,30 +1032,6 @@ namespace PlayMore35.Global {
             return character.featChoices.TryGetValue($"{featSlot}:{key}", out var compChoice) ? compChoice : "";
         }
 
-        public IReadOnlyList<string> GetAccessibleSubsystemElements(string domain, string filter, string targetSource) {
-            if (string.Equals(domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                foreach (var engine in _subsystems.Values) {
-                    var elements = engine.GetAccessibleElements(filter, targetSource);
-                    if (elements != null && elements.Count > 0) {
-                        return elements;
-                    }
-                }
-            }
-            if (!string.IsNullOrEmpty(filter)) {
-                var filterChoices = catalog.ChoicesForKey(filter)?.ToList();
-                if (filterChoices != null && filterChoices.Count > 0) {
-                    return filterChoices.AsReadOnly();
-                }
-            }
-            if (!string.IsNullOrEmpty(domain)) {
-                var domainChoices = catalog.ChoicesForKey(domain)?.ToList();
-                if (domainChoices != null && domainChoices.Count > 0) {
-                    return domainChoices.AsReadOnly();
-                }
-            }
-            return new List<string>().AsReadOnly();
-        }
-
         private IReadOnlyList<ValidationWarning> EvaluateDualPass(
             int evalLevel,
             Func<CharacterSession, IReadOnlyList<ValidationWarning>> evaluate,
