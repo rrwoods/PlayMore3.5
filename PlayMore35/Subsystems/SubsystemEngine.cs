@@ -236,20 +236,6 @@ namespace PlayMore35.Subsystems {
             return ResolveMaxLevel(def, source);
         }
 
-        public int GetReadiedCapacity(string groupName, string? source = null) {
-            if (string.IsNullOrEmpty(groupName) || !Definition.SlotGroups.TryGetValue(groupName, out var def)) return 0;
-            if (string.IsNullOrEmpty(def.ReadiedCapacityStat)) return GetSlotCapacity(groupName, source);
-            if (def.ReadiedCapacityStat.Contains("{source}")) {
-                if (!string.IsNullOrEmpty(source)) {
-                    string statName = def.ReadiedCapacityStat.Replace("{source}", source!.Trim().ToLowerInvariant());
-                    return ResolveStatOrParam(statName, 0);
-                }
-                var sources = GetActiveSources(null);
-                return sources.Sum(s => ResolveStatOrParam(def.ReadiedCapacityStat.Replace("{source}", s.Trim().ToLowerInvariant()), 0));
-            }
-            return ResolveStatOrParam(def.ReadiedCapacityStat, 0);
-        }
-
         private int ResolveStatOrParam(string? name, int defaultValue) {
             if (string.IsNullOrEmpty(name)) return defaultValue;
             if (context.Effects != null && context.Effects.stats.ContainsKey(name)) {
@@ -716,12 +702,16 @@ namespace PlayMore35.Subsystems {
                 string priorState = slot.State;
                 string elemName = slot.Element;
 
-                if (string.Equals(to, "active", StringComparison.OrdinalIgnoreCase) && groupDef != null && !string.IsNullOrEmpty(groupDef.MaxActiveStat)) {
+                var activeCap = groupDef?.StateCapacities.FirstOrDefault(c => c.States.Any(s => string.Equals(s, "active", StringComparison.OrdinalIgnoreCase)));
+                if (string.Equals(to, "active", StringComparison.OrdinalIgnoreCase) && activeCap != null) {
                     if (string.Equals(priorState, "active", StringComparison.OrdinalIgnoreCase)) {
                         anyTransitioned = true;
                         return;
                     }
-                    int maxActive = Math.Max(1, ResolveStatOrParam(groupDef.MaxActiveStat, 1));
+                    string statName = activeCap.Stat.Contains("{source}") && !string.IsNullOrEmpty(slot.Source)
+                        ? activeCap.Stat.Replace("{source}", slot.Source.Trim().ToLowerInvariant())
+                        : activeCap.Stat;
+                    int maxActive = Math.Max(1, ResolveStatOrParam(statName, 1));
                     var currentlyActive = group.Slots
                         .Where(s => !string.IsNullOrEmpty(s.Element) && s != slot && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase))
                         .ToList();
@@ -1489,33 +1479,20 @@ namespace PlayMore35.Subsystems {
                 if (!string.IsNullOrEmpty(effectiveSource)) {
                     foreach (var kvp in Definition.SlotGroups) {
                         var groupDef = kvp.Value;
-                        if (!string.IsNullOrEmpty(groupDef.ReadiedCapacityStat)) {
-                            var group = GetSlotGroup(kvp.Key);
-                            if (group != null) {
-                                var sourceSlots = group.RawSlots.Where(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)).ToList();
-                                if (sourceSlots.Count > 0) {
-                                    int readiedCount = sourceSlots.Count(s => !string.Equals(s.State, groupDef.DefaultState, StringComparison.OrdinalIgnoreCase));
-                                    int maxReadied = GetReadiedCapacity(kvp.Key, effectiveSource);
-                                    if (readiedCount > maxReadied) {
-                                        warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) exceeds readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
-                                    } else if (readiedCount < maxReadied) {
-                                        warnings.Add(new ValidationWarning($"Readied maneuvers count ({readiedCount}) is below readied capacity ({maxReadied}) for {effectiveSource}.", ValidationCategory.Capacity));
-                                    }
+                        var group = GetSlotGroup(kvp.Key);
+                        if (group == null) continue;
+                        foreach (var cap in groupDef.StateCapacities) {
+                            var sourceSlots = group.RawSlots.Where(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)).ToList();
+                            if (sourceSlots.Count > 0) {
+                                int count = sourceSlots.Count(s => cap.States.Any(st => string.Equals(st, s.State, StringComparison.OrdinalIgnoreCase)));
+                                string statName = cap.Stat.Contains("{source}") ? cap.Stat.Replace("{source}", effectiveSource.Trim().ToLowerInvariant()) : cap.Stat;
+                                int max = ResolveStatOrParam(statName, 0);
+                                if (count > max) {
+                                    warnings.Add(new ValidationWarning($"{effectiveSource} has {count} {cap.Label} {groupDef.Name}, exceeding maximum of {max}.", ValidationCategory.Capacity));
+                                } else if (count < max && cap.Stat.Contains("{source}")) {
+                                    warnings.Add(new ValidationWarning($"{effectiveSource} has {count} {cap.Label} {groupDef.Name}, below capacity of {max}.", ValidationCategory.Capacity));
                                 }
                             }
-                        }
-                    }
-                }
-
-                if (string.Equals(chosenElem.Type, "Stance", StringComparison.OrdinalIgnoreCase) &&
-                    Definition.SlotGroups.TryGetValue("stances", out var stanceGroupDef) &&
-                    !string.IsNullOrEmpty(stanceGroupDef.MaxActiveStat)) {
-                    var stanceGroup = GetSlotGroup("stances");
-                    if (stanceGroup != null) {
-                        int activeCount = stanceGroup.RawSlots.Count(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase));
-                        int maxActive = ResolveStatOrParam(stanceGroupDef.MaxActiveStat, 0);
-                        if (activeCount > maxActive) {
-                            warnings.Add(new ValidationWarning($"Active stances count ({activeCount}) exceeds active stances capacity ({maxActive}).", ValidationCategory.Capacity));
                         }
                     }
                 }
@@ -1577,31 +1554,42 @@ namespace PlayMore35.Subsystems {
                     }
                 }
 
-                if (groupDef != null && !string.IsNullOrEmpty(groupDef.ReadiedCapacityStat)) {
-                    var sources = group.Slots
-                        .Where(s => !string.IsNullOrEmpty(s.Element) && !string.IsNullOrEmpty(s.Source))
-                        .Select(s => s.Source!)
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
-                        .ToList();
-                    foreach (var src in sources) {
-                        int readiedCount = group.Slots.Count(s =>
-                            !string.IsNullOrEmpty(s.Element) &&
-                            string.Equals(s.Source, src, StringComparison.OrdinalIgnoreCase) &&
-                            !string.Equals(s.State, groupDef.DefaultState, StringComparison.OrdinalIgnoreCase));
-                        int maxReadied = GetReadiedCapacity(groupKey, src);
-                        if (readiedCount > maxReadied) {
-                            warnings.Add($"{src} has {readiedCount} readied maneuvers, exceeding maximum of {maxReadied}.");
-                        }
-                    }
-                }
+                if (groupDef != null && groupDef.StateCapacities.Count > 0) {
+                    foreach (var cap in groupDef.StateCapacities) {
+                        if (!cap.Stat.Contains("{source}")) {
+                            var matchingSlots = group.Slots
+                                .Where(s => !string.IsNullOrEmpty(s.Element) && cap.States.Any(st => string.Equals(st, s.State, StringComparison.OrdinalIgnoreCase)))
+                                .ToList();
+                            int totalCount = matchingSlots.Count;
+                            int max = ResolveStatOrParam(cap.Stat, 0);
+                            if (totalCount > max) {
+                                var distinctSources = matchingSlots
+                                    .Where(s => !string.IsNullOrEmpty(s.Source))
+                                    .Select(s => s.Source!)
+                                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                                    .ToList();
+                                string displaySrc = distinctSources.Count == 1 ? distinctSources[0] : groupDef.Name;
+                                string warningMsg = $"{displaySrc} has {totalCount} {cap.Label} {groupDef.Name}, exceeding maximum of {max}.";
+                                if (!warnings.Contains(warningMsg)) {
+                                    warnings.Add(warningMsg);
+                                }
+                            }
+                        } else {
+                            var slotsBySource = group.Slots
+                                .Where(s => !string.IsNullOrEmpty(s.Element))
+                                .GroupBy(s => s.Source ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
-                if (groupDef != null && !string.IsNullOrEmpty(groupDef.MaxActiveStat)) {
-                    int activeCount = group.Slots.Count(s =>
-                        !string.IsNullOrEmpty(s.Element) &&
-                        string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase));
-                    int maxActive = ResolveStatOrParam(groupDef.MaxActiveStat, 0);
-                    if (activeCount > maxActive) {
-                        warnings.Add($"Active stances count ({activeCount}) exceeds active stances capacity ({maxActive}).");
+                            foreach (var srcGroup in slotsBySource) {
+                                string src = srcGroup.Key;
+                                int count = srcGroup.Count(s => cap.States.Any(st => string.Equals(st, s.State, StringComparison.OrdinalIgnoreCase)));
+                                string statName = cap.Stat.Replace("{source}", src.Trim().ToLowerInvariant());
+                                int max = ResolveStatOrParam(statName, 0);
+                                if (count > max) {
+                                    string displaySrc = !string.IsNullOrEmpty(src) ? src : groupDef.Name;
+                                    warnings.Add($"{displaySrc} has {count} {cap.Label} {groupDef.Name}, exceeding maximum of {max}.");
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -108,10 +108,14 @@ namespace PlayMore35.Tests {
                 Name = "maneuvers",
                 Filter = "maneuver",
                 CapacityStat = "maneuvers known:{source}",
-                ReadiedCapacityStat = "maneuvers readied:{source}",
                 MaxLevel = new MaxLevelDefinition("max maneuver level:{source}", 0),
                 DefaultState = "unreadied"
             };
+            maneuverGroup.StateCapacities.Add(new StateCapacityDefinition(
+                new[] { "available", "expended", "withheld" },
+                "maneuvers readied:{source}",
+                "readied"
+            ));
             maneuverGroup.States.AddRange(new[] { "unreadied", "available", "expended", "withheld" });
             var maxManeuverTable = new Dictionary<int, int> {
                 { 0, 0 }, { 1, 1 }, { 3, 2 }, { 5, 3 }, { 7, 4 },
@@ -125,10 +129,14 @@ namespace PlayMore35.Tests {
                 Name = "stances",
                 Filter = "stance",
                 CapacityStat = "stances known:{source}",
-                MaxActiveStat = "active stances",
                 MaxLevel = new MaxLevelDefinition("max maneuver level:{source}", 0),
                 DefaultState = "inactive"
             };
+            stances.StateCapacities.Add(new StateCapacityDefinition(
+                new[] { "active" },
+                "active stances",
+                "active"
+            ));
             stances.States.AddRange(new[] { "inactive", "active" });
             def.SlotGroups["stances"] = stances;
 

@@ -134,7 +134,13 @@
       "maneuvers": {
         "filter": "maneuver",
         "capacity_stat": "maneuvers known:{source}",
-        "readied_capacity_stat": "maneuvers readied:{source}",
+        "state_capacities": [
+          {
+            "states": [ "available", "expended", "withheld" ],
+            "stat": "maneuvers readied:{source}",
+            "label": "readied"
+          }
+        ],
         "max_level": {
           "stat": "max maneuver level:{source}",
           "base": 0
@@ -186,7 +192,13 @@
       "stances": {
         "filter": "stance",
         "capacity_stat": "stances known:{source}",
-        "max_active_stat": "active stances",
+        "state_capacities": [
+          {
+            "states": [ "active" ],
+            "stat": "active stances",
+            "label": "active"
+          }
+        ],
         "max_level": {
           "stat": "max maneuver level:{source}",
           "base": 0

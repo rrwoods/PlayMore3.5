@@ -136,7 +136,8 @@ namespace PlayMore35.Tests {
 
             Assert.IsTrue(catalog.Subsystems.ContainsKey("martial_maneuvers"));
             var martial = catalog.Subsystems["martial_maneuvers"];
-            Assert.AreEqual("active stances", martial.SlotGroups["stances"].MaxActiveStat);
+            Assert.AreEqual("active stances", martial.SlotGroups["stances"].StateCapacities[0].Stat);
+            Assert.AreEqual("maneuvers readied:{source}", martial.SlotGroups["maneuvers"].StateCapacities[0].Stat);
         }
 
         [TestMethod]

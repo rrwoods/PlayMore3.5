@@ -357,7 +357,7 @@ namespace PlayMore35.Tests {
 
             // Total readied is 2, capacity is 1
             var warnings = engine.ValidateChoice(null, "Steel Strike", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Readied maneuvers count (2) exceeds readied capacity (1)") && w.Category == ValidationCategory.Capacity));
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Warblade has 2 readied maneuvers, exceeding maximum of 1.") && w.Category == ValidationCategory.Capacity));
         }
 
         // Source: Tome of Battle, p. 38
@@ -377,7 +377,7 @@ namespace PlayMore35.Tests {
 
             // Total readied is 1, capacity is 2
             var warnings = engine.ValidateChoice(null, "Steel Strike", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Readied maneuvers count (1) is below readied capacity (2) for Warblade.") && w.Category == ValidationCategory.Capacity));
+            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Warblade has 1 readied maneuvers, below capacity of 2.") && w.Category == ValidationCategory.Capacity));
         }
 
         // Source: Tome of Battle, p. 38
@@ -828,10 +828,10 @@ namespace PlayMore35.Tests {
 
             // Two active stances with active stances capacity of 1
             var warnings = engine.Validate();
-            Assert.IsTrue(warnings.Any(w => w.Contains("Active stances count (2) exceeds active stances capacity (1)")));
+            Assert.IsTrue(warnings.Any(w => w.Contains("Warblade has 2 active stances, exceeding maximum of 1.")));
 
             var maneuverWarnings = engine.ValidateChoice(null, "Punishing Stance", "Warblade");
-            Assert.IsTrue(maneuverWarnings.Any(w => w.Message.Contains("Active stances count (2) exceeds active stances capacity (1)") && w.Category == ValidationCategory.Capacity));
+            Assert.IsTrue(maneuverWarnings.Any(w => w.Message.Contains("Warblade has 2 active stances, exceeding maximum of 1.") && w.Category == ValidationCategory.Capacity));
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43
