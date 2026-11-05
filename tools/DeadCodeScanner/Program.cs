@@ -40,7 +40,7 @@ class Program {
             Directory.CreateDirectory(dir);
         }
 
-        File.WriteAllText(fullOutputPath, reportMarkdown);
+        File.WriteAllText(fullOutputPath, reportMarkdown.Replace("\r\n", "\n"));
         Console.WriteLine($"[DeadCodeScanner] Full report written to: {fullOutputPath}");
 
         if (isCheckMode && result.ZombieIslands.Count > 0) {

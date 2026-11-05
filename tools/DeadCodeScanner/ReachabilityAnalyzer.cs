@@ -269,6 +269,7 @@ public class ReachabilityAnalyzer {
 
         // 5. Cluster dead symbols into weakly connected components (Zombie Islands)
         var islands = new List<ZombieIsland>();
+        var isolatedDead = new List<MethodNode>();
         var unvisitedDead = new HashSet<ISymbol>(deadSymbolsSet, SymbolEqualityComparer.Default);
 
         while (unvisitedDead.Count > 0) {
@@ -334,18 +335,25 @@ public class ReachabilityAnalyzer {
                 componentCascade.RemoveAt(0);
             }
 
-            string islandName = componentRoots.FirstOrDefault()?.ContainingType
-                ?? component.First().ToDisplayString();
+            // Only report as ZombieIsland if it has internal cascade or test callers keeping it alive
+            if (componentCascade.Count > 0 || componentLifeSupport.Count > 0) {
+                string islandName = componentRoots.FirstOrDefault()?.ContainingType
+                    ?? component.First().ToDisplayString();
 
-            islands.Add(new ZombieIsland(
-                islandName,
-                componentRoots,
-                componentCascade,
-                componentLifeSupport.ToList()
-            ));
+                islands.Add(new ZombieIsland(
+                    islandName,
+                    componentRoots,
+                    componentCascade,
+                    componentLifeSupport.ToList()
+                ));
+            } else {
+                foreach (var root in componentRoots) {
+                    isolatedDead.Add(root);
+                }
+            }
         }
 
-        return new AnalysisResult(liveMethods, deadMethods, islands);
+        return new AnalysisResult(liveMethods, deadMethods, islands, isolatedDead);
     }
 
     private static bool IsProductionRoot(IMethodSymbol symbol) {
@@ -354,33 +362,18 @@ public class ReachabilityAnalyzer {
             return true;
         }
 
-        // Framework / base class overrides (e.g. OnPaint, Dispose, WndProc)
-        if (symbol.IsOverride) {
-            return true;
-        }
-
         var containingType = symbol.ContainingType;
         if (containingType != null) {
-            string typeName = containingType.Name;
-            bool isUiType = typeName.EndsWith("Form") ||
-                            typeName.EndsWith("Panel") ||
-                            typeName.EndsWith("Dialog") ||
-                            typeName.EndsWith("Picker") ||
-                            typeName.EndsWith("Badge") ||
-                            typeName.EndsWith("Control") ||
-                            IsSubclassOf(containingType, "Control", "Component");
+            bool isForm = containingType.Name.EndsWith("Form") || IsSubclassOf(containingType, "Form");
 
-            if (isUiType) {
-                // UI constructors and lifecycle/event methods
-                if (symbol.MethodKind == MethodKind.Constructor && symbol.DeclaredAccessibility == Accessibility.Public) {
-                    return true;
-                }
+            // Top-level Form constructors (like MainForm) are entry points
+            if (isForm && symbol.MethodKind == MethodKind.Constructor && symbol.DeclaredAccessibility == Accessibility.Public) {
+                return true;
+            }
 
-                if (symbol.Name.StartsWith("On") ||
-                    symbol.Name.Contains("_") ||
-                    symbol.Name == "InitializeComponent") {
-                    return true;
-                }
+            // Lifecycle overrides on Forms/Controls (e.g. OnLoad, OnClosing, Dispose)
+            if (symbol.IsOverride && (isForm || IsSubclassOf(containingType, "Control", "Component"))) {
+                return true;
             }
         }
 

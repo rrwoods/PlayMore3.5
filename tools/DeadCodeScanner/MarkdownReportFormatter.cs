@@ -24,6 +24,7 @@ public class MarkdownReportFormatter {
         sb.AppendLine($"| **Live Methods (Reachable from UI/Main)** | {result.LiveMethods.Count} ({livePct:F1}%) |");
         sb.AppendLine($"| **Dead Methods (Unreachable)** | {result.DeadMethods.Count} |");
         sb.AppendLine($"| **Zombie Islands Detected** | {result.ZombieIslands.Count} |");
+        sb.AppendLine($"| **Isolated Dead Methods** | {result.IsolatedDeadMethods.Count} |");
         sb.AppendLine();
 
         if (result.ZombieIslands.Count == 0) {
@@ -68,6 +69,17 @@ public class MarkdownReportFormatter {
             sb.AppendLine("---");
             sb.AppendLine();
             index++;
+        }
+
+        if (result.IsolatedDeadMethods.Count > 0) {
+            sb.AppendLine("## Isolated Dead Methods");
+            sb.AppendLine();
+            sb.AppendLine("These methods have zero callers in production and zero tests referencing them (completely standalone dead code):");
+            sb.AppendLine();
+            foreach (var isolated in result.IsolatedDeadMethods) {
+                sb.AppendLine($"- `{isolated.ContainingType}.{isolated.Name}` ({isolated.FilePath}:{isolated.LineNumber})");
+            }
+            sb.AppendLine();
         }
 
         return sb.ToString();

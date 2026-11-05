@@ -21,5 +21,6 @@ public record ZombieIsland(
 public record AnalysisResult(
     IReadOnlyList<MethodNode> LiveMethods,
     IReadOnlyList<MethodNode> DeadMethods,
-    IReadOnlyList<ZombieIsland> ZombieIslands
+    IReadOnlyList<ZombieIsland> ZombieIslands,
+    IReadOnlyList<MethodNode> IsolatedDeadMethods
 );

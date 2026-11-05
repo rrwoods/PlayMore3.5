@@ -23,7 +23,8 @@ public class MarkdownReportFormatterTests {
         var result = new AnalysisResult(
             new[] { liveMethod },
             new[] { root, child },
-            new[] { island }
+            new[] { island },
+            Array.Empty<MethodNode>()
         );
 
         var formatter = new MarkdownReportFormatter();
