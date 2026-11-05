@@ -22,6 +22,7 @@ We replace all bespoke subsystem engines, interface shims, and class-specific re
      - **Effect Projection**: Queries assigned elements for specific named categories of effects when a slot matches a required state.
 
 2. **Authoritative Subsystem Catalogs (`maneuvers.json`, `vestiges.json`)**:
+   > **Partially Superseded by [ADR-0019](0019-content-agnostic-subsystem-engine-and-declarative-state-capacities.md)**: Ad-hoc properties on slot groups (`readied_capacity_stat`, `max_active_stat`) were replaced by declarative `state_capacities` rules, and intra-subsystem prerequisites are governed by `prerequisite_property`.
    - Subsystem files package both their systemic definition (`"subsystem"`) and their catalog items (`"elements"`).
    - The subsystem definition declares slot groups (and valid states), generic subsystem verbs, general actions, and effect projection rules.
    - The maneuvers subsystem defines the generic `expend` verb as two discrete declarative steps: 1) transition the invoked slot to `"expended"`, and 2) explicitly invoke the maneuver's `"execute"` verb. Subsystems declare default element verbs (such as a default `"execute"` verb in `maneuvers.json` that does nothing).

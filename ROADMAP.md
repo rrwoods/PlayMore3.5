@@ -9,11 +9,11 @@ When starting a new feature, select the highest-priority unblocked item from thi
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
 ### Subsystem Literacy
-- SubsystemEngine *still* references "discipline" directly.  Do a full audit for non-approved subsystem literacy!
 - We still have slot name parsing.  It might be time to promote slot keys to something more robust than strings.
 
 ### Codebase architecture pass
-- There's just ... a lot of code lmao.  /improve-codebase-architecture candidates:
+- There's just ... a lot of code lmao.  Look for dead code.  We already incidentally found some.
+- /improve-codebase-architecture candidates:
   - there are still too many null guards
   - look for redundant tests
   - look for simplification
@@ -34,7 +34,7 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - When choosing something that needs more space (like a feat), expand the row to make room for the picker
 
 ### Maneuvers UI
-- extract and distill maneuvers
+- /verify-rules maneuvers against the extracted sourcebook
 - Known maneuvers and stances is a build-time choice, and should be present in the level details view.  The player should be able to search for maneuvers there, and the text of what comes up should be sourced from docs/rules/content/maneuvers/\*.md.  While we're here, the "..." button that brings up the level details view should get a highlight of some sort whenever there's an unfilled choice for that level (like picking a maneuver known, or the weapon choice for Weapon Focus).
   - We will need to update the Martial Study and Martial Stance choices to use this UI as well.
 - Readied maneuvers and current stance is a play-time choice, and we need a new Maneuvers tab (like the Vestiges tab for pact magic).  We need to think A LOT about how to lay this out and what the interaction paradigms are.  The "maneuvers as cards" analogy is very good and we should use it.

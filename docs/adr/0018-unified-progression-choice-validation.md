@@ -17,10 +17,11 @@ In addition, 3.5e level advancement (*Player's Handbook* p. 58, *Complete Warrio
    - Support both direct `AcquisitionLevel` and automatic fallback resolution from `SlotKey` via `session.GetFeatSlotLevel(slotKey)`.
 
 2. **Structured Warning Taxonomy on `SubsystemEngine`**:
+   > **Partially Superseded by [ADR-0019](0019-content-agnostic-subsystem-engine-and-declarative-state-capacities.md)**: Ambient readied and active slot state inspection was purged from `ValidateChoice` to `Validate()`. In `ValidateChoice`, `ValidationCategory.Capacity` evaluates candidate choices against `ChoiceDescriptor.SlotGroup` capacity.
    - Under *Deepen Before Splitting*, deepen `ValidationWarning` with a `ValidationCategory` enum:
      - `LevelGate`: Element tier exceeds level gate; strictly intrinsic and never qualifies for item dependence.
      - `Prerequisite`: Discipline, feat, or ability prerequisites; eligible for item dependence under dual-pass validation (*Complete Warrior* p. 16).
-     - `Capacity`: Readied or active slot count exceeded or below capacity.
+     - `Capacity`: Slot group capacity exceeded for the target source, or state capacity exceeded on the character sheet.
      - `SourceConflict`: Element already learned under another initiator source.
      - `Invalid`: Element not found or filtered out.
    - Refactor `SubsystemEngine.ValidateChoice` to return `IReadOnlyList<ValidationWarning>`, eliminating the reverse-engineering loop in `CharacterSession`.
