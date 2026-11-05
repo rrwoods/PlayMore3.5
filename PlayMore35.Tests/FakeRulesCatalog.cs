@@ -353,6 +353,14 @@ namespace PlayMore35.Tests {
             throw new KeyNotFoundException($"Feat '{name}' was not found in the rules catalog.");
         }
 
+        public Feat? FindFeatByChoiceDescriptor(ChoiceDescriptor descriptor) {
+            if (descriptor == null) return null;
+            var match = Feats.Values.FirstOrDefault(f => f.Choices.Any(c => c == descriptor || (c.Id == descriptor.Id && string.Equals(c.Domain, descriptor.Domain, StringComparison.OrdinalIgnoreCase))));
+            if (match != null) return match;
+            if (inner != null) return inner.FindFeatByChoiceDescriptor(descriptor);
+            return null;
+        }
+
         public bool TryGetWeapon(string name, [NotNullWhen(true)] out Weapon? result) {
             if (name != null && WeaponsMap.TryGetValue(name, out var val)) {
                 result = val;

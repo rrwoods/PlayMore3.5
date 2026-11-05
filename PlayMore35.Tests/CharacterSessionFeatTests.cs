@@ -1635,6 +1635,7 @@ namespace PlayMore35.Tests {
             StringAssert.Contains(warnings[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known.");
         }
 
+        // Source: Tome of Battle: The Book of Nine Swords, p. 31
         [TestMethod]
         public void ValidateProgressionChoice_MartialStance_EmitsCapacityWarning_WhenCapacityExceeded() {
             var character = new Character { race = "human" };

@@ -1099,7 +1099,7 @@ namespace PlayMore35.Global {
             if (context.Domain == ProgressionChoiceDomain.Feat && context.Descriptor != null && !string.IsNullOrEmpty(context.SlotKey)) {
                 bool hasFeatInSlot = character.feats.ContainsKey(context.SlotKey!) || (currentChoices != null && currentChoices.ContainsKey(context.SlotKey!));
                 if (!hasFeatInSlot) {
-                    var parentFeat = catalog.Feats.Values.FirstOrDefault(f => f.Choices.Any(c => c == context.Descriptor || (c.Id == context.Descriptor.Id && string.Equals(c.Domain, context.Descriptor.Domain, StringComparison.OrdinalIgnoreCase))));
+                    var parentFeat = catalog.FindFeatByChoiceDescriptor(context.Descriptor);
                     if (parentFeat != null) {
                         currentChoices = currentChoices != null ? new Dictionary<string, string>(currentChoices) : new Dictionary<string, string>();
                         currentChoices[context.SlotKey!] = parentFeat.Benefit?.Name ?? "";

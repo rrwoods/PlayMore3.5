@@ -44,6 +44,8 @@ namespace PlayMore35.Rules {
         bool TryGetExternalEffect(string name, [NotNullWhen(true)] out ExternalEffect? result);
         bool TryGetSubsystem(string name, [NotNullWhen(true)] out SubsystemDefinition? result);
 
+        Feat? FindFeatByChoiceDescriptor(ChoiceDescriptor descriptor);
+
         string ResolveTemplate(string template, IReadOnlyDictionary<string, object> choices);
 
         IEnumerable<string> ChoicesForKey(string choiceDescription);

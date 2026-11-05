@@ -331,6 +331,21 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(martialStance.Subsystems.Contains("martial_maneuvers"), "Martial Stance must declare 'martial_maneuvers' subsystem.");
         }
 
+        [TestMethod]
+        public void RulesCatalog_FindFeatByChoiceDescriptor_FindsMatchingFeat() {
+            var catalog = new GameRulesCatalog();
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            var found = catalog.FindFeatByChoiceDescriptor(stanceDescriptor);
+            Assert.IsNotNull(found);
+            Assert.AreEqual("Martial Stance", found.Benefit?.Name);
+
+            // Null or non-matching descriptor returns null
+            Assert.IsNull(catalog.FindFeatByChoiceDescriptor(null!));
+            Assert.IsNull(catalog.FindFeatByChoiceDescriptor(new ChoiceDescriptor("nonexistent", "dummy", "dummy")));
+        }
+
         // Source: Tome of Magic, pp. 16–50
         [TestMethod]
         public void GameRulesCatalog_LoadsVestiges_FromResources() {
