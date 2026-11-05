@@ -212,6 +212,10 @@ _Avoid_: Exception grant, direct grant, bonus access
 A discrete assignment receptacle within a subsystem (such as a vestige bind slot or maneuver slot) holding an assigned subsystem element.
 _Avoid_: Bind slot, maneuver slot, slot
 
+**State Capacity**:
+A declarative numeric limit governing the maximum number of slots within a subsystem slot group that may concurrently occupy a specific slot state or set of states (such as readied maneuvers or active stances).
+_Avoid_: Readied capacity, active stance limit, state limit
+
 **Resource Pool**:
 A quantitative allocation of consumable or replenishable subsystem units (such as spell slots per day, power points, or essentia).
 _Avoid_: Resource, pool, spell pool
