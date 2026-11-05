@@ -69,8 +69,6 @@ namespace PlayMore35.Items {
             ArcaneSpellFailure = definition.ArcaneSpellFailure;
         }
 
-        public Armor() { }
-
         public IEnumerable<Effect> GetGlobalEffects() {
             return Properties.Select(x => x.GlobalEffect).Where(x => x != null);
         }

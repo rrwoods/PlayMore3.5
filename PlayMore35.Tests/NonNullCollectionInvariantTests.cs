@@ -64,14 +64,6 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Feat_Constructors_EnsureCollectionsAreNonNull() {
-            var feat = new Feat();
-            Assert.IsNotNull(feat.Descriptors);
-            Assert.IsNotNull(feat.Choices);
-            Assert.IsNotNull(feat.ClassSkills);
-            Assert.IsNotNull(feat.Flags);
-            Assert.IsNotNull(feat.Parameters);
-            Assert.IsNotNull(feat.NewStats);
-
             var jsonFeat = new Feat(new JObject {
                 ["benefit"] = new JObject { ["name"] = "Power Attack" }
             });
@@ -85,10 +77,6 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Item_Constructors_EnsureCollectionsAreNonNull() {
-            var item = new Item();
-            Assert.IsNotNull(item.NewStats);
-            Assert.IsNotNull(item.NewFlags);
-
             var jsonItem = new Item(new JObject {
                 ["slot"] = "RING1",
                 ["effect"] = new JObject { ["name"] = "Ring of Protection" },
@@ -100,9 +88,6 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Armor_Constructors_EnsureCollectionsAreNonNull() {
-            var armor = new Armor();
-            Assert.IsNotNull(armor.Properties);
-
             var jsonArmor = new Armor(new JObject {
                 ["name"] = "Leather",
                 ["type"] = "LIGHT",
@@ -136,9 +121,6 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Shield_Constructors_EnsureCollectionsAreNonNull() {
-            var shield = new Shield();
-            Assert.IsNotNull(shield.Properties);
-
             var jsonShield = new Shield(new JObject {
                 ["name"] = "Buckler",
                 ["weight"] = 5m,
@@ -147,7 +129,7 @@ namespace PlayMore35.Tests {
                 ["armor check penalty"] = -1,
                 ["spell failure"] = 5
             });
-            Assert.IsNotNull(shield.Properties);
+            Assert.IsNotNull(jsonShield.Properties);
 
             var copyShield = new Shield(jsonShield);
             Assert.IsNotNull(copyShield.Properties);

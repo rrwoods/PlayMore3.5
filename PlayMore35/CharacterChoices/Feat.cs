@@ -88,8 +88,6 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public Feat() { }
-
         public Feat(JObject json) {
             Benefit = new Effect((JObject)json["benefit"]);
             Descriptors.ReadJson("descriptors", json);

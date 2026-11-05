@@ -180,7 +180,7 @@ namespace PlayMore35.Tests {
             SubsystemsMap["martial_maneuvers"] = def;
 
             if (!TryGetClass("Warblade", out _)) {
-                var wb = new CharacterClass { Name = "Warblade" };
+                var wb = TestFactory.CreateClass("Warblade");
                 var wbSub = new SubsystemFeature();
                 wbSub.Verbs["ready"] = def.Verbs["ready"];
                 wbSub.Verbs["recover"] = def.Verbs["recover_all"];
@@ -189,7 +189,7 @@ namespace PlayMore35.Tests {
                 ClassesMap["Warblade"] = wb;
             }
             if (!TryGetClass("Swordsage", out _)) {
-                var ss = new CharacterClass { Name = "Swordsage" };
+                var ss = TestFactory.CreateClass("Swordsage");
                 var ssSub = new SubsystemFeature();
                 ssSub.Verbs["ready"] = def.Verbs["ready"];
                 ssSub.Verbs["recover"] = def.Verbs["recover_select"];
@@ -198,7 +198,7 @@ namespace PlayMore35.Tests {
                 ClassesMap["Swordsage"] = ss;
             }
             if (!TryGetClass("Crusader", out _)) {
-                var cr = new CharacterClass { Name = "Crusader" };
+                var cr = TestFactory.CreateClass("Crusader");
                 var crSub = new SubsystemFeature();
                 crSub.Verbs["ready"] = new List<SubsystemStep> {
                     new SubsystemStep { Type = "transition", SlotGroup = "maneuvers", Selector = "invoked", FromState = "unreadied", ToState = "withheld" }

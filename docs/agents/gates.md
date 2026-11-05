@@ -28,3 +28,9 @@ When authoring an `implementation_plan.md` (include under `Proposed Changes`) or
 ### 4. Prototype promotion gate
 
 When promoting code from a prototype, specify exclusively the chosen design in tickets and specifications. Upstream descriptions and context pointers present only the selected variant so the agent works against a single definitive architecture.
+
+### 5. Dead code audit gate
+
+When completing tickets that refactor, deprecate, or wire up features, run `dotnet run --project tools/DeadCodeScanner` to inspect reachability (see `docs/agents/dead-code.md`).
+- **Audit for accidental orphans**: Verify the diff did not inadvertently strand production helpers or introduce new disconnected zombie islands.
+- **Surface findings for human review**: Present any newly discovered unreachable code as an advisory finding for human arbitration, keeping discovery separate from code modification.

@@ -26,7 +26,11 @@ Sole source of truth for code review: `CODING_STANDARDS.md` (C# architecture, Wi
 
 ### Planning and pre-commit gates
 
-Rules provenance, scope audits, prototype promotion, and documentation gates before committing or marking a PR ready: see `docs/agents/gates.md`.
+Rules provenance, scope audits, prototype promotion, dead code audits, and documentation gates before committing or marking a PR ready: see `docs/agents/gates.md`.
+
+### Dead code scanner
+
+Roslyn call-graph reachability scanner for inspecting unreachable methods and zombie islands (`dotnet run --project tools/DeadCodeScanner`). Strictly separates diagnostic findings from human-confirmed resolution. See `docs/agents/dead-code.md` and `docs/agents/gates.md`.
 
 ## Workflow and git conventions
 

@@ -46,8 +46,6 @@ namespace PlayMore35.CharacterChoices {
         // S U B S Y S T E M S .
         public Dictionary<string, SubsystemFeature> Subsystems = new Dictionary<string, SubsystemFeature>();
 
-        public CharacterClass() { }
-
         public JToken ToJson() {
             JObject json = new JObject(
                 new JProperty("name", Name),

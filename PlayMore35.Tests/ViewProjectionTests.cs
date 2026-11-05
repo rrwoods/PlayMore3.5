@@ -264,27 +264,18 @@ namespace PlayMore35.Tests {
             var pool = new EffectPool(character);
             pool.AddStat(new Statistic(AC));
 
-            var slotlessItem = new Item {
-                ItemSlot = Equipped.Slot.SLOTLESS,
-                ItemEffect = new Effect("Slotless Ward").AddModifier(AC, new Modifier(1, "deflection")),
-                NewFlags = new List<FlagDefinition> {
-                    new FlagDefinition("Slotless Flag", "Misc", "Slotless flag desc", AlwaysOn.Instance, null)
-                }
-            };
-            var neckItem = new Item {
-                ItemSlot = Equipped.Slot.NECK,
-                ItemEffect = new Effect("Amulet of Health").AddModifier(AC, new Modifier(2, "natural armor")),
-                NewFlags = new List<FlagDefinition> {
-                    new FlagDefinition("Neck Flag", "Misc", "Neck flag desc", AlwaysOn.Instance, null)
-                }
-            };
-            var bodyItem = new Item {
-                ItemSlot = Equipped.Slot.BODY,
-                ItemEffect = new Effect("Magic Robe").AddModifier(AC, new Modifier(4, "armor")),
-                NewFlags = new List<FlagDefinition> {
-                    new FlagDefinition("Robe Flag", "Misc", "Robe flag desc", AlwaysOn.Instance, null)
-                }
-            };
+            var slotlessItem = TestFactory.CreateItem(
+                Equipped.Slot.SLOTLESS,
+                new Effect("Slotless Ward").AddModifier(AC, new Modifier(1, "deflection")),
+                flags: new[] { new FlagDefinition("Slotless Flag", "Misc", "Slotless flag desc", AlwaysOn.Instance, null) });
+            var neckItem = TestFactory.CreateItem(
+                Equipped.Slot.NECK,
+                new Effect("Amulet of Health").AddModifier(AC, new Modifier(2, "natural armor")),
+                flags: new[] { new FlagDefinition("Neck Flag", "Misc", "Neck flag desc", AlwaysOn.Instance, null) });
+            var bodyItem = TestFactory.CreateItem(
+                Equipped.Slot.BODY,
+                new Effect("Magic Robe").AddModifier(AC, new Modifier(4, "armor")),
+                flags: new[] { new FlagDefinition("Robe Flag", "Misc", "Robe flag desc", AlwaysOn.Instance, null) });
 
             var equipped = new Equipped();
             equipped.SlotlessItems.Add(slotlessItem);

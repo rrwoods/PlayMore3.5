@@ -37,7 +37,5 @@ namespace PlayMore35.Items {
                 NewFlags.AddRange(json["flags"].Select(x => new FlagDefinition((JObject)x)));
             }
         }
-
-        public Item() { }
     }
 }

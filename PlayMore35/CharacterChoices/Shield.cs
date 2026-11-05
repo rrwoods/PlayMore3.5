@@ -95,8 +95,6 @@ namespace PlayMore35.Items {
             AddBash();
         }
 
-        public Shield() { }
-
         public IEnumerable<Effect> GetGlobalEffects() {
             IEnumerable<Effect> all = Properties.Select(x => x.GlobalEffect).Where(x => x != null);
             if (ShieldBash != null) {
