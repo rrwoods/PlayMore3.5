@@ -1380,36 +1380,6 @@ namespace PlayMore35.Subsystems {
             return elemLevel <= maxAllowed.Value;
         }
 
-        public IReadOnlyList<string> GetAccessibleElements(string? filter, string? targetSource) {
-            string? effectiveSource = targetSource;
-            if (string.IsNullOrWhiteSpace(effectiveSource)) {
-                effectiveSource = ResolveFeatTargetSource(null);
-            }
-
-            int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource);
-            var matching = new List<SubsystemElement>();
-            foreach (var elem in Definition.Elements.Values) {
-                if (!MatchesFilter(elem, filter)) continue;
-                if (maxAllowed.HasValue) {
-                    int elemLevel = elem.GetStatistic(Definition.LevelGating!.ElementStatistic, context).Value;
-                    if (elemLevel > maxAllowed.Value) continue;
-                }
-                matching.Add(elem);
-            }
-
-            bool hasDisciplines = matching.Any(e => !string.IsNullOrEmpty(e.GetProperty<string>("discipline")));
-            if (hasDisciplines) {
-                return matching
-                    .OrderBy(e => e.GetProperty<string>("discipline"))
-                    .ThenBy(e => e.Name)
-                    .Select(e => $"[{e.GetProperty<string>("discipline")}] {e.Name}")
-                    .ToList()
-                    .AsReadOnly();
-            }
-
-            return matching.Select(e => e.Name).ToList().AsReadOnly();
-        }
-
         private int CountSameDisciplineKnown(string discipline, string? excludeElementName = null, SubsystemSlot? excludeSlot = null) {
             if (string.IsNullOrEmpty(discipline)) return 0;
 

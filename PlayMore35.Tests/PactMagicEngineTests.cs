@@ -840,9 +840,8 @@ namespace PlayMore35.Tests {
 
             // Binder level 1: max vestige level is 1
             Assert.AreEqual(1, session.GetStatistic("maximum vestige level").Value);
-            var accessibleBase = pactEngine.GetAccessibleElements(null, null);
-            CollectionAssert.Contains(accessibleBase.ToList(), "Aym");
-            CollectionAssert.DoesNotContain(accessibleBase.ToList(), "Savnok");
+            Assert.IsTrue(pactEngine.IsElementWithinLevelGate(aym));
+            Assert.IsFalse(pactEngine.IsElementWithinLevelGate(savnok));
 
             // Savnok in slot 0 is overleveled
             pactEngine.AssignSlot("vestiges", 0, "Savnok", "good_pact", "Binder");
@@ -857,12 +856,9 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.GetStatistic("level:Savnok").Value);
             Assert.AreEqual(1, savnok.GetStatistic("level", session).Value);
 
-            // Savnok is now valid in slot 0
+            // Savnok is now valid in slot 0 and passes level gate
+            Assert.IsTrue(pactEngine.IsElementWithinLevelGate(savnok));
             Assert.IsTrue(pactEngine.IsSlotLevelValid("vestiges", 0));
-
-            // Savnok is now accessible at level 1
-            var accessibleModified = pactEngine.GetAccessibleElements(null, null);
-            CollectionAssert.Contains(accessibleModified.ToList(), "Savnok");
 
             // Removing modifier restores Savnok to level 2
             ctx.Effects.RemoveEffect(reduceSavnok.Name);
