@@ -702,42 +702,47 @@ namespace PlayMore35.Subsystems {
                 string priorState = slot.State;
                 string elemName = slot.Element;
 
-                var activeCap = groupDef?.StateCapacities.FirstOrDefault(c => c.States.Any(s => string.Equals(s, "active", StringComparison.OrdinalIgnoreCase)));
-                if (string.Equals(to, "active", StringComparison.OrdinalIgnoreCase) && activeCap != null) {
-                    if (string.Equals(priorState, "active", StringComparison.OrdinalIgnoreCase)) {
+                var targetCap = groupDef?.StateCapacities.FirstOrDefault(c => c.States.Any(s => string.Equals(s, to, StringComparison.OrdinalIgnoreCase)));
+                if (targetCap != null) {
+                    if (string.Equals(priorState, to, StringComparison.OrdinalIgnoreCase)) {
                         anyTransitioned = true;
                         return;
                     }
-                    string statName = activeCap.Stat.Contains("{source}") && !string.IsNullOrEmpty(slot.Source)
-                        ? activeCap.Stat.Replace("{source}", slot.Source.Trim().ToLowerInvariant())
-                        : activeCap.Stat;
-                    int maxActive = Math.Max(1, ResolveStatOrParam(statName, 1));
-                    var currentlyActive = group.Slots
-                        .Where(s => !string.IsNullOrEmpty(s.Element) && s != slot && string.Equals(s.State, "active", StringComparison.OrdinalIgnoreCase))
-                        .ToList();
+                    bool priorInTarget = targetCap.States.Any(s => string.Equals(s, priorState, StringComparison.OrdinalIgnoreCase));
+                    if (!priorInTarget) {
+                        string statName = targetCap.Stat.Contains("{source}") && !string.IsNullOrEmpty(slot.Source)
+                            ? targetCap.Stat.Replace("{source}", slot.Source.Trim().ToLowerInvariant())
+                            : targetCap.Stat;
+                        int maxActive = Math.Max(1, ResolveStatOrParam(statName, 1));
+                        var currentlyActive = group.Slots
+                            .Where(s => !string.IsNullOrEmpty(s.Element) && s != slot &&
+                                        (string.IsNullOrEmpty(slot.Source) || !targetCap.Stat.Contains("{source}") || string.Equals(s.Source, slot.Source, StringComparison.OrdinalIgnoreCase)) &&
+                                        targetCap.States.Any(st => string.Equals(st, s.State, StringComparison.OrdinalIgnoreCase)))
+                            .ToList();
 
-                    string inactiveState = !string.IsNullOrEmpty(groupDef.DefaultState) ? groupDef.DefaultState : "inactive";
-                    while (currentlyActive.Count >= maxActive) {
-                        SubsystemSlot? toDeactivate = null;
-                        if (rawIndex >= 0 && transition.SelectedIndices != null && transition.SelectedIndices.Count > 0) {
-                            int repFlatIdx = ResolveFlatSlotIndex(transition.SlotGroup, transition.SelectedIndices[0], targetSource, false);
-                            if (repFlatIdx >= 0 && repFlatIdx < group.Slots.Count) {
-                                var candidate = group.Slots[repFlatIdx];
-                                if (currentlyActive.Contains(candidate)) {
-                                    toDeactivate = candidate;
+                        string inactiveState = !string.IsNullOrEmpty(groupDef.DefaultState) ? groupDef.DefaultState : "inactive";
+                        while (currentlyActive.Count >= maxActive) {
+                            SubsystemSlot? toDeactivate = null;
+                            if (rawIndex >= 0 && transition.SelectedIndices != null && transition.SelectedIndices.Count > 0) {
+                                int repFlatIdx = ResolveFlatSlotIndex(transition.SlotGroup, transition.SelectedIndices[0], targetSource, false);
+                                if (repFlatIdx >= 0 && repFlatIdx < group.Slots.Count) {
+                                    var candidate = group.Slots[repFlatIdx];
+                                    if (currentlyActive.Contains(candidate)) {
+                                        toDeactivate = candidate;
+                                    }
                                 }
                             }
+                            if (toDeactivate == null) {
+                                toDeactivate = activeSlotOrder.FirstOrDefault(s => currentlyActive.Contains(s)) ?? currentlyActive[0];
+                            }
+                            toDeactivate.State = inactiveState;
+                            currentlyActive.Remove(toDeactivate);
+                            activeSlotOrder.Remove(toDeactivate);
                         }
-                        if (toDeactivate == null) {
-                            toDeactivate = activeSlotOrder.FirstOrDefault(s => currentlyActive.Contains(s)) ?? currentlyActive[0];
-                        }
-                        toDeactivate.State = inactiveState;
-                        currentlyActive.Remove(toDeactivate);
-                        activeSlotOrder.Remove(toDeactivate);
                     }
                     activeSlotOrder.Remove(slot);
                     activeSlotOrder.Add(slot);
-                } else if (string.Equals(priorState, "active", StringComparison.OrdinalIgnoreCase) && !string.Equals(to, "active", StringComparison.OrdinalIgnoreCase)) {
+                } else {
                     activeSlotOrder.Remove(slot);
                 }
 
@@ -1363,23 +1368,12 @@ namespace PlayMore35.Subsystems {
             return gatedSlotGroups.Select(g => ResolveMaxLevel(g, targetSource)).Max();
         }
 
-        public bool IsElementWithinLevelGate(SubsystemElement elem, string? targetSource = null) {
-            int? maxAllowed = GetMaxAllowedElementLevel(targetSource);
-            if (!maxAllowed.HasValue) return true;
-            int elemLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
-            return elemLevel <= maxAllowed.Value;
-        }
-
         public int CountSamePropertyKnown(string? propertyName, string? propertyValue, string? excludeElementName = null, string? excludeSlot = null) {
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var s in slotGroups.Values.SelectMany(g => g.Slots)) {
                 if (string.IsNullOrEmpty(s.Element)) continue;
-                if (!string.IsNullOrEmpty(excludeSlot) && !string.IsNullOrEmpty(s.FeatSlot)) {
-                    if (string.Equals(s.FeatSlot, excludeSlot, StringComparison.OrdinalIgnoreCase) ||
-                        s.FeatSlot.StartsWith(excludeSlot + ":", StringComparison.OrdinalIgnoreCase) ||
-                        excludeSlot.StartsWith(s.FeatSlot + ":", StringComparison.OrdinalIgnoreCase)) {
-                        continue;
-                    }
+                if (MatchesSlotKey(s.FeatSlot, excludeSlot)) {
+                    continue;
                 }
                 if (!string.IsNullOrEmpty(excludeElementName) && string.Equals(s.Element, excludeElementName, StringComparison.OrdinalIgnoreCase)) continue;
 
@@ -1436,7 +1430,7 @@ namespace PlayMore35.Subsystems {
             }
 
             string? effectiveSource = targetSource;
-            if (string.IsNullOrWhiteSpace(effectiveSource)) {
+            if (string.IsNullOrWhiteSpace(effectiveSource) && !string.IsNullOrEmpty(slotKey)) {
                 effectiveSource = ResolveFeatTargetSource(slotKey);
             }
 
@@ -1461,9 +1455,7 @@ namespace PlayMore35.Subsystems {
                 if (string.IsNullOrEmpty(prereqProp) || !string.IsNullOrEmpty(propVal)) {
                     int known = CountSamePropertyKnown(prereqProp, propVal, excludeElementName: chosenElem.Name);
                     if (known < prereqCount) {
-                        string elemUnit = Definition.PrerequisiteUnit ?? (!string.IsNullOrEmpty(filter) ? filter : "element");
-                        string plural = prereqCount == 1 ? elemUnit : $"{elemUnit}s";
-                        string targetDesc = !string.IsNullOrEmpty(propVal) ? $"{propVal} {plural}" : plural;
+                        string targetDesc = FormatPrerequisiteDescription(prereqCount, propVal);
                         warnings.Add(new ValidationWarning($"Requires {prereqCount} {targetDesc}, but only {known} known.", ValidationCategory.Prerequisite));
                     }
                 }
@@ -1496,11 +1488,18 @@ namespace PlayMore35.Subsystems {
                         (string.IsNullOrEmpty(slotKey) || !MatchesSlotKey(s.FeatSlot, slotKey)));
                 }
                 if (currentAssignedCount >= maxCapacity) {
-                    warnings.Add(new ValidationWarning($"Selection exceeds {groupDef.Name} capacity ({maxCapacity}) for {effectiveSource}.", ValidationCategory.Capacity));
+                    string forSource = !string.IsNullOrEmpty(effectiveSource) ? $" for {effectiveSource}" : "";
+                    warnings.Add(new ValidationWarning($"Selection exceeds {groupDef.Name} capacity ({maxCapacity}){forSource}.", ValidationCategory.Capacity));
                 }
             }
 
             return warnings;
+        }
+
+        private string FormatPrerequisiteDescription(int count, string? propertyValue) {
+            string elemUnit = Definition.PrerequisiteUnit ?? "element";
+            string plural = count == 1 ? elemUnit : $"{elemUnit}s";
+            return !string.IsNullOrEmpty(propertyValue) ? $"{propertyValue} {plural}" : plural;
         }
 
         private static bool MatchesSlotKey(string? featSlot, string? slotKey) {
@@ -1554,9 +1553,7 @@ namespace PlayMore35.Subsystems {
                         if (string.IsNullOrEmpty(prereqProp) || !string.IsNullOrEmpty(propVal)) {
                             int totalKnown = CountSamePropertyKnown(prereqProp, propVal, excludeElementName: elem.Name);
                             if (totalKnown < prereqCount) {
-                                string elemUnit = Definition.PrerequisiteUnit ?? (!string.IsNullOrEmpty(groupDef?.Filter) ? groupDef.Filter : "element");
-                                string plural = prereqCount == 1 ? elemUnit : $"{elemUnit}s";
-                                string targetDesc = !string.IsNullOrEmpty(propVal) ? $"{propVal} {plural}" : plural;
+                                string targetDesc = FormatPrerequisiteDescription(prereqCount, propVal);
                                 warnings.Add($"{elem.Name} requires {prereqCount} {targetDesc}, but only {totalKnown} known.");
                             }
                         }
@@ -1577,7 +1574,7 @@ namespace PlayMore35.Subsystems {
                                     .Select(s => s.Source!)
                                     .Distinct(StringComparer.OrdinalIgnoreCase)
                                     .ToList();
-                                string displaySrc = distinctSources.Count == 1 ? distinctSources[0] : groupDef.Name;
+                                string displaySrc = distinctSources.Count == 1 ? distinctSources[0] : "Character";
                                 string warningMsg = $"{displaySrc} has {totalCount} {cap.Label} {groupDef.Name}, exceeding maximum of {max}.";
                                 if (!warnings.Contains(warningMsg)) {
                                     warnings.Add(warningMsg);

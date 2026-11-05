@@ -608,8 +608,8 @@ namespace PlayMore35.Tests {
             var engine = new SubsystemEngine(def, session);
 
             // With max vestige level = 1:
-            Assert.IsTrue(engine.IsElementWithinLevelGate(elem1));
-            Assert.IsFalse(engine.IsElementWithinLevelGate(elem2));
+            Assert.AreEqual(0, engine.ValidateChoice(null, elem1.Name).Count);
+            Assert.IsTrue(engine.ValidateChoice(null, elem2.Name).Any(w => w.Category == ValidationCategory.LevelGate));
 
             // Assign slot 0 to Amon (level 1 <= 1) -> valid
             engine.AssignSlot("vestiges", 0, "Amon", "good_pact");
@@ -621,7 +621,7 @@ namespace PlayMore35.Tests {
 
             // Increase maximum vestige level to 2 dynamically
             ctx.Effects.AddEffect(new Effect("Boost Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.UNTYPED)));
-            Assert.IsTrue(engine.IsElementWithinLevelGate(elem2));
+            Assert.AreEqual(0, engine.ValidateChoice(null, elem2.Name).Count);
             Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 1));
         }
 
@@ -1496,6 +1496,108 @@ namespace PlayMore35.Tests {
             // Validating for the same slot ("Level 1") excludes it and does NOT warn
             var warningsReSelect = engine.ValidateChoice(stanceDescriptor, "Blood in the Water", "Feats", "Level 1");
             Assert.IsFalse(warningsReSelect.Any(w => w.Category == ValidationCategory.Capacity));
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_ValidateChoice_CapacityWarning_FormatsWithoutSource_WhenSourceNullOrEmpty() {
+            var def = new SubsystemDefinition {
+                Id = "custom_auras",
+                Name = "Custom Auras"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "auras",
+                FixedCapacity = 1,
+                CapacityStat = "max auras"
+            };
+            def.SlotGroups["auras"] = group;
+            def.Elements["Solar Flare"] = new SubsystemElement { Name = "Solar Flare" };
+            def.Elements["Lunar Beam"] = new SubsystemElement { Name = "Lunar Beam" };
+
+            var descriptor = new ChoiceDescriptor("aura", "Choose aura", "SubsystemElements", slotGroup: "auras");
+            var engine = new SubsystemEngine(def, new FakeCharacterContext());
+            engine.AssignSlot("auras", 0, "Solar Flare");
+
+            var warnings = engine.ValidateChoice(descriptor, "Lunar Beam", null);
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(ValidationCategory.Capacity, warnings[0].Category);
+            Assert.AreEqual("Selection exceeds auras capacity (1).", warnings[0].Message);
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_Validate_EmitsCharacterCapacityWarning_WhenDistinctSourcesNotOne() {
+            var def = new SubsystemDefinition {
+                Id = "martial_maneuvers",
+                Name = "Martial Maneuvers"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "stances",
+                FixedCapacity = 5,
+                DefaultState = "inactive"
+            };
+            group.States.AddRange(new[] { "inactive", "active" });
+            group.StateCapacities.Add(new StateCapacityDefinition(
+                new[] { "active" },
+                "active stances",
+                "active"
+            ));
+            def.SlotGroups["stances"] = group;
+
+            def.Elements["Punishing Stance"] = new SubsystemElement { Name = "Punishing Stance" };
+            def.Elements["Flame's Blessing"] = new SubsystemElement { Name = "Flame's Blessing" };
+
+            var context = new FakeCharacterContext();
+            context.Character.paramValues["active stances"] = 1;
+
+            var engine = new SubsystemEngine(def, context);
+            engine.AssignSlot("stances", 0, "Punishing Stance", "active", "Warblade");
+            engine.AssignSlot("stances", 1, "Flame's Blessing", "active", "Swordsage");
+
+            var warnings = engine.Validate();
+            Assert.IsTrue(warnings.Any(w => w == "Character has 2 active stances, exceeding maximum of 1."),
+                $"Expected 'Character has 2 active stances, exceeding maximum of 1.', got: {string.Join("; ", warnings)}");
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_TransitionSlot_DynamicStateClamping_CustomNonActiveState() {
+            var def = new SubsystemDefinition {
+                Id = "custom_auras",
+                Name = "Custom Auras"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "auras",
+                FixedCapacity = 5,
+                DefaultState = "dormant"
+            };
+            group.States.AddRange(new[] { "dormant", "radiating" });
+            group.StateCapacities.Add(new StateCapacityDefinition(
+                new[] { "radiating" },
+                "max radiating auras",
+                "radiant"
+            ));
+            def.SlotGroups["auras"] = group;
+
+            def.Elements["Solar Flare"] = new SubsystemElement { Name = "Solar Flare" };
+            def.Elements["Lunar Beam"] = new SubsystemElement { Name = "Lunar Beam" };
+
+            def.Verbs["radiate"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "auras", Selector = "invoked", FromState = "*", ToState = "radiating" }
+            };
+
+            var context = new FakeCharacterContext();
+            context.Character.paramValues["max radiating auras"] = 1;
+
+            var engine = new SubsystemEngine(def, context);
+            engine.AssignSlot("auras", 0, "Solar Flare", "radiating");
+            engine.AssignSlot("auras", 1, "Lunar Beam", "dormant");
+
+            Assert.AreEqual("radiating", engine.GetSlotState("auras", 0));
+            Assert.AreEqual("dormant", engine.GetSlotState("auras", 1));
+
+            // Radiating second aura should clamp and demote the first aura to dormant
+            engine.InvokeVerb("radiate", "auras", 1);
+
+            Assert.AreEqual("dormant", engine.GetSlotState("auras", 0));
+            Assert.AreEqual("radiating", engine.GetSlotState("auras", 1));
         }
     }
 }
