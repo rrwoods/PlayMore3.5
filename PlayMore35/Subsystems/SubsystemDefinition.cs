@@ -110,12 +110,47 @@ namespace PlayMore35.Subsystems {
         }
     }
 
+    public class StateCapacityDefinition : IJsonable {
+        public IReadOnlyList<string> States { get; }
+        public string Stat { get; }
+        public string Label { get; }
+
+        public StateCapacityDefinition(IEnumerable<string> states, string stat, string label) {
+            States = states != null ? states.ToList() : new List<string>();
+            Stat = stat ?? string.Empty;
+            Label = label ?? string.Empty;
+        }
+
+        public StateCapacityDefinition(JObject json) {
+            if (json == null) {
+                States = new List<string>();
+                Stat = string.Empty;
+                Label = string.Empty;
+                return;
+            }
+            States = json["states"] is JArray arr
+                ? arr.Select(x => (string)x).Where(x => x != null).ToList()!
+                : new List<string>();
+            Stat = (string)json["stat"] ?? string.Empty;
+            Label = (string)json["label"] ?? string.Empty;
+        }
+
+        public JObject ToJson() {
+            var json = new JObject();
+            if (States.Count > 0) json["states"] = new JArray(States);
+            if (!string.IsNullOrEmpty(Stat)) json["stat"] = Stat;
+            if (!string.IsNullOrEmpty(Label)) json["label"] = Label;
+            return json;
+        }
+
+        JToken IJsonable.ToJson() => ToJson();
+    }
+
     public class SlotGroupDefinition : IJsonable {
         public string Name { get; set; } = "";
         public string? Filter { get; set; }
         public string CapacityStat { get; set; } = null;
-        public string ReadiedCapacityStat { get; set; } = null;
-        public string MaxActiveStat { get; set; } = null;
+        public List<StateCapacityDefinition> StateCapacities { get; } = new List<StateCapacityDefinition>();
         public int FixedCapacity { get; set; } = 0;
         public MaxLevelDefinition MaxLevel { get; set; } = null;
         public List<Effect> Effects { get; } = new List<Effect>();
@@ -131,8 +166,11 @@ namespace PlayMore35.Subsystems {
             Name = (string)(json["name"] ?? "");
             Filter = (string)json["filter"];
             CapacityStat = (string)json["capacity_stat"];
-            ReadiedCapacityStat = (string)json["readied_capacity_stat"];
-            MaxActiveStat = (string)json["max_active_stat"];
+            if (json["state_capacities"] is JArray scArr) {
+                foreach (var x in scArr.OfType<JObject>()) {
+                    StateCapacities.Add(new StateCapacityDefinition(x));
+                }
+            }
             FixedCapacity = (int)(json["fixed_capacity"] ?? 0);
             if (json["max_level"] is JObject mlObj) {
                 MaxLevel = new MaxLevelDefinition(mlObj);
@@ -174,8 +212,7 @@ namespace PlayMore35.Subsystems {
             if (!string.IsNullOrEmpty(Name)) json["name"] = Name;
             if (!string.IsNullOrEmpty(Filter)) json["filter"] = Filter;
             if (!string.IsNullOrEmpty(CapacityStat)) json["capacity_stat"] = CapacityStat;
-            if (!string.IsNullOrEmpty(ReadiedCapacityStat)) json["readied_capacity_stat"] = ReadiedCapacityStat;
-            if (!string.IsNullOrEmpty(MaxActiveStat)) json["max_active_stat"] = MaxActiveStat;
+            if (StateCapacities.Count > 0) json["state_capacities"] = new JArray(StateCapacities.Select(x => x.ToJson()));
             if (FixedCapacity > 0) json["fixed_capacity"] = FixedCapacity;
             if (MaxLevel != null) json["max_level"] = MaxLevel.ToJson();
             if (Effects.Count > 0) json["effects"] = new JArray(Effects.Select(x => x.ToJson()));

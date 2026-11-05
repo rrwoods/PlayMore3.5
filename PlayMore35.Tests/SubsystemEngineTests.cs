@@ -1302,6 +1302,141 @@ namespace PlayMore35.Tests {
                                             w.Contains("Shadow Veil requires 1 Cloak of Shadows mystery, but only 0 known.")),
                 $"Expected prerequisite warning from Validate, got: {string.Join(", ", warnings)}");
         }
+
+        [TestMethod]
+        public void StateCapacityDefinition_ExplicitConstructorAndJson_RoundTrips() {
+            var def = new StateCapacityDefinition(new[] { "available", "expended", "withheld" }, "maneuvers readied:{source}", "readied");
+            Assert.AreEqual(3, def.States.Count);
+            Assert.AreEqual("available", def.States[0]);
+            Assert.AreEqual("expended", def.States[1]);
+            Assert.AreEqual("withheld", def.States[2]);
+            Assert.AreEqual("maneuvers readied:{source}", def.Stat);
+            Assert.AreEqual("readied", def.Label);
+
+            var json = def.ToJson();
+            Assert.AreEqual("maneuvers readied:{source}", (string?)json["stat"]);
+            Assert.AreEqual("readied", (string?)json["label"]);
+            var statesArr = json["states"] as JArray;
+            Assert.IsNotNull(statesArr);
+            Assert.AreEqual(3, statesArr!.Count);
+
+            var deserialized = new StateCapacityDefinition(json);
+            Assert.AreEqual(3, deserialized.States.Count);
+            Assert.AreEqual("available", deserialized.States[0]);
+            Assert.AreEqual("expended", deserialized.States[1]);
+            Assert.AreEqual("withheld", deserialized.States[2]);
+            Assert.AreEqual("maneuvers readied:{source}", deserialized.Stat);
+            Assert.AreEqual("readied", deserialized.Label);
+
+            // Null json constructor test
+            var empty = new StateCapacityDefinition((JObject)null!);
+            Assert.AreEqual(0, empty.States.Count);
+            Assert.AreEqual(string.Empty, empty.Stat);
+            Assert.AreEqual(string.Empty, empty.Label);
+        }
+
+        [TestMethod]
+        public void SlotGroupDefinition_StateCapacities_JsonRoundTrip() {
+            var group = new SlotGroupDefinition {
+                Name = "maneuvers",
+                CapacityStat = "maneuvers known:{source}",
+                DefaultState = "unreadied"
+            };
+            group.States.AddRange(new[] { "unreadied", "available", "expended", "withheld" });
+            group.StateCapacities.Add(new StateCapacityDefinition(
+                new[] { "available", "expended", "withheld" },
+                "maneuvers readied:{source}",
+                "readied"
+            ));
+
+            var json = (JObject)group.ToJson();
+            var scArr = json["state_capacities"] as JArray;
+            Assert.IsNotNull(scArr);
+            Assert.AreEqual(1, scArr.Count);
+
+            var deserialized = new SlotGroupDefinition(json);
+            Assert.AreEqual(1, deserialized.StateCapacities.Count);
+            Assert.AreEqual("readied", deserialized.StateCapacities[0].Label);
+            Assert.AreEqual("maneuvers readied:{source}", deserialized.StateCapacities[0].Stat);
+            Assert.AreEqual(3, deserialized.StateCapacities[0].States.Count);
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_Validate_GenericStateCapacities_EmitsDynamicCapacityWarning() {
+            var def = new SubsystemDefinition {
+                Id = "custom_magic",
+                Name = "Custom Magic"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "auras",
+                FixedCapacity = 5,
+                DefaultState = "dormant"
+            };
+            group.States.AddRange(new[] { "dormant", "radiating" });
+            group.StateCapacities.Add(new StateCapacityDefinition(
+                new[] { "radiating" },
+                "active auras:{source}",
+                "radiant"
+            ));
+            def.SlotGroups["auras"] = group;
+
+            def.Elements["Solar Flare"] = new SubsystemElement { Name = "Solar Flare" };
+            def.Elements["Lunar Beam"] = new SubsystemElement { Name = "Lunar Beam" };
+
+            var context = new FakeCharacterContext();
+            context.Character.paramValues["active auras:paladin"] = 1;
+
+            var engine = new SubsystemEngine(def, context);
+            engine.AssignSlot("auras", 0, "Solar Flare", "radiating", "Paladin");
+            engine.AssignSlot("auras", 1, "Lunar Beam", "radiating", "Paladin");
+
+            var warnings = engine.Validate();
+            Assert.IsTrue(warnings.Any(w => w.Contains("Paladin has 2 radiant auras, exceeding maximum of 1.")),
+                $"Expected capacity warning, got: {string.Join("; ", warnings)}");
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_TransitionSlot_ActiveStateClamping_UsesStateCapacities() {
+            var def = new SubsystemDefinition {
+                Id = "custom_magic",
+                Name = "Custom Magic"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "stances",
+                FixedCapacity = 5,
+                DefaultState = "inactive"
+            };
+            group.States.AddRange(new[] { "inactive", "active" });
+            group.StateCapacities.Add(new StateCapacityDefinition(
+                new[] { "active" },
+                "max active stances",
+                "active"
+            ));
+            def.SlotGroups["stances"] = group;
+
+            def.Elements["Stance 1"] = new SubsystemElement { Name = "Stance 1" };
+            def.Elements["Stance 2"] = new SubsystemElement { Name = "Stance 2" };
+
+            def.Verbs["adopt"] = new List<SubsystemStep> {
+                new SubsystemStep { Type = "transition", SlotGroup = "stances", Selector = "invoked", FromState = "*", ToState = "active" }
+            };
+
+            var context = new FakeCharacterContext();
+            context.Character.paramValues["max active stances"] = 1;
+
+            var engine = new SubsystemEngine(def, context);
+            engine.AssignSlot("stances", 0, "Stance 1", "active");
+            engine.AssignSlot("stances", 1, "Stance 2", "inactive");
+
+            Assert.AreEqual("active", engine.GetSlotState("stances", 0));
+            Assert.AreEqual("inactive", engine.GetSlotState("stances", 1));
+
+            // Adopting second stance should clamp and deactivate the first stance
+            engine.InvokeVerb("adopt", "stances", 1);
+
+            Assert.AreEqual("inactive", engine.GetSlotState("stances", 0));
+            Assert.AreEqual("active", engine.GetSlotState("stances", 1));
+        }
     }
 }
 
