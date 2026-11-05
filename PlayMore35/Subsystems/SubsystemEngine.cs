@@ -1399,7 +1399,12 @@ namespace PlayMore35.Subsystems {
             return distinctKnown.Count;
         }
 
-        public IReadOnlyList<ValidationWarning> ValidateChoice(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource = null) {
+        public IReadOnlyList<ValidationWarning> ValidateChoice(ProgressionChoiceContext context) {
+            if (context == null) return Array.Empty<ValidationWarning>();
+            return ValidateChoice(context.Descriptor, context.ChoiceValue, context.TargetSource, context.SlotKey);
+        }
+
+        public IReadOnlyList<ValidationWarning> ValidateChoice(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource = null, string? slotKey = null) {
             if (string.IsNullOrWhiteSpace(choiceValue)) return Array.Empty<ValidationWarning>();
             if (descriptor != null) {
                 if (!string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase) &&
@@ -1432,7 +1437,7 @@ namespace PlayMore35.Subsystems {
 
             string? effectiveSource = targetSource;
             if (string.IsNullOrWhiteSpace(effectiveSource)) {
-                effectiveSource = ResolveFeatTargetSource(null);
+                effectiveSource = ResolveFeatTargetSource(slotKey);
             }
 
             var warnings = new List<ValidationWarning>();
@@ -1464,41 +1469,45 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (descriptor == null) {
-                foreach (var grp in slotGroups.Values) {
-                    foreach (var s in grp.RawSlots) {
-                        if (string.Equals(s.Element, chosenElem.Name, StringComparison.OrdinalIgnoreCase) &&
-                            !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) {
-                            string unit = Definition.PrerequisiteUnit ?? "element";
-                            string titleUnit = char.ToUpperInvariant(unit[0]) + unit.Substring(1);
-                            warnings.Add(new ValidationWarning($"{titleUnit} '{chosenElem.Name}' is already learned under source '{s.Source}'.", ValidationCategory.SourceConflict));
-                        }
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(effectiveSource)) {
-                    foreach (var kvp in Definition.SlotGroups) {
-                        var groupDef = kvp.Value;
-                        var group = GetSlotGroup(kvp.Key);
-                        if (group == null) continue;
-                        foreach (var cap in groupDef.StateCapacities) {
-                            var sourceSlots = group.RawSlots.Where(s => !string.IsNullOrEmpty(s.Element) && string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)).ToList();
-                            if (sourceSlots.Count > 0) {
-                                int count = sourceSlots.Count(s => cap.States.Any(st => string.Equals(st, s.State, StringComparison.OrdinalIgnoreCase)));
-                                string statName = cap.Stat.Contains("{source}") ? cap.Stat.Replace("{source}", effectiveSource.Trim().ToLowerInvariant()) : cap.Stat;
-                                int max = ResolveStatOrParam(statName, 0);
-                                if (count > max) {
-                                    warnings.Add(new ValidationWarning($"{effectiveSource} has {count} {cap.Label} {groupDef.Name}, exceeding maximum of {max}.", ValidationCategory.Capacity));
-                                } else if (count < max && cap.Stat.Contains("{source}")) {
-                                    warnings.Add(new ValidationWarning($"{effectiveSource} has {count} {cap.Label} {groupDef.Name}, below capacity of {max}.", ValidationCategory.Capacity));
-                                }
-                            }
-                        }
+            foreach (var grp in slotGroups.Values) {
+                foreach (var s in grp.RawSlots) {
+                    if (string.Equals(s.Element, chosenElem.Name, StringComparison.OrdinalIgnoreCase) &&
+                        !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) {
+                        string unit = Definition.PrerequisiteUnit ?? "element";
+                        string titleUnit = char.ToUpperInvariant(unit[0]) + unit.Substring(1);
+                        warnings.Add(new ValidationWarning($"{titleUnit} '{chosenElem.Name}' is already learned under source '{s.Source}'.", ValidationCategory.SourceConflict));
                     }
                 }
             }
 
+            if (!string.IsNullOrEmpty(descriptor?.SlotGroup) &&
+                Definition.SlotGroups.TryGetValue(descriptor!.SlotGroup!, out var groupDef) &&
+                !string.IsNullOrEmpty(groupDef.CapacityStat)) {
+                string statName = groupDef.CapacityStat.Contains("{source}")
+                    ? groupDef.CapacityStat.Replace("{source}", (effectiveSource ?? "").Trim().ToLowerInvariant())
+                    : groupDef.CapacityStat;
+                int maxCapacity = ResolveStatOrParam(statName, groupDef.FixedCapacity);
+                var group = GetSlotGroup(descriptor.SlotGroup!);
+                int currentAssignedCount = 0;
+                if (group != null) {
+                    currentAssignedCount = group.Slots.Count(s =>
+                        !string.IsNullOrEmpty(s.Element) &&
+                        (string.IsNullOrEmpty(effectiveSource) || string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(slotKey) || !MatchesSlotKey(s.FeatSlot, slotKey)));
+                }
+                if (currentAssignedCount >= maxCapacity) {
+                    warnings.Add(new ValidationWarning($"Selection exceeds {groupDef.Name} capacity ({maxCapacity}) for {effectiveSource}.", ValidationCategory.Capacity));
+                }
+            }
+
             return warnings;
+        }
+
+        private static bool MatchesSlotKey(string? featSlot, string? slotKey) {
+            if (string.IsNullOrEmpty(featSlot) || string.IsNullOrEmpty(slotKey)) return false;
+            return string.Equals(featSlot, slotKey, StringComparison.OrdinalIgnoreCase) ||
+                   featSlot.StartsWith(slotKey + ":", StringComparison.OrdinalIgnoreCase) ||
+                   slotKey.StartsWith(featSlot + ":", StringComparison.OrdinalIgnoreCase);
         }
 
         public List<string> Validate() {

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.Effects {
     public class VariableAmount : IAmount {
@@ -13,7 +13,7 @@ namespace PlayMore35.Effects {
         }
 
         public int Get(EffectPool pool, Items.Equipped items) {
-            return pool.GetStat(Stat).GetValue(pool, items).value;
+            return pool.GetStatValue(Stat, items, 0);
         }
     }
 }

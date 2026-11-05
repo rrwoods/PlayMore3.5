@@ -13,8 +13,9 @@ namespace PlayMore35.CharacterChoices {
         public string Fallback { get; }
         public string DependsOn { get; }
         public int MinimumPrerequisiteCount { get; }
+        public string? SlotGroup { get; }
 
-        public ChoiceDescriptor(string id, string label, string domain, string filter = null, string fallback = null, string dependsOn = null, int minimumPrerequisiteCount = 0) {
+        public ChoiceDescriptor(string id, string label, string domain, string? filter = null, string? fallback = null, string? dependsOn = null, int minimumPrerequisiteCount = 0, string? slotGroup = null) {
             Id = id ?? "";
             Label = label ?? "";
             Domain = domain ?? "";
@@ -22,10 +23,11 @@ namespace PlayMore35.CharacterChoices {
             Fallback = fallback ?? "";
             DependsOn = dependsOn ?? "";
             MinimumPrerequisiteCount = minimumPrerequisiteCount;
+            SlotGroup = slotGroup;
         }
 
         public ChoiceDescriptor(JObject json)
-            : this((string)json?["id"], (string)json?["label"], (string)json?["domain"], (string)json?["filter"], (string)json?["fallback"], (string)json?["dependsOn"], (int?)json?["minimumPrerequisiteCount"] ?? 0) {
+            : this((string?)json?["id"] ?? "", (string?)json?["label"] ?? "", (string?)json?["domain"] ?? "", (string?)json?["filter"], (string?)json?["fallback"], (string?)json?["dependsOn"], (int?)json?["minimumPrerequisiteCount"] ?? 0, (string?)json?["slotGroup"]) {
         }
 
         public JToken ToJson() {
@@ -45,6 +47,9 @@ namespace PlayMore35.CharacterChoices {
             }
             if (MinimumPrerequisiteCount != 0) {
                 json.Add(new JProperty("minimumPrerequisiteCount", MinimumPrerequisiteCount));
+            }
+            if (!string.IsNullOrEmpty(SlotGroup)) {
+                json.Add(new JProperty("slotGroup", SlotGroup));
             }
             return json;
         }
