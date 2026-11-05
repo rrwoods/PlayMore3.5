@@ -3,6 +3,7 @@
     "id": "martial_maneuvers",
     "name": "Martial Maneuvers",
     "prerequisite_unit": "maneuver",
+    "prerequisite_property": "discipline",
     "level_gating": {
       "element_statistic": "level",
       "max_level_label": "maximum maneuver level"

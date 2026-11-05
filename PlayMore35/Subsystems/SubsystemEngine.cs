@@ -1380,18 +1380,29 @@ namespace PlayMore35.Subsystems {
             return elemLevel <= maxAllowed.Value;
         }
 
-        private int CountSameDisciplineKnown(string discipline, string? excludeElementName = null, SubsystemSlot? excludeSlot = null) {
-            if (string.IsNullOrEmpty(discipline)) return 0;
-
+        public int CountSamePropertyKnown(string? propertyName, string? propertyValue, string? excludeElementName = null, string? excludeSlot = null) {
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var s in slotGroups.Values.SelectMany(g => g.Slots)) {
                 if (string.IsNullOrEmpty(s.Element)) continue;
-                if (excludeSlot != null && ReferenceEquals(s, excludeSlot)) continue;
+                if (!string.IsNullOrEmpty(excludeSlot) && !string.IsNullOrEmpty(s.FeatSlot)) {
+                    if (string.Equals(s.FeatSlot, excludeSlot, StringComparison.OrdinalIgnoreCase) ||
+                        s.FeatSlot.StartsWith(excludeSlot + ":", StringComparison.OrdinalIgnoreCase) ||
+                        excludeSlot.StartsWith(s.FeatSlot + ":", StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    }
+                }
                 if (!string.IsNullOrEmpty(excludeElementName) && string.Equals(s.Element, excludeElementName, StringComparison.OrdinalIgnoreCase)) continue;
 
                 var elem = GetElement(s.Element);
-                if (elem != null && string.Equals(elem.GetProperty<string>("discipline"), discipline, StringComparison.OrdinalIgnoreCase)) {
+                if (elem == null) continue;
+
+                if (string.IsNullOrEmpty(propertyName)) {
                     distinctKnown.Add(elem.Name);
+                } else {
+                    string? val = elem.GetProperty<string>(propertyName);
+                    if (string.Equals(val, propertyValue, StringComparison.OrdinalIgnoreCase)) {
+                        distinctKnown.Add(elem.Name);
+                    }
                 }
             }
 
@@ -1447,16 +1458,18 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            string? disc = chosenElem.GetProperty<string>("discipline");
-            if (!string.IsNullOrEmpty(disc)) {
-                int prereqCount = chosenElem.GetProperty<int>("prerequisiteCount", 0);
-                prereqCount = Math.Max(descriptor?.MinimumPrerequisiteCount ?? 0, prereqCount);
-                if (prereqCount > 0) {
-                    int knownInDisc = CountSameDisciplineKnown(disc, excludeElementName: chosenElem.Name);
-                    if (knownInDisc < prereqCount) {
+            int prereqCount = chosenElem.GetProperty<int>("prerequisiteCount", 0);
+            prereqCount = Math.Max(descriptor?.MinimumPrerequisiteCount ?? 0, prereqCount);
+            if (prereqCount > 0) {
+                string? prereqProp = Definition.PrerequisiteProperty;
+                string? propVal = !string.IsNullOrEmpty(prereqProp) ? chosenElem.GetProperty<string>(prereqProp) : null;
+                if (string.IsNullOrEmpty(prereqProp) || !string.IsNullOrEmpty(propVal)) {
+                    int known = CountSamePropertyKnown(prereqProp, propVal, excludeElementName: chosenElem.Name);
+                    if (known < prereqCount) {
                         string elemUnit = Definition.PrerequisiteUnit ?? (!string.IsNullOrEmpty(filter) ? filter : "element");
                         string plural = prereqCount == 1 ? elemUnit : $"{elemUnit}s";
-                        warnings.Add(new ValidationWarning($"Requires {prereqCount} {disc} {plural}, but only {knownInDisc} known.", ValidationCategory.Prerequisite));
+                        string targetDesc = !string.IsNullOrEmpty(propVal) ? $"{propVal} {plural}" : plural;
+                        warnings.Add(new ValidationWarning($"Requires {prereqCount} {targetDesc}, but only {known} known.", ValidationCategory.Prerequisite));
                     }
                 }
             }
@@ -1550,11 +1563,15 @@ namespace PlayMore35.Subsystems {
 
                     int prereqCount = elem.GetProperty<int>("prerequisiteCount", 0);
                     if (prereqCount > 0) {
-                        string? disc = elem.GetProperty<string>("discipline");
-                        if (!string.IsNullOrEmpty(disc)) {
-                            int totalInDisc = CountSameDisciplineKnown(disc);
-                            if (totalInDisc < prereqCount) {
-                                warnings.Add($"{elem.Name} requires {prereqCount} {disc} maneuver(s), but only {totalInDisc} known.");
+                        string? prereqProp = Definition.PrerequisiteProperty;
+                        string? propVal = !string.IsNullOrEmpty(prereqProp) ? elem.GetProperty<string>(prereqProp) : null;
+                        if (string.IsNullOrEmpty(prereqProp) || !string.IsNullOrEmpty(propVal)) {
+                            int totalKnown = CountSamePropertyKnown(prereqProp, propVal, excludeElementName: elem.Name);
+                            if (totalKnown < prereqCount) {
+                                string elemUnit = Definition.PrerequisiteUnit ?? (!string.IsNullOrEmpty(groupDef?.Filter) ? groupDef.Filter : "element");
+                                string plural = prereqCount == 1 ? elemUnit : $"{elemUnit}s";
+                                string targetDesc = !string.IsNullOrEmpty(propVal) ? $"{propVal} {plural}" : plural;
+                                warnings.Add($"{elem.Name} requires {prereqCount} {targetDesc}, but only {totalKnown} known.");
                             }
                         }
                     }

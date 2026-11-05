@@ -317,6 +317,7 @@ namespace PlayMore35.Subsystems {
         public string Id { get; set; } = "";
         public string Name { get; set; } = "";
         public string? PrerequisiteUnit { get; set; } = null;
+        public string? PrerequisiteProperty { get; set; } = null;
         public Dictionary<string, SlotGroupDefinition> SlotGroups { get; } = new Dictionary<string, SlotGroupDefinition>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> DefaultElementVerbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
@@ -339,6 +340,7 @@ namespace PlayMore35.Subsystems {
             Id = (string)(subJson["id"] ?? "");
             Name = (string)(subJson["name"] ?? Id);
             PrerequisiteUnit = (string?)subJson["prerequisite_unit"];
+            PrerequisiteProperty = (string?)subJson["prerequisite_property"];
 
             if (subJson["level_gating"] is JObject lgObj) {
                 LevelGating = new LevelGatingDefinition(lgObj);
@@ -475,6 +477,10 @@ namespace PlayMore35.Subsystems {
 
             if (!string.IsNullOrEmpty(PrerequisiteUnit)) {
                 subJson["prerequisite_unit"] = PrerequisiteUnit;
+            }
+
+            if (!string.IsNullOrEmpty(PrerequisiteProperty)) {
+                subJson["prerequisite_property"] = PrerequisiteProperty;
             }
 
             if (Taxonomies.Count > 0) {

@@ -79,6 +79,7 @@ namespace PlayMore35.Tests {
                 Id = "martial_maneuvers",
                 Name = "Martial Maneuvers",
                 PrerequisiteUnit = "maneuver",
+                PrerequisiteProperty = "discipline",
                 LevelGating = new LevelGatingDefinition("level", "maximum maneuver level")
             };
             if (inner?.GetSubsystem("martial_maneuvers")?.Taxonomies != null) {
