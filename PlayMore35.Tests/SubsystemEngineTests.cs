@@ -1114,6 +1114,195 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
             StringAssert.Contains(warnings[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known.");
         }
+
+        [TestMethod]
+        public void SubsystemDefinition_PrerequisiteProperty_SerializationRoundTrip() {
+            var def = new SubsystemDefinition {
+                Id = "shadow_magic",
+                Name = "Shadow Magic",
+                PrerequisiteProperty = "path",
+                PrerequisiteUnit = "mystery"
+            };
+
+            var json = (JObject)def.ToJson();
+            var subJson = (JObject?)json["subsystem"];
+            Assert.IsNotNull(subJson);
+            Assert.AreEqual("path", (string?)subJson["prerequisite_property"]);
+            Assert.AreEqual("mystery", (string?)subJson["prerequisite_unit"]);
+
+            var deserialized = new SubsystemDefinition(json);
+            Assert.AreEqual("path", deserialized.PrerequisiteProperty);
+            Assert.AreEqual("mystery", deserialized.PrerequisiteUnit);
+
+            // Null / omitted property round-trip
+            var defOmitted = new SubsystemDefinition { Id = "psionics", Name = "Psionics" };
+            var jsonOmitted = (JObject)defOmitted.ToJson();
+            var subJsonOmitted = (JObject?)jsonOmitted["subsystem"];
+            Assert.IsNotNull(subJsonOmitted);
+            Assert.IsNull(subJsonOmitted["prerequisite_property"]);
+
+            var deserializedOmitted = new SubsystemDefinition(jsonOmitted);
+            Assert.IsNull(deserializedOmitted.PrerequisiteProperty);
+        }
+
+        [TestMethod]
+        public void ManeuversResource_DeclaresPrerequisiteProperty() {
+            var catalog = new GameRulesCatalog();
+            var def = catalog.GetSubsystem("martial_maneuvers");
+            Assert.IsNotNull(def);
+            Assert.AreEqual("discipline", def.PrerequisiteProperty);
+            Assert.AreEqual("maneuver", def.PrerequisiteUnit);
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_CountSamePropertyKnown_PartitionsByConfiguredProperty() {
+            var def = new SubsystemDefinition {
+                Id = "test_magic",
+                Name = "Test Magic",
+                PrerequisiteProperty = "discipline"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "powers",
+                FixedCapacity = 5
+            };
+            def.SlotGroups["powers"] = group;
+
+            var elem1 = new SubsystemElement { Name = "Power A" };
+            elem1.SetProperty("discipline", "Psychokinesis");
+            var elem2 = new SubsystemElement { Name = "Power B" };
+            elem2.SetProperty("discipline", "Psychokinesis");
+            var elem3 = new SubsystemElement { Name = "Power C" };
+            elem3.SetProperty("discipline", "Telepathy");
+
+            def.Elements["Power A"] = elem1;
+            def.Elements["Power B"] = elem2;
+            def.Elements["Power C"] = elem3;
+
+            var engine = new SubsystemEngine(def, new FakeCharacterContext());
+            engine.AssignSlot("powers", 0, "Power A");
+            engine.AssignSlot("powers", 1, "Power B");
+            engine.AssignSlot("powers", 2, "Power C");
+
+            // Counts for Psychokinesis
+            Assert.AreEqual(2, engine.CountSamePropertyKnown("discipline", "Psychokinesis"));
+            // Counts for Telepathy
+            Assert.AreEqual(1, engine.CountSamePropertyKnown("discipline", "Telepathy"));
+            // Counts for unknown discipline
+            Assert.AreEqual(0, engine.CountSamePropertyKnown("discipline", "Clairsentience"));
+
+            // Null or empty property name -> counts all known distinct elements across slot groups
+            Assert.AreEqual(3, engine.CountSamePropertyKnown(null, null));
+            Assert.AreEqual(3, engine.CountSamePropertyKnown("", ""));
+
+            // Exclude element name
+            Assert.AreEqual(1, engine.CountSamePropertyKnown("discipline", "Psychokinesis", excludeElementName: "Power A"));
+            Assert.AreEqual(2, engine.CountSamePropertyKnown(null, null, excludeElementName: "Power A"));
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_ValidateChoice_DynamicPrerequisitePropertyAndWarningFormatting() {
+            var def = new SubsystemDefinition {
+                Id = "shadow_magic",
+                Name = "Shadow Magic",
+                PrerequisiteProperty = "path",
+                PrerequisiteUnit = "mystery"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "mysteries",
+                FixedCapacity = 5
+            };
+            def.SlotGroups["mysteries"] = group;
+
+            var m1 = new SubsystemElement { Name = "Shadow Skin" };
+            m1.SetProperty("path", "Cloak of Shadows");
+            m1.SetProperty("prerequisiteCount", 0);
+
+            var m2 = new SubsystemElement { Name = "Shadow Veil" };
+            m2.SetProperty("path", "Cloak of Shadows");
+            m2.SetProperty("prerequisiteCount", 1);
+
+            def.Elements["Shadow Skin"] = m1;
+            def.Elements["Shadow Veil"] = m2;
+
+            var engine = new SubsystemEngine(def, new FakeCharacterContext());
+
+            // 0 Cloak of Shadows known -> warns for 1 mystery
+            var warnings = engine.ValidateChoice(null, "Shadow Veil");
+            Assert.AreEqual(1, warnings.Count);
+            Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
+            Assert.AreEqual("Requires 1 Cloak of Shadows mystery, but only 0 known.", warnings[0].Message);
+
+            // Learn m1 -> satisfies prerequisite
+            engine.AssignSlot("mysteries", 0, "Shadow Skin");
+            var satisfied = engine.ValidateChoice(null, "Shadow Veil");
+            Assert.AreEqual(0, satisfied.Count);
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_ValidateChoice_UnpartitionedPrerequisites_WhenPrerequisitePropertyNull() {
+            var def = new SubsystemDefinition {
+                Id = "truenaming",
+                Name = "Truenaming",
+                PrerequisiteProperty = null,
+                PrerequisiteUnit = "utterance"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "utterances",
+                FixedCapacity = 5
+            };
+            def.SlotGroups["utterances"] = group;
+
+            var u1 = new SubsystemElement { Name = "Word of Minor Nurture" };
+            u1.SetProperty("prerequisiteCount", 0);
+
+            var u2 = new SubsystemElement { Name = "Word of Moderate Nurture" };
+            u2.SetProperty("prerequisiteCount", 2);
+
+            def.Elements["Word of Minor Nurture"] = u1;
+            def.Elements["Word of Moderate Nurture"] = u2;
+
+            var engine = new SubsystemEngine(def, new FakeCharacterContext());
+
+            // 0 utterances known -> requires 2 utterances (plural)
+            var warnings0 = engine.ValidateChoice(null, "Word of Moderate Nurture");
+            Assert.AreEqual(1, warnings0.Count);
+            Assert.AreEqual("Requires 2 utterances, but only 0 known.", warnings0[0].Message);
+
+            // Learn 1 utterance -> requires 2 utterances, only 1 known
+            engine.AssignSlot("utterances", 0, "Word of Minor Nurture");
+            var warnings1 = engine.ValidateChoice(null, "Word of Moderate Nurture");
+            Assert.AreEqual(1, warnings1.Count);
+            Assert.AreEqual("Requires 2 utterances, but only 1 known.", warnings1[0].Message);
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_Validate_EvaluatesDynamicPrerequisites() {
+            var def = new SubsystemDefinition {
+                Id = "shadow_magic",
+                Name = "Shadow Magic",
+                PrerequisiteProperty = "path",
+                PrerequisiteUnit = "mystery"
+            };
+            var group = new SlotGroupDefinition {
+                Name = "mysteries",
+                FixedCapacity = 5
+            };
+            def.SlotGroups["mysteries"] = group;
+
+            var m1 = new SubsystemElement { Name = "Shadow Veil" };
+            m1.SetProperty("path", "Cloak of Shadows");
+            m1.SetProperty("prerequisiteCount", 1);
+            def.Elements["Shadow Veil"] = m1;
+
+            var engine = new SubsystemEngine(def, new FakeCharacterContext());
+            engine.AssignSlot("mysteries", 0, "Shadow Veil");
+
+            var warnings = engine.Validate();
+            Assert.IsTrue(warnings.Any(w => w.Contains("Shadow Veil requires 1 Cloak of Shadows mystery, but only 1 known.") == false &&
+                                            w.Contains("Shadow Veil requires 1 Cloak of Shadows mystery, but only 0 known.")),
+                $"Expected prerequisite warning from Validate, got: {string.Join(", ", warnings)}");
+        }
     }
 }
+
 
