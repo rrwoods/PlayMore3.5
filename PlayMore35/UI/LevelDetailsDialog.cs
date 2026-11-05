@@ -540,6 +540,9 @@ namespace PlayMore35 {
             var result = new Dictionary<string, string>();
             foreach (var state in slotChoiceStates.Values) {
                 if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
+                    if (!string.IsNullOrWhiteSpace(state.FeatName)) {
+                        result[state.FeatSlot] = state.FeatName;
+                    }
                     foreach (var desc in state.FeatDef.Choices) {
                         string val = "";
                         if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {

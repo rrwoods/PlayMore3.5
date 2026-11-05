@@ -342,7 +342,7 @@ namespace PlayMore35.Tests {
 
         // Source: Tome of Battle, p. 38
         [TestMethod]
-        public void ValidateChoice_WarnsWhenReadiedCountExceedsCapacity() {
+        public void Validate_WarnsWhenReadiedCountExceedsCapacity() {
             var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
             var m2 = CreateManeuver("Steely Strike", "Iron Heart", 1);
             var content = new FakeRulesCatalog(m1, m2);
@@ -356,28 +356,8 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 1, "Steely Strike", "available", "Warblade");
 
             // Total readied is 2, capacity is 1
-            var warnings = engine.ValidateChoice(null, "Steel Strike", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Warblade has 2 readied maneuvers, exceeding maximum of 1.") && w.Category == ValidationCategory.Capacity));
-        }
-
-        // Source: Tome of Battle, p. 38
-        [TestMethod]
-        public void ValidateChoice_WarnsWhenReadiedCountBelowCapacity() {
-            var m1 = CreateManeuver("Steel Strike", "Iron Heart", 1);
-            var m2 = CreateManeuver("Steely Strike", "Iron Heart", 1);
-            var content = new FakeRulesCatalog(m1, m2);
-
-            var context = new FakeCharacterContext(catalog: content);
-            SetStat(context.Effects, "maneuvers known:warblade", 2);
-            SetStat(context.Effects, "maneuvers readied:warblade", 2);
-            var engine = CreateMartialEngineWithContext(content, context);
-
-            engine.AssignSlot("maneuvers", 0, "Steel Strike", "available", "Warblade");
-            engine.AssignSlot("maneuvers", 1, "Steely Strike", "unreadied", "Warblade");
-
-            // Total readied is 1, capacity is 2
-            var warnings = engine.ValidateChoice(null, "Steel Strike", "Warblade");
-            Assert.IsTrue(warnings.Any(w => w.Message.Contains("Warblade has 1 readied maneuvers, below capacity of 2.") && w.Category == ValidationCategory.Capacity));
+            var warnings = engine.Validate();
+            Assert.IsTrue(warnings.Any(w => w.Contains("Warblade has 2 readied maneuvers, exceeding maximum of 1.")));
         }
 
         // Source: Tome of Battle, p. 38
@@ -829,9 +809,6 @@ namespace PlayMore35.Tests {
             // Two active stances with active stances capacity of 1
             var warnings = engine.Validate();
             Assert.IsTrue(warnings.Any(w => w.Contains("Warblade has 2 active stances, exceeding maximum of 1.")));
-
-            var maneuverWarnings = engine.ValidateChoice(null, "Punishing Stance", "Warblade");
-            Assert.IsTrue(maneuverWarnings.Any(w => w.Message.Contains("Warblade has 2 active stances, exceeding maximum of 1.") && w.Category == ValidationCategory.Capacity));
         }
 
         // Source: Tome of Battle, pp. 5, 38, 43

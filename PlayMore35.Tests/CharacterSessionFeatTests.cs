@@ -1634,5 +1634,50 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(ValidationCategory.Prerequisite, warnings[0].Category);
             StringAssert.Contains(warnings[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known.");
         }
+
+        [TestMethod]
+        public void ValidateProgressionChoice_MartialStance_EmitsCapacityWarning_WhenCapacityExceeded() {
+            var character = new Character { race = "human" };
+            character.classLevels.Clear();
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.classLevels.Add("Fighter");
+            character.feats["Human"] = "Martial Study";
+            character.featChoices["Human:class"] = "Feats";
+            character.featChoices["Human:maneuver"] = "Burning Blade";
+            character.feats["Level 1"] = "Martial Stance";
+            character.featChoices["Level 1:class"] = "Feats";
+            character.featChoices["Level 1:stance"] = "Flame's Blessing";
+
+            var session = new CharacterSession(character, catalog);
+            var martialStance = catalog.GetFeat("Martial Stance");
+            var stanceDescriptor = martialStance.Choices.First(c => c.Id == "stance");
+
+            // Validating Level 1 re-selection does not warn on capacity
+            var reselectWarnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 1",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor
+            ));
+            Assert.IsFalse(reselectWarnings.Any(w => w.Category == ValidationCategory.Capacity),
+                "Re-selecting within same slot must exclude currently assigned slot and not warn on capacity.");
+
+            // Validating a stance choice for Feats in a slot that does not grant stance capacity (e.g. Level 3 has Iron Will) exceeds capacity (1)
+            var currentChoices = new Dictionary<string, string> {
+                ["Level 3"] = "Iron Will"
+            };
+            var exceedWarnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
+                ProgressionChoiceDomain.Feat,
+                "Flame's Blessing",
+                slotKey: "Level 3",
+                targetSource: "Feats",
+                descriptor: stanceDescriptor,
+                currentChoices: currentChoices
+            ));
+            Assert.IsTrue(exceedWarnings.Any(w => w.Category == ValidationCategory.Capacity && w.Message.Contains("Selection exceeds stances capacity (1) for Feats.")),
+                "Candidate choice exceeding slot group capacity must emit ValidationCategory.Capacity.");
+        }
     }
 }

@@ -914,18 +914,16 @@ namespace PlayMore35.Global {
             int level = GetFeatSlotLevel(featSlot);
             var adeptClasses = GetEligibleClassesAtLevel(level, "adept");
 
+            if (character.featChoices.TryGetValue($"{featSlot}:class", out var chosenClass) && !string.IsNullOrWhiteSpace(chosenClass)) {
+                var matched = adeptClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
+                if (matched != null) return matched;
+                if (string.Equals(chosenClass, "Feats", StringComparison.OrdinalIgnoreCase)) return "Feats";
+                return chosenClass;
+            }
+
             if (adeptClasses.Count == 0) {
                 return "Feats";
             }
-            if (adeptClasses.Count == 1) {
-                return adeptClasses[0];
-            }
-
-            if (character.featChoices.TryGetValue($"{featSlot}:class", out var chosenClass) && !string.IsNullOrWhiteSpace(chosenClass)) {
-                var matched = adeptClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
-                return matched ?? chosenClass;
-            }
-
             return adeptClasses[0];
         }
 
@@ -965,21 +963,21 @@ namespace PlayMore35.Global {
             int level = GetFeatSlotLevel(featSlot);
             var eligibleClasses = GetEligibleClassesAtLevel(level, descriptor.Filter);
 
-            if (eligibleClasses.Count == 0) {
-                return descriptor.Fallback ?? "";
-            }
-            if (eligibleClasses.Count == 1) {
-                return eligibleClasses[0];
-            }
-
             string choiceKey = descriptor.Id;
             if (!string.IsNullOrEmpty(choiceKey) &&
                 character.featChoices.TryGetValue($"{featSlot}:{choiceKey}", out var chosenClass) &&
                 !string.IsNullOrWhiteSpace(chosenClass)) {
                 var matched = eligibleClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
-                return matched ?? chosenClass;
+                if (matched != null) return matched;
+                if (!string.IsNullOrEmpty(descriptor.Fallback) && string.Equals(chosenClass, descriptor.Fallback, StringComparison.OrdinalIgnoreCase)) {
+                    return descriptor.Fallback!;
+                }
+                return chosenClass;
             }
 
+            if (eligibleClasses.Count == 0) {
+                return descriptor.Fallback ?? "";
+            }
             return eligibleClasses[0];
         }
 
@@ -1090,11 +1088,37 @@ namespace PlayMore35.Global {
                 ? context.AcquisitionLevel
                 : (slotLevel > 0 ? slotLevel : totalLevels);
 
+            var currentChoices = context.CurrentChoices != null
+                ? context.CurrentChoices.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                : null;
+
+            string? validatingKey = context.Descriptor != null && !string.IsNullOrEmpty(context.SlotKey) && !string.IsNullOrEmpty(context.Descriptor.Id)
+                ? $"{context.SlotKey}:{context.Descriptor.Id}"
+                : context.SlotKey;
+
+            if (context.Domain == ProgressionChoiceDomain.Feat && context.Descriptor != null && !string.IsNullOrEmpty(context.SlotKey)) {
+                bool hasFeatInSlot = character.feats.ContainsKey(context.SlotKey!) || (currentChoices != null && currentChoices.ContainsKey(context.SlotKey!));
+                if (!hasFeatInSlot) {
+                    var parentFeat = catalog.Feats.Values.FirstOrDefault(f => f.Choices.Any(c => c == context.Descriptor || (c.Id == context.Descriptor.Id && string.Equals(c.Domain, context.Descriptor.Domain, StringComparison.OrdinalIgnoreCase))));
+                    if (parentFeat != null) {
+                        currentChoices = currentChoices != null ? new Dictionary<string, string>(currentChoices) : new Dictionary<string, string>();
+                        currentChoices[context.SlotKey!] = parentFeat.Benefit?.Name ?? "";
+                    }
+                }
+                if (!string.IsNullOrEmpty(context.TargetSource)) {
+                    string classChoiceKey = $"{context.SlotKey}:class";
+                    if ((currentChoices == null || !currentChoices.ContainsKey(classChoiceKey)) && !character.featChoices.ContainsKey(classChoiceKey)) {
+                        currentChoices = currentChoices != null ? new Dictionary<string, string>(currentChoices) : new Dictionary<string, string>();
+                        currentChoices[classChoiceKey] = context.TargetSource!;
+                    }
+                }
+            }
+
             return EvaluateDualPass(
                 acquisitionLevel,
-                s => s.EvaluateSubsystemWarnings(context.Descriptor, context.ChoiceValue, context.TargetSource),
-                context.CurrentChoices,
-                context.SlotKey);
+                s => s.EvaluateSubsystemWarnings(context.Descriptor, context.ChoiceValue, context.TargetSource, context.SlotKey),
+                currentChoices,
+                validatingKey);
         }
 
         private IReadOnlyList<ValidationWarning> ValidateClassProgressionChoice(ProgressionChoiceContext context) {
@@ -1194,7 +1218,7 @@ namespace PlayMore35.Global {
             return warnings.AsReadOnly();
         }
 
-        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource) {
+        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, string? slotKey = null) {
             IEnumerable<SubsystemEngine> candidateEngines = _subsystems.Values;
 
             if (descriptor != null &&
@@ -1218,7 +1242,7 @@ namespace PlayMore35.Global {
 
             var allWarnings = new List<ValidationWarning>();
             foreach (var engine in targetEngines) {
-                var warnings = engine.ValidateChoice(descriptor, choiceValue, targetSource);
+                var warnings = engine.ValidateChoice(descriptor, choiceValue, targetSource, slotKey);
                 if (warnings != null && warnings.Count > 0) {
                     allWarnings.AddRange(warnings);
                 }
@@ -1531,7 +1555,7 @@ namespace PlayMore35.Global {
                     foreach (var s in slotGrp.Value) {
                         if (!string.IsNullOrEmpty(validatingSlotKey) &&
                             !string.IsNullOrEmpty(s.FeatSlot) &&
-                            MatchesFeatSlot(s.FeatSlot, validatingSlotKey)) {
+                            (MatchesFeatSlot(s.FeatSlot, validatingSlotKey) || MatchesFeatSlot(validatingSlotKey, s.FeatSlot))) {
                             continue;
                         }
                         if (s.IsGrantedByEquippedItem) {

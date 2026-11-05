@@ -1437,6 +1437,66 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1));
         }
+
+        [TestMethod]
+        public void ChoiceDescriptor_SlotGroup_RoundTripSerialization() {
+            var descriptor = new ChoiceDescriptor("stance", "Choose stance", "SubsystemElements", slotGroup: "stances");
+            Assert.AreEqual("stances", descriptor.SlotGroup);
+
+            var json = descriptor.ToJson() as JObject;
+            Assert.IsNotNull(json);
+            Assert.AreEqual("stances", (string?)json["slotGroup"]);
+
+            var deserialized = new ChoiceDescriptor(json);
+            Assert.AreEqual("stances", deserialized.SlotGroup);
+        }
+
+        [TestMethod]
+        public void FeatsResource_MartialStanceAndStudy_DeclareSlotGroup() {
+            var catalog = new GameRulesCatalog();
+            var stance = catalog.GetFeat("Martial Stance");
+            var stanceChoice = stance.Choices.FirstOrDefault(c => c.Id == "stance");
+            Assert.IsNotNull(stanceChoice);
+            Assert.AreEqual("stances", stanceChoice.SlotGroup);
+
+            var study = catalog.GetFeat("Martial Study");
+            var maneuverChoice = study.Choices.FirstOrDefault(c => c.Id == "maneuver");
+            Assert.IsNotNull(maneuverChoice);
+            Assert.AreEqual("maneuvers", maneuverChoice.SlotGroup);
+        }
+
+        private static void SetStat(EffectPool pool, string statName, int value) {
+            if (!pool.stats.ContainsKey(statName)) {
+                pool.AddStat(new Statistic(statName));
+            }
+            pool.AddEffect(new Effect($"Base {statName}").AddModifier(statName, new Modifier(value, ModifierTypes.UNTYPED)));
+        }
+
+        [TestMethod]
+        public void SubsystemEngine_ValidateChoice_EmitsCapacityWarning_WhenSlotGroupCapacityReached() {
+            var catalog = new GameRulesCatalog();
+            var martialDef = catalog.GetSubsystem("martial_maneuvers");
+            var context = new FakeCharacterContext(catalog: catalog);
+            SetStat(context.Effects, "stances known:feats", 1);
+            var engine = new SubsystemEngine(martialDef, context);
+
+            var stanceDescriptor = new ChoiceDescriptor("stance", "Choose stance", "SubsystemElements", filter: "stance", slotGroup: "stances");
+
+            // When 0 slots assigned, candidate choice passes without capacity warning
+            var warnings0 = engine.ValidateChoice(stanceDescriptor, "Punishing Stance", "Feats");
+            Assert.IsFalse(warnings0.Any(w => w.Category == ValidationCategory.Capacity));
+
+            // Assign 1 slot for Feats bound to "Level 1"
+            engine.GrantSlot("stances", "Punishing Stance", "Feats", "Level 1");
+
+            // Validating for another slot ("Level 3") exceeds capacity (1)
+            var warnings1 = engine.ValidateChoice(stanceDescriptor, "Blood in the Water", "Feats", "Level 3");
+            Assert.IsTrue(warnings1.Any(w => w.Category == ValidationCategory.Capacity && w.Message.Contains("Selection exceeds stances capacity (1) for Feats.")));
+
+            // Validating for the same slot ("Level 1") excludes it and does NOT warn
+            var warningsReSelect = engine.ValidateChoice(stanceDescriptor, "Blood in the Water", "Feats", "Level 1");
+            Assert.IsFalse(warningsReSelect.Any(w => w.Category == ValidationCategory.Capacity));
+        }
     }
 }
 

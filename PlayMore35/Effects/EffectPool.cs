@@ -91,7 +91,10 @@ namespace PlayMore35.Effects {
         }
 
         public Statistic GetStat(string name) {
-            return stats[name];
+            if (stats.TryGetValue(name, out var stat)) {
+                return stat;
+            }
+            return new Statistic(name);
         }
 
         public StatView GetStatistic(string? name, Equipped items) {

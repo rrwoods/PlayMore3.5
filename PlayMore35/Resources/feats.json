@@ -1196,6 +1196,7 @@
         "label": "Choose stance",
         "domain": "SubsystemElements",
         "filter": "stance",
+        "slotGroup": "stances",
         "dependsOn": "class",
         "minimumPrerequisiteCount": 1
       }
@@ -1277,6 +1278,7 @@
         "label": "Choose maneuver",
         "domain": "SubsystemElements",
         "filter": "maneuver",
+        "slotGroup": "maneuvers",
         "dependsOn": "class"
       }
     ],
