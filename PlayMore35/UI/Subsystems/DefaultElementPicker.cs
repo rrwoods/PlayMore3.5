@@ -201,10 +201,6 @@ namespace PlayMore35.UI.Subsystems {
             return hasUnmet ? ("⚠", Color.DarkGoldenrod) : ("🛈", Color.DodgerBlue);
         }
 
-        internal void DrawItemForTest(Graphics g, Rectangle bounds, int index, DrawItemState state = DrawItemState.Default) {
-            ListBox_DrawItem(_listBox, new DrawItemEventArgs(g, _listBox.Font, bounds, index, state));
-        }
-
         private void ApplyFilter() {
             _listBox.BeginUpdate();
             _listBox.Items.Clear();

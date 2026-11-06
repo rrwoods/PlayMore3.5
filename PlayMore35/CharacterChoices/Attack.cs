@@ -68,47 +68,6 @@ namespace PlayMore35.Items {
         public int RangeIncrement { get; private set; }
         public int StrengthRating { get; private set; } = -1; // only relevant for ranged weapons (composite bows); -1 = noncomposite
 
-        public static Attack CreateForTesting(
-            string name,
-            int bonus,
-            DiceGroup baseDamage,
-            IEnumerable<DiceGroup> bonusDice = null,
-            IEnumerable<DiceGroup> criticalBonusDice = null,
-            int criticalMultiplier = 2,
-            int threatRange = 20,
-            int rangeIncrement = 0
-        ) {
-            var bDice = (bonusDice ?? Enumerable.Empty<DiceGroup>()).ToList();
-            var cbDice = criticalBonusDice != null
-                ? criticalBonusDice.ToList()
-                : new List<DiceGroup>(bDice);
-
-            return new Attack(name, bonus, baseDamage, bDice, cbDice, criticalMultiplier, threatRange, rangeIncrement);
-        }
-
-        private Attack(
-            string name,
-            int bonus,
-            DiceGroup baseDamage,
-            List<DiceGroup> bonusDice,
-            List<DiceGroup> criticalBonusDice,
-            int criticalMultiplier,
-            int threatRange,
-            int rangeIncrement
-        ) {
-            WeaponName = name;
-            WeaponTags = new List<string>();
-            AttackBonus = (bonus, new List<string> { $"+{bonus} base attack" });
-            BaseDamage = baseDamage;
-            BonusDice = bonusDice.AsReadOnly();
-            CriticalBonusDice = criticalBonusDice.AsReadOnly();
-            CriticalMultiplier = criticalMultiplier;
-            ThreatRange = threatRange;
-            RangeIncrement = rangeIncrement;
-            DamageExplanation = new List<string> { baseDamage?.ToString() ?? "" };
-            CriticalDamageExplanation = new List<string> { $"{baseDamage?.ToString()} ×{criticalMultiplier}" };
-        }
-
         public Attack WithIterativePenalty(int penalty, string explanation = null) {
             var copy = (Attack)this.MemberwiseClone();
             var expl = new List<string>(this.AttackBonus.explanation);

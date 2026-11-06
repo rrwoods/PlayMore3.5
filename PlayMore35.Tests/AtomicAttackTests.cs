@@ -21,7 +21,7 @@ namespace PlayMore35.Tests {
             var baseDice = new DiceGroup(1, 8).AddDice(4, 1); // 1d8 + 4
             var flaming = new DiceGroup("Flaming").AddDice(1, 6); // 1d6 fire
 
-            var attack = Attack.CreateForTesting(
+            var attack = TestFactory.CreateAttack(
                 name: "Longsword",
                 bonus: 5,
                 baseDamage: baseDice,
@@ -42,7 +42,7 @@ namespace PlayMore35.Tests {
             var baseDice = new DiceGroup(1, 8).AddDice(4, 1); // 1d8 + 4
             var flaming = new DiceGroup("Flaming").AddDice(1, 6); // 1d6 fire
 
-            var attack = Attack.CreateForTesting(
+            var attack = TestFactory.CreateAttack(
                 name: "Longsword",
                 bonus: 5,
                 baseDamage: baseDice,
@@ -64,7 +64,7 @@ namespace PlayMore35.Tests {
             var flaming = new DiceGroup("Flaming").AddDice(1, 6); // 1d6 fire
             var burst = new DiceGroup("Flaming Burst").AddDice(1, 10); // 1d10 burst
 
-            var attack = Attack.CreateForTesting(
+            var attack = TestFactory.CreateAttack(
                 name: "Flaming Burst Longsword",
                 bonus: 5,
                 baseDamage: baseDice,
@@ -82,7 +82,7 @@ namespace PlayMore35.Tests {
         // Source: Player's Handbook 3.5, p. 143
         [TestMethod]
         public void AttackRoutine_InstantiatesWithStructuredMetadata() {
-            var attack = Attack.CreateForTesting(
+            var attack = TestFactory.CreateAttack(
                 name: "Longsword",
                 bonus: 7,
                 baseDamage: new DiceGroup(1, 8).AddDice(3, 1),

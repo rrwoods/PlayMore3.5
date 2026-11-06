@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.CharacterChoices;
@@ -331,7 +333,7 @@ namespace PlayMore35.Tests {
                 using (var bmp = new Bitmap(200, 100))
                 using (var g = Graphics.FromImage(bmp)) {
                     for (int i = 0; i < 5; i++) {
-                        picker.DrawItemForTest(g, new Rectangle(0, i * 20, 200, 20), i);
+                        DrawPickerItem(picker, g, new Rectangle(0, i * 20, 200, 20), i);
                     }
                 }
             }
@@ -480,6 +482,12 @@ namespace PlayMore35.Tests {
                 race = "Human"
             };
             return new CharacterSession(character, catalog);
+        }
+
+        private static void DrawPickerItem(DefaultElementPicker picker, Graphics g, Rectangle bounds, int index, DrawItemState state = DrawItemState.Default) {
+            var listBox = picker.Controls.OfType<ListBox>().First();
+            var method = typeof(DefaultElementPicker).GetMethod("ListBox_DrawItem", BindingFlags.Instance | BindingFlags.NonPublic);
+            method!.Invoke(picker, new object[] { listBox, new DrawItemEventArgs(g, listBox.Font, bounds, index, state) });
         }
 
         private class MockSubsystemUI : ISubsystemUI {
