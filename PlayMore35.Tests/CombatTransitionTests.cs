@@ -47,7 +47,7 @@ namespace PlayMore35.Tests {
             };
             effects.resettableParameters["encounter"].Add(encounterParam);
 
-            var followupFlag = new ControllableFlag("EncounterBuffEnded", context.Character);
+            var followupFlag = TestFactory.CreateControllableFlag("EncounterBuffEnded", context.Character);
             effects.controllableFlags["EncounterBuffEnded"] = followupFlag;
 
             var encounterAction = new SheetAction()

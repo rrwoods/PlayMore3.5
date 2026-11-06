@@ -267,15 +267,15 @@ namespace PlayMore35.Tests {
             var slotlessItem = TestFactory.CreateItem(
                 Equipped.Slot.SLOTLESS,
                 new Effect("Slotless Ward").AddModifier(AC, new Modifier(1, "deflection")),
-                flags: new[] { new FlagDefinition("Slotless Flag", "Misc", "Slotless flag desc", AlwaysOn.Instance, null) });
+                flags: new[] { TestFactory.CreateFlagDefinition("Slotless Flag", "Misc", "Slotless flag desc", AlwaysOn.Instance, null) });
             var neckItem = TestFactory.CreateItem(
                 Equipped.Slot.NECK,
                 new Effect("Amulet of Health").AddModifier(AC, new Modifier(2, "natural armor")),
-                flags: new[] { new FlagDefinition("Neck Flag", "Misc", "Neck flag desc", AlwaysOn.Instance, null) });
+                flags: new[] { TestFactory.CreateFlagDefinition("Neck Flag", "Misc", "Neck flag desc", AlwaysOn.Instance, null) });
             var bodyItem = TestFactory.CreateItem(
                 Equipped.Slot.BODY,
                 new Effect("Magic Robe").AddModifier(AC, new Modifier(4, "armor")),
-                flags: new[] { new FlagDefinition("Robe Flag", "Misc", "Robe flag desc", AlwaysOn.Instance, null) });
+                flags: new[] { TestFactory.CreateFlagDefinition("Robe Flag", "Misc", "Robe flag desc", AlwaysOn.Instance, null) });
 
             var equipped = new Equipped();
             equipped.SlotlessItems.Add(slotlessItem);
@@ -293,9 +293,9 @@ namespace PlayMore35.Tests {
             var poolWithArmor = new EffectPool(character);
             poolWithArmor.AddStat(new Statistic(AC));
             var donnedArmor = new Armor(catalog.GetArmor("full plate"));
-            donnedArmor.Properties.Add(new ArmorProperty("warding") {
-                GlobalEffect = new Effect("Armor Warding").AddModifier(AC, new Modifier(5, "insight"))
-            });
+            donnedArmor.Properties.Add(TestFactory.CreateArmorProperty("warding",
+                globalEffect: new Effect("Armor Warding").AddModifier(AC, new Modifier(5, "insight"))
+            ));
             equipped.DonnedArmor = donnedArmor;
             equipped.ContributeEffects(poolWithArmor);
 

@@ -97,12 +97,6 @@ namespace PlayMore35.Items {
             }
         }
 
-        public Weapon(string name, int sizeCategory, Effort effort) {
-            Name = name;
-            SizeCategory = sizeCategory;
-            EffortCategory = effort;
-        }
-
         public bool CanBeThrown() {
             if (Thrown != null) {
                 return true;

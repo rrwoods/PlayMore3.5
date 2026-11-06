@@ -140,7 +140,7 @@ namespace PlayMore35.Tests {
             var fakeContext = new FakeCharacterContext();
             Assert.IsNotNull(fakeContext.SubsystemsMap, "SubsystemsMap must be initialized.");
 
-            var def = new SubsystemDefinition { Id = "test_subsystem" };
+            var def = TestFactory.CreateSubsystemDefinition("test_subsystem");
             var engine = new SubsystemEngine(def, fakeContext);
             fakeContext.SubsystemsMap["test_subsystem"] = engine;
 

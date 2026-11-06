@@ -21,8 +21,6 @@ namespace PlayMore35.Subsystems {
         public string Op { get; set; } = "consume";
         public int Amount { get; set; } = 0;
 
-        public SubsystemStep() { }
-
         public SubsystemStep(JObject json) {
             if (json == null) return;
             Type = (string)(json["type"] ?? "");
@@ -64,13 +62,6 @@ namespace PlayMore35.Subsystems {
         public string Stat { get; set; } = "";
         public int Base { get; set; } = 0;
 
-        public MaxLevelDefinition() { }
-
-        public MaxLevelDefinition(string stat, int baseValue = 0) {
-            Stat = stat ?? "";
-            Base = baseValue;
-        }
-
         public MaxLevelDefinition(JObject json) {
             if (json == null) return;
             Stat = (string)(json["stat"] ?? "");
@@ -88,13 +79,6 @@ namespace PlayMore35.Subsystems {
     public class LevelGatingDefinition : IJsonable {
         public string ElementStatistic { get; set; } = "";
         public string? MaxLevelLabel { get; set; } = null;
-
-        public LevelGatingDefinition() { }
-
-        public LevelGatingDefinition(string elementStatistic, string? maxLevelLabel = null) {
-            ElementStatistic = elementStatistic ?? "";
-            MaxLevelLabel = maxLevelLabel;
-        }
 
         public LevelGatingDefinition(JObject json) {
             if (json == null) return;
@@ -114,12 +98,6 @@ namespace PlayMore35.Subsystems {
         public IReadOnlyList<string> States { get; }
         public string Stat { get; }
         public string Label { get; }
-
-        public StateCapacityDefinition(IEnumerable<string> states, string stat, string label) {
-            States = states != null ? states.ToList() : new List<string>();
-            Stat = stat ?? string.Empty;
-            Label = label ?? string.Empty;
-        }
 
         public StateCapacityDefinition(JObject json) {
             if (json == null) {
@@ -158,8 +136,6 @@ namespace PlayMore35.Subsystems {
         private readonly Dictionary<string, List<Effect>> _effectsBySourceCache = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
         public List<string> States { get; } = new List<string>();
         public string DefaultState { get; set; } = "";
-
-        public SlotGroupDefinition() { }
 
         public SlotGroupDefinition(JObject json) {
             if (json == null) return;
@@ -228,8 +204,6 @@ namespace PlayMore35.Subsystems {
         public string CapacityStat { get; set; } = null;
         public int DefaultCapacity { get; set; } = 0;
 
-        public PoolDefinition() { }
-
         public PoolDefinition(JObject json) {
             if (json == null) return;
             Id = (string)(json["id"] ?? "");
@@ -253,16 +227,6 @@ namespace PlayMore35.Subsystems {
         public string SlotGroup { get; set; } = "";
         public string State { get; set; } = "";
         public List<string> Effects { get; } = new List<string>();
-
-        public EffectProjectionRule() { }
-
-        public EffectProjectionRule(string slotGroup, string state, params string[] effects) {
-            SlotGroup = slotGroup ?? "";
-            State = state ?? "";
-            if (effects != null) {
-                Effects.AddRange(effects);
-            }
-        }
 
         public EffectProjectionRule(JObject json) {
             if (json == null) return;
@@ -307,13 +271,6 @@ namespace PlayMore35.Subsystems {
             }
             return defaultValue;
         }
-
-        public void SetProperty(string key, object value) {
-            if (string.IsNullOrEmpty(key)) return;
-            _properties[key] = value;
-        }
-
-        public TaxonomyEntry() { }
 
         public TaxonomyEntry(string name, JObject json) {
             Name = name ?? "";
@@ -367,8 +324,6 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, Dictionary<string, TaxonomyEntry>> Taxonomies { get; } = new Dictionary<string, Dictionary<string, TaxonomyEntry>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
-
-        public SubsystemDefinition() { }
 
         public SubsystemDefinition(JObject json) {
             if (json == null) return;

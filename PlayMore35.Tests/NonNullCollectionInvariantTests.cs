@@ -105,9 +105,6 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Weapon_Constructors_EnsureCollectionsAreNonNull() {
-            var weapon = new Weapon("Dagger", 0, Weapon.Effort.LIGHT);
-            Assert.IsNotNull(weapon.Tags);
-
             var jsonWeapon = new Weapon(new JObject {
                 ["name"] = "Dagger",
                 ["weight"] = 1m,
