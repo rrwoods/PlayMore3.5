@@ -92,8 +92,6 @@ namespace PlayMore35.UI.Subsystems {
 
         public bool ClearButtonVisible => _clearButton.Visible;
         public bool WarningBadgeVisible => _warningBadge.Visible;
-        public string? WarningMessage => _warningBadge.WarningMessage;
-        public WarningKind WarningKind => _warningBadge.Kind;
         public string DisplayText => _label.Text;
 
         public void PerformClick() {

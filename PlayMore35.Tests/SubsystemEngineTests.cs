@@ -1432,7 +1432,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 1));
 
             // Adopting second stance should clamp and deactivate the first stance
-            engine.InvokeVerb("adopt", "stances", 1);
+            engine.ExecuteVerb("adopt", "stances", 1);
 
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1));
@@ -1594,7 +1594,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("dormant", engine.GetSlotState("auras", 1));
 
             // Radiating second aura should clamp and demote the first aura to dormant
-            engine.InvokeVerb("radiate", "auras", 1);
+            engine.ExecuteVerb("radiate", "auras", 1);
 
             Assert.AreEqual("dormant", engine.GetSlotState("auras", 0));
             Assert.AreEqual("radiating", engine.GetSlotState("auras", 1));

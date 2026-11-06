@@ -915,11 +915,7 @@ namespace PlayMore35.Subsystems {
             return null;
         }
 
-        public TimelineRefreshRequirement InvokeVerb(string verbName, string? slotGroup = null, int? slotIndex = null, string? elementName = null, string? source = null, List<int>? selectedIndices = null) {
-            return ExecuteVerb(verbName, slotGroup, slotIndex, elementName, source, selectedIndices);
-        }
-
-        public TimelineRefreshRequirement ExecuteVerb(string verbName, SubsystemTarget? target = null) {
+        public TimelineRefreshRequirement ExecuteVerb(string verbName, SubsystemTarget? target) {
             return ExecuteVerb(verbName, target?.SlotGroup, target?.SlotIndex, target?.Element, target?.Source, target?.SelectedIndices);
         }
 
