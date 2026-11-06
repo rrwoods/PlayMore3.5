@@ -112,11 +112,6 @@ namespace PlayMore35.UI.Subsystems {
             UpdateLayout();
         }
 
-        public void SetWarning(ValidationWarning warning) {
-            _warningBadge.SetWarning(warning);
-            UpdateLayout();
-        }
-
         public void SetWarnings(IEnumerable<ValidationWarning>? warnings) {
             _warningBadge.SetWarnings(warnings);
             UpdateLayout();

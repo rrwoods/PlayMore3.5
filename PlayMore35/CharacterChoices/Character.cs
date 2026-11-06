@@ -44,11 +44,6 @@ namespace PlayMore35.CharacterChoices {
 
         public Timeline Timeline { get; set; }
         public AttackRoutinePreferences RoutinePreferences { get; set; } = new AttackRoutinePreferences();
-        public Timeline rounds {
-            get => Timeline;
-            set => Timeline = value;
-        }
-
         public JToken ToJson() {
             return new JObject(
                 new JProperty("name", name),
@@ -215,23 +210,6 @@ namespace PlayMore35.CharacterChoices {
             Timeline = new Timeline();
         }
 
-        public IEnumerable<WeaponChoice> Weapons {
-            get {
-                return inventory.SelectMany(x => x.Value.weapons);
-            }
-        }
-
-        public IEnumerable<ArmorChoice> Armor {
-            get {
-                return inventory.SelectMany(x => x.Value.armor);
-            }
-        }
-
-        public IEnumerable<ArmorChoice> Shields {
-            get {
-                return inventory.SelectMany(x => x.Value.shields);
-            }
-        }
 
         public Dictionary<string, int> SummarizeClassLevels() {
             Dictionary<string, int> summary = new Dictionary<string, int>();

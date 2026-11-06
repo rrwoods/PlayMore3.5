@@ -43,14 +43,6 @@ namespace PlayMore35.UI {
             Visible = !string.IsNullOrEmpty(message);
         }
 
-        public void SetWarning(ValidationWarning warning) {
-            if (warning == null) {
-                ClearWarning();
-                return;
-            }
-            SetWarning(warning.Message, warning.Kind);
-        }
-
         public void SetWarnings(IEnumerable<ValidationWarning>? warnings) {
             if (warnings == null) {
                 ClearWarning();

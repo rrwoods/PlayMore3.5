@@ -66,11 +66,6 @@ namespace PlayMore35.Effects {
             (DynamicUses, DynamicUsesExplanation) = effects.GetStat(usesStat).GetValue(effects, items);
         }
 
-        public LengthOfTime? ComputeDuration(EffectPool effects, Equipped items) {
-            if (Duration == null) return null;
-            return new LengthOfTime(Duration.FillStatValues(effects, items));
-        }
-
         public string Description() {
             return RechargeTime.unit == AT_WILL
                 ? $"{ActionType} {AT_WILL}"

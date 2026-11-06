@@ -122,10 +122,6 @@ namespace PlayMore35 {
             }
         }
 
-        public TabPage StatsTab() {
-            return pagStats;
-        }
-
         private void Text_Enter(object sender, EventArgs e) {
             BeginInvoke((Action)delegate {
                 ((TextBox)sender).SelectAll();
@@ -373,10 +369,6 @@ namespace PlayMore35 {
                 DisplaySkillPoints(levelIndex);
                 DisplaySkillRanks(skill);
             };
-        }
-
-        private int Parse(string s) {
-            return string.IsNullOrWhiteSpace(s) ? 0 : int.Parse(s.Replace("–", "-"));
         }
 
         private void HandleLanguages() {
@@ -759,14 +751,6 @@ namespace PlayMore35 {
             }
 
             DisplayCharacter();
-        }
-
-        private void CharacterTab_Leave(object sender, EventArgs e) {
-            session.Mutate(c => {
-                c.skillRanks = c.skillRanks
-                    .Where(x => x.Value.Sum() > 0)
-                    .ToDictionary(x => x.Key, x => x.Value);
-            });
         }
 
         public void RefreshEffects() {

@@ -103,26 +103,6 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Statistic Maximum(int maximum) {
-            maxValue = maximum;
-            return this;
-        }
-
-        public Statistic RoundTo(int precision) {
-            this.precision = precision;
-            return this;
-        }
-
-        public Statistic IgnoreModifierType(string type) {
-            ignoredModifierTypes.Add(type, AlwaysOn.Instance);
-            return this;
-        }
-
-        public Statistic IgnoreModiferType(string type, IToggle when) {
-            ignoredModifierTypes.Add(type, when);
-            return this;
-        }
-
         // Used to check whether a skill has any non-ability-modifier effects on it,
         // to determine whether to display it.
         public bool Relevant(EffectPool pool, Items.Equipped items) {

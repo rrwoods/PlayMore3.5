@@ -52,8 +52,6 @@ namespace PlayMore35 {
             }
 
             public override string ToString() => $"{FeatSlot}:{Descriptor?.Id}";
-            public bool MatchesKey(string key) => string.Equals($"{FeatSlot}:{Descriptor?.Id}", key, StringComparison.OrdinalIgnoreCase);
-
             public override bool Equals(object obj) {
                 if (obj is ElementReceptorBinding other) {
                     return string.Equals(FeatSlot, other.FeatSlot, StringComparison.OrdinalIgnoreCase) &&

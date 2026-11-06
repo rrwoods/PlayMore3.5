@@ -29,15 +29,6 @@ namespace PlayMore35.Global {
             controls.Clear();
         }
 
-        public static void ClearDynamicControls<K, T>(Control container, Dictionary<K, List<T>> controls) where T : Control {
-            foreach (var category in controls) {
-                foreach (Control control in category.Value) {
-                    container.Controls.Remove(control);
-                }
-            }
-            controls.Clear();
-        }
-
         public static string ValueText(int value, bool plus) {
             return ((plus && value >= 0 ? "+" : "") + value).Replace("-", "–");
         }

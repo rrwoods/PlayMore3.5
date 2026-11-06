@@ -160,6 +160,6 @@ namespace PlayMore35.CharacterChoices {
     public class SubsystemFeature {
         public List<string> Stats { get; set; } = new List<string>();
         public List<Effect> Effects { get; set; } = new List<Effect>();
-        public Dictionary<string, List<SubsystemStep>> Verbs { get; set; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
     }
 }
