@@ -16,16 +16,6 @@ namespace PlayMore35 {
             InitializeControls();
         }
 
-        public bool GetCategoryChecked(RoutineCategory category) {
-            return checkBoxes.TryGetValue(category, out var chk) && chk.Checked;
-        }
-
-        public void SetCategoryChecked(RoutineCategory category, bool isChecked) {
-            if (checkBoxes.TryGetValue(category, out var chk)) {
-                chk.Checked = isChecked;
-            }
-        }
-
         public void ResetToDefaults() {
             foreach (var kvp in checkBoxes) {
                 kvp.Value.Checked = AttackRoutinePreferences.GetDefaultVisibility(kvp.Key);
@@ -80,7 +70,8 @@ namespace PlayMore35 {
                     Text = GetCategoryDisplayName(cat),
                     Location = new Point(20, y),
                     AutoSize = true,
-                    Checked = preferences.IsCategoryVisible(cat)
+                    Checked = preferences.IsCategoryVisible(cat),
+                    Tag = cat
                 };
                 checkBoxes[cat] = chk;
                 Controls.Add(chk);

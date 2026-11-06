@@ -141,13 +141,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             ApplyFilter();
         }
 
-        public void DeliverVestigeByName(string name) {
-            var card = _cards.FirstOrDefault(c => string.Equals(c.Vestige.Name, name, StringComparison.OrdinalIgnoreCase));
-            if (card != null) {
-                SelectCard(card);
-            }
-        }
-
         public void SelectVestige(string name) {
             var card = _cards.FirstOrDefault(c => string.Equals(c.Vestige.Name, name, StringComparison.OrdinalIgnoreCase));
             if (card != null) {

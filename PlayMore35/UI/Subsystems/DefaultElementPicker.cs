@@ -98,36 +98,6 @@ namespace PlayMore35.UI.Subsystems {
             }
         }
 
-        public IReadOnlyList<string> GetFilteredElementNames() {
-            var names = new List<string>();
-            foreach (var item in _listBox.Items) {
-                if (item is ListItem listItem) {
-                    names.Add(listItem.Element != null ? listItem.Element.Name : "(None)");
-                }
-            }
-            return names;
-        }
-
-        public void SelectElementByName(string name) {
-            for (int i = 0; i < _listBox.Items.Count; i++) {
-                if (_listBox.Items[i] is ListItem item && item.Element != null && string.Equals(item.Element.Name, name, StringComparison.OrdinalIgnoreCase)) {
-                    _listBox.SelectedIndex = i;
-                    return;
-                }
-            }
-        }
-
-        public void SelectNone() {
-            for (int i = 0; i < _listBox.Items.Count; i++) {
-                if (_listBox.Items[i] is ListItem item && item.Element == null) {
-                    _listBox.SelectedIndex = i;
-                    return;
-                }
-            }
-            // If not found in list, deliver null directly
-            ElementDelivered?.Invoke(null);
-        }
-
         private void InitializeComponent() {
             SuspendLayout();
 
