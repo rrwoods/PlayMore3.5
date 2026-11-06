@@ -72,3 +72,11 @@ Once the human confirms the desired resolution:
 - **Relocate to Tests**: Move test-only convenience constructors, builder methods, or inspection helpers out of the production project (`PlayMore35`) and into the test project (`PlayMore35.Tests`) as test extension methods, test factories, or test-assembly helpers, keeping the production surface clean.
 - **Wire Up**: Connect the island root to its intended UI event handler or production workflow.
 - **Expand Roots**: Deepen `ReachabilityAnalyzer.IsProductionRoot` to recognize the dynamic entry point.
+
+### Remediation Ticket Authoring
+
+When creating or authoring tickets to remediate dead code:
+- **Include upfront execution note**: Always place this callout banner at the top of the ticket body so agents do not redundantly re-run the scanner:
+  > [!NOTE]
+  > This ticket was created as a result of a dead code scan. Targets and artificial life-support tests are already identified; do not run the dead code scanner upfront. Proceed directly to pruning code and running unit tests.
+- **Explicit target lists**: Explicitly enumerate the dead production members, entry roots, and artificial life-support tests with file paths so the implementing agent can navigate directly to the seams.
