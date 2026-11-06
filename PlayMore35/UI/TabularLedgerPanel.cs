@@ -40,13 +40,6 @@ namespace PlayMore35.UI {
 
         public int RowCount => rows.Count;
 
-        public LedgerRowControl GetRow(int index) {
-            if (index >= 0 && index < rows.Count) {
-                return rows[index];
-            }
-            return null;
-        }
-
         public void AlignInputControls(Control datePicker, Control descInput, Control amountInput, Control addButton) {
             Width = BASELINE_WIDTH;
             Left = addButton.Right - BASELINE_WIDTH;
@@ -267,12 +260,6 @@ namespace PlayMore35.UI {
             if (Visible) {
                 UpdateLayout();
                 ScrollToBottom();
-            }
-        }
-
-        public void SelectRow(int index) {
-            if (index >= 0 && index < rows.Count) {
-                SelectRowInternal(rows[index]);
             }
         }
 
