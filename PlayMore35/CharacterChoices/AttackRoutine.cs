@@ -21,7 +21,6 @@ namespace PlayMore35.Items {
         public RoutineActionType ActionType { get; }
         public RoutineCategory Category { get; }
         public string DisplayName { get; }
-        public IReadOnlyList<Weapon> Weapons { get; }
         public IReadOnlyList<Attack> Attacks { get; }
 
         public AttackRoutine(
@@ -34,7 +33,6 @@ namespace PlayMore35.Items {
             ActionType = actionType;
             Category = category;
             DisplayName = displayName ?? string.Empty;
-            Weapons = (weapons ?? Enumerable.Empty<Weapon>()).ToList().AsReadOnly();
             Attacks = (attacks ?? Enumerable.Empty<Attack>()).ToList().AsReadOnly();
         }
     }

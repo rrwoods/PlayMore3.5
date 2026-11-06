@@ -287,7 +287,7 @@ namespace PlayMore35.Tests {
                 picker.SelectElementByName("Disarming Strike");
 
                 Assert.IsTrue(receptor.WarningBadgeVisible, "Warning badge should be visible when maneuver level exceeds max level.");
-                StringAssert.Contains(receptor.WarningMessage, "exceeds maximum maneuver level");
+                StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "exceeds maximum maneuver level");
 
                 // Switch to level 1 maneuver (Steel Wind)
                 picker.SelectElementByName("Steel Wind");
@@ -315,7 +315,7 @@ namespace PlayMore35.Tests {
                 picker.SelectElementByName("Flashing Sun");
 
                 Assert.IsTrue(receptor.WarningBadgeVisible);
-                StringAssert.Contains(receptor.WarningMessage, "Requires 1 Desert Wind maneuver, but only 0 known.");
+                StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "Requires 1 Desert Wind maneuver, but only 0 known.");
             }
         }
 
@@ -491,7 +491,7 @@ namespace PlayMore35.Tests {
                 picker.SelectElementByName("Giant's Stance");
 
                 Assert.IsTrue(receptor.WarningBadgeVisible, "Warning badge should be visible when stance level exceeds max level.");
-                StringAssert.Contains(receptor.WarningMessage, "exceeds maximum maneuver level");
+                StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "exceeds maximum maneuver level");
             }
         }
 
@@ -515,7 +515,7 @@ namespace PlayMore35.Tests {
                 picker.SelectElementByName("Iron Guard's Glare");
 
                 Assert.IsTrue(receptor.WarningBadgeVisible);
-                StringAssert.Contains(receptor.WarningMessage, "Requires 1 Devoted Spirit maneuver, but only 0 known.");
+                StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "Requires 1 Devoted Spirit maneuver, but only 0 known.");
             }
         }
 
@@ -606,7 +606,7 @@ namespace PlayMore35.Tests {
                 var switchHumanPicker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 switchHumanPicker.SelectElementByName("Steel Wind");
                 Assert.IsTrue(level1Receptor.WarningBadgeVisible, "Warning badge on Level 1 should appear because Desert Wind prerequisite is no longer met.");
-                StringAssert.Contains(level1Receptor.WarningMessage, "Requires 1 Desert Wind maneuver, but only 0 known.");
+                StringAssert.Contains(level1Receptor.GetWarningBadge().GetTooltip(), "Requires 1 Desert Wind maneuver, but only 0 known.");
 
                 // If Human slot switches back to Burning Blade, warning badge clears immediately
                 switchHumanPicker.SelectElementByName("Burning Blade");

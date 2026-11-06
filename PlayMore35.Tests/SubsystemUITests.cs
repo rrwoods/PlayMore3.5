@@ -126,11 +126,11 @@ namespace PlayMore35.Tests {
             using (var receptor = new ElementReceptorControl()) {
                 receptor.SetWarning("Prerequisites not met");
                 Assert.IsTrue(receptor.WarningBadgeVisible);
-                Assert.AreEqual("Prerequisites not met", receptor.WarningMessage);
+                Assert.AreEqual("Prerequisites not met", receptor.GetWarningBadge().GetTooltip());
 
                 receptor.ClearWarning();
                 Assert.IsFalse(receptor.WarningBadgeVisible);
-                Assert.IsNull(receptor.WarningMessage);
+                Assert.AreEqual("", receptor.GetWarningBadge().GetTooltip());
             }
         }
 

@@ -64,7 +64,6 @@ namespace PlayMore35.Items {
 
         public (DiceGroup dice, List<string> explanation) Damage => (TotalDamage, DamageExplanation);
         public (DiceGroup dice, List<string> explanation) CriticalDamage => (CriticalTotalDamage, CriticalDamageExplanation);
-        public string DamageType { get; private set; }
         public int ThreatRange { get; private set; }
         public int RangeIncrement { get; private set; }
         public int StrengthRating { get; private set; } = -1; // only relevant for ranged weapons (composite bows); -1 = noncomposite
@@ -153,7 +152,6 @@ namespace PlayMore35.Items {
 
             Effort = weapon.EffortCategory + sizeDiscrepancy;
             Hand = hand;
-            DamageType = atk.DamageType;
             ThreatRange = atk.ThreatRange;
         }
 
@@ -165,7 +163,6 @@ namespace PlayMore35.Items {
             Proficiency = familiar ? Weapon.Proficiency.MARTIAL : armor.ArmorSpikes.ProficencyCategory;
             Effort = Weapon.Effort.LIGHT;
             Hand = hand;
-            DamageType = armor.ArmorSpikes.DamageType;
             ThreatRange = armor.ArmorSpikes.ThreatRange;
 
             Range = Weapon.Range.MELEE;
@@ -180,7 +177,6 @@ namespace PlayMore35.Items {
             Proficiency = familiar ? Weapon.Proficiency.MARTIAL : shield.ShieldBash.ProficencyCategory;
             Effort = (Weapon.Effort)shield.ShieldBashEffort + sizeDiscrepancy;
             Hand = hand;
-            DamageType = shield.ShieldBash.DamageType;
             ThreatRange = shield.ShieldBash.ThreatRange;
 
             Range = Weapon.Range.MELEE;

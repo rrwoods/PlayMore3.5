@@ -401,22 +401,22 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 3, "Wall of Blades", "withheld", "Warblade");
 
             // Available succeeds and transitions to Expended
-            var req0 = engine.InvokeVerb("expend", "maneuvers", 0, source: "Warblade");
+            var req0 = engine.ExecuteVerb("expend", "maneuvers", 0, source: "Warblade");
             Assert.AreNotEqual(TimelineRefreshRequirement.None, req0);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 0, "Warblade"));
 
             // Expended rejects
-            var req1 = engine.InvokeVerb("expend", "maneuvers", 1, source: "Warblade");
+            var req1 = engine.ExecuteVerb("expend", "maneuvers", 1, source: "Warblade");
             Assert.AreEqual(TimelineRefreshRequirement.None, req1);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 1, "Warblade"));
 
             // Unreadied rejects
-            var req2 = engine.InvokeVerb("expend", "maneuvers", 2, source: "Warblade");
+            var req2 = engine.ExecuteVerb("expend", "maneuvers", 2, source: "Warblade");
             Assert.AreEqual(TimelineRefreshRequirement.None, req2);
             Assert.AreEqual("unreadied", engine.GetSlotState("maneuvers", 2, "Warblade"));
 
             // Withheld rejects
-            var req3 = engine.InvokeVerb("expend", "maneuvers", 3, source: "Warblade");
+            var req3 = engine.ExecuteVerb("expend", "maneuvers", 3, source: "Warblade");
             Assert.AreEqual(TimelineRefreshRequirement.None, req3);
             Assert.AreEqual("withheld", engine.GetSlotState("maneuvers", 3, "Warblade"));
         }
@@ -431,7 +431,7 @@ namespace PlayMore35.Tests {
 
             engine.AssignSlot("maneuvers", 0, "Crusader's Strike", "expended", "Crusader");
 
-            engine.InvokeVerb("recover", "maneuvers", source: "Warblade");
+            engine.ExecuteVerb("recover", "maneuvers", source: "Warblade");
 
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 0, "Warblade"));
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 1, "Warblade"));
@@ -449,14 +449,14 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 1, "Blistering Flourish", "expended", "Swordsage");
             engine.AssignSlot("maneuvers", 2, "Shadow Jaunt", "unreadied", "Swordsage");
 
-            engine.InvokeVerb("recover", "maneuvers", 0, source: "Swordsage");
+            engine.ExecuteVerb("recover", "maneuvers", 0, source: "Swordsage");
 
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 0, "Swordsage"));
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 1, "Swordsage"));
             Assert.AreEqual("unreadied", engine.GetSlotState("maneuvers", 2, "Swordsage"));
 
             // Attempting to recover unreadied slot does not alter its state
-            engine.InvokeVerb("recover", "maneuvers", 2, source: "Swordsage");
+            engine.ExecuteVerb("recover", "maneuvers", 2, source: "Swordsage");
             Assert.AreEqual("unreadied", engine.GetSlotState("maneuvers", 2, "Swordsage"));
         }
 
@@ -477,7 +477,7 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 5, "Mountain Hammer", "unreadied", "Crusader");
 
             engine.SetRandom(new Random(42));
-            engine.InvokeVerb("deal", "maneuvers", source: "Crusader");
+            engine.ExecuteVerb("deal", "maneuvers", source: "Crusader");
 
             var crusaderSlots = engine.GetSlots("maneuvers", "Crusader");
             var readied = crusaderSlots.Where(s => s != null && !string.IsNullOrEmpty(s.Element) && !string.Equals(s.State, "unreadied", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -508,25 +508,25 @@ namespace PlayMore35.Tests {
 
             // Deal hand: 2 Available, 3 Withheld
             engine.SetRandom(new Random(42));
-            engine.InvokeVerb("deal", "maneuvers", source: "Crusader");
+            engine.ExecuteVerb("deal", "maneuvers", source: "Crusader");
             Assert.AreEqual(2, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase)));
             Assert.AreEqual(3, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase)));
 
             // Turn 1 advance grants 1 withheld maneuver
             engine.SetRandom(new Random(1));
-            engine.InvokeVerb("advance_turn", "maneuvers", source: "Crusader");
+            engine.ExecuteVerb("advance_turn", "maneuvers", source: "Crusader");
             Assert.AreEqual(3, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase)));
             Assert.AreEqual(2, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase)));
 
             // Turn 2 advance grants another withheld maneuver
             engine.SetRandom(new Random(1));
-            engine.InvokeVerb("advance_turn", "maneuvers", source: "Crusader");
+            engine.ExecuteVerb("advance_turn", "maneuvers", source: "Crusader");
             Assert.AreEqual(4, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase)));
             Assert.AreEqual(1, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase)));
 
             // Turn 3 advance grants final withheld maneuver
             engine.SetRandom(new Random(1));
-            engine.InvokeVerb("advance_turn", "maneuvers", source: "Crusader");
+            engine.ExecuteVerb("advance_turn", "maneuvers", source: "Crusader");
             Assert.AreEqual(5, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase)));
             Assert.AreEqual(0, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase)));
         }
@@ -551,7 +551,7 @@ namespace PlayMore35.Tests {
 
             // Advancing from empty withheld pool triggers deck reshuffle: 2 Available, 3 Withheld
             engine.SetRandom(new Random(42));
-            engine.InvokeVerb("advance_turn", "maneuvers", source: "Crusader");
+            engine.ExecuteVerb("advance_turn", "maneuvers", source: "Crusader");
 
             Assert.AreEqual(2, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "available", StringComparison.OrdinalIgnoreCase)));
             Assert.AreEqual(3, engine.GetSlots("maneuvers", "Crusader").Count(s => s != null && string.Equals(s.State, "withheld", StringComparison.OrdinalIgnoreCase)));
@@ -586,7 +586,7 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 5, "Mountain Hammer", "unreadied", "Crusader");
 
             engine.SetRandom(new Random(42));
-            engine.InvokeVerb("reset_encounter");
+            engine.ExecuteVerb("reset_encounter");
 
             // Warblade: Expended -> Available, Unreadied -> Unreadied
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 0, "Warblade"));
@@ -615,19 +615,19 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 0, "Crusader's Strike", "unreadied", "Crusader");
 
             // Ready warblade maneuver -> becomes Available
-            engine.InvokeVerb("ready", "maneuvers", 0, source: "Warblade");
+            engine.ExecuteVerb("ready", "maneuvers", 0, source: "Warblade");
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 0, "Warblade"));
 
             // Unready warblade maneuver -> returns to Unreadied
-            engine.InvokeVerb("unready", "maneuvers", 0, source: "Warblade");
+            engine.ExecuteVerb("unready", "maneuvers", 0, source: "Warblade");
             Assert.AreEqual("unreadied", engine.GetSlotState("maneuvers", 0, "Warblade"));
 
             // Ready crusader maneuver -> becomes Withheld
-            engine.InvokeVerb("ready", "maneuvers", 0, source: "Crusader");
+            engine.ExecuteVerb("ready", "maneuvers", 0, source: "Crusader");
             Assert.AreEqual("withheld", engine.GetSlotState("maneuvers", 0, "Crusader"));
 
             // Unready crusader maneuver -> returns to Unreadied
-            engine.InvokeVerb("unready", "maneuvers", 0, source: "Crusader");
+            engine.ExecuteVerb("unready", "maneuvers", 0, source: "Crusader");
             Assert.AreEqual("unreadied", engine.GetSlotState("maneuvers", 0, "Crusader"));
         }
 
@@ -649,24 +649,24 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 0, "Hunter's Sense", "inactive", "Swordsage");
 
             // Adopt warblade stance 0
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 1, "Warblade"));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0, "Swordsage"));
 
             // Switch to swordsage stance 0 -> warblade stance 0 is cleared
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Swordsage");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Swordsage");
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Swordsage"));
 
             // Exit single stance
-            engine.InvokeVerb("exit_stance", "stances", 0, source: "Swordsage");
+            engine.ExecuteVerb("exit_stance", "stances", 0, source: "Swordsage");
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0, "Swordsage"));
 
             // Adopt again, then ExitAllStances
-            engine.InvokeVerb("adopt_stance", "stances", 1, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 1, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 1, "Warblade"));
-            engine.InvokeVerb("exit_all_stances");
+            engine.ExecuteVerb("exit_all_stances");
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 1, "Warblade"));
         }
 
@@ -685,11 +685,11 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 0, "Punishing Stance", "inactive", "Warblade");
             engine.AssignSlot("stances", 1, "Blood in the Water", "inactive", "Warblade");
 
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
 
             // Adopting second stance with active stances = 2 does not clear first stance
-            engine.InvokeVerb("adopt_stance", "stances", 1, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 1, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1, "Warblade"));
         }
@@ -712,23 +712,23 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 2, "Hunter's Sense", "inactive", "Warblade");
 
             // Adopt stance 0
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
 
             // Adopt stance 1 -> both active
-            engine.InvokeVerb("adopt_stance", "stances", 1, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 1, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1, "Warblade"));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 2, "Warblade"));
 
             // Adopt stance 2 -> oldest (stance 0) is deactivated, stances 1 and 2 remain active
-            engine.InvokeVerb("adopt_stance", "stances", 2, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 2, source: "Warblade");
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 2, "Warblade"));
 
             // Adopt stance 0 again -> oldest (stance 1) is deactivated, stances 2 and 0 remain active
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 1, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 2, "Warblade"));
@@ -752,8 +752,8 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 2, "Hunter's Sense", "inactive", "Warblade");
 
             // Adopt stances 0 and 1
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
-            engine.InvokeVerb("adopt_stance", "stances", 1, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 1, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 0, "Warblade"));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1, "Warblade"));
 
@@ -782,7 +782,7 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 2, "Hunter's Sense", "inactive", "Warblade");
 
             // Start in stance 2
-            engine.InvokeVerb("adopt_stance", "stances", 2, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 2, source: "Warblade");
             Assert.AreEqual("active", engine.GetSlotState("stances", 2, "Warblade"));
 
             // Change both stances simultaneously in a single swift action
@@ -839,7 +839,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(15, pool.GetStatValue("AC", null));
 
             // When adopted / active, ContributeEffects applies the -2 penalty
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Warblade");
             var activePool = new EffectPool(context.Character);
             SetStat(activePool, "AC", 15);
             engine.ContributeEffects(activePool);
@@ -886,13 +886,13 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 2, "Steel Strike", "available", "Warblade");
 
             // 1. Strike transitions to Expended without scheduling timeline action
-            var strikeReq = engine.InvokeVerb("expend", "maneuvers", 2, source: "Warblade");
+            var strikeReq = engine.ExecuteVerb("expend", "maneuvers", 2, source: "Warblade");
             Assert.AreNotEqual(TimelineRefreshRequirement.None, strikeReq);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 2, "Warblade"));
             Assert.AreEqual(0, timeline.ScheduledActions.Count);
 
             // 2. Boost transitions to Expended and schedules SheetAction on Timeline
-            var boostReq = engine.InvokeVerb("expend", "maneuvers", 0, source: "Warblade");
+            var boostReq = engine.ExecuteVerb("expend", "maneuvers", 0, source: "Warblade");
             Assert.AreNotEqual(TimelineRefreshRequirement.None, boostReq);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 0, "Warblade"));
             Assert.AreEqual(1, timeline.ScheduledActions.Count);
@@ -908,7 +908,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(40, pool.GetStatValue("Speed", null));
 
             // 4. Counter transitions to Expended and schedules SheetAction
-            var counterReq = engine.InvokeVerb("expend", "maneuvers", 1, source: "Warblade");
+            var counterReq = engine.ExecuteVerb("expend", "maneuvers", 1, source: "Warblade");
             Assert.AreNotEqual(TimelineRefreshRequirement.None, counterReq);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 1, "Warblade"));
             Assert.AreEqual(2, timeline.ScheduledActions[1].Count);
@@ -980,7 +980,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(3, baselinePool.GetStatValue("Will saves", null));
 
             // Warblade activates Punishing Stance (-2 AC)
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Warblade");
             var wbPool = new EffectPool(context.Character);
             SetStat(wbPool, "AC", 15);
             SetStat(wbPool, "Land speed", 30);
@@ -988,7 +988,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(13, wbPool.GetStatValue("AC", null));
 
             // Warblade switches to Absolute Steel (+10 Land speed)
-            engine.InvokeVerb("adopt_stance", "stances", 1, source: "Warblade");
+            engine.ExecuteVerb("adopt_stance", "stances", 1, source: "Warblade");
             var wbSpeedPool = new EffectPool(context.Character);
             SetStat(wbSpeedPool, "AC", 15);
             SetStat(wbSpeedPool, "Land speed", 30);
@@ -997,14 +997,14 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(40, wbSpeedPool.GetStatValue("Land speed", null));
 
             // Swordsage activates Hearing the Air (+5 Listen)
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Swordsage");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Swordsage");
             var ssPool = new EffectPool(context.Character);
             SetStat(ssPool, "Listen", 4);
             engine.ContributeEffects(ssPool);
             Assert.AreEqual(9, ssPool.GetStatValue("Listen", null));
 
             // Crusader activates Bolstering Voice (+2 Will saves)
-            engine.InvokeVerb("adopt_stance", "stances", 0, source: "Crusader");
+            engine.ExecuteVerb("adopt_stance", "stances", 0, source: "Crusader");
             var crPool = new EffectPool(context.Character);
             SetStat(crPool, "Will saves", 3);
             engine.ContributeEffects(crPool);
@@ -1030,18 +1030,18 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 0, "Steel Wind", "available", "Warblade");
             engine.AssignSlot("maneuvers", 1, "Iron Heart Surge", "available", "Warblade");
 
-            engine.InvokeVerb("expend", "maneuvers", 0, source: "Warblade");
+            engine.ExecuteVerb("expend", "maneuvers", 0, source: "Warblade");
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 0, "Warblade"));
-            engine.InvokeVerb("recover", "maneuvers", source: "Warblade");
+            engine.ExecuteVerb("recover", "maneuvers", source: "Warblade");
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 0, "Warblade"));
 
             // 2. Swordsage: initiate and recover via targeted full-round meditation
             engine.AssignSlot("maneuvers", 0, "Fire Riposte", "available", "Swordsage");
             engine.AssignSlot("maneuvers", 1, "Burning Blade", "available", "Swordsage");
 
-            engine.InvokeVerb("expend", "maneuvers", 0, source: "Swordsage");
+            engine.ExecuteVerb("expend", "maneuvers", 0, source: "Swordsage");
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 0, "Swordsage"));
-            engine.InvokeVerb("recover", "maneuvers", 0, source: "Swordsage");
+            engine.ExecuteVerb("recover", "maneuvers", 0, source: "Swordsage");
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 0, "Swordsage"));
 
             // 3. Crusader: deal deck, initiate available maneuver, and advance turn to draw withheld
@@ -1049,10 +1049,10 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("maneuvers", 1, "Shield Block", "available", "Crusader");
             engine.AssignSlot("maneuvers", 2, "Revitalizing Strike", "withheld", "Crusader");
 
-            engine.InvokeVerb("expend", "maneuvers", 0, source: "Crusader");
+            engine.ExecuteVerb("expend", "maneuvers", 0, source: "Crusader");
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 0, "Crusader"));
             engine.SetRandom(new Random(42));
-            engine.InvokeVerb("advance_turn", "maneuvers", source: "Crusader");
+            engine.ExecuteVerb("advance_turn", "maneuvers", source: "Crusader");
             Assert.AreEqual("available", engine.GetSlotState("maneuvers", 2, "Crusader"));
         }
 

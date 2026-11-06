@@ -61,31 +61,27 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(badge.Visible);
                 Assert.AreEqual("⚠", badge.Text);
                 Assert.AreEqual(Color.DarkGoldenrod, badge.ForeColor);
-                Assert.AreEqual(WarningKind.Unmet, badge.Kind);
 
                 // Unmet mode
                 badge.SetWarning("Prerequisite unmet", WarningKind.Unmet);
                 Assert.IsTrue(badge.Visible);
                 Assert.AreEqual("⚠", badge.Text);
                 Assert.AreEqual(Color.DarkGoldenrod, badge.ForeColor);
-                Assert.AreEqual(WarningKind.Unmet, badge.Kind);
-                Assert.AreEqual("Prerequisite unmet", badge.WarningMessage);
+                Assert.AreEqual("Prerequisite unmet", badge.GetTooltip());
 
                 // ItemDependent mode
                 badge.SetWarning("Item reliant prerequisite", WarningKind.ItemDependent);
                 Assert.IsTrue(badge.Visible);
                 Assert.AreEqual("🛈", badge.Text);
                 Assert.AreEqual(Color.DodgerBlue, badge.ForeColor);
-                Assert.AreEqual(WarningKind.ItemDependent, badge.Kind);
-                Assert.AreEqual("Item reliant prerequisite", badge.WarningMessage);
+                StringAssert.Contains(badge.GetTooltip(), "Item reliant prerequisite");
 
                 // Clear
                 badge.ClearWarning();
                 Assert.IsFalse(badge.Visible);
                 Assert.AreEqual("⚠", badge.Text);
                 Assert.AreEqual(Color.DarkGoldenrod, badge.ForeColor);
-                Assert.AreEqual(WarningKind.Unmet, badge.Kind);
-                Assert.IsNull(badge.WarningMessage);
+                Assert.AreEqual("", badge.GetTooltip());
             }
         }
 
@@ -100,11 +96,10 @@ namespace PlayMore35.Tests {
 
                 badge.SetWarnings(warnings);
                 Assert.IsTrue(badge.Visible);
-                Assert.AreEqual(WarningKind.Unmet, badge.Kind, "When any warning is Unmet, overall kind must be Unmet.");
                 Assert.AreEqual("⚠", badge.Text);
                 Assert.AreEqual(Color.DarkGoldenrod, badge.ForeColor);
-                StringAssert.Contains(badge.WarningMessage, "Item reliant A");
-                StringAssert.Contains(badge.WarningMessage, "Missing B");
+                StringAssert.Contains(badge.GetTooltip(), "Item reliant A");
+                StringAssert.Contains(badge.GetTooltip(), "Missing B");
 
                 // When all are ItemDependent
                 var allItemDep = new List<ValidationWarning> {
@@ -114,7 +109,6 @@ namespace PlayMore35.Tests {
 
                 badge.SetWarnings(allItemDep);
                 Assert.IsTrue(badge.Visible);
-                Assert.AreEqual(WarningKind.ItemDependent, badge.Kind);
                 Assert.AreEqual("🛈", badge.Text);
                 Assert.AreEqual(Color.DodgerBlue, badge.ForeColor);
 
@@ -132,14 +126,18 @@ namespace PlayMore35.Tests {
                 // Set Unmet
                 receptor.SetWarning("Missing", WarningKind.Unmet);
                 Assert.IsTrue(receptor.WarningBadgeVisible);
-                Assert.AreEqual(WarningKind.Unmet, receptor.WarningKind);
-                Assert.AreEqual("Missing", receptor.WarningMessage);
+                var unmetBadge = receptor.GetWarningBadge();
+                Assert.AreEqual("⚠", unmetBadge.Text);
+                Assert.AreEqual(Color.DarkGoldenrod, unmetBadge.ForeColor);
+                Assert.AreEqual("Missing", unmetBadge.GetTooltip());
 
                 // Set ItemDependent
                 receptor.SetWarning("Item reliant", WarningKind.ItemDependent);
                 Assert.IsTrue(receptor.WarningBadgeVisible);
-                Assert.AreEqual(WarningKind.ItemDependent, receptor.WarningKind);
-                Assert.AreEqual("Item reliant", receptor.WarningMessage);
+                var itemDepBadge = receptor.GetWarningBadge();
+                Assert.AreEqual("🛈", itemDepBadge.Text);
+                Assert.AreEqual(Color.DodgerBlue, itemDepBadge.ForeColor);
+                StringAssert.Contains(itemDepBadge.GetTooltip(), "Item reliant");
 
                 // SetWarnings helper
                 receptor.SetWarnings(new[] {
@@ -147,7 +145,9 @@ namespace PlayMore35.Tests {
                     new ValidationWarning("Item reliant 2", WarningKind.ItemDependent)
                 });
                 Assert.IsTrue(receptor.WarningBadgeVisible);
-                Assert.AreEqual(WarningKind.ItemDependent, receptor.WarningKind);
+                var setWarningsBadge = receptor.GetWarningBadge();
+                Assert.AreEqual("🛈", setWarningsBadge.Text);
+                Assert.AreEqual(Color.DodgerBlue, setWarningsBadge.ForeColor);
 
                 // Clear
                 receptor.ClearWarning();
@@ -339,8 +339,9 @@ namespace PlayMore35.Tests {
                 picker.SelectElementByName("Martial Spirit");
 
                 Assert.IsTrue(receptor.WarningBadgeVisible);
-                Assert.AreEqual(WarningKind.ItemDependent, receptor.WarningKind, "Badge on receptor must be ItemDependent when requirement is met through equipped gear.");
-                StringAssert.Contains(receptor.WarningMessage, "Requires 1 Devoted Spirit maneuver");
+                var badge = receptor.GetWarningBadge();
+                Assert.AreEqual("🛈", badge.Text, "Badge on receptor must be ItemDependent when requirement is met through equipped gear.");
+                StringAssert.Contains(badge.GetTooltip(), "Requires 1 Devoted Spirit maneuver");
             }
         }
 

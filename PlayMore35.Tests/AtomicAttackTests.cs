@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.Effects;
@@ -102,7 +102,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(RoutineActionType.Standard, routine.ActionType);
             Assert.AreEqual(RoutineCategory.PrimarySolo, routine.Category);
             Assert.AreEqual("Longsword Standard Attack", routine.DisplayName);
-            Assert.AreEqual(0, routine.Weapons.Count);
             Assert.AreEqual(1, routine.Attacks.Count);
             Assert.AreSame(attack, routine.Attacks[0]);
         }

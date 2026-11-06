@@ -7,8 +7,6 @@ using PlayMore35.Global;
 
 namespace PlayMore35.UI {
     public class WarningBadge : Label {
-        public string? WarningMessage { get; private set; }
-        public WarningKind Kind { get; private set; } = WarningKind.Unmet;
         private bool isWarningActive = false;
 
         public new bool Visible {
@@ -28,8 +26,6 @@ namespace PlayMore35.UI {
         }
 
         public void SetWarning(string message, WarningKind kind = WarningKind.Unmet) {
-            WarningMessage = message;
-            Kind = kind;
             if (kind == WarningKind.ItemDependent) {
                 Text = "🛈";
                 ForeColor = Color.DodgerBlue;
@@ -61,8 +57,6 @@ namespace PlayMore35.UI {
         }
 
         public void ClearWarning() {
-            WarningMessage = null;
-            Kind = WarningKind.Unmet;
             Text = "⚠";
             ForeColor = Color.DarkGoldenrod;
             FormUtils.ToolTipTextLabel(this, "");
