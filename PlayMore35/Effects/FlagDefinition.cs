@@ -9,8 +9,6 @@ namespace PlayMore35.Effects {
         public IToggle Show { get; set; } = AlwaysOn.Instance;
         public ActionResource? Resource { get; set; } = null;
 
-        public FlagDefinition() { }
-
         public FlagDefinition(JObject json) {
             Name = (string?)json["name"] ?? "";
             Category = (string?)json["category"] ?? "";
@@ -21,14 +19,6 @@ namespace PlayMore35.Effects {
             if (json["resource"] != null) {
                 Resource = new ActionResource((JObject)json["resource"]!);
             }
-        }
-
-        public FlagDefinition(string name, string category = "", string description = "", IToggle? show = null, ActionResource? resource = null) {
-            Name = name ?? "";
-            Category = category ?? "";
-            Description = description ?? "";
-            Show = show ?? AlwaysOn.Instance;
-            Resource = resource;
         }
 
         public virtual JToken ToJson() {

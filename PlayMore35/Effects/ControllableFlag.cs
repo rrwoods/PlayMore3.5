@@ -14,7 +14,7 @@ namespace PlayMore35.Effects {
         private readonly Character character;
 
         public ControllableFlag(FlagDefinition def, Character character)
-            : base(def.Name, def.Category, def.Description, def.Show, def.Resource) {
+            : base((JObject)(def ?? throw new System.ArgumentNullException(nameof(def))).ToJson()) {
             this.character = character ?? throw new System.ArgumentNullException(nameof(character));
             this.character.flagValues.TryGetValue(Name, out on);
         }
@@ -23,13 +23,6 @@ namespace PlayMore35.Effects {
             : base(json) {
             this.character = character ?? throw new System.ArgumentNullException(nameof(character));
             this.character.flagValues.TryGetValue(Name, out on);
-        }
-
-        public ControllableFlag(string name, Character character, bool on = false)
-            : base(name) {
-            this.character = character ?? throw new System.ArgumentNullException(nameof(character));
-            this.on = on;
-            this.character.flagValues[name] = on;
         }
     }
 }

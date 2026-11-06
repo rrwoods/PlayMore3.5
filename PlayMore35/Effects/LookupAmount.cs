@@ -37,13 +37,6 @@ namespace PlayMore35.Effects {
             }
         }
 
-        public LookupAmount(string basis, Dictionary<int, int> lookup, int missAdjust = 0, int missFactor = 1) {
-            Value = new VariableAmount(basis);
-            Table = lookup;
-            MissLookupAdjust = missAdjust;
-            MissValueFactor = missFactor;
-        }
-
         public int Get(EffectPool pool, Items.Equipped items) {
             int lookup = Value.Get(pool, items);
             int factor = 1;

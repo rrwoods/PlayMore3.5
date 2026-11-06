@@ -20,7 +20,7 @@ namespace PlayMore35.Tests {
             character.Timeline = timeline;
 
             var effects = new EffectPool(character);
-            var flag = new ControllableFlag("TestFlag", character);
+            var flag = TestFactory.CreateControllableFlag("TestFlag", character);
             var param = new ControllableParameter("TestParam", character);
 
             effects.controllableFlags["TestFlag"] = flag;
@@ -179,7 +179,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void SheetAction_ChainedAction_FiresUponExpiration() {
             var (context, flag, _) = CreateTestContext();
-            var fatiguedFlag = new ControllableFlag("Fatigued", context.Character);
+            var fatiguedFlag = TestFactory.CreateControllableFlag("Fatigued", context.Character);
             context.Effects.controllableFlags["Fatigued"] = fatiguedFlag;
 
             var action = new SheetAction()

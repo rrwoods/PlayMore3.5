@@ -859,17 +859,17 @@ namespace PlayMore35.Tests {
             boost.SetProperty("level", 1);
             boost.AddEffect("benefits", boostEffect);
             boost.Verbs["execute"] = new List<SubsystemStep> {
-                new SubsystemStep {
-                    Type = "action",
-                    Action = new SheetAction { Name = "Wind Stride" }.Duration("1 round")
-                }
+                TestFactory.CreateSubsystemStep(
+                    type: "action",
+                    action: new SheetAction { Name = "Wind Stride" }.Duration("1 round")
+                )
             };
             var counter = CreateManeuver("Fire Riposte", "Desert Wind", 2, "Counter");
             counter.Verbs["execute"] = new List<SubsystemStep> {
-                new SubsystemStep {
-                    Type = "action",
-                    Action = new SheetAction { Name = "Fire Riposte" }.Duration("1 round")
-                }
+                TestFactory.CreateSubsystemStep(
+                    type: "action",
+                    action: new SheetAction { Name = "Fire Riposte" }.Duration("1 round")
+                )
             };
             var strike = CreateManeuver("Steel Strike", "Iron Heart", 1, "Strike");
             var content = new FakeRulesCatalog(boost, counter, strike);
