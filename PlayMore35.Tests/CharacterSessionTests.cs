@@ -655,37 +655,6 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void CharacterSession_MutateWithReturn_AppliesChangesAndReturnsValueAndRecomputes() {
-            var character = new Character { race = "human" };
-            character.classLevels = new List<string> { "Fighter", "Fighter" };
-            var session = new CharacterSession(character, catalog);
-
-            var snapBefore = session.GetSessionAtLevel(1);
-
-            int result = session.Mutate(c => {
-                c.assignedAbilityScores["STR"] = 18;
-                return c.assignedAbilityScores["STR"];
-            });
-
-            Assert.AreEqual(18, result);
-            Assert.AreEqual(18, session.Character.assignedAbilityScores["STR"]);
-
-            var context = (ICharacterContext)session;
-            var strVal = context.Effects.GetStat("STR score").GetValue(context.Effects, context.EquippedItems).value;
-            Assert.AreEqual(18, strVal, "STR score must be evaluated dynamically from mutation.");
-
-            var snapAfter = session.GetSessionAtLevel(1);
-            Assert.AreNotSame(snapBefore, snapAfter, "Mutate<T> must invalidate level snapshot cache.");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void CharacterSession_MutateWithReturn_ThrowsArgumentNullException_WhenMutateFuncIsNull() {
-            var session = new CharacterSession(new Character(), catalog);
-            session.Mutate<int>((Func<Character, int>)null!);
-        }
-
-        [TestMethod]
         public void SetFeatChoice_DirectChoice_InvalidatesCachedSnapshotsAndRecalculatesDependentStats() {
             var syntheticFeat = new Feat(new JObject(
                 new JProperty("benefit", new JObject(
@@ -1011,27 +980,6 @@ namespace PlayMore35.Tests {
             Assert.AreNotSame(snap, nextSnap, "SwapWeapons must evict snapshot cache.");
             snap = nextSnap;
 
-            // 9. RemoveEquippedWeapon
-            session.RemoveEquippedWeapon(false);
-            nextSnap = session.GetSessionAtLevel(1);
-            Assert.AreNotSame(snap, nextSnap, "RemoveEquippedWeapon must evict snapshot cache.");
-            snap = nextSnap;
-
-            // 10. RemoveDonnedArmor
-            session.RemoveDonnedArmor();
-            nextSnap = session.GetSessionAtLevel(1);
-            Assert.AreNotSame(snap, nextSnap, "RemoveDonnedArmor must evict snapshot cache.");
-            snap = nextSnap;
-
-            // 11. RemoveEquippedShield
-            session.Character.inventory["Pack"].shields.Add(shield);
-            session.EquipShield("Pack", shield);
-            snap = session.GetSessionAtLevel(1);
-            session.RemoveEquippedShield();
-            nextSnap = session.GetSessionAtLevel(1);
-            Assert.AreNotSame(snap, nextSnap, "RemoveEquippedShield must evict snapshot cache.");
-            snap = nextSnap;
-
             // Re-equip to test UnequipWeapon, UndonArmor, UnequipShield
             session.Character.inventory["Pack"].weapons.Add(sword);
             session.Character.inventory["Pack"].armor.Add(armor);
@@ -1150,30 +1098,7 @@ namespace PlayMore35.Tests {
             var initialSnap = spy.GetSessionAtLevel(1);
             spy.RecalculateCallCount = 0;
 
-            // 1. RemoveEquippedWeapon when empty
-            var weaponRemoved = spy.RemoveEquippedWeapon(true);
-            Assert.IsNull(weaponRemoved);
-            Assert.AreEqual(0, spy.RecalculateCallCount, "Invalid RemoveEquippedWeapon must not recalculate.");
-            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1), "Invalid RemoveEquippedWeapon must not evict snapshot cache.");
-
-            weaponRemoved = spy.RemoveEquippedWeapon(false);
-            Assert.IsNull(weaponRemoved);
-            Assert.AreEqual(0, spy.RecalculateCallCount);
-            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
-
-            // 2. RemoveDonnedArmor when empty
-            var armorRemoved = spy.RemoveDonnedArmor();
-            Assert.IsNull(armorRemoved);
-            Assert.AreEqual(0, spy.RecalculateCallCount, "Invalid RemoveDonnedArmor must not recalculate.");
-            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
-
-            // 3. RemoveEquippedShield when empty
-            var shieldRemoved = spy.RemoveEquippedShield();
-            Assert.IsNull(shieldRemoved);
-            Assert.AreEqual(0, spy.RecalculateCallCount, "Invalid RemoveEquippedShield must not recalculate.");
-            Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));
-
-            // 4. UnequipWeapon when empty or invalid location
+            // 1. UnequipWeapon when empty or invalid location
             spy.UnequipWeapon("Pack", true);
             Assert.AreEqual(0, spy.RecalculateCallCount, "UnequipWeapon on empty slot must not recalculate.");
             Assert.AreSame(initialSnap, spy.GetSessionAtLevel(1));

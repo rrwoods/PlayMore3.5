@@ -158,6 +158,8 @@ public class ReachabilityAnalyzer {
                         target = model.GetSymbolInfo(invocation).Symbol;
                     } else if (callSite is ObjectCreationExpressionSyntax creation) {
                         target = model.GetSymbolInfo(creation).Symbol;
+                    } else if (callSite is ConstructorInitializerSyntax init) {
+                        target = model.GetSymbolInfo(init).Symbol;
                     } else if (callSite is IdentifierNameSyntax or MemberAccessExpressionSyntax) {
                         target = model.GetSymbolInfo(callSite).Symbol;
                     }
@@ -248,6 +250,8 @@ public class ReachabilityAnalyzer {
                         target = model.GetSymbolInfo(invocation).Symbol;
                     } else if (callSite is ObjectCreationExpressionSyntax creation) {
                         target = model.GetSymbolInfo(creation).Symbol;
+                    } else if (callSite is ConstructorInitializerSyntax init) {
+                        target = model.GetSymbolInfo(init).Symbol;
                     } else if (callSite is IdentifierNameSyntax or MemberAccessExpressionSyntax) {
                         target = model.GetSymbolInfo(callSite).Symbol;
                     }
@@ -364,6 +368,11 @@ public class ReachabilityAnalyzer {
             return true;
         }
 
+        // Authorized domain API annotation or contract
+        if (HasAuthorizedDomainApi(symbol)) {
+            return true;
+        }
+
         var containingType = symbol.ContainingType;
         if (containingType != null) {
             bool isForm = containingType.Name.EndsWith("Form") || IsSubclassOf(containingType, "Form");
@@ -377,6 +386,57 @@ public class ReachabilityAnalyzer {
             if (symbol.IsOverride && (isForm || IsSubclassOf(containingType, "Control", "Component"))) {
                 return true;
             }
+
+            // Standard object overrides on public types (Equals, GetHashCode, ToString)
+            if (symbol.IsOverride && symbol.DeclaredAccessibility == Accessibility.Public &&
+                (symbol.Name is "Equals" or "GetHashCode" or "ToString")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool HasAuthorizedDomainApi(IMethodSymbol symbol) {
+        if (HasAuthorizedDomainApiAttribute(symbol)) {
+            return true;
+        }
+
+        var containingType = symbol.ContainingType;
+        if (containingType != null) {
+            if (HasAuthorizedDomainApiAttribute(containingType)) {
+                return true;
+            }
+
+            foreach (var iface in containingType.AllInterfaces) {
+                if (HasAuthorizedDomainApiAttribute(iface)) {
+                    var ifaceMethod = iface.GetMembers().OfType<IMethodSymbol>()
+                        .FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(containingType.FindImplementationForInterfaceMember(m)?.OriginalDefinition, symbol));
+                    if (ifaceMethod != null) {
+                        return true;
+                    }
+                } else {
+                    var ifaceMethod = iface.GetMembers().OfType<IMethodSymbol>()
+                        .FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(containingType.FindImplementationForInterfaceMember(m)?.OriginalDefinition, symbol));
+                    if (ifaceMethod != null && HasAuthorizedDomainApiAttribute(ifaceMethod)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool HasAuthorizedDomainApiAttribute(ISymbol symbol) {
+        if (symbol.GetAttributes().Any(a =>
+            a.AttributeClass != null &&
+            (a.AttributeClass.Name == "AuthorizedDomainApiAttribute" || a.AttributeClass.Name == "AuthorizedDomainApi"))) {
+            return true;
+        }
+
+        if (symbol is IMethodSymbol method && method.AssociatedSymbol != null) {
+            return HasAuthorizedDomainApiAttribute(method.AssociatedSymbol);
         }
 
         return false;

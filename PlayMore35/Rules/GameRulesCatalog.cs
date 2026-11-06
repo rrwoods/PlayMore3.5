@@ -8,11 +8,13 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
+using PlayMore35.Global;
 using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Rules {
+    [AuthorizedDomainApi("Intentional shared rules catalog implementation")]
     public class GameRulesCatalog : IRulesCatalog {
         private readonly string? saveDir;
 

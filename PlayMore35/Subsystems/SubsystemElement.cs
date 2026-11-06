@@ -110,23 +110,7 @@ namespace PlayMore35.Subsystems {
             return new StatView(statName, GetProperty<int>(propertyName));
         }
 
-        public StatView GetStatistic(string propertyName, ICharacterSession session) {
-            var statName = GetStatisticName(propertyName);
-            if (session is ICharacterContext ctx && ctx.Effects != null && !ctx.Effects.stats.ContainsKey(statName)) {
-                return new StatView(statName, GetProperty<int>(propertyName));
-            }
-            if (session != null) {
-                var stat = session.GetStatistic(statName);
-                if (stat != null && (stat.Value != 0 || (stat.Explanation != null && stat.Explanation.Count > 0))) {
-                    return stat;
-                }
-            }
-            return new StatView(statName, GetProperty<int>(propertyName));
-        }
-
-        public StatView GetStatistic(string propertyName, CharacterSession session) =>
-            GetStatistic(propertyName, (ICharacterSession)session);
-
+        [AuthorizedDomainApi("Subsystem element raw statistic resolution")]
         public StatView GetStatistic(string propertyName) =>
             new StatView(GetStatisticName(propertyName), GetProperty<int>(propertyName));
 
@@ -169,6 +153,7 @@ namespace PlayMore35.Subsystems {
             }
         }
 
+        [AuthorizedDomainApi("Programmatic effect registration on subsystem elements")]
         public void AddEffect(string category, Effect effect) {
             if (string.IsNullOrEmpty(category) || effect == null) return;
             if (!Effects.TryGetValue(category, out var list)) {

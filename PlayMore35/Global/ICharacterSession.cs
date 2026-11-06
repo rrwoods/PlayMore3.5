@@ -34,9 +34,6 @@ namespace PlayMore35.Global {
         void DonArmor(string from, ArmorChoice armorChoice);
         void EquipShield(string from, ArmorChoice shieldChoice);
         void EquipItem(string from, Equipped.Slot to, string itemName);
-        WeaponChoice? RemoveEquippedWeapon(bool primary);
-        ArmorChoice? RemoveDonnedArmor();
-        ArmorChoice? RemoveEquippedShield();
         void UnequipWeapon(string to, bool primary);
         void UndonArmor(string to);
         void UnequipShield(string to);
@@ -68,6 +65,7 @@ namespace PlayMore35.Global {
         IReadOnlyList<AttackRoutine> GetVisibleRoutines();
         Dictionary<string, List<Text>> GetTextEffects();
 
+        [AuthorizedDomainApi("Intentional domain engine contract for LengthOfTime progression")]
         TimelineAdvanceResult AdvanceTimeline(LengthOfTime duration);
         TimelineAdvanceResult AdvanceTimeline(long rounds);
         TimelineAdvanceResult SetTime(DateTime time);
@@ -88,7 +86,9 @@ namespace PlayMore35.Global {
         object ResolveFeatChoice(string featSlot, ChoiceDescriptor descriptor);
         string ResolveClassChoice(string featSlot, ChoiceDescriptor descriptor);
         bool IsClassEligible(string className, string filter);
+        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         void SetFeatChoice(string featSlot, string choice);
+        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         void SetFeatChoice(string featSlot, string key, string choice);
         string GetFeatChoice(string featSlot, string key = null);
         IReadOnlyList<ValidationWarning> ValidateProgressionChoice(ProgressionChoiceContext context);

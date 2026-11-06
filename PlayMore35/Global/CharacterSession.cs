@@ -92,15 +92,6 @@ namespace PlayMore35.Global {
             _levelSessionCache.Clear();
         }
 
-        internal T Mutate<T>(Func<Character, T> mutate) {
-            if (mutate == null) throw new ArgumentNullException(nameof(mutate));
-            var result = mutate(character);
-            character.Timeline.Context = this;
-            InvalidateLevelSnapshots();
-            Recalculate();
-            return result;
-        }
-
         public void Mutate(Action<Character> mutate) {
             if (mutate == null) throw new ArgumentNullException(nameof(mutate));
             mutate(character);
@@ -412,41 +403,16 @@ namespace PlayMore35.Global {
             return removed;
         }
 
-        public WeaponChoice? RemoveEquippedWeapon(bool primary) {
-            WeaponChoice? current = primary ? character.equipped.PrimaryHandWeapon : character.equipped.OffHandWeapon;
-            if (current == null) {
-                return null;
-            }
-
-            return Mutate(c => RemoveEquippedWeaponCore(primary));
-        }
-
         private ArmorChoice? RemoveDonnedArmorCore() {
             ArmorChoice? removed = character.equipped.DonnedArmor;
             character.equipped.DonnedArmor = null;
             return removed;
         }
 
-        public ArmorChoice? RemoveDonnedArmor() {
-            if (character.equipped.DonnedArmor == null) {
-                return null;
-            }
-
-            return Mutate(c => RemoveDonnedArmorCore());
-        }
-
         private ArmorChoice? RemoveEquippedShieldCore() {
             ArmorChoice? removed = character.equipped.OffHandShield;
             character.equipped.OffHandShield = null;
             return removed;
-        }
-
-        public ArmorChoice? RemoveEquippedShield() {
-            if (character.equipped.OffHandShield == null) {
-                return null;
-            }
-
-            return Mutate(c => RemoveEquippedShieldCore());
         }
 
         public int RemoveItem(string from, string itemName, int quantity) {
@@ -1011,12 +977,14 @@ namespace PlayMore35.Global {
                 .AsReadOnly();
         }
 
+        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         public void SetFeatChoice(string featSlot, string choice) {
             Mutate(c => {
                 c.featChoices[featSlot] = choice;
             });
         }
 
+        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         public void SetFeatChoice(string featSlot, string key, string choice) {
             Mutate(c => {
                 c.featChoices[$"{featSlot}:{key}"] = choice;
@@ -1425,6 +1393,7 @@ namespace PlayMore35.Global {
             return effects.GetTextEffects(equippedItems);
         }
 
+        [AuthorizedDomainApi("Intentional domain engine contract for LengthOfTime progression")]
         public TimelineAdvanceResult AdvanceTimeline(LengthOfTime? duration) {
             if (duration == null) return new TimelineAdvanceResult();
             return AdvanceTimeline(duration.InRounds());

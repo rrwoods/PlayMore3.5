@@ -18,15 +18,6 @@ namespace PlayMore35.Effects {
             Scalar = (decimal)json["scalar"]!;
         }
 
-        public MultiplyAmount(decimal multiplier, IAmount amount) {
-            Scalar = multiplier;
-            Variable = amount;
-        }
-
-        public MultiplyAmount(decimal multiplier, string stat)
-            : this(multiplier, new VariableAmount(stat)) {
-
-        }
 
         public int Get(EffectPool pool, Items.Equipped items) {
             return (int) Math.Floor(Scalar * Variable.Get(pool, items));
