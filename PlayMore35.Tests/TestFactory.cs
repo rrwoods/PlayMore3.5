@@ -75,5 +75,38 @@ namespace PlayMore35.Tests {
             }
             return new CharacterClass(json);
         }
+
+        public static Attack CreateAttack(
+            string name,
+            int bonus,
+            DiceGroup baseDamage,
+            IEnumerable<DiceGroup>? bonusDice = null,
+            IEnumerable<DiceGroup>? criticalBonusDice = null,
+            int criticalMultiplier = 2,
+            int threatRange = 20,
+            int rangeIncrement = 0) {
+            var bDice = (bonusDice ?? Enumerable.Empty<DiceGroup>()).ToList();
+            var cbDice = criticalBonusDice != null
+                ? criticalBonusDice.ToList()
+                : new List<DiceGroup>(bDice);
+
+            var attack = (Attack)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Attack));
+            var type = typeof(Attack);
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic;
+
+            type.GetField("WeaponName", flags)!.SetValue(attack, name);
+            type.GetField("WeaponTags", flags)!.SetValue(attack, new List<string>());
+            attack.AttackBonus = (bonus, new List<string> { $"+{bonus} base attack" });
+            type.GetProperty("BaseDamage", flags)!.SetValue(attack, baseDamage);
+            type.GetProperty("BonusDice", flags)!.SetValue(attack, bDice.AsReadOnly());
+            type.GetProperty("CriticalBonusDice", flags)!.SetValue(attack, cbDice.AsReadOnly());
+            type.GetProperty("CriticalMultiplier", flags)!.SetValue(attack, criticalMultiplier);
+            type.GetProperty("ThreatRange", flags)!.SetValue(attack, threatRange);
+            type.GetProperty("RangeIncrement", flags)!.SetValue(attack, rangeIncrement);
+            type.GetProperty("DamageExplanation", flags)!.SetValue(attack, new List<string> { baseDamage?.ToString() ?? "" });
+            type.GetProperty("CriticalDamageExplanation", flags)!.SetValue(attack, new List<string> { $"{baseDamage?.ToString()} ×{criticalMultiplier}" });
+
+            return attack;
+        }
     }
 }
