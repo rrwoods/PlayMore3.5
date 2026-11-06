@@ -22,11 +22,22 @@ When instructed to "check for dead code", follow this procedure:
 2. **Read the generated report**: Inspect `reports/dead-code-report.md`.
 3. **Report findings neutrally**: Present the detected islands, their entry roots, downstream cascades, and artificial life-support tests with file links.
 4. **Classify candidates**: For any island under discussion, assess which category best explains its reachability:
-   - **True Dead Code**: Obsolete, superseded logic ready for pruning.
-   - **Unhooked Seam**: Real feature logic waiting for UI or session integration.
-   - **Scanner Blindspot**: Invoked via reflection, JSON serialization, or dynamic events.
-   - **Test Seam**: Intentional helper for test harness construction.
+   - **True Dead Code**: Obsolete, superseded logic ready for pruning (including uncalled parameterless constructors and obsolete event handlers).
+   - **Test Seam**: Logic that exists solely to be called by tests (in-memory constructors, test inspection helpers, test automation hooks). Production assemblies must not carry test-only scaffolding; flag these as candidates for relocation to `PlayMore35.Tests`.
+   - **Unhooked Seam**: Real feature logic with test coverage waiting for UI or session integration.
+   - **Scanner Blindspot**: Unindexed syntax forms (such as static field declarations or constructor initializer chaining `: this(...)`).
 5. **Ask the user to confirm the intended resolution**: Present findings and classifications, then wait for human direction before editing or pruning any code.
+
+---
+
+## Explicit Construction & Constructor Trust
+
+All domain hydration in this codebase is explicit C# code via `new T(JObject json)` constructors or static factory methods (see `CODING_STANDARDS.md` and `docs/adr/0008-explicit-constructor-deserialization-and-schema-stability.md`). Production never uses reflection-based activation or implicit deserialization.
+
+Because all production construction paths exist explicitly in the Roslyn syntax tree, **trust the scanner's reachability findings on constructors**:
+
+- **Parameterless constructors** with zero callers are **True Dead Code** (or **Test Seams** if called exclusively by `FakeRulesCatalog` object initializers). They are never hidden JSON deserialization points.
+- **Positional constructors** unreached by production roots are candidates to be **Relocated to Tests** (as test factory helpers) or pruned if obsolete.
 
 ---
 
@@ -36,7 +47,7 @@ When instructed to "check for dead code", follow this procedure:
 - **Live Methods**: Transitive call-graph closure reachable from Production Roots (including interface implementations and virtual dispatch).
 - **Dead Methods**: Any production method with zero reachable paths from Production Roots.
 - **Zombie Island**: A cluster of dead methods that appear active because members call each other (cascades) or unit tests call into them.
-- **Artificial Life Support**: Unit tests that target unreachable production methods. While useful during test-first development, they can mask abandoned features if the code is never wired to production.
+- **Artificial Life Support**: Unit tests that target unreachable production methods. Production assemblies must not retain methods solely to satisfy tests. Flag test-only seams as candidates to move into the test package whenever feasible.
 - **Isolated Dead Methods**: Standalone dead methods with zero callers and zero test references.
 
 ---
@@ -58,5 +69,6 @@ When instructed to "check for dead code", follow this procedure:
 Once the human confirms the desired resolution:
 
 - **Prune**: Delete the dead production methods and remove their artificial life-support tests together in one atomic change.
+- **Relocate to Tests**: Move test-only convenience constructors, builder methods, or inspection helpers out of the production project (`PlayMore35`) and into the test project (`PlayMore35.Tests`) as test extension methods, test factories, or test-assembly helpers, keeping the production surface clean.
 - **Wire Up**: Connect the island root to its intended UI event handler or production workflow.
 - **Expand Roots**: Deepen `ReachabilityAnalyzer.IsProductionRoot` to recognize the dynamic entry point.

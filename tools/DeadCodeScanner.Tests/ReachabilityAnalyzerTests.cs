@@ -157,4 +157,39 @@ public class LonelyService {
         Assert.HasCount(0, result.ZombieIslands, "Completely unreferenced method should not be a ZombieIsland");
         Assert.HasCount(1, result.IsolatedDeadMethods, "Completely unreferenced method should be in IsolatedDeadMethods");
     }
+
+    [TestMethod]
+    public void Analyze_ExtensionMethodInvocation_ResolvesDeclaringMethodAsLive() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class Target {
+}
+
+public static class TargetExtensions {
+    public static Target Initialize(this Target target) {
+        DownstreamWork();
+        return target;
+    }
+
+    private static void DownstreamWork() {}
+}
+
+public class Program {
+    public static void Main() {
+        var t = new Target().Initialize();
+    }
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "Initialize"), "TargetExtensions.Initialize should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "DownstreamWork"), "DownstreamWork should be Live");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "Initialize"), "Initialize should not be Dead");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "DownstreamWork"), "DownstreamWork should not be Dead");
+    }
 }

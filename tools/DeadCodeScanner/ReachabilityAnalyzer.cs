@@ -163,7 +163,8 @@ public class ReachabilityAnalyzer {
                     }
 
                     if (target is IMethodSymbol targetMethod) {
-                        AddCallEdge(callerOriginal, targetMethod.OriginalDefinition);
+                        var actualMethod = targetMethod.ReducedFrom ?? targetMethod;
+                        AddCallEdge(callerOriginal, actualMethod.OriginalDefinition);
                     } else if (target is IPropertySymbol targetProp) {
                         bool isAssignmentTarget = callSite.Parent is AssignmentExpressionSyntax assign && assign.Left == callSite;
                         var propMethod = isAssignmentTarget ? targetProp.SetMethod : targetProp.GetMethod;
@@ -252,7 +253,8 @@ public class ReachabilityAnalyzer {
                     }
 
                     if (target is IMethodSymbol targetMethod) {
-                        string targetDisplay = targetMethod.OriginalDefinition.ToDisplayString();
+                        var actualMethod = targetMethod.ReducedFrom ?? targetMethod;
+                        string targetDisplay = actualMethod.OriginalDefinition.ToDisplayString();
                         if (deadMethodsByDisplayString.Contains(targetDisplay)) {
                             foreach (var deadNode in deadMethodsByDisplayString[targetDisplay]) {
                                 if (!testCallsToDead.TryGetValue(deadNode.Id, out var testSet)) {
