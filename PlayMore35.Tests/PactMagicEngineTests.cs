@@ -742,7 +742,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(15, aym.GetStatistic("binding DC").Value);
             Assert.AreEqual(20, amon.GetStatistic("binding DC").Value);
             Assert.AreEqual(15, aym.GetStatistic("binding DC", (ICharacterContext)null).Value);
-            Assert.AreEqual(20, amon.GetStatistic("binding DC", (ICharacterSession)null).Value);
         }
 
         [TestMethod]

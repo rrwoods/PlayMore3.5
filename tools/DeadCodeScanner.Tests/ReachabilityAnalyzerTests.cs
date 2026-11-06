@@ -192,4 +192,79 @@ public class Program {
         Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "Initialize"), "Initialize should not be Dead");
         Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "DownstreamWork"), "DownstreamWork should not be Dead");
     }
+
+    [TestMethod]
+    public void Analyze_ConstructorInitializer_ResolvesChainedConstructorAsLive() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class ChainedClass {
+    public ChainedClass() : this(42) {}
+    public ChainedClass(int val) {
+        DownstreamFromChained();
+    }
+    private static void DownstreamFromChained() {}
+}
+
+public class Program {
+    public static void Main() {
+        var c = new ChainedClass();
+    }
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == ".ctor" && m.ContainingType.EndsWith("ChainedClass")), "Chained constructor should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "DownstreamFromChained"), "Method called by chained constructor should be Live");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "DownstreamFromChained"), "DownstreamFromChained should not be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_AuthorizedDomainApiAttribute_RecognizesAnnotatedMethodAndInterfaceAsRoot() {
+        string prodSource = @"
+using System;
+
+namespace PlayMore35;
+
+[AttributeUsage(AttributeTargets.All)]
+public class AuthorizedDomainApiAttribute : Attribute {}
+
+[AuthorizedDomainApi]
+public interface IAuthorizedContract {
+    void ContractMethod();
+}
+
+public class AuthorizedService : IAuthorizedContract {
+    public void ContractMethod() {
+        ContractWork();
+    }
+    private void ContractWork() {}
+
+    [AuthorizedDomainApi]
+    public void StandaloneAuthorizedApi() {
+        StandaloneWork();
+    }
+    private void StandaloneWork() {}
+}
+
+public class Program {
+    public static void Main() {}
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "ContractMethod"), "ContractMethod should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "ContractWork"), "ContractWork should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StandaloneAuthorizedApi"), "StandaloneAuthorizedApi should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StandaloneWork"), "StandaloneWork should be Live");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "StandaloneAuthorizedApi"), "StandaloneAuthorizedApi should not be Dead");
+    }
 }

@@ -234,16 +234,19 @@ namespace PlayMore35.Effects {
             return copy;
         }
 
+        [AuthorizedDomainApi("Fluent effect construction for subsystem slots")]
         public Effect AddSlot(SubsystemSlotGrant grant) {
             Slots.Add(grant);
             return this;
         }
 
+        [AuthorizedDomainApi("Fluent effect construction for parameters")]
         public Effect SetParameter(string parameter) {
             Parameter = parameter;
             return this;
         }
 
+        [AuthorizedDomainApi("Fluent effect construction for sheet actions")]
         public Effect AddAction(SheetAction action) {
             associatedAction.Add(action);
             return this;
@@ -262,6 +265,7 @@ namespace PlayMore35.Effects {
             return this;
         }
 
+        [AuthorizedDomainApi("Fluent effect construction for attack modifiers")]
         public Effect AddAttackModifier(AttackMatcher affects, Modifier mod) {
             mod.Name = Name;
             AttackModifiers.Add(new Alterer<Modifier, Attack> {

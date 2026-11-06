@@ -21,20 +21,6 @@ namespace PlayMore35.Effects {
             Right = Amount.FromJson(obj["right"]!)!;
         }
 
-        public ConditionalToggle(IAmount left, Relation relationship, IAmount right) {
-            Left = left;
-            Relationship = relationship;
-            Right = right;
-        }
-
-        public ConditionalToggle(IAmount left, Relation relationship, int right)
-            : this(left, relationship, new FixedAmount(right)) {
-
-        }
-
-        public ConditionalToggle(string left, Relation relationship, int right)
-            : this(new VariableAmount(left), relationship, new FixedAmount(right)) {
-        }
 
         public bool On(EffectPool pool, Items.Equipped items) {
             int left = Left.Get(pool, items);

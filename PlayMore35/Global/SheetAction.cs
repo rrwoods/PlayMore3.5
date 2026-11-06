@@ -20,11 +20,11 @@ namespace PlayMore35.Global {
         public string Source { get; set; } = null;
         public SubsystemTransition Transition { get; set; } = null;
         public SubsystemPoolOperation PoolOperation { get; set; } = null;
-        string duration = null; // null for instantaneous, effect will not be reversed
-        private readonly List<string> flagsToSet = new List<string>();
-        private readonly List<string> flagsToClear = new List<string>();
-        private readonly Dictionary<string, int> paramsToAdjust = new Dictionary<string, int>();
-        List<SheetAction> actionsAfter = new List<SheetAction>(); // actions to fire at the end of the duration
+        internal string duration = null; // null for instantaneous, effect will not be reversed
+        internal readonly List<string> flagsToSet = new List<string>();
+        internal readonly List<string> flagsToClear = new List<string>();
+        internal readonly Dictionary<string, int> paramsToAdjust = new Dictionary<string, int>();
+        internal List<SheetAction> actionsAfter = new List<SheetAction>(); // actions to fire at the end of the duration
 
         public JToken ToJson() {
             JObject json = new JObject();
@@ -230,29 +230,6 @@ namespace PlayMore35.Global {
             }
 
             return requirement;
-        }
-
-        public bool Matches(SheetAction action) {
-            if (action == null) return false;
-            bool baseMatches = Name == action.Name &&
-                   duration == action.duration &&
-                   flagsToSet.SequenceEqual(action.flagsToSet) &&
-                   flagsToClear.SequenceEqual(action.flagsToClear) &&
-                   paramsToAdjust.Count == action.paramsToAdjust.Count && !paramsToAdjust.Except(action.paramsToAdjust).Any() &&
-                   actionsAfter.Count == action.actionsAfter.Count && (actionsAfter.Zip(action.actionsAfter, (x, y) => x.Matches(y)).All(x => x));
-
-            if (!baseMatches) return false;
-
-            if (!string.IsNullOrEmpty(Subsystem) || !string.IsNullOrEmpty(action.Subsystem)) {
-                if (!string.Equals(Subsystem, action.Subsystem, StringComparison.OrdinalIgnoreCase)) return false;
-                if (!string.Equals(Verb, action.Verb, StringComparison.OrdinalIgnoreCase)) return false;
-                if (!string.Equals(SlotGroup, action.SlotGroup, StringComparison.OrdinalIgnoreCase)) return false;
-                if (SlotIndex != action.SlotIndex) return false;
-                if (!string.Equals(Element, action.Element, StringComparison.OrdinalIgnoreCase)) return false;
-                if (!string.Equals(Source, action.Source, StringComparison.OrdinalIgnoreCase)) return false;
-            }
-
-            return true;
         }
     }
 }

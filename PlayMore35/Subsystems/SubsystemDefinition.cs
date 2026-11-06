@@ -256,6 +256,7 @@ namespace PlayMore35.Subsystems {
 
         public IReadOnlyDictionary<string, object> Properties => _properties;
 
+        [AuthorizedDomainApi("Domain API for reading taxonomy properties")]
         public T GetProperty<T>(string key, T defaultValue = default) {
             if (string.IsNullOrEmpty(key)) return defaultValue;
             if (_properties.TryGetValue(key, out var val) && val != null) {

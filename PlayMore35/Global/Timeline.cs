@@ -72,6 +72,7 @@ namespace PlayMore35.Global {
 
         public DateTime CurrentTime => RoundZero.AddSeconds(CurrentRound * 6);
 
+        [AuthorizedDomainApi("Intentional domain entry point for timeline advance")]
         public TimelineAdvanceResult Advance(long rounds = 1) {
             return Advance(rounds, Context);
         }
@@ -282,12 +283,6 @@ namespace PlayMore35.Global {
                 scheduledActions[absoluteRound] = new List<SheetAction>();
             }
             scheduledActions[absoluteRound].Add(action);
-        }
-
-        public void Unschedule(SheetAction action) {
-            foreach (var sched in scheduledActions) {
-                sched.Value.RemoveAll(x => x.Matches(action));
-            }
         }
     }
 }

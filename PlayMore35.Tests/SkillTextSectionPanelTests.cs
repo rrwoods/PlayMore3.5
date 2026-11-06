@@ -37,9 +37,15 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Sightless", decl3.DisableReason);
         }
 
+        private static SkillTextSectionPanel CreatePanel(string category, params SkillDeclaration[] skills) {
+            var panel = new SkillTextSectionPanel { Category = category };
+            panel.SkillDeclarations.AddRange(skills);
+            return panel;
+        }
+
         [TestMethod]
         public void SkillTextSectionPanel_InitializesControlsCorrectly() {
-            var panel = new SkillTextSectionPanel("Senses",
+            var panel = CreatePanel("Senses",
                 new SkillDeclaration(LISTEN, disableCondition: "deafened"),
                 new SkillDeclaration(SPOT, disableCondition: "blinded")
             );
@@ -53,7 +59,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SkillTextSectionPanel_Update_HandlesActiveAndDisabledConditions() {
-            var panel = new SkillTextSectionPanel("Senses",
+            var panel = CreatePanel("Senses",
                 new SkillDeclaration(LISTEN, disableCondition: "deafened"),
                 new SkillDeclaration(SPOT, disableCondition: "blinded")
             );
@@ -209,7 +215,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SkillTextSectionPanel_HeaderAndSkillLabels_TopMarginsAligned() {
-            var panel = new SkillTextSectionPanel("Exploration",
+            var panel = CreatePanel("Exploration",
                 new SkillDeclaration(SURVIVAL),
                 new SkillDeclaration(SEARCH)
             );

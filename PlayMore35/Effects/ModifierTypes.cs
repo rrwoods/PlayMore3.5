@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using PlayMore35.Global;
 
 namespace PlayMore35.Effects {
     public static class ModifierTypes {
@@ -56,6 +57,7 @@ namespace PlayMore35.Effects {
         private static readonly HashSet<string> ValidSet =
             new HashSet<string>(All, StringComparer.OrdinalIgnoreCase);
 
+        [AuthorizedDomainApi("Domain validation API for modifier stacking types")]
         public static bool IsValid(string type) {
             return !string.IsNullOrWhiteSpace(type) && ValidSet.Contains(type.Trim());
         }

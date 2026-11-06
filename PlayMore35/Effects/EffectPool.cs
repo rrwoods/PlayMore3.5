@@ -454,6 +454,7 @@ namespace PlayMore35.Effects {
             AddStats(feat.NewStats);
         }
 
+        [AuthorizedDomainApi("Convenience overload for single-choice feat effect generation")]
         public void GenerateFeatEffects(Feat feat, string choice) {
             GenerateFeatEffects(feat, string.IsNullOrEmpty(choice) ? Enumerable.Empty<string>() : new[] { choice });
         }

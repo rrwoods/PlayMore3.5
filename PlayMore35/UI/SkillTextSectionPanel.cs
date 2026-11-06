@@ -35,10 +35,6 @@ namespace PlayMore35 {
         public SkillTextSectionPanel() {
         }
 
-        public SkillTextSectionPanel(string category, params SkillDeclaration[] skills) {
-            Category = category;
-            SkillDeclarations.AddRange(skills);
-        }
 
         public override void Initialize(MainForm mainForm) {
             base.Initialize(mainForm);
