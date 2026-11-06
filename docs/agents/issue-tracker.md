@@ -55,3 +55,11 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 When creating tickets from a prototype that explored multiple design variants:
 - **Clean reference chain**: Ensure the chain of references the agent follows never leads to a discarded variant.
 - **Strip discarded variants**: When choosing a variant, remove all discarded alternatives from the ticket description, acceptance criteria, and context pointers so the agent sees only the chosen design.
+
+## Dead-code remediation tickets
+
+When authoring or generating tickets to remediate dead code detected by the scanner:
+- **Callout note**: Always include an explicit callout banner at the top of the ticket body:
+  > [!NOTE]
+  > This ticket was created as a result of a dead code scan. Targets and artificial life-support tests are already identified; do not run the dead code scanner upfront. Proceed directly to pruning code and running unit tests.
+- **Explicit target lists**: Explicitly list all dead production members and artificial life-support tests with exact file paths (see `docs/agents/dead-code.md`).
