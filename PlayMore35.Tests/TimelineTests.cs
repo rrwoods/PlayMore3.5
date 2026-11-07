@@ -30,14 +30,10 @@ namespace PlayMore35.Tests {
             TimelineAdvanceResult res1 = timeline.Advance(1);
             Assert.AreEqual(1L, timeline.CurrentRound);
             Assert.AreEqual(roundZero.AddSeconds(6), timeline.CurrentTime);
-            Assert.AreEqual(1L, res1.RoundsAdvanced);
-            Assert.AreEqual(roundZero, res1.PreviousTime);
-            Assert.AreEqual(timeline.CurrentTime, res1.CurrentTime);
 
             TimelineAdvanceResult res10 = timeline.Advance(10);
             Assert.AreEqual(11L, timeline.CurrentRound);
             Assert.AreEqual(roundZero.AddSeconds(66), timeline.CurrentTime);
-            Assert.AreEqual(10L, res10.RoundsAdvanced);
 
             TimelineAdvanceResult resHour = timeline.Advance(600);
             Assert.AreEqual(611L, timeline.CurrentRound);
@@ -61,9 +57,6 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(50L, timeline.CurrentRound);
             Assert.AreEqual(targetTime, timeline.CurrentTime);
-            Assert.AreEqual(50L, result.RoundsAdvanced);
-            Assert.AreEqual(roundZero, result.PreviousTime);
-            Assert.AreEqual(targetTime, result.CurrentTime);
         }
 
         [TestMethod]

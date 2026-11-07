@@ -9,8 +9,6 @@ using PlayMore35.Subsystems;
 namespace PlayMore35.Global {
     public interface ICharacterSession {
         IReadOnlyCharacter Character { get; }
-        IReadOnlyDictionary<string, string> RememberedFeats { get; }
-        IReadOnlyDictionary<string, string> RememberedFeatChoices { get; }
         Timeline Timeline { get; }
         IRulesCatalog Catalog { get; }
         IEnumerable<SubsystemEngine> Subsystems { get; }
@@ -20,9 +18,6 @@ namespace PlayMore35.Global {
         IReadOnlyList<string> SubTypes { get; }
         decimal TotalWeight { get; }
         decimal EquippedWeight { get; }
-        int LightLoad { get; }
-        int MediumLoad { get; }
-        int HeavyLoad { get; }
 
         bool HasFlag(string flag);
         TimelineRefreshRequirement PerformAction(SheetAction action);

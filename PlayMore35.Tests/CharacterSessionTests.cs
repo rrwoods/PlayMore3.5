@@ -74,7 +74,7 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             session.SetFlag("charging", true);
-            Assert.IsTrue(session.Character.flagValues.ContainsKey("charging") && session.Character.flagValues["charging"]);
+            Assert.IsTrue(session.HasFlag("charging"));
 
             var context = (ICharacterContext)session;
             Assert.IsTrue(context.Effects.controllableFlags["charging"].On);
@@ -136,10 +136,10 @@ namespace PlayMore35.Tests {
                 .Duration("1 round");
 
             action.Perform((ICharacterContext)session);
-            Assert.IsTrue(session.Character.flagValues["charging"]);
+            Assert.IsTrue(session.HasFlag("charging"));
 
             var result = session.AdvanceTimeline(new LengthOfTime("1 round"));
-            Assert.IsFalse(session.Character.flagValues["charging"]);
+            Assert.IsFalse(session.HasFlag("charging"));
         }
 
         [TestMethod]
@@ -497,8 +497,8 @@ namespace PlayMore35.Tests {
             Assert.IsNull(snapNoEquip.Character.equipped.PrimaryHandWeapon, "Equipped weapons must be omitted.");
             Assert.IsNull(snapNoEquip.Character.equipped.DonnedArmor, "Donned armor must be omitted.");
             Assert.AreEqual(0, snapNoEquip.Character.inventory.Count, "Carried inventory locations must be omitted.");
-            Assert.AreEqual(0, snapNoEquip.Character.externalEffects.Count, "External effects must be omitted.");
-            Assert.AreEqual(0, snapNoEquip.Character.flagValues.Count, "Combat toggles must be omitted.");
+            Assert.AreEqual(0, ((ICharacterContext)snapNoEquip).Character.externalEffects.Count, "External effects must be omitted.");
+            Assert.AreEqual(0, ((ICharacterContext)snapNoEquip).Character.flagValues.Count, "Combat toggles must be omitted.");
             Assert.AreEqual(0, snapNoEquip.Character.paramValues.Count, "Controllable parameters must be omitted.");
             Assert.IsFalse(snapNoEquip.HasFlag("charging"), "Combat flags must not be active in snapshot.");
             Assert.AreEqual(0, snapNoEquip.GetStatistic("Lethal damage").Value, "Combat parameters must be zeroed in snapshot.");
@@ -532,7 +532,7 @@ namespace PlayMore35.Tests {
 
             // Carried inventory and combat toggles are still omitted
             Assert.AreEqual(0, snapEquipped.Character.inventory.Count, "Carried inventory remains omitted even with includeEquipped true.");
-            Assert.AreEqual(0, snapEquipped.Character.flagValues.Count, "Combat toggles remain omitted even with includeEquipped true.");
+            Assert.AreEqual(0, ((ICharacterContext)snapEquipped).Character.flagValues.Count, "Combat toggles remain omitted even with includeEquipped true.");
             Assert.IsFalse(snapEquipped.HasFlag("charging"));
         }
 

@@ -119,9 +119,9 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("humanoid", session.CreatureType);
             CollectionAssert.Contains(session.SubTypes.ToList(), "human");
 
-            Assert.IsTrue(session.LightLoad > 0);
-            Assert.IsTrue(session.MediumLoad > session.LightLoad);
-            Assert.IsTrue(session.HeavyLoad > session.MediumLoad);
+            Assert.IsTrue(session.GetStatistic(LIGHT_LOAD).Value > 0);
+            Assert.IsTrue(session.GetStatistic(MEDIUM_LOAD).Value > session.GetStatistic(LIGHT_LOAD).Value);
+            Assert.IsTrue(session.GetStatistic(HEAVY_LOAD).Value > session.GetStatistic(MEDIUM_LOAD).Value);
 
             var allRoutines = session.GetAllRoutines();
             Assert.IsNotNull(allRoutines);
@@ -143,7 +143,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["STR"] = 10;
             var session = new CharacterSession(character, catalog);
 
-            int initialHeavyLoad = session.HeavyLoad;
+            int initialHeavyLoad = session.GetStatistic(HEAVY_LOAD).Value;
             var initialStr = session.GetStatistic("STR score");
             Assert.AreEqual(10, initialStr.Value);
 
@@ -153,7 +153,7 @@ namespace PlayMore35.Tests {
 
             var updatedStr = session.GetStatistic("STR score");
             Assert.AreEqual(18, updatedStr.Value);
-            Assert.IsTrue(session.HeavyLoad > initialHeavyLoad, "Heavy load should increase with higher STR.");
+            Assert.IsTrue(session.GetStatistic(HEAVY_LOAD).Value > initialHeavyLoad, "Heavy load should increase with higher STR.");
         }
 
         [TestMethod]

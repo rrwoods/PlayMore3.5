@@ -219,10 +219,11 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void CharacterSession_TwoWaySync_EngineMutationsSyncToCharacterSubsystems() {
             var (session, _, engine) = CreateSyntheticSession();
+            var character = ((ICharacterContext)session).Character;
 
             // 1. Assign slot updates Character.Subsystems
             engine.AssignSlot("flasks", 0, "Acid Flask", state: "prepared", source: "GuildAlchemist");
-            var state = session.Character.Subsystems["synthetic_alchemy"];
+            var state = character.Subsystems["synthetic_alchemy"];
             Assert.AreEqual(1, state.Slots["flasks"].Count);
             Assert.AreEqual("Acid Flask", state.Slots["flasks"][0].Element);
             Assert.AreEqual("prepared", state.Slots["flasks"][0].State);
@@ -230,19 +231,19 @@ namespace PlayMore35.Tests {
 
             // 2. Clear slot updates Character.Subsystems
             engine.AssignSlot("flasks", 1, "Fire Flask", state: "empty", source: "HedgeWizard");
-            Assert.AreEqual(2, session.Character.Subsystems["synthetic_alchemy"].Slots["flasks"].Count);
+            Assert.AreEqual(2, character.Subsystems["synthetic_alchemy"].Slots["flasks"].Count);
             engine.ClearSlot("flasks", 1);
-            Assert.AreEqual(1, session.Character.Subsystems["synthetic_alchemy"].Slots["flasks"].Count);
+            Assert.AreEqual(1, character.Subsystems["synthetic_alchemy"].Slots["flasks"].Count);
 
             // 3. Pool operations update Character.Subsystems
             engine.SetPoolValue("catalyst", 6);
-            Assert.AreEqual(6, session.Character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
+            Assert.AreEqual(6, character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
 
             engine.ConsumePool("catalyst", 2);
-            Assert.AreEqual(4, session.Character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
+            Assert.AreEqual(4, character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
 
             engine.RechargePool("catalyst", 5);
-            Assert.AreEqual(9, session.Character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
+            Assert.AreEqual(9, character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
 
             // 4. Transitions update Character.Subsystems
             engine.ExecuteTransition(new SubsystemTransition {
@@ -252,19 +253,20 @@ namespace PlayMore35.Tests {
                 FromState = "prepared",
                 ToState = "expended"
             });
-            Assert.AreEqual("expended", session.Character.Subsystems["synthetic_alchemy"].Slots["flasks"][0].State);
+            Assert.AreEqual("expended", character.Subsystems["synthetic_alchemy"].Slots["flasks"][0].State);
         }
 
         [TestMethod]
         public void CharacterSession_TwoWaySync_CharacterSubsystemsMutationsSyncToEngineUponRecalculate() {
             var (session, _, engine) = CreateSyntheticSession();
+            var character = ((ICharacterContext)session).Character;
 
             engine.AssignSlot("flasks", 0, "Acid Flask", state: "prepared");
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 0).State);
 
             // Directly mutate Character.Subsystems
-            session.Character.Subsystems["synthetic_alchemy"].Slots["flasks"][0].State = "expended";
-            session.Character.Subsystems["synthetic_alchemy"].Pools["catalyst"] = 3;
+            character.Subsystems["synthetic_alchemy"].Slots["flasks"][0].State = "expended";
+            character.Subsystems["synthetic_alchemy"].Pools["catalyst"] = 3;
 
             // Recalculate synchronizes Character.Subsystems into SubsystemEngine
             session.Recalculate();

@@ -840,12 +840,12 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 0, "Iron Shell", "inactive");
             session.Recalculate();
             var ctx = (ICharacterContext)session;
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Iron Shell Stance"));
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Iron Shell Stance"));
 
             // Active slot -> generic projection of template effect
             engine.SetSlotState("stances", 0, "active");
             session.Recalculate();
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Iron Shell Stance"));
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Iron Shell Stance"));
             Assert.IsTrue(session.GetControllableParameters().Any(p => p.Name == "Iron Shell Stance active"));
             int baseFort = session.GetStatistic(PlayMore35.Effects.Constants.FORT_SAVES).Value;
 

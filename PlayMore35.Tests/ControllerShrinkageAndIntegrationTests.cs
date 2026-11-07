@@ -75,28 +75,28 @@ namespace PlayMore35.Tests {
 
             // Reload character and verify effects contributed
             session.Recalculate();
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be active in EffectPool.");
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"), "Good Pact should not contribute influence effect.");
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be active in EffectPool.");
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"), "Good Pact should not contribute influence effect.");
 
             // Override pact state to Poor Pact and defy once
             engine.AssignSlot("vestiges", 0, "Aym", "poor_pact", "Binder");
             session.Recalculate();
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should still be active in EffectPool.");
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"), "Poor Pact should contribute influence effect.");
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"), "SubsystemEngine should not hardcode Vestige defiance.");
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should still be active in EffectPool.");
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"), "Poor Pact should contribute influence effect.");
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Vestige defiance"), "SubsystemEngine should not hardcode Vestige defiance.");
 
             int baseSaves = session.GetStatistic(FORT_SAVES).Value;
-            var influenceEffect = ctx.Effects.Effects.First(e => e.Name == "Aym's influence");
+            var influenceEffect = ctx.Effects.GetEffects().First(e => e.Name == "Aym's influence");
             session.PerformAction(influenceEffect.associatedAction.Single());
             Assert.AreEqual(1, session.Character.paramValues["Aym's influence defied"]);
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"), "Defied influence remains active.");
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"), "Defied influence remains active.");
             Assert.AreEqual(baseSaves - 1, session.GetStatistic(FORT_SAVES).Value);
 
             // Re-bind with Good Pact and schedule 24-hour expiration on timeline
             engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
             session.Recalculate();
             Assert.AreEqual(0, session.Character.paramValues["Aym's influence defied"], "Rebinding resets defiance parameter to 0.");
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"));
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym Ability Effect"));
 
             session.Timeline.Schedule(new SheetAction {
                 Subsystem = "pact_magic",
@@ -115,7 +115,7 @@ namespace PlayMore35.Tests {
             // Verify slot is cleared and effects removed
             Assert.IsNull(engine.GetSlotElement("vestiges", 0), "Slot 0 should be unbound after 24 hours.");
             Assert.AreEqual("empty", engine.GetSlotState("vestiges", 0));
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be removed after 24 hours.");
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Aym Ability Effect"), "Aym Ability Effect should be removed after 24 hours.");
         }
 
         [TestMethod]

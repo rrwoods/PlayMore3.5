@@ -73,7 +73,7 @@ namespace PlayMore35.Tests {
             var pool = new EffectPool(new Character());
             pool.GenerateClassEffects(@class, 1);
             Assert.IsTrue(pool.stats.ContainsKey("generic capacity"));
-            Assert.IsTrue(pool.Effects.Any(e => e.Name == "generic feature effect"));
+            Assert.IsTrue(pool.GetEffects().Any(e => e.Name == "generic feature effect"));
         }
 
         [TestMethod]

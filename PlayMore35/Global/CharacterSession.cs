@@ -26,8 +26,6 @@ namespace PlayMore35.Global {
             new ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession>();
 
         public IReadOnlyCharacter Character => readOnlyCharacter;
-        public IReadOnlyDictionary<string, string> RememberedFeats => rememberedFeats;
-        public IReadOnlyDictionary<string, string> RememberedFeatChoices => rememberedFeatChoices;
         public Timeline Timeline => character.Timeline;
         public IRulesCatalog Catalog => catalog;
         public IEnumerable<SubsystemEngine> Subsystems => _subsystems.Values;
@@ -41,9 +39,6 @@ namespace PlayMore35.Global {
         public IReadOnlyList<string> SubTypes => effects.SubTypes.AsReadOnly();
         public decimal TotalWeight => equippedItems.TotalWeight();
         public decimal EquippedWeight => equippedItems.EquippedWeight();
-        public int LightLoad => GetStatistic(LIGHT_LOAD).Value;
-        public int MediumLoad => GetStatistic(MEDIUM_LOAD).Value;
-        public int HeavyLoad => GetStatistic(HEAVY_LOAD).Value;
 
         // ICharacterContext explicit / collaborator implementation
         Character ICharacterContext.Character => character;

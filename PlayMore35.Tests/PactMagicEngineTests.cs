@@ -168,16 +168,16 @@ namespace PlayMore35.Tests {
             // Ability grants +2 competence to STR score (10 base + 2 = 12)
             Assert.AreEqual(12, session.GetStatistic(STR_SCORE).Value);
             // No influence effect
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name.Contains("influence")));
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name.Contains("influence")));
             // No defiance effect
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"));
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Vestige defiance"));
 
             // 2. Poor Pact (0 defiances): contributes granted abilities + influence (0 penalty)
             engine.SetSlotState("vestiges", 0, "poor_pact");
             session.Recalculate();
 
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Vestige defiance"));
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"));
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Vestige defiance"));
             var savesAtZero = session.GetStatistic(FORT_SAVES);
             Assert.AreEqual(2, savesAtZero.Value);
             Assert.IsFalse(savesAtZero.Explanation.Any(s => s.Contains("influence")));
@@ -186,7 +186,7 @@ namespace PlayMore35.Tests {
             session.SetParameter("Aym's influence defied", 2);
             session.Recalculate();
 
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"));
             var savesDefied = session.GetStatistic(FORT_SAVES);
             Assert.AreEqual(0, savesDefied.Value);
             CollectionAssert.Contains(savesDefied.Explanation.ToList(), "–2 Aym's influence");
@@ -565,8 +565,8 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(slot);
             Assert.AreEqual("Aym", slot.Element);
             Assert.AreEqual("good_pact", slot.State);
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym Granted Ability"));
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"));
 
             // 2. Bind poor pact via declarative SheetAction
             session.PerformAction(new SheetAction {
@@ -584,8 +584,8 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(slot);
             Assert.AreEqual("Aym", slot.Element);
             Assert.AreEqual("poor_pact", slot.State);
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
-            Assert.IsTrue(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym Granted Ability"));
+            Assert.IsTrue(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"));
 
             // 3. Unbind via declarative SheetAction
             session.PerformAction(new SheetAction {
@@ -598,8 +598,8 @@ namespace PlayMore35.Tests {
 
             slot = engine.GetSlot("vestiges", 0);
             Assert.IsTrue(string.IsNullOrEmpty(slot.Element) || slot.State == "empty");
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym Granted Ability"));
-            Assert.IsFalse(ctx.Effects.Effects.Any(e => e.Name == "Aym's influence"));
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Aym Granted Ability"));
+            Assert.IsFalse(ctx.Effects.GetEffects().Any(e => e.Name == "Aym's influence"));
         }
 
         [TestMethod]
