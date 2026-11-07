@@ -14,7 +14,7 @@ namespace PlayMore35.UI.Subsystems {
         private readonly WarningBadge _warningBadge;
         private SubsystemElement? _selectedElement;
         private bool _isActiveSelecting;
-        private string _placeholderText = "(Choose element...)";
+        private readonly string _placeholderText = "(Choose element...)";
 
         public event EventHandler? Activated;
         public event EventHandler? ElementCleared;
@@ -57,14 +57,6 @@ namespace PlayMore35.UI.Subsystems {
             UpdateVisualState();
         }
 
-        public string PlaceholderText {
-            get => _placeholderText;
-            set {
-                _placeholderText = value;
-                UpdateVisualState();
-            }
-        }
-
         public SubsystemElement? SelectedElement {
             get => _selectedElement;
             set {
@@ -82,17 +74,6 @@ namespace PlayMore35.UI.Subsystems {
                 }
             }
         }
-
-        public ReceptorState State {
-            get {
-                if (_isActiveSelecting) return ReceptorState.ActiveSelecting;
-                return _selectedElement != null ? ReceptorState.Made : ReceptorState.Unmade;
-            }
-        }
-
-        public bool ClearButtonVisible => _clearButton.Visible;
-        public bool WarningBadgeVisible => _warningBadge.Visible;
-        public string DisplayText => _label.Text;
 
         public void PerformClick() {
             Activated?.Invoke(this, EventArgs.Empty);

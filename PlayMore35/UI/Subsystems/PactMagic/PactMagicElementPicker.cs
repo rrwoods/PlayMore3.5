@@ -30,27 +30,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         public event Action<SubsystemElement?>? VestigeSelected;
 
         public Control Control => this;
-        public IReadOnlyList<VestigeCardControl> Cards => _cards;
-        public int VisibleCardsCount => _cards.Count(c => c.Visible && !c.IsBound);
-        public FlowLayoutPanel PinnedContainer => _pinnedContainer;
-        public FlowLayoutPanel CardsContainer => _cardsContainer;
         public VestigeCardControl? SelectedCard => _selectedCard;
-
-        public string SearchQuery {
-            get => _searchBox.Text;
-            set {
-                _searchBox.Text = value;
-                ApplyFilter();
-            }
-        }
-
-        public bool HideUnavailable {
-            get => _hideUnavailableCheckBox.Checked;
-            set {
-                _hideUnavailableCheckBox.Checked = value;
-                ApplyFilter();
-            }
-        }
 
         public PactMagicElementPicker(ICharacterSession session, ElementPickerContext context) {
             _session = session ?? throw new ArgumentNullException(nameof(session));

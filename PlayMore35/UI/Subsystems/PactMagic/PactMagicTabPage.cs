@@ -21,14 +21,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly Label _lblDetailsInfluence;
         private readonly Label _lblDetailsAbilities;
 
-        public int SlotsColumnWidth => _leftColumn.Width;
-        public PactMagicElementPicker Picker => _picker;
-        public string DetailsHeader => _lblDetailsTitle.Text;
-        public string DetailsSignText => _lblDetailsSign.Text;
-        public string DetailsInfluenceText => _lblDetailsInfluence.Text;
-        public string DetailsAbilitiesText => _lblDetailsAbilities.Text;
-        public bool IsEmptyPromptVisible => _lblEmptyPrompt.Visible;
-
         public PactMagicTabPage(ISubsystemUIHost host) {
             _host = host ?? throw new ArgumentNullException(nameof(host));
 

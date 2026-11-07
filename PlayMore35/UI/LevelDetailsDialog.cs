@@ -630,9 +630,6 @@ namespace PlayMore35 {
                 ElementType = elementType,
                 Filter = desc.Filter,
                 AcquisitionLevel = slotLevel,
-                InitialSelections = receptor.SelectedElement != null
-                    ? new[] { receptor.SelectedElement }
-                    : Array.Empty<SubsystemElement>(),
                 WarningProvider = (elem) => {
                     var currentChoices = GetCurrentProgressionChoices();
                     currentChoices[$"{state.FeatSlot}:{desc.Id}"] = elem.Name;

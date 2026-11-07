@@ -121,11 +121,11 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ElementReceptorControl_VisualModes_UnmetAndItemDependent() {
             using (var receptor = new ElementReceptorControl()) {
-                Assert.IsFalse(receptor.WarningBadgeVisible);
+                Assert.IsFalse(receptor.IsWarningBadgeVisible());
 
                 // Set Unmet
                 receptor.SetWarning("Missing", WarningKind.Unmet);
-                Assert.IsTrue(receptor.WarningBadgeVisible);
+                Assert.IsTrue(receptor.IsWarningBadgeVisible());
                 var unmetBadge = receptor.GetWarningBadge();
                 Assert.AreEqual("⚠", unmetBadge.Text);
                 Assert.AreEqual(Color.DarkGoldenrod, unmetBadge.ForeColor);
@@ -133,7 +133,7 @@ namespace PlayMore35.Tests {
 
                 // Set ItemDependent
                 receptor.SetWarning("Item reliant", WarningKind.ItemDependent);
-                Assert.IsTrue(receptor.WarningBadgeVisible);
+                Assert.IsTrue(receptor.IsWarningBadgeVisible());
                 var itemDepBadge = receptor.GetWarningBadge();
                 Assert.AreEqual("🛈", itemDepBadge.Text);
                 Assert.AreEqual(Color.DodgerBlue, itemDepBadge.ForeColor);
@@ -144,14 +144,14 @@ namespace PlayMore35.Tests {
                     new ValidationWarning("Item reliant 1", WarningKind.ItemDependent),
                     new ValidationWarning("Item reliant 2", WarningKind.ItemDependent)
                 });
-                Assert.IsTrue(receptor.WarningBadgeVisible);
+                Assert.IsTrue(receptor.IsWarningBadgeVisible());
                 var setWarningsBadge = receptor.GetWarningBadge();
                 Assert.AreEqual("🛈", setWarningsBadge.Text);
                 Assert.AreEqual(Color.DodgerBlue, setWarningsBadge.ForeColor);
 
                 // Clear
                 receptor.ClearWarning();
-                Assert.IsFalse(receptor.WarningBadgeVisible);
+                Assert.IsFalse(receptor.IsWarningBadgeVisible());
             }
         }
 
@@ -338,7 +338,7 @@ namespace PlayMore35.Tests {
                 // Select Martial Spirit (requires 1 Devoted Spirit maneuver, satisfied by Crown of White Raven)
                 picker.SelectElementByName("Martial Spirit");
 
-                Assert.IsTrue(receptor.WarningBadgeVisible);
+                Assert.IsTrue(receptor.IsWarningBadgeVisible());
                 var badge = receptor.GetWarningBadge();
                 Assert.AreEqual("🛈", badge.Text, "Badge on receptor must be ItemDependent when requirement is met through equipped gear.");
                 StringAssert.Contains(badge.GetTooltip(), "Requires 1 Devoted Spirit maneuver");

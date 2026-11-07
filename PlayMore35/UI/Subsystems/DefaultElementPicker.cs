@@ -25,16 +25,12 @@ namespace PlayMore35.UI.Subsystems {
         public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered;
 
         public Control Control => this;
-        public Panel DetailsPane => _detailsPanel;
-        public Button DetailsToggleButton => _btnToggleDetails;
-        public bool IsDetailsExpanded => _isDetailsExpanded;
-        public string DetailsText => _lblDetails.Text;
 
-        public void ToggleDetailsPane() {
+        private void ToggleDetailsPane() {
             SetDetailsExpanded(!_isDetailsExpanded);
         }
 
-        public void SetDetailsExpanded(bool expanded) {
+        private void SetDetailsExpanded(bool expanded) {
             _isDetailsExpanded = expanded;
             _detailsPanel.Visible = expanded;
             _btnToggleDetails.Text = expanded ? "▼ Hide Details" : "▲ Show Details";
@@ -80,22 +76,6 @@ namespace PlayMore35.UI.Subsystems {
 
             InitializeComponent();
             ApplyFilter();
-        }
-
-        public string SearchFilterText {
-            get => _searchBox.Text;
-            set {
-                _searchBox.Text = value;
-                ApplyFilter();
-            }
-        }
-
-        public bool HideInvalidChoices {
-            get => _hideInvalidCheckBox.Checked;
-            set {
-                _hideInvalidCheckBox.Checked = value;
-                ApplyFilter();
-            }
         }
 
         private void InitializeComponent() {

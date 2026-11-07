@@ -54,8 +54,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
         public bool IsInvalid => _warnings.Any(w => w.Kind == WarningKind.Unmet);
 
-        public string StatusToolTip => FormUtils.TOOLTIP.GetToolTip(_lblStatus);
-
         public bool IsBound {
             get => _isBound;
             set {
@@ -95,12 +93,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly Button _btnPoorPact;
         private readonly Button _btnUnbind;
         private readonly Label _lblCapacityNotice;
-
-        public Button GoodPactButton => _btnGoodPact;
-        public Button PoorPactButton => _btnPoorPact;
-        public Button UnbindButton => _btnUnbind;
-        public Label StatusLabel => _lblStatus;
-        public Label CapacityNoticeLabel => _lblCapacityNotice;
 
         public VestigeCardControl(SubsystemElement vestige) {
             _vestige = vestige ?? throw new ArgumentNullException(nameof(vestige));

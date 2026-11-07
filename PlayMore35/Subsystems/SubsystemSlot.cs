@@ -129,8 +129,6 @@ namespace PlayMore35.Subsystems {
         public string Op { get; set; } = "consume";
         public int Amount { get; set; } = 0;
 
-        public SubsystemPoolOperation() { }
-
         public SubsystemPoolOperation(string? pool, string? op, int amount) {
             Pool = pool ?? "";
             Op = op ?? "consume";
@@ -160,8 +158,6 @@ namespace PlayMore35.Subsystems {
         public string? Source { get; set; }
         public List<int>? SelectedIndices { get; set; }
 
-        public SubsystemTarget() { }
-
         public SubsystemTarget(string? slotGroup = null, int? slotIndex = null, string? element = null, string? source = null, List<int>? selectedIndices = null) {
             SlotGroup = slotGroup;
             SlotIndex = slotIndex;
@@ -176,8 +172,6 @@ namespace PlayMore35.Subsystems {
         public string SlotGroup { get; set; } = "";
         public string Element { get; set; } = "";
         public string Source { get; set; } = "";
-
-        public SubsystemSlotGrant() { }
 
         public SubsystemSlotGrant(string? subsystem, string? slotGroup, string? element, string? source) {
             Subsystem = subsystem ?? "";

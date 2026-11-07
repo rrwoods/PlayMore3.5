@@ -6,10 +6,10 @@ using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemState : IJsonable {
-        public Dictionary<string, List<SubsystemSlot>> Slots { get; set; } =
+        public Dictionary<string, List<SubsystemSlot>> Slots { get; } =
             new Dictionary<string, List<SubsystemSlot>>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, int> Pools { get; set; } =
+        public Dictionary<string, int> Pools { get; } =
             new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         public SubsystemState() { }
