@@ -31,7 +31,8 @@ public class MarkdownReportFormatterTests {
         string markdown = formatter.Format(result);
 
         StringAssert.Contains(markdown, "# Dead Code & Zombie Island Report");
-        StringAssert.Contains(markdown, "PlayMore35.Zombie");
+        StringAssert.Contains(markdown, "### `PlayMore35.Zombie`");
+        Assert.DoesNotContain("### Island 1", markdown, "Report should not contain ordinal island numbers.");
         StringAssert.Contains(markdown, "Root");
         StringAssert.Contains(markdown, "Child");
         StringAssert.Contains(markdown, "TestRoot");
