@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -23,8 +24,9 @@ public class ReachabilityAnalyzer {
             var location = original.Locations.FirstOrDefault();
             var lineSpan = location?.GetLineSpan();
             var filePath = lineSpan?.Path ?? "";
-            var line = (lineSpan?.StartLinePosition.Line ?? 0) + 1;
+            if (IsIgnoredSourceFile(filePath)) return;
 
+            var line = (lineSpan?.StartLinePosition.Line ?? 0) + 1;
             bool isRoot = IsProductionRoot(original);
             string methodId = $"{original.ToDisplayString()}@{filePath}:{line}";
             var methodNode = new MethodNode(
@@ -44,6 +46,7 @@ public class ReachabilityAnalyzer {
         // 1. Collect all declared methods, constructors, and properties
         var allNamedTypes = new List<INamedTypeSymbol>();
         foreach (var tree in prodCompilation.SyntaxTrees) {
+            if (IsIgnoredSourceFile(tree.FilePath)) continue;
             var model = prodCompilation.GetSemanticModel(tree);
             var root = tree.GetRoot();
 
@@ -62,6 +65,20 @@ public class ReachabilityAnalyzer {
                     var typeSymbol = model.GetDeclaredSymbol(node) as INamedTypeSymbol;
                     if (typeSymbol != null) {
                         allNamedTypes.Add(typeSymbol);
+                    }
+                }
+            }
+        }
+
+        // Register static constructors and implicit constructors for named types
+        foreach (var type in allNamedTypes) {
+            if (type.TypeKind == TypeKind.Class || type.TypeKind == TypeKind.Struct) {
+                if (type.StaticConstructors.FirstOrDefault() is { } staticCtor) {
+                    RegisterMethod(staticCtor);
+                }
+                foreach (var ctor in type.InstanceConstructors) {
+                    if (ctor.IsImplicitlyDeclared) {
+                        RegisterMethod(ctor);
                     }
                 }
             }
@@ -127,52 +144,112 @@ public class ReachabilityAnalyzer {
             }
         }
 
+        // Wire class initialization to static constructor
+        foreach (var type in allNamedTypes) {
+            if (type.TypeKind == TypeKind.Class || type.TypeKind == TypeKind.Struct) {
+                if (type.StaticConstructors.FirstOrDefault() is { } staticCtor) {
+                    var staticCtorOrig = staticCtor.OriginalDefinition;
+                    // Calling any instance constructor initializes the class
+                    foreach (var ctor in type.InstanceConstructors) {
+                        AddCallEdge(ctor.OriginalDefinition, staticCtorOrig);
+                    }
+                    // Calling any static method initializes the class
+                    foreach (var member in type.GetMembers().OfType<IMethodSymbol>().Where(m => m.IsStatic && m.MethodKind == MethodKind.Ordinary)) {
+                        AddCallEdge(member.OriginalDefinition, staticCtorOrig);
+                    }
+                    // Calling any static property initializes the class
+                    foreach (var prop in type.GetMembers().OfType<IPropertySymbol>().Where(p => p.IsStatic)) {
+                        if (prop.GetMethod != null) AddCallEdge(prop.GetMethod.OriginalDefinition, staticCtorOrig);
+                        if (prop.SetMethod != null) AddCallEdge(prop.SetMethod.OriginalDefinition, staticCtorOrig);
+                    }
+                }
+            }
+        }
+
+        void RecordCallsFromNode(ISymbol callerOriginal, SyntaxNode node, SemanticModel model) {
+            foreach (var callSite in node.DescendantNodesAndSelf()) {
+                ISymbol? target = null;
+                if (callSite is InvocationExpressionSyntax invocation) {
+                    target = model.GetSymbolInfo(invocation).Symbol;
+                } else if (callSite is ObjectCreationExpressionSyntax creation) {
+                    target = model.GetSymbolInfo(creation).Symbol;
+                } else if (callSite is ConstructorInitializerSyntax init) {
+                    target = model.GetSymbolInfo(init).Symbol;
+                } else if (callSite is IdentifierNameSyntax or MemberAccessExpressionSyntax) {
+                    target = model.GetSymbolInfo(callSite).Symbol;
+                }
+
+                if (target is IMethodSymbol targetMethod) {
+                    var actualMethod = targetMethod.ReducedFrom ?? targetMethod;
+                    AddCallEdge(callerOriginal, actualMethod.OriginalDefinition);
+                } else if (target is IPropertySymbol targetProp) {
+                    bool isAssignmentTarget = callSite.Parent is AssignmentExpressionSyntax assign && assign.Left == callSite;
+                    var propMethod = isAssignmentTarget ? targetProp.SetMethod : targetProp.GetMethod;
+                    if (propMethod != null) {
+                        AddCallEdge(callerOriginal, propMethod.OriginalDefinition);
+                    }
+                } else if (target is IFieldSymbol targetField && targetField.IsStatic && targetField.ContainingType != null) {
+                    if (targetField.ContainingType.StaticConstructors.FirstOrDefault() is { } fieldStaticCtor) {
+                        AddCallEdge(callerOriginal, fieldStaticCtor.OriginalDefinition);
+                    }
+                }
+            }
+        }
+
         foreach (var tree in prodCompilation.SyntaxTrees) {
+            if (IsIgnoredSourceFile(tree.FilePath)) continue;
             var model = prodCompilation.GetSemanticModel(tree);
             var root = tree.GetRoot();
 
             foreach (var node in root.DescendantNodes()) {
-                IMethodSymbol? callerSymbol = null;
-                if (node is MethodDeclarationSyntax methodDecl) {
-                    callerSymbol = model.GetDeclaredSymbol(methodDecl);
-                } else if (node is ConstructorDeclarationSyntax ctorDecl) {
-                    callerSymbol = model.GetDeclaredSymbol(ctorDecl);
-                } else if (node is AccessorDeclarationSyntax accessorDecl) {
-                    callerSymbol = model.GetDeclaredSymbol(accessorDecl);
-                } else if (node is ArrowExpressionClauseSyntax arrow && node.Parent is PropertyDeclarationSyntax propDecl) {
+                if (node is FieldDeclarationSyntax fieldDecl) {
+                    bool isStatic = fieldDecl.Modifiers.Any(SyntaxKind.StaticKeyword);
+                    foreach (var variable in fieldDecl.Declaration.Variables) {
+                        if (variable.Initializer == null) continue;
+                        var fieldSymbol = model.GetDeclaredSymbol(variable) as IFieldSymbol;
+                        var containingType = fieldSymbol?.ContainingType;
+                        if (containingType == null) continue;
+
+                        if (isStatic) {
+                            if (containingType.StaticConstructors.FirstOrDefault() is { } staticCtor) {
+                                RecordCallsFromNode(staticCtor.OriginalDefinition, variable.Initializer.Value, model);
+                            }
+                        } else {
+                            foreach (var ctor in containingType.InstanceConstructors) {
+                                RecordCallsFromNode(ctor.OriginalDefinition, variable.Initializer.Value, model);
+                            }
+                        }
+                    }
+                } else if (node is PropertyDeclarationSyntax propDecl && propDecl.Initializer != null) {
+                    bool isStatic = propDecl.Modifiers.Any(SyntaxKind.StaticKeyword);
                     var propSymbol = model.GetDeclaredSymbol(propDecl);
-                    callerSymbol = propSymbol?.GetMethod;
-                }
-
-                if (callerSymbol == null) {
-                    continue;
-                }
-                var callerOriginal = callerSymbol.OriginalDefinition;
-                if (!prodMethods.ContainsKey(callerOriginal)) {
-                    continue;
-                }
-
-                foreach (var callSite in node.DescendantNodes()) {
-                    ISymbol? target = null;
-                    if (callSite is InvocationExpressionSyntax invocation) {
-                        target = model.GetSymbolInfo(invocation).Symbol;
-                    } else if (callSite is ObjectCreationExpressionSyntax creation) {
-                        target = model.GetSymbolInfo(creation).Symbol;
-                    } else if (callSite is ConstructorInitializerSyntax init) {
-                        target = model.GetSymbolInfo(init).Symbol;
-                    } else if (callSite is IdentifierNameSyntax or MemberAccessExpressionSyntax) {
-                        target = model.GetSymbolInfo(callSite).Symbol;
+                    var containingType = propSymbol?.ContainingType;
+                    if (containingType != null) {
+                        if (isStatic) {
+                            if (containingType.StaticConstructors.FirstOrDefault() is { } staticCtor) {
+                                RecordCallsFromNode(staticCtor.OriginalDefinition, propDecl.Initializer.Value, model);
+                            }
+                        } else {
+                            foreach (var ctor in containingType.InstanceConstructors) {
+                                RecordCallsFromNode(ctor.OriginalDefinition, propDecl.Initializer.Value, model);
+                            }
+                        }
+                    }
+                } else {
+                    IMethodSymbol? callerSymbol = null;
+                    if (node is MethodDeclarationSyntax methodDecl) {
+                        callerSymbol = model.GetDeclaredSymbol(methodDecl);
+                    } else if (node is ConstructorDeclarationSyntax ctorDecl) {
+                        callerSymbol = model.GetDeclaredSymbol(ctorDecl);
+                    } else if (node is AccessorDeclarationSyntax accessorDecl) {
+                        callerSymbol = model.GetDeclaredSymbol(accessorDecl);
+                    } else if (node is ArrowExpressionClauseSyntax && node.Parent is PropertyDeclarationSyntax parentPropDecl) {
+                        var propSymbol = model.GetDeclaredSymbol(parentPropDecl);
+                        callerSymbol = propSymbol?.GetMethod;
                     }
 
-                    if (target is IMethodSymbol targetMethod) {
-                        var actualMethod = targetMethod.ReducedFrom ?? targetMethod;
-                        AddCallEdge(callerOriginal, actualMethod.OriginalDefinition);
-                    } else if (target is IPropertySymbol targetProp) {
-                        bool isAssignmentTarget = callSite.Parent is AssignmentExpressionSyntax assign && assign.Left == callSite;
-                        var propMethod = isAssignmentTarget ? targetProp.SetMethod : targetProp.GetMethod;
-                        if (propMethod != null) {
-                            AddCallEdge(callerOriginal, propMethod.OriginalDefinition);
-                        }
+                    if (callerSymbol != null && prodMethods.ContainsKey(callerSymbol.OriginalDefinition)) {
+                        RecordCallsFromNode(callerSymbol.OriginalDefinition, node, model);
                     }
                 }
             }
@@ -206,8 +283,17 @@ public class ReachabilityAnalyzer {
 
         foreach (var (symbol, node) in prodMethods) {
             if (visited.Contains(symbol)) {
+                if (symbol is IMethodSymbol ms && ms.IsImplicitlyDeclared) {
+                    continue;
+                }
                 liveMethods.Add(node);
             } else {
+                if (symbol is IMethodSymbol ms && ms.IsImplicitlyDeclared) {
+                    continue;
+                }
+                if (IsIgnoredSourceFile(node.FilePath)) {
+                    continue;
+                }
                 deadMethods.Add(node);
                 deadSymbolsSet.Add(symbol);
             }
@@ -366,6 +452,14 @@ public class ReachabilityAnalyzer {
         }
 
         return new AnalysisResult(liveMethods, deadMethods, islands, isolatedDead);
+    }
+
+    private static bool IsIgnoredSourceFile(string filePath) {
+        if (string.IsNullOrEmpty(filePath)) return false;
+        var fileName = Path.GetFileName(filePath);
+        return fileName.Equals("NullableAttributes.cs", StringComparison.OrdinalIgnoreCase) ||
+               fileName.Equals("Resources.Designer.cs", StringComparison.OrdinalIgnoreCase) ||
+               fileName.Equals("Settings.Designer.cs", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsProductionRoot(IMethodSymbol symbol) {

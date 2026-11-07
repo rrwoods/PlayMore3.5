@@ -8,9 +8,24 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace DeadCodeScanner.Tests;
 
 public static class TestCompilationHelper {
-    public static CSharpCompilation CreateCompilation(string assemblyName, string source, IEnumerable<MetadataReference>? extraReferences = null) {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest));
+    public static CSharpCompilation CreateCompilation(
+        string assemblyName,
+        string source,
+        IEnumerable<MetadataReference>? extraReferences = null,
+        string filePath = "") {
+        var syntaxTree = CSharpSyntaxTree.ParseText(
+            source,
+            CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest),
+            path: filePath
+        );
 
+        return CreateCompilation(assemblyName, new[] { syntaxTree }, extraReferences);
+    }
+
+    public static CSharpCompilation CreateCompilation(
+        string assemblyName,
+        IEnumerable<SyntaxTree> syntaxTrees,
+        IEnumerable<MetadataReference>? extraReferences = null) {
         var references = new List<MetadataReference> {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
@@ -23,7 +38,7 @@ public static class TestCompilationHelper {
 
         return CSharpCompilation.Create(
             assemblyName,
-            new[] { syntaxTree },
+            syntaxTrees,
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         );
