@@ -91,8 +91,8 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                Assert.AreEqual(360, tabPage.SlotsColumnWidth);
-                Assert.IsTrue(tabPage.IsEmptyPromptVisible, "Initial state should show empty prompt in details panel.");
+                Assert.AreEqual(360, tabPage.GetSlotsColumnWidth());
+                Assert.IsTrue(tabPage.GetIsEmptyPromptVisible(), "Initial state should show empty prompt in details panel.");
             }
         }
 
@@ -113,14 +113,14 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                tabPage.Picker.DeliverVestigeByName("Amon");
+                tabPage.GetPicker().DeliverVestigeByName("Amon");
                 Application.DoEvents();
 
-                Assert.IsFalse(tabPage.IsEmptyPromptVisible);
-                Assert.IsTrue(tabPage.DetailsHeader.Contains("Amon"));
-                Assert.IsTrue(tabPage.DetailsSignText.IndexOf("curling ram's horns", StringComparison.OrdinalIgnoreCase) >= 0);
-                Assert.IsTrue(tabPage.DetailsInfluenceText.IndexOf("fire", StringComparison.OrdinalIgnoreCase) >= 0);
-                Assert.IsTrue(tabPage.DetailsAbilitiesText.IndexOf("Fire Breath", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsFalse(tabPage.GetIsEmptyPromptVisible());
+                Assert.IsTrue(tabPage.GetDetailsHeader().Contains("Amon"));
+                Assert.IsTrue(tabPage.GetDetailsSignText().IndexOf("curling ram's horns", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsTrue(tabPage.GetDetailsInfluenceText().IndexOf("fire", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsTrue(tabPage.GetDetailsAbilitiesText().IndexOf("Fire Breath", StringComparison.OrdinalIgnoreCase) >= 0);
             }
         }
 
@@ -141,32 +141,32 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                var picker = tabPage.Picker;
-                Assert.IsFalse(picker.PinnedContainer.Visible, "Pinned row should be hidden when zero vestiges are bound.");
+                var picker = tabPage.GetPicker();
+                Assert.IsFalse(picker.GetPinnedContainer().Visible, "Pinned row should be hidden when zero vestiges are bound.");
 
                 // Select Amon
-                var amonCard = picker.Cards.First(c => c.Vestige.Name == "Amon");
+                var amonCard = picker.GetCards().First(c => c.Vestige.Name == "Amon");
                 picker.DeliverVestigeByName("Amon");
                 Application.DoEvents();
 
-                Assert.IsTrue(amonCard.GoodPactButton.Visible, "Selected unbound card must show Good Pact button.");
-                Assert.IsTrue(amonCard.PoorPactButton.Visible, "Selected unbound card must show Poor Pact button.");
+                Assert.IsTrue(amonCard.GetGoodPactButton().Visible, "Selected unbound card must show Good Pact button.");
+                Assert.IsTrue(amonCard.GetPoorPactButton().Visible, "Selected unbound card must show Poor Pact button.");
 
                 // Click Good Pact button
-                amonCard.GoodPactButton.PerformClick();
+                amonCard.GetGoodPactButton().PerformClick();
                 Application.DoEvents();
 
                 // Pinned container should now be visible and hold Amon card
-                Assert.IsTrue(picker.PinnedContainer.Visible, "Pinned row must be visible when a vestige is bound.");
-                Assert.AreEqual(1, picker.PinnedContainer.Controls.Count);
-                Assert.AreSame(amonCard, picker.PinnedContainer.Controls[0]);
+                Assert.IsTrue(picker.GetPinnedContainer().Visible, "Pinned row must be visible when a vestige is bound.");
+                Assert.AreEqual(1, picker.GetPinnedContainer().Controls.Count);
+                Assert.AreSame(amonCard, picker.GetPinnedContainer().Controls[0]);
                 Assert.IsTrue(amonCard.IsBound);
-                Assert.IsTrue(amonCard.UnbindButton.Visible, "Bound card must show Unbind button.");
-                Assert.IsFalse(amonCard.GoodPactButton.Visible);
-                Assert.IsFalse(amonCard.PoorPactButton.Visible);
+                Assert.IsTrue(amonCard.GetUnbindButton().Visible, "Bound card must show Unbind button.");
+                Assert.IsFalse(amonCard.GetGoodPactButton().Visible);
+                Assert.IsFalse(amonCard.GetPoorPactButton().Visible);
 
                 // Unbound cards grid must NOT contain Amon
-                Assert.IsFalse(picker.CardsContainer.Controls.Contains(amonCard));
+                Assert.IsFalse(picker.GetCardsContainer().Controls.Contains(amonCard));
 
                 // Session engine must reflect binding
                 var engine = session.GetSubsystem("pact_magic");
@@ -177,12 +177,12 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual("good_pact", slot0.State);
 
                 // Unbind Amon
-                amonCard.UnbindButton.PerformClick();
+                amonCard.GetUnbindButton().PerformClick();
                 Application.DoEvents();
 
-                Assert.IsFalse(picker.PinnedContainer.Visible, "Pinned container should be hidden once all vestiges unbind.");
+                Assert.IsFalse(picker.GetPinnedContainer().Visible, "Pinned container should be hidden once all vestiges unbind.");
                 Assert.IsFalse(amonCard.IsBound);
-                Assert.IsTrue(picker.CardsContainer.Controls.Contains(amonCard), "Amon must return to the cards grid.");
+                Assert.IsTrue(picker.GetCardsContainer().Controls.Contains(amonCard), "Amon must return to the cards grid.");
                 var unslotted = engine.GetSlot("vestiges", 0);
                 Assert.IsTrue(string.IsNullOrEmpty(unslotted?.Element) || unslotted?.State == "empty");
             }
@@ -205,23 +205,23 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                var picker = tabPage.Picker;
-                var amonCard = picker.Cards.First(c => c.Vestige.Name == "Amon");
+                var picker = tabPage.GetPicker();
+                var amonCard = picker.GetCards().First(c => c.Vestige.Name == "Amon");
                 picker.DeliverVestigeByName("Amon");
-                amonCard.GoodPactButton.PerformClick();
+                amonCard.GetGoodPactButton().PerformClick();
                 Application.DoEvents();
 
                 // Character is now at max capacity (1/1).
                 // Select Aym (unbound)
-                var aymCard = picker.Cards.First(c => c.Vestige.Name == "Aym");
+                var aymCard = picker.GetCards().First(c => c.Vestige.Name == "Aym");
                 picker.DeliverVestigeByName("Aym");
                 Application.DoEvents();
 
                 Assert.IsTrue(aymCard.IsSelected);
-                Assert.IsTrue(aymCard.CapacityNoticeLabel.Visible, "At max capacity, unbound card must display capacity notice.");
-                Assert.IsTrue(aymCard.CapacityNoticeLabel.Text.IndexOf("max vestige capacity", StringComparison.OrdinalIgnoreCase) >= 0);
-                Assert.IsFalse(aymCard.GoodPactButton.Visible, "Good pact button must not be visible when at max capacity.");
-                Assert.IsFalse(aymCard.PoorPactButton.Visible, "Poor pact button must not be visible when at max capacity.");
+                Assert.IsTrue(aymCard.GetCapacityNoticeLabel().Visible, "At max capacity, unbound card must display capacity notice.");
+                Assert.IsTrue(aymCard.GetCapacityNoticeLabel().Text.IndexOf("max vestige capacity", StringComparison.OrdinalIgnoreCase) >= 0);
+                Assert.IsFalse(aymCard.GetGoodPactButton().Visible, "Good pact button must not be visible when at max capacity.");
+                Assert.IsFalse(aymCard.GetPoorPactButton().Visible, "Poor pact button must not be visible when at max capacity.");
             }
         }
 
@@ -243,26 +243,26 @@ namespace PlayMore35.Tests {
                     form.Show();
                     Application.DoEvents();
 
-                    Assert.IsTrue(picker.Cards.Count > 0);
-                    Assert.IsTrue(picker.HideUnavailable, "Hide unavailable should be checked by default.");
+                    Assert.IsTrue(picker.GetCards().Count > 0);
+                    Assert.IsTrue(picker.GetHideUnavailable(), "Hide unavailable should be checked by default.");
                     // Level 1 Binder with HideUnavailable checked will only show Level 1 vestiges (5 vestiges)
-                    int initialCount = picker.VisibleCardsCount;
+                    int initialCount = picker.GetVisibleCardsCount();
                     Assert.AreEqual(5, initialCount);
 
-                    picker.SearchQuery = "Amon";
+                    picker.SetSearchQuery("Amon");
                     Application.DoEvents();
 
-                    Assert.AreEqual(1, picker.VisibleCardsCount);
-                    Assert.AreEqual("Amon", picker.Cards.First(c => c.Visible).Vestige.Name);
+                    Assert.AreEqual(1, picker.GetVisibleCardsCount());
+                    Assert.AreEqual("Amon", picker.GetCards().First(c => c.Visible).Vestige.Name);
 
-                    picker.SearchQuery = "";
+                    picker.SetSearchQuery("");
                     Application.DoEvents();
-                    Assert.AreEqual(initialCount, picker.VisibleCardsCount);
+                    Assert.AreEqual(initialCount, picker.GetVisibleCardsCount());
 
                     // Unchecking hide unavailable shows all 9 vestiges
-                    picker.HideUnavailable = false;
+                    picker.SetHideUnavailable(false);
                     Application.DoEvents();
-                    Assert.IsTrue(picker.VisibleCardsCount >= 9);
+                    Assert.IsTrue(picker.GetVisibleCardsCount() >= 9);
                 }
             }
         }
@@ -280,21 +280,21 @@ namespace PlayMore35.Tests {
                 WarningProvider = elem => session.ValidateProgressionChoice(
                     new ProgressionChoiceContext(ProgressionChoiceDomain.Subsystem, elem.Name, targetSource: "pact_magic"))
             })) {
-                picker.HideUnavailable = false; // allow searching all vestiges
+                picker.SetHideUnavailable(false); // allow searching all vestiges
 
                 // Search by Sign keyword
-                picker.SearchQuery = "curling ram's horns";
-                Assert.AreEqual(1, picker.VisibleCardsCount);
-                Assert.AreEqual("Amon", picker.Cards.First(c => c.Visible).Vestige.Name);
+                picker.SetSearchQuery("curling ram's horns");
+                Assert.AreEqual(1, picker.GetVisibleCardsCount());
+                Assert.AreEqual("Amon", picker.GetCards().First(c => c.Visible).Vestige.Name);
 
                 // Search by Influence keyword
-                picker.SearchQuery = "dwarf";
-                Assert.AreEqual(1, picker.VisibleCardsCount);
-                Assert.AreEqual("Aym", picker.Cards.First(c => c.Visible).Vestige.Name);
+                picker.SetSearchQuery("dwarf");
+                Assert.AreEqual(1, picker.GetVisibleCardsCount());
+                Assert.AreEqual("Aym", picker.GetCards().First(c => c.Visible).Vestige.Name);
 
                 // Search by Ability descriptive text keyword
-                picker.SearchQuery = "fire";
-                Assert.IsTrue(picker.VisibleCardsCount > 1);
+                picker.SetSearchQuery("fire");
+                Assert.IsTrue(picker.GetVisibleCardsCount() > 1);
             }
         }
 
@@ -330,13 +330,13 @@ namespace PlayMore35.Tests {
                 card.IsBound = true;
                 card.PactState = "poor_pact";
 
-                Assert.AreEqual("Poor Pact", card.StatusLabel.Text);
-                Assert.IsTrue(card.UnbindButton.Visible);
-                Assert.IsFalse(card.GoodPactButton.Visible);
-                Assert.IsFalse(card.PoorPactButton.Visible);
+                Assert.AreEqual("Poor Pact", card.GetStatusLabel().Text);
+                Assert.IsTrue(card.GetUnbindButton().Visible);
+                Assert.IsFalse(card.GetGoodPactButton().Visible);
+                Assert.IsFalse(card.GetPoorPactButton().Visible);
 
                 card.PactState = "good_pact";
-                Assert.AreEqual("Good Pact", card.StatusLabel.Text);
+                Assert.AreEqual("Good Pact", card.GetStatusLabel().Text);
             }
         }
 
@@ -352,9 +352,9 @@ namespace PlayMore35.Tests {
                     new ValidationWarning("Level 2 exceeds maximum vestige level 1.", ValidationCategory.LevelGate)
                 };
 
-                Assert.AreEqual("⚠ Exceeds", card.StatusLabel.Text);
-                Assert.AreEqual(Color.DarkGoldenrod, card.StatusLabel.ForeColor);
-                Assert.AreEqual("Level 2 exceeds maximum vestige level 1.", card.StatusToolTip);
+                Assert.AreEqual("⚠ Exceeds", card.GetStatusLabel().Text);
+                Assert.AreEqual(Color.DarkGoldenrod, card.GetStatusLabel().ForeColor);
+                Assert.AreEqual("Level 2 exceeds maximum vestige level 1.", card.GetStatusToolTip());
                 Assert.IsTrue(card.IsInvalid);
             }
         }
@@ -371,9 +371,9 @@ namespace PlayMore35.Tests {
                     new ValidationWarning("Requires Bind Vestige feat.", ValidationCategory.Prerequisite)
                 };
 
-                Assert.AreEqual("⚠ Ineligible", card.StatusLabel.Text);
-                Assert.AreEqual(Color.DarkGoldenrod, card.StatusLabel.ForeColor);
-                Assert.AreEqual("Requires Bind Vestige feat.", card.StatusToolTip);
+                Assert.AreEqual("⚠ Ineligible", card.GetStatusLabel().Text);
+                Assert.AreEqual(Color.DarkGoldenrod, card.GetStatusLabel().ForeColor);
+                Assert.AreEqual("Requires Bind Vestige feat.", card.GetStatusToolTip());
                 Assert.IsTrue(card.IsInvalid);
             }
         }
@@ -390,9 +390,9 @@ namespace PlayMore35.Tests {
                     new ValidationWarning("Requires Str 13", WarningKind.ItemDependent, ValidationCategory.Prerequisite)
                 };
 
-                Assert.AreEqual("🛈 Item-Dep", card.StatusLabel.Text);
-                Assert.AreEqual(Color.DodgerBlue, card.StatusLabel.ForeColor);
-                Assert.AreEqual("Requires Str 13\n(Satisfied by currently equipped items)", card.StatusToolTip);
+                Assert.AreEqual("🛈 Item-Dep", card.GetStatusLabel().Text);
+                Assert.AreEqual(Color.DodgerBlue, card.GetStatusLabel().ForeColor);
+                Assert.AreEqual("Requires Str 13\n(Satisfied by currently equipped items)", card.GetStatusToolTip());
                 Assert.IsFalse(card.IsInvalid);
             }
         }
@@ -407,9 +407,9 @@ namespace PlayMore35.Tests {
             using (var card = new VestigeCardControl(elem)) {
                 card.Warnings = Array.Empty<ValidationWarning>();
 
-                Assert.AreEqual("Available", card.StatusLabel.Text);
-                Assert.AreEqual(Color.FromArgb(46, 125, 50), card.StatusLabel.ForeColor);
-                Assert.AreEqual(string.Empty, card.StatusToolTip);
+                Assert.AreEqual("Available", card.GetStatusLabel().Text);
+                Assert.AreEqual(Color.FromArgb(46, 125, 50), card.GetStatusLabel().ForeColor);
+                Assert.AreEqual(string.Empty, card.GetStatusToolTip());
                 Assert.IsFalse(card.IsInvalid);
             }
         }
@@ -470,18 +470,18 @@ namespace PlayMore35.Tests {
                     form.Show();
                     Application.DoEvents();
 
-                    var amonCard = picker.Cards.First(c => c.Vestige.Name == "Amon");
-                    var aymCard = picker.Cards.First(c => c.Vestige.Name == "Aym");
-                    var lerajeCard = picker.Cards.First(c => c.Vestige.Name == "Leraje");
+                    var amonCard = picker.GetCards().First(c => c.Vestige.Name == "Amon");
+                    var aymCard = picker.GetCards().First(c => c.Vestige.Name == "Aym");
+                    var lerajeCard = picker.GetCards().First(c => c.Vestige.Name == "Leraje");
 
                     // HideUnavailable is true by default
-                    Assert.IsTrue(picker.HideUnavailable);
+                    Assert.IsTrue(picker.GetHideUnavailable());
                     Assert.IsTrue(amonCard.Visible, "Available card with 0 warnings must be visible.");
                     Assert.IsTrue(lerajeCard.Visible, "Card with ONLY item-dependent warnings must remain visible when HideUnavailable is checked.");
                     Assert.IsFalse(aymCard.Visible, "Card with Unmet warnings must be hidden when HideUnavailable is checked.");
 
                     // Unchecking HideUnavailable should make unmet card visible
-                    picker.HideUnavailable = false;
+                    picker.SetHideUnavailable(false);
                     Application.DoEvents();
                     Assert.IsTrue(aymCard.Visible, "Card with Unmet warnings becomes visible when HideUnavailable is unchecked.");
                 }
@@ -522,21 +522,21 @@ namespace PlayMore35.Tests {
                     Application.DoEvents();
 
                     // Pinned container must be hidden in progression mode even though Amon is bound in session
-                    Assert.IsFalse(picker.PinnedContainer.Visible, "Pinned container must be hidden when AcquisitionLevel > 0.");
-                    Assert.AreEqual(0, picker.PinnedContainer.Controls.Count);
+                    Assert.IsFalse(picker.GetPinnedContainer().Visible, "Pinned container must be hidden when AcquisitionLevel > 0.");
+                    Assert.AreEqual(0, picker.GetPinnedContainer().Controls.Count);
 
-                    var amonCard = picker.Cards.First(c => c.Vestige.Name == "Amon");
-                    Assert.IsTrue(picker.CardsContainer.Controls.Contains(amonCard), "Amon must be hosted in CardsContainer, not pinned.");
+                    var amonCard = picker.GetCards().First(c => c.Vestige.Name == "Amon");
+                    Assert.IsTrue(picker.GetCardsContainer().Controls.Contains(amonCard), "Amon must be hosted in CardsContainer, not pinned.");
                     Assert.IsFalse(amonCard.IsBound, "Amon must not be marked as IsBound in progression mode.");
 
                     // Daily pact buttons must be suppressed (hidden and disabled)
-                    Assert.IsFalse(amonCard.GoodPactButton.Visible);
-                    Assert.IsFalse(amonCard.GoodPactButton.Enabled);
-                    Assert.IsFalse(amonCard.PoorPactButton.Visible);
-                    Assert.IsFalse(amonCard.PoorPactButton.Enabled);
-                    Assert.IsFalse(amonCard.UnbindButton.Visible);
-                    Assert.IsFalse(amonCard.UnbindButton.Enabled);
-                    Assert.IsFalse(amonCard.CapacityNoticeLabel.Visible);
+                    Assert.IsFalse(amonCard.GetGoodPactButton().Visible);
+                    Assert.IsFalse(amonCard.GetGoodPactButton().Enabled);
+                    Assert.IsFalse(amonCard.GetPoorPactButton().Visible);
+                    Assert.IsFalse(amonCard.GetPoorPactButton().Enabled);
+                    Assert.IsFalse(amonCard.GetUnbindButton().Visible);
+                    Assert.IsFalse(amonCard.GetUnbindButton().Enabled);
+                    Assert.IsFalse(amonCard.GetCapacityNoticeLabel().Visible);
 
                     // Selecting Amon delivers it via ElementDelivered without showing daily pact buttons
                     SubsystemElement? deliveredElement = null;
@@ -548,9 +548,9 @@ namespace PlayMore35.Tests {
                     Assert.IsNotNull(deliveredElement);
                     Assert.AreEqual("Amon", deliveredElement.Name);
                     Assert.IsTrue(amonCard.IsSelected);
-                    Assert.IsFalse(amonCard.GoodPactButton.Visible, "Good Pact button must remain suppressed when selected in progression mode.");
-                    Assert.IsFalse(amonCard.PoorPactButton.Visible, "Poor Pact button must remain suppressed when selected in progression mode.");
-                    Assert.IsFalse(amonCard.UnbindButton.Visible, "Unbind button must remain suppressed in progression mode.");
+                    Assert.IsFalse(amonCard.GetGoodPactButton().Visible, "Good Pact button must remain suppressed when selected in progression mode.");
+                    Assert.IsFalse(amonCard.GetPoorPactButton().Visible, "Poor Pact button must remain suppressed when selected in progression mode.");
+                    Assert.IsFalse(amonCard.GetUnbindButton().Visible, "Unbind button must remain suppressed in progression mode.");
                 }
             }
         }
@@ -572,16 +572,16 @@ namespace PlayMore35.Tests {
                 form.Show();
                 Application.DoEvents();
 
-                var amonCard = tabPage.Picker.Cards.First(c => c.Vestige.Name == "Amon"); // Level 1
-                var savnokCard = tabPage.Picker.Cards.First(c => c.Vestige.Name == "Savnok"); // Level 2
+                var amonCard = tabPage.GetPicker().GetCards().First(c => c.Vestige.Name == "Amon"); // Level 1
+                var savnokCard = tabPage.GetPicker().GetCards().First(c => c.Vestige.Name == "Savnok"); // Level 2
 
                 Assert.IsFalse(amonCard.IsInvalid, "Level 1 vestige is eligible for Level 1 Binder.");
-                Assert.AreEqual("Available", amonCard.StatusLabel.Text);
+                Assert.AreEqual("Available", amonCard.GetStatusLabel().Text);
 
                 Assert.IsTrue(savnokCard.IsInvalid, "Level 2 vestige exceeds max vestige level for Level 1 Binder.");
-                Assert.AreEqual("⚠ Exceeds", savnokCard.StatusLabel.Text);
-                Assert.AreEqual(Color.DarkGoldenrod, savnokCard.StatusLabel.ForeColor);
-                Assert.IsTrue(savnokCard.StatusToolTip.Contains("exceeds maximum"), $"Expected tooltip to mention exceeds maximum, got: {savnokCard.StatusToolTip}");
+                Assert.AreEqual("⚠ Exceeds", savnokCard.GetStatusLabel().Text);
+                Assert.AreEqual(Color.DarkGoldenrod, savnokCard.GetStatusLabel().ForeColor);
+                Assert.IsTrue(savnokCard.GetStatusToolTip().Contains("exceeds maximum"), $"Expected tooltip to mention exceeds maximum, got: {savnokCard.GetStatusToolTip()}");
             }
         }
 

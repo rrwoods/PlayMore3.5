@@ -118,5 +118,116 @@ namespace PlayMore35.Tests {
                     ?.Invoke(panel, new object[] { row });
             }
         }
+
+        private static T GetField<T>(object target, string fieldName) {
+            var field = target.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field == null) {
+                throw new InvalidOperationException($"Field '{fieldName}' not found on type '{target.GetType().FullName}'.");
+            }
+            return (T)field.GetValue(target)!;
+        }
+
+        public static Panel GetDetailsPane(this DefaultElementPicker picker) =>
+            GetField<Panel>(picker, "_detailsPanel");
+
+        public static Button GetDetailsToggleButton(this DefaultElementPicker picker) =>
+            GetField<Button>(picker, "_btnToggleDetails");
+
+        public static bool GetIsDetailsExpanded(this DefaultElementPicker picker) =>
+            GetField<bool>(picker, "_isDetailsExpanded");
+
+        public static string GetDetailsText(this DefaultElementPicker picker) =>
+            GetField<Label>(picker, "_lblDetails").Text;
+
+        public static void SetSearchFilterText(this DefaultElementPicker picker, string text) {
+            GetField<TextBox>(picker, "_searchBox").Text = text;
+        }
+
+        public static void SetHideInvalidChoices(this DefaultElementPicker picker, bool hide) {
+            GetField<CheckBox>(picker, "_hideInvalidCheckBox").Checked = hide;
+        }
+
+        public static void ToggleDetailsPane(this DefaultElementPicker picker) {
+            picker.GetDetailsToggleButton().PerformClick();
+        }
+
+        public static ReceptorState GetState(this ElementReceptorControl receptor) {
+            if (receptor.IsActiveSelecting) return ReceptorState.ActiveSelecting;
+            return receptor.SelectedElement != null ? ReceptorState.Made : ReceptorState.Unmade;
+        }
+
+        public static bool IsClearButtonVisible(this ElementReceptorControl receptor) =>
+            GetField<Button>(receptor, "_clearButton").Visible;
+
+        public static bool IsWarningBadgeVisible(this ElementReceptorControl receptor) =>
+            receptor.GetWarningBadge().Visible;
+
+        public static string GetDisplayText(this ElementReceptorControl receptor) =>
+            GetField<Label>(receptor, "_label").Text;
+
+        public static IReadOnlyList<VestigeCardControl> GetCards(this PactMagicElementPicker picker) =>
+            GetField<List<VestigeCardControl>>(picker, "_cards");
+
+        public static int GetVisibleCardsCount(this PactMagicElementPicker picker) =>
+            picker.GetCards().Count(c => c.Visible && !c.IsBound);
+
+        public static FlowLayoutPanel GetPinnedContainer(this PactMagicElementPicker picker) =>
+            GetField<FlowLayoutPanel>(picker, "_pinnedContainer");
+
+        public static FlowLayoutPanel GetCardsContainer(this PactMagicElementPicker picker) =>
+            GetField<FlowLayoutPanel>(picker, "_cardsContainer");
+
+        public static string GetSearchQuery(this PactMagicElementPicker picker) =>
+            GetField<TextBox>(picker, "_searchBox").Text;
+
+        public static void SetSearchQuery(this PactMagicElementPicker picker, string query) {
+            GetField<TextBox>(picker, "_searchBox").Text = query;
+        }
+
+        public static bool GetHideUnavailable(this PactMagicElementPicker picker) =>
+            GetField<CheckBox>(picker, "_hideUnavailableCheckBox").Checked;
+
+        public static void SetHideUnavailable(this PactMagicElementPicker picker, bool hide) {
+            GetField<CheckBox>(picker, "_hideUnavailableCheckBox").Checked = hide;
+        }
+
+        public static int GetSlotsColumnWidth(this PactMagicTabPage page) =>
+            GetField<Panel>(page, "_leftColumn").Width;
+
+        public static PactMagicElementPicker GetPicker(this PactMagicTabPage page) =>
+            GetField<PactMagicElementPicker>(page, "_picker");
+
+        public static string GetDetailsHeader(this PactMagicTabPage page) =>
+            GetField<Label>(page, "_lblDetailsTitle").Text;
+
+        public static string GetDetailsSignText(this PactMagicTabPage page) =>
+            GetField<Label>(page, "_lblDetailsSign").Text;
+
+        public static string GetDetailsInfluenceText(this PactMagicTabPage page) =>
+            GetField<Label>(page, "_lblDetailsInfluence").Text;
+
+        public static string GetDetailsAbilitiesText(this PactMagicTabPage page) =>
+            GetField<Label>(page, "_lblDetailsAbilities").Text;
+
+        public static bool GetIsEmptyPromptVisible(this PactMagicTabPage page) =>
+            GetField<Label>(page, "_lblEmptyPrompt").Visible;
+
+        public static Button GetGoodPactButton(this VestigeCardControl card) =>
+            GetField<Button>(card, "_btnGoodPact");
+
+        public static Button GetPoorPactButton(this VestigeCardControl card) =>
+            GetField<Button>(card, "_btnPoorPact");
+
+        public static Button GetUnbindButton(this VestigeCardControl card) =>
+            GetField<Button>(card, "_btnUnbind");
+
+        public static Label GetStatusLabel(this VestigeCardControl card) =>
+            GetField<Label>(card, "_lblStatus");
+
+        public static Label GetCapacityNoticeLabel(this VestigeCardControl card) =>
+            GetField<Label>(card, "_lblCapacityNotice");
+
+        public static string GetStatusToolTip(this VestigeCardControl card) =>
+            card.GetStatusLabel().GetTooltip();
     }
 }

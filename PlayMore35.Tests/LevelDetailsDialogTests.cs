@@ -179,7 +179,7 @@ namespace PlayMore35.Tests {
                 // Maneuver receptor should be rendered
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
                     .First(r => Equals(r.Tag, "Level 1:maneuver"));
-                Assert.AreEqual(ReceptorState.Unmade, receptor.State);
+                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
 
                 // Clicking receptor activates picker
                 receptor.PerformClick();
@@ -286,12 +286,12 @@ namespace PlayMore35.Tests {
                 receptor.PerformClick(); // active
                 picker.SelectElementByName("Disarming Strike");
 
-                Assert.IsTrue(receptor.WarningBadgeVisible, "Warning badge should be visible when maneuver level exceeds max level.");
+                Assert.IsTrue(receptor.IsWarningBadgeVisible(), "Warning badge should be visible when maneuver level exceeds max level.");
                 StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "exceeds maximum maneuver level");
 
                 // Switch to level 1 maneuver (Steel Wind)
                 picker.SelectElementByName("Steel Wind");
-                Assert.IsFalse(receptor.WarningBadgeVisible, "Warning badge should not be visible when selection is valid.");
+                Assert.IsFalse(receptor.IsWarningBadgeVisible(), "Warning badge should not be visible when selection is valid.");
             }
         }
 
@@ -314,7 +314,7 @@ namespace PlayMore35.Tests {
                 // Flashing Sun is level 2, requires 1 Desert Wind maneuver
                 picker.SelectElementByName("Flashing Sun");
 
-                Assert.IsTrue(receptor.WarningBadgeVisible);
+                Assert.IsTrue(receptor.IsWarningBadgeVisible());
                 StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "Requires 1 Desert Wind maneuver, but only 0 known.");
             }
         }
@@ -343,7 +343,7 @@ namespace PlayMore35.Tests {
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 picker.SelectElementByName("Flashing Sun");
 
-                Assert.IsFalse(receptor.WarningBadgeVisible, "Warning badge should be hidden when prerequisite is met by earlier maneuver.");
+                Assert.IsFalse(receptor.IsWarningBadgeVisible(), "Warning badge should be hidden when prerequisite is met by earlier maneuver.");
             }
         }
 
@@ -490,7 +490,7 @@ namespace PlayMore35.Tests {
                 // Giant's Stance is level 5
                 picker.SelectElementByName("Giant's Stance");
 
-                Assert.IsTrue(receptor.WarningBadgeVisible, "Warning badge should be visible when stance level exceeds max level.");
+                Assert.IsTrue(receptor.IsWarningBadgeVisible(), "Warning badge should be visible when stance level exceeds max level.");
                 StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "exceeds maximum maneuver level");
             }
         }
@@ -514,7 +514,7 @@ namespace PlayMore35.Tests {
                 // Iron Guard's Glare is Devoted Spirit level 1 (0 prereqs in discipline, but Martial Stance requires knowing a maneuver in the discipline)
                 picker.SelectElementByName("Iron Guard's Glare");
 
-                Assert.IsTrue(receptor.WarningBadgeVisible);
+                Assert.IsTrue(receptor.IsWarningBadgeVisible());
                 StringAssert.Contains(receptor.GetWarningBadge().GetTooltip(), "Requires 1 Devoted Spirit maneuver, but only 0 known.");
             }
         }
@@ -540,7 +540,7 @@ namespace PlayMore35.Tests {
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 picker.SelectElementByName("Iron Guard's Glare");
 
-                Assert.IsFalse(receptor.WarningBadgeVisible, "Warning badge should be hidden when discipline maneuver is known.");
+                Assert.IsFalse(receptor.IsWarningBadgeVisible(), "Warning badge should be hidden when discipline maneuver is known.");
             }
         }
 
@@ -599,18 +599,18 @@ namespace PlayMore35.Tests {
                 level1Picker.SelectElementByName("Flame's Blessing");
 
                 // Prerequisite of 1 Desert Wind maneuver for Flame's Blessing is met by pending choice in Human slot
-                Assert.IsFalse(level1Receptor.WarningBadgeVisible, "Warning badge on Level 1 should be hidden because Human slot selected Burning Blade.");
+                Assert.IsFalse(level1Receptor.IsWarningBadgeVisible(), "Warning badge on Level 1 should be hidden because Human slot selected Burning Blade.");
 
                 // If Human slot changes to non-Desert Wind maneuver (e.g. Steel Wind from Iron Heart)
                 humanReceptor.PerformClick();
                 var switchHumanPicker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 switchHumanPicker.SelectElementByName("Steel Wind");
-                Assert.IsTrue(level1Receptor.WarningBadgeVisible, "Warning badge on Level 1 should appear because Desert Wind prerequisite is no longer met.");
+                Assert.IsTrue(level1Receptor.IsWarningBadgeVisible(), "Warning badge on Level 1 should appear because Desert Wind prerequisite is no longer met.");
                 StringAssert.Contains(level1Receptor.GetWarningBadge().GetTooltip(), "Requires 1 Desert Wind maneuver, but only 0 known.");
 
                 // If Human slot switches back to Burning Blade, warning badge clears immediately
                 switchHumanPicker.SelectElementByName("Burning Blade");
-                Assert.IsFalse(level1Receptor.WarningBadgeVisible, "Warning badge on Level 1 should clear when prerequisite is restored.");
+                Assert.IsFalse(level1Receptor.IsWarningBadgeVisible(), "Warning badge on Level 1 should clear when prerequisite is restored.");
             }
         }
 
@@ -797,11 +797,11 @@ namespace PlayMore35.Tests {
 
                 // Valid choice: Level 1 maneuver -> badge hidden
                 picker.SelectElementByName("Steel Wind");
-                Assert.IsFalse(receptor.WarningBadgeVisible, "Warning badge should be hidden for valid Level 1 maneuver.");
+                Assert.IsFalse(receptor.IsWarningBadgeVisible(), "Warning badge should be hidden for valid Level 1 maneuver.");
 
                 // Invalid choice: Level 2 maneuver exceeds level 1 max level for Feats -> badge visible
                 picker.SelectElementByName("Mountain Hammer");
-                Assert.IsTrue(receptor.WarningBadgeVisible, "Warning badge should appear when maneuver exceeds maximum maneuver level.");
+                Assert.IsTrue(receptor.IsWarningBadgeVisible(), "Warning badge should appear when maneuver exceeds maximum maneuver level.");
 
                 // Select valid maneuver back and save
                 picker.SelectElementByName("Steel Wind");
@@ -860,13 +860,13 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Study";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => Equals(r.Tag, "Level 1:maneuver"));
-                Assert.AreEqual(ReceptorState.Unmade, receptor.State);
+                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
                 Assert.IsFalse(receptor.IsActiveSelecting);
 
                 // 2. Click receptor: activates styling, expands picker host, embeds DefaultElementPicker
                 receptor.PerformClick();
                 Assert.IsTrue(receptor.IsActiveSelecting);
-                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.State);
+                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.GetState());
                 Assert.AreEqual(220, pickerHost.Height);
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().FirstOrDefault();
                 Assert.IsNotNull(picker);
@@ -874,8 +874,8 @@ namespace PlayMore35.Tests {
                 // 3. Choice delivery: updates receptor text, evaluates warnings in real-time, keeps picker open
                 picker.SelectElementByName("Steel Wind");
                 Assert.AreEqual("Steel Wind", receptor.SelectedElement?.Name);
-                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.State);
-                Assert.IsFalse(receptor.WarningBadgeVisible);
+                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.GetState());
+                Assert.IsFalse(receptor.IsWarningBadgeVisible());
                 Assert.AreEqual(1, pickerHost.Controls.Count);
 
                 // 4. Test Human slot to verify switching active receptors
@@ -895,7 +895,7 @@ namespace PlayMore35.Tests {
                 // 5. Clear button on Level 1 receptor clears choice
                 receptor.PerformClear();
                 Assert.IsNull(receptor.SelectedElement);
-                Assert.AreEqual(ReceptorState.Unmade, receptor.State);
+                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
 
                 // 6. Changing parent feat dropdown collapses picker host and disposes picker
                 humanFeatCombo.SelectedItem = "Endurance";

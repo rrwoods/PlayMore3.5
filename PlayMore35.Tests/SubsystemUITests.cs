@@ -54,10 +54,10 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ElementReceptorControl_InitialState_Unmade() {
             using (var receptor = new ElementReceptorControl()) {
-                Assert.AreEqual(ReceptorState.Unmade, receptor.State);
+                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
                 Assert.IsNull(receptor.SelectedElement);
-                Assert.IsFalse(receptor.ClearButtonVisible);
-                Assert.IsFalse(receptor.WarningBadgeVisible);
+                Assert.IsFalse(receptor.IsClearButtonVisible());
+                Assert.IsFalse(receptor.IsWarningBadgeVisible());
             }
         }
 
@@ -67,10 +67,10 @@ namespace PlayMore35.Tests {
                 var elem = new SubsystemElement { Name = "Aym", Type = "vestige" };
                 receptor.SelectedElement = elem;
 
-                Assert.AreEqual(ReceptorState.Made, receptor.State);
+                Assert.AreEqual(ReceptorState.Made, receptor.GetState());
                 Assert.AreSame(elem, receptor.SelectedElement);
-                Assert.IsTrue(receptor.ClearButtonVisible);
-                Assert.IsTrue(receptor.DisplayText.Contains("Aym"));
+                Assert.IsTrue(receptor.IsClearButtonVisible());
+                Assert.IsTrue(receptor.GetDisplayText().Contains("Aym"));
             }
         }
 
@@ -78,19 +78,19 @@ namespace PlayMore35.Tests {
         public void ElementReceptorControl_IsActiveSelecting_TransitionsBorderAccent() {
             using (var receptor = new ElementReceptorControl()) {
                 receptor.IsActiveSelecting = true;
-                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.State);
+                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.GetState());
 
                 receptor.IsActiveSelecting = false;
-                Assert.AreEqual(ReceptorState.Unmade, receptor.State);
+                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
 
                 receptor.SelectedElement = new SubsystemElement { Name = "Aym", Type = "vestige" };
-                Assert.AreEqual(ReceptorState.Made, receptor.State);
+                Assert.AreEqual(ReceptorState.Made, receptor.GetState());
 
                 receptor.IsActiveSelecting = true;
-                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.State);
+                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.GetState());
 
                 receptor.IsActiveSelecting = false;
-                Assert.AreEqual(ReceptorState.Made, receptor.State);
+                Assert.AreEqual(ReceptorState.Made, receptor.GetState());
             }
         }
 
@@ -117,7 +117,7 @@ namespace PlayMore35.Tests {
                 receptor.PerformClear();
 
                 Assert.IsNull(receptor.SelectedElement);
-                Assert.AreEqual(ReceptorState.Unmade, receptor.State);
+                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
                 Assert.IsTrue(clearedFired);
                 Assert.IsNull(deliveredAfterClear);
             }
@@ -127,11 +127,11 @@ namespace PlayMore35.Tests {
         public void ElementReceptorControl_WarningHandling_SetsAndClearsWarning() {
             using (var receptor = new ElementReceptorControl()) {
                 receptor.SetWarning("Prerequisites not met");
-                Assert.IsTrue(receptor.WarningBadgeVisible);
+                Assert.IsTrue(receptor.IsWarningBadgeVisible());
                 Assert.AreEqual("Prerequisites not met", receptor.GetWarningBadge().GetTooltip());
 
                 receptor.ClearWarning();
-                Assert.IsFalse(receptor.WarningBadgeVisible);
+                Assert.IsFalse(receptor.IsWarningBadgeVisible());
                 Assert.AreEqual("", receptor.GetWarningBadge().GetTooltip());
             }
         }
@@ -194,7 +194,7 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                picker.SearchFilterText = "Aym";
+                picker.SetSearchFilterText("Aym");
                 var visible = new List<string>(picker.GetFilteredElementNames());
                 CollectionAssert.Contains(visible, "Aym");
                 CollectionAssert.DoesNotContain(visible, "Ronove");
@@ -221,7 +221,7 @@ namespace PlayMore35.Tests {
                 CollectionAssert.Contains(visibleInitial, "Aym");
                 CollectionAssert.Contains(visibleInitial, "Ronove");
 
-                picker.HideInvalidChoices = true;
+                picker.SetHideInvalidChoices(true);
                 var visibleAfterHide = new List<string>(picker.GetFilteredElementNames());
                 CollectionAssert.Contains(visibleAfterHide, "Aym");
                 CollectionAssert.DoesNotContain(visibleAfterHide, "Ronove");
@@ -265,7 +265,7 @@ namespace PlayMore35.Tests {
                 CollectionAssert.Contains(initial, "UnmetElem");
                 CollectionAssert.Contains(initial, "MixedElem");
 
-                picker.HideInvalidChoices = true;
+                picker.SetHideInvalidChoices(true);
                 var filtered = new List<string>(picker.GetFilteredElementNames());
                 CollectionAssert.Contains(filtered, "(None)");
                 CollectionAssert.Contains(filtered, "ValidElem");
@@ -380,24 +380,24 @@ namespace PlayMore35.Tests {
             using (var picker = new DefaultElementPicker(session, context, elements)) {
                 // Select ValidElem
                 picker.SelectElementByName("ValidElem");
-                Assert.AreEqual("ValidElem\nLore text", picker.DetailsText);
+                Assert.AreEqual("ValidElem\nLore text", picker.GetDetailsText());
 
                 // Select UnmetElem
                 picker.SelectElementByName("UnmetElem");
-                Assert.IsTrue(picker.DetailsText.Contains("UnmetElem\nUnmet lore\n\n[Warning: Requires Binder Level 3]"));
+                Assert.IsTrue(picker.GetDetailsText().Contains("UnmetElem\nUnmet lore\n\n[Warning: Requires Binder Level 3]"));
 
                 // Select ItemDepElem
                 picker.SelectElementByName("ItemDepElem");
-                Assert.IsTrue(picker.DetailsText.Contains("ItemDepElem\nItemDep lore\n\n[Item-Dependent: Requires BAB +3 (satisfied by equipped items)]"));
+                Assert.IsTrue(picker.GetDetailsText().Contains("ItemDepElem\nItemDep lore\n\n[Item-Dependent: Requires BAB +3 (satisfied by equipped items)]"));
 
                 // Select MixedElem
                 picker.SelectElementByName("MixedElem");
-                Assert.IsTrue(picker.DetailsText.Contains("[Warning: Missing prerequisite feat]"));
-                Assert.IsTrue(picker.DetailsText.Contains("[Item-Dependent: Requires Str 13 (satisfied by equipped items)]"));
+                Assert.IsTrue(picker.GetDetailsText().Contains("[Warning: Missing prerequisite feat]"));
+                Assert.IsTrue(picker.GetDetailsText().Contains("[Item-Dependent: Requires Str 13 (satisfied by equipped items)]"));
 
                 // Select None
                 picker.SelectNone();
-                Assert.AreEqual("(None selected)", picker.DetailsText);
+                Assert.AreEqual("(None selected)", picker.GetDetailsText());
             }
         }
 
@@ -410,19 +410,19 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                Assert.IsTrue(picker.IsDetailsExpanded);
-                Assert.IsTrue(picker.DetailsPane.Visible);
-                Assert.AreEqual("▼ Hide Details", picker.DetailsToggleButton.Text);
+                Assert.IsTrue(picker.GetIsDetailsExpanded());
+                Assert.IsTrue(picker.GetDetailsPane().Visible);
+                Assert.AreEqual("▼ Hide Details", picker.GetDetailsToggleButton().Text);
 
                 picker.ToggleDetailsPane();
-                Assert.IsFalse(picker.IsDetailsExpanded);
-                Assert.IsFalse(picker.DetailsPane.Visible);
-                Assert.AreEqual("▲ Show Details", picker.DetailsToggleButton.Text);
+                Assert.IsFalse(picker.GetIsDetailsExpanded());
+                Assert.IsFalse(picker.GetDetailsPane().Visible);
+                Assert.AreEqual("▲ Show Details", picker.GetDetailsToggleButton().Text);
 
                 picker.ToggleDetailsPane();
-                Assert.IsTrue(picker.IsDetailsExpanded);
-                Assert.IsTrue(picker.DetailsPane.Visible);
-                Assert.AreEqual("▼ Hide Details", picker.DetailsToggleButton.Text);
+                Assert.IsTrue(picker.GetIsDetailsExpanded());
+                Assert.IsTrue(picker.GetDetailsPane().Visible);
+                Assert.AreEqual("▼ Hide Details", picker.GetDetailsToggleButton().Text);
             }
         }
 

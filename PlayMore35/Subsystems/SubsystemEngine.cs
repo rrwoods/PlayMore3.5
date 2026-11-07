@@ -1396,11 +1396,6 @@ namespace PlayMore35.Subsystems {
             return distinctKnown.Count;
         }
 
-        public IReadOnlyList<ValidationWarning> ValidateChoice(ProgressionChoiceContext context) {
-            if (context == null) return Array.Empty<ValidationWarning>();
-            return ValidateChoice(context.Descriptor, context.ChoiceValue, context.TargetSource, context.SlotKey);
-        }
-
         public IReadOnlyList<ValidationWarning> ValidateChoice(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource = null, string? slotKey = null) {
             if (string.IsNullOrWhiteSpace(choiceValue)) return Array.Empty<ValidationWarning>();
             if (descriptor != null) {
