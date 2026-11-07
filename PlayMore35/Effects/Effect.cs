@@ -252,19 +252,6 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect SetToggle(IToggle toggle) {
-            Toggle = toggle;
-            return this;
-        }
-
-        public Effect AddExtraAttack(AttackMatcher affects, ExtraAttack extraAttack) {
-            ExtraAttacks.Add(new Alterer<ExtraAttack, Attack> {
-                affects = affects,
-                mod = extraAttack
-            });
-            return this;
-        }
-
         [AuthorizedDomainApi("Fluent effect construction for attack modifiers")]
         public Effect AddAttackModifier(AttackMatcher affects, Modifier mod) {
             mod.Name = Name;
@@ -275,37 +262,11 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddDamageModifier(AttackMatcher affects, Modifier mod) {
-            mod.Name = Name;
-            DamageModifiers.Add(new Alterer<Modifier, Attack> {
-                affects = affects,
-                mod = mod
-            });
-            return this;
-        }
-
-        public Effect AddExtraDice(AttackMatcher affects, int qty, int size) {
-            ExtraDice.Add(new Alterer<DiceGroup, Attack> {
-                affects = affects,
-                mod = new DiceGroup(Name).AddDice(qty, size)
-            });
-            return this;
-        }
-
         public Effect AddModifier(string affects, Modifier mod) {
             mod.Name = Name;
             Modifiers.Add(new Alterer<Modifier, Statistic> {
                 affects = new StatisticMatcher(affects),
                 mod = mod
-            });
-            return this;
-        }
-
-        public Effect AddMultiplier(string affects, Multiplier multiplier) {
-            multiplier.Name = Name;
-            Multipliers.Add(new Alterer<Multiplier, Statistic> {
-                affects = new StatisticMatcher(affects),
-                mod = multiplier
             });
             return this;
         }
@@ -325,11 +286,6 @@ namespace PlayMore35.Effects {
             return this;
         }
 
-        public Effect AddExoticArmorProficiency(string armor) {
-            ExoticArmorProficiencies.Add(armor);
-            return this;
-        }
-
         public Effect AddShieldProficiency(bool tower) {
             ShieldProficiencies.Add(tower);
             return this;
@@ -337,11 +293,6 @@ namespace PlayMore35.Effects {
 
         public Effect AddExoticShieldProficiency(string shield) {
             ExoticShieldProficiencies.Add(shield);
-            return this;
-        }
-
-        public Effect AddFlag(string flag) {
-            Flags.Add(flag);
             return this;
         }
 
