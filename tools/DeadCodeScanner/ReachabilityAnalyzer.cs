@@ -343,8 +343,9 @@ public class ReachabilityAnalyzer {
 
             // Only report as ZombieIsland if it has internal cascade or test callers keeping it alive
             if (componentCascade.Count > 0 || componentLifeSupport.Count > 0) {
-                string islandName = componentRoots.FirstOrDefault()?.ContainingType
-                    ?? component.First().ToDisplayString();
+                string islandName = componentRoots.Count == 1
+                    ? $"{componentRoots[0].ContainingType}.{componentRoots[0].Name}"
+                    : (componentRoots.FirstOrDefault()?.ContainingType ?? component.First().ToDisplayString());
 
                 islands.Add(new ZombieIsland(
                     islandName,

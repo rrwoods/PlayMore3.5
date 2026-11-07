@@ -76,7 +76,9 @@ Once the human confirms the desired resolution:
 ### Remediation Ticket Authoring
 
 When creating or authoring tickets to remediate dead code:
-- **Include upfront execution note**: Always place this callout banner at the top of the ticket body so agents do not redundantly re-run the scanner:
+- **Phased execution note**: Always place this callout banner at the top of the ticket body:
   > [!NOTE]
-  > This ticket was created as a result of a dead code scan. Targets and artificial life-support tests are already identified; do not run the dead code scanner upfront. Proceed directly to pruning code and running unit tests.
-- **Explicit target lists**: Explicitly enumerate the dead production members, entry roots, and artificial life-support tests with file paths so the implementing agent can navigate directly to the seams.
+  > Phased execution:
+  > 1. Directly edit or prune the enumerated targets and run unit tests.
+  > 2. Run the dead code scanner gate (`--check`) only after code edits and unit tests pass.
+- **Explicit target lists**: Explicitly enumerate the dead production members, entry roots, and artificial life-support tests with file paths so the implementing agent can navigate directly to the seams. **Never cite ordinal island numbers** (e.g. `Island 16`), which are ephemeral and re-index across runs; cite only fully qualified symbols and file paths.

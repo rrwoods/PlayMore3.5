@@ -59,7 +59,9 @@ When creating tickets from a prototype that explored multiple design variants:
 ## Dead-code remediation tickets
 
 When authoring or generating tickets to remediate dead code detected by the scanner:
-- **Callout note**: Always include an explicit callout banner at the top of the ticket body:
+- **Phased execution note**: Always include an explicit callout banner at the top of the ticket body:
   > [!NOTE]
-  > This ticket was created as a result of a dead code scan. Targets and artificial life-support tests are already identified; do not run the dead code scanner upfront. Proceed directly to pruning code and running unit tests.
-- **Explicit target lists**: Explicitly list all dead production members and artificial life-support tests with exact file paths (see `docs/agents/dead-code.md`).
+  > Phased execution:
+  > 1. Directly edit or prune the enumerated targets and run unit tests.
+  > 2. Run the dead code scanner gate (`--check`) only after code edits and unit tests pass.
+- **Explicit target lists**: Explicitly list all dead production members and artificial life-support tests with exact file paths (see `docs/agents/dead-code.md`). Never cite ordinal island numbers, which are ephemeral and re-index across runs.

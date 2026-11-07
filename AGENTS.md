@@ -57,6 +57,7 @@ Prefer linear git history:
 - **Chain searches exclusively to newly discovered references**: Restrict every follow-up query to a specific symbol, type, or file path discovered in the immediately preceding tool output.
 - **Pivot or escalate on negative discovery**: Exploration serves solely to locate active seams. When two consecutive inspection queries return no new references, or when a ticket refers to a concept absent from the codebase, immediately choose between two actions: proceed to implement the new capability test-first, or halt tool execution and ask the user to clarify the intended design seam.
 - **Inspect exclusively after state transitions**: Schedule verification and inspection tool calls (`git status`, `git grep`, file reads) after performing a mutating action (`edit_file`, `write_file`, or command execution).
+- **Bypass exploratory scans when targets are enumerated**: When an issue or specification explicitly lists target symbols, classes, or file paths, navigate directly to those files. Running discovery, exploratory greps, or survey tooling (such as dead code survey scans) before modifying the enumerated targets is prohibited.
 
 ### Pull requests
 

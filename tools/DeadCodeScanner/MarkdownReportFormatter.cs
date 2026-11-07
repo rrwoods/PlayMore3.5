@@ -38,9 +38,8 @@ public class MarkdownReportFormatter {
         sb.AppendLine("A **Zombie Island** is an unreachable call tree that appears alive because it has callers or is kept on artificial life support by unit tests.");
         sb.AppendLine();
 
-        int index = 1;
         foreach (var island in result.ZombieIslands) {
-            sb.AppendLine($"### Island {index}: `{island.Name}`");
+            sb.AppendLine($"### `{island.Name}`");
             sb.AppendLine();
 
             sb.AppendLine("**Island Roots (No production callers):**");
@@ -68,7 +67,6 @@ public class MarkdownReportFormatter {
             sb.AppendLine();
             sb.AppendLine("---");
             sb.AppendLine();
-            index++;
         }
 
         if (result.IsolatedDeadMethods.Count > 0) {
