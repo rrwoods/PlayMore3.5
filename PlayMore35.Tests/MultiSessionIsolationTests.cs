@@ -79,7 +79,7 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(session1.Character.RoutinePreferences.IsCategoryVisible(RoutineCategory.ArmorSpikesTWF));
             Assert.IsNotNull(session1.Character.equipped.PrimaryHandWeapon);
             Assert.AreEqual("longsword", session1.Character.equipped.PrimaryHandWeapon.Name);
-            Assert.IsTrue(session1.Character.flagValues["charging"]);
+            Assert.IsTrue(session1.HasFlag("charging"));
             Assert.AreEqual(12, session1.Character.paramValues[Constants.LETHAL_DAMAGE]);
 
             // Verify session 2 remains completely pristine and unaffected
@@ -88,7 +88,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Barbarian", session2.Character.classLevels[0]);
             Assert.IsFalse(session2.Character.RoutinePreferences.IsCategoryVisible(RoutineCategory.ArmorSpikesTWF));
             Assert.IsNull(session2.Character.equipped.PrimaryHandWeapon);
-            Assert.IsFalse(session2.Character.flagValues.ContainsKey("charging") && session2.Character.flagValues["charging"]);
+            Assert.IsFalse(session2.HasFlag("charging"));
             Assert.AreEqual(0, session2.Character.paramValues.ContainsKey(Constants.LETHAL_DAMAGE) ? session2.Character.paramValues[Constants.LETHAL_DAMAGE] : 0);
         }
 
@@ -105,7 +105,7 @@ namespace PlayMore35.Tests {
                 .Duration("1 round");
             action.Perform((ICharacterContext)session1);
 
-            Assert.IsTrue(session1.Character.flagValues["charging"]);
+            Assert.IsTrue(session1.HasFlag("charging"));
 
             var initialRound2 = session2.Timeline.CurrentRound;
 
@@ -113,12 +113,12 @@ namespace PlayMore35.Tests {
             session1.AdvanceTimeline(new LengthOfTime("1 round"));
 
             // Session 1 expired the timed action
-            Assert.IsFalse(session1.Character.flagValues["charging"]);
+            Assert.IsFalse(session1.HasFlag("charging"));
             Assert.AreEqual(1, session1.Timeline.CurrentRound);
 
             // Session 2 is untouched
             Assert.AreEqual(initialRound2, session2.Timeline.CurrentRound);
-            Assert.IsFalse(session2.Character.flagValues.ContainsKey("charging") && session2.Character.flagValues["charging"]);
+            Assert.IsFalse(session2.HasFlag("charging"));
         }
 
         [TestMethod]
@@ -146,8 +146,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("dagger", session.Character.featChoices["Fighter 2"]);
 
             // Assert Subsystems: Pact Magic
-            Assert.IsTrue(session.Character.Subsystems.ContainsKey("pact_magic"), "Should contain pact_magic subsystem.");
-            var pactMagic = session.Character.Subsystems["pact_magic"];
+            Assert.IsTrue(character.Subsystems.ContainsKey("pact_magic"), "Should contain pact_magic subsystem.");
+            var pactMagic = character.Subsystems["pact_magic"];
             Assert.IsNotNull(pactMagic);
             Assert.IsTrue(pactMagic.Slots.ContainsKey("vestiges"));
             Assert.AreEqual(1, pactMagic.Slots["vestiges"].Count);

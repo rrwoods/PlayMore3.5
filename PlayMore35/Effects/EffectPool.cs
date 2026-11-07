@@ -161,8 +161,6 @@ namespace PlayMore35.Effects {
             }
         }
 
-        public IEnumerable<Effect> Effects => effects;
-
         public void RemoveEffect(string effect) {
             var removedParams = effects
                 .Where(x => x.Name == effect && !string.IsNullOrEmpty(x.ParameterName))

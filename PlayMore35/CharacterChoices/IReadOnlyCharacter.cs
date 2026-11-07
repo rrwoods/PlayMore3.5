@@ -22,9 +22,6 @@ namespace PlayMore35.CharacterChoices {
         IReadOnlyDictionary<string, InventoryLocation> inventory { get; }
         EquippedChoices equipped { get; }
         IReadOnlyList<XpSessionEntry> sessions { get; }
-        IReadOnlyList<string> externalEffects { get; }
-        IReadOnlyDictionary<string, SubsystemState> Subsystems { get; }
-        IReadOnlyDictionary<string, bool> flagValues { get; }
         IReadOnlyDictionary<string, int> paramValues { get; }
         Timeline Timeline { get; }
         AttackRoutinePreferences RoutinePreferences { get; }

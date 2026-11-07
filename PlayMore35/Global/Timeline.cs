@@ -83,9 +83,6 @@ namespace PlayMore35.Global {
             DateTime time = CurrentTime;
 
             var result = new TimelineAdvanceResult {
-                RoundsAdvanced = rounds,
-                PreviousTime = lastTime,
-                CurrentTime = time,
                 RefreshRequirement = TimelineRefreshRequirement.None
             };
 
@@ -195,9 +192,6 @@ namespace PlayMore35.Global {
         public TimelineAdvanceResult StartCombat(ICharacterContext context = null) {
             if (this.Combat) {
                 return new TimelineAdvanceResult {
-                    RoundsAdvanced = 0,
-                    PreviousTime = CurrentTime,
-                    CurrentTime = CurrentTime,
                     RefreshRequirement = TimelineRefreshRequirement.None
                 };
             }
@@ -207,9 +201,6 @@ namespace PlayMore35.Global {
             EncounterStartRound = CurrentRound;
 
             return new TimelineAdvanceResult {
-                RoundsAdvanced = 0,
-                PreviousTime = CurrentTime,
-                CurrentTime = CurrentTime,
                 RefreshRequirement = TimelineRefreshRequirement.RecomputeDerived
             };
         }
@@ -217,9 +208,6 @@ namespace PlayMore35.Global {
         public TimelineAdvanceResult EndCombat(ICharacterContext context = null) {
             if (!this.Combat) {
                 return new TimelineAdvanceResult {
-                    RoundsAdvanced = 0,
-                    PreviousTime = CurrentTime,
-                    CurrentTime = CurrentTime,
                     RefreshRequirement = TimelineRefreshRequirement.None
                 };
             }
@@ -227,9 +215,6 @@ namespace PlayMore35.Global {
             this.Combat = false;
             var ctx = context ?? Context;
             var result = new TimelineAdvanceResult {
-                RoundsAdvanced = 0,
-                PreviousTime = CurrentTime,
-                CurrentTime = CurrentTime,
                 RefreshRequirement = TimelineRefreshRequirement.RecomputeDerived
             };
 
