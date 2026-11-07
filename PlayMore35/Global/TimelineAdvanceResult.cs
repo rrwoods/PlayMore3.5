@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace PlayMore35.Global {
@@ -13,8 +13,6 @@ namespace PlayMore35.Global {
         public DateTime PreviousTime { get; set; }
         public DateTime CurrentTime { get; set; }
         public TimelineRefreshRequirement RefreshRequirement { get; set; } = TimelineRefreshRequirement.None;
-        public List<SheetAction> ExpiredActions { get; set; } = new List<SheetAction>();
-
-        public bool HasStateChanged => RefreshRequirement != TimelineRefreshRequirement.None;
+        public List<SheetAction> ExpiredActions { get; } = new List<SheetAction>();
     }
 }

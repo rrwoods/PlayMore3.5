@@ -24,8 +24,6 @@ namespace PlayMore35.Global {
         private readonly Dictionary<string, string> rememberedFeatChoices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession> _levelSessionCache =
             new ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession>();
-        private readonly bool _isSnapshot;
-        internal bool IsSnapshot => _isSnapshot;
 
         public IReadOnlyCharacter Character => readOnlyCharacter;
         public IReadOnlyDictionary<string, string> RememberedFeats => rememberedFeats;
@@ -54,17 +52,11 @@ namespace PlayMore35.Global {
         Timeline ICharacterContext.Timeline => Timeline;
         IRulesCatalog ICharacterContext.Catalog => catalog;
 
-        List<AttackRoutine> ICharacterContext.GetAllRoutines() => GetAllRoutines().ToList();
-        List<AttackRoutine> ICharacterContext.GetVisibleRoutines() => GetVisibleRoutines().ToList();
         SubsystemEngine? ICharacterContext.GetSubsystem(string? id) => GetSubsystem(id);
 
-        public CharacterSession(Character character, IRulesCatalog catalog)
-            : this(character, catalog, false) { }
-
-        internal CharacterSession(Character character, IRulesCatalog catalog, bool isSnapshot) {
+        public CharacterSession(Character character, IRulesCatalog catalog) {
             this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             this.character = character ?? throw new ArgumentNullException(nameof(character));
-            _isSnapshot = isSnapshot;
             this.readOnlyCharacter = new ReadOnlyCharacter(this.character);
 
             this.character.Timeline.Context = this;
@@ -1590,7 +1582,7 @@ namespace PlayMore35.Global {
                 }
             }
 
-            var snapSession = new CharacterSession(sliced, catalog, isSnapshot: true);
+            var snapSession = new CharacterSession(sliced, catalog);
 
             foreach (var engine in snapSession._subsystems.Values) {
                 engine.TrimSlotsToCapacity();

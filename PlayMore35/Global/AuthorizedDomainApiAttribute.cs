@@ -8,10 +8,7 @@ namespace PlayMore35.Global {
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, Inherited = true)]
     public sealed class AuthorizedDomainApiAttribute : Attribute {
-        public string? Reason { get; }
-
         public AuthorizedDomainApiAttribute(string? reason = null) {
-            Reason = reason;
         }
     }
 }

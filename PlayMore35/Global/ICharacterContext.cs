@@ -12,8 +12,6 @@ namespace PlayMore35.Global {
         Equipped EquippedItems { get; }
         Timeline Timeline { get; }
         IRulesCatalog Catalog { get; }
-        List<AttackRoutine> GetAllRoutines();
-        List<AttackRoutine> GetVisibleRoutines();
         StatView GetStatistic(string name);
         int GetStatValue(string name, int defaultValue = 0);
         SubsystemEngine? GetSubsystem(string? id);

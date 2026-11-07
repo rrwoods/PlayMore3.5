@@ -25,9 +25,8 @@ namespace PlayMore35.Effects {
         private readonly Effect baseUses = new Effect("base uses");
 
         public string CreatureType { get; private set; } = "";
-        public List<string> SubTypes { get; private set; } = new List<string>();
+        public List<string> SubTypes { get; } = new List<string>();
         private readonly List<GrantedClassSkill> grantedClassSkills = new List<GrantedClassSkill>();
-        public IReadOnlyList<GrantedClassSkill> GrantedClassSkills => grantedClassSkills.AsReadOnly();
 
         public JToken ToJson() {
             return new JObject(
@@ -276,17 +275,6 @@ namespace PlayMore35.Effects {
             }
 
             return allText;
-        }
-
-        // usage:
-        // foreach (var grouping in FlagsByCategory()) {
-        //     string flagName = grouping.Key;
-        //     foreach (ControllableFlag flag in grouping) {
-        //         // ...
-        //     }
-        // }
-        public ILookup<string, ControllableFlag> FlagsByCategory() {
-            return controllableFlags.Values.ToLookup(x => x.Category);
         }
 
         public void AssignAbilityScores(Dictionary<string, int> scores) {

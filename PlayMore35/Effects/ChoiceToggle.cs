@@ -7,9 +7,6 @@ namespace PlayMore35.Effects {
         private readonly string expected;
         private readonly string? actual;
 
-        public string Expected => expected;
-        public string? Actual => actual;
-
         public ChoiceToggle(string expected, string? actual = null) {
             this.expected = expected ?? "";
             this.actual = actual;

@@ -7,8 +7,6 @@ namespace PlayMore35.Effects {
         public string Category { get; set; } = "";
         public string Description { get; set; } = "";
 
-        public ParameterDefinition() { }
-
         public ParameterDefinition(JObject json) {
             Name = (string?)json["name"] ?? "";
             Category = (string?)json["category"] ?? "";

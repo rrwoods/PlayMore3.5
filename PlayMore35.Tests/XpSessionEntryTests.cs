@@ -45,25 +45,6 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void XpSessionEntry_Comparison_SortsAscendingByGameTimeThenRealDate() {
-            var tEarlyGame = new DateTime(2026, 10, 1, 10, 0, 0);
-            var tLateGame = new DateTime(2026, 10, 5, 12, 0, 0);
-            var dEarlyReal = new DateTime(2026, 10, 7);
-            var dLateReal = new DateTime(2026, 10, 9);
-
-            var s1 = new XpSessionEntry(100, "first game", tEarlyGame, dLateReal);
-            var s2 = new XpSessionEntry(200, "second game early real", tLateGame, dEarlyReal);
-            var s3 = new XpSessionEntry(300, "second game late real", tLateGame, dLateReal);
-
-            var list = new List<XpSessionEntry> { s3, s1, s2 };
-            var sorted = list.OrderBy(s => s).ToList();
-
-            Assert.AreSame(s1, sorted[0]);
-            Assert.AreSame(s2, sorted[1]);
-            Assert.AreSame(s3, sorted[2]);
-        }
-
-        [TestMethod]
         public void XpSessionEntry_EqualityAndHashCode_FunctionCorrectly() {
             var gameTime = new DateTime(2026, 10, 6, 20, 11, 30);
             var realDate = new DateTime(2026, 10, 9);

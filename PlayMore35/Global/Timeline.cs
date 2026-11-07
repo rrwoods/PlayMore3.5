@@ -252,10 +252,6 @@ namespace PlayMore35.Global {
             return result;
         }
 
-        public TimelineAdvanceResult InCombat(bool combat, ICharacterContext context = null) {
-            return combat ? StartCombat(context) : EndCombat(context);
-        }
-
         public void Schedule(SheetAction action, string durationString, ICharacterContext context = null) {
             var ctx = context ?? Context;
             var effects = ctx?.Effects;
@@ -271,14 +267,6 @@ namespace PlayMore35.Global {
             }
 
             long absoluteRound = CurrentRound + duration.InRounds();
-            if (!scheduledActions.ContainsKey(absoluteRound)) {
-                scheduledActions[absoluteRound] = new List<SheetAction>();
-            }
-            scheduledActions[absoluteRound].Add(action);
-        }
-
-        public void Schedule(SheetAction action, long durationRounds) {
-            long absoluteRound = CurrentRound + durationRounds;
             if (!scheduledActions.ContainsKey(absoluteRound)) {
                 scheduledActions[absoluteRound] = new List<SheetAction>();
             }

@@ -38,9 +38,6 @@ namespace PlayMore35.Effects {
     }
 
     public sealed class AlwaysOn : IToggle {
-        private AlwaysOn() { }
-        static AlwaysOn() { }
-
         public JToken ToJson() {
             return new JValue("always");
         }

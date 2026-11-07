@@ -12,15 +12,6 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class CharacterContextTests {
         private class TestCharacterContext : FakeCharacterContext {
-            public override List<AttackRoutine> GetAllRoutines() {
-                return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
-            }
-
-            public override List<AttackRoutine> GetVisibleRoutines() {
-                var all = GetAllRoutines();
-                var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
-                return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
-            }
         }
 
         [TestMethod]
