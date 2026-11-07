@@ -26,9 +26,6 @@ namespace PlayMore35.Tests {
             }
         }
 
-        public virtual List<AttackRoutine> GetAllRoutines() => new List<AttackRoutine>();
-        public virtual List<AttackRoutine> GetVisibleRoutines() => new List<AttackRoutine>();
-
         public virtual StatView GetStatistic(string name) =>
             Effects?.GetStatistic(name, EquippedItems) ?? new StatView(name ?? "", 0);
 

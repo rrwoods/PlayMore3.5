@@ -16,15 +16,6 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class CoreDecouplingTests {
         private class TestContextWithSlottedSubsystem : FakeCharacterContext {
-            public override List<AttackRoutine> GetAllRoutines() {
-                return AttackRoutineEvaluator.EvaluateRoutines(Effects, EquippedItems, 0);
-            }
-
-            public override List<AttackRoutine> GetVisibleRoutines() {
-                var all = GetAllRoutines();
-                var prefs = Character?.RoutinePreferences ?? new AttackRoutinePreferences();
-                return all.Where(r => prefs.IsCategoryVisible(r.Category)).ToList();
-            }
         }
 
         [TestMethod]

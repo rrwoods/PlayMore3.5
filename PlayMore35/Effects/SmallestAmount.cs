@@ -14,14 +14,6 @@ namespace PlayMore35.Effects {
             Amounts.AddRange(array.Select(x => Amount.FromJson(x)!));
         }
 
-        public SmallestAmount(params IAmount[] amounts) {
-            Amounts.AddRange(amounts);
-        }
-
-        public SmallestAmount(params string[] stats) {
-            Amounts.AddRange(stats.Select(x => new VariableAmount(x)));
-        }
-
         public int Get(EffectPool pool, Items.Equipped items) {
             return Amounts.Select(x => x.Get(pool, items)).Min();
         }

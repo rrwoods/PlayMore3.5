@@ -18,8 +18,6 @@ namespace PlayMore35.Global {
         public ChoiceDescriptor? Descriptor { get; set; }
         public IReadOnlyDictionary<string, string>? CurrentChoices { get; set; }
 
-        public ProgressionChoiceContext() { }
-
         public ProgressionChoiceContext(
             ProgressionChoiceDomain domain,
             string choiceValue,

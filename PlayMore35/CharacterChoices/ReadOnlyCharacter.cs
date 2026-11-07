@@ -40,7 +40,6 @@ namespace PlayMore35.CharacterChoices {
         public int TotalExperience() => character.TotalExperience();
         public decimal TotalGold() => character.TotalGold();
         public Dictionary<string, int> SummarizeClassLevels() => character.SummarizeClassLevels();
-        public List<(string, int)> DetailClassLevels() => character.DetailClassLevels();
         public JToken ToJson() => character.ToJson();
     }
 }

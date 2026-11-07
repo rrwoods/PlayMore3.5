@@ -46,7 +46,6 @@ namespace PlayMore35.Global {
         void AddShield(string to, string shieldName, List<string> properties);
         void AddItem(string to, string itemName, int quantity = 1);
         void RemoveThing(string from, object thing);
-        int RemoveItem(string from, string itemName, int quantity);
         void RemoveLocation(string location);
         void CountWeight(string locationName, bool weighs);
         decimal WeightAtLocation(string location);
@@ -61,7 +60,6 @@ namespace PlayMore35.Global {
         IEnumerable<StatView> GetRelevantStats(string tag);
         IEnumerable<ToggleView> GetControllableFlags();
         IEnumerable<ParamView> GetControllableParameters();
-        IReadOnlyList<AttackRoutine> GetAllRoutines();
         IReadOnlyList<AttackRoutine> GetVisibleRoutines();
         Dictionary<string, List<Text>> GetTextEffects();
 
@@ -72,7 +70,6 @@ namespace PlayMore35.Global {
         TimelineAdvanceResult StartCombat();
         TimelineAdvanceResult EndCombat();
 
-        int GetSizeCategory();
         int GetStartingIntelligence();
         int BaseHp();
         bool TooManyRanks(string skill, int levelIndex);
@@ -83,9 +80,6 @@ namespace PlayMore35.Global {
         int GetFeatSlotLevel(string featSlot);
         string ResolveFeatTargetSource(string featSlot);
         IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string filter = null);
-        object ResolveFeatChoice(string featSlot, ChoiceDescriptor descriptor);
-        string ResolveClassChoice(string featSlot, ChoiceDescriptor descriptor);
-        bool IsClassEligible(string className, string filter);
         [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         void SetFeatChoice(string featSlot, string choice);
         [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
@@ -93,6 +87,5 @@ namespace PlayMore35.Global {
         string GetFeatChoice(string featSlot, string key = null);
         IReadOnlyList<ValidationWarning> ValidateProgressionChoice(ProgressionChoiceContext context);
         void AddLevel();
-        ICharacterSession GetSessionAtLevel(int level, bool includeEquipped = false);
     }
 }

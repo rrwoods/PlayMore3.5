@@ -132,11 +132,6 @@ namespace PlayMore35.Global {
             return this;
         }
 
-        public SheetAction ClearFlag(string flag) {
-            flagsToClear.Add(flag);
-            return this;
-        }
-
         public SheetAction AdjustParam(string param, int adjustment) {
             paramsToAdjust[param] = adjustment;
             return this;

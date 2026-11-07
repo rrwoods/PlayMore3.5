@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Global;
 
 namespace PlayMore35.CharacterChoices {
-    public class XpSessionEntry : IJsonable, IComparable<XpSessionEntry>, IEquatable<XpSessionEntry> {
+    public class XpSessionEntry : IJsonable, IEquatable<XpSessionEntry> {
         public int Xp { get; }
         public string Description { get; }
         public DateTime GameTime { get; }
@@ -33,13 +33,6 @@ namespace PlayMore35.CharacterChoices {
                 new JProperty("game_time", GameTime.ToString("O")),
                 new JProperty("real_date", RealDate.ToString("yyyy-MM-dd"))
             );
-        }
-
-        public int CompareTo(XpSessionEntry other) {
-            if (other == null) return 1;
-            int cmp = GameTime.CompareTo(other.GameTime);
-            if (cmp != 0) return cmp;
-            return RealDate.CompareTo(other.RealDate);
         }
 
         public bool Equals(XpSessionEntry other) {

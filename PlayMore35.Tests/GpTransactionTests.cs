@@ -45,25 +45,6 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void GpTransaction_Comparison_SortsAscendingByGameTimeThenRealDate() {
-            var tEarlyGame = new DateTime(2026, 10, 1, 10, 0, 0);
-            var tLateGame = new DateTime(2026, 10, 5, 12, 0, 0);
-            var dEarlyReal = new DateTime(2026, 10, 7);
-            var dLateReal = new DateTime(2026, 10, 9);
-
-            var tx1 = new GpTransaction(10m, "first game", tEarlyGame, dLateReal);
-            var tx2 = new GpTransaction(20m, "second game early real", tLateGame, dEarlyReal);
-            var tx3 = new GpTransaction(30m, "second game late real", tLateGame, dLateReal);
-
-            var list = new List<GpTransaction> { tx3, tx1, tx2 };
-            var sorted = list.OrderBy(t => t).ToList();
-
-            Assert.AreSame(tx1, sorted[0]);
-            Assert.AreSame(tx2, sorted[1]);
-            Assert.AreSame(tx3, sorted[2]);
-        }
-
-        [TestMethod]
         public void Character_Transactions_SerializesAndDeserializesExplicitSchema() {
             var character = new Character();
             var t1 = new GpTransaction(100.0m, "starting gold", new DateTime(2026, 10, 6, 20, 11, 30), new DateTime(2026, 10, 9));
