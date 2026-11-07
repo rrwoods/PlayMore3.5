@@ -66,129 +66,11 @@ namespace PlayMore35.Effects {
 
         }
 
-        public AttackMatcher Names(params string[] names) {
-            matchers.Add(new NameMatcher(names.ToList()));
-            return this;
-        }
-
-        public AttackMatcher Tag(string tag) {
-            matchers.Add(new TagMatcher(tag));
-            return this;
-        }
-
-        public AttackMatcher SizeCategory(int sizeCategory) {
-            matchers.Add(new SizeMatcher(sizeCategory));
-            return this;
-        }
-
-        public AttackMatcher Simple() {
-            matchers.Add(new ProficiencyMatcher().AddProficiency(Weapon.Proficiency.SIMPLE));
-            return this;
-        }
-
-        public AttackMatcher Martial() {
-            matchers.Add(new ProficiencyMatcher().AddProficiency(Weapon.Proficiency.MARTIAL));
-            return this;
-        }
-
-        public AttackMatcher SimpleOrMartial() {
-            matchers.Add(new ProficiencyMatcher()
-                .AddProficiency(Weapon.Proficiency.SIMPLE)
-                .AddProficiency(Weapon.Proficiency.MARTIAL)
-            );
-            return this;
-        }
-
-        public AttackMatcher Exotic() {
-            matchers.Add(new ProficiencyMatcher().AddProficiency(Weapon.Proficiency.EXOTIC));
-            return this;
-        }
-
-        public AttackMatcher Light() {
-            matchers.Add(new EffortMatcher().AddEffort(Weapon.Effort.LIGHT));
-            return this;
-        }
-
-        public AttackMatcher OneHandedWeapon() {
-            matchers.Add(new EffortMatcher().AddEffort(Weapon.Effort.ONE_HANDED));
-            return this;
-        }
-
-        public AttackMatcher PrimaryHandAttack() {
-            matchers.Add(new HandMatcher()
-                .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
-                .AddHand(Weapon.Hand.ONE_HANDED)
-            );
-            return this;
-        }
-
-        public AttackMatcher PrimaryHandTwfAttack() {
-            matchers.Add(new HandMatcher()
-                .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
-            );
-            return this;
-        }
-
-        public AttackMatcher OffHandAttack() {
-            matchers.Add(new HandMatcher()
-                .AddHand(Weapon.Hand.OFF_HAND_TWF)
-            );
-            return this;
-        }
-
-        public AttackMatcher OneHandedAttack() {
-            matchers.Add(new HandMatcher()
-                .AddHand(Weapon.Hand.ONE_HANDED)
-                .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
-                .AddHand(Weapon.Hand.OFF_HAND_TWF)
-            );
-            return this;
-        }
-
         public AttackMatcher NonOffHandAttack() {
             matchers.Add(new HandMatcher()
                 .AddHand(Weapon.Hand.ONE_HANDED)
                 .AddHand(Weapon.Hand.PRIMARY_HAND_TWF)
                 .AddHand(Weapon.Hand.TWO_HANDED)
-            );
-            return this;
-        }
-
-        // I don't have a TwoHandedWeapon matcher function here.  You probably don't want it.
-        // If you think you want it because of Power Attack, you should read Power Attack ;)
-
-        public AttackMatcher TwoHandedAttack() {
-            matchers.Add(new HandMatcher().AddHand(Weapon.Hand.TWO_HANDED));
-            return this;
-        }
-
-        public AttackMatcher Melee() {
-            matchers.Add(new RangeMatcher()
-                .AddRange(Weapon.Range.MELEE)
-                .AddRange(Weapon.Range.REACH_MELEE)
-            );
-            return this;
-        }
-
-        public AttackMatcher Ranged() {
-            matchers.Add(new RangeMatcher()
-                .AddRange(Weapon.Range.THROWN)
-                .AddRange(Weapon.Range.BOW)
-                .AddRange(Weapon.Range.OTHER_PROJECTILE)
-            );
-            return this;
-        }
-
-        public AttackMatcher Thrown() {
-            matchers.Add(new RangeMatcher()
-                .AddRange(Weapon.Range.THROWN)
-            );
-            return this;
-        }
-
-        public AttackMatcher Bow() {
-            matchers.Add(new RangeMatcher()
-                .AddRange(Weapon.Range.BOW)
             );
             return this;
         }
@@ -208,10 +90,6 @@ namespace PlayMore35.Effects {
 
         public JToken ToJson() {
             return new JProperty("name", new JArray(Names));
-        }
-
-        public NameMatcher() {
-            Names = new List<string>();
         }
 
         public NameMatcher(List<string> names) {
@@ -234,10 +112,6 @@ namespace PlayMore35.Effects {
             return new JProperty("tag", Tag);
         }
 
-        public TagMatcher() {
-            Tag = "";
-        }
-
         public TagMatcher(string tag) {
             Tag = tag;
         }
@@ -258,10 +132,6 @@ namespace PlayMore35.Effects {
             return new JProperty("size", SizeCategory);
         }
 
-        public SizeMatcher() {
-
-        }
-
         public SizeMatcher(int sizeCategory) {
             SizeCategory = sizeCategory;
         }
@@ -280,10 +150,6 @@ namespace PlayMore35.Effects {
 
         public JToken ToJson() {
             return new JProperty("proficiency", new JArray(Proficiencies.Select(x => x.ToString())));
-        }
-
-        public ProficiencyMatcher(List<Weapon.Proficiency> proficiencies) {
-            Proficiencies = proficiencies;
         }
 
         public ProficiencyMatcher() {
@@ -315,10 +181,6 @@ namespace PlayMore35.Effects {
 
         }
 
-        public EffortMatcher(List<Weapon.Effort> efforts) {
-            Efforts = efforts;
-        }
-
         public EffortMatcher AddEffort(Weapon.Effort effort) {
             Efforts.Add(effort);
             return this;
@@ -344,10 +206,6 @@ namespace PlayMore35.Effects {
 
         }
 
-        public HandMatcher(List<Weapon.Hand> hands) {
-            Hands = hands;
-        }
-
         public HandMatcher AddHand(Weapon.Hand hand) {
             Hands.Add(hand);
             return this;
@@ -364,10 +222,6 @@ namespace PlayMore35.Effects {
 
     class RangeMatcher : IMatcher {
         private readonly List<Weapon.Range> Ranges = new List<Weapon.Range>();
-
-        public RangeMatcher(List<Weapon.Range> ranges) {
-            Ranges = ranges;
-        }
 
         public RangeMatcher() {
 
