@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DeadCodeScanner.Tests;
@@ -297,5 +298,233 @@ public class Program {
         Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StandaloneAuthorizedApi"), "StandaloneAuthorizedApi should be Live");
         Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StandaloneWork"), "StandaloneWork should be Live");
         Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "StandaloneAuthorizedApi"), "StandaloneAuthorizedApi should not be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_StaticFieldInitializer_RecordsCallEdgeAndMarksTargetAsLiveWhenClassInitialized() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class AttackMatcher {
+    public static readonly AttackMatcher ALL_EXCEPT_OFF_HAND = new AttackMatcher().NonOffHandAttack();
+    public AttackMatcher() {}
+    public AttackMatcher NonOffHandAttack() {
+        Helper();
+        return this;
+    }
+    private void Helper() {}
+}
+
+public class Program {
+    public static void Main() {
+        var a = new AttackMatcher();
+    }
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "NonOffHandAttack"), "NonOffHandAttack should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "Helper"), "Helper should be Live");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "NonOffHandAttack"), "NonOffHandAttack should not be Dead");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "Helper"), "Helper should not be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_StaticFieldInitializerChains_ResolvesAllChainedMethodsAsLive() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class Target {
+    public static readonly Target INSTANCE = new Target().StepOne().StepTwo();
+    public Target StepOne() => this;
+    public Target StepTwo() => this;
+}
+
+public class Program {
+    public static void Main() {
+        var t = new Target();
+    }
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StepOne"), "StepOne should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StepTwo"), "StepTwo should be Live");
+    }
+
+    [TestMethod]
+    public void Analyze_InstanceFieldInitializer_RecordsCallEdgeAndMarksTargetAsLiveWhenInstantiated() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class Service {
+    private Helper _h = new Helper().Init();
+}
+
+public class Helper {
+    public Helper Init() => this;
+}
+
+public class Program {
+    public static void Main() {
+        var s = new Service();
+    }
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "Init"), "Helper.Init should be Live");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "Init"), "Helper.Init should not be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_StaticFieldDirectAccess_InitializesClassAndMarksTargetsLive() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class Target {
+    public static readonly int Value = Calculate();
+    private static int Calculate() => 42;
+}
+
+public class Program {
+    public static void Main() {
+        var v = Target.Value;
+    }
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "Calculate"), "Target.Calculate should be Live");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "Calculate"), "Target.Calculate should not be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_PolyfillAttributesInNullableAttributesFile_ExcludedFromDeadReporting() {
+        string polyfillSource = @"
+namespace System.Diagnostics.CodeAnalysis;
+
+public sealed class MaybeNullWhenAttribute : System.Attribute {
+    public MaybeNullWhenAttribute(bool returnValue) => ReturnValue = returnValue;
+    public bool ReturnValue { get; }
+}
+
+public sealed class NotNullWhenAttribute : System.Attribute {
+    public NotNullWhenAttribute(bool returnValue) => ReturnValue = returnValue;
+    public bool ReturnValue { get; }
+}
+";
+        string mainSource = @"
+namespace PlayMore35;
+public class Program {
+    public static void Main() {}
+}
+";
+        var tree1 = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(
+            polyfillSource,
+            Microsoft.CodeAnalysis.CSharp.CSharpParseOptions.Default.WithLanguageVersion(Microsoft.CodeAnalysis.CSharp.LanguageVersion.Latest),
+            path: @"C:\Repo\PlayMore35\Properties\NullableAttributes.cs"
+        );
+        var tree2 = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(
+            mainSource,
+            Microsoft.CodeAnalysis.CSharp.CSharpParseOptions.Default.WithLanguageVersion(Microsoft.CodeAnalysis.CSharp.LanguageVersion.Latest),
+            path: @"C:\Repo\PlayMore35\Program.cs"
+        );
+
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", new[] { tree1, tree2 });
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsFalse(result.DeadMethods.Any(m => m.FilePath.EndsWith("NullableAttributes.cs")), "NullableAttributes.cs methods must be excluded from DeadMethods");
+    }
+
+    [TestMethod]
+    public void Analyze_DesignerBoilerplateInDesignerFiles_ExcludedFromDeadReporting() {
+        string resourcesSource = @"
+namespace PlayMore35.Properties;
+
+public class Resources {
+    internal Resources() {}
+    public static string Culture { get; set; }
+}
+";
+        string settingsSource = @"
+namespace PlayMore35.Properties;
+
+public class Settings {
+    public static Settings Default => new Settings();
+}
+";
+        string mainSource = @"
+namespace PlayMore35;
+public class Program {
+    public static void Main() {}
+}
+";
+        var tree1 = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(
+            resourcesSource,
+            Microsoft.CodeAnalysis.CSharp.CSharpParseOptions.Default.WithLanguageVersion(Microsoft.CodeAnalysis.CSharp.LanguageVersion.Latest),
+            path: @"C:\Repo\PlayMore35\Properties\Resources.Designer.cs"
+        );
+        var tree2 = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(
+            settingsSource,
+            Microsoft.CodeAnalysis.CSharp.CSharpParseOptions.Default.WithLanguageVersion(Microsoft.CodeAnalysis.CSharp.LanguageVersion.Latest),
+            path: @"C:\Repo\PlayMore35\Properties\Settings.Designer.cs"
+        );
+        var tree3 = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(
+            mainSource,
+            Microsoft.CodeAnalysis.CSharp.CSharpParseOptions.Default.WithLanguageVersion(Microsoft.CodeAnalysis.CSharp.LanguageVersion.Latest),
+            path: @"C:\Repo\PlayMore35\Program.cs"
+        );
+
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", new[] { tree1, tree2, tree3 });
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsFalse(result.DeadMethods.Any(m => m.FilePath.EndsWith("Resources.Designer.cs")), "Resources.Designer.cs methods must be excluded from DeadMethods");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.FilePath.EndsWith("Settings.Designer.cs")), "Settings.Designer.cs methods must be excluded from DeadMethods");
+    }
+
+    [TestMethod]
+    public void Analyze_DeadClassWithFieldInitializer_TargetsRemainDead() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class DeadClass {
+    public static readonly int Unused = DeadHelper();
+    private static int DeadHelper() => 123;
+}
+
+public class Program {
+    public static void Main() {}
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadHelper"), "DeadHelper in unreferenced class must remain Dead");
     }
 }
