@@ -38,4 +38,24 @@ public class MarkdownReportFormatterTests {
         StringAssert.Contains(markdown, "TestRoot");
         StringAssert.Contains(markdown, "ZombieTests.cs");
     }
+
+    [TestMethod]
+    public void Format_WithoutZombieIslands_StillIncludesIsolatedDeadMethods() {
+        var isolated = new MethodNode("PlayMore35.Lonely.DoWork()", "DoWork", "PlayMore35.Lonely", "Lonely.cs", 10, false);
+        var liveMethod = new MethodNode("PlayMore35.Program.Main()", "Main", "PlayMore35.Program", "Program.cs", 5, true);
+
+        var result = new AnalysisResult(
+            new[] { liveMethod },
+            new[] { isolated },
+            Array.Empty<ZombieIsland>(),
+            new[] { isolated }
+        );
+
+        var formatter = new MarkdownReportFormatter();
+        string markdown = formatter.Format(result);
+
+        StringAssert.Contains(markdown, "No zombie islands detected!");
+        StringAssert.Contains(markdown, "## Isolated Dead Methods");
+        StringAssert.Contains(markdown, "Lonely.DoWork");
+    }
 }

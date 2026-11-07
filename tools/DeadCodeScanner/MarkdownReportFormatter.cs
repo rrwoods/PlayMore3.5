@@ -30,43 +30,43 @@ public class MarkdownReportFormatter {
         if (result.ZombieIslands.Count == 0) {
             sb.AppendLine("> [!NOTE]");
             sb.AppendLine("> No zombie islands detected! All code paths are either reachable from application roots or completely isolated.");
-            return sb.ToString();
-        }
-
-        sb.AppendLine("## Zombie Islands Breakdown");
-        sb.AppendLine();
-        sb.AppendLine("A **Zombie Island** is an unreachable call tree that appears alive because it has callers or is kept on artificial life support by unit tests.");
-        sb.AppendLine();
-
-        foreach (var island in result.ZombieIslands) {
-            sb.AppendLine($"### `{island.Name}`");
+            sb.AppendLine();
+        } else {
+            sb.AppendLine("## Zombie Islands Breakdown");
+            sb.AppendLine();
+            sb.AppendLine("A **Zombie Island** is an unreachable call tree that appears alive because it has callers or is kept on artificial life support by unit tests.");
             sb.AppendLine();
 
-            sb.AppendLine("**Island Roots (No production callers):**");
-            foreach (var root in island.Roots) {
-                sb.AppendLine($"- `{root.ContainingType}.{root.Name}` ({root.FilePath}:{root.LineNumber})");
-            }
-            sb.AppendLine();
+            foreach (var island in result.ZombieIslands) {
+                sb.AppendLine($"### `{island.Name}`");
+                sb.AppendLine();
 
-            if (island.Cascade.Count > 0) {
-                sb.AppendLine("**Cascaded Methods (Downstream dead calls):**");
-                foreach (var cascaded in island.Cascade) {
-                    sb.AppendLine($"- `{cascaded.ContainingType}.{cascaded.Name}` ({cascaded.FilePath}:{cascaded.LineNumber})");
+                sb.AppendLine("**Island Roots (No production callers):**");
+                foreach (var root in island.Roots) {
+                    sb.AppendLine($"- `{root.ContainingType}.{root.Name}` ({root.FilePath}:{root.LineNumber})");
                 }
                 sb.AppendLine();
-            }
 
-            sb.AppendLine("**Artificial Life Support (Tests referencing this island):**");
-            if (island.LifeSupportTests.Count > 0) {
-                foreach (var test in island.LifeSupportTests) {
-                    sb.AppendLine($"- 🧪 `{test.ContainingType}.{test.Name}` ({test.FilePath}:{test.LineNumber})");
+                if (island.Cascade.Count > 0) {
+                    sb.AppendLine("**Cascaded Methods (Downstream dead calls):**");
+                    foreach (var cascaded in island.Cascade) {
+                        sb.AppendLine($"- `{cascaded.ContainingType}.{cascaded.Name}` ({cascaded.FilePath}:{cascaded.LineNumber})");
+                    }
+                    sb.AppendLine();
                 }
-            } else {
-                sb.AppendLine("- *None (Pure dead code - no tests reference this island)*");
+
+                sb.AppendLine("**Artificial Life Support (Tests referencing this island):**");
+                if (island.LifeSupportTests.Count > 0) {
+                    foreach (var test in island.LifeSupportTests) {
+                        sb.AppendLine($"- 🧪 `{test.ContainingType}.{test.Name}` ({test.FilePath}:{test.LineNumber})");
+                    }
+                } else {
+                    sb.AppendLine("- *None (Pure dead code - no tests reference this island)*");
+                }
+                sb.AppendLine();
+                sb.AppendLine("---");
+                sb.AppendLine();
             }
-            sb.AppendLine();
-            sb.AppendLine("---");
-            sb.AppendLine();
         }
 
         if (result.IsolatedDeadMethods.Count > 0) {

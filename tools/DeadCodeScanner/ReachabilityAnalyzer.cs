@@ -256,6 +256,11 @@ public class ReachabilityAnalyzer {
                         target = model.GetSymbolInfo(callSite).Symbol;
                     }
 
+                    if (target is IPropertySymbol targetProp) {
+                        bool isAssignmentTarget = callSite.Parent is AssignmentExpressionSyntax assign && assign.Left == callSite;
+                        target = isAssignmentTarget ? targetProp.SetMethod : targetProp.GetMethod;
+                    }
+
                     if (target is IMethodSymbol targetMethod) {
                         var actualMethod = targetMethod.ReducedFrom ?? targetMethod;
                         string targetDisplay = actualMethod.OriginalDefinition.ToDisplayString();

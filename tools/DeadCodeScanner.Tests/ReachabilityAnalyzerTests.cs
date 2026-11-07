@@ -159,6 +159,37 @@ public class LonelyService {
     }
 
     [TestMethod]
+    public void Analyze_DeadPropertyReferencedByTest_IsClassifiedAsZombieIsland() {
+        string prodSource = @"
+namespace PlayMore35;
+public class Program {
+    public static void Main() {}
+}
+public class LonelyControl {
+    public string TestHelper => ""text"";
+}
+";
+        string testSource = @"
+namespace PlayMore35.Tests;
+public class ControlTests {
+    public void Verify() {
+        var c = new LonelyControl();
+        var t = c.TestHelper;
+    }
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var prodRef = prodCompilation.ToMetadataReference();
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", testSource, new[] { prodRef });
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.HasCount(1, result.ZombieIslands);
+        Assert.IsTrue(result.ZombieIslands[0].LifeSupportTests.Any(t => t.Name == "Verify"));
+    }
+
+    [TestMethod]
     public void Analyze_ExtensionMethodInvocation_ResolvesDeclaringMethodAsLive() {
         string prodSource = @"
 namespace PlayMore35;
