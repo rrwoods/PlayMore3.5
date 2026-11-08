@@ -10,7 +10,7 @@ namespace PlayMore35.Tests {
         public void DateOverridePicker_DefaultsToToday() {
             var picker = new DateOverridePicker();
             Assert.AreEqual(DateTime.Today, picker.SelectedDate);
-            Assert.AreEqual($"[Date: {DateTime.Today:yyyy-MM-dd}]", picker.DisplayText);
+            Assert.AreEqual($"[Date: {DateTime.Today:yyyy-MM-dd}]", picker.Text);
             Assert.AreEqual(FontStyle.Regular, picker.Font.Style);
             Assert.AreEqual(DateOverridePicker.DefaultTextColor, picker.LinkColor);
             Assert.AreEqual(DateOverridePicker.DefaultTextColor, picker.ForeColor);
@@ -27,7 +27,7 @@ namespace PlayMore35.Tests {
             picker.SelectedDate = targetDate;
 
             Assert.AreEqual(new DateTime(2026, 10, 1), picker.SelectedDate);
-            Assert.AreEqual("[Date: 2026-10-01]", picker.DisplayText);
+            Assert.AreEqual("[Date: 2026-10-01]", picker.Text);
             Assert.IsTrue(eventFired);
             Assert.AreEqual(FontStyle.Italic, picker.Font.Style);
             Assert.AreEqual(DateOverridePicker.OverriddenTextColor, picker.LinkColor);
@@ -45,7 +45,7 @@ namespace PlayMore35.Tests {
 
             picker.Reset();
             Assert.AreEqual(DateTime.Today, picker.SelectedDate);
-            Assert.AreEqual($"[Date: {DateTime.Today:yyyy-MM-dd}]", picker.DisplayText);
+            Assert.AreEqual($"[Date: {DateTime.Today:yyyy-MM-dd}]", picker.Text);
             Assert.AreEqual(FontStyle.Regular, picker.Font.Style);
             Assert.AreEqual(DateOverridePicker.DefaultTextColor, picker.LinkColor);
             Assert.AreEqual(DateOverridePicker.DefaultTextColor, picker.VisitedLinkColor);

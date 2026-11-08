@@ -51,10 +51,10 @@ namespace PlayMore35.Tests {
             );
             panel.Initialize(null);
 
-            Assert.IsNotNull(panel.HeaderLabel);
-            Assert.AreEqual("Senses:", panel.HeaderLabel.Text);
-            Assert.AreEqual(2, panel.SkillLabels.Count);
-            Assert.IsNotNull(panel.EffectsPanel);
+            Assert.IsNotNull(panel.GetHeaderLabel());
+            Assert.AreEqual("Senses:", panel.GetHeaderLabel().Text);
+            Assert.AreEqual(2, panel.GetSkillLabels().Count);
+            Assert.IsNotNull(panel.GetEffectsPanel());
         }
 
         [TestMethod]
@@ -74,12 +74,12 @@ namespace PlayMore35.Tests {
 
                 // When neither condition is active:
                 panel.Update(textEffects);
-                Assert.IsTrue(panel.SkillLabels[0].Text.StartsWith("Listen"));
-                Assert.IsTrue(panel.SkillLabels[0].Text.EndsWith(","));
-                Assert.IsFalse(panel.SkillLabels[0].Text.Contains("\u2014"));
-                Assert.IsTrue(panel.SkillLabels[1].Text.StartsWith("Spot"));
-                Assert.IsFalse(panel.SkillLabels[1].Text.EndsWith(","));
-                Assert.IsFalse(panel.SkillLabels[1].Text.Contains("\u2014"));
+                Assert.IsTrue(panel.GetSkillLabels()[0].Text.StartsWith("Listen"));
+                Assert.IsTrue(panel.GetSkillLabels()[0].Text.EndsWith(","));
+                Assert.IsFalse(panel.GetSkillLabels()[0].Text.Contains("\u2014"));
+                Assert.IsTrue(panel.GetSkillLabels()[1].Text.StartsWith("Spot"));
+                Assert.IsFalse(panel.GetSkillLabels()[1].Text.EndsWith(","));
+                Assert.IsFalse(panel.GetSkillLabels()[1].Text.Contains("\u2014"));
 
                 var context = (ICharacterContext)session;
                 context.Effects.controllableFlags["deafened"] = TestFactory.CreateControllableFlag("deafened", character);
@@ -88,14 +88,14 @@ namespace PlayMore35.Tests {
                 // When deafened:
                 session.SetFlag("deafened", true);
                 panel.Update(textEffects);
-                Assert.AreEqual("Listen \u2014,", panel.SkillLabels[0].Text);
-                Assert.IsFalse(panel.SkillLabels[1].Text.Contains("\u2014"));
+                Assert.AreEqual("Listen \u2014,", panel.GetSkillLabels()[0].Text);
+                Assert.IsFalse(panel.GetSkillLabels()[1].Text.Contains("\u2014"));
 
                 // When blinded as well:
                 session.SetFlag("blinded", true);
                 panel.Update(textEffects);
-                Assert.AreEqual("Listen \u2014,", panel.SkillLabels[0].Text);
-                Assert.AreEqual("Spot \u2014", panel.SkillLabels[1].Text);
+                Assert.AreEqual("Listen \u2014,", panel.GetSkillLabels()[0].Text);
+                Assert.AreEqual("Spot \u2014", panel.GetSkillLabels()[1].Text);
             }
         }
 
@@ -112,9 +112,9 @@ namespace PlayMore35.Tests {
             using (var form = new MainForm(session)) {
                 panel.Initialize(form);
 
-                Assert.AreEqual("Exploration:", panel.HeaderLabel.Text);
-                Assert.AreEqual(2, panel.SkillLabels.Count);
-                Assert.AreEqual(EXPLORATION, panel.EffectsPanel.Tag);
+                Assert.AreEqual("Exploration:", panel.GetHeaderLabel().Text);
+                Assert.AreEqual(2, panel.GetSkillLabels().Count);
+                Assert.AreEqual(EXPLORATION, panel.GetEffectsPanel().Tag);
 
                 // Give character Track and Endurance feats
                 session.Mutate(c => {
@@ -132,13 +132,13 @@ namespace PlayMore35.Tests {
                 panel.Update(textEffects);
 
                 // Verify single-row skill labels with commas
-                Assert.IsTrue(panel.SkillLabels[0].Text.StartsWith("Survival"));
-                Assert.IsTrue(panel.SkillLabels[0].Text.EndsWith(","));
-                Assert.IsTrue(panel.SkillLabels[1].Text.StartsWith("Search"));
-                Assert.IsFalse(panel.SkillLabels[1].Text.EndsWith(","));
+                Assert.IsTrue(panel.GetSkillLabels()[0].Text.StartsWith("Survival"));
+                Assert.IsTrue(panel.GetSkillLabels()[0].Text.EndsWith(","));
+                Assert.IsTrue(panel.GetSkillLabels()[1].Text.StartsWith("Search"));
+                Assert.IsFalse(panel.GetSkillLabels()[1].Text.EndsWith(","));
 
                 // Verify effects panel is visible and contains the exploration text effects
-                Assert.IsTrue(panel.EffectsPanel.Visible, "Effects panel should be visible when character has exploration text effects.");
+                Assert.IsTrue(panel.GetEffectsPanel().Visible, "Effects panel should be visible when character has exploration text effects.");
                 Assert.IsTrue(panel.Visible, "Exploration section panel should be visible.");
             }
         }
@@ -160,9 +160,9 @@ namespace PlayMore35.Tests {
             using (var form = new MainForm(session)) {
                 panel.Initialize(form);
 
-                Assert.AreEqual("Social:", panel.HeaderLabel.Text);
-                Assert.AreEqual(2, panel.SkillLabels.Count);
-                Assert.AreEqual(SOCIAL, panel.EffectsPanel.Tag);
+                Assert.AreEqual("Social:", panel.GetHeaderLabel().Text);
+                Assert.AreEqual(2, panel.GetSkillLabels().Count);
+                Assert.AreEqual(SOCIAL, panel.GetEffectsPanel().Tag);
 
                 // Bind a vestige with Social influence (Aym) with poor pact so influence is contributed
                 var pactEngine = session.GetSubsystem("pact_magic");
@@ -178,11 +178,11 @@ namespace PlayMore35.Tests {
                 panel.Update(textEffects);
 
                 // Verify single-row skill labels with modifiers and commas
-                Assert.AreEqual("Diplomacy +6,", panel.SkillLabels[0].Text);
-                Assert.AreEqual("Bluff +4", panel.SkillLabels[1].Text);
+                Assert.AreEqual("Diplomacy +6,", panel.GetSkillLabels()[0].Text);
+                Assert.AreEqual("Bluff +4", panel.GetSkillLabels()[1].Text);
 
                 // Verify effects panel is visible and contains vestige influence text effects indented
-                Assert.IsTrue(panel.EffectsPanel.Visible, "Effects panel should be visible when vestige influence is active.");
+                Assert.IsTrue(panel.GetEffectsPanel().Visible, "Effects panel should be visible when vestige influence is active.");
                 Assert.IsTrue(panel.Visible, "Social section panel should be visible.");
             }
         }
@@ -221,10 +221,10 @@ namespace PlayMore35.Tests {
             );
             panel.Initialize(null);
 
-            Assert.AreEqual(new Padding(3, 0, 0, 0), panel.HeaderLabel.Margin);
-            Assert.AreEqual(0, panel.HeaderLabel.Margin.Top);
-            foreach (var label in panel.SkillLabels) {
-                Assert.AreEqual(panel.HeaderLabel.Margin.Top, label.Margin.Top);
+            Assert.AreEqual(new Padding(3, 0, 0, 0), panel.GetHeaderLabel().Margin);
+            Assert.AreEqual(0, panel.GetHeaderLabel().Margin.Top);
+            foreach (var label in panel.GetSkillLabels()) {
+                Assert.AreEqual(panel.GetHeaderLabel().Margin.Top, label.Margin.Top);
             }
         }
     }

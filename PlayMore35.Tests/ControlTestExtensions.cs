@@ -105,6 +105,42 @@ namespace PlayMore35.Tests {
             return null;
         }
 
+        public static int GetHeaderTop(this TabularLedgerPanel panel) =>
+            GetField<Panel>(panel, "headerPanel").Top;
+
+        public static int GetBodyTop(this TabularLedgerPanel panel) =>
+            GetField<Panel>(panel, "bodyPanel").Top;
+
+        public static int GetVerticalScrollValue(this TabularLedgerPanel panel) =>
+            GetField<Panel>(panel, "bodyPanel").VerticalScroll.Value;
+
+        public static int GetRowCount(this TabularLedgerPanel panel) =>
+            GetField<List<LedgerRowControl>>(panel, "rows").Count;
+
+        public static string GetGameTimeText(this LedgerRowControl row) =>
+            GetField<Label>(row, "lblGameTime").Text;
+
+        public static string GetRealDateText(this LedgerRowControl row) =>
+            GetField<Label>(row, "lblRealDate").Text;
+
+        public static string GetDescriptionText(this LedgerRowControl row) =>
+            GetField<Label>(row, "lblDescription").Text;
+
+        public static string GetAmountText(this LedgerRowControl row) =>
+            GetField<Label>(row, "lblAmount").Text;
+
+        public static Panel GetPickerHost(this LevelDetailsDialog dialog) =>
+            dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
+
+        public static IReadOnlyList<Label> GetSkillLabels(this SkillTextSectionPanel panel) =>
+            GetField<List<Label>>(panel, "skillLabels").AsReadOnly();
+
+        public static Label GetHeaderLabel(this SkillTextSectionPanel panel) =>
+            GetField<Label>(panel, "headerLabel");
+
+        public static TextEffectPanel GetEffectsPanel(this SkillTextSectionPanel panel) =>
+            GetField<TextEffectPanel>(panel, "effectsPanel");
+
         public static void SelectRow(this TabularLedgerPanel panel, int index) {
             var row = panel.GetRow(index);
             if (row == null) return;

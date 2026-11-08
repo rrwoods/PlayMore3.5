@@ -162,10 +162,10 @@ namespace PlayMore35.Tests {
                 var displayXpMethod = typeof(MainForm).GetMethod("DisplayXp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 displayXpMethod.Invoke(form, new object[] { false });
 
-                Assert.AreEqual(1, ledger.RowCount);
+                Assert.AreEqual(1, ledger.GetRowCount());
                 var row = ledger.GetRow(0);
-                Assert.AreEqual("+1,500", row.AmountText);
-                Assert.AreEqual("Defeated Red Dragon", row.DescriptionText);
+                Assert.AreEqual("+1,500", row.GetAmountText());
+                Assert.AreEqual("Defeated Red Dragon", row.GetDescriptionText());
             }
         }
 
@@ -194,8 +194,8 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(2000, session.Character.sessions[0].Xp);
                 Assert.AreEqual("Bounty hunt", session.Character.sessions[0].Description);
                 Assert.AreEqual(new DateTime(2026, 10, 8), session.Character.sessions[0].RealDate);
-                Assert.AreEqual(1, ledger.RowCount);
-                Assert.AreEqual("+2,000", ledger.GetRow(0).AmountText);
+                Assert.AreEqual(1, ledger.GetRowCount());
+                Assert.AreEqual("+2,000", ledger.GetRow(0).GetAmountText());
 
                 // Right click delete
                 var row = ledger.GetRow(0);
@@ -204,7 +204,7 @@ namespace PlayMore35.Tests {
                 row.ContextMenuStrip.Items[0].PerformClick();
 
                 Assert.AreEqual(0, session.Character.sessions.Count);
-                Assert.AreEqual(0, ledger.RowCount);
+                Assert.AreEqual(0, ledger.GetRowCount());
                 Assert.AreEqual(0, session.Character.TotalExperience());
             }
         }
