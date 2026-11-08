@@ -23,8 +23,6 @@ namespace PlayMore35.UI {
             }
         }
 
-        public string DisplayText => Text;
-
         public DateOverridePicker() {
             AutoSize = true;
             Cursor = Cursors.Hand;

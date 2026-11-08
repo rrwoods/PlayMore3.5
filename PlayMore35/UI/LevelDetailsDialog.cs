@@ -68,36 +68,8 @@ namespace PlayMore35 {
 
         private readonly Dictionary<ElementReceptorControl, ElementReceptorBinding> receptorBindings = new Dictionary<ElementReceptorControl, ElementReceptorBinding>();
 
-        private class ChoiceItem {
-            public string DisplayText { get; }
-            public string Value { get; }
-
-            public ChoiceItem(string displayText, string value) {
-                DisplayText = displayText;
-                Value = value;
-            }
-
-            public override string ToString() => DisplayText;
-
-            public override bool Equals(object obj) {
-                if (obj is ChoiceItem other) {
-                    return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase) ||
-                           string.Equals(DisplayText, other.DisplayText, StringComparison.OrdinalIgnoreCase);
-                }
-                if (obj is string str) {
-                    return string.Equals(Value, str, StringComparison.OrdinalIgnoreCase) ||
-                           string.Equals(DisplayText, str, StringComparison.OrdinalIgnoreCase);
-                }
-                return false;
-            }
-
-            public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
-        }
-
         private Dictionary<string, FeatSlotChoiceState> slotChoiceStates = new Dictionary<string, FeatSlotChoiceState>();
         private Dictionary<string, List<Control>> dynamicSlotControls = new Dictionary<string, List<Control>>();
-
-        public Panel PickerHost => pnlPickerHost;
 
         public LevelDetailsDialog(ICharacterSession session, SubsystemUIRegistry? uiRegistry = null) {
             InitializeComponent();
@@ -458,11 +430,7 @@ namespace PlayMore35 {
                         receptor = r;
                         selectedValue = r.SelectedElement?.Name ?? "";
                     } else if (ctrl is ComboBox cbo) {
-                        if (cbo.SelectedItem is ChoiceItem ci && (string.IsNullOrWhiteSpace(cbo.Text) || ci.DisplayText.Equals(cbo.Text, StringComparison.OrdinalIgnoreCase))) {
-                            selectedValue = ci.Value;
-                        } else {
-                            selectedValue = ExtractBracketedName(cbo.Text);
-                        }
+                        selectedValue = ExtractBracketedName(cbo.Text);
                     } else {
                         selectedValue = ctrl.Text;
                     }
@@ -547,9 +515,7 @@ namespace PlayMore35 {
                             if (ctrl is ElementReceptorControl r) {
                                 val = r.SelectedElement?.Name ?? "";
                             } else if (ctrl is ComboBox cbo) {
-                                if (cbo.SelectedItem is ChoiceItem ci && (string.IsNullOrWhiteSpace(cbo.Text) || ci.DisplayText.Equals(cbo.Text, StringComparison.OrdinalIgnoreCase))) {
-                                    val = ci.Value;
-                                } else if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                                if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
                                     val = ExtractBracketedName(cbo.Text);
                                 } else {
                                     val = cbo.Text;

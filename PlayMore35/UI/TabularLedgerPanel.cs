@@ -28,17 +28,12 @@ namespace PlayMore35.UI {
         public const int ROW_HEIGHT = 20;
         public const int MIN_THREE_ROW_HEIGHT = HEADER_HEIGHT + 3 * ROW_HEIGHT;
 
-        public int HeaderTop => headerPanel.Top;
-        public int BodyTop => bodyPanel.Top;
         public bool IsOverflow => (HEADER_HEIGHT + rows.Count * ROW_HEIGHT) > ClientSize.Height;
-        public int VerticalScrollValue => bodyPanel.VerticalScroll.Value;
 
         public string AmountColumnHeader {
             get => lblHeaderAmount.Text;
             set => lblHeaderAmount.Text = value;
         }
-
-        public int RowCount => rows.Count;
 
         public void AlignInputControls(Control datePicker, Control descInput, Control amountInput, Control addButton) {
             Width = BASELINE_WIDTH;
@@ -302,11 +297,6 @@ namespace PlayMore35.UI {
         private static readonly Color NormalColor = Color.Transparent;
 
         public event EventHandler RowSelected;
-
-        public string GameTimeText => lblGameTime.Text;
-        public string RealDateText => lblRealDate.Text;
-        public string DescriptionText => lblDescription.Text;
-        public string AmountText => lblAmount.Text;
 
         public bool IsSelected {
             get => isSelected;

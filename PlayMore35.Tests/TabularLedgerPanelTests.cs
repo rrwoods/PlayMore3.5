@@ -27,13 +27,13 @@ namespace PlayMore35.Tests {
                 t => deletedItem = t
             );
 
-            Assert.AreEqual(2, panel.RowCount);
+            Assert.AreEqual(2, panel.GetRowCount());
 
             var row0 = panel.GetRow(0);
-            Assert.AreEqual("2026-10-06 20:11", row0.GameTimeText);
-            Assert.AreEqual("2026-10-09", row0.RealDateText);
-            Assert.AreEqual("starting gold", row0.DescriptionText);
-            Assert.AreEqual("+100", row0.AmountText);
+            Assert.AreEqual("2026-10-06 20:11", row0.GetGameTimeText());
+            Assert.AreEqual("2026-10-09", row0.GetRealDateText());
+            Assert.AreEqual("starting gold", row0.GetDescriptionText());
+            Assert.AreEqual("+100", row0.GetAmountText());
 
             Assert.IsNotNull(row0.ContextMenuStrip);
             Assert.AreEqual(1, row0.ContextMenuStrip.Items.Count);
@@ -56,7 +56,7 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(1, panel.RowCount);
+            Assert.AreEqual(1, panel.GetRowCount());
             var row = panel.GetRow(0);
             Assert.IsFalse(row.IsSelected);
 
@@ -102,11 +102,11 @@ namespace PlayMore35.Tests {
             );
 
             Assert.AreEqual("XP", panel.AmountColumnHeader);
-            Assert.AreEqual(1, panel.RowCount);
+            Assert.AreEqual(1, panel.GetRowCount());
 
             var row = panel.GetRow(0);
-            Assert.AreEqual("+1,000", row.AmountText);
-            Assert.AreEqual("Session 1 - Dungeon Crawl", row.DescriptionText);
+            Assert.AreEqual("+1,000", row.GetAmountText());
+            Assert.AreEqual("Session 1 - Dungeon Crawl", row.GetDescriptionText());
             Assert.AreEqual("Delete Session 1 - Dungeon Crawl", row.ContextMenuStrip.Items[0].Text);
 
             row.ContextMenuStrip.Items[0].PerformClick();
@@ -127,10 +127,10 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(0, panel.RowCount);
+            Assert.AreEqual(0, panel.GetRowCount());
             Assert.IsFalse(panel.IsOverflow);
-            Assert.AreEqual(500 - TabularLedgerPanel.HEADER_HEIGHT, panel.HeaderTop);
-            Assert.AreEqual(500, panel.BodyTop);
+            Assert.AreEqual(500 - TabularLedgerPanel.HEADER_HEIGHT, panel.GetHeaderTop());
+            Assert.AreEqual(500, panel.GetBodyTop());
         }
 
         [TestMethod]
@@ -150,12 +150,12 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(2, panel.RowCount);
+            Assert.AreEqual(2, panel.GetRowCount());
             Assert.IsFalse(panel.IsOverflow);
             int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 2 * TabularLedgerPanel.ROW_HEIGHT;
             int expectedHeaderTop = 500 - expectedContentHeight;
-            Assert.AreEqual(expectedHeaderTop, panel.HeaderTop);
-            Assert.AreEqual(expectedHeaderTop + TabularLedgerPanel.HEADER_HEIGHT, panel.BodyTop);
+            Assert.AreEqual(expectedHeaderTop, panel.GetHeaderTop());
+            Assert.AreEqual(expectedHeaderTop + TabularLedgerPanel.HEADER_HEIGHT, panel.GetBodyTop());
         }
 
         [TestMethod]
@@ -176,10 +176,10 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(15, panel.RowCount);
+            Assert.AreEqual(15, panel.GetRowCount());
             Assert.IsTrue(panel.IsOverflow);
-            Assert.AreEqual(0, panel.HeaderTop);
-            Assert.AreEqual(TabularLedgerPanel.HEADER_HEIGHT, panel.BodyTop);
+            Assert.AreEqual(0, panel.GetHeaderTop());
+            Assert.AreEqual(TabularLedgerPanel.HEADER_HEIGHT, panel.GetBodyTop());
         }
 
         [TestMethod]
@@ -206,7 +206,7 @@ namespace PlayMore35.Tests {
                 Application.DoEvents();
 
                 // Default scroll position after SetEntries should be greater than 0 (anchored to bottom)
-                Assert.IsTrue(panel.VerticalScrollValue > 0, $"Default scroll position was {panel.VerticalScrollValue}, expected > 0.");
+                Assert.IsTrue(panel.GetVerticalScrollValue() > 0, $"Default scroll position was {panel.GetVerticalScrollValue()}, expected > 0.");
             }
         }
 
@@ -241,7 +241,7 @@ namespace PlayMore35.Tests {
                 panel.Size = new System.Drawing.Size(500, 100);
                 Application.DoEvents();
                 Assert.IsTrue(panel.IsOverflow);
-                Assert.IsTrue(panel.VerticalScrollValue > 0, $"Expected scroll > 0 when shrunk, but got {panel.VerticalScrollValue}, row[0].Top={panel.GetRow(0).Top}");
+                Assert.IsTrue(panel.GetVerticalScrollValue() > 0, $"Expected scroll > 0 when shrunk, but got {panel.GetVerticalScrollValue()}, row[0].Top={panel.GetRow(0).Top}");
                 Assert.IsTrue(panel.GetRow(0).Top < 0, $"Expected row[0].Top < 0 when scrolled, but got {panel.GetRow(0).Top}");
 
                 // Expand in one jump back to 400 (no longer overflowing)
@@ -251,8 +251,8 @@ namespace PlayMore35.Tests {
 
                 // Verify header and body positions, and that all rows are back at their expected positions
                 int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 10 * TabularLedgerPanel.ROW_HEIGHT;
-                Assert.AreEqual(400 - expectedContentHeight, panel.HeaderTop);
-                Assert.AreEqual(400 - 10 * TabularLedgerPanel.ROW_HEIGHT, panel.BodyTop);
+                Assert.AreEqual(400 - expectedContentHeight, panel.GetHeaderTop());
+                Assert.AreEqual(400 - 10 * TabularLedgerPanel.ROW_HEIGHT, panel.GetBodyTop());
                 for (int i = 0; i < 10; i++) {
                     Assert.AreEqual(i * TabularLedgerPanel.ROW_HEIGHT, panel.GetRow(i).Top, $"Row {i} Top was {panel.GetRow(i).Top} after expanding");
                 }
@@ -288,7 +288,7 @@ namespace PlayMore35.Tests {
                 form.ClientSize = new System.Drawing.Size(1289, 180);
                 Application.DoEvents();
                 Assert.IsTrue(panel.IsOverflow);
-                Assert.IsTrue(panel.VerticalScrollValue > 0);
+                Assert.IsTrue(panel.GetVerticalScrollValue() > 0);
 
                 // Refresh entries while scrolled (simulating tab enter or adding an entry while shrunk)
                 panel.SetEntries(
@@ -308,8 +308,8 @@ namespace PlayMore35.Tests {
                 int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 5 * TabularLedgerPanel.ROW_HEIGHT;
                 Assert.AreEqual(545, panel.Height);
                 Assert.IsFalse(panel.IsOverflow);
-                Assert.AreEqual(545 - expectedContentHeight, panel.HeaderTop);
-                Assert.AreEqual(545 - 5 * TabularLedgerPanel.ROW_HEIGHT, panel.BodyTop);
+                Assert.AreEqual(545 - expectedContentHeight, panel.GetHeaderTop());
+                Assert.AreEqual(545 - 5 * TabularLedgerPanel.ROW_HEIGHT, panel.GetBodyTop());
                 for (int i = 0; i < 5; i++) {
                     var row = panel.GetRow(i);
                     Assert.AreEqual(i * TabularLedgerPanel.ROW_HEIGHT, row.Top, $"Row {i} Top was {row.Top} after expanding");
@@ -378,8 +378,8 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(ledgerXp.IsOverflow);
 
                 int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 5 * TabularLedgerPanel.ROW_HEIGHT;
-                Assert.AreEqual(initialLedgerHeight - expectedContentHeight, ledgerXp.HeaderTop);
-                Assert.AreEqual(initialLedgerHeight - 5 * TabularLedgerPanel.ROW_HEIGHT, ledgerXp.BodyTop);
+                Assert.AreEqual(initialLedgerHeight - expectedContentHeight, ledgerXp.GetHeaderTop());
+                Assert.AreEqual(initialLedgerHeight - 5 * TabularLedgerPanel.ROW_HEIGHT, ledgerXp.GetBodyTop());
 
                 for (int i = 0; i < 5; i++) {
                     var row = ledgerXp.GetRow(i);
