@@ -50,10 +50,10 @@ We explicitly standardize on **explicit constructor-based deserialization and st
 
 ## Addendum: Canonical Domain Constructors and Adapter Deserialization (Ticket #247)
 
-Following Ticket #247, domain entities and subsystem configuration models expose **public canonical C# constructors** with optional default parameters rather than relying solely on JSON deserialization constructors:
+Following Ticket #247, domain entities and subsystem definitions expose **public canonical C# constructors** with optional default parameters rather than relying solely on JSON deserialization constructors:
 
 1. **Canonical C# Constructors as the Primary Seam**:
-   - Domain entities (`Character`, `Timeline`, `EquippedChoices`, `InventoryLocation`) and subsystem configurations (`SubsystemConfig`, `SlotGroupConfig`, `PoolConfig`) expose public canonical C# constructors taking strongly typed domain parameters.
+   - Domain and combat entities (`Item`, `Weapon`, `ArmorProperty`, `CharacterClass`, `Attack`, `Modifier`, `LookupAmount`, `ControllableFlag`, `FlagDefinition`) and subsystem definitions (`SubsystemDefinition`, `SlotGroupDefinition`, `StateCapacityDefinition`, `MaxLevelDefinition`, `LevelGatingDefinition`, `PoolDefinition`, `EffectProjectionRule`, `SubsystemStep`, `TaxonomyEntry`) expose public canonical C# constructors taking strongly typed domain parameters.
    - Optional parameters with sensible defaults (e.g., empty collections, default enums, 0/1 counts) provide expressive, readable instantiation in production code, subsystem engines, and unit tests without combinatorial constructor overloads.
 
 2. **JSON Deserialization Constructors as Delegating Adapters**:
