@@ -462,9 +462,32 @@ public class ReachabilityAnalyzer {
                fileName.Equals("Settings.Designer.cs", StringComparison.OrdinalIgnoreCase);
     }
 
+    private static readonly HashSet<string> CoreDomainEngineInterfaces = new(StringComparer.Ordinal) {
+        "ICharacterSession",
+        "IRulesCatalog",
+        "ISubsystemEngine"
+    };
+
+    private static readonly HashSet<string> CoreDomainEngineImplementations = new(StringComparer.Ordinal) {
+        "CharacterSession",
+        "GameRulesCatalog",
+        "SubsystemEngine"
+    };
+
+    private static readonly string[] CoreDomainEngineImplementationNames = {
+        "CharacterSession",
+        "GameRulesCatalog",
+        "SubsystemEngine"
+    };
+
     private static bool IsProductionRoot(IMethodSymbol symbol) {
         // Main entry point
         if (symbol.Name == "Main" && symbol.IsStatic) {
+            return true;
+        }
+
+        // Domain engine contracts and implementations
+        if (IsDomainEngineRoot(symbol)) {
             return true;
         }
 
@@ -491,6 +514,60 @@ public class ReachabilityAnalyzer {
             if (symbol.IsOverride && symbol.DeclaredAccessibility == Accessibility.Public &&
                 (symbol.Name is "Equals" or "GetHashCode" or "ToString")) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsDomainEngineRoot(IMethodSymbol symbol) {
+        var containingType = symbol.ContainingType;
+        if (containingType == null) return false;
+
+        // 1. Declared on a core domain engine interface
+        if (containingType.TypeKind == TypeKind.Interface) {
+            if (CoreDomainEngineInterfaces.Contains(containingType.Name) ||
+                containingType.AllInterfaces.Any(i => CoreDomainEngineInterfaces.Contains(i.Name))) {
+                return symbol.DeclaredAccessibility == Accessibility.Public;
+            }
+        }
+
+        // 2. Declared on a core domain engine implementation class
+        if (CoreDomainEngineImplementations.Contains(containingType.Name) ||
+            IsSubclassOf(containingType, CoreDomainEngineImplementationNames)) {
+            return symbol.DeclaredAccessibility == Accessibility.Public;
+        }
+
+        // 3. Implements a member of a core domain engine interface
+        if (symbol.DeclaredAccessibility == Accessibility.Public || symbol.ExplicitInterfaceImplementations.Length > 0) {
+            if (symbol.ExplicitInterfaceImplementations.Any(m => CoreDomainEngineInterfaces.Contains(m.ContainingType?.Name ?? ""))) {
+                return true;
+            }
+
+            foreach (var iface in containingType.AllInterfaces) {
+                if (CoreDomainEngineInterfaces.Contains(iface.Name)) {
+                    foreach (var member in iface.GetMembers()) {
+                        if (member is IMethodSymbol methodMember) {
+                            var impl = containingType.FindImplementationForInterfaceMember(methodMember);
+                            if (impl != null && SymbolEqualityComparer.Default.Equals(impl.OriginalDefinition, symbol)) {
+                                return true;
+                            }
+                        } else if (member is IPropertySymbol propMember) {
+                            if (propMember.GetMethod != null) {
+                                var impl = containingType.FindImplementationForInterfaceMember(propMember.GetMethod);
+                                if (impl != null && SymbolEqualityComparer.Default.Equals(impl.OriginalDefinition, symbol)) {
+                                    return true;
+                                }
+                            }
+                            if (propMember.SetMethod != null) {
+                                var impl = containingType.FindImplementationForInterfaceMember(propMember.SetMethod);
+                                if (impl != null && SymbolEqualityComparer.Default.Equals(impl.OriginalDefinition, symbol)) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

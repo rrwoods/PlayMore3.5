@@ -527,4 +527,141 @@ public class Program {
 
         Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadHelper"), "DeadHelper in unreferenced class must remain Dead");
     }
+
+    [TestMethod]
+    public void Analyze_DomainEngineInterfaces_MarkedAsProductionRootsWithoutAuthorizedDomainApi() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public interface ICharacterSession {
+    void SessionMethod();
+    string Status { get; }
+}
+
+public interface IRulesCatalog {
+    void CatalogMethod();
+}
+
+public interface ISubsystemEngine {
+    void EngineMethod();
+}
+
+public class Program {
+    public static void Main() {}
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "SessionMethod"), "ICharacterSession.SessionMethod should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "get_Status"), "ICharacterSession.Status should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "CatalogMethod"), "IRulesCatalog.CatalogMethod should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "EngineMethod"), "ISubsystemEngine.EngineMethod should be Live");
+
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "SessionMethod"), "SessionMethod must not be Dead");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "get_Status"), "get_Status must not be Dead");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "CatalogMethod"), "CatalogMethod must not be Dead");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "EngineMethod"), "EngineMethod must not be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_DomainEngineImplementations_MarkPublicMembersLive_AndUncalledPrivateHelpersDead() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public interface ICharacterSession {
+    void SessionMethod();
+}
+
+public class CharacterSession : ICharacterSession {
+    public void SessionMethod() {
+        CalledSessionHelper();
+    }
+    public void ExtraPublicMethod() {}
+    private void CalledSessionHelper() {}
+    private void DeadSessionHelper() {}
+}
+
+public interface IRulesCatalog {
+    void CatalogMethod();
+}
+
+public class GameRulesCatalog : IRulesCatalog {
+    public void CatalogMethod() {}
+    private void DeadCatalogHelper() {}
+}
+
+public class SubsystemEngine {
+    public void EngineMethod() {
+        CalledEngineHelper();
+    }
+    private void CalledEngineHelper() {}
+    private void DeadEngineHelper() {}
+}
+
+public class Program {
+    public static void Main() {}
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "SessionMethod"), "SessionMethod should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "ExtraPublicMethod"), "ExtraPublicMethod should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "CalledSessionHelper"), "CalledSessionHelper should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "CatalogMethod"), "CatalogMethod should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "EngineMethod"), "EngineMethod should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "CalledEngineHelper"), "CalledEngineHelper should be Live");
+
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadSessionHelper"), "DeadSessionHelper should be Dead");
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadCatalogHelper"), "DeadCatalogHelper should be Dead");
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadEngineHelper"), "DeadEngineHelper should be Dead");
+
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "CalledSessionHelper"), "CalledSessionHelper must not be Dead");
+        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "CalledEngineHelper"), "CalledEngineHelper must not be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_CustomClassImplementingDomainEngineInterface_MarksInterfaceMembersLive_AndNonInterfaceMembersDeadWhenUncalled() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public interface ICharacterSession {
+    void InterfaceWork();
+}
+
+public class CustomSession : ICharacterSession {
+    public void InterfaceWork() {}
+    public void NonInterfacePublicWork() {}
+    private void PrivateUncalledWork() {}
+}
+
+public class ExplicitSession : ICharacterSession {
+    void ICharacterSession.InterfaceWork() {}
+    private void ExplicitPrivateUncalledWork() {}
+}
+
+public class Program {
+    public static void Main() {}
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "InterfaceWork" && m.ContainingType.EndsWith("CustomSession")), "CustomSession.InterfaceWork should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.ContainingType.EndsWith("ExplicitSession") && m.Name.EndsWith("InterfaceWork")), "ExplicitSession.InterfaceWork should be Live");
+
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "NonInterfacePublicWork"), "NonInterfacePublicWork on custom class should be Dead");
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "PrivateUncalledWork"), "PrivateUncalledWork should be Dead");
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "ExplicitPrivateUncalledWork"), "ExplicitPrivateUncalledWork should be Dead");
+    }
 }
