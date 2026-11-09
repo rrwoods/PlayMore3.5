@@ -183,7 +183,7 @@ namespace PlayMore35.Tests {
 
                 // Clicking receptor activates picker
                 receptor.PerformClick();
-                var pickerHost = dialog.GetPickerHost();
+                var pickerHost = dialog.PickerHost;
                 Assert.IsTrue(pickerHost.Height > 0);
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 var names = picker.ViewModel.FilteredNames();
@@ -852,7 +852,7 @@ namespace PlayMore35.Tests {
                 dialog.PrepareLevel(0);
 
                 // 1. Initially pnlPickerHost is collapsed
-                var pickerHost = dialog.GetPickerHost();
+                var pickerHost = dialog.PickerHost;
                 Assert.AreEqual(0, pickerHost.Height);
 
                 // Select Martial Study in Level 1 slot

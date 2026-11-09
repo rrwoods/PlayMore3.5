@@ -27,13 +27,16 @@ namespace PlayMore35.Tests {
                 t => deletedItem = t
             );
 
-            Assert.AreEqual(2, panel.GetRowCount());
+            Assert.AreEqual(2, panel.ViewModel.RowCount);
+            Assert.AreEqual(75m, panel.ViewModel.TotalAmount);
+            Assert.AreEqual(100m, panel.ViewModel.Rows[0].RunningBalance);
+            Assert.AreEqual(75m, panel.ViewModel.Rows[1].RunningBalance);
 
             var row0 = panel.GetRow(0);
-            Assert.AreEqual("2026-10-06 20:11", row0.GetGameTimeText());
-            Assert.AreEqual("2026-10-09", row0.GetRealDateText());
-            Assert.AreEqual("starting gold", row0.GetDescriptionText());
-            Assert.AreEqual("+100", row0.GetAmountText());
+            Assert.AreEqual("2026-10-06 20:11", panel.ViewModel.Rows[0].GameTimeText);
+            Assert.AreEqual("2026-10-09", panel.ViewModel.Rows[0].RealDateText);
+            Assert.AreEqual("starting gold", panel.ViewModel.Rows[0].DescriptionText);
+            Assert.AreEqual("+100", panel.ViewModel.Rows[0].AmountText);
 
             Assert.IsNotNull(row0.ContextMenuStrip);
             Assert.AreEqual(1, row0.ContextMenuStrip.Items.Count);
@@ -56,12 +59,15 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(1, panel.GetRowCount());
+            Assert.AreEqual(1, panel.ViewModel.RowCount);
             var row = panel.GetRow(0);
             Assert.IsFalse(row.IsSelected);
+            Assert.IsFalse(panel.ViewModel.Rows[0].IsSelected);
 
-            panel.SelectRow(0);
+            panel.ViewModel.SelectRow(0);
             Assert.IsTrue(row.IsSelected);
+            Assert.IsTrue(panel.ViewModel.Rows[0].IsSelected);
+            Assert.AreEqual(0, panel.ViewModel.SelectedIndex);
         }
 
         [TestMethod]
@@ -102,11 +108,13 @@ namespace PlayMore35.Tests {
             );
 
             Assert.AreEqual("XP", panel.AmountColumnHeader);
-            Assert.AreEqual(1, panel.GetRowCount());
+            Assert.AreEqual("XP", panel.ViewModel.AmountHeader);
+            Assert.AreEqual(1, panel.ViewModel.RowCount);
+            Assert.AreEqual(1000m, panel.ViewModel.TotalAmount);
 
             var row = panel.GetRow(0);
-            Assert.AreEqual("+1,000", row.GetAmountText());
-            Assert.AreEqual("Session 1 - Dungeon Crawl", row.GetDescriptionText());
+            Assert.AreEqual("+1,000", panel.ViewModel.Rows[0].AmountText);
+            Assert.AreEqual("Session 1 - Dungeon Crawl", panel.ViewModel.Rows[0].DescriptionText);
             Assert.AreEqual("Delete Session 1 - Dungeon Crawl", row.ContextMenuStrip.Items[0].Text);
 
             row.ContextMenuStrip.Items[0].PerformClick();
@@ -127,10 +135,10 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(0, panel.GetRowCount());
+            Assert.AreEqual(0, panel.ViewModel.RowCount);
             Assert.IsFalse(panel.IsOverflow);
-            Assert.AreEqual(500 - TabularLedgerPanel.HEADER_HEIGHT, panel.GetHeaderTop());
-            Assert.AreEqual(500, panel.GetBodyTop());
+            Assert.AreEqual(500 - TabularLedgerPanel.HEADER_HEIGHT, panel.HeaderTop);
+            Assert.AreEqual(500, panel.BodyTop);
         }
 
         [TestMethod]
@@ -150,12 +158,12 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(2, panel.GetRowCount());
+            Assert.AreEqual(2, panel.ViewModel.RowCount);
             Assert.IsFalse(panel.IsOverflow);
             int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 2 * TabularLedgerPanel.ROW_HEIGHT;
             int expectedHeaderTop = 500 - expectedContentHeight;
-            Assert.AreEqual(expectedHeaderTop, panel.GetHeaderTop());
-            Assert.AreEqual(expectedHeaderTop + TabularLedgerPanel.HEADER_HEIGHT, panel.GetBodyTop());
+            Assert.AreEqual(expectedHeaderTop, panel.HeaderTop);
+            Assert.AreEqual(expectedHeaderTop + TabularLedgerPanel.HEADER_HEIGHT, panel.BodyTop);
         }
 
         [TestMethod]
@@ -176,10 +184,10 @@ namespace PlayMore35.Tests {
                 t => { }
             );
 
-            Assert.AreEqual(15, panel.GetRowCount());
+            Assert.AreEqual(15, panel.ViewModel.RowCount);
             Assert.IsTrue(panel.IsOverflow);
-            Assert.AreEqual(0, panel.GetHeaderTop());
-            Assert.AreEqual(TabularLedgerPanel.HEADER_HEIGHT, panel.GetBodyTop());
+            Assert.AreEqual(0, panel.HeaderTop);
+            Assert.AreEqual(TabularLedgerPanel.HEADER_HEIGHT, panel.BodyTop);
         }
 
         [TestMethod]
@@ -206,7 +214,7 @@ namespace PlayMore35.Tests {
                 Application.DoEvents();
 
                 // Default scroll position after SetEntries should be greater than 0 (anchored to bottom)
-                Assert.IsTrue(panel.GetVerticalScrollValue() > 0, $"Default scroll position was {panel.GetVerticalScrollValue()}, expected > 0.");
+                Assert.IsTrue(panel.VerticalScrollValue > 0, $"Default scroll position was {panel.VerticalScrollValue}, expected > 0.");
             }
         }
 
@@ -241,7 +249,7 @@ namespace PlayMore35.Tests {
                 panel.Size = new System.Drawing.Size(500, 100);
                 Application.DoEvents();
                 Assert.IsTrue(panel.IsOverflow);
-                Assert.IsTrue(panel.GetVerticalScrollValue() > 0, $"Expected scroll > 0 when shrunk, but got {panel.GetVerticalScrollValue()}, row[0].Top={panel.GetRow(0).Top}");
+                Assert.IsTrue(panel.VerticalScrollValue > 0, $"Expected scroll > 0 when shrunk, but got {panel.VerticalScrollValue}, row[0].Top={panel.GetRow(0).Top}");
                 Assert.IsTrue(panel.GetRow(0).Top < 0, $"Expected row[0].Top < 0 when scrolled, but got {panel.GetRow(0).Top}");
 
                 // Expand in one jump back to 400 (no longer overflowing)
@@ -251,8 +259,8 @@ namespace PlayMore35.Tests {
 
                 // Verify header and body positions, and that all rows are back at their expected positions
                 int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 10 * TabularLedgerPanel.ROW_HEIGHT;
-                Assert.AreEqual(400 - expectedContentHeight, panel.GetHeaderTop());
-                Assert.AreEqual(400 - 10 * TabularLedgerPanel.ROW_HEIGHT, panel.GetBodyTop());
+                Assert.AreEqual(400 - expectedContentHeight, panel.HeaderTop);
+                Assert.AreEqual(400 - 10 * TabularLedgerPanel.ROW_HEIGHT, panel.BodyTop);
                 for (int i = 0; i < 10; i++) {
                     Assert.AreEqual(i * TabularLedgerPanel.ROW_HEIGHT, panel.GetRow(i).Top, $"Row {i} Top was {panel.GetRow(i).Top} after expanding");
                 }
@@ -288,7 +296,7 @@ namespace PlayMore35.Tests {
                 form.ClientSize = new System.Drawing.Size(1289, 180);
                 Application.DoEvents();
                 Assert.IsTrue(panel.IsOverflow);
-                Assert.IsTrue(panel.GetVerticalScrollValue() > 0);
+                Assert.IsTrue(panel.VerticalScrollValue > 0);
 
                 // Refresh entries while scrolled (simulating tab enter or adding an entry while shrunk)
                 panel.SetEntries(
@@ -308,8 +316,8 @@ namespace PlayMore35.Tests {
                 int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 5 * TabularLedgerPanel.ROW_HEIGHT;
                 Assert.AreEqual(545, panel.Height);
                 Assert.IsFalse(panel.IsOverflow);
-                Assert.AreEqual(545 - expectedContentHeight, panel.GetHeaderTop());
-                Assert.AreEqual(545 - 5 * TabularLedgerPanel.ROW_HEIGHT, panel.GetBodyTop());
+                Assert.AreEqual(545 - expectedContentHeight, panel.HeaderTop);
+                Assert.AreEqual(545 - 5 * TabularLedgerPanel.ROW_HEIGHT, panel.BodyTop);
                 for (int i = 0; i < 5; i++) {
                     var row = panel.GetRow(i);
                     Assert.AreEqual(i * TabularLedgerPanel.ROW_HEIGHT, row.Top, $"Row {i} Top was {row.Top} after expanding");
@@ -378,8 +386,8 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(ledgerXp.IsOverflow);
 
                 int expectedContentHeight = TabularLedgerPanel.HEADER_HEIGHT + 5 * TabularLedgerPanel.ROW_HEIGHT;
-                Assert.AreEqual(initialLedgerHeight - expectedContentHeight, ledgerXp.GetHeaderTop());
-                Assert.AreEqual(initialLedgerHeight - 5 * TabularLedgerPanel.ROW_HEIGHT, ledgerXp.GetBodyTop());
+                Assert.AreEqual(initialLedgerHeight - expectedContentHeight, ledgerXp.HeaderTop);
+                Assert.AreEqual(initialLedgerHeight - 5 * TabularLedgerPanel.ROW_HEIGHT, ledgerXp.BodyTop);
 
                 for (int i = 0; i < 5; i++) {
                     var row = ledgerXp.GetRow(i);
@@ -515,6 +523,148 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(txtSessionDesc.Top - 6, ledgerXp.Bottom);
                 Assert.IsTrue(ledgerXp.Height > 82);
             }
+        }
+
+        [TestMethod]
+        public void TabularLedgerViewModel_HeadlessRows_ColumnsAndTotals_CalculateCorrectly() {
+            var vm = new TabularLedgerViewModel();
+            Assert.AreEqual("In-Game Time", vm.GameTimeHeader);
+            Assert.AreEqual("Real Date", vm.RealDateHeader);
+            Assert.AreEqual("Description", vm.DescriptionHeader);
+            Assert.AreEqual("Amount", vm.AmountHeader);
+            Assert.AreEqual(0, vm.RowCount);
+            Assert.AreEqual(0m, vm.TotalAmount);
+            Assert.AreEqual(0m, vm.Total);
+
+            var t1 = new GpTransaction(150.5m, "quest reward", new DateTime(2026, 10, 1, 10, 0, 0), new DateTime(2026, 10, 5));
+            var t2 = new GpTransaction(-50.25m, "supplies", new DateTime(2026, 10, 2, 12, 0, 0), new DateTime(2026, 10, 5));
+            var t3 = new GpTransaction(25m, "found coins", new DateTime(2026, 10, 3, 14, 0, 0), new DateTime(2026, 10, 6));
+
+            vm.SetEntries(
+                new[] { t1, t2, t3 },
+                t => t.GameTime,
+                t => t.RealDate,
+                t => t.Description,
+                t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                t => { }
+            );
+
+            Assert.AreEqual(3, vm.RowCount);
+            Assert.AreEqual(150.5m, vm.Rows[0].NumericAmount);
+            Assert.AreEqual(150.5m, vm.Rows[0].RunningBalance);
+            Assert.AreEqual(-50.25m, vm.Rows[1].NumericAmount);
+            Assert.AreEqual(100.25m, vm.Rows[1].RunningBalance);
+            Assert.AreEqual(25m, vm.Rows[2].NumericAmount);
+            Assert.AreEqual(125.25m, vm.Rows[2].RunningBalance);
+            Assert.AreEqual(125.25m, vm.TotalAmount);
+            Assert.AreEqual(125.25m, vm.Total);
+            Assert.AreEqual("125.25", vm.FormattedTotal);
+
+            // Switching to XP ledger
+            vm.AmountHeader = "XP";
+            var s1 = new XpSessionEntry(1200, "session 1", new DateTime(2026, 10, 1), new DateTime(2026, 10, 5));
+            var s2 = new XpSessionEntry(800, "session 2", new DateTime(2026, 10, 2), new DateTime(2026, 10, 6));
+            vm.SetEntries(
+                new[] { s1, s2 },
+                s => s.GameTime,
+                s => s.RealDate,
+                s => s.Description,
+                s => LedgerFormatters.FormatXpAmount(s.Xp),
+                s => { }
+            );
+
+            Assert.AreEqual("XP", vm.AmountHeader);
+            Assert.AreEqual(2, vm.RowCount);
+            Assert.AreEqual(1200m, vm.Rows[0].RunningBalance);
+            Assert.AreEqual(2000m, vm.Rows[1].RunningBalance);
+            Assert.AreEqual(2000m, vm.TotalAmount);
+            Assert.AreEqual("2,000", vm.FormattedTotal);
+        }
+
+        [TestMethod]
+        public void TabularLedgerViewModel_SelectionAndDeletion_StateTransitions() {
+            var vm = new TabularLedgerViewModel();
+            var t1 = new GpTransaction(10m, "item 1", new DateTime(2026, 10, 1), new DateTime(2026, 10, 2));
+            var t2 = new GpTransaction(20m, "item 2", new DateTime(2026, 10, 3), new DateTime(2026, 10, 4));
+
+            GpTransaction? deleted = null;
+            vm.SetEntries(
+                new[] { t1, t2 },
+                t => t.GameTime,
+                t => t.RealDate,
+                t => t.Description,
+                t => LedgerFormatters.FormatGoldAmount(t.Amount),
+                t => deleted = t
+            );
+
+            Assert.AreEqual(-1, vm.SelectedIndex);
+            Assert.IsNull(vm.SelectedRow);
+            Assert.IsFalse(vm.Rows[0].IsSelected);
+            Assert.IsFalse(vm.Rows[1].IsSelected);
+
+            vm.SelectRow(0);
+            Assert.AreEqual(0, vm.SelectedIndex);
+            Assert.AreSame(vm.Rows[0], vm.SelectedRow);
+            Assert.IsTrue(vm.Rows[0].IsSelected);
+            Assert.IsFalse(vm.Rows[1].IsSelected);
+
+            vm.SelectRow(1);
+            Assert.AreEqual(1, vm.SelectedIndex);
+            Assert.AreSame(vm.Rows[1], vm.SelectedRow);
+            Assert.IsFalse(vm.Rows[0].IsSelected);
+            Assert.IsTrue(vm.Rows[1].IsSelected);
+
+            // Out-of-bounds selection deselects
+            vm.SelectRow(-1);
+            Assert.AreEqual(-1, vm.SelectedIndex);
+            Assert.IsNull(vm.SelectedRow);
+            Assert.IsFalse(vm.Rows[1].IsSelected);
+
+            // Deletion
+            vm.Rows[0].Delete();
+            Assert.AreSame(t1, deleted);
+        }
+
+        [TestMethod]
+        public void TabularLedgerViewModel_CustomNumericExtractor_AndEvents() {
+            var vm = new TabularLedgerViewModel();
+            bool entriesFired = false;
+            bool selectionFired = false;
+            bool headersFired = false;
+
+            vm.EntriesChanged += (s, e) => entriesFired = true;
+            vm.SelectionChanged += (s, e) => selectionFired = true;
+            vm.ColumnHeadersChanged += (s, e) => headersFired = true;
+
+            vm.AmountHeader = "Credits";
+            Assert.IsTrue(headersFired);
+
+            var items = new[] {
+                new { Date = DateTime.Today, Desc = "Alpha", AmountStr = "+500" },
+                new { Date = DateTime.Today, Desc = "Beta", AmountStr = "-200" }
+            };
+
+            vm.SetEntries(
+                items,
+                x => x.Date,
+                x => x.Date,
+                x => x.Desc,
+                x => x.AmountStr,
+                x => { },
+                getNumericAmount: x => x.Desc == "Alpha" ? 500m : -200m
+            );
+
+            Assert.IsTrue(entriesFired);
+            Assert.AreEqual(300m, vm.TotalAmount);
+            Assert.AreEqual(500m, vm.Rows[0].RunningBalance);
+            Assert.AreEqual(300m, vm.Rows[1].RunningBalance);
+
+            vm.SelectedIndex = 1;
+            Assert.IsTrue(selectionFired);
+
+            vm.Clear();
+            Assert.AreEqual(0, vm.RowCount);
+            Assert.AreEqual(-1, vm.SelectedIndex);
         }
     }
 }

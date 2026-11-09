@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using PlayMore35.Global;
 
 namespace PlayMore35.UI {
     public class TabularLedgerPanel : UserControl {
@@ -14,6 +15,8 @@ namespace PlayMore35.UI {
         private readonly Label lblHeaderAmount;
         private readonly List<LedgerRowControl> rows = new List<LedgerRowControl>();
         private LedgerRowControl selectedRow;
+
+        public TabularLedgerViewModel ViewModel { get; }
 
         public const int COL_GAMETIME_LEFT = 0;
         public const int COL_GAMETIME_WIDTH = 115;
@@ -31,9 +34,21 @@ namespace PlayMore35.UI {
         public bool IsOverflow => (HEADER_HEIGHT + rows.Count * ROW_HEIGHT) > ClientSize.Height;
 
         public string AmountColumnHeader {
-            get => lblHeaderAmount.Text;
-            set => lblHeaderAmount.Text = value;
+            get => ViewModel.AmountHeader;
+            set => ViewModel.AmountHeader = value;
         }
+
+        [AuthorizedDomainApi("Layout inspection property for header top")]
+        public int HeaderTop => headerPanel.Top;
+
+        [AuthorizedDomainApi("Layout inspection property for body top")]
+        public int BodyTop => bodyPanel.Top;
+
+        [AuthorizedDomainApi("Layout inspection property for vertical scroll value")]
+        public int VerticalScrollValue => bodyPanel.VerticalScroll.Value;
+
+        [AuthorizedDomainApi("Layout inspection method for row control")]
+        public LedgerRowControl? GetRow(int index) => index >= 0 && index < rows.Count ? rows[index] : null;
 
         public void AlignInputControls(Control datePicker, Control descInput, Control amountInput, Control addButton) {
             Width = BASELINE_WIDTH;
@@ -54,7 +69,11 @@ namespace PlayMore35.UI {
             SetBounds(Left, top, Width, height);
         }
 
-        public TabularLedgerPanel() {
+        public TabularLedgerPanel() : this(new TabularLedgerViewModel()) { }
+
+        public TabularLedgerPanel(TabularLedgerViewModel viewModel) {
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+
             DoubleBuffered = true;
             ResizeRedraw = true;
             BackColor = Color.Transparent;
@@ -67,7 +86,7 @@ namespace PlayMore35.UI {
             };
 
             lblHeaderGameTime = new Label {
-                Text = "In-Game Time",
+                Text = ViewModel.GameTimeHeader,
                 Location = new Point(COL_GAMETIME_LEFT, 2),
                 Size = new Size(COL_GAMETIME_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -75,7 +94,7 @@ namespace PlayMore35.UI {
             };
 
             lblHeaderRealDate = new Label {
-                Text = "Real Date",
+                Text = ViewModel.RealDateHeader,
                 Location = new Point(COL_REALDATE_LEFT, 2),
                 Size = new Size(COL_REALDATE_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -83,7 +102,7 @@ namespace PlayMore35.UI {
             };
 
             lblHeaderDesc = new Label {
-                Text = "Description",
+                Text = ViewModel.DescriptionHeader,
                 Location = new Point(COL_DESC_LEFT, 2),
                 Size = new Size(COL_DESC_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -91,7 +110,7 @@ namespace PlayMore35.UI {
             };
 
             lblHeaderAmount = new Label {
-                Text = "Amount",
+                Text = ViewModel.AmountHeader,
                 Location = new Point(BASELINE_AMOUNT_LEFT, 2),
                 Size = new Size(COL_AMOUNT_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -112,7 +131,76 @@ namespace PlayMore35.UI {
             Controls.Add(bodyPanel);
             Controls.Add(headerPanel);
 
+            ViewModel.ColumnHeadersChanged += (s, e) => {
+                lblHeaderGameTime.Text = ViewModel.GameTimeHeader;
+                lblHeaderRealDate.Text = ViewModel.RealDateHeader;
+                lblHeaderDesc.Text = ViewModel.DescriptionHeader;
+                lblHeaderAmount.Text = ViewModel.AmountHeader;
+            };
+
+            ViewModel.EntriesChanged += (s, e) => SyncRowsFromViewModel();
+            ViewModel.SelectionChanged += (s, e) => SyncSelectionFromViewModel();
+
             UpdateLayout();
+        }
+
+        private void SyncRowsFromViewModel() {
+            if (bodyPanel.AutoScroll) {
+                bodyPanel.AutoScrollPosition = new Point(0, 0);
+                bodyPanel.AutoScroll = false;
+            }
+
+            bodyPanel.SuspendLayout();
+            bodyPanel.Controls.Clear();
+            rows.Clear();
+            selectedRow = null;
+
+            int currentY = 0;
+            for (int i = 0; i < ViewModel.Rows.Count; i++) {
+                var rowVm = ViewModel.Rows[i];
+                int rowIndex = i;
+                var row = new LedgerRowControl(rowVm) {
+                    Location = new Point(0, currentY),
+                    Height = ROW_HEIGHT
+                };
+
+                if (rowVm.DeleteAction != null) {
+                    var contextMenu = new ContextMenuStrip();
+                    var deleteItem = new ToolStripMenuItem($"Delete {rowVm.DescriptionText}");
+                    deleteItem.Click += (s, ev) => rowVm.Delete();
+                    contextMenu.Items.Add(deleteItem);
+                    row.ContextMenuStrip = contextMenu;
+                }
+
+                row.RowSelected += (s, ev) => ViewModel.SelectedIndex = rowIndex;
+
+                if (rowVm.IsSelected) {
+                    selectedRow = row;
+                    row.IsSelected = true;
+                }
+
+                rows.Add(row);
+                bodyPanel.Controls.Add(row);
+                currentY += ROW_HEIGHT;
+            }
+
+            bodyPanel.ResumeLayout(true);
+            UpdateLayout();
+            ScrollToBottom();
+        }
+
+        private void SyncSelectionFromViewModel() {
+            int selectedIndex = ViewModel.SelectedIndex;
+            var targetRow = (selectedIndex >= 0 && selectedIndex < rows.Count) ? rows[selectedIndex] : null;
+            if (selectedRow != targetRow) {
+                if (selectedRow != null) {
+                    selectedRow.IsSelected = false;
+                }
+                selectedRow = targetRow;
+                if (selectedRow != null) {
+                    selectedRow.IsSelected = true;
+                }
+            }
         }
 
         protected override void OnResize(EventArgs e) {
@@ -207,47 +295,10 @@ namespace PlayMore35.UI {
             Func<T, DateTime> getRealDate,
             Func<T, string> getDescription,
             Func<T, string> getAmountText,
-            Action<T> onDelete
+            Action<T>? onDelete,
+            Func<T, decimal>? getNumericAmount = null
         ) {
-            if (bodyPanel.AutoScroll) {
-                bodyPanel.AutoScrollPosition = new Point(0, 0);
-                bodyPanel.AutoScroll = false;
-            }
-
-            bodyPanel.SuspendLayout();
-            bodyPanel.Controls.Clear();
-            rows.Clear();
-            selectedRow = null;
-
-            int currentY = 0;
-            foreach (var item in items) {
-                var row = new LedgerRowControl(
-                    LedgerFormatters.FormatGameTime(getGameTime(item)),
-                    LedgerFormatters.FormatRealDate(getRealDate(item)),
-                    getDescription(item),
-                    getAmountText(item)
-                ) {
-                    Location = new Point(0, currentY),
-                    Height = ROW_HEIGHT
-                };
-
-                string desc = getDescription(item);
-                var contextMenu = new ContextMenuStrip();
-                var deleteItem = new ToolStripMenuItem($"Delete {desc}");
-                deleteItem.Click += (s, ev) => onDelete?.Invoke(item);
-                contextMenu.Items.Add(deleteItem);
-                row.ContextMenuStrip = contextMenu;
-
-                row.RowSelected += (s, ev) => SelectRowInternal(row);
-
-                rows.Add(row);
-                bodyPanel.Controls.Add(row);
-                currentY += ROW_HEIGHT;
-            }
-
-            bodyPanel.ResumeLayout(true);
-            UpdateLayout();
-            ScrollToBottom();
+            ViewModel.SetEntries(items, getGameTime, getRealDate, getDescription, getAmountText, onDelete, getNumericAmount);
         }
 
         protected override void OnVisibleChanged(EventArgs e) {
@@ -255,16 +306,6 @@ namespace PlayMore35.UI {
             if (Visible) {
                 UpdateLayout();
                 ScrollToBottom();
-            }
-        }
-
-        private void SelectRowInternal(LedgerRowControl row) {
-            if (selectedRow != null && selectedRow != row) {
-                selectedRow.IsSelected = false;
-            }
-            selectedRow = row;
-            if (selectedRow != null) {
-                selectedRow.IsSelected = true;
             }
         }
 
@@ -306,13 +347,14 @@ namespace PlayMore35.UI {
             }
         }
 
-        public LedgerRowControl(string gameTime, string realDate, string description, string amount) {
+        public LedgerRowControl(TabularLedgerRowViewModel viewModel) {
+            if (viewModel == null) throw new ArgumentNullException(nameof(viewModel));
             DoubleBuffered = true;
             BackColor = NormalColor;
             BorderStyle = BorderStyle.None;
 
             lblGameTime = new Label {
-                Text = gameTime,
+                Text = viewModel.GameTimeText,
                 Location = new Point(TabularLedgerPanel.COL_GAMETIME_LEFT, 1),
                 Size = new Size(TabularLedgerPanel.COL_GAMETIME_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -320,7 +362,7 @@ namespace PlayMore35.UI {
             };
 
             lblRealDate = new Label {
-                Text = realDate,
+                Text = viewModel.RealDateText,
                 Location = new Point(TabularLedgerPanel.COL_REALDATE_LEFT, 1),
                 Size = new Size(TabularLedgerPanel.COL_REALDATE_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -328,7 +370,7 @@ namespace PlayMore35.UI {
             };
 
             lblDescription = new Label {
-                Text = description,
+                Text = viewModel.DescriptionText,
                 Location = new Point(TabularLedgerPanel.COL_DESC_LEFT, 1),
                 Size = new Size(TabularLedgerPanel.COL_DESC_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleLeft,
@@ -336,7 +378,7 @@ namespace PlayMore35.UI {
             };
 
             lblAmount = new Label {
-                Text = amount,
+                Text = viewModel.AmountText,
                 Location = new Point(TabularLedgerPanel.BASELINE_AMOUNT_LEFT, 1),
                 Size = new Size(TabularLedgerPanel.COL_AMOUNT_WIDTH, 18),
                 TextAlign = ContentAlignment.MiddleCenter,

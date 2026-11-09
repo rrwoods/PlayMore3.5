@@ -81,6 +81,9 @@ namespace PlayMore35 {
             }
         }
 
+        [AuthorizedDomainApi("Picker host panel inspection property")]
+        public Panel PickerHost => pnlPickerHost;
+
         public void PrepareLevel(int levelIndex) {
             // this MUST come first, because the SelectedItem change below triggers the SelectedItemChanged event.
             this.levelIndex = levelIndex;

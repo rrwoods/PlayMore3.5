@@ -164,6 +164,7 @@
     <Compile Include="UI\TabularLedgerPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="UI\TabularLedgerViewModel.cs" />
     <Compile Include="Global\IJsonable.cs" />
     <Compile Include="Effects\LargestAmount.cs" />
     <Compile Include="Effects\MultiplyAmount.cs" />

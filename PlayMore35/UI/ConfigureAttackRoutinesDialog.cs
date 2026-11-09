@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using PlayMore35.Global;
 using PlayMore35.Items;
 
 namespace PlayMore35 {
@@ -14,6 +15,17 @@ namespace PlayMore35 {
         public ConfigureAttackRoutinesDialog(AttackRoutinePreferences preferences) {
             this.preferences = preferences ?? new AttackRoutinePreferences();
             InitializeControls();
+        }
+
+        [AuthorizedDomainApi("Public inspection API for dialog attack routine category checks")]
+        public bool GetCategoryChecked(RoutineCategory category) =>
+            checkBoxes.TryGetValue(category, out var chk) && chk.Checked;
+
+        [AuthorizedDomainApi("Public inspection API for dialog attack routine category checks")]
+        public void SetCategoryChecked(RoutineCategory category, bool isChecked) {
+            if (checkBoxes.TryGetValue(category, out var chk)) {
+                chk.Checked = isChecked;
+            }
         }
 
         public void ResetToDefaults() {

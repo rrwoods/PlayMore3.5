@@ -28,6 +28,15 @@ namespace PlayMore35 {
         private Label headerLabel;
         private readonly TextEffectPanel effectsPanel = new TextEffectPanel();
 
+        [AuthorizedDomainApi("Inspection property for section header label")]
+        public Label HeaderLabel => headerLabel;
+
+        [AuthorizedDomainApi("Inspection property for skill labels")]
+        public IReadOnlyList<Label> SkillLabels => skillLabels.AsReadOnly();
+
+        [AuthorizedDomainApi("Inspection property for text effects panel")]
+        public TextEffectPanel EffectsPanel => effectsPanel;
+
         public SkillTextSectionPanel() {
         }
 

@@ -17,6 +17,12 @@ namespace PlayMore35.UI {
             }
         }
 
+        [AuthorizedDomainApi("Inspection API for warning badge tooltip text")]
+        public string ToolTipText => FormUtils.TOOLTIP.GetToolTip(this);
+
+        [AuthorizedDomainApi("Inspection API for warning badge tooltip text")]
+        public string GetTooltip() => ToolTipText;
+
         public WarningBadge() {
             Text = "⚠";
             AutoSize = true;
