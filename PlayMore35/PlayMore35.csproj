@@ -114,6 +114,7 @@
     <Compile Include="Subsystems\SubsystemDefinition.cs" />
     <Compile Include="Subsystems\SubsystemElement.cs" />
     <Compile Include="Subsystems\SubsystemEngine.cs" />
+    <Compile Include="Subsystems\SubsystemVerbPipeline.cs" />
     <Compile Include="Subsystems\SubsystemSlot.cs" />
     <Compile Include="Subsystems\SubsystemSlotGroup.cs" />
     <Compile Include="Subsystems\SubsystemState.cs" />
