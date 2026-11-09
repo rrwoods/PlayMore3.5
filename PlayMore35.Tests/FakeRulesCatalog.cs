@@ -75,16 +75,12 @@ namespace PlayMore35.Tests {
         }
 
         public void BuildMartialManeuversSubsystem(IEnumerable<SubsystemElement> maneuvers = null) {
-            var def = new SubsystemDefinition(
-                id: "martial_maneuvers",
-                name: "Martial Maneuvers",
-                prerequisiteUnit: "maneuver",
-                prerequisiteProperty: "discipline",
-                levelGating: new LevelGatingDefinition("level", "maximum maneuver level"),
-                elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
-                    ["level"] = new List<string>()
-                }
-            );
+            var def = new SubsystemDefinition("martial_maneuvers", "Martial Maneuvers") {
+                PrerequisiteUnit = "maneuver",
+                PrerequisiteProperty = "discipline",
+                LevelGating = new LevelGatingDefinition("level", "maximum maneuver level")
+            };
+            def.ElementStatistics["level"] = new List<string>();
             if (inner?.GetSubsystem("martial_maneuvers")?.Taxonomies != null) {
                 foreach (var taxKvp in inner.GetSubsystem("martial_maneuvers").Taxonomies) {
                     var map = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
@@ -228,16 +224,13 @@ namespace PlayMore35.Tests {
         }
 
         public void BuildPactMagicSubsystem(IEnumerable<SubsystemElement> vestiges = null) {
-            var def = new SubsystemDefinition(
-                id: "pact_magic",
-                name: "Pact Magic",
-                levelGating: new LevelGatingDefinition("level"),
-                requiredElementProperties: new[] { "binding DC", "level" },
-                elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
-                    ["binding DC"] = new List<string> { "binding DCs" },
-                    ["level"] = new List<string>()
-                }
-            );
+            var def = new SubsystemDefinition("pact_magic", "Pact Magic") {
+                LevelGating = new LevelGatingDefinition("level")
+            };
+            def.RequiredElementProperties.Add("binding DC");
+            def.RequiredElementProperties.Add("level");
+            def.ElementStatistics["binding DC"] = new List<string> { "binding DCs" };
+            def.ElementStatistics["level"] = new List<string>();
             var vestigesSlotGroup = new SlotGroupDefinition(
                 name: "vestiges",
                 capacityStat: "number of vestiges",
@@ -506,10 +499,7 @@ namespace PlayMore35.Tests {
         }
 
         public static SubsystemDefinition CreateSyntheticAlchemySubsystem() {
-            var def = new SubsystemDefinition(
-                id: "synthetic_alchemy",
-                name: "Synthetic Alchemy"
-            );
+            var def = new SubsystemDefinition("synthetic_alchemy", "Synthetic Alchemy");
 
             var flasks = new SlotGroupDefinition(
                 name: "flasks",

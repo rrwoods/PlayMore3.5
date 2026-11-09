@@ -14,10 +14,7 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class SubsystemEngineTests {
         private static SubsystemEngine CreateTestEngine(string id, string name = null, ICharacterContext context = null) {
-            return new SubsystemEngine(new SubsystemDefinition(
-                id: id,
-                name: name ?? id
-            ), context ?? new FakeCharacterContext());
+            return new SubsystemEngine(new SubsystemDefinition(id, name), context ?? new FakeCharacterContext());
         }
 
         [TestMethod]
@@ -574,14 +571,10 @@ namespace PlayMore35.Tests {
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
         [TestMethod]
         public void SubsystemEngine_IsSlotLevelValid_GatesDynamicallyBySlotGroupMaxLevel() {
-            var def = new SubsystemDefinition(
-                id: "pact_magic",
-                name: "Pact Magic",
-                levelGating: new LevelGatingDefinition("level"),
-                elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
-                    ["level"] = new List<string>()
-                }
-            );
+            var def = new SubsystemDefinition("pact_magic", "Pact Magic") {
+                LevelGating = new LevelGatingDefinition("level")
+            };
+            def.ElementStatistics["level"] = new List<string>();
             var group = new SlotGroupDefinition(
                 name: "vestiges",
                 fixedCapacity: 2,
@@ -627,14 +620,10 @@ namespace PlayMore35.Tests {
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_EmitsAdvisoryWarning_WhenElementExceedsMaxLevel() {
-            var def = new SubsystemDefinition(
-                id: "pact_magic",
-                name: "Pact Magic",
-                levelGating: new LevelGatingDefinition("level"),
-                elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
-                    ["level"] = new List<string>()
-                }
-            );
+            var def = new SubsystemDefinition("pact_magic", "Pact Magic") {
+                LevelGating = new LevelGatingDefinition("level")
+            };
+            def.ElementStatistics["level"] = new List<string>();
             var group = new SlotGroupDefinition(
                 name: "vestiges",
                 fixedCapacity: 1,
@@ -1115,12 +1104,10 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemDefinition_PrerequisiteProperty_SerializationRoundTrip() {
-            var def = new SubsystemDefinition(
-                id: "shadow_magic",
-                name: "Shadow Magic",
-                prerequisiteProperty: "path",
-                prerequisiteUnit: "mystery"
-            );
+            var def = new SubsystemDefinition("shadow_magic", "Shadow Magic") {
+                PrerequisiteProperty = "path",
+                PrerequisiteUnit = "mystery"
+            };
 
             var json = (JObject)def.ToJson();
             var subJson = (JObject?)json["subsystem"];
@@ -1133,7 +1120,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("mystery", deserialized.PrerequisiteUnit);
 
             // Null / omitted property round-trip
-            var defOmitted = new SubsystemDefinition(id: "psionics", name: "Psionics");
+            var defOmitted = new SubsystemDefinition("psionics", "Psionics");
             var jsonOmitted = (JObject)defOmitted.ToJson();
             var subJsonOmitted = (JObject?)jsonOmitted["subsystem"];
             Assert.IsNotNull(subJsonOmitted);
@@ -1154,11 +1141,9 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_CountSamePropertyKnown_PartitionsByConfiguredProperty() {
-            var def = new SubsystemDefinition(
-                id: "test_magic",
-                name: "Test Magic",
-                prerequisiteProperty: "discipline"
-            );
+            var def = new SubsystemDefinition("test_magic", "Test Magic") {
+                PrerequisiteProperty = "discipline"
+            };
             var group = new SlotGroupDefinition(
                 name: "powers",
                 fixedCapacity: 5
@@ -1199,12 +1184,10 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_DynamicPrerequisitePropertyAndWarningFormatting() {
-            var def = new SubsystemDefinition(
-                id: "shadow_magic",
-                name: "Shadow Magic",
-                prerequisiteProperty: "path",
-                prerequisiteUnit: "mystery"
-            );
+            var def = new SubsystemDefinition("shadow_magic", "Shadow Magic") {
+                PrerequisiteProperty = "path",
+                PrerequisiteUnit = "mystery"
+            };
             var group = new SlotGroupDefinition(
                 name: "mysteries",
                 fixedCapacity: 5
@@ -1238,12 +1221,9 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_UnpartitionedPrerequisites_WhenPrerequisitePropertyNull() {
-            var def = new SubsystemDefinition(
-                id: "truenaming",
-                name: "Truenaming",
-                prerequisiteProperty: null,
-                prerequisiteUnit: "utterance"
-            );
+            var def = new SubsystemDefinition("truenaming", "Truenaming") {
+                PrerequisiteUnit = "utterance"
+            };
             var group = new SlotGroupDefinition(
                 name: "utterances",
                 fixedCapacity: 5
@@ -1275,12 +1255,10 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_Validate_EvaluatesDynamicPrerequisites() {
-            var def = new SubsystemDefinition(
-                id: "shadow_magic",
-                name: "Shadow Magic",
-                prerequisiteProperty: "path",
-                prerequisiteUnit: "mystery"
-            );
+            var def = new SubsystemDefinition("shadow_magic", "Shadow Magic") {
+                PrerequisiteProperty = "path",
+                PrerequisiteUnit = "mystery"
+            };
             var group = new SlotGroupDefinition(
                 name: "mysteries",
                 fixedCapacity: 5
@@ -1363,10 +1341,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_Validate_GenericStateCapacities_EmitsDynamicCapacityWarning() {
-            var def = new SubsystemDefinition(
-                id: "custom_magic",
-                name: "Custom Magic"
-            );
+            var def = new SubsystemDefinition("custom_magic", "Custom Magic");
             var group = new SlotGroupDefinition(
                 name: "auras",
                 fixedCapacity: 5,
@@ -1399,10 +1374,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_TransitionSlot_ActiveStateClamping_UsesStateCapacities() {
-            var def = new SubsystemDefinition(
-                id: "custom_magic",
-                name: "Custom Magic"
-            );
+            var def = new SubsystemDefinition("custom_magic", "Custom Magic");
             var group = new SlotGroupDefinition(
                 name: "stances",
                 fixedCapacity: 5,
@@ -1504,10 +1476,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_CapacityWarning_FormatsWithoutSource_WhenSourceNullOrEmpty() {
-            var def = new SubsystemDefinition(
-                id: "custom_auras",
-                name: "Custom Auras"
-            );
+            var def = new SubsystemDefinition("custom_auras", "Custom Auras");
             var group = new SlotGroupDefinition(
                 name: "auras",
                 fixedCapacity: 1,
@@ -1529,10 +1498,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_Validate_EmitsCharacterCapacityWarning_WhenDistinctSourcesNotOne() {
-            var def = new SubsystemDefinition(
-                id: "martial_maneuvers",
-                name: "Martial Maneuvers"
-            );
+            var def = new SubsystemDefinition("martial_maneuvers", "Martial Maneuvers");
             var group = new SlotGroupDefinition(
                 name: "stances",
                 fixedCapacity: 5,
@@ -1565,10 +1531,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_TransitionSlot_DynamicStateClamping_CustomNonActiveState() {
-            var def = new SubsystemDefinition(
-                id: "custom_auras",
-                name: "Custom Auras"
-            );
+            var def = new SubsystemDefinition("custom_auras", "Custom Auras");
             var group = new SlotGroupDefinition(
                 name: "auras",
                 fixedCapacity: 5,
