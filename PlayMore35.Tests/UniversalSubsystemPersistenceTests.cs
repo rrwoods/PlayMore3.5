@@ -345,5 +345,189 @@ namespace PlayMore35.Tests {
             Assert.IsFalse(engine.IsActive);
             Assert.IsFalse(character.Subsystems.ContainsKey("dormant_system"), "Inactive catalog subsystems must not populate empty entries in Character.Subsystems.");
         }
+
+        [TestMethod]
+        public void SubsystemDefinition_MinimalConstructor_InitializesEmptyCollectionsAndIdAndName() {
+            var minimalDef = new SubsystemDefinition("martial_maneuvers");
+            Assert.AreEqual("martial_maneuvers", minimalDef.Id);
+            Assert.AreEqual("martial_maneuvers", minimalDef.Name);
+            Assert.IsNull(minimalDef.PrerequisiteUnit);
+            Assert.IsNull(minimalDef.PrerequisiteProperty);
+            Assert.IsNull(minimalDef.LevelGating);
+            Assert.IsNotNull(minimalDef.SlotGroups);
+            Assert.AreEqual(0, minimalDef.SlotGroups.Count);
+            Assert.IsNotNull(minimalDef.Verbs);
+            Assert.AreEqual(0, minimalDef.Verbs.Count);
+            Assert.IsNotNull(minimalDef.DefaultElementVerbs);
+            Assert.AreEqual(0, minimalDef.DefaultElementVerbs.Count);
+            Assert.IsNotNull(minimalDef.Pools);
+            Assert.AreEqual(0, minimalDef.Pools.Count);
+            Assert.IsNotNull(minimalDef.EffectTemplates);
+            Assert.AreEqual(0, minimalDef.EffectTemplates.Count);
+            Assert.IsNotNull(minimalDef.Projections);
+            Assert.AreEqual(0, minimalDef.Projections.Count);
+            Assert.IsNotNull(minimalDef.RequiredElementProperties);
+            Assert.AreEqual(0, minimalDef.RequiredElementProperties.Count);
+            Assert.IsNotNull(minimalDef.ElementStatistics);
+            Assert.AreEqual(0, minimalDef.ElementStatistics.Count);
+            Assert.IsNotNull(minimalDef.Taxonomies);
+            Assert.AreEqual(0, minimalDef.Taxonomies.Count);
+            Assert.IsNotNull(minimalDef.Elements);
+            Assert.AreEqual(0, minimalDef.Elements.Count);
+            Assert.IsNotNull(minimalDef.Actions);
+            Assert.AreEqual(0, minimalDef.Actions.Count);
+
+            var namedDef = new SubsystemDefinition("pact_magic", "Pact Magic");
+            Assert.AreEqual("pact_magic", namedDef.Id);
+            Assert.AreEqual("Pact Magic", namedDef.Name);
+            Assert.AreEqual(0, namedDef.SlotGroups.Count);
+        }
+
+        [TestMethod]
+        public void SubsystemDefinition_DirectJsonDeserialization_PopulatesAllPropertiesDirectly() {
+            var json = new JObject {
+                ["subsystem"] = new JObject {
+                    ["id"] = "test_sub",
+                    ["name"] = "Test Subsystem",
+                    ["prerequisite_unit"] = "unit_x",
+                    ["prerequisite_property"] = "prop_y",
+                    ["level_gating"] = new JObject {
+                        ["element_statistic"] = "level",
+                        ["max_level_label"] = "Max Level"
+                    },
+                    ["taxonomies"] = new JObject {
+                        ["discipline"] = new JObject {
+                            ["Iron Heart"] = new JObject {
+                                ["key"] = "iron_heart"
+                            }
+                        }
+                    },
+                    ["slot_groups"] = new JObject {
+                        ["group1"] = new JObject {
+                            ["name"] = "group1",
+                            ["fixed_capacity"] = 4
+                        }
+                    },
+                    ["verbs"] = new JObject {
+                        ["verb1"] = new JArray(new JObject { ["type"] = "transition", ["to"] = "ready" })
+                    },
+                    ["default_element_verbs"] = new JObject {
+                        ["elem_verb1"] = new JArray(new JObject { ["type"] = "invoke" })
+                    },
+                    ["pools"] = new JObject {
+                        ["pool1"] = new JObject { ["id"] = "pool1", ["default_capacity"] = 10 }
+                    },
+                    ["effect_templates"] = new JObject {
+                        ["tmpl1"] = new JObject { ["name"] = "template_effect" }
+                    },
+                    ["projections"] = new JArray(
+                        new JObject { ["slot_group"] = "group1", ["state"] = "ready", ["effects"] = new JArray("eff1") }
+                    ),
+                    ["required_element_properties"] = new JArray("prop_a"),
+                    ["element_statistics"] = new JObject {
+                        ["level"] = new JArray("tag1")
+                    },
+                    ["actions"] = new JArray(
+                        new JObject { ["name"] = "Action1", ["type"] = "Standard" }
+                    )
+                },
+                ["elements"] = new JArray(
+                    new JObject {
+                        ["name"] = "Element1",
+                        ["prop_a"] = "val_a",
+                        ["level"] = 1,
+                        ["discipline"] = "Iron Heart"
+                    }
+                )
+            };
+
+            var def = new SubsystemDefinition(json);
+
+            Assert.AreEqual("test_sub", def.Id);
+            Assert.AreEqual("Test Subsystem", def.Name);
+            Assert.AreEqual("unit_x", def.PrerequisiteUnit);
+            Assert.AreEqual("prop_y", def.PrerequisiteProperty);
+            Assert.IsNotNull(def.LevelGating);
+            Assert.AreEqual("level", def.LevelGating.ElementStatistic);
+            Assert.AreEqual("Max Level", def.LevelGating.MaxLevelLabel);
+            Assert.IsTrue(def.Taxonomies.ContainsKey("discipline"));
+            Assert.AreEqual("iron_heart", def.Taxonomies["discipline"]["Iron Heart"].GetProperty<string>("key"));
+            Assert.IsTrue(def.SlotGroups.ContainsKey("group1"));
+            Assert.AreEqual(4, def.SlotGroups["group1"].FixedCapacity);
+            Assert.IsTrue(def.Verbs.ContainsKey("verb1"));
+            Assert.AreEqual(1, def.Verbs["verb1"].Count);
+            Assert.IsTrue(def.DefaultElementVerbs.ContainsKey("elem_verb1"));
+            Assert.AreEqual(1, def.DefaultElementVerbs["elem_verb1"].Count);
+            Assert.IsTrue(def.Pools.ContainsKey("pool1"));
+            Assert.AreEqual(10, def.Pools["pool1"].DefaultCapacity);
+            Assert.IsTrue(def.EffectTemplates.ContainsKey("tmpl1"));
+            Assert.AreEqual(1, def.Projections.Count);
+            CollectionAssert.AreEqual(new[] { "prop_a" }, def.RequiredElementProperties);
+            Assert.IsTrue(def.ElementStatistics.ContainsKey("level"));
+            Assert.AreEqual(1, def.Actions.Count);
+            Assert.IsTrue(def.Elements.ContainsKey("Element1"));
+            Assert.AreEqual("Iron Heart", def.Elements["Element1"].Properties["discipline"]?.ToString());
+        }
+
+        [TestMethod]
+        public void SubsystemDefinition_DirectJsonDeserialization_EnforcesInvariants() {
+            // 1. Missing required property on element throws
+            var missingPropJson = new JObject {
+                ["subsystem"] = new JObject {
+                    ["id"] = "test_sub",
+                    ["required_element_properties"] = new JArray("mandatory_prop")
+                },
+                ["elements"] = new JArray(
+                    new JObject { ["name"] = "Elem1" }
+                )
+            };
+            var ex1 = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(missingPropJson));
+            Assert.IsTrue(ex1.Message.Contains("missing required property 'mandatory_prop'"));
+
+            // 2. Missing element statistic on element throws
+            var missingStatJson = new JObject {
+                ["subsystem"] = new JObject {
+                    ["id"] = "test_sub",
+                    ["element_statistics"] = new JObject {
+                        ["level"] = new JArray()
+                    }
+                },
+                ["elements"] = new JArray(
+                    new JObject { ["name"] = "Elem1" }
+                )
+            };
+            var ex2 = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(missingStatJson));
+            Assert.IsTrue(ex2.Message.Contains("missing required element statistic 'level'"));
+
+            // 3. Non-numeric element statistic on element throws
+            var nonNumericStatJson = new JObject {
+                ["subsystem"] = new JObject {
+                    ["id"] = "test_sub",
+                    ["element_statistics"] = new JObject {
+                        ["level"] = new JArray()
+                    }
+                },
+                ["elements"] = new JArray(
+                    new JObject { ["name"] = "Elem1", ["level"] = "not_a_number" }
+                )
+            };
+            var ex3 = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(nonNumericStatJson));
+            Assert.IsTrue(ex3.Message.Contains("must be numeric"));
+
+            // 4. Level gating referencing undefined element statistic throws
+            var undefinedLevelGatingJson = new JObject {
+                ["subsystem"] = new JObject {
+                    ["id"] = "test_sub",
+                    ["level_gating"] = new JObject {
+                        ["element_statistic"] = "grade"
+                    },
+                    ["element_statistics"] = new JObject {
+                        ["level"] = new JArray()
+                    }
+                }
+            };
+            var ex4 = Assert.ThrowsException<InvalidOperationException>(() => new SubsystemDefinition(undefinedLevelGatingJson));
+            Assert.IsTrue(ex4.Message.Contains("level gating references element statistic 'grade' which is not defined in element_statistics"));
+        }
     }
 }

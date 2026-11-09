@@ -422,6 +422,13 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
+        public SubsystemDefinition(string id) : this(id, null) { }
+
+        public SubsystemDefinition(string id, string? name = null) {
+            Id = id ?? "";
+            Name = name ?? Id;
+        }
+
         public SubsystemDefinition(
             string id = "",
             string? name = null,
@@ -536,24 +543,141 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public SubsystemDefinition(JObject json)
-            : this(
-                ParseSubId(json),
-                ParseSubName(json),
-                ParseSubPrereqUnit(json),
-                ParseSubPrereqProp(json),
-                ParseSubLevelGating(json),
-                ParseSubSlotGroups(json),
-                ParseSubVerbs(json),
-                ParseSubDefElementVerbs(json),
-                ParseSubPools(json),
-                ParseSubTemplates(json),
-                ParseSubProjections(json),
-                ParseSubRequiredElementProperties(json),
-                ParseSubElementStatistics(json),
-                ParseSubTaxonomies(json),
-                ParseSubElements(json),
-                ParseSubActions(json)) {
+        public SubsystemDefinition(JObject json) {
+            if (json == null) return;
+            var subJson = json["subsystem"] as JObject;
+            if (subJson == null) return;
+
+            Id = (string?)subJson["id"] ?? "";
+            Name = (string?)subJson["name"] ?? Id;
+            PrerequisiteUnit = (string?)subJson["prerequisite_unit"];
+            PrerequisiteProperty = (string?)subJson["prerequisite_property"];
+
+            if (subJson["level_gating"] is JObject lgObj) {
+                LevelGating = new LevelGatingDefinition(lgObj);
+            }
+
+            if (subJson["taxonomies"] is JObject taxObj) {
+                foreach (var taxProp in taxObj.Properties()) {
+                    if (taxProp.Value is JObject entriesObj) {
+                        var taxMap = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var entryProp in entriesObj.Properties()) {
+                            if (entryProp.Value is JObject entryJson) {
+                                taxMap[entryProp.Name] = new TaxonomyEntry(entryProp.Name, entryJson);
+                            }
+                        }
+                        Taxonomies[taxProp.Name] = taxMap;
+                    }
+                }
+            }
+
+            if (subJson["slot_groups"] is JObject slotsObj) {
+                foreach (var prop in slotsObj.Properties()) {
+                    if (prop.Value is JObject groupObj) {
+                        var def = new SlotGroupDefinition(groupObj);
+                        if (string.IsNullOrEmpty(def.Name)) def.Name = prop.Name;
+                        SlotGroups[prop.Name] = def;
+                    }
+                }
+            }
+
+            if (subJson["verbs"] is JObject verbsObj) {
+                foreach (var prop in verbsObj.Properties()) {
+                    if (prop.Value is JArray stepsArr) {
+                        Verbs[prop.Name] = stepsArr.OfType<JObject>().Select(x => new SubsystemStep(x)).ToList();
+                    }
+                }
+            }
+
+            if (subJson["default_element_verbs"] is JObject defVerbsObj) {
+                foreach (var prop in defVerbsObj.Properties()) {
+                    if (prop.Value is JArray stepsArr) {
+                        DefaultElementVerbs[prop.Name] = stepsArr.OfType<JObject>().Select(x => new SubsystemStep(x)).ToList();
+                    }
+                }
+            }
+
+            if (subJson["pools"] is JObject poolsObj) {
+                foreach (var prop in poolsObj.Properties()) {
+                    if (prop.Value is JObject poolObj) {
+                        var poolDef = new PoolDefinition(poolObj);
+                        if (string.IsNullOrEmpty(poolDef.Id)) poolDef.Id = prop.Name;
+                        Pools[prop.Name] = poolDef;
+                    }
+                }
+            }
+
+            if (subJson["effect_templates"] is JObject effTemplatesObj) {
+                foreach (var prop in effTemplatesObj.Properties()) {
+                    if (prop.Value is JObject templateObj) {
+                        EffectTemplates[prop.Name] = (JObject)templateObj.DeepClone();
+                    }
+                }
+            }
+
+            if (subJson["projections"] is JArray projArr) {
+                Projections.AddRange(projArr.OfType<JObject>().Select(x => new EffectProjectionRule(x)));
+            }
+
+            if (subJson["required_element_properties"] is JArray reqPropsArr) {
+                RequiredElementProperties.AddRange(reqPropsArr.Select(x => x.ToString()));
+            }
+
+            if (subJson["element_statistics"] is JObject statObj) {
+                foreach (var prop in statObj.Properties()) {
+                    var tags = new List<string>();
+                    if (prop.Value is JArray tagsArr) {
+                        tags.AddRange(tagsArr.Select(x => (string)x));
+                    }
+                    ElementStatistics[prop.Name] = tags;
+                }
+            }
+
+            if (LevelGating != null) {
+                if (string.IsNullOrEmpty(LevelGating.ElementStatistic) || !ElementStatistics.ContainsKey(LevelGating.ElementStatistic)) {
+                    throw new InvalidOperationException($"Subsystem '{Id}' level gating references element statistic '{LevelGating.ElementStatistic}' which is not defined in element_statistics.");
+                }
+            }
+
+            if (subJson["actions"] is JArray actionsArr) {
+                Actions.AddRange(actionsArr.OfType<JObject>().Select(x => SheetAction.FromJson(x)));
+            }
+
+            if (json["elements"] is JArray elemArr) {
+                foreach (var elemToken in elemArr) {
+                    if (elemToken is JObject elemObj) {
+                        var elem = new SubsystemElement(elemObj);
+                        if (!string.IsNullOrEmpty(elem.Name)) {
+                            foreach (var reqProp in RequiredElementProperties) {
+                                if (!elem.Properties.ContainsKey(reqProp) || elem.Properties[reqProp] == null) {
+                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required property '{reqProp}'.");
+                                }
+                            }
+                            foreach (var statProp in ElementStatistics.Keys) {
+                                if (!elem.Properties.TryGetValue(statProp, out var val) || val == null) {
+                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required element statistic '{statProp}'.");
+                                }
+                                try {
+                                    Convert.ToInt32(val);
+                                } catch {
+                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' statistic '{statProp}' must be numeric, but was '{val}'.");
+                                }
+                            }
+                            if (Taxonomies.Count > 0) {
+                                foreach (var taxKvp in Taxonomies) {
+                                    if (elem.Properties.TryGetValue(taxKvp.Key, out var propVal) && propVal != null) {
+                                        var entryName = propVal.ToString();
+                                        if (taxKvp.Value.TryGetValue(entryName, out var entryDef)) {
+                                            elem.SetProperty(taxKvp.Key, entryDef);
+                                        }
+                                    }
+                                }
+                            }
+                            Elements[elem.Name] = elem;
+                        }
+                    }
+                }
+            }
         }
 
         private static string ParseSubId(JObject? json) =>
