@@ -188,7 +188,7 @@ namespace PlayMore35.Tests {
             // Create a custom item that grants Crusader's Strike (Devoted Spirit maneuver)
             var itemEffect = new Effect("Crown of the White Raven")
                 .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Crusader's Strike", "Item"));
-            var crownItem = TestFactory.CreateItem(Equipped.Slot.HEAD, itemEffect, weight: 1);
+            var crownItem = new Item(Equipped.Slot.HEAD, itemEffect, weight: 1);
 
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
             fakeCatalog.ItemsMap["Crown of the White Raven"] = crownItem;
@@ -225,7 +225,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void DualPass_LevelGating_RemainsUnmetEvenIfEquippedGearProvidesStatBoosts() {
             // Create an item that boosts initiator level (or stats)
-            var beltItem = TestFactory.CreateItem(
+            var beltItem = new Item(
                 Equipped.Slot.WAIST,
                 new Effect("Belt of Initiator Mastery")
                     .AddModifier("initiator level:feats", new Modifier(4, ModifierTypes.ENHANCEMENT))
@@ -308,7 +308,7 @@ namespace PlayMore35.Tests {
         public void LevelDetailsDialog_WithItemDependentChoice_DisplaysItemDependentBadge() {
             var itemEffect = new Effect("Crown of the White Raven")
                 .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Crusader's Strike", "Item"));
-            var crownItem = TestFactory.CreateItem(Equipped.Slot.HEAD, itemEffect, weight: 1);
+            var crownItem = new Item(Equipped.Slot.HEAD, itemEffect, weight: 1);
 
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
             fakeCatalog.ItemsMap["Crown of the White Raven"] = crownItem;
@@ -368,7 +368,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateProgressionChoice_FirstLevelClass_PrerequisitesEvaluatedAgainstLevel0State() {
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
-            var reqClass = TestFactory.CreateClass("Berserker", prerequisites: "STR 14");
+            var reqClass = new CharacterClass("Berserker", prerequisites: "STR 14");
             fakeCatalog.ClassesMap["Berserker"] = reqClass;
 
             // Character with base STR 12 at level 0 (human)
@@ -407,7 +407,7 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateProgressionChoice_ClassChoiceAtLevelL_EvaluatesAgainstLevelLMinus1_NoLeakageOfLevelLBenefits() {
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
-            var prcClass = TestFactory.CreateClass("Prestige Champion", prerequisites: "Base attack bonus +4, STR 14, Power Attack, Jump 4 ranks");
+            var prcClass = new CharacterClass("Prestige Champion", prerequisites: "Base attack bonus +4, STR 14, Power Attack, Jump 4 ranks");
             fakeCatalog.ClassesMap["Prestige Champion"] = prcClass;
 
             // Character has 4 levels: 3 levels Fighter, 4th level Fighter.
@@ -458,10 +458,10 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateProgressionChoice_ClassChoice_DualPassItemQualification_CategorizesAsItemDependent() {
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
-            var prcClass = TestFactory.CreateClass("Iron Mind", prerequisites: "STR 14");
+            var prcClass = new CharacterClass("Iron Mind", prerequisites: "STR 14");
             fakeCatalog.ClassesMap["Iron Mind"] = prcClass;
 
-            var gauntlets = TestFactory.CreateItem(
+            var gauntlets = new Item(
                 Equipped.Slot.HANDS,
                 new Effect("Gauntlets of Ogre Power")
                     .AddModifier(Constants.STR_SCORE, new Modifier(2, ModifierTypes.ENHANCEMENT)),
@@ -498,10 +498,10 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ValidateProgressionChoice_ClassChoice_PartialItemImprovement_RemainsUnmet() {
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
-            var prcClass = TestFactory.CreateClass("Iron Mind", prerequisites: "STR 16");
+            var prcClass = new CharacterClass("Iron Mind", prerequisites: "STR 16");
             fakeCatalog.ClassesMap["Iron Mind"] = prcClass;
 
-            var gauntlets = TestFactory.CreateItem(
+            var gauntlets = new Item(
                 Equipped.Slot.HANDS,
                 new Effect("Gauntlets of Ogre Power")
                     .AddModifier(Constants.STR_SCORE, new Modifier(2, ModifierTypes.ENHANCEMENT)),
@@ -540,7 +540,7 @@ namespace PlayMore35.Tests {
         public void ValidateProgressionChoice_FeatSourcedSubsystem_DualPassPrerequisiteSatisfiedByGear_CategorizesAsItemDependent() {
             var itemEffect = new Effect("Crown of the White Raven")
                 .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Crusader's Strike", "Item"));
-            var crownItem = TestFactory.CreateItem(Equipped.Slot.HEAD, itemEffect, weight: 1);
+            var crownItem = new Item(Equipped.Slot.HEAD, itemEffect, weight: 1);
 
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
             fakeCatalog.ItemsMap["Crown of the White Raven"] = crownItem;
@@ -574,7 +574,7 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle pp. 39, 52; ADR-0017, ADR-0018
         [TestMethod]
         public void ValidateProgressionChoice_FeatSourcedSubsystem_LevelGateExceeded_RemainsUnmetEvenWithStatBoostItem() {
-            var beltItem = TestFactory.CreateItem(
+            var beltItem = new Item(
                 Equipped.Slot.WAIST,
                 new Effect("Belt of Initiator Mastery")
                     .AddModifier("initiator level:feats", new Modifier(4, ModifierTypes.ENHANCEMENT))
@@ -615,7 +615,7 @@ namespace PlayMore35.Tests {
         public void ValidateProgressionChoice_ClassGrantedSubsystem_DualPassPrerequisiteSatisfiedByGear_CategorizesAsItemDependent() {
             var itemEffect = new Effect("Iron Heart Ring")
                 .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Steely Strike", "Item"));
-            var ringItem = TestFactory.CreateItem(Equipped.Slot.RING1, itemEffect, weight: 1);
+            var ringItem = new Item(Equipped.Slot.RING1, itemEffect, weight: 1);
 
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
             fakeCatalog.ItemsMap["Iron Heart Ring"] = ringItem;
@@ -648,7 +648,7 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle pp. 39, 44; ADR-0017, ADR-0018
         [TestMethod]
         public void ValidateProgressionChoice_ClassGrantedSubsystem_LevelGateExceeded_RemainsUnmetEvenWithStatBoostItem() {
-            var beltItem = TestFactory.CreateItem(
+            var beltItem = new Item(
                 Equipped.Slot.WAIST,
                 new Effect("Belt of Initiator Mastery")
                     .AddModifier("initiator level:warblade", new Modifier(4, ModifierTypes.ENHANCEMENT)),
@@ -893,7 +893,7 @@ namespace PlayMore35.Tests {
         // Source: Tome of Magic pp. 19, 21; Complete Warrior p. 16; ADR-0017, ADR-0018
         [TestMethod]
         public void ValidateProgressionChoice_VestigeChoice_LevelGateRemainsUnmetEvenWithEquippedItem() {
-            var beltItem = TestFactory.CreateItem(
+            var beltItem = new Item(
                 Equipped.Slot.WAIST,
                 new Effect("Belt of Binder Mastery")
                     .AddModifier("effective binder level", new Modifier(4, ModifierTypes.ENHANCEMENT)),
@@ -953,7 +953,7 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, p. 52
         [TestMethod]
         public void ValidateProgressionChoice_OnSnapshotSessionWithOverlay_EvaluatesDualPassItemDependency() {
-            var item = TestFactory.CreateItem(
+            var item = new Item(
                 Equipped.Slot.HEAD,
                 new Effect("Crown of the White Raven")
                     .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Crusader's Strike", "Item")),

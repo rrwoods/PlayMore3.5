@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PlayMore35.CharacterChoices;
 using PlayMore35.Effects;
 using PlayMore35.Items;
 
@@ -21,9 +22,9 @@ namespace PlayMore35.Tests {
             var baseDice = new DiceGroup(1, 8).AddDice(4, 1); // 1d8 + 4
             var flaming = new DiceGroup("Flaming").AddDice(1, 6); // 1d6 fire
 
-            var attack = TestFactory.CreateAttack(
-                name: "Longsword",
-                bonus: 5,
+            var attack = new Attack(
+                weaponName: "Longsword",
+                attackBonus: 5,
                 baseDamage: baseDice,
                 bonusDice: new List<DiceGroup> { flaming },
                 criticalMultiplier: 2,
@@ -42,9 +43,9 @@ namespace PlayMore35.Tests {
             var baseDice = new DiceGroup(1, 8).AddDice(4, 1); // 1d8 + 4
             var flaming = new DiceGroup("Flaming").AddDice(1, 6); // 1d6 fire
 
-            var attack = TestFactory.CreateAttack(
-                name: "Longsword",
-                bonus: 5,
+            var attack = new Attack(
+                weaponName: "Longsword",
+                attackBonus: 5,
                 baseDamage: baseDice,
                 bonusDice: new List<DiceGroup> { flaming },
                 criticalMultiplier: 2,
@@ -64,9 +65,9 @@ namespace PlayMore35.Tests {
             var flaming = new DiceGroup("Flaming").AddDice(1, 6); // 1d6 fire
             var burst = new DiceGroup("Flaming Burst").AddDice(1, 10); // 1d10 burst
 
-            var attack = TestFactory.CreateAttack(
-                name: "Flaming Burst Longsword",
-                bonus: 5,
+            var attack = new Attack(
+                weaponName: "Flaming Burst Longsword",
+                attackBonus: 5,
                 baseDamage: baseDice,
                 bonusDice: new List<DiceGroup> { flaming },
                 criticalBonusDice: new List<DiceGroup> { flaming, burst },
@@ -82,9 +83,9 @@ namespace PlayMore35.Tests {
         // Source: Player's Handbook 3.5, p. 143
         [TestMethod]
         public void AttackRoutine_InstantiatesWithStructuredMetadata() {
-            var attack = TestFactory.CreateAttack(
-                name: "Longsword",
-                bonus: 7,
+            var attack = new Attack(
+                weaponName: "Longsword",
+                attackBonus: 7,
                 baseDamage: new DiceGroup(1, 8).AddDice(3, 1),
                 bonusDice: new List<DiceGroup>(),
                 criticalMultiplier: 2,
