@@ -201,6 +201,21 @@ Skills in `docs/rules/mechanics/` follow a structured, compact reference format 
   - <Operational rules for character sheet modeling: tool/kit requirements, movement speed/mobility interactions, combat/state interactions (e.g. feinting, losing Dex bonus to AC, distraction), special untrained rules>
 ```
 
+#### 6. Weapon Reference Schema
+
+Weapons in `docs/rules/content/weapons/` follow a structured, compact reference format modeling combat statistics and special mechanical traits in tabletop language:
+
+```markdown
+### <Weapon Name>
+- **Source**: *Player's Handbook*, p. <Page>
+- **Proficiency**: <Simple | Martial | Exotic> | **Type**: <Light Melee | One-Handed Melee | Two-Handed Melee | Ranged>
+- **Cost**: <Cost> | **Weight**: <Weight>
+- **Damage**: <Tiny> (T), <Small> (S), **<Medium> (M)**, <Large> (L) | **Critical**: <Threat/Mult> | **Damage Type**: <Bludgeoning | Piercing | Slashing>
+- **Range Increment**: <Increment, or "—">
+- **Special**:
+  - <Bulleted operative mechanical rules: Reach, Double, Trip, Disarm, Weapon Finesse, Charge, Nonlethal, etc., or "None">
+```
+
 ### Positive grilling & conversational protocol
 
 When framing frontier questions and recommendations in `/grilling`, `/wayfinder`, or general chat:
