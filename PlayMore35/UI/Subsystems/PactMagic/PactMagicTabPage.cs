@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -21,8 +20,17 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private readonly Label _lblDetailsInfluence;
         private readonly Label _lblDetailsAbilities;
 
-        public PactMagicTabPage(ISubsystemUIHost host) {
+        public PactMagicTabPage(ISubsystemUIHost host)
+            : this(host, new PactMagicElementPicker(host.Session, new ElementPickerContext {
+                ElementType = "vestige",
+                WarningProvider = elem => host.Session.ValidateProgressionChoice(
+                    new ProgressionChoiceContext(ProgressionChoiceDomain.Subsystem, elem.Name, targetSource: "pact_magic"))
+            })) {
+        }
+
+        public PactMagicTabPage(ISubsystemUIHost host, PactMagicElementPicker picker) {
             _host = host ?? throw new ArgumentNullException(nameof(host));
+            _picker = picker ?? throw new ArgumentNullException(nameof(picker));
 
             Text = "Vestiges";
             BackColor = SystemColors.Control;
@@ -99,11 +107,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Padding = new Padding(6)
             };
 
-            _picker = new PactMagicElementPicker(_host.Session, new ElementPickerContext {
-                ElementType = "vestige",
-                WarningProvider = elem => _host.Session.ValidateProgressionChoice(
-                    new ProgressionChoiceContext(ProgressionChoiceDomain.Subsystem, elem.Name, targetSource: "pact_magic"))
-            });
             _picker.VestigeSelected += OnVestigeSelected;
             _picker.VestigeBindRequested += OnVestigeBindRequested;
             _picker.VestigeUnbindRequested += OnVestigeUnbindRequested;
@@ -121,8 +124,11 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _picker.RefreshMaxVestigeLevel();
             _picker.RefreshBindingState();
 
-            if (_picker.SelectedCard != null) {
-                ShowVestigeDetails(_picker.SelectedCard.Vestige);
+            if (_picker.ViewModel.SelectedCard != null) {
+                ShowVestigeDetails(_picker.ViewModel.SelectedCard);
+            } else {
+                _pnlDetailsContent.Visible = false;
+                _lblEmptyPrompt.Visible = true;
             }
         }
 
@@ -136,37 +142,21 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         }
 
         public void ShowVestigeDetails(SubsystemElement vestige) {
+            var card = _picker.ViewModel.FindCard(vestige.Name);
+            if (card != null) {
+                ShowVestigeDetails(card);
+            }
+        }
+
+        public void ShowVestigeDetails(VestigeCardViewModel card) {
             _lblEmptyPrompt.Visible = false;
             _pnlDetailsContent.Visible = true;
 
-            int level = vestige.GetProperty<int>("level");
-            int bindingDc = vestige.GetProperty<int>("binding DC");
-            string sign = vestige.GetProperty<string>("sign");
-
-            var influenceEffects = vestige.GetEffects("influence");
-            var influenceTexts = influenceEffects
-                .SelectMany(eff => eff.Text)
-                .Select(t => t.Description)
-                .Where(desc => !string.IsNullOrWhiteSpace(desc));
-            string influence = string.Join("\n\n", influenceTexts);
-
             UpdateDetailsLabelsWidth();
-            _lblDetailsTitle.Text = $"{vestige.Name} (Level {level}, Binding DC {bindingDc})";
-            _lblDetailsSign.Text = $"Sign:\n{sign}";
-            _lblDetailsInfluence.Text = $"Influence:\n{influence}";
-
-            var abilities = vestige.GetEffects("abilities");
-            var distinctAbilities = abilities
-                .GroupBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
-                .Select(g => g.First());
-            var abilitiesFormatted = distinctAbilities.Select(a => {
-                string desc = a.Text.Count > 0 ? a.Text[0].Description : "";
-                string type = a.Text.Count > 0 && !string.IsNullOrEmpty(a.Text[0].Category)
-                    ? a.Text[0].Category
-                    : "Passive";
-                return string.IsNullOrEmpty(desc) ? $"• {a.Name} ({type})" : $"• {a.Name} ({type}): {desc}";
-            });
-            _lblDetailsAbilities.Text = "Granted Abilities:\n" + string.Join("\n\n", abilitiesFormatted);
+            _lblDetailsTitle.Text = card.DetailsTitle;
+            _lblDetailsSign.Text = card.DetailsSignText;
+            _lblDetailsInfluence.Text = card.DetailsInfluenceText;
+            _lblDetailsAbilities.Text = card.DetailsAbilitiesText;
         }
 
         private void UpdateDetailsLabelsWidth() {

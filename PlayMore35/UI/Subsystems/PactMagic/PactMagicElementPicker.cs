@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using PlayMore35.Global;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.UI.Subsystems.PactMagic {
     public class PactMagicElementPicker : UserControl, ISubsystemElementPicker {
-        private readonly ICharacterSession _session;
-        private readonly ElementPickerContext _context;
-        private readonly List<SubsystemElement> _allVestiges;
+        public PactMagicPickerViewModel ViewModel { get; }
         private readonly List<VestigeCardControl> _cards = new List<VestigeCardControl>();
 
         private FlowLayoutPanel _pinnedContainer = null!;
@@ -19,114 +16,54 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         private CheckBox _hideUnavailableCheckBox = null!;
         private ComboBox _cboLevelFilter = null!;
         private FlowLayoutPanel _cardsContainer = null!;
+        private bool _isSyncing;
 
-        private VestigeCardControl? _selectedCard;
-        private int _capacity = 1;
+        public event Action<SubsystemElement?>? ElementDelivered {
+            add => ViewModel.ElementDelivered += value;
+            remove => ViewModel.ElementDelivered -= value;
+        }
 
-        public event Action<SubsystemElement?>? ElementDelivered;
-        public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered;
-        public event Action<SubsystemElement, string>? VestigeBindRequested;
-        public event Action<SubsystemElement>? VestigeUnbindRequested;
-        public event Action<SubsystemElement?>? VestigeSelected;
+        public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered {
+            add => ViewModel.ElementsDelivered += value;
+            remove => ViewModel.ElementsDelivered -= value;
+        }
+
+        public event Action<SubsystemElement, string>? VestigeBindRequested {
+            add => ViewModel.VestigeBindRequested += value;
+            remove => ViewModel.VestigeBindRequested -= value;
+        }
+
+        public event Action<SubsystemElement>? VestigeUnbindRequested {
+            add => ViewModel.VestigeUnbindRequested += value;
+            remove => ViewModel.VestigeUnbindRequested -= value;
+        }
+
+        public event Action<SubsystemElement?>? VestigeSelected {
+            add => ViewModel.VestigeSelected += value;
+            remove => ViewModel.VestigeSelected -= value;
+        }
 
         public Control Control => this;
-        public VestigeCardControl? SelectedCard => _selectedCard;
 
-        public PactMagicElementPicker(ICharacterSession session, ElementPickerContext context) {
-            _session = session ?? throw new ArgumentNullException(nameof(session));
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+        public PactMagicElementPicker(ICharacterSession session, ElementPickerContext context)
+            : this(new PactMagicPickerViewModel(session, context)) {
+        }
 
-            if (session.Catalog.TryGetSubsystem("pact_magic", out var pactDef)) {
-                _allVestiges = pactDef.Elements.Values.OrderBy(v => v.Name).ToList();
-            } else {
-                _allVestiges = new List<SubsystemElement>();
-            }
+        public PactMagicElementPicker(PactMagicPickerViewModel viewModel) {
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
 
             InitializeComponent();
             PopulateCards();
-            RefreshMaxVestigeLevel();
-            RefreshBindingState();
+
+            ViewModel.StateChanged += (s, e) => SyncFromViewModel();
+            SyncFromViewModel();
         }
 
-        public void RefreshMaxVestigeLevel() {
-            var engine = _session.GetSubsystem("pact_magic");
-            var group = engine?.GetSlotGroup("vestiges");
-            _capacity = group?.Capacity ?? _session.GetStatistic("number of vestiges")?.Value ?? 0;
+        public void RefreshMaxVestigeLevel() => ViewModel.RefreshMaxVestigeLevel();
 
-            foreach (var card in _cards) {
-                var warnings = _context.WarningProvider != null
-                    ? _context.WarningProvider(card.Vestige)
-                    : Array.Empty<ValidationWarning>();
-                card.Warnings = warnings ?? Array.Empty<ValidationWarning>();
-            }
-            ApplyFilter();
-        }
+        public void RefreshBindingState() => ViewModel.RefreshBindingState();
 
-        public void RefreshBindingState() {
-            bool isProgression = _context.AcquisitionLevel > 0;
-
-            _pinnedContainer.SuspendLayout();
-            _cardsContainer.SuspendLayout();
-
-            _pinnedContainer.AutoScrollPosition = Point.Empty;
-            _pinnedContainer.AutoScroll = false;
-            _pinnedContainer.Controls.Clear();
-
-            if (isProgression) {
-                foreach (var card in _cards) {
-                    card.IsProgressionMode = true;
-                    card.IsBound = false;
-                    card.PactState = null;
-                    card.IsAtMaxCapacity = false;
-
-                    if (!_cardsContainer.Controls.Contains(card)) {
-                        _cardsContainer.Controls.Add(card);
-                    }
-                }
-                _pinnedContainer.Visible = false;
-            } else {
-                var engine = _session.GetSubsystem("pact_magic");
-                var slots = engine?.GetSlots("vestiges") ?? Array.Empty<SubsystemSlot>();
-
-                int boundCount = slots.Count(s => !string.IsNullOrEmpty(s.Element) && s.State != "empty");
-                bool atMaxCapacity = boundCount >= _capacity;
-
-                foreach (var card in _cards) {
-                    card.IsProgressionMode = false;
-                    var boundSlot = slots.FirstOrDefault(s => string.Equals(s.Element, card.Vestige.Name, StringComparison.OrdinalIgnoreCase) && s.State != "empty");
-                    bool isBound = (boundSlot != null);
-
-                    card.IsBound = isBound;
-                    card.PactState = boundSlot?.State;
-                    card.IsAtMaxCapacity = atMaxCapacity;
-
-                    if (isBound) {
-                        if (!_pinnedContainer.Controls.Contains(card)) {
-                            _pinnedContainer.Controls.Add(card);
-                        }
-                    } else {
-                        if (!_cardsContainer.Controls.Contains(card)) {
-                            _cardsContainer.Controls.Add(card);
-                        }
-                    }
-                }
-
-                _pinnedContainer.Visible = (_pinnedContainer.Controls.Count > 0);
-            }
-
-            _pinnedContainer.AutoScroll = true;
-            _pinnedContainer.ResumeLayout(true);
-            _cardsContainer.ResumeLayout(true);
-
-            ApplyFilter();
-        }
-
-        public void SelectVestige(string name) {
-            var card = _cards.FirstOrDefault(c => string.Equals(c.Vestige.Name, name, StringComparison.OrdinalIgnoreCase));
-            if (card != null) {
-                SelectCard(card);
-            }
-        }
+        public void SelectVestige(string name) => ViewModel.SelectVestige(name);
 
         private void InitializeComponent() {
             SuspendLayout();
@@ -157,16 +94,22 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 Width = 200,
                 Font = new Font("Segoe UI", 9f)
             };
-            _searchBox.TextChanged += (s, e) => ApplyFilter();
+            _searchBox.TextChanged += (s, e) => {
+                if (_isSyncing) return;
+                ViewModel.SearchText = _searchBox.Text;
+            };
 
             _hideUnavailableCheckBox = new CheckBox {
                 Location = new Point(216, 8),
                 Text = "Hide unavailable",
                 AutoSize = true,
                 Font = new Font("Segoe UI", 8.5f),
-                Checked = true
+                Checked = ViewModel.HideUnavailable
             };
-            _hideUnavailableCheckBox.CheckedChanged += (s, e) => ApplyFilter();
+            _hideUnavailableCheckBox.CheckedChanged += (s, e) => {
+                if (_isSyncing) return;
+                ViewModel.HideUnavailable = _hideUnavailableCheckBox.Checked;
+            };
 
             _cboLevelFilter = new ComboBox {
                 Location = new Point(340, 7),
@@ -178,8 +121,11 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             for (int i = 1; i <= 8; i++) {
                 _cboLevelFilter.Items.Add($"Level {i}");
             }
-            _cboLevelFilter.SelectedIndex = 0;
-            _cboLevelFilter.SelectedIndexChanged += (s, e) => ApplyFilter();
+            _cboLevelFilter.SelectedIndex = ViewModel.SelectedLevelFilterIndex;
+            _cboLevelFilter.SelectedIndexChanged += (s, e) => {
+                if (_isSyncing) return;
+                ViewModel.SelectedLevelFilterIndex = _cboLevelFilter.SelectedIndex;
+            };
 
             _toolbarPanel.Controls.Add(_cboLevelFilter);
             _toolbarPanel.Controls.Add(_hideUnavailableCheckBox);
@@ -193,10 +139,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
                 WrapContents = true
             };
 
-            // Order of controls controls docking hierarchy:
-            // Top docking resolves bottom-to-top or top-to-bottom based on add order.
-            // DockStyle.Fill must be added first or last depending on layout.
-            // Controls added: fill first, then toolbars top.
             Controls.Add(_cardsContainer);
             Controls.Add(_toolbarPanel);
             Controls.Add(_pinnedContainer);
@@ -206,81 +148,57 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
 
         private void PopulateCards() {
             _cards.Clear();
+            _pinnedContainer.Controls.Clear();
+            _cardsContainer.Controls.Clear();
 
-            foreach (var elem in _allVestiges) {
-                var card = new VestigeCardControl(elem);
-                card.IsProgressionMode = _context.AcquisitionLevel > 0;
-
-                card.CardClicked += (s, e) => SelectCard(card);
-                card.GoodPactClicked += (s, e) => OnBindClicked(card, "good_pact");
-                card.PoorPactClicked += (s, e) => OnBindClicked(card, "poor_pact");
-                card.UnbindClicked += (s, e) => OnUnbindClicked(card);
-
-                _cards.Add(card);
+            foreach (var cardVm in ViewModel.Cards) {
+                var cardControl = new VestigeCardControl(cardVm);
+                _cards.Add(cardControl);
+                _cardsContainer.Controls.Add(cardControl);
             }
         }
 
-        private void SelectCard(VestigeCardControl card) {
-            foreach (var c in _cards) {
-                c.IsSelected = (c == card);
-            }
-            _selectedCard = card;
-
-            ElementDelivered?.Invoke(card.Vestige);
-            ElementsDelivered?.Invoke(new[] { card.Vestige });
-            VestigeSelected?.Invoke(card.Vestige);
-        }
-
-        private void OnBindClicked(VestigeCardControl card, string pactState) {
-            VestigeBindRequested?.Invoke(card.Vestige, pactState);
-        }
-
-        private void OnUnbindClicked(VestigeCardControl card) {
-            VestigeUnbindRequested?.Invoke(card.Vestige);
-        }
-
-        private void ApplyFilter() {
-            _cardsContainer.SuspendLayout();
-
-            string q = _searchBox.Text.Trim().ToLowerInvariant();
-            int selectedLevel = _cboLevelFilter.SelectedIndex;
-
-            foreach (var card in _cards) {
-                if (card.IsBound && _context.AcquisitionLevel <= 0) {
-                    // Pinned cards remain visible in pinned container
-                    card.Visible = true;
-                    continue;
+        private void SyncFromViewModel() {
+            _isSyncing = true;
+            try {
+                if (_searchBox.Text != ViewModel.SearchText) {
+                    _searchBox.Text = ViewModel.SearchText;
+                }
+                if (_hideUnavailableCheckBox.Checked != ViewModel.HideUnavailable) {
+                    _hideUnavailableCheckBox.Checked = ViewModel.HideUnavailable;
+                }
+                if (_cboLevelFilter.SelectedIndex != ViewModel.SelectedLevelFilterIndex) {
+                    _cboLevelFilter.SelectedIndex = ViewModel.SelectedLevelFilterIndex;
                 }
 
-                bool visible = true;
-                int vestigeLevel = card.Vestige.GetProperty<int>("level");
+                _pinnedContainer.SuspendLayout();
+                _cardsContainer.SuspendLayout();
 
-                if (_hideUnavailableCheckBox.Checked && card.IsInvalid) {
-                    visible = false;
-                }
+                _pinnedContainer.AutoScrollPosition = Point.Empty;
+                _pinnedContainer.AutoScroll = false;
 
-                if (selectedLevel > 0 && vestigeLevel != selectedLevel) {
-                    visible = false;
-                }
+                _pinnedContainer.Visible = ViewModel.IsPinnedContainerVisible;
 
-                if (visible && !string.IsNullOrEmpty(q)) {
-                    bool nameMatch = card.Vestige.Name.ToLowerInvariant().Contains(q);
-                    bool abilityMatch = card.Vestige.GetEffects("abilities").Any(a =>
-                        a.Name.ToLowerInvariant().Contains(q) ||
-                        a.Text.Any(t => t.Description != null && t.Description.ToLowerInvariant().Contains(q)));
-                    string signText = card.Vestige.GetProperty<string>("sign");
-                    bool signMatch = signText.ToLowerInvariant().Contains(q);
-                    var influenceTexts = card.Vestige.GetEffects("influence").SelectMany(eff => eff.Text).Select(t => t.Description ?? "");
-                    bool influenceMatch = influenceTexts.Any(t => t.ToLowerInvariant().Contains(q));
-                    if (!nameMatch && !abilityMatch && !signMatch && !influenceMatch) {
-                        visible = false;
+                foreach (var cardControl in _cards) {
+                    var cardVm = cardControl.ViewModel;
+
+                    if (cardVm.IsBound && ViewModel.Context.AcquisitionLevel <= 0) {
+                        if (!_pinnedContainer.Controls.Contains(cardControl)) {
+                            _pinnedContainer.Controls.Add(cardControl);
+                        }
+                    } else {
+                        if (!_cardsContainer.Controls.Contains(cardControl)) {
+                            _cardsContainer.Controls.Add(cardControl);
+                        }
                     }
                 }
 
-                card.Visible = visible;
+                _pinnedContainer.AutoScroll = true;
+                _pinnedContainer.ResumeLayout(true);
+                _cardsContainer.ResumeLayout(true);
+            } finally {
+                _isSyncing = false;
             }
-
-            _cardsContainer.ResumeLayout(true);
         }
     }
 }

@@ -9,21 +9,11 @@ using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using PlayMore35.UI;
 using PlayMore35.UI.Subsystems;
-using PlayMore35.UI.Subsystems.PactMagic;
 
 namespace PlayMore35.Tests {
     public static class ControlTestExtensions {
         public static string GetTooltip(this Control control) =>
             FormUtils.TOOLTIP.GetToolTip(control);
-
-        public static void DeliverVestigeByName(this PactMagicElementPicker picker, string name) =>
-            picker.SelectVestige(name);
-
-        public static void DeliverVestigeByName(this ISubsystemElementPicker picker, string name) {
-            if (picker is PactMagicElementPicker pm) {
-                pm.SelectVestige(name);
-            }
-        }
 
         public static bool GetCategoryChecked(this ConfigureAttackRoutinesDialog dialog, RoutineCategory category) {
             var text = ConfigureAttackRoutinesDialog.GetCategoryDisplayName(category);
@@ -105,70 +95,5 @@ namespace PlayMore35.Tests {
             }
             return (T)field.GetValue(target)!;
         }
-
-        public static IReadOnlyList<VestigeCardControl> GetCards(this PactMagicElementPicker picker) =>
-            GetField<List<VestigeCardControl>>(picker, "_cards");
-
-        public static int GetVisibleCardsCount(this PactMagicElementPicker picker) =>
-            picker.GetCards().Count(c => c.Visible && !c.IsBound);
-
-        public static FlowLayoutPanel GetPinnedContainer(this PactMagicElementPicker picker) =>
-            GetField<FlowLayoutPanel>(picker, "_pinnedContainer");
-
-        public static FlowLayoutPanel GetCardsContainer(this PactMagicElementPicker picker) =>
-            GetField<FlowLayoutPanel>(picker, "_cardsContainer");
-
-        public static string GetSearchQuery(this PactMagicElementPicker picker) =>
-            GetField<TextBox>(picker, "_searchBox").Text;
-
-        public static void SetSearchQuery(this PactMagicElementPicker picker, string query) {
-            GetField<TextBox>(picker, "_searchBox").Text = query;
-        }
-
-        public static bool GetHideUnavailable(this PactMagicElementPicker picker) =>
-            GetField<CheckBox>(picker, "_hideUnavailableCheckBox").Checked;
-
-        public static void SetHideUnavailable(this PactMagicElementPicker picker, bool hide) {
-            GetField<CheckBox>(picker, "_hideUnavailableCheckBox").Checked = hide;
-        }
-
-        public static int GetSlotsColumnWidth(this PactMagicTabPage page) =>
-            GetField<Panel>(page, "_leftColumn").Width;
-
-        public static PactMagicElementPicker GetPicker(this PactMagicTabPage page) =>
-            GetField<PactMagicElementPicker>(page, "_picker");
-
-        public static string GetDetailsHeader(this PactMagicTabPage page) =>
-            GetField<Label>(page, "_lblDetailsTitle").Text;
-
-        public static string GetDetailsSignText(this PactMagicTabPage page) =>
-            GetField<Label>(page, "_lblDetailsSign").Text;
-
-        public static string GetDetailsInfluenceText(this PactMagicTabPage page) =>
-            GetField<Label>(page, "_lblDetailsInfluence").Text;
-
-        public static string GetDetailsAbilitiesText(this PactMagicTabPage page) =>
-            GetField<Label>(page, "_lblDetailsAbilities").Text;
-
-        public static bool GetIsEmptyPromptVisible(this PactMagicTabPage page) =>
-            GetField<Label>(page, "_lblEmptyPrompt").Visible;
-
-        public static Button GetGoodPactButton(this VestigeCardControl card) =>
-            GetField<Button>(card, "_btnGoodPact");
-
-        public static Button GetPoorPactButton(this VestigeCardControl card) =>
-            GetField<Button>(card, "_btnPoorPact");
-
-        public static Button GetUnbindButton(this VestigeCardControl card) =>
-            GetField<Button>(card, "_btnUnbind");
-
-        public static Label GetStatusLabel(this VestigeCardControl card) =>
-            GetField<Label>(card, "_lblStatus");
-
-        public static Label GetCapacityNoticeLabel(this VestigeCardControl card) =>
-            GetField<Label>(card, "_lblCapacityNotice");
-
-        public static string GetStatusToolTip(this VestigeCardControl card) =>
-            card.GetStatusLabel().GetTooltip();
     }
 }
