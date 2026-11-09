@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using PlayMore35.Global;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.UI.Subsystems {
     public class DefaultElementPicker : UserControl, ISubsystemElementPicker {
-        private readonly ICharacterSession _session;
-        private readonly ElementPickerContext _context;
-        private readonly SubsystemDefinition? _definition;
-        private readonly List<SubsystemElement> _allElements;
+        public DefaultElementPickerViewModel ViewModel { get; }
 
         private TextBox _searchBox;
         private CheckBox _hideInvalidCheckBox;
@@ -19,63 +15,31 @@ namespace PlayMore35.UI.Subsystems {
         private Panel _detailsPanel;
         private Label _lblDetails;
         private Button _btnToggleDetails;
-        private bool _isDetailsExpanded = true;
+        private bool _isSyncing;
 
-        public event Action<SubsystemElement?>? ElementDelivered;
-        public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered;
+        public event Action<SubsystemElement?>? ElementDelivered {
+            add => ViewModel.ElementDelivered += value;
+            remove => ViewModel.ElementDelivered -= value;
+        }
+
+        public event Action<IReadOnlyList<SubsystemElement>>? ElementsDelivered {
+            add => ViewModel.ElementsDelivered += value;
+            remove => ViewModel.ElementsDelivered -= value;
+        }
 
         public Control Control => this;
 
-        private void ToggleDetailsPane() {
-            SetDetailsExpanded(!_isDetailsExpanded);
+        public DefaultElementPicker(ICharacterSession session, ElementPickerContext context, IEnumerable<SubsystemElement>? elements = null)
+            : this(new DefaultElementPickerViewModel(session, context, elements)) {
         }
 
-        private void SetDetailsExpanded(bool expanded) {
-            _isDetailsExpanded = expanded;
-            _detailsPanel.Visible = expanded;
-            _btnToggleDetails.Text = expanded ? "▼ Hide Details" : "▲ Show Details";
-        }
-
-        public DefaultElementPicker(ICharacterSession session, ElementPickerContext context, IEnumerable<SubsystemElement>? elements = null) {
-            _session = session ?? throw new ArgumentNullException(nameof(session));
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-
-            if (!string.IsNullOrEmpty(context.ElementType)) {
-                if (session.Catalog != null && session.Catalog.TryGetSubsystem(context.ElementType!, out var subDef)) {
-                    _definition = subDef;
-                } else if (session.Subsystems != null) {
-                    var engine = session.GetSubsystem(context.ElementType!) ??
-                                 session.Subsystems.FirstOrDefault(e =>
-                                     e.Definition.SlotGroups.Values.Any(g => string.Equals(g.Filter, context.ElementType, StringComparison.OrdinalIgnoreCase)) ||
-                                     e.Definition.Elements.Values.Any(el => el.MatchesFilter(context.ElementType, e.Definition)));
-                    if (engine != null) {
-                        _definition = engine.Definition;
-                    }
-                }
-            }
-
-            if (_definition == null && elements != null) {
-                var firstElem = elements.FirstOrDefault();
-                if (firstElem != null) {
-                    if (session.Catalog?.Subsystems != null) {
-                        _definition = session.Catalog.Subsystems.Values.FirstOrDefault(d => d.Elements.ContainsKey(firstElem.Name));
-                    }
-                    if (_definition == null && session.Subsystems != null) {
-                        _definition = session.Subsystems.Select(e => e.Definition).FirstOrDefault(d => d.Elements.ContainsKey(firstElem.Name));
-                    }
-                }
-            }
-
-            if (elements != null) {
-                _allElements = new List<SubsystemElement>(elements);
-            } else if (_definition != null) {
-                _allElements = new List<SubsystemElement>(_definition.Elements.Values);
-            } else {
-                _allElements = new List<SubsystemElement>();
-            }
+        public DefaultElementPicker(DefaultElementPickerViewModel viewModel) {
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
 
             InitializeComponent();
-            ApplyFilter();
+
+            ViewModel.StateChanged += (s, e) => SyncFromViewModel();
+            SyncFromViewModel();
         }
 
         private void InitializeComponent() {
@@ -91,14 +55,20 @@ namespace PlayMore35.UI.Subsystems {
                 Width = 200,
                 Font = new Font(Font.FontFamily, 9f)
             };
-            _searchBox.TextChanged += (s, e) => ApplyFilter();
+            _searchBox.TextChanged += (s, e) => {
+                if (_isSyncing) return;
+                ViewModel.SearchText = _searchBox.Text;
+            };
 
             _hideInvalidCheckBox = new CheckBox {
                 Text = "Hide invalid choices",
                 Location = new Point(4, 30),
                 AutoSize = true
             };
-            _hideInvalidCheckBox.CheckedChanged += (s, e) => ApplyFilter();
+            _hideInvalidCheckBox.CheckedChanged += (s, e) => {
+                if (_isSyncing) return;
+                ViewModel.HideInvalidChoices = _hideInvalidCheckBox.Checked;
+            };
 
             _btnToggleDetails = new Button {
                 Text = "▼ Hide Details",
@@ -106,7 +76,7 @@ namespace PlayMore35.UI.Subsystems {
                 Size = new Size(100, 24),
                 UseVisualStyleBackColor = true
             };
-            _btnToggleDetails.Click += (s, e) => ToggleDetailsPane();
+            _btnToggleDetails.Click += (s, e) => ViewModel.ToggleDetailsPane();
 
             topPanel.Controls.Add(_searchBox);
             topPanel.Controls.Add(_hideInvalidCheckBox);
@@ -134,7 +104,10 @@ namespace PlayMore35.UI.Subsystems {
                 ItemHeight = 20
             };
             _listBox.DrawItem += ListBox_DrawItem;
-            _listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
+            _listBox.SelectedIndexChanged += (s, e) => {
+                if (_isSyncing) return;
+                ViewModel.SelectedIndex = _listBox.SelectedIndex;
+            };
 
             Controls.Add(_listBox);
             Controls.Add(_detailsPanel);
@@ -144,44 +117,38 @@ namespace PlayMore35.UI.Subsystems {
         }
 
         public (string BadgeText, Color BadgeColor)? GetItemBadge(int index) {
-            if (index < 0 || index >= _listBox.Items.Count) return null;
-            var item = (ListItem)_listBox.Items[index];
-            if (item.Warnings == null || item.Warnings.Count == 0) return null;
-            bool hasUnmet = item.Warnings.Any(w => w.Kind == WarningKind.Unmet);
-            return hasUnmet ? ("⚠", Color.DarkGoldenrod) : ("🛈", Color.DodgerBlue);
+            if (index < 0 || index >= ViewModel.FilteredItems.Count) return null;
+            var item = ViewModel.FilteredItems[index];
+            if (item.BadgeText == null) return null;
+            return (item.BadgeText, item.WorstWarningKind == WarningKind.Unmet
+                ? Color.DarkGoldenrod
+                : Color.DodgerBlue);
         }
 
-        private void ApplyFilter() {
-            _listBox.BeginUpdate();
-            _listBox.Items.Clear();
-
-            // Always add (None) option at the top
-            _listBox.Items.Add(new ListItem(null, Array.Empty<ValidationWarning>()));
-
-            var searchText = _searchBox.Text.Trim();
-            var filter = _context.Filter;
-            foreach (var elem in _allElements) {
-                if (!elem.MatchesFilter(filter, _definition)) {
-                    continue;
+        private void SyncFromViewModel() {
+            if (_isSyncing) return;
+            _isSyncing = true;
+            try {
+                if (_searchBox.Text != ViewModel.SearchText) {
+                    _searchBox.Text = ViewModel.SearchText;
                 }
-
-                if (!string.IsNullOrEmpty(searchText) && elem.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) < 0) {
-                    continue;
+                if (_hideInvalidCheckBox.Checked != ViewModel.HideInvalidChoices) {
+                    _hideInvalidCheckBox.Checked = ViewModel.HideInvalidChoices;
                 }
+                _detailsPanel.Visible = ViewModel.IsDetailsExpanded;
+                _btnToggleDetails.Text = ViewModel.DetailsToggleText;
+                _lblDetails.Text = ViewModel.DetailsText;
 
-                IReadOnlyList<ValidationWarning> warnings = Array.Empty<ValidationWarning>();
-                if (_context.WarningProvider != null) {
-                    warnings = _context.WarningProvider(elem) ?? Array.Empty<ValidationWarning>();
+                _listBox.BeginUpdate();
+                _listBox.Items.Clear();
+                foreach (var item in ViewModel.FilteredItems) {
+                    _listBox.Items.Add(item);
                 }
-
-                if (_hideInvalidCheckBox.Checked && warnings.Any(w => w.Kind == WarningKind.Unmet)) {
-                    continue;
-                }
-
-                _listBox.Items.Add(new ListItem(elem, warnings));
+                _listBox.SelectedIndex = ViewModel.SelectedIndex;
+                _listBox.EndUpdate();
+            } finally {
+                _isSyncing = false;
             }
-
-            _listBox.EndUpdate();
         }
 
         private void ListBox_DrawItem(object sender, DrawItemEventArgs e) {
@@ -189,11 +156,11 @@ namespace PlayMore35.UI.Subsystems {
 
             e.DrawBackground();
 
-            var item = (ListItem)_listBox.Items[e.Index];
+            var item = (DefaultElementPickerItem)_listBox.Items[e.Index];
             var g = e.Graphics;
             var bounds = e.Bounds;
 
-            string text = item.Element != null ? item.Element.Name : "(None)";
+            string text = item.DisplayName;
             Font font = item.Element == null ? new Font(e.Font, FontStyle.Italic) : e.Font;
             Brush brush = (e.State & DrawItemState.Selected) != 0 ? SystemBrushes.HighlightText : SystemBrushes.ControlText;
 
@@ -220,43 +187,6 @@ namespace PlayMore35.UI.Subsystems {
             }
 
             e.DrawFocusRectangle();
-        }
-
-        private void ListBox_SelectedIndexChanged(object sender, EventArgs e) {
-            if (_listBox.SelectedItem is ListItem selectedItem) {
-                if (selectedItem.Element != null) {
-                    var desc = selectedItem.Element.GetProperty<string>("description", "");
-                    var warningText = selectedItem.Warnings.Count > 0
-                        ? "\n\n" + string.Join("\n", selectedItem.Warnings.Select(FormatWarning))
-                        : "";
-                    _lblDetails.Text = $"{selectedItem.Element.Name}\n{desc}{warningText}";
-
-                    ElementDelivered?.Invoke(selectedItem.Element);
-                    ElementsDelivered?.Invoke(new[] { selectedItem.Element });
-                } else {
-                    _lblDetails.Text = "(None selected)";
-                    ElementDelivered?.Invoke(null);
-                    ElementsDelivered?.Invoke(Array.Empty<SubsystemElement>());
-                }
-            }
-        }
-
-        private static string FormatWarning(ValidationWarning warning) {
-            return warning.Kind == WarningKind.ItemDependent
-                ? $"[Item-Dependent: {warning.Message} (satisfied by equipped items)]"
-                : $"[Warning: {warning.Message}]";
-        }
-
-        private class ListItem {
-            public SubsystemElement? Element { get; }
-            public IReadOnlyList<ValidationWarning> Warnings { get; }
-
-            public ListItem(SubsystemElement? element, IReadOnlyList<ValidationWarning> warnings) {
-                Element = element;
-                Warnings = warnings ?? Array.Empty<ValidationWarning>();
-            }
-
-            public override string ToString() => Element != null ? Element.Name : "(None)";
         }
     }
 }

@@ -260,6 +260,8 @@
     <Compile Include="UI\Subsystems\ISubsystemUIHost.cs" />
     <Compile Include="UI\Subsystems\ISubsystemElementPicker.cs" />
     <Compile Include="UI\Subsystems\ReceptorState.cs" />
+    <Compile Include="UI\Subsystems\ElementReceptorViewModel.cs" />
+    <Compile Include="UI\Subsystems\DefaultElementPickerViewModel.cs" />
     <Compile Include="UI\Subsystems\ElementReceptorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

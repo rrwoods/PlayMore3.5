@@ -54,10 +54,10 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ElementReceptorControl_InitialState_Unmade() {
             using (var receptor = new ElementReceptorControl()) {
-                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
+                Assert.AreEqual(ReceptorState.Unmade, receptor.ViewModel.State);
                 Assert.IsNull(receptor.SelectedElement);
-                Assert.IsFalse(receptor.IsClearButtonVisible());
-                Assert.IsFalse(receptor.IsWarningBadgeVisible());
+                Assert.IsFalse(receptor.ViewModel.IsClearButtonVisible);
+                Assert.IsFalse(receptor.ViewModel.IsWarningBadgeVisible);
             }
         }
 
@@ -67,10 +67,10 @@ namespace PlayMore35.Tests {
                 var elem = new SubsystemElement { Name = "Aym", Type = "vestige" };
                 receptor.SelectedElement = elem;
 
-                Assert.AreEqual(ReceptorState.Made, receptor.GetState());
+                Assert.AreEqual(ReceptorState.Made, receptor.ViewModel.State);
                 Assert.AreSame(elem, receptor.SelectedElement);
-                Assert.IsTrue(receptor.IsClearButtonVisible());
-                Assert.IsTrue(receptor.GetDisplayText().Contains("Aym"));
+                Assert.IsTrue(receptor.ViewModel.IsClearButtonVisible);
+                Assert.IsTrue(receptor.ViewModel.DisplayText.Contains("Aym"));
             }
         }
 
@@ -78,19 +78,19 @@ namespace PlayMore35.Tests {
         public void ElementReceptorControl_IsActiveSelecting_TransitionsBorderAccent() {
             using (var receptor = new ElementReceptorControl()) {
                 receptor.IsActiveSelecting = true;
-                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.GetState());
+                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.ViewModel.State);
 
                 receptor.IsActiveSelecting = false;
-                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
+                Assert.AreEqual(ReceptorState.Unmade, receptor.ViewModel.State);
 
                 receptor.SelectedElement = new SubsystemElement { Name = "Aym", Type = "vestige" };
-                Assert.AreEqual(ReceptorState.Made, receptor.GetState());
+                Assert.AreEqual(ReceptorState.Made, receptor.ViewModel.State);
 
                 receptor.IsActiveSelecting = true;
-                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.GetState());
+                Assert.AreEqual(ReceptorState.ActiveSelecting, receptor.ViewModel.State);
 
                 receptor.IsActiveSelecting = false;
-                Assert.AreEqual(ReceptorState.Made, receptor.GetState());
+                Assert.AreEqual(ReceptorState.Made, receptor.ViewModel.State);
             }
         }
 
@@ -117,7 +117,7 @@ namespace PlayMore35.Tests {
                 receptor.PerformClear();
 
                 Assert.IsNull(receptor.SelectedElement);
-                Assert.AreEqual(ReceptorState.Unmade, receptor.GetState());
+                Assert.AreEqual(ReceptorState.Unmade, receptor.ViewModel.State);
                 Assert.IsTrue(clearedFired);
                 Assert.IsNull(deliveredAfterClear);
             }
@@ -126,13 +126,13 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ElementReceptorControl_WarningHandling_SetsAndClearsWarning() {
             using (var receptor = new ElementReceptorControl()) {
-                receptor.SetWarning("Prerequisites not met");
-                Assert.IsTrue(receptor.IsWarningBadgeVisible());
-                Assert.AreEqual("Prerequisites not met", receptor.GetWarningBadge().GetTooltip());
+                receptor.ViewModel.SetWarning("Prerequisites not met");
+                Assert.IsTrue(receptor.ViewModel.IsWarningBadgeVisible);
+                Assert.AreEqual("Prerequisites not met", receptor.ViewModel.WarningTooltip);
 
                 receptor.ClearWarning();
-                Assert.IsFalse(receptor.IsWarningBadgeVisible());
-                Assert.AreEqual("", receptor.GetWarningBadge().GetTooltip());
+                Assert.IsFalse(receptor.ViewModel.IsWarningBadgeVisible);
+                Assert.AreEqual("", receptor.ViewModel.WarningTooltip);
             }
         }
 
@@ -152,7 +152,7 @@ namespace PlayMore35.Tests {
                 SubsystemElement? delivered = null;
                 picker.ElementDelivered += e => delivered = e;
 
-                picker.SelectElementByName("Aym");
+                picker.ViewModel.SelectElementByName("Aym");
 
                 Assert.IsNotNull(delivered);
                 Assert.AreEqual("Aym", delivered?.Name);
@@ -175,7 +175,7 @@ namespace PlayMore35.Tests {
                 SubsystemElement? delivered = new SubsystemElement();
                 picker.ElementDelivered += e => delivered = e;
 
-                picker.SelectNone();
+                picker.ViewModel.SelectNone();
 
                 Assert.IsNull(delivered);
             }
@@ -194,8 +194,8 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                picker.SetSearchFilterText("Aym");
-                var visible = new List<string>(picker.GetFilteredElementNames());
+                picker.ViewModel.SearchText = "Aym";
+                var visible = picker.ViewModel.FilteredNames();
                 CollectionAssert.Contains(visible, "Aym");
                 CollectionAssert.DoesNotContain(visible, "Ronove");
             }
@@ -217,12 +217,12 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                var visibleInitial = new List<string>(picker.GetFilteredElementNames());
+                var visibleInitial = picker.ViewModel.FilteredNames();
                 CollectionAssert.Contains(visibleInitial, "Aym");
                 CollectionAssert.Contains(visibleInitial, "Ronove");
 
-                picker.SetHideInvalidChoices(true);
-                var visibleAfterHide = new List<string>(picker.GetFilteredElementNames());
+                picker.ViewModel.HideInvalidChoices = true;
+                var visibleAfterHide = picker.ViewModel.FilteredNames();
                 CollectionAssert.Contains(visibleAfterHide, "Aym");
                 CollectionAssert.DoesNotContain(visibleAfterHide, "Ronove");
             }
@@ -258,15 +258,15 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                var initial = new List<string>(picker.GetFilteredElementNames());
+                var initial = picker.ViewModel.FilteredNames();
                 CollectionAssert.Contains(initial, "(None)");
                 CollectionAssert.Contains(initial, "ValidElem");
                 CollectionAssert.Contains(initial, "ItemDepElem");
                 CollectionAssert.Contains(initial, "UnmetElem");
                 CollectionAssert.Contains(initial, "MixedElem");
 
-                picker.SetHideInvalidChoices(true);
-                var filtered = new List<string>(picker.GetFilteredElementNames());
+                picker.ViewModel.HideInvalidChoices = true;
+                var filtered = picker.ViewModel.FilteredNames();
                 CollectionAssert.Contains(filtered, "(None)");
                 CollectionAssert.Contains(filtered, "ValidElem");
                 CollectionAssert.Contains(filtered, "ItemDepElem");
@@ -316,18 +316,24 @@ namespace PlayMore35.Tests {
                 Assert.IsNotNull(itemDepBadge);
                 Assert.AreEqual("🛈", itemDepBadge.Value.BadgeText);
                 Assert.AreEqual(Color.DodgerBlue, itemDepBadge.Value.BadgeColor);
+                Assert.AreEqual("🛈", picker.ViewModel.FilteredItems[2].BadgeText);
+                Assert.AreEqual(WarningKind.ItemDependent, picker.ViewModel.FilteredItems[2].WorstWarningKind);
 
                 // Index 3: UnmetElem (has Unmet -> goldenrod ⚠)
                 var unmetBadge = picker.GetItemBadge(3);
                 Assert.IsNotNull(unmetBadge);
                 Assert.AreEqual("⚠", unmetBadge.Value.BadgeText);
                 Assert.AreEqual(Color.DarkGoldenrod, unmetBadge.Value.BadgeColor);
+                Assert.AreEqual("⚠", picker.ViewModel.FilteredItems[3].BadgeText);
+                Assert.AreEqual(WarningKind.Unmet, picker.ViewModel.FilteredItems[3].WorstWarningKind);
 
                 // Index 4: MixedElem (both Unmet and ItemDependent -> goldenrod ⚠ worst-kind precedence)
                 var mixedBadge = picker.GetItemBadge(4);
                 Assert.IsNotNull(mixedBadge);
                 Assert.AreEqual("⚠", mixedBadge.Value.BadgeText);
                 Assert.AreEqual(Color.DarkGoldenrod, mixedBadge.Value.BadgeColor);
+                Assert.AreEqual("⚠", picker.ViewModel.FilteredItems[4].BadgeText);
+                Assert.AreEqual(WarningKind.Unmet, picker.ViewModel.FilteredItems[4].WorstWarningKind);
 
                 // Exercise owner-draw rendering for all items on a real Graphics surface
                 using (var bmp = new Bitmap(200, 100))
@@ -379,25 +385,25 @@ namespace PlayMore35.Tests {
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
                 // Select ValidElem
-                picker.SelectElementByName("ValidElem");
-                Assert.AreEqual("ValidElem\nLore text", picker.GetDetailsText());
+                picker.ViewModel.SelectElementByName("ValidElem");
+                Assert.AreEqual("ValidElem\nLore text", picker.ViewModel.DetailsText);
 
                 // Select UnmetElem
-                picker.SelectElementByName("UnmetElem");
-                Assert.IsTrue(picker.GetDetailsText().Contains("UnmetElem\nUnmet lore\n\n[Warning: Requires Binder Level 3]"));
+                picker.ViewModel.SelectElementByName("UnmetElem");
+                Assert.IsTrue(picker.ViewModel.DetailsText.Contains("UnmetElem\nUnmet lore\n\n[Warning: Requires Binder Level 3]"));
 
                 // Select ItemDepElem
-                picker.SelectElementByName("ItemDepElem");
-                Assert.IsTrue(picker.GetDetailsText().Contains("ItemDepElem\nItemDep lore\n\n[Item-Dependent: Requires BAB +3 (satisfied by equipped items)]"));
+                picker.ViewModel.SelectElementByName("ItemDepElem");
+                Assert.IsTrue(picker.ViewModel.DetailsText.Contains("ItemDepElem\nItemDep lore\n\n[Item-Dependent: Requires BAB +3 (satisfied by equipped items)]"));
 
                 // Select MixedElem
-                picker.SelectElementByName("MixedElem");
-                Assert.IsTrue(picker.GetDetailsText().Contains("[Warning: Missing prerequisite feat]"));
-                Assert.IsTrue(picker.GetDetailsText().Contains("[Item-Dependent: Requires Str 13 (satisfied by equipped items)]"));
+                picker.ViewModel.SelectElementByName("MixedElem");
+                Assert.IsTrue(picker.ViewModel.DetailsText.Contains("[Warning: Missing prerequisite feat]"));
+                Assert.IsTrue(picker.ViewModel.DetailsText.Contains("[Item-Dependent: Requires Str 13 (satisfied by equipped items)]"));
 
                 // Select None
-                picker.SelectNone();
-                Assert.AreEqual("(None selected)", picker.GetDetailsText());
+                picker.ViewModel.SelectNone();
+                Assert.AreEqual("(None selected)", picker.ViewModel.DetailsText);
             }
         }
 
@@ -410,19 +416,16 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                Assert.IsTrue(picker.GetIsDetailsExpanded());
-                Assert.IsTrue(picker.GetDetailsPane().Visible);
-                Assert.AreEqual("▼ Hide Details", picker.GetDetailsToggleButton().Text);
+                Assert.IsTrue(picker.ViewModel.IsDetailsExpanded);
+                Assert.AreEqual("▼ Hide Details", picker.ViewModel.DetailsToggleText);
 
-                picker.ToggleDetailsPane();
-                Assert.IsFalse(picker.GetIsDetailsExpanded());
-                Assert.IsFalse(picker.GetDetailsPane().Visible);
-                Assert.AreEqual("▲ Show Details", picker.GetDetailsToggleButton().Text);
+                picker.ViewModel.ToggleDetailsPane();
+                Assert.IsFalse(picker.ViewModel.IsDetailsExpanded);
+                Assert.AreEqual("▲ Show Details", picker.ViewModel.DetailsToggleText);
 
-                picker.ToggleDetailsPane();
-                Assert.IsTrue(picker.GetIsDetailsExpanded());
-                Assert.IsTrue(picker.GetDetailsPane().Visible);
-                Assert.AreEqual("▼ Hide Details", picker.GetDetailsToggleButton().Text);
+                picker.ViewModel.ToggleDetailsPane();
+                Assert.IsTrue(picker.ViewModel.IsDetailsExpanded);
+                Assert.AreEqual("▼ Hide Details", picker.ViewModel.DetailsToggleText);
             }
         }
 
@@ -443,7 +446,7 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                var filtered = new List<string>(picker.GetFilteredElementNames());
+                var filtered = picker.ViewModel.FilteredNames();
                 CollectionAssert.Contains(filtered, "Steel Wind");
                 CollectionAssert.Contains(filtered, "Wind Stride");
                 CollectionAssert.Contains(filtered, "Fire Riposte");
@@ -468,7 +471,7 @@ namespace PlayMore35.Tests {
             };
 
             using (var picker = new DefaultElementPicker(session, context, elements)) {
-                var filtered = new List<string>(picker.GetFilteredElementNames());
+                var filtered = picker.ViewModel.FilteredNames();
                 CollectionAssert.DoesNotContain(filtered, "Steel Wind");
                 CollectionAssert.DoesNotContain(filtered, "Wind Stride");
                 CollectionAssert.Contains(filtered, "Punishing Stance");
