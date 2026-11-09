@@ -53,7 +53,6 @@ namespace PlayMore35.Subsystems {
         public SubsystemEngine(SubsystemDefinition definition, ICharacterContext context)
             : this(definition, context, new Random()) { }
 
-        [AuthorizedDomainApi("Intentional domain API to inject seeded RNG for deterministic random subsystem resolution")]
         public void SetRandom(Random rng) {
             Rng = rng ?? new Random();
         }
@@ -232,7 +231,6 @@ namespace PlayMore35.Subsystems {
             return ResolveStatOrParam(statName, def.MaxLevel.Base);
         }
 
-        [AuthorizedDomainApi("Intentional domain query for slot group max level")]
         public int GetMaxLevel(string groupName, string? source = null) {
             if (string.IsNullOrEmpty(groupName) || !Definition.SlotGroups.TryGetValue(groupName, out var def)) return int.MaxValue;
             return ResolveMaxLevel(def, source);
@@ -438,7 +436,6 @@ namespace PlayMore35.Subsystems {
             return -1;
         }
 
-        [AuthorizedDomainApi("Intentional domain mutator for setting subsystem slot state")]
         public void SetSlotState(string groupName, int index, string state, string? source = null) {
             var slot = GetSlot(groupName, index, source);
             if (slot != null) {
@@ -490,19 +487,16 @@ namespace PlayMore35.Subsystems {
             return Math.Max(0, ResolveCapacity(def, source));
         }
 
-        [AuthorizedDomainApi("Intentional domain query for element in subsystem slot")]
         public string? GetSlotElement(string groupName, int index, string? source = null) {
             var slot = GetSlot(groupName, index, source);
             return string.IsNullOrEmpty(slot?.Element) ? null : slot.Element;
         }
 
-        [AuthorizedDomainApi("Intentional domain query for state of subsystem slot")]
         public string GetSlotState(string groupName, int index, string? source = null) {
             var slot = GetSlot(groupName, index, source);
             return string.IsNullOrEmpty(slot?.State) ? "empty" : slot.State;
         }
 
-        [AuthorizedDomainApi("Intentional domain query validating slot element against max level")]
         public bool IsSlotLevelValid(string groupName, int slotIndex, string? source = null) {
             var slot = GetSlot(groupName, slotIndex, source);
             if (slot == null || string.IsNullOrEmpty(slot.Element)) return true;
@@ -584,7 +578,6 @@ namespace PlayMore35.Subsystems {
             SyncState();
         }
 
-        [AuthorizedDomainApi("Intentional domain mutator for clearing subsystem slot")]
         public void ClearSlot(string groupName, int index, string? source = null) {
             var group = GetSlotGroup(groupName);
             if (group == null || index < 0) return;
@@ -1507,7 +1500,6 @@ namespace PlayMore35.Subsystems {
                    slotKey.StartsWith(featSlot + ":", StringComparison.OrdinalIgnoreCase);
         }
 
-        [AuthorizedDomainApi("Intentional domain query for validating active subsystem slots and state")]
         public List<string> Validate() {
             var warnings = new List<string>();
             var seenElements = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

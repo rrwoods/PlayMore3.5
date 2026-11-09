@@ -38,16 +38,12 @@ namespace PlayMore35.UI {
             set => ViewModel.AmountHeader = value;
         }
 
-        [AuthorizedDomainApi("Layout inspection property for header top")]
         public int HeaderTop => headerPanel.Top;
 
-        [AuthorizedDomainApi("Layout inspection property for body top")]
         public int BodyTop => bodyPanel.Top;
 
-        [AuthorizedDomainApi("Layout inspection property for vertical scroll value")]
         public int VerticalScrollValue => bodyPanel.VerticalScroll.Value;
 
-        [AuthorizedDomainApi("Layout inspection method for row control")]
         public LedgerRowControl? GetRow(int index) => index >= 0 && index < rows.Count ? rows[index] : null;
 
         public void AlignInputControls(Control datePicker, Control descInput, Control amountInput, Control addButton) {

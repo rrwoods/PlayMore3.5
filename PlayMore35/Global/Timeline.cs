@@ -72,7 +72,6 @@ namespace PlayMore35.Global {
 
         public DateTime CurrentTime => RoundZero.AddSeconds(CurrentRound * 6);
 
-        [AuthorizedDomainApi("Intentional domain entry point for timeline advance")]
         public TimelineAdvanceResult Advance(long rounds = 1) {
             return Advance(rounds, Context);
         }

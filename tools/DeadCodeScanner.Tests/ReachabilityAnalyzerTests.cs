@@ -256,51 +256,6 @@ public class Program {
     }
 
     [TestMethod]
-    public void Analyze_AuthorizedDomainApiAttribute_RecognizesAnnotatedMethodAndInterfaceAsRoot() {
-        string prodSource = @"
-using System;
-
-namespace PlayMore35;
-
-[AttributeUsage(AttributeTargets.All)]
-public class AuthorizedDomainApiAttribute : Attribute {}
-
-[AuthorizedDomainApi]
-public interface IAuthorizedContract {
-    void ContractMethod();
-}
-
-public class AuthorizedService : IAuthorizedContract {
-    public void ContractMethod() {
-        ContractWork();
-    }
-    private void ContractWork() {}
-
-    [AuthorizedDomainApi]
-    public void StandaloneAuthorizedApi() {
-        StandaloneWork();
-    }
-    private void StandaloneWork() {}
-}
-
-public class Program {
-    public static void Main() {}
-}
-";
-        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
-        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
-
-        var analyzer = new ReachabilityAnalyzer();
-        var result = analyzer.Analyze(prodCompilation, testCompilation);
-
-        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "ContractMethod"), "ContractMethod should be Live");
-        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "ContractWork"), "ContractWork should be Live");
-        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StandaloneAuthorizedApi"), "StandaloneAuthorizedApi should be Live");
-        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "StandaloneWork"), "StandaloneWork should be Live");
-        Assert.IsFalse(result.DeadMethods.Any(m => m.Name == "StandaloneAuthorizedApi"), "StandaloneAuthorizedApi should not be Dead");
-    }
-
-    [TestMethod]
     public void Analyze_StaticFieldInitializer_RecordsCallEdgeAndMarksTargetAsLiveWhenClassInitialized() {
         string prodSource = @"
 namespace PlayMore35;
@@ -663,5 +618,44 @@ public class Program {
         Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "NonInterfacePublicWork"), "NonInterfacePublicWork on custom class should be Dead");
         Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "PrivateUncalledWork"), "PrivateUncalledWork should be Dead");
         Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "ExplicitPrivateUncalledWork"), "ExplicitPrivateUncalledWork should be Dead");
+    }
+
+    [TestMethod]
+    public void Analyze_DomainEngineAndViewModelRoots_RecognizedWithoutAuthorizedDomainApi() {
+        string prodSource = @"
+namespace PlayMore35;
+
+public class Timeline {
+    public void Advance() {}
+    private void DeadTimelineHelper() {}
+}
+
+public class Effect {
+    public Effect AddSlot() => this;
+    private void DeadEffectHelper() {}
+}
+
+public class TestViewModel {
+    public void SelectRow() {}
+    private void DeadViewModelHelper() {}
+}
+
+public class Program {
+    public static void Main() {}
+}
+";
+        var prodCompilation = TestCompilationHelper.CreateCompilation("PlayMore35", prodSource);
+        var testCompilation = TestCompilationHelper.CreateCompilation("PlayMore35.Tests", "// empty");
+
+        var analyzer = new ReachabilityAnalyzer();
+        var result = analyzer.Analyze(prodCompilation, testCompilation);
+
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "Advance"), "Timeline.Advance should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "AddSlot"), "Effect.AddSlot should be Live");
+        Assert.IsTrue(result.LiveMethods.Any(m => m.Name == "SelectRow"), "TestViewModel.SelectRow should be Live");
+
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadTimelineHelper"), "DeadTimelineHelper should be Dead");
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadEffectHelper"), "DeadEffectHelper should be Dead");
+        Assert.IsTrue(result.DeadMethods.Any(m => m.Name == "DeadViewModelHelper"), "DeadViewModelHelper should be Dead");
     }
 }

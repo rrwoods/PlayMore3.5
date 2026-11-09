@@ -964,14 +964,12 @@ namespace PlayMore35.Global {
                 .AsReadOnly();
         }
 
-        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         public void SetFeatChoice(string featSlot, string choice) {
             Mutate(c => {
                 c.featChoices[featSlot] = choice;
             });
         }
 
-        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         public void SetFeatChoice(string featSlot, string key, string choice) {
             Mutate(c => {
                 c.featChoices[$"{featSlot}:{key}"] = choice;
@@ -1380,7 +1378,6 @@ namespace PlayMore35.Global {
             return effects.GetTextEffects(equippedItems);
         }
 
-        [AuthorizedDomainApi("Intentional domain engine contract for LengthOfTime progression")]
         public TimelineAdvanceResult AdvanceTimeline(LengthOfTime? duration) {
             if (duration == null) return new TimelineAdvanceResult();
             return AdvanceTimeline(duration.InRounds());

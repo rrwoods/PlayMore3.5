@@ -6,7 +6,6 @@ using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 
 namespace PlayMore35.UI {
-    [AuthorizedDomainApi("Headless presentation model for tabular ledger row")]
     public class TabularLedgerRowViewModel {
         public string GameTimeText { get; }
         public string RealDateText { get; }
@@ -41,7 +40,6 @@ namespace PlayMore35.UI {
         public void Delete() => DeleteAction?.Invoke();
     }
 
-    [AuthorizedDomainApi("Headless presentation model for tabular ledger")]
     public class TabularLedgerViewModel {
         private string _gameTimeHeader = "In-Game Time";
         private string _realDateHeader = "Real Date";

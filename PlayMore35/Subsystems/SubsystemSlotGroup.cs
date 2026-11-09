@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems {
-    [AuthorizedDomainApi("Domain container for subsystem slot groups")]
     public class SubsystemSlotGroup<TSlot> {
         private readonly Func<int> capacityProvider;
         private readonly Func<int>? maxLevelProvider;

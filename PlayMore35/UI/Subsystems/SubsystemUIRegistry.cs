@@ -38,7 +38,6 @@ namespace PlayMore35.UI.Subsystems {
             }
         }
 
-        [AuthorizedDomainApi("Lookup subsystem UI by subsystem ID")]
         public ISubsystemUI? GetBySubsystemId(string subsystemId) {
             if (string.IsNullOrEmpty(subsystemId)) return null;
             return _providersById.TryGetValue(subsystemId, out var provider) ? provider : null;

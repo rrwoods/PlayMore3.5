@@ -100,7 +100,6 @@
     <Compile Include="Rules\IPropertyProvider.cs" />
     <Compile Include="Rules\IRulesCatalog.cs" />
     <Compile Include="Rules\GameRulesCatalog.cs" />
-    <Compile Include="Global\AuthorizedDomainApiAttribute.cs" />
     <Compile Include="Global\ICharacterContext.cs" />
     <Compile Include="Global\ICharacterSession.cs" />
     <Compile Include="Global\ValidationWarning.cs" />

@@ -48,7 +48,7 @@ Because all production construction paths exist explicitly in the Roslyn syntax 
 
 ## Core Concepts & Vocabulary
 
-- **Production Roots**: Code entry points (`Program.Main`, public `Form` constructors, and WinForms/Component lifecycle overrides like `OnLoad`, `Dispose`).
+- **Production Roots**: Code entry points (`Program.Main`, public `Form` constructors, WinForms/Component lifecycle overrides like `OnLoad`, `Dispose`, public members on UI forms and controls, public presentation models ending in `ViewModel`, and public members of core domain engine contracts and their implementations: `ICharacterSession`, `IRulesCatalog`, `ISubsystemEngine`, `CharacterSession`, `GameRulesCatalog`, `SubsystemEngine`, `Timeline`, `Effect`, `EffectPool`, `ModifierTypes`, `SubsystemDefinition`, `TaxonomyEntry`, `SubsystemElement`, `SubsystemSlotGroup`, `SubsystemUIRegistry`).
 - **Live Methods**: Transitive call-graph closure reachable from Production Roots (including interface implementations and virtual dispatch).
 - **Dead Methods**: Any production method with zero reachable paths from Production Roots.
 - **Zombie Island**: A cluster of dead methods that appear active because members call each other (cascades) or unit tests call into them.

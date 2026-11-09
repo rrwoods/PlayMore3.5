@@ -58,7 +58,6 @@ namespace PlayMore35.Global {
         IReadOnlyList<AttackRoutine> GetVisibleRoutines();
         Dictionary<string, List<Text>> GetTextEffects();
 
-        [AuthorizedDomainApi("Intentional domain engine contract for LengthOfTime progression")]
         TimelineAdvanceResult AdvanceTimeline(LengthOfTime duration);
         TimelineAdvanceResult AdvanceTimeline(long rounds);
         TimelineAdvanceResult SetTime(DateTime time);
@@ -75,9 +74,7 @@ namespace PlayMore35.Global {
         int GetFeatSlotLevel(string featSlot);
         string ResolveFeatTargetSource(string featSlot);
         IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string filter = null);
-        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         void SetFeatChoice(string featSlot, string choice);
-        [AuthorizedDomainApi("Intentional domain mutator for feat choices with recalculation")]
         void SetFeatChoice(string featSlot, string key, string choice);
         string GetFeatChoice(string featSlot, string key = null);
         IReadOnlyList<ValidationWarning> ValidateProgressionChoice(ProgressionChoiceContext context);

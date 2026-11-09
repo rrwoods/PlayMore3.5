@@ -14,7 +14,6 @@ using PlayMore35.Subsystems;
 using static PlayMore35.Effects.Constants;
 
 namespace PlayMore35.Rules {
-    [AuthorizedDomainApi("Intentional shared rules catalog implementation")]
     public class GameRulesCatalog : IRulesCatalog {
         private readonly string? saveDir;
 

@@ -336,7 +336,6 @@ namespace PlayMore35.Subsystems {
 
         public IReadOnlyDictionary<string, object> Properties => _properties;
 
-        [AuthorizedDomainApi("Domain API for reading taxonomy properties")]
         public T GetProperty<T>(string key, T defaultValue = default) {
             if (string.IsNullOrEmpty(key)) return defaultValue;
             if (_properties.TryGetValue(key, out var val) && val != null) {
@@ -422,10 +421,8 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
-        [AuthorizedDomainApi("Domain constructor for programmatic and in-memory subsystem definitions")]
         public SubsystemDefinition(string id) : this(id, null) { }
 
-        [AuthorizedDomainApi("Domain constructor for programmatic and in-memory subsystem definitions")]
         public SubsystemDefinition(string id, string? name = null) {
             Id = id ?? "";
             Name = name ?? Id;

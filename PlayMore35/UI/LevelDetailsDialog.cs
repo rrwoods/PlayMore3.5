@@ -81,7 +81,6 @@ namespace PlayMore35 {
             }
         }
 
-        [AuthorizedDomainApi("Picker host panel inspection property")]
         public Panel PickerHost => pnlPickerHost;
 
         public void PrepareLevel(int levelIndex) {

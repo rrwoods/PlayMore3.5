@@ -471,13 +471,31 @@ public class ReachabilityAnalyzer {
     private static readonly HashSet<string> CoreDomainEngineImplementations = new(StringComparer.Ordinal) {
         "CharacterSession",
         "GameRulesCatalog",
-        "SubsystemEngine"
+        "SubsystemEngine",
+        "Timeline",
+        "Effect",
+        "EffectPool",
+        "ModifierTypes",
+        "SubsystemDefinition",
+        "TaxonomyEntry",
+        "SubsystemElement",
+        "SubsystemSlotGroup",
+        "SubsystemUIRegistry"
     };
 
     private static readonly string[] CoreDomainEngineImplementationNames = {
         "CharacterSession",
         "GameRulesCatalog",
-        "SubsystemEngine"
+        "SubsystemEngine",
+        "Timeline",
+        "Effect",
+        "EffectPool",
+        "ModifierTypes",
+        "SubsystemDefinition",
+        "TaxonomyEntry",
+        "SubsystemElement",
+        "SubsystemSlotGroup",
+        "SubsystemUIRegistry"
     };
 
     private static bool IsProductionRoot(IMethodSymbol symbol) {
@@ -491,17 +509,22 @@ public class ReachabilityAnalyzer {
             return true;
         }
 
-        // Authorized domain API annotation or contract
-        if (HasAuthorizedDomainApi(symbol)) {
-            return true;
-        }
-
         var containingType = symbol.ContainingType;
         if (containingType != null) {
             bool isForm = containingType.Name.EndsWith("Form") || IsSubclassOf(containingType, "Form");
 
             // Top-level Form constructors (like MainForm) are entry points
             if (isForm && symbol.MethodKind == MethodKind.Constructor && symbol.DeclaredAccessibility == Accessibility.Public) {
+                return true;
+            }
+
+            // Headless presentation models (ViewModels)
+            if (containingType.Name.EndsWith("ViewModel") && symbol.DeclaredAccessibility == Accessibility.Public) {
+                return true;
+            }
+
+            // Public members on Forms and Controls (UI component APIs and inspection properties)
+            if (symbol.DeclaredAccessibility == Accessibility.Public && (isForm || IsSubclassOf(containingType, "Control", "Component"))) {
                 return true;
             }
 
@@ -569,51 +592,6 @@ public class ReachabilityAnalyzer {
                     }
                 }
             }
-        }
-
-        return false;
-    }
-
-    private static bool HasAuthorizedDomainApi(IMethodSymbol symbol) {
-        if (HasAuthorizedDomainApiAttribute(symbol)) {
-            return true;
-        }
-
-        var containingType = symbol.ContainingType;
-        if (containingType != null) {
-            if (HasAuthorizedDomainApiAttribute(containingType)) {
-                return true;
-            }
-
-            foreach (var iface in containingType.AllInterfaces) {
-                if (HasAuthorizedDomainApiAttribute(iface)) {
-                    var ifaceMethod = iface.GetMembers().OfType<IMethodSymbol>()
-                        .FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(containingType.FindImplementationForInterfaceMember(m)?.OriginalDefinition, symbol));
-                    if (ifaceMethod != null) {
-                        return true;
-                    }
-                } else {
-                    var ifaceMethod = iface.GetMembers().OfType<IMethodSymbol>()
-                        .FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(containingType.FindImplementationForInterfaceMember(m)?.OriginalDefinition, symbol));
-                    if (ifaceMethod != null && HasAuthorizedDomainApiAttribute(ifaceMethod)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private static bool HasAuthorizedDomainApiAttribute(ISymbol symbol) {
-        if (symbol.GetAttributes().Any(a =>
-            a.AttributeClass != null &&
-            (a.AttributeClass.Name == "AuthorizedDomainApiAttribute" || a.AttributeClass.Name == "AuthorizedDomainApi"))) {
-            return true;
-        }
-
-        if (symbol is IMethodSymbol method && method.AssociatedSymbol != null) {
-            return HasAuthorizedDomainApiAttribute(method.AssociatedSymbol);
         }
 
         return false;

@@ -8,7 +8,6 @@ using PlayMore35.Items;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.Rules {
-    [AuthorizedDomainApi("Intentional shared rules catalog contract")]
     public interface IRulesCatalog {
         IReadOnlyDictionary<string, Race> Races { get; }
         IReadOnlyDictionary<string, CharacterClass> Classes { get; }

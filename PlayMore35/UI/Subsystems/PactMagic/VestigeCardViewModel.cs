@@ -15,7 +15,6 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
         PoorPact
     }
 
-    [AuthorizedDomainApi("Headless presentation model for vestige card")]
     public class VestigeCardViewModel {
         private readonly SubsystemElement _vestige;
         private bool _isSelected;

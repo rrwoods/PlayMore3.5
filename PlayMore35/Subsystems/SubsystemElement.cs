@@ -110,7 +110,6 @@ namespace PlayMore35.Subsystems {
             return new StatView(statName, GetProperty<int>(propertyName));
         }
 
-        [AuthorizedDomainApi("Subsystem element raw statistic resolution")]
         public StatView GetStatistic(string propertyName) =>
             new StatView(GetStatisticName(propertyName), GetProperty<int>(propertyName));
 
@@ -153,7 +152,6 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        [AuthorizedDomainApi("Programmatic effect registration on subsystem elements")]
         public void AddEffect(string category, Effect effect) {
             if (string.IsNullOrEmpty(category) || effect == null) return;
             if (!Effects.TryGetValue(category, out var list)) {

@@ -5,7 +5,6 @@ using PlayMore35.Global;
 using PlayMore35.Subsystems;
 
 namespace PlayMore35.UI.Subsystems.PactMagic {
-    [AuthorizedDomainApi("Headless presentation model for pact magic element picker")]
     public class PactMagicPickerViewModel {
         private readonly ICharacterSession _session;
         private readonly ElementPickerContext _context;
