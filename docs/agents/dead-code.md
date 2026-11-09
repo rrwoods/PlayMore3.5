@@ -25,19 +25,24 @@ When instructed to "check for dead code", follow this procedure:
    - **True Dead Code**: Obsolete, superseded logic ready for pruning (including uncalled parameterless constructors and obsolete event handlers).
    - **Test Seam**: Logic that exists solely to be called by tests (in-memory constructors, test inspection helpers, test automation hooks). Production assemblies must not carry test-only scaffolding; flag these as candidates for relocation to `PlayMore35.Tests`.
    - **Unhooked Seam**: Real feature logic with test coverage waiting for UI or session integration.
-   - **Scanner Blindspot**: Unindexed syntax forms (such as static field declarations or constructor initializer chaining `: this(...)`).
+   - **Scanner Blindspot**: Unindexed syntax forms (such as static field declarations). Note that constructor initializer chaining (`: this(...)`) is fully indexed by Roslyn's `ConstructorInitializerSyntax` and is reachable from production roots when the calling constructor is live.
 5. **Ask the user to confirm the intended resolution**: Present findings and classifications, then wait for human direction before editing or pruning any code.
 
 ---
 
 ## Explicit Construction & Constructor Trust
 
-All domain hydration in this codebase is explicit C# code via `new T(JObject json)` constructors or static factory methods (see `CODING_STANDARDS.md` and `docs/adr/0008-explicit-constructor-deserialization-and-schema-stability.md`). Production never uses reflection-based activation or implicit deserialization.
+All domain hydration in this codebase is explicit C# code via canonical constructors and delegating `new T(JObject json)` constructors or static factory methods (see `CODING_STANDARDS.md` and `docs/adr/0008-explicit-constructor-deserialization-and-schema-stability.md`). Production never uses reflection-based activation or implicit deserialization.
+
+Domain entities and subsystem configuration models expose public canonical C# constructors with optional parameters. JSON deserialization constructors delegate into these canonical constructors via constructor chaining (`: this(...)`). Because Roslyn's `ConstructorInitializerSyntax` is explicitly indexed by the scanner, constructor-chained canonical constructors are recognized as live and reachable whenever their JSON adapter constructors are reachable from production roots.
+
+Furthermore, unit tests construct domain models directly using their canonical C# constructors; ad-hoc synthetic JSON test factories (like the former `TestFactory`) are prohibited.
 
 Because all production construction paths exist explicitly in the Roslyn syntax tree, **trust the scanner's reachability findings on constructors**:
 
+- **Canonical & chained constructors**: When a JSON deserialization constructor (`new T(JObject)`) is reachable from production roots, its constructor-chained target (`: this(...)`) is indexed via `ConstructorInitializerSyntax` and marked live. Canonical constructors called from production or chained from live deserializers are first-class production code.
 - **Parameterless constructors** with zero callers are **True Dead Code** (or **Test Seams** if called exclusively by `FakeRulesCatalog` object initializers). They are never hidden JSON deserialization points.
-- **Positional constructors** unreached by production roots are candidates to be **Relocated to Tests** (as test factory helpers) or pruned if obsolete.
+- **Positional constructors** unreached by production roots (and not chained from production deserializers) are candidates to be pruned if obsolete or moved to test helpers. Note that synthetic JSON test factories (which built fake `JObject` payloads to invoke deserialization constructors in tests) are prohibited in favor of direct canonical constructor calls.
 
 ---
 
@@ -69,7 +74,7 @@ Because all production construction paths exist explicitly in the Roslyn syntax 
 Once the human confirms the desired resolution:
 
 - **Prune**: Delete the dead production methods and remove their artificial life-support tests together in one atomic change.
-- **Relocate to Tests**: Move test-only convenience constructors, builder methods, or inspection helpers out of the production project (`PlayMore35`) and into the test project (`PlayMore35.Tests`) as test extension methods, test factories, or test-assembly helpers, keeping the production surface clean.
+- **Relocate to Tests**: Move test-only convenience constructors, builder methods, or inspection helpers out of the production project (`PlayMore35`) and into the test project (`PlayMore35.Tests`) as test extension methods or test-assembly helpers, keeping the production surface clean (synthetic JSON test factories remain prohibited).
 - **Wire Up**: Connect the island root to its intended UI event handler or production workflow.
 - **Expand Roots**: Deepen `ReachabilityAnalyzer.IsProductionRoot` to recognize the dynamic entry point.
 

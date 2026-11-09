@@ -100,7 +100,7 @@ namespace PlayMore35.Items {
         public Attack(
             string weaponName,
             (int bonus, List<string>? explanation) attackBonus,
-            DiceGroup baseDamage,
+            DiceGroup? baseDamage = null,
             IEnumerable<DiceGroup>? bonusDice = null,
             IEnumerable<DiceGroup>? criticalBonusDice = null,
             int criticalMultiplier = 2,
@@ -143,7 +143,7 @@ namespace PlayMore35.Items {
         public Attack(
             string weaponName,
             int attackBonus,
-            DiceGroup baseDamage,
+            DiceGroup? baseDamage = null,
             IEnumerable<DiceGroup>? bonusDice = null,
             IEnumerable<DiceGroup>? criticalBonusDice = null,
             int criticalMultiplier = 2,
@@ -178,49 +178,45 @@ namespace PlayMore35.Items {
                 strengthRating) {
         }
 
-        private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand, bool familiar) {
-            WeaponName = weapon.Name;
-            WeaponTags = weapon.Tags;
-            WeaponSizeCategory = wpnSizeCategory;
-
-            Proficiency = familiar ? Weapon.Proficiency.MARTIAL : atk.ProficencyCategory;
-            if (Proficiency == Weapon.Proficiency.ONE_HANDED_EXOTIC) {
-                Proficiency = (hand == Weapon.Hand.TWO_HANDED || hand == Weapon.Hand.TWO_HANDED_TWF)
-                    ? Weapon.Proficiency.MARTIAL
-                    : Weapon.Proficiency.EXOTIC;
-            }
-
-            Effort = weapon.EffortCategory + sizeDiscrepancy;
-            Hand = hand;
-            ThreatRange = atk.ThreatRange;
+        private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand, bool familiar)
+            : this(
+                weapon.Name,
+                0,
+                null,
+                threatRange: atk.ThreatRange,
+                weaponTags: weapon.Tags,
+                weaponSizeCategory: wpnSizeCategory,
+                proficiency: familiar ? Weapon.Proficiency.MARTIAL : (atk.ProficencyCategory == Weapon.Proficiency.ONE_HANDED_EXOTIC ? ((hand == Weapon.Hand.TWO_HANDED || hand == Weapon.Hand.TWO_HANDED_TWF) ? Weapon.Proficiency.MARTIAL : Weapon.Proficiency.EXOTIC) : atk.ProficencyCategory),
+                effort: weapon.EffortCategory + sizeDiscrepancy,
+                hand: hand) {
         }
 
-        private Attack(Armor armor, int wpnSizeCategory, Weapon.Hand hand, bool familiar) {
-            WeaponName = "armor spikes";
-            WeaponTags = new List<string>(); // can armor have weapon tags?
-            WeaponSizeCategory = wpnSizeCategory;
-
-            Proficiency = familiar ? Weapon.Proficiency.MARTIAL : armor.ArmorSpikes.ProficencyCategory;
-            Effort = Weapon.Effort.LIGHT;
-            Hand = hand;
-            ThreatRange = armor.ArmorSpikes.ThreatRange;
-
-            Range = Weapon.Range.MELEE;
-            RangeIncrement = 0;
+        private Attack(Armor armor, int wpnSizeCategory, Weapon.Hand hand, bool familiar)
+            : this(
+                "armor spikes",
+                0,
+                null,
+                threatRange: armor.ArmorSpikes.ThreatRange,
+                weaponSizeCategory: wpnSizeCategory,
+                proficiency: familiar ? Weapon.Proficiency.MARTIAL : armor.ArmorSpikes.ProficencyCategory,
+                effort: Weapon.Effort.LIGHT,
+                hand: hand,
+                range: Weapon.Range.MELEE,
+                rangeIncrement: 0) {
         }
 
-        private Attack(Shield shield, int wpnSizeCategory, int sizeDiscrepancy, Weapon.Hand hand, bool familiar) {
-            WeaponName = "shield bash";
-            WeaponTags = new List<string>(); // can shields have weapon tags?
-            WeaponSizeCategory = wpnSizeCategory;
-
-            Proficiency = familiar ? Weapon.Proficiency.MARTIAL : shield.ShieldBash.ProficencyCategory;
-            Effort = (Weapon.Effort)shield.ShieldBashEffort + sizeDiscrepancy;
-            Hand = hand;
-            ThreatRange = shield.ShieldBash.ThreatRange;
-
-            Range = Weapon.Range.MELEE;
-            RangeIncrement = 0;
+        private Attack(Shield shield, int wpnSizeCategory, int sizeDiscrepancy, Weapon.Hand hand, bool familiar)
+            : this(
+                "shield bash",
+                0,
+                null,
+                threatRange: shield.ShieldBash.ThreatRange,
+                weaponSizeCategory: wpnSizeCategory,
+                proficiency: familiar ? Weapon.Proficiency.MARTIAL : shield.ShieldBash.ProficencyCategory,
+                effort: (Weapon.Effort)shield.ShieldBashEffort + sizeDiscrepancy,
+                hand: hand,
+                range: Weapon.Range.MELEE,
+                rangeIncrement: 0) {
         }
 
         private DiceGroup BaseDamageDice(int sizeCategory, (int, int) damageDieMedium) {

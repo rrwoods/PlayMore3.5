@@ -47,3 +47,19 @@ We explicitly standardize on **explicit constructor-based deserialization and st
 - Existing save files and rules definitions remain 100% stable with zero migrations or shims.
 - Subsystem state deserialization remains cleanly co-located within each subsystem's module.
 - Ticket #83 is closed as `wontfix`.
+
+## Addendum: Canonical Domain Constructors and Adapter Deserialization (Ticket #247)
+
+Following Ticket #247, domain entities and subsystem configuration models expose **public canonical C# constructors** with optional default parameters rather than relying solely on JSON deserialization constructors:
+
+1. **Canonical C# Constructors as the Primary Seam**:
+   - Domain entities (`Character`, `Timeline`, `EquippedChoices`, `InventoryLocation`) and subsystem configurations (`SubsystemConfig`, `SlotGroupConfig`, `PoolConfig`) expose public canonical C# constructors taking strongly typed domain parameters.
+   - Optional parameters with sensible defaults (e.g., empty collections, default enums, 0/1 counts) provide expressive, readable instantiation in production code, subsystem engines, and unit tests without combinatorial constructor overloads.
+
+2. **JSON Deserialization Constructors as Delegating Adapters**:
+   - Deserialization constructors (`new T(JObject json)`) act as thin serialization adapters that parse JSON properties and forward extracted values to the canonical constructor via constructor chaining (`: this(...)`).
+   - Invariants and validation live exclusively in the canonical constructor, ensuring consistent domain state regardless of whether an instance is hydrated from disk or constructed in memory.
+
+3. **Prohibition of Synthetic JSON Test Factories**:
+   - Constructing synthetic JSON payloads in unit tests to instantiate domain objects (such as the former `TestFactory`) is strictly prohibited.
+   - Tests instantiate domain entities directly using their canonical C# constructors, avoiding JSON serialization overhead, string key fragility, and artificial coupling to serialization representations in test suites.

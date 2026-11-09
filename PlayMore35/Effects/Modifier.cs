@@ -33,10 +33,6 @@ namespace PlayMore35.Effects {
                 (string?)json["name"] ?? "") {
         }
 
-        public Modifier(string type)
-            : this(type, (IEnumerable<IAmount>?)null) {
-        }
-
         public Modifier(int amount, string type)
             : this(type, new IAmount[] { new FixedAmount(amount) }) {
         }
