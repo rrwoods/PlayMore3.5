@@ -26,16 +26,30 @@ namespace PlayMore35.Items {
             return json;
         }
 
-        public Item(JObject json) {
-            ItemSlot = (Equipped.Slot) Enum.Parse(typeof(Equipped.Slot), (string)json["slot"], false);
-            ItemEffect = new Effect((JObject)json["effect"]);
-            Weight = (decimal)json["weight"];
-            if (json["stats"] != null) {
-                NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
+        public Item(
+            Equipped.Slot itemSlot,
+            Effect itemEffect,
+            decimal weight = 0m,
+            IEnumerable<Statistic>? newStats = null,
+            IEnumerable<FlagDefinition>? newFlags = null) {
+            ItemSlot = itemSlot;
+            ItemEffect = itemEffect ?? throw new ArgumentNullException(nameof(itemEffect));
+            Weight = weight;
+            if (newStats != null) {
+                NewStats.AddRange(newStats);
             }
-            if (json["flags"] != null) {
-                NewFlags.AddRange(json["flags"].Select(x => new FlagDefinition((JObject)x)));
+            if (newFlags != null) {
+                NewFlags.AddRange(newFlags);
             }
+        }
+
+        public Item(JObject json)
+            : this(
+                (Equipped.Slot) Enum.Parse(typeof(Equipped.Slot), (string)json["slot"], false),
+                new Effect((JObject)json["effect"]),
+                (decimal)json["weight"],
+                json["stats"]?.Select(x => new Statistic((JObject)x)),
+                json["flags"]?.Select(x => new FlagDefinition((JObject)x))) {
         }
     }
 }

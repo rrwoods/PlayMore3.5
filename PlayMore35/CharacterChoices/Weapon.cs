@@ -49,52 +49,70 @@ namespace PlayMore35.Items {
             return json;
         }
 
-        public Weapon(JObject json) {
-            Name = (string)json["name"];
-            Weight = (decimal)json["weight"];
-            SizeCategory = 0;
-            EffortCategory = (Effort)Enum.Parse(typeof(Effort), (string)json["effort"], false);
-            if (json["melee"] != null) {
-                AttackMode atk = new AttackMode((JObject)json["melee"]);
-                bool reach = (json["melee"]["reach"] == null) ? false : (bool)json["melee"]["reach"];
-                Melee = (atk, reach);
+        public Weapon(
+            string name,
+            decimal weight = 0m,
+            Effort effortCategory = Effort.LIGHT,
+            int sizeCategory = 0,
+            IEnumerable<string>? tags = null,
+            (AttackMode atk, bool reach)? melee = null,
+            (AttackMode atk, bool reach)? secondHead = null,
+            AttackMode? thrown = null,
+            (AttackMode atk, bool bow, int strengthRating)? projectile = null) {
+            Name = name ?? "";
+            Weight = weight;
+            EffortCategory = effortCategory;
+            SizeCategory = sizeCategory;
+            if (tags != null) {
+                Tags.AddRange(tags);
             }
-            if (json["second head"] != null) {
-                AttackMode atk = new AttackMode((JObject)json["second head"]);
-                bool reach = (json["second head"]["reach"] == null) ? false : (bool)json["second head"]["reach"];
-                SecondHead = (atk, reach);
-            }
-            if (json["thrown"] != null) {
-                Thrown = new AttackMode((JObject)json["thrown"]);
-            }
-            if (json["projectile"] != null) {
-                AttackMode atk = new AttackMode((JObject)json["projectile"]);
-                int strengthRating = (json["projectile"]["strength rating"] == null) ? -1 : (int)json["projectile"]["strength rating"];
-                bool bow = (json["projectile"]["bow"] == null) ? true : (bool)json["projectile"]["bow"];
-                Projectile = (atk, bow, strengthRating);
-            }
+            Melee = melee;
+            SecondHead = secondHead;
+            Thrown = thrown;
+            Projectile = projectile;
+        }
+
+        public Weapon(JObject json)
+            : this(
+                (string)json["name"],
+                (decimal)json["weight"],
+                (Effort)Enum.Parse(typeof(Effort), (string)json["effort"], false),
+                0,
+                null,
+                ParseMelee(json["melee"]),
+                ParseMelee(json["second head"]),
+                json["thrown"] != null ? new AttackMode((JObject)json["thrown"]) : null,
+                ParseProjectile(json["projectile"])) {
+        }
+
+        private static (AttackMode atk, bool reach)? ParseMelee(JToken token) {
+            if (token == null) return null;
+            AttackMode atk = new AttackMode((JObject)token);
+            bool reach = (token["reach"] == null) ? false : (bool)token["reach"];
+            return (atk, reach);
+        }
+
+        private static (AttackMode atk, bool bow, int strengthRating)? ParseProjectile(JToken token) {
+            if (token == null) return null;
+            AttackMode atk = new AttackMode((JObject)token);
+            int strengthRating = (token["strength rating"] == null) ? -1 : (int)token["strength rating"];
+            bool bow = (token["bow"] == null) ? true : (bool)token["bow"];
+            return (atk, bow, strengthRating);
         }
 
         // When moving a weapon from the definitions list to the available list, we copy it, so that
         // we don't add properties to the base definition.
-        public Weapon(Weapon definition) {
-            Name = definition.Name;
-            Weight = definition.Weight;
-            SizeCategory = definition.SizeCategory;
-            EffortCategory = definition.EffortCategory;
-
-            if (definition.Melee != null) {
-                Melee = (new AttackMode(definition.Melee?.atk), (bool) definition.Melee?.reach);
-            }
-            if (definition.SecondHead != null) {
-                SecondHead = (new AttackMode(definition.SecondHead?.atk), (bool) definition.SecondHead?.reach);
-            }
-            if (definition.Thrown != null) {
-                Thrown = new AttackMode(definition.Thrown);
-            }
-            if (definition.Projectile != null) {
-                Projectile = (new AttackMode(definition.Projectile?.atk), (bool) definition.Projectile?.bow, (int) definition.Projectile?.strengthRating);
-            }
+        public Weapon(Weapon definition)
+            : this(
+                (definition ?? throw new ArgumentNullException(nameof(definition))).Name,
+                definition.Weight,
+                definition.EffortCategory,
+                definition.SizeCategory,
+                definition.Tags,
+                definition.Melee != null ? (new AttackMode(definition.Melee.Value.atk), definition.Melee.Value.reach) : ((AttackMode atk, bool reach)?)null,
+                definition.SecondHead != null ? (new AttackMode(definition.SecondHead.Value.atk), definition.SecondHead.Value.reach) : ((AttackMode atk, bool reach)?)null,
+                definition.Thrown != null ? new AttackMode(definition.Thrown) : null,
+                definition.Projectile != null ? (new AttackMode(definition.Projectile.Value.atk), definition.Projectile.Value.bow, definition.Projectile.Value.strengthRating) : ((AttackMode atk, bool bow, int strengthRating)?)null) {
         }
 
         public bool CanBeThrown() {

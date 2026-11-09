@@ -97,6 +97,87 @@ namespace PlayMore35.Items {
                 [(2, 6)] = new List<(int, int)> { (1, 4), (1, 6), (1, 8), (1, 10), (2, 6), (3, 6), (4, 6), (6, 6), (8, 6) },
             };
 
+        public Attack(
+            string weaponName,
+            (int bonus, List<string>? explanation) attackBonus,
+            DiceGroup baseDamage,
+            IEnumerable<DiceGroup>? bonusDice = null,
+            IEnumerable<DiceGroup>? criticalBonusDice = null,
+            int criticalMultiplier = 2,
+            int threatRange = 20,
+            int rangeIncrement = 0,
+            IEnumerable<string>? damageExplanation = null,
+            IEnumerable<string>? criticalDamageExplanation = null,
+            IEnumerable<string>? weaponTags = null,
+            int weaponSizeCategory = 0,
+            Weapon.Proficiency proficiency = Weapon.Proficiency.MARTIAL,
+            Weapon.Effort effort = Weapon.Effort.LIGHT,
+            Weapon.Hand hand = Weapon.Hand.ONE_HANDED,
+            Weapon.Range range = Weapon.Range.MELEE,
+            int strengthRating = -1) {
+            WeaponName = weaponName ?? "";
+            WeaponTags = weaponTags != null ? new List<string>(weaponTags) : new List<string>();
+            WeaponSizeCategory = weaponSizeCategory;
+            Proficiency = proficiency;
+            Effort = effort;
+            Hand = hand;
+            Range = range;
+            AttackBonus = (attackBonus.bonus, attackBonus.explanation != null ? new List<string>(attackBonus.explanation) : new List<string> { $"+{attackBonus.bonus} attack" });
+            BaseDamage = baseDamage;
+            var bDice = (bonusDice ?? Enumerable.Empty<DiceGroup>()).ToList();
+            BonusDice = bDice.AsReadOnly();
+            var cbDice = criticalBonusDice != null ? criticalBonusDice.ToList() : new List<DiceGroup>(bDice);
+            CriticalBonusDice = cbDice.AsReadOnly();
+            CriticalMultiplier = criticalMultiplier;
+            ThreatRange = threatRange;
+            RangeIncrement = rangeIncrement;
+            StrengthRating = strengthRating;
+            DamageExplanation = damageExplanation != null
+                ? new List<string>(damageExplanation)
+                : new List<string> { baseDamage?.ToString() ?? "" };
+            CriticalDamageExplanation = criticalDamageExplanation != null
+                ? new List<string>(criticalDamageExplanation)
+                : new List<string> { $"{baseDamage?.ToString()} ×{criticalMultiplier}" };
+        }
+
+        public Attack(
+            string weaponName,
+            int attackBonus,
+            DiceGroup baseDamage,
+            IEnumerable<DiceGroup>? bonusDice = null,
+            IEnumerable<DiceGroup>? criticalBonusDice = null,
+            int criticalMultiplier = 2,
+            int threatRange = 20,
+            int rangeIncrement = 0,
+            IEnumerable<string>? damageExplanation = null,
+            IEnumerable<string>? criticalDamageExplanation = null,
+            IEnumerable<string>? weaponTags = null,
+            int weaponSizeCategory = 0,
+            Weapon.Proficiency proficiency = Weapon.Proficiency.MARTIAL,
+            Weapon.Effort effort = Weapon.Effort.LIGHT,
+            Weapon.Hand hand = Weapon.Hand.ONE_HANDED,
+            Weapon.Range range = Weapon.Range.MELEE,
+            int strengthRating = -1)
+            : this(
+                weaponName,
+                (attackBonus, new List<string> { $"+{attackBonus} base attack" }),
+                baseDamage,
+                bonusDice,
+                criticalBonusDice,
+                criticalMultiplier,
+                threatRange,
+                rangeIncrement,
+                damageExplanation,
+                criticalDamageExplanation,
+                weaponTags,
+                weaponSizeCategory,
+                proficiency,
+                effort,
+                hand,
+                range,
+                strengthRating) {
+        }
+
         private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand, bool familiar) {
             WeaponName = weapon.Name;
             WeaponTags = weapon.Tags;

@@ -33,23 +33,29 @@ namespace PlayMore35.Items {
             return json;
         }
 
-        public ArmorProperty(JObject json) {
-            Name = (string)json["name"];
-            if (json["effect"] != null) {
-                GlobalEffect = new Effect((JObject)json["effect"]);
-            }
-            if (json["AC modifier"] != null) {
-                AcModifier = new Modifier((JObject)json["AC modifier"]);
-            }
-            if (json["max dex modifier"] != null) {
-                MaxDexModifier = new Modifier((JObject)json["max dex modifier"]);
-            }
-            if (json["armor check penalty modifier"] != null) {
-                AcpModifier = new Modifier((JObject)json["armor check penalty modifier"]);
-            }
-            if (json["spell failure modifier"] != null) {
-                AsfModifier = new Modifier((JObject)json["spell failure modifier"]);
-            }
+        public ArmorProperty(
+            string name,
+            Effect? globalEffect = null,
+            Modifier? acModifier = null,
+            Modifier? maxDexModifier = null,
+            Modifier? acpModifier = null,
+            Modifier? asfModifier = null) {
+            Name = name ?? "";
+            GlobalEffect = globalEffect;
+            AcModifier = acModifier;
+            MaxDexModifier = maxDexModifier;
+            AcpModifier = acpModifier;
+            AsfModifier = asfModifier;
+        }
+
+        public ArmorProperty(JObject json)
+            : this(
+                (string)json["name"],
+                json["effect"] != null ? new Effect((JObject)json["effect"]) : null,
+                json["AC modifier"] != null ? new Modifier((JObject)json["AC modifier"]) : null,
+                json["max dex modifier"] != null ? new Modifier((JObject)json["max dex modifier"]) : null,
+                json["armor check penalty modifier"] != null ? new Modifier((JObject)json["armor check penalty modifier"]) : null,
+                json["spell failure modifier"] != null ? new Modifier((JObject)json["spell failure modifier"]) : null) {
         }
     }
 }
