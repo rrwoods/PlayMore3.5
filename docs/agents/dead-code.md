@@ -34,7 +34,7 @@ When instructed to "check for dead code", follow this procedure:
 
 All domain hydration in this codebase is explicit C# code via canonical constructors and delegating `new T(JObject json)` constructors or static factory methods (see `CODING_STANDARDS.md` and `docs/adr/0008-explicit-constructor-deserialization-and-schema-stability.md`). Production never uses reflection-based activation or implicit deserialization.
 
-Domain entities and subsystem configuration models expose public canonical C# constructors with optional parameters. JSON deserialization constructors delegate into these canonical constructors via constructor chaining (`: this(...)`). Because Roslyn's `ConstructorInitializerSyntax` is explicitly indexed by the scanner, constructor-chained canonical constructors are recognized as live and reachable whenever their JSON adapter constructors are reachable from production roots.
+Domain entities and subsystem definitions expose public canonical C# constructors with optional parameters. JSON deserialization constructors delegate into these canonical constructors via constructor chaining (`: this(...)`). Because Roslyn's `ConstructorInitializerSyntax` is explicitly indexed by the scanner, constructor-chained canonical constructors are recognized as live and reachable whenever their JSON adapter constructors are reachable from production roots.
 
 Furthermore, unit tests construct domain models directly using their canonical C# constructors; ad-hoc synthetic JSON test factories (like the former `TestFactory`) are prohibited.
 
