@@ -15,25 +15,34 @@ namespace PlayMore35.Effects {
             );
         }
 
-        public Modifier(JObject json) {
-            Type = (string?)json["type"] ?? "";
-            if (json["amounts"] != null) {
-                Amounts.AddRange(json["amounts"]!.Select(x => Amount.FromJson(x)!));
+        public Modifier(
+            string type,
+            IEnumerable<IAmount>? amounts = null,
+            string name = "") {
+            Type = type ?? "";
+            Name = name ?? "";
+            if (amounts != null) {
+                Amounts.AddRange(amounts);
             }
         }
 
-        public Modifier(string type) {
-            Type = type;
+        public Modifier(JObject json)
+            : this(
+                (string?)json["type"] ?? "",
+                json["amounts"]?.Select(x => Amount.FromJson(x)!),
+                (string?)json["name"] ?? "") {
+        }
+
+        public Modifier(string type)
+            : this(type, (IEnumerable<IAmount>?)null) {
         }
 
         public Modifier(int amount, string type)
-            : this(type) {
-            Amounts.Add(new FixedAmount(amount));
+            : this(type, new IAmount[] { new FixedAmount(amount) }) {
         }
         
         public Modifier(string stat, string type)
-            : this(type) {
-            Amounts.Add(new VariableAmount(stat));
+            : this(type, new IAmount[] { new VariableAmount(stat) }) {
         }
 
         public int ComputeAmount(EffectPool pool, Items.Equipped items) {

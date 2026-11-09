@@ -98,62 +98,115 @@ namespace PlayMore35.CharacterChoices {
             return json;
         }
 
-        public CharacterClass(JObject json) {
-            Name = (string)json["name"];
-            Prerequisites = (string)json["prerequisites"];
-            HitDie = (int)json["hit die"];
-            if (json["tags"] != null) {
-                Tags.AddRange(json["tags"]!.Select(x => (string)x!));
-            }
-            ClassSkills.AddRange(json["class skills"].Select(x => (string)x));
-            SkillPoints = (int)json["skill points"];
-            BaseAttackBonus = (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base attack bonus"], false);
-            BaseFortSave = (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base fort save"], false);
-            BaseRefSave = (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base ref save"], false);
-            BaseWillSave = (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base will save"], false);
-            WeaponProficiencies.AddRange(json["weapon proficiencies"].Select(x => new AttackMatcher((JObject)x)));
-            ArmorProficiencies.AddRange(json["armor proficiencies"].Select(x =>
-                (Armor.WeightCategory) Enum.Parse(typeof(Armor.WeightCategory), (string)x, false)
-            ));
-            ShieldProficiencies.AddRange(json["shield proficiencies"].Select(x => x.Equals("tower")));
-            if (json["exotic shield proficiencies"] != null) {
-                ExoticShieldProficiencies.AddRange(json["exotic shield proficiencies"].Select(x => (string)x));
-            }
-            ClassFeatures.AddRange(json["class features"].Select(level =>
-                level.Select(feature => new Effect((JObject)feature)).ToList()
-            ));
-            if (json["flags"] != null) {
-                foreach (JArray level in json["flags"]) {
-                    Flags.Add(level.Select(x => new FlagDefinition((JObject)x)).ToList());
+        public CharacterClass(
+            string name = "",
+            string prerequisites = "",
+            int hitDie = 4,
+            int skillPoints = 2,
+            BonusProgression baseAttackBonus = BonusProgression.SLOW,
+            BonusProgression baseFortSave = BonusProgression.SLOW,
+            BonusProgression baseRefSave = BonusProgression.SLOW,
+            BonusProgression baseWillSave = BonusProgression.SLOW,
+            IEnumerable<string>? classSkills = null,
+            IEnumerable<AttackMatcher>? weaponProficiencies = null,
+            IEnumerable<Armor.WeightCategory>? armorProficiencies = null,
+            IEnumerable<bool>? shieldProficiencies = null,
+            IEnumerable<string>? exoticShieldProficiencies = null,
+            IEnumerable<IEnumerable<Effect>>? classFeatures = null,
+            IEnumerable<IEnumerable<FlagDefinition>>? flags = null,
+            IEnumerable<Statistic>? newStats = null,
+            IEnumerable<string>? tags = null,
+            IDictionary<string, int>? bonusFeats = null,
+            IDictionary<string, SubsystemFeature>? subsystems = null) {
+            Name = name ?? "";
+            Prerequisites = prerequisites ?? "";
+            HitDie = hitDie;
+            SkillPoints = skillPoints;
+            BaseAttackBonus = baseAttackBonus;
+            BaseFortSave = baseFortSave;
+            BaseRefSave = baseRefSave;
+            BaseWillSave = baseWillSave;
+            if (classSkills != null) ClassSkills.AddRange(classSkills);
+            if (weaponProficiencies != null) WeaponProficiencies.AddRange(weaponProficiencies);
+            if (armorProficiencies != null) ArmorProficiencies.AddRange(armorProficiencies);
+            if (shieldProficiencies != null) ShieldProficiencies.AddRange(shieldProficiencies);
+            if (exoticShieldProficiencies != null) ExoticShieldProficiencies.AddRange(exoticShieldProficiencies);
+            if (classFeatures != null) {
+                foreach (var lvl in classFeatures) {
+                    ClassFeatures.Add(lvl != null ? lvl.ToList() : new List<Effect>());
                 }
             }
-            if (json["stats"] != null) {
-                NewStats.AddRange(json["stats"].Select(x => new Statistic((JObject)x)));
-            }
-            if (json["bonus feats"] != null) {
-                foreach (JProperty feat in json["bonus feats"]) {
-                    BonusFeats[feat.Name] = (int)feat.Value;
+            if (flags != null) {
+                foreach (var lvl in flags) {
+                    Flags.Add(lvl != null ? lvl.ToList() : new List<FlagDefinition>());
                 }
             }
+            if (newStats != null) NewStats.AddRange(newStats);
+            if (tags != null) Tags.AddRange(tags);
+            if (bonusFeats != null) {
+                foreach (var kvp in bonusFeats) {
+                    BonusFeats[kvp.Key] = kvp.Value;
+                }
+            }
+            if (subsystems != null) {
+                foreach (var kvp in subsystems) {
+                    Subsystems[kvp.Key] = kvp.Value;
+                }
+            }
+        }
 
-            if (json["subsystems"] is JObject subsJson) {
-                foreach (var prop in subsJson.Properties()) {
-                    if (prop.Value is JObject sObj) {
-                        var feature = new SubsystemFeature {
-                            Stats = sObj["stats"] != null ? sObj["stats"].Select(x => (string)x).ToList() : new List<string>(),
-                            Effects = sObj["effects"] != null ? sObj["effects"].Select(x => new Effect((JObject)x)).ToList() : new List<Effect>()
-                        };
-                        if (sObj["verbs"] is JObject verbsObj) {
-                            foreach (var vProp in verbsObj.Properties()) {
-                                if (vProp.Value is JArray stepsArr) {
-                                    feature.Verbs[vProp.Name] = stepsArr.Select(x => new SubsystemStep((JObject)x)).ToList();
-                                }
+        public CharacterClass(JObject json)
+            : this(
+                (string)json["name"],
+                (string)json["prerequisites"],
+                (int)json["hit die"],
+                (int)json["skill points"],
+                (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base attack bonus"], false),
+                (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base fort save"], false),
+                (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base ref save"], false),
+                (BonusProgression)Enum.Parse(typeof(BonusProgression), (string)json["base will save"], false),
+                json["class skills"]?.Select(x => (string)x),
+                json["weapon proficiencies"]?.Select(x => new AttackMatcher((JObject)x)),
+                json["armor proficiencies"]?.Select(x => (Armor.WeightCategory)Enum.Parse(typeof(Armor.WeightCategory), (string)x, false)),
+                json["shield proficiencies"]?.Select(x => x.Equals("tower") || (string)x == "tower"),
+                json["exotic shield proficiencies"]?.Select(x => (string)x),
+                json["class features"]?.Select(level => level.Select(feature => new Effect((JObject)feature))),
+                json["flags"]?.Select(level => level.Select(x => new FlagDefinition((JObject)x))),
+                json["stats"]?.Select(x => new Statistic((JObject)x)),
+                json["tags"]?.Select(x => (string)x!),
+                ParseBonusFeats(json["bonus feats"]),
+                ParseSubsystems(json["subsystems"] as JObject)) {
+        }
+
+        private static Dictionary<string, int>? ParseBonusFeats(JToken? token) {
+            if (token == null) return null;
+            var result = new Dictionary<string, int>();
+            foreach (JProperty feat in token) {
+                result[feat.Name] = (int)feat.Value;
+            }
+            return result;
+        }
+
+        private static Dictionary<string, SubsystemFeature>? ParseSubsystems(JObject? subsJson) {
+            if (subsJson == null) return null;
+            var result = new Dictionary<string, SubsystemFeature>();
+            foreach (var prop in subsJson.Properties()) {
+                if (prop.Value is JObject sObj) {
+                    var feature = new SubsystemFeature {
+                        Stats = sObj["stats"] != null ? sObj["stats"].Select(x => (string)x).ToList() : new List<string>(),
+                        Effects = sObj["effects"] != null ? sObj["effects"].Select(x => new Effect((JObject)x)).ToList() : new List<Effect>()
+                    };
+                    if (sObj["verbs"] is JObject verbsObj) {
+                        foreach (var vProp in verbsObj.Properties()) {
+                            if (vProp.Value is JArray stepsArr) {
+                                feature.Verbs[vProp.Name] = stepsArr.Select(x => new SubsystemStep((JObject)x)).ToList();
                             }
                         }
-                        Subsystems[prop.Name] = feature;
                     }
+                    result[prop.Name] = feature;
                 }
             }
+            return result;
         }
     }
 

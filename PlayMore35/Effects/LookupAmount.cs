@@ -22,19 +22,32 @@ namespace PlayMore35.Effects {
             return json;
         }
 
-        public LookupAmount(JObject json) {
-            Value = Amount.FromJson(json["value"]!)!;
-            Table = new Dictionary<int, int>();
-            if (json["table"] != null) {
-                foreach (JProperty p in json["table"]!) {
-                    Table[int.Parse(p.Name)] = (int)p.Value;
-                }
-            }
+        public LookupAmount(
+            IAmount value,
+            IDictionary<int, int>? table = null,
+            int missLookupAdjust = 0,
+            int missValueFactor = 0) {
+            Value = value ?? throw new System.ArgumentNullException(nameof(value));
+            Table = table != null ? new Dictionary<int, int>(table) : new Dictionary<int, int>();
+            MissLookupAdjust = missLookupAdjust;
+            MissValueFactor = missValueFactor;
+        }
 
-            if (json["miss adjust"] != null) {
-                MissLookupAdjust = (int)json["miss adjust"]!;
-                MissValueFactor = (int)json["miss factor"]!;
+        public LookupAmount(JObject json)
+            : this(
+                Amount.FromJson(json["value"]!)!,
+                ParseTable(json["table"]),
+                json["miss adjust"] != null ? (int)json["miss adjust"]! : 0,
+                json["miss factor"] != null ? (int)json["miss factor"]! : 0) {
+        }
+
+        private static Dictionary<int, int>? ParseTable(JToken? token) {
+            if (token == null) return null;
+            var table = new Dictionary<int, int>();
+            foreach (JProperty p in token) {
+                table[int.Parse(p.Name)] = (int)p.Value;
             }
+            return table;
         }
 
         public int Get(EffectPool pool, Items.Equipped items) {

@@ -21,24 +21,47 @@ namespace PlayMore35.Subsystems {
         public string Op { get; set; } = "consume";
         public int Amount { get; set; } = 0;
 
-        public SubsystemStep(JObject json) {
-            if (json == null) return;
-            Type = (string)(json["type"] ?? "");
-            SlotGroup = (string)(json["slot_group"] ?? "");
-            Selector = (string)(json["selector"] ?? "invoked");
-            FromState = (string)json["from"];
-            ToState = (string)(json["to"] ?? "");
-            if (json["count"] != null) {
-                CountExpression = (string)json["count"];
-            }
-            OnEmptyVerb = (string)(json["on_empty_verb"] ?? "");
-            Verb = (string)(json["verb"] ?? "");
-            if (json["action"] is JObject actionObj) {
-                Action = SheetAction.FromJson(actionObj);
-            }
-            Pool = (string)(json["pool"] ?? "");
-            Op = (string)(json["op"] ?? "consume");
-            Amount = (int)(json["amount"] ?? 0);
+        public SubsystemStep(
+            string type = "",
+            string slotGroup = "",
+            string selector = "invoked",
+            string? fromState = null,
+            string toState = "",
+            string countExpression = "1",
+            string onEmptyVerb = "",
+            string verb = "",
+            SheetAction? action = null,
+            string pool = "",
+            string op = "consume",
+            int amount = 0) {
+            Type = type ?? "";
+            SlotGroup = slotGroup ?? "";
+            Selector = selector ?? "invoked";
+            FromState = fromState;
+            ToState = toState ?? "";
+            CountExpression = countExpression ?? "1";
+            OnEmptyVerb = onEmptyVerb ?? "";
+            Verb = verb ?? "";
+            Action = action;
+            Pool = pool ?? "";
+            Op = op ?? "consume";
+            Amount = amount;
+        }
+
+        public SubsystemStep(JObject json)
+            : this(
+                (string?)(json?["type"]) ?? "",
+                (string?)(json?["slot_group"]) ?? "",
+                (string?)(json?["selector"]) ?? "invoked",
+                (string?)json?["from"],
+                (string?)(json?["to"]) ?? "",
+                (string?)(json?["count"]) ?? "1",
+                (string?)(json?["on_empty_verb"]) ?? "",
+                (string?)(json?["verb"]) ?? "",
+                json?["action"] is JObject actionObj ? SheetAction.FromJson(actionObj) : null,
+                (string?)(json?["pool"]) ?? "",
+                (string?)(json?["op"]) ?? "consume",
+                (int?)(json?["amount"]) ?? 0) {
         }
 
         public JToken ToJson() {
@@ -62,10 +85,15 @@ namespace PlayMore35.Subsystems {
         public string Stat { get; set; } = "";
         public int Base { get; set; } = 0;
 
-        public MaxLevelDefinition(JObject json) {
-            if (json == null) return;
-            Stat = (string)(json["stat"] ?? "");
-            Base = (int)(json["base"] ?? 0);
+        public MaxLevelDefinition(string stat = "", int baseValue = 0) {
+            Stat = stat ?? "";
+            Base = baseValue;
+        }
+
+        public MaxLevelDefinition(JObject json)
+            : this(
+                (string?)(json?["stat"]) ?? "",
+                (int?)(json?["base"]) ?? 0) {
         }
 
         public JToken ToJson() {
@@ -80,10 +108,15 @@ namespace PlayMore35.Subsystems {
         public string ElementStatistic { get; set; } = "";
         public string? MaxLevelLabel { get; set; } = null;
 
-        public LevelGatingDefinition(JObject json) {
-            if (json == null) return;
-            ElementStatistic = (string)(json["element_statistic"] ?? "");
-            MaxLevelLabel = (string?)json["max_level_label"];
+        public LevelGatingDefinition(string elementStatistic = "", string? maxLevelLabel = null) {
+            ElementStatistic = elementStatistic ?? "";
+            MaxLevelLabel = maxLevelLabel;
+        }
+
+        public LevelGatingDefinition(JObject json)
+            : this(
+                (string?)(json?["element_statistic"]) ?? "",
+                (string?)json?["max_level_label"]) {
         }
 
         public JToken ToJson() {
@@ -99,18 +132,22 @@ namespace PlayMore35.Subsystems {
         public string Stat { get; }
         public string Label { get; }
 
-        public StateCapacityDefinition(JObject json) {
-            if (json == null) {
-                States = new List<string>();
-                Stat = string.Empty;
-                Label = string.Empty;
-                return;
-            }
-            States = json["states"] is JArray arr
-                ? arr.Select(x => (string)x).Where(x => x != null).ToList()!
-                : new List<string>();
-            Stat = (string)json["stat"] ?? string.Empty;
-            Label = (string)json["label"] ?? string.Empty;
+        public StateCapacityDefinition(
+            IEnumerable<string>? states = null,
+            string stat = "",
+            string label = "") {
+            States = states != null ? states.Where(x => x != null).ToList() : new List<string>();
+            Stat = stat ?? string.Empty;
+            Label = label ?? string.Empty;
+        }
+
+        public StateCapacityDefinition(JObject json)
+            : this(
+                json?["states"] is JArray arr
+                    ? arr.Select(x => (string)x).Where(x => x != null).ToList()!
+                    : null,
+                (string?)json?["stat"] ?? string.Empty,
+                (string?)json?["label"] ?? string.Empty) {
         }
 
         public JObject ToJson() {
@@ -137,30 +174,53 @@ namespace PlayMore35.Subsystems {
         public List<string> States { get; } = new List<string>();
         public string DefaultState { get; set; } = "";
 
-        public SlotGroupDefinition(JObject json) {
-            if (json == null) return;
-            Name = (string)(json["name"] ?? "");
-            Filter = (string)json["filter"];
-            CapacityStat = (string)json["capacity_stat"];
-            if (json["state_capacities"] is JArray scArr) {
-                foreach (var x in scArr.OfType<JObject>()) {
-                    StateCapacities.Add(new StateCapacityDefinition(x));
+        public SlotGroupDefinition(
+            string name = "",
+            string? filter = null,
+            string? capacityStat = null,
+            IEnumerable<StateCapacityDefinition>? stateCapacities = null,
+            int fixedCapacity = 0,
+            MaxLevelDefinition? maxLevel = null,
+            IEnumerable<Effect>? effects = null,
+            IEnumerable<string>? states = null,
+            string? defaultState = null) {
+            Name = name ?? "";
+            Filter = filter;
+            CapacityStat = capacityStat;
+            if (stateCapacities != null) {
+                StateCapacities.AddRange(stateCapacities);
+            }
+            FixedCapacity = fixedCapacity;
+            MaxLevel = maxLevel;
+            if (effects != null) {
+                foreach (var eff in effects) {
+                    Effects.Add(eff);
+                    _rawEffectJson.Add((JObject)eff.ToJson());
                 }
             }
-            FixedCapacity = (int)(json["fixed_capacity"] ?? 0);
-            if (json["max_level"] is JObject mlObj) {
-                MaxLevel = new MaxLevelDefinition(mlObj);
+            if (states != null) {
+                States.AddRange(states);
             }
-            if (json["effects"] is JArray effArr) {
-                foreach (var x in effArr.OfType<JObject>()) {
+            DefaultState = defaultState ?? (States.Count > 0 ? States[0] : "");
+        }
+
+        public SlotGroupDefinition(JObject json)
+            : this(
+                (string?)(json?["name"]) ?? "",
+                (string?)json?["filter"],
+                (string?)json?["capacity_stat"],
+                json?["state_capacities"] is JArray scArr ? scArr.OfType<JObject>().Select(x => new StateCapacityDefinition(x)) : null,
+                (int?)(json?["fixed_capacity"]) ?? 0,
+                json?["max_level"] is JObject mlObj ? new MaxLevelDefinition(mlObj) : null,
+                json?["effects"] is JArray effArr ? effArr.OfType<JObject>().Select(x => new Effect(x)) : null,
+                json?["states"] is JArray arr ? arr.Select(x => (string)x) : null,
+                (string?)json?["default_state"]) {
+            if (json?["effects"] is JArray rawEffArr) {
+                _rawEffectJson.Clear();
+                foreach (var x in rawEffArr.OfType<JObject>()) {
                     _rawEffectJson.Add((JObject)x.DeepClone());
-                    Effects.Add(new Effect(x));
                 }
             }
-            if (json["states"] is JArray arr) {
-                States.AddRange(arr.Select(x => (string)x));
-            }
-            DefaultState = (string)(json["default_state"] ?? (States.Count > 0 ? States[0] : ""));
         }
 
         public List<Effect> GetEffectsForSource(string source) {
@@ -204,12 +264,23 @@ namespace PlayMore35.Subsystems {
         public string CapacityStat { get; set; } = null;
         public int DefaultCapacity { get; set; } = 0;
 
-        public PoolDefinition(JObject json) {
-            if (json == null) return;
-            Id = (string)(json["id"] ?? "");
-            Name = (string)(json["name"] ?? Id);
-            CapacityStat = (string)json["capacity_stat"];
-            DefaultCapacity = (int)(json["default_capacity"] ?? 0);
+        public PoolDefinition(
+            string id = "",
+            string? name = null,
+            string? capacityStat = null,
+            int defaultCapacity = 0) {
+            Id = id ?? "";
+            Name = name ?? Id;
+            CapacityStat = capacityStat;
+            DefaultCapacity = defaultCapacity;
+        }
+
+        public PoolDefinition(JObject json)
+            : this(
+                (string?)(json?["id"]) ?? "",
+                (string?)json?["name"],
+                (string?)json?["capacity_stat"],
+                (int?)(json?["default_capacity"]) ?? 0) {
         }
 
         public JToken ToJson() {
@@ -228,13 +299,22 @@ namespace PlayMore35.Subsystems {
         public string State { get; set; } = "";
         public List<string> Effects { get; } = new List<string>();
 
-        public EffectProjectionRule(JObject json) {
-            if (json == null) return;
-            SlotGroup = (string)(json["slot_group"] ?? "");
-            State = (string)(json["state"] ?? "");
-            if (json["effects"] is JArray arr) {
-                Effects.AddRange(arr.Select(x => (string)x));
+        public EffectProjectionRule(
+            string slotGroup = "",
+            string state = "",
+            IEnumerable<string>? effects = null) {
+            SlotGroup = slotGroup ?? "";
+            State = state ?? "";
+            if (effects != null) {
+                Effects.AddRange(effects);
             }
+        }
+
+        public EffectProjectionRule(JObject json)
+            : this(
+                (string?)(json?["slot_group"]) ?? "",
+                (string?)(json?["state"]) ?? "",
+                json?["effects"] is JArray arr ? arr.Select(x => (string)x) : null) {
         }
 
         public JToken ToJson() {
@@ -273,21 +353,37 @@ namespace PlayMore35.Subsystems {
             return defaultValue;
         }
 
-        public TaxonomyEntry(string name, JObject json) {
+        public TaxonomyEntry(
+            string name = "",
+            IDictionary<string, object>? properties = null) {
             Name = name ?? "";
-            if (json == null) return;
-            foreach (var prop in json.Properties()) {
-                if (prop.Value is JValue jv) {
-                    _properties[prop.Name] = jv.Value;
-                } else if (prop.Value is JArray ja) {
-                    _properties[prop.Name] = ja.Select(t => t is JValue v ? v.Value : (object)t).ToList();
-                } else if (prop.Value is JObject jo) {
-                    _properties[prop.Name] = jo;
+            if (properties != null) {
+                foreach (var kvp in properties) {
+                    _properties[kvp.Key] = kvp.Value;
                 }
             }
             if (!_properties.ContainsKey("name")) {
                 _properties["name"] = Name;
             }
+        }
+
+        public TaxonomyEntry(string name, JObject json)
+            : this(name, ParseJsonProperties(json)) {
+        }
+
+        private static Dictionary<string, object>? ParseJsonProperties(JObject? json) {
+            if (json == null) return null;
+            var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            foreach (var prop in json.Properties()) {
+                if (prop.Value is JValue jv) {
+                    dict[prop.Name] = jv.Value;
+                } else if (prop.Value is JArray ja) {
+                    dict[prop.Name] = ja.Select(t => t is JValue v ? v.Value : (object)t).ToList();
+                } else if (prop.Value is JObject jo) {
+                    dict[prop.Name] = jo;
+                }
+            }
+            return dict;
         }
 
         public JToken ToJson() {
@@ -326,93 +422,78 @@ namespace PlayMore35.Subsystems {
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
 
-        public SubsystemDefinition(JObject json) {
-            if (json == null) return;
-            var subJson = json["subsystem"] as JObject;
-            if (subJson == null) return;
-            Id = (string)(subJson["id"] ?? "");
-            Name = (string)(subJson["name"] ?? Id);
-            PrerequisiteUnit = (string?)subJson["prerequisite_unit"];
-            PrerequisiteProperty = (string?)subJson["prerequisite_property"];
+        public SubsystemDefinition(
+            string id = "",
+            string? name = null,
+            string? prerequisiteUnit = null,
+            string? prerequisiteProperty = null,
+            LevelGatingDefinition? levelGating = null,
+            IDictionary<string, SlotGroupDefinition>? slotGroups = null,
+            IDictionary<string, List<SubsystemStep>>? verbs = null,
+            IDictionary<string, List<SubsystemStep>>? defaultElementVerbs = null,
+            IDictionary<string, PoolDefinition>? pools = null,
+            IDictionary<string, JObject>? effectTemplates = null,
+            IEnumerable<EffectProjectionRule>? projections = null,
+            IEnumerable<string>? requiredElementProperties = null,
+            IDictionary<string, List<string>>? elementStatistics = null,
+            IDictionary<string, IDictionary<string, TaxonomyEntry>>? taxonomies = null,
+            IEnumerable<SubsystemElement>? elements = null,
+            IEnumerable<SheetAction>? actions = null) {
+            Id = id ?? "";
+            Name = name ?? Id;
+            PrerequisiteUnit = prerequisiteUnit;
+            PrerequisiteProperty = prerequisiteProperty;
+            LevelGating = levelGating;
 
-            if (subJson["level_gating"] is JObject lgObj) {
-                LevelGating = new LevelGatingDefinition(lgObj);
-            }
-
-            if (subJson["taxonomies"] is JObject taxObj) {
-                foreach (var taxProp in taxObj.Properties()) {
-                    if (taxProp.Value is JObject entriesObj) {
-                        var taxMap = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
-                        foreach (var entryProp in entriesObj.Properties()) {
-                            if (entryProp.Value is JObject entryJson) {
-                                taxMap[entryProp.Name] = new TaxonomyEntry(entryProp.Name, entryJson);
-                            }
-                        }
-                        Taxonomies[taxProp.Name] = taxMap;
-                    }
+            if (slotGroups != null) {
+                foreach (var kvp in slotGroups) {
+                    if (string.IsNullOrEmpty(kvp.Value.Name)) kvp.Value.Name = kvp.Key;
+                    SlotGroups[kvp.Key] = kvp.Value;
                 }
             }
-
-            if (subJson["slot_groups"] is JObject slotsObj) {
-                foreach (var prop in slotsObj.Properties()) {
-                    if (prop.Value is JObject groupObj) {
-                        var def = new SlotGroupDefinition(groupObj);
-                        if (string.IsNullOrEmpty(def.Name)) def.Name = prop.Name;
-                        SlotGroups[prop.Name] = def;
-                    }
+            if (verbs != null) {
+                foreach (var kvp in verbs) {
+                    Verbs[kvp.Key] = kvp.Value;
                 }
             }
-
-            if (subJson["verbs"] is JObject verbsObj) {
-                foreach (var prop in verbsObj.Properties()) {
-                    if (prop.Value is JArray stepsArr) {
-                        Verbs[prop.Name] = stepsArr.Select(x => new SubsystemStep((JObject)x)).ToList();
-                    }
+            if (defaultElementVerbs != null) {
+                foreach (var kvp in defaultElementVerbs) {
+                    DefaultElementVerbs[kvp.Key] = kvp.Value;
                 }
             }
-
-            if (subJson["default_element_verbs"] is JObject defVerbsObj) {
-                foreach (var prop in defVerbsObj.Properties()) {
-                    if (prop.Value is JArray stepsArr) {
-                        DefaultElementVerbs[prop.Name] = stepsArr.Select(x => new SubsystemStep((JObject)x)).ToList();
-                    }
+            if (pools != null) {
+                foreach (var kvp in pools) {
+                    if (string.IsNullOrEmpty(kvp.Value.Id)) kvp.Value.Id = kvp.Key;
+                    Pools[kvp.Key] = kvp.Value;
                 }
             }
-
-            if (subJson["pools"] is JObject poolsObj) {
-                foreach (var prop in poolsObj.Properties()) {
-                    if (prop.Value is JObject poolObj) {
-                        var poolDef = new PoolDefinition(poolObj);
-                        if (string.IsNullOrEmpty(poolDef.Id)) poolDef.Id = prop.Name;
-                        Pools[prop.Name] = poolDef;
-                    }
+            if (effectTemplates != null) {
+                foreach (var kvp in effectTemplates) {
+                    EffectTemplates[kvp.Key] = (JObject)kvp.Value.DeepClone();
                 }
             }
-
-            if (subJson["effect_templates"] is JObject effTemplatesObj) {
-                foreach (var prop in effTemplatesObj.Properties()) {
-                    if (prop.Value is JObject templateObj) {
-                        EffectTemplates[prop.Name] = (JObject)templateObj.DeepClone();
-                    }
+            if (projections != null) {
+                Projections.AddRange(projections);
+            }
+            if (requiredElementProperties != null) {
+                RequiredElementProperties.AddRange(requiredElementProperties);
+            }
+            if (elementStatistics != null) {
+                foreach (var kvp in elementStatistics) {
+                    ElementStatistics[kvp.Key] = new List<string>(kvp.Value);
                 }
             }
-
-            if (subJson["projections"] is JArray projArr) {
-                Projections.AddRange(projArr.Select(x => new EffectProjectionRule((JObject)x)));
-            }
-
-            if (subJson["required_element_properties"] is JArray reqPropsArr) {
-                RequiredElementProperties.AddRange(reqPropsArr.Select(x => x.ToString()));
-            }
-
-            if (subJson["element_statistics"] is JObject statObj) {
-                foreach (var prop in statObj.Properties()) {
-                    var tags = new List<string>();
-                    if (prop.Value is JArray tagsArr) {
-                        tags.AddRange(tagsArr.Select(x => (string)x));
+            if (taxonomies != null) {
+                foreach (var taxKvp in taxonomies) {
+                    var taxMap = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var entryKvp in taxKvp.Value) {
+                        taxMap[entryKvp.Key] = entryKvp.Value;
                     }
-                    ElementStatistics[prop.Name] = tags;
+                    Taxonomies[taxKvp.Key] = taxMap;
                 }
+            }
+            if (actions != null) {
+                Actions.AddRange(actions);
             }
 
             if (LevelGating != null) {
@@ -421,46 +502,189 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (subJson["actions"] is JArray actionsArr) {
-                Actions.AddRange(actionsArr.Select(x => SheetAction.FromJson((JObject)x)));
-            }
-
-            if (json["elements"] is JArray elemArr) {
-                foreach (var elemToken in elemArr) {
-                    if (elemToken is JObject elemObj) {
-                        var elem = new SubsystemElement(elemObj);
-                        if (!string.IsNullOrEmpty(elem.Name)) {
-                            foreach (var reqProp in RequiredElementProperties) {
-                                if (!elem.Properties.ContainsKey(reqProp) || elem.Properties[reqProp] == null) {
-                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required property '{reqProp}'.");
-                                }
+            if (elements != null) {
+                foreach (var elem in elements) {
+                    if (!string.IsNullOrEmpty(elem.Name)) {
+                        foreach (var reqProp in RequiredElementProperties) {
+                            if (!elem.Properties.ContainsKey(reqProp) || elem.Properties[reqProp] == null) {
+                                throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required property '{reqProp}'.");
                             }
-                            foreach (var statProp in ElementStatistics.Keys) {
-                                if (!elem.Properties.TryGetValue(statProp, out var val) || val == null) {
-                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required element statistic '{statProp}'.");
-                                }
-                                try {
-                                    Convert.ToInt32(val);
-                                } catch {
-                                    throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' statistic '{statProp}' must be numeric, but was '{val}'.");
-                                }
+                        }
+                        foreach (var statProp in ElementStatistics.Keys) {
+                            if (!elem.Properties.TryGetValue(statProp, out var val) || val == null) {
+                                throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' is missing required element statistic '{statProp}'.");
                             }
-                            if (Taxonomies.Count > 0) {
-                                foreach (var taxKvp in Taxonomies) {
-                                    if (elem.Properties.TryGetValue(taxKvp.Key, out var propVal) && propVal != null) {
-                                        var entryName = propVal.ToString();
-                                        if (taxKvp.Value.TryGetValue(entryName, out var entryDef)) {
-                                            elem.SetProperty(taxKvp.Key, entryDef);
-                                        }
+                            try {
+                                Convert.ToInt32(val);
+                            } catch {
+                                throw new InvalidOperationException($"Subsystem '{Id}' element '{elem.Name}' statistic '{statProp}' must be numeric, but was '{val}'.");
+                            }
+                        }
+                        if (Taxonomies.Count > 0) {
+                            foreach (var taxKvp in Taxonomies) {
+                                if (elem.Properties.TryGetValue(taxKvp.Key, out var propVal) && propVal != null) {
+                                    var entryName = propVal.ToString();
+                                    if (taxKvp.Value.TryGetValue(entryName, out var entryDef)) {
+                                        elem.SetProperty(taxKvp.Key, entryDef);
                                     }
                                 }
                             }
-                            Elements[elem.Name] = elem;
                         }
+                        Elements[elem.Name] = elem;
                     }
                 }
             }
         }
+
+        public SubsystemDefinition(JObject json)
+            : this(
+                ParseSubId(json),
+                ParseSubName(json),
+                ParseSubPrereqUnit(json),
+                ParseSubPrereqProp(json),
+                ParseSubLevelGating(json),
+                ParseSubSlotGroups(json),
+                ParseSubVerbs(json),
+                ParseSubDefElementVerbs(json),
+                ParseSubPools(json),
+                ParseSubTemplates(json),
+                ParseSubProjections(json),
+                ParseSubRequiredElementProperties(json),
+                ParseSubElementStatistics(json),
+                ParseSubTaxonomies(json),
+                ParseSubElements(json),
+                ParseSubActions(json)) {
+        }
+
+        private static string ParseSubId(JObject? json) =>
+            (string?)((json?["subsystem"] as JObject)?["id"]) ?? "";
+
+        private static string? ParseSubName(JObject? json) =>
+            (string?)((json?["subsystem"] as JObject)?["name"]);
+
+        private static string? ParseSubPrereqUnit(JObject? json) =>
+            (string?)((json?["subsystem"] as JObject)?["prerequisite_unit"]);
+
+        private static string? ParseSubPrereqProp(JObject? json) =>
+            (string?)((json?["subsystem"] as JObject)?["prerequisite_property"]);
+
+        private static LevelGatingDefinition? ParseSubLevelGating(JObject? json) =>
+            (json?["subsystem"] as JObject)?["level_gating"] is JObject lg ? new LevelGatingDefinition(lg) : null;
+
+        private static Dictionary<string, SlotGroupDefinition>? ParseSubSlotGroups(JObject? json) {
+            if ((json?["subsystem"] as JObject)?["slot_groups"] is JObject obj) {
+                var result = new Dictionary<string, SlotGroupDefinition>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in obj.Properties()) {
+                    if (prop.Value is JObject groupObj) {
+                        var def = new SlotGroupDefinition(groupObj);
+                        if (string.IsNullOrEmpty(def.Name)) def.Name = prop.Name;
+                        result[prop.Name] = def;
+                    }
+                }
+                return result;
+            }
+            return null;
+        }
+
+        private static Dictionary<string, List<SubsystemStep>>? ParseSubVerbs(JObject? json) {
+            if ((json?["subsystem"] as JObject)?["verbs"] is JObject obj) {
+                var result = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in obj.Properties()) {
+                    if (prop.Value is JArray arr) {
+                        result[prop.Name] = arr.Select(x => new SubsystemStep((JObject)x)).ToList();
+                    }
+                }
+                return result;
+            }
+            return null;
+        }
+
+        private static Dictionary<string, List<SubsystemStep>>? ParseSubDefElementVerbs(JObject? json) {
+            if ((json?["subsystem"] as JObject)?["default_element_verbs"] is JObject obj) {
+                var result = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in obj.Properties()) {
+                    if (prop.Value is JArray arr) {
+                        result[prop.Name] = arr.Select(x => new SubsystemStep((JObject)x)).ToList();
+                    }
+                }
+                return result;
+            }
+            return null;
+        }
+
+        private static Dictionary<string, PoolDefinition>? ParseSubPools(JObject? json) {
+            if ((json?["subsystem"] as JObject)?["pools"] is JObject obj) {
+                var result = new Dictionary<string, PoolDefinition>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in obj.Properties()) {
+                    if (prop.Value is JObject poolObj) {
+                        var poolDef = new PoolDefinition(poolObj);
+                        if (string.IsNullOrEmpty(poolDef.Id)) poolDef.Id = prop.Name;
+                        result[prop.Name] = poolDef;
+                    }
+                }
+                return result;
+            }
+            return null;
+        }
+
+        private static Dictionary<string, JObject>? ParseSubTemplates(JObject? json) {
+            if ((json?["subsystem"] as JObject)?["effect_templates"] is JObject obj) {
+                var result = new Dictionary<string, JObject>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in obj.Properties()) {
+                    if (prop.Value is JObject tmplObj) {
+                        result[prop.Name] = (JObject)tmplObj.DeepClone();
+                    }
+                }
+                return result;
+            }
+            return null;
+        }
+
+        private static IEnumerable<EffectProjectionRule>? ParseSubProjections(JObject? json) =>
+            ((json?["subsystem"] as JObject)?["projections"] as JArray)?.Select(x => new EffectProjectionRule((JObject)x));
+
+        private static IEnumerable<string>? ParseSubRequiredElementProperties(JObject? json) =>
+            ((json?["subsystem"] as JObject)?["required_element_properties"] as JArray)?.Select(x => x.ToString());
+
+        private static Dictionary<string, List<string>>? ParseSubElementStatistics(JObject? json) {
+            if ((json?["subsystem"] as JObject)?["element_statistics"] is JObject obj) {
+                var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in obj.Properties()) {
+                    var tags = new List<string>();
+                    if (prop.Value is JArray arr) {
+                        tags.AddRange(arr.Select(x => (string)x));
+                    }
+                    result[prop.Name] = tags;
+                }
+                return result;
+            }
+            return null;
+        }
+
+        private static Dictionary<string, IDictionary<string, TaxonomyEntry>>? ParseSubTaxonomies(JObject? json) {
+            if ((json?["subsystem"] as JObject)?["taxonomies"] is JObject taxObj) {
+                var result = new Dictionary<string, IDictionary<string, TaxonomyEntry>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var taxProp in taxObj.Properties()) {
+                    if (taxProp.Value is JObject entriesObj) {
+                        var taxMap = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var entryProp in entriesObj.Properties()) {
+                            if (entryProp.Value is JObject entryJson) {
+                                taxMap[entryProp.Name] = new TaxonomyEntry(entryProp.Name, entryJson);
+                            }
+                        }
+                        result[taxProp.Name] = taxMap;
+                    }
+                }
+                return result;
+            }
+            return null;
+        }
+
+        private static IEnumerable<SubsystemElement>? ParseSubElements(JObject? json) =>
+            (json?["elements"] as JArray)?.OfType<JObject>().Select(x => new SubsystemElement(x));
+
+        private static IEnumerable<SheetAction>? ParseSubActions(JObject? json) =>
+            ((json?["subsystem"] as JObject)?["actions"] as JArray)?.OfType<JObject>().Select(x => SheetAction.FromJson(x));
 
         public JToken ToJson() {
             var subJson = new JObject(
