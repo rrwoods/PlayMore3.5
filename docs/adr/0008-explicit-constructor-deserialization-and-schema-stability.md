@@ -48,18 +48,19 @@ We explicitly standardize on **explicit constructor-based deserialization and st
 - Subsystem state deserialization remains cleanly co-located within each subsystem's module.
 - Ticket #83 is closed as `wontfix`.
 
-## Addendum: Canonical Domain Constructors and Adapter Deserialization (Ticket #247)
+## Addendum: Canonical Domain Constructors and Adapter Deserialization (Tickets #247, #252)
 
-Following Ticket #247, domain entities and subsystem definitions expose **public canonical C# constructors** with optional default parameters rather than relying solely on JSON deserialization constructors:
+Following Ticket #247 and amended in Ticket #252, domain models distinguish between simple domain entities and composite definition schemas:
 
-1. **Canonical C# Constructors as the Primary Seam**:
-   - Domain and combat entities (`Item`, `Weapon`, `ArmorProperty`, `CharacterClass`, `Attack`, `Modifier`, `LookupAmount`, `ControllableFlag`, `FlagDefinition`) and subsystem definitions (`SubsystemDefinition`, `SlotGroupDefinition`, `StateCapacityDefinition`, `MaxLevelDefinition`, `LevelGatingDefinition`, `PoolDefinition`, `EffectProjectionRule`, `SubsystemStep`, `TaxonomyEntry`) expose public canonical C# constructors taking strongly typed domain parameters.
-   - Optional parameters with sensible defaults (e.g., empty collections, default enums, 0/1 counts) provide expressive, readable instantiation in production code, subsystem engines, and unit tests without combinatorial constructor overloads.
+1. **Simple Domain Entities Retain Canonical Positional Constructors**:
+   - Domain and combat entities (`Item`, `Weapon`, `ArmorProperty`, `CharacterClass`, `Attack`, `Modifier`, `LookupAmount`, `ControllableFlag`, `FlagDefinition`) and leaf subsystem models (`SlotGroupDefinition`, `StateCapacityDefinition`, `MaxLevelDefinition`, `LevelGatingDefinition`, `PoolDefinition`, `EffectProjectionRule`, `SubsystemStep`, `TaxonomyEntry`) expose public canonical C# constructors taking strongly typed domain parameters with optional defaults (empty collections, default enums, 0/1 counts).
+   - For these models, deserialization constructors (`new T(JObject json)`) act as delegating adapters that parse JSON properties and forward extracted values to the canonical constructor via constructor chaining (`: this(...)`), centralizing invariants in the canonical constructor.
 
-2. **JSON Deserialization Constructors as Delegating Adapters**:
-   - Deserialization constructors (`new T(JObject json)`) act as thin serialization adapters that parse JSON properties and forward extracted values to the canonical constructor via constructor chaining (`: this(...)`).
-   - Invariants and validation live exclusively in the canonical constructor, ensuring consistent domain state regardless of whether an instance is hydrated from disk or constructed in memory.
+2. **Composite Definition Schemas Hydrate Directly via Deserialization Adapters**:
+   - Complex hierarchical definitions like `SubsystemDefinition` contain extensive nested collections (slot groups, verbs, pools, effect templates, projections, taxonomies, elements). Forcing these schemas through positional constructor initializers (`: this(...)`) requires dozens of static parsing trampolines and wide, unwieldy parameter lists.
+   - Composite definition schemas hydrate directly inside their deserialization constructors (`new SubsystemDefinition(JObject json)`), parsing properties and enforcing invariants locally without delegating to a positional constructor trampoline.
+   - For in-memory and test construction, composite definitions expose minimal constructors (`new SubsystemDefinition(id, name)`) with empty collections, allowing tests and engines to configure only what varies directly on the instance.
 
 3. **Prohibition of Synthetic JSON Test Factories**:
    - Constructing synthetic JSON payloads in unit tests to instantiate domain objects (such as the former `TestFactory`) is strictly prohibited.
-   - Tests instantiate domain entities directly using their canonical C# constructors, avoiding JSON serialization overhead, string key fragility, and artificial coupling to serialization representations in test suites.
+   - Tests instantiate domain entities directly using their canonical C# constructors or minimal constructors and direct configuration, avoiding JSON serialization overhead, string key fragility, and artificial coupling to serialization representations in test suites.
