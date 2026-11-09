@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -12,15 +11,30 @@ namespace PlayMore35.UI.Subsystems {
         private readonly Label _label;
         private readonly Button _clearButton;
         private readonly WarningBadge _warningBadge;
-        private SubsystemElement? _selectedElement;
-        private bool _isActiveSelecting;
-        private readonly string _placeholderText = "(Choose element...)";
+        private bool _isSyncing;
 
-        public event EventHandler? Activated;
-        public event EventHandler? ElementCleared;
-        public event Action<SubsystemElement?>? ElementDelivered;
+        public ElementReceptorViewModel ViewModel { get; }
 
-        public ElementReceptorControl() {
+        public event EventHandler? Activated {
+            add => ViewModel.Activated += value;
+            remove => ViewModel.Activated -= value;
+        }
+
+        public event EventHandler? ElementCleared {
+            add => ViewModel.ElementCleared += value;
+            remove => ViewModel.ElementCleared -= value;
+        }
+
+        public event Action<SubsystemElement?>? ElementDelivered {
+            add => ViewModel.ElementDelivered += value;
+            remove => ViewModel.ElementDelivered -= value;
+        }
+
+        public ElementReceptorControl() : this(new ElementReceptorViewModel()) {
+        }
+
+        public ElementReceptorControl(ElementReceptorViewModel viewModel) {
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
 
             _label = new Label {
@@ -53,70 +67,67 @@ namespace PlayMore35.UI.Subsystems {
             Height = 24;
             Width = 180;
             Padding = new Padding(2);
+
+            ViewModel.StateChanged += (s, e) => UpdateVisualState();
             UpdateLayout();
             UpdateVisualState();
         }
 
         public SubsystemElement? SelectedElement {
-            get => _selectedElement;
-            set {
-                _selectedElement = value;
-                UpdateVisualState();
-            }
+            get => ViewModel.SelectedElement;
+            set => ViewModel.SelectedElement = value;
         }
 
         public bool IsActiveSelecting {
-            get => _isActiveSelecting;
-            set {
-                if (_isActiveSelecting != value) {
-                    _isActiveSelecting = value;
-                    UpdateVisualState();
-                }
-            }
+            get => ViewModel.IsActiveSelecting;
+            set => ViewModel.IsActiveSelecting = value;
         }
 
         public void PerformClick() {
-            Activated?.Invoke(this, EventArgs.Empty);
+            ViewModel.Activate();
         }
 
         public void PerformClear() {
-            _selectedElement = null;
-            UpdateVisualState();
-            ElementCleared?.Invoke(this, EventArgs.Empty);
-            ElementDelivered?.Invoke(null);
+            ViewModel.Clear();
         }
 
         public void SetWarnings(IEnumerable<ValidationWarning>? warnings) {
-            _warningBadge.SetWarnings(warnings);
-            UpdateLayout();
+            ViewModel.SetWarnings(warnings);
         }
 
         public void ClearWarning() {
-            _warningBadge.ClearWarning();
-            UpdateLayout();
+            ViewModel.ClearWarning();
         }
 
         private void UpdateVisualState() {
-            if (_selectedElement != null) {
-                _label.Text = _selectedElement.Name;
-                _label.Font = new Font(Font, FontStyle.Regular);
-                _label.ForeColor = SystemColors.ControlText;
-                _clearButton.Visible = true;
-            } else {
-                _label.Text = _placeholderText;
-                _label.Font = new Font(Font, FontStyle.Italic);
-                _label.ForeColor = SystemColors.GrayText;
-                _clearButton.Visible = false;
-            }
+            if (_isSyncing) return;
+            _isSyncing = true;
+            try {
+                _label.Text = ViewModel.DisplayText;
+                _label.Font = ViewModel.SelectedElement != null ? new Font(Font, FontStyle.Regular) : new Font(Font, FontStyle.Italic);
+                _label.ForeColor = ViewModel.SelectedElement != null ? SystemColors.ControlText : SystemColors.GrayText;
+                _clearButton.Visible = ViewModel.IsClearButtonVisible;
 
-            if (_isActiveSelecting) {
-                BackColor = Color.FromArgb(240, 245, 255);
-            } else {
-                BackColor = SystemColors.Window;
-            }
+                if (ViewModel.IsActiveSelecting) {
+                    BackColor = Color.FromArgb(240, 245, 255);
+                } else {
+                    BackColor = SystemColors.Window;
+                }
 
-            UpdateLayout();
-            Invalidate();
+                _warningBadge.Visible = ViewModel.IsWarningBadgeVisible;
+                if (ViewModel.IsWarningBadgeVisible) {
+                    _warningBadge.Text = ViewModel.WarningBadgeText;
+                    _warningBadge.ForeColor = ViewModel.WorstWarningKind == WarningKind.Unmet ? Color.DarkGoldenrod : Color.DodgerBlue;
+                    FormUtils.ToolTipTextLabel(_warningBadge, ViewModel.WarningTooltip);
+                } else {
+                    FormUtils.ToolTipTextLabel(_warningBadge, "");
+                }
+
+                UpdateLayout();
+                Invalidate();
+            } finally {
+                _isSyncing = false;
+            }
         }
 
         private void UpdateLayout() {
@@ -146,20 +157,24 @@ namespace PlayMore35.UI.Subsystems {
             base.OnPaint(e);
             var rect = new Rectangle(0, 0, Width - 1, Height - 1);
 
-            if (_isActiveSelecting) {
-                using (var pen = new Pen(Color.FromArgb(0, 120, 215), 2f)) {
-                    e.Graphics.DrawRectangle(pen, 1, 1, Width - 3, Height - 3);
-                }
-            } else if (_selectedElement == null) {
-                using (var pen = new Pen(SystemColors.ControlDark, 1f)) {
-                    pen.DashStyle = DashStyle.Dash;
-                    e.Graphics.DrawRectangle(pen, rect);
-                }
-            } else {
-                using (var pen = new Pen(SystemColors.ControlDark, 1f)) {
-                    pen.DashStyle = DashStyle.Solid;
-                    e.Graphics.DrawRectangle(pen, rect);
-                }
+            switch (ViewModel.State) {
+                case ReceptorState.ActiveSelecting:
+                    using (var pen = new Pen(Color.FromArgb(0, 120, 215), 2f)) {
+                        e.Graphics.DrawRectangle(pen, 1, 1, Width - 3, Height - 3);
+                    }
+                    break;
+                case ReceptorState.Unmade:
+                    using (var pen = new Pen(SystemColors.ControlDark, 1f)) {
+                        pen.DashStyle = DashStyle.Dash;
+                        e.Graphics.DrawRectangle(pen, rect);
+                    }
+                    break;
+                case ReceptorState.Made:
+                    using (var pen = new Pen(SystemColors.ControlDark, 1f)) {
+                        pen.DashStyle = DashStyle.Solid;
+                        e.Graphics.DrawRectangle(pen, rect);
+                    }
+                    break;
             }
         }
 
