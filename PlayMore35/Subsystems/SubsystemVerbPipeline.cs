@@ -94,7 +94,7 @@ namespace PlayMore35.Subsystems {
             TimelineRefreshRequirement requirement = TimelineRefreshRequirement.None;
             foreach (var step in steps) {
                 var req = ExecuteStep(step, slotGroup, slotIndex, elementName, effectiveSource, invokedSlot, selectedIndices);
-                if (string.Equals(step.Type, "transition", StringComparison.OrdinalIgnoreCase) && req == TimelineRefreshRequirement.None) {
+                if (step.IsTransition && req == TimelineRefreshRequirement.None) {
                     break;
                 }
                 if (req > requirement) requirement = req;
@@ -347,7 +347,14 @@ namespace PlayMore35.Subsystems {
             return null;
         }
 
-        private TimelineRefreshRequirement ExecuteStep(SubsystemStep step, string? slotGroup, int? targetSlotIndex, string? targetElement, string? targetSource, SubsystemSlot? invokedSlot, List<int>? selectedIndices = null) {
+        public TimelineRefreshRequirement ExecuteStep(
+            SubsystemStep step,
+            string? slotGroup = null,
+            int? targetSlotIndex = null,
+            string? targetElement = null,
+            string? targetSource = null,
+            SubsystemSlot? invokedSlot = null,
+            List<int>? selectedIndices = null) {
             if (step == null) return TimelineRefreshRequirement.None;
             string type = step.Type?.ToLowerInvariant() ?? "";
 

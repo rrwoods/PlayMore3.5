@@ -644,33 +644,26 @@ namespace PlayMore35.Subsystems {
             SetPoolValue(poolId, current + amount);
         }
 
-        public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation? operation) {
-            return _verbPipeline.ExecutePoolOperation(operation);
-        }
+        public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation? operation) =>
+            _verbPipeline.ExecutePoolOperation(operation);
 
-        public TimelineRefreshRequirement ExecuteOperation(SubsystemPoolOperation? operation) {
-            return _verbPipeline.ExecuteOperation(operation);
-        }
+        public TimelineRefreshRequirement ExecuteOperation(SubsystemPoolOperation? operation) =>
+            _verbPipeline.ExecuteOperation(operation);
 
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, SubsystemTarget target) {
-            return _verbPipeline.ExecuteTransition(transition, target);
-        }
+        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, SubsystemTarget target) =>
+            _verbPipeline.ExecuteTransition(transition, target);
 
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, int? targetSlotIndex = null, string? targetElement = null, string? targetSource = null) {
-            return _verbPipeline.ExecuteTransition(transition, targetSlotIndex, targetElement, targetSource);
-        }
+        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, int? targetSlotIndex = null, string? targetElement = null, string? targetSource = null) =>
+            _verbPipeline.ExecuteTransition(transition, targetSlotIndex, targetElement, targetSource);
 
-        public TimelineRefreshRequirement InvokeElementVerb(string verbName, SubsystemSlot slot) {
-            return _verbPipeline.InvokeElementVerb(verbName, slot);
-        }
+        public TimelineRefreshRequirement InvokeElementVerb(string verbName, SubsystemSlot slot) =>
+            _verbPipeline.InvokeElementVerb(verbName, slot);
 
-        public TimelineRefreshRequirement ExecuteVerb(string verbName, SubsystemTarget? target) {
-            return _verbPipeline.ExecuteVerb(verbName, target);
-        }
+        public TimelineRefreshRequirement ExecuteVerb(string verbName, SubsystemTarget? target) =>
+            _verbPipeline.ExecuteVerb(verbName, target);
 
-        public TimelineRefreshRequirement ExecuteVerb(string verbName, string? slotGroup = null, int? slotIndex = null, string? elementName = null, string? source = null, List<int>? selectedIndices = null) {
-            return _verbPipeline.ExecuteVerb(verbName, slotGroup, slotIndex, elementName, source, selectedIndices);
-        }
+        public TimelineRefreshRequirement ExecuteVerb(string verbName, string? slotGroup = null, int? slotIndex = null, string? elementName = null, string? source = null, List<int>? selectedIndices = null) =>
+            _verbPipeline.ExecuteVerb(verbName, slotGroup, slotIndex, elementName, source, selectedIndices);
 
         private string ResolveFeatTargetSource(string? featSlot = null) {
             if (context is ICharacterSession session && !string.IsNullOrEmpty(featSlot)) {

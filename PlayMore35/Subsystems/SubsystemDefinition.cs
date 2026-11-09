@@ -8,18 +8,20 @@ using PlayMore35.Rules;
 
 namespace PlayMore35.Subsystems {
     public class SubsystemStep : IJsonable {
-        public string Type { get; set; } = "";
-        public string SlotGroup { get; set; } = "";
-        public string Selector { get; set; } = "invoked";
-        public string FromState { get; set; } = null;
-        public string ToState { get; set; } = "";
-        public string CountExpression { get; set; } = "1";
-        public string OnEmptyVerb { get; set; } = "";
-        public string Verb { get; set; } = "";
-        public SheetAction Action { get; set; } = null;
-        public string Pool { get; set; } = "";
-        public string Op { get; set; } = "consume";
-        public int Amount { get; set; } = 0;
+        public string Type { get; } = "";
+        public string SlotGroup { get; } = "";
+        public string Selector { get; } = "invoked";
+        public string? FromState { get; } = null;
+        public string ToState { get; } = "";
+        public string CountExpression { get; } = "1";
+        public string OnEmptyVerb { get; } = "";
+        public string Verb { get; } = "";
+        public SheetAction? Action { get; } = null;
+        public string Pool { get; } = "";
+        public string Op { get; } = "consume";
+        public int Amount { get; } = 0;
+
+        public bool IsTransition => string.Equals(Type, "transition", StringComparison.OrdinalIgnoreCase);
 
         public SubsystemStep(
             string type = "",
