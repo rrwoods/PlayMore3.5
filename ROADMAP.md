@@ -59,6 +59,10 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 Features required for the author's primary active character, alongside immediate core dashboard and ledger UX improvements prioritized alongside them.
 
+### Level 1: One-handed weapon no shield should count as two-handed
+- Cite the combat rules :)
+- The "primary/single" attack configuration: when using a ONE_HANDED weapon with nothing occupying offhand, you get a two-handed attack
+
 ### Level 7: Traditional Spellcasting
 - **Prerequisite**: Subsystem-projected effects/statistics shouldn't exist when they don't need to
   - Once we add spellcasting, if every spell in the catalog projected its stats and effects at all times, we would have thousands of stats (because there are thousands of spells).  We need some way of only loading a stat or effect into memory when it's relevant to do so.  (this is a /wayfinder task, I don't have a design idea)
