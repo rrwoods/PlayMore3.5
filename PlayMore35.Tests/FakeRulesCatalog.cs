@@ -75,12 +75,15 @@ namespace PlayMore35.Tests {
         }
 
         public void BuildMartialManeuversSubsystem(IEnumerable<SubsystemElement> maneuvers = null) {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "martial_maneuvers",
                 name: "Martial Maneuvers",
                 prerequisiteUnit: "maneuver",
                 prerequisiteProperty: "discipline",
-                levelGating: TestFactory.CreateLevelGatingDefinition("level", "maximum maneuver level")
+                levelGating: new LevelGatingDefinition("level", "maximum maneuver level"),
+                elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
+                    ["level"] = new List<string>()
+                }
             );
             if (inner?.GetSubsystem("martial_maneuvers")?.Taxonomies != null) {
                 foreach (var taxKvp in inner.GetSubsystem("martial_maneuvers").Taxonomies) {
@@ -94,21 +97,21 @@ namespace PlayMore35.Tests {
             if (!def.Taxonomies.ContainsKey("type")) {
                 var typeMap = new Dictionary<string, TaxonomyEntry>(StringComparer.OrdinalIgnoreCase);
                 foreach (var mType in new[] { "Strike", "Boost", "Counter", "Other" }) {
-                    typeMap[mType] = TestFactory.CreateTaxonomyEntry(mType, new Dictionary<string, object> { ["category"] = "maneuver" });
+                    typeMap[mType] = new TaxonomyEntry(mType, new Dictionary<string, object> { ["category"] = "maneuver" });
                 }
-                typeMap["Stance"] = TestFactory.CreateTaxonomyEntry("Stance", new Dictionary<string, object> { ["category"] = "stance" });
+                typeMap["Stance"] = new TaxonomyEntry("Stance", new Dictionary<string, object> { ["category"] = "stance" });
                 def.Taxonomies["type"] = typeMap;
             }
             def.ElementStatistics["level"] = new List<string>();
-            var maneuverGroup = TestFactory.CreateSlotGroupDefinition(
+            var maneuverGroup = new SlotGroupDefinition(
                 name: "maneuvers",
                 filter: "maneuver",
                 capacityStat: "maneuvers known:{source}",
-                maxLevel: TestFactory.CreateMaxLevelDefinition("max maneuver level:{source}", 0),
+                maxLevel: new MaxLevelDefinition("max maneuver level:{source}", 0),
                 defaultState: "unreadied",
                 states: new[] { "unreadied", "available", "expended", "withheld" }
             );
-            maneuverGroup.StateCapacities.Add(TestFactory.CreateStateCapacityDefinition(
+            maneuverGroup.StateCapacities.Add(new StateCapacityDefinition(
                 new[] { "available", "expended", "withheld" },
                 "maneuvers readied:{source}",
                 "readied"
@@ -118,65 +121,65 @@ namespace PlayMore35.Tests {
                 { 9, 5 }, { 11, 6 }, { 13, 7 }, { 15, 8 }, { 17, 9 }
             };
             maneuverGroup.Effects.Add(new Effect("max maneuver level:{source}")
-                .AddModifier("max maneuver level:{source}", TestFactory.CreateModifier(TestFactory.CreateLookupAmount("initiator level:{source}", maxManeuverTable, -1, 1), ModifierTypes.INTERNAL)));
+                .AddModifier("max maneuver level:{source}", new Modifier(ModifierTypes.INTERNAL, new[] { new LookupAmount(new VariableAmount("initiator level:{source}"), maxManeuverTable, -1, 1) })));
             def.SlotGroups["maneuvers"] = maneuverGroup;
 
-            var stances = TestFactory.CreateSlotGroupDefinition(
+            var stances = new SlotGroupDefinition(
                 name: "stances",
                 filter: "stance",
                 capacityStat: "stances known:{source}",
-                maxLevel: TestFactory.CreateMaxLevelDefinition("max maneuver level:{source}", 0),
+                maxLevel: new MaxLevelDefinition("max maneuver level:{source}", 0),
                 defaultState: "inactive",
                 states: new[] { "inactive", "active" }
             );
-            stances.StateCapacities.Add(TestFactory.CreateStateCapacityDefinition(
+            stances.StateCapacities.Add(new StateCapacityDefinition(
                 new[] { "active" },
                 "active stances",
                 "active"
             ));
             def.SlotGroups["stances"] = stances;
 
-            def.Projections.Add(TestFactory.CreateEffectProjectionRule("stances", "active", "benefits"));
+            def.Projections.Add(new EffectProjectionRule("stances", "active", new[] { "benefits" }));
             def.DefaultElementVerbs["execute"] = new List<SubsystemStep>();
             def.Verbs["ready"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "unreadied", toState: "available")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "unreadied", toState: "available")
             };
             def.Verbs["unready"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "!unreadied", toState: "unreadied")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "!unreadied", toState: "unreadied")
             };
             def.Verbs["expend"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "available", toState: "expended"),
-                TestFactory.CreateSubsystemStep(type: "invoke_element_verb", verb: "execute", selector: "invoked")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "available", toState: "expended"),
+                new SubsystemStep(type: "invoke_element_verb", verb: "execute", selector: "invoked")
             };
             def.Verbs["adopt_stance"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "stances", selector: "invoked", fromState: "*", toState: "active")
+                new SubsystemStep(type: "transition", slotGroup: "stances", selector: "invoked", fromState: "*", toState: "active")
             };
             def.Verbs["exit_stance"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "stances", selector: "invoked", fromState: "active", toState: "inactive")
+                new SubsystemStep(type: "transition", slotGroup: "stances", selector: "invoked", fromState: "active", toState: "inactive")
             };
             def.Verbs["exit_all_stances"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "stances", selector: "all", fromState: "active", toState: "inactive")
+                new SubsystemStep(type: "transition", slotGroup: "stances", selector: "all", fromState: "active", toState: "inactive")
             };
             def.Verbs["recover_all"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "all", fromState: "expended", toState: "available")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "all", fromState: "expended", toState: "available")
             };
             def.Verbs["recover_select"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "select", countExpression: "1", fromState: "expended", toState: "available")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "select", countExpression: "1", fromState: "expended", toState: "available")
             };
             def.Verbs["deal"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "all", fromState: "!unreadied", toState: "withheld"),
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "random", countExpression: "maneuvers granted:{source}", fromState: "withheld", toState: "available")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "all", fromState: "!unreadied", toState: "withheld"),
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "random", countExpression: "maneuvers granted:{source}", fromState: "withheld", toState: "available")
             };
             def.Verbs["advance_turn"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "random", countExpression: "1", fromState: "withheld", toState: "available", onEmptyVerb: "deal")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "random", countExpression: "1", fromState: "withheld", toState: "available", onEmptyVerb: "deal")
             };
             def.Verbs["reset_encounter"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "all", fromState: "expended", toState: "available")
+                new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "all", fromState: "expended", toState: "available")
             };
             SubsystemsMap["martial_maneuvers"] = def;
 
             if (!TryGetClass("Warblade", out _)) {
-                var wb = TestFactory.CreateClass("Warblade");
+                var wb = new CharacterClass("Warblade");
                 var wbSub = new SubsystemFeature();
                 wbSub.Verbs["ready"] = def.Verbs["ready"];
                 wbSub.Verbs["recover"] = def.Verbs["recover_all"];
@@ -185,7 +188,7 @@ namespace PlayMore35.Tests {
                 ClassesMap["Warblade"] = wb;
             }
             if (!TryGetClass("Swordsage", out _)) {
-                var ss = TestFactory.CreateClass("Swordsage");
+                var ss = new CharacterClass("Swordsage");
                 var ssSub = new SubsystemFeature();
                 ssSub.Verbs["ready"] = def.Verbs["ready"];
                 ssSub.Verbs["recover"] = def.Verbs["recover_select"];
@@ -194,10 +197,10 @@ namespace PlayMore35.Tests {
                 ClassesMap["Swordsage"] = ss;
             }
             if (!TryGetClass("Crusader", out _)) {
-                var cr = TestFactory.CreateClass("Crusader");
+                var cr = new CharacterClass("Crusader");
                 var crSub = new SubsystemFeature();
                 crSub.Verbs["ready"] = new List<SubsystemStep> {
-                    TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "unreadied", toState: "withheld")
+                    new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "invoked", fromState: "unreadied", toState: "withheld")
                 };
                 crSub.Verbs["deal"] = def.Verbs["deal"];
                 crSub.Verbs["advance_turn"] = def.Verbs["advance_turn"];
@@ -225,20 +228,20 @@ namespace PlayMore35.Tests {
         }
 
         public void BuildPactMagicSubsystem(IEnumerable<SubsystemElement> vestiges = null) {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "pact_magic",
                 name: "Pact Magic",
-                levelGating: TestFactory.CreateLevelGatingDefinition("level"),
+                levelGating: new LevelGatingDefinition("level"),
                 requiredElementProperties: new[] { "binding DC", "level" },
                 elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
                     ["binding DC"] = new List<string> { "binding DCs" },
                     ["level"] = new List<string>()
                 }
             );
-            var vestigesSlotGroup = TestFactory.CreateSlotGroupDefinition(
+            var vestigesSlotGroup = new SlotGroupDefinition(
                 name: "vestiges",
                 capacityStat: "number of vestiges",
-                maxLevel: TestFactory.CreateMaxLevelDefinition("maximum vestige level", 0),
+                maxLevel: new MaxLevelDefinition("maximum vestige level", 0),
                 defaultState: "empty",
                 states: new[] { "empty", "good_pact", "poor_pact" }
             );
@@ -247,21 +250,21 @@ namespace PlayMore35.Tests {
                 { 10, 5 }, { 12, 6 }, { 15, 7 }, { 17, 8 }
             };
             vestigesSlotGroup.Effects.Add(new Effect("maximum vestige level")
-                .AddModifier("maximum vestige level", TestFactory.CreateModifier(TestFactory.CreateLookupAmount("EBL for max vestige level", maxVestigeTable, -1, 1), ModifierTypes.UNTYPED)));
+                .AddModifier("maximum vestige level", new Modifier(ModifierTypes.UNTYPED, new[] { new LookupAmount(new VariableAmount("EBL for max vestige level"), maxVestigeTable, -1, 1) })));
             def.SlotGroups["vestiges"] = vestigesSlotGroup;
 
             def.Verbs["bind_good_pact"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "assign", slotGroup: "vestiges", toState: "good_pact")
+                new SubsystemStep(type: "assign", slotGroup: "vestiges", toState: "good_pact")
             };
             def.Verbs["bind_poor_pact"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "assign", slotGroup: "vestiges", toState: "poor_pact")
+                new SubsystemStep(type: "assign", slotGroup: "vestiges", toState: "poor_pact")
             };
             def.Verbs["unbind"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "vestiges", selector: "invoked", fromState: "*", toState: "empty")
+                new SubsystemStep(type: "transition", slotGroup: "vestiges", selector: "invoked", fromState: "*", toState: "empty")
             };
 
-            def.Projections.Add(TestFactory.CreateEffectProjectionRule("vestiges", "good_pact", "abilities"));
-            def.Projections.Add(TestFactory.CreateEffectProjectionRule("vestiges", "poor_pact", "abilities", "influence"));
+            def.Projections.Add(new EffectProjectionRule("vestiges", "good_pact", new[] { "abilities" }));
+            def.Projections.Add(new EffectProjectionRule("vestiges", "poor_pact", new[] { "abilities", "influence" }));
 
             if (inner != null && inner.TryGetSubsystem("pact_magic", out var innerPact)) {
                 foreach (var kvp in innerPact.EffectTemplates) {
@@ -503,12 +506,12 @@ namespace PlayMore35.Tests {
         }
 
         public static SubsystemDefinition CreateSyntheticAlchemySubsystem() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "synthetic_alchemy",
                 name: "Synthetic Alchemy"
             );
 
-            var flasks = TestFactory.CreateSlotGroupDefinition(
+            var flasks = new SlotGroupDefinition(
                 name: "flasks",
                 capacityStat: "max_flasks",
                 fixedCapacity: 3,
@@ -517,7 +520,7 @@ namespace PlayMore35.Tests {
             );
             def.SlotGroups["flasks"] = flasks;
 
-            var infusions = TestFactory.CreateSlotGroupDefinition(
+            var infusions = new SlotGroupDefinition(
                 name: "infusions",
                 capacityStat: "max_infusions",
                 fixedCapacity: 2,
@@ -526,14 +529,14 @@ namespace PlayMore35.Tests {
             );
             def.SlotGroups["infusions"] = infusions;
 
-            def.Pools["catalyst"] = TestFactory.CreatePoolDefinition(
+            def.Pools["catalyst"] = new PoolDefinition(
                 id: "catalyst",
                 name: "Catalyst Points",
                 capacityStat: "catalyst_capacity",
                 defaultCapacity: 10
             );
 
-            def.Pools["heat"] = TestFactory.CreatePoolDefinition(
+            def.Pools["heat"] = new PoolDefinition(
                 id: "heat",
                 name: "Heat Points",
                 capacityStat: "heat_capacity",
@@ -541,14 +544,14 @@ namespace PlayMore35.Tests {
             );
 
             def.Verbs["throw"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(
+                new SubsystemStep(
                     type: "transition",
                     slotGroup: "flasks",
                     selector: "invoked",
                     fromState: "prepared",
                     toState: "expended"
                 ),
-                TestFactory.CreateSubsystemStep(
+                new SubsystemStep(
                     type: "invoke_element_verb",
                     verb: "execute",
                     selector: "invoked"
@@ -556,7 +559,7 @@ namespace PlayMore35.Tests {
             };
 
             def.Verbs["prepare_all"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(
+                new SubsystemStep(
                     type: "transition",
                     slotGroup: "flasks",
                     selector: "all",
@@ -566,7 +569,7 @@ namespace PlayMore35.Tests {
             };
 
             def.Verbs["prepare_select"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(
+                new SubsystemStep(
                     type: "transition",
                     slotGroup: "flasks",
                     selector: "select",
@@ -576,7 +579,7 @@ namespace PlayMore35.Tests {
             };
 
             def.Verbs["deal_random"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(
+                new SubsystemStep(
                     type: "transition",
                     slotGroup: "flasks",
                     selector: "random",
@@ -588,14 +591,14 @@ namespace PlayMore35.Tests {
 
             def.DefaultElementVerbs["execute"] = new List<SubsystemStep>();
 
-            def.Projections.Add(TestFactory.CreateEffectProjectionRule("infusions", "active", "effects"));
+            def.Projections.Add(new EffectProjectionRule("infusions", "active", new[] { "effects" }));
 
             var acidFlask = new SubsystemElement {
                 Name = "Acid Flask",
                 Type = "Flask"
             };
             acidFlask.Verbs["execute"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(
+                new SubsystemStep(
                     type: "action",
                     action: new SheetAction().AdjustParam("acid_splash_count", 1)
                 )

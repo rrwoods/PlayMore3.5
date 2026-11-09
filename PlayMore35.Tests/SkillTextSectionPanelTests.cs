@@ -82,8 +82,8 @@ namespace PlayMore35.Tests {
                 Assert.IsFalse(panel.GetSkillLabels()[1].Text.Contains("\u2014"));
 
                 var context = (ICharacterContext)session;
-                context.Effects.controllableFlags["deafened"] = TestFactory.CreateControllableFlag("deafened", character);
-                context.Effects.controllableFlags["blinded"] = TestFactory.CreateControllableFlag("blinded", character);
+                context.Effects.controllableFlags["deafened"] = new ControllableFlag("deafened", character);
+                context.Effects.controllableFlags["blinded"] = new ControllableFlag("blinded", character);
 
                 // When deafened:
                 session.SetFlag("deafened", true);

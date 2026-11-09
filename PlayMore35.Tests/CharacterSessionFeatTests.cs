@@ -1588,7 +1588,7 @@ namespace PlayMore35.Tests {
         public void ValidateProgressionChoice_InFlightOverlay_DualPassSatisfiedByGear_CategorizesAsItemDependent() {
             var itemEffect = new Effect("Ring of the Desert Sun")
                 .AddSlot(new SubsystemSlotGrant("martial_maneuvers", "maneuvers", "Burning Blade", "Item"));
-            var ringItem = TestFactory.CreateItem(Equipped.Slot.RING1, itemEffect, weight: 1);
+            var ringItem = new Item(Equipped.Slot.RING1, itemEffect, weight: 1);
 
             var fakeCatalog = new FakeRulesCatalog(inner: catalog);
             fakeCatalog.ItemsMap["Ring of the Desert Sun"] = ringItem;

@@ -14,7 +14,7 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class SubsystemEngineTests {
         private static SubsystemEngine CreateTestEngine(string id, string name = null, ICharacterContext context = null) {
-            return new SubsystemEngine(TestFactory.CreateSubsystemDefinition(
+            return new SubsystemEngine(new SubsystemDefinition(
                 id: id,
                 name: name ?? id
             ), context ?? new FakeCharacterContext());
@@ -22,7 +22,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_Constructor_ThrowsArgumentNullException_OnNullDefinitionOrContext() {
-            var validDef = TestFactory.CreateSubsystemDefinition("test", "Test");
+            var validDef = new SubsystemDefinition("test", "Test");
             var validContext = new FakeCharacterContext();
 
             Assert.ThrowsException<ArgumentNullException>(() => new SubsystemEngine(null, validContext));
@@ -548,13 +548,13 @@ namespace PlayMore35.Tests {
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
         [TestMethod]
         public void SubsystemEngine_ContributeEffects_RegistersSlotGroupMaxLevelAndContributesSlotGroupEffects() {
-            var def = TestFactory.CreateSubsystemDefinition("pact_magic", "Pact Magic");
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var def = new SubsystemDefinition("pact_magic", "Pact Magic");
+            var group = new SlotGroupDefinition(
                 name: "vestiges",
-                maxLevel: TestFactory.CreateMaxLevelDefinition("maximum vestige level", 0)
+                maxLevel: new MaxLevelDefinition("maximum vestige level", 0)
             );
             var maxLevelEffect = new Effect("Max Vestige Level Progression")
-                .AddModifier("maximum vestige level", TestFactory.CreateModifier(TestFactory.CreateLookupAmount("EBL for max vestige level", new Dictionary<int, int> { { 1, 1 }, { 3, 2 } }, -1, 0), ModifierTypes.UNTYPED));
+                .AddModifier("maximum vestige level", new Modifier(ModifierTypes.UNTYPED, new[] { new LookupAmount(new VariableAmount("EBL for max vestige level"), new Dictionary<int, int> { { 1, 1 }, { 3, 2 } }, -1, 0) }));
             group.Effects.Add(maxLevelEffect);
             def.SlotGroups["vestiges"] = group;
 
@@ -574,15 +574,18 @@ namespace PlayMore35.Tests {
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
         [TestMethod]
         public void SubsystemEngine_IsSlotLevelValid_GatesDynamicallyBySlotGroupMaxLevel() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "pact_magic",
                 name: "Pact Magic",
-                levelGating: TestFactory.CreateLevelGatingDefinition("level")
+                levelGating: new LevelGatingDefinition("level"),
+                elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
+                    ["level"] = new List<string>()
+                }
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "vestiges",
                 fixedCapacity: 2,
-                maxLevel: TestFactory.CreateMaxLevelDefinition("maximum vestige level", 1)
+                maxLevel: new MaxLevelDefinition("maximum vestige level", 1)
             );
             def.SlotGroups["vestiges"] = group;
 
@@ -624,15 +627,18 @@ namespace PlayMore35.Tests {
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_EmitsAdvisoryWarning_WhenElementExceedsMaxLevel() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "pact_magic",
                 name: "Pact Magic",
-                levelGating: TestFactory.CreateLevelGatingDefinition("level")
+                levelGating: new LevelGatingDefinition("level"),
+                elementStatistics: new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase) {
+                    ["level"] = new List<string>()
+                }
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "vestiges",
                 fixedCapacity: 1,
-                maxLevel: TestFactory.CreateMaxLevelDefinition("maximum vestige level", 1)
+                maxLevel: new MaxLevelDefinition("maximum vestige level", 1)
             );
             def.SlotGroups["vestiges"] = group;
 
@@ -675,7 +681,7 @@ namespace PlayMore35.Tests {
         // Source: Tome of Battle, pp. 43–44 (Stances and Maneuver types)
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_EmitsInvalidWarning_WhenElementDoesNotMatchFilter() {
-            var def = TestFactory.CreateSubsystemDefinition("martial_maneuvers", "Martial Maneuvers");
+            var def = new SubsystemDefinition("martial_maneuvers", "Martial Maneuvers");
             var strike = new SubsystemElement { Name = "Steel Strike", Type = "Strike" };
             var stance = new SubsystemElement { Name = "Punishing Stance", Type = "Stance" };
             def.Elements["Steel Strike"] = strike;
@@ -1109,7 +1115,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemDefinition_PrerequisiteProperty_SerializationRoundTrip() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "shadow_magic",
                 name: "Shadow Magic",
                 prerequisiteProperty: "path",
@@ -1127,7 +1133,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("mystery", deserialized.PrerequisiteUnit);
 
             // Null / omitted property round-trip
-            var defOmitted = TestFactory.CreateSubsystemDefinition(id: "psionics", name: "Psionics");
+            var defOmitted = new SubsystemDefinition(id: "psionics", name: "Psionics");
             var jsonOmitted = (JObject)defOmitted.ToJson();
             var subJsonOmitted = (JObject?)jsonOmitted["subsystem"];
             Assert.IsNotNull(subJsonOmitted);
@@ -1148,12 +1154,12 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_CountSamePropertyKnown_PartitionsByConfiguredProperty() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "test_magic",
                 name: "Test Magic",
                 prerequisiteProperty: "discipline"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "powers",
                 fixedCapacity: 5
             );
@@ -1193,13 +1199,13 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_DynamicPrerequisitePropertyAndWarningFormatting() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "shadow_magic",
                 name: "Shadow Magic",
                 prerequisiteProperty: "path",
                 prerequisiteUnit: "mystery"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "mysteries",
                 fixedCapacity: 5
             );
@@ -1232,13 +1238,13 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_UnpartitionedPrerequisites_WhenPrerequisitePropertyNull() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "truenaming",
                 name: "Truenaming",
                 prerequisiteProperty: null,
                 prerequisiteUnit: "utterance"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "utterances",
                 fixedCapacity: 5
             );
@@ -1269,13 +1275,13 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_Validate_EvaluatesDynamicPrerequisites() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "shadow_magic",
                 name: "Shadow Magic",
                 prerequisiteProperty: "path",
                 prerequisiteUnit: "mystery"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "mysteries",
                 fixedCapacity: 5
             );
@@ -1297,7 +1303,7 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void StateCapacityDefinition_ExplicitConstructorAndJson_RoundTrips() {
-            var def = TestFactory.CreateStateCapacityDefinition(new[] { "available", "expended", "withheld" }, "maneuvers readied:{source}", "readied");
+            var def = new StateCapacityDefinition(new[] { "available", "expended", "withheld" }, "maneuvers readied:{source}", "readied");
             Assert.AreEqual(3, def.States.Count);
             Assert.AreEqual("available", def.States[0]);
             Assert.AreEqual("expended", def.States[1]);
@@ -1329,13 +1335,13 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SlotGroupDefinition_StateCapacities_JsonRoundTrip() {
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "maneuvers",
                 capacityStat: "maneuvers known:{source}",
                 defaultState: "unreadied",
                 states: new[] { "unreadied", "available", "expended", "withheld" },
                 stateCapacities: new[] {
-                    TestFactory.CreateStateCapacityDefinition(
+                    new StateCapacityDefinition(
                         new[] { "available", "expended", "withheld" },
                         "maneuvers readied:{source}",
                         "readied"
@@ -1357,17 +1363,17 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_Validate_GenericStateCapacities_EmitsDynamicCapacityWarning() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "custom_magic",
                 name: "Custom Magic"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "auras",
                 fixedCapacity: 5,
                 defaultState: "dormant",
                 states: new[] { "dormant", "radiating" },
                 stateCapacities: new[] {
-                    TestFactory.CreateStateCapacityDefinition(
+                    new StateCapacityDefinition(
                         new[] { "radiating" },
                         "active auras:{source}",
                         "radiant"
@@ -1393,17 +1399,17 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_TransitionSlot_ActiveStateClamping_UsesStateCapacities() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "custom_magic",
                 name: "Custom Magic"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "stances",
                 fixedCapacity: 5,
                 defaultState: "inactive",
                 states: new[] { "inactive", "active" },
                 stateCapacities: new[] {
-                    TestFactory.CreateStateCapacityDefinition(
+                    new StateCapacityDefinition(
                         new[] { "active" },
                         "max active stances",
                         "active"
@@ -1416,7 +1422,7 @@ namespace PlayMore35.Tests {
             def.Elements["Stance 2"] = new SubsystemElement { Name = "Stance 2" };
 
             def.Verbs["adopt"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "stances", selector: "invoked", fromState: "*", toState: "active")
+                new SubsystemStep(type: "transition", slotGroup: "stances", selector: "invoked", fromState: "*", toState: "active")
             };
 
             var context = new FakeCharacterContext();
@@ -1498,11 +1504,11 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_ValidateChoice_CapacityWarning_FormatsWithoutSource_WhenSourceNullOrEmpty() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "custom_auras",
                 name: "Custom Auras"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "auras",
                 fixedCapacity: 1,
                 capacityStat: "max auras"
@@ -1523,17 +1529,17 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_Validate_EmitsCharacterCapacityWarning_WhenDistinctSourcesNotOne() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "martial_maneuvers",
                 name: "Martial Maneuvers"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "stances",
                 fixedCapacity: 5,
                 defaultState: "inactive",
                 states: new[] { "inactive", "active" },
                 stateCapacities: new[] {
-                    TestFactory.CreateStateCapacityDefinition(
+                    new StateCapacityDefinition(
                         new[] { "active" },
                         "active stances",
                         "active"
@@ -1559,17 +1565,17 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void SubsystemEngine_TransitionSlot_DynamicStateClamping_CustomNonActiveState() {
-            var def = TestFactory.CreateSubsystemDefinition(
+            var def = new SubsystemDefinition(
                 id: "custom_auras",
                 name: "Custom Auras"
             );
-            var group = TestFactory.CreateSlotGroupDefinition(
+            var group = new SlotGroupDefinition(
                 name: "auras",
                 fixedCapacity: 5,
                 defaultState: "dormant",
                 states: new[] { "dormant", "radiating" },
                 stateCapacities: new[] {
-                    TestFactory.CreateStateCapacityDefinition(
+                    new StateCapacityDefinition(
                         new[] { "radiating" },
                         "max radiating auras",
                         "radiant"
@@ -1582,7 +1588,7 @@ namespace PlayMore35.Tests {
             def.Elements["Lunar Beam"] = new SubsystemElement { Name = "Lunar Beam" };
 
             def.Verbs["radiate"] = new List<SubsystemStep> {
-                TestFactory.CreateSubsystemStep(type: "transition", slotGroup: "auras", selector: "invoked", fromState: "*", toState: "radiating")
+                new SubsystemStep(type: "transition", slotGroup: "auras", selector: "invoked", fromState: "*", toState: "radiating")
             };
 
             var context = new FakeCharacterContext();

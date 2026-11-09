@@ -321,16 +321,16 @@ namespace PlayMore35.Tests {
         public void CharacterSession_InactiveCatalogEngine_DoesNotPopulateEmptySubsystemInCharacter() {
             var baseCatalog = new GameRulesCatalog();
             var catalog = new FakeRulesCatalog(inner: baseCatalog);
-            var inactiveDef = TestFactory.CreateSubsystemDefinition(
+            var inactiveDef = new SubsystemDefinition(
                 id: "dormant_system",
                 name: "Dormant System"
             );
-            inactiveDef.SlotGroups["dormant_slots"] = TestFactory.CreateSlotGroupDefinition(
+            inactiveDef.SlotGroups["dormant_slots"] = new SlotGroupDefinition(
                 name: "dormant_slots",
                 capacityStat: "dormant_slots_count", // resolves to 0
                 fixedCapacity: 0
             );
-            inactiveDef.Pools["dormant_pool"] = TestFactory.CreatePoolDefinition(
+            inactiveDef.Pools["dormant_pool"] = new PoolDefinition(
                 id: "dormant_pool",
                 capacityStat: "dormant_pool_cap", // resolves to 0
                 defaultCapacity: 0
