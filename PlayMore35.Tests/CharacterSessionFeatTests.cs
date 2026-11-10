@@ -1713,5 +1713,47 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(exceedWarnings.Any(w => w.Category == ValidationCategory.Capacity && w.Message.Contains("Selection exceeds stances capacity (1) for Feats.")),
                 "Candidate choice exceeding slot group capacity must emit ValidationCategory.Capacity.");
         }
+
+        [TestMethod]
+        public void OdricJson_AdheresToCanonicalArrayFormat_WithInlinedChoicesAndNoFeatChoices() {
+            var odricPath = TestEnvironment.FindOdricJsonPath();
+            var rawJsonText = System.IO.File.ReadAllText(odricPath);
+            var json = JObject.Parse(rawJsonText);
+
+            // Raw JSON assertions per ADR-0008 and ADR-0021
+            Assert.IsNotNull(json["feats"], "feats array must be present in Odric.json");
+            Assert.IsTrue(json["feats"] is JArray, "feats must be a JArray in Odric.json");
+            Assert.IsNull(json["feat choices"], "feat choices dictionary must NOT exist in Odric.json");
+
+            var character = new Character(json);
+            Assert.AreEqual(4, character.feats.Count, "Odric should have 4 feat assignments.");
+
+            var adv1 = character.feats.FirstOrDefault(f => f.Slot.Equals(ProgressionSlotKey.Advancement(1)));
+            Assert.IsNotNull(adv1);
+            Assert.AreEqual("Improved Binding", adv1.Feat);
+            Assert.AreEqual(0, adv1.Choices.Count);
+
+            var adv3 = character.feats.FirstOrDefault(f => f.Slot.Equals(ProgressionSlotKey.Advancement(3)));
+            Assert.IsNotNull(adv3);
+            Assert.AreEqual("Constant Guardian", adv3.Feat);
+            Assert.AreEqual(0, adv3.Choices.Count);
+
+            var fig1 = character.feats.FirstOrDefault(f => f.Slot.Equals(ProgressionSlotKey.Class("Fighter", 1)));
+            Assert.IsNotNull(fig1);
+            Assert.AreEqual("Endurance", fig1.Feat);
+            Assert.AreEqual(0, fig1.Choices.Count);
+
+            var fig2 = character.feats.FirstOrDefault(f => f.Slot.Equals(ProgressionSlotKey.Class("Fighter", 2)));
+            Assert.IsNotNull(fig2);
+            Assert.AreEqual("Weapon Focus", fig2.Feat);
+            Assert.AreEqual(1, fig2.Choices.Count);
+            Assert.AreEqual("dagger", fig2.Choices["weapon"]);
+
+            // Round-trip verification
+            var roundTripJson = (JObject)character.ToJson();
+            Assert.IsNull(roundTripJson["feat choices"]);
+            var restored = new Character(roundTripJson);
+            CollectionAssert.AreEqual(character.feats, restored.feats);
+        }
     }
 }

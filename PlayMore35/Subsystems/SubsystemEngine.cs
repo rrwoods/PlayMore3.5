@@ -570,7 +570,7 @@ namespace PlayMore35.Subsystems {
             int flatIndex = ResolveFlatSlotIndex(groupName, index, source, createIfMissing: true);
             var existing = (flatIndex >= 0 && flatIndex < group.Slots.Count) ? group[flatIndex] : null;
             if (existing != null && existing.IsFeatBound && grantSlot == null) {
-                throw new InvalidOperationException($"Cannot overwrite feat-bound slot at index {index} (bound to feat '{existing.GrantSlot?.ToString() ?? existing.FeatSlot}').");
+                throw new InvalidOperationException($"Cannot overwrite feat-bound slot at index {index} (bound to feat '{existing.GrantSlot}').");
             }
             if (existing != null && !string.IsNullOrEmpty(existing.Element)) {
                 ResetElementParameters(existing.Element);
@@ -593,7 +593,7 @@ namespace PlayMore35.Subsystems {
                 var existing = group[flatIndex];
                 if (existing != null) {
                     if (existing.IsFeatBound) {
-                        throw new InvalidOperationException($"Cannot clear feat-bound slot at index {index} (bound to feat '{existing.GrantSlot?.ToString() ?? existing.FeatSlot}').");
+                        throw new InvalidOperationException($"Cannot clear feat-bound slot at index {index} (bound to feat '{existing.GrantSlot}').");
                     }
                     if (!string.IsNullOrEmpty(existing.Element)) {
                         ResetElementParameters(existing.Element);

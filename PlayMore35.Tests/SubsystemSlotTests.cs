@@ -17,46 +17,42 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void ParameterizedConstructor_SetsGrantSlot() {
             var grantKey = ProgressionSlotKey.Class("Warblade", 1);
-            var slot = new SubsystemSlot("Steel Wind", "available", "Warblade", null, grantKey);
+            var slot = new SubsystemSlot("Steel Wind", "available", "Warblade", grantKey);
 
             Assert.AreEqual("Steel Wind", slot.Element);
             Assert.AreEqual("available", slot.State);
             Assert.AreEqual("Warblade", slot.Source);
-            Assert.IsNull(slot.FeatSlot);
             Assert.AreEqual(grantKey, slot.GrantSlot);
         }
 
         [TestMethod]
         public void IsGrantedByEquippedItem_DerivedFromItemGrantSlot() {
-            var itemSlot = new SubsystemSlot("Iron Heart Surge", "available", "Item", null, ProgressionSlotKey.Item("Crown of White Raven"));
+            var itemSlot = new SubsystemSlot("Iron Heart Surge", "available", "Item", ProgressionSlotKey.Item("Crown of White Raven"));
             Assert.IsTrue(itemSlot.IsGrantedByEquippedItem);
 
-            var classSlot = new SubsystemSlot("Steel Wind", "available", "Warblade", null, ProgressionSlotKey.Class("Warblade", 1));
+            var classSlot = new SubsystemSlot("Steel Wind", "available", "Warblade", ProgressionSlotKey.Class("Warblade", 1));
             Assert.IsFalse(classSlot.IsGrantedByEquippedItem);
 
-            var advancementSlot = new SubsystemSlot("Burning Blade", "available", "Advancement", null, ProgressionSlotKey.Advancement(1));
+            var advancementSlot = new SubsystemSlot("Burning Blade", "available", "Advancement", ProgressionSlotKey.Advancement(1));
             Assert.IsFalse(advancementSlot.IsGrantedByEquippedItem);
         }
 
         [TestMethod]
-        public void IsGrantedByEquippedItem_RetainsLegacyFallbacks() {
-            var legacyPrefix = new SubsystemSlot("Iron Heart Surge", "available", null, "Equipped:Crown of White Raven");
-            Assert.IsTrue(legacyPrefix.IsGrantedByEquippedItem);
-
-            var legacySourceItem = new SubsystemSlot("Iron Heart Surge", "available", "Item", null);
+        public void IsGrantedByEquippedItem_RecognizesSourceFallbacks() {
+            var legacySourceItem = new SubsystemSlot("Iron Heart Surge", "available", "Item");
             Assert.IsTrue(legacySourceItem.IsGrantedByEquippedItem);
 
-            var legacySourceEquipped = new SubsystemSlot("Iron Heart Surge", "available", "Equipped", null);
+            var legacySourceEquipped = new SubsystemSlot("Iron Heart Surge", "available", "Equipped");
             Assert.IsTrue(legacySourceEquipped.IsGrantedByEquippedItem);
 
-            var normalSlot = new SubsystemSlot("Steel Wind", "available", "Warblade", "Level 1");
+            var normalSlot = new SubsystemSlot("Steel Wind", "available", "Warblade");
             Assert.IsFalse(normalSlot.IsGrantedByEquippedItem);
         }
 
         [TestMethod]
         public void JsonRoundTrip_WithGrantSlot_SerializesAndDeserializes() {
             var grantKey = ProgressionSlotKey.Item("Crown of White Raven");
-            var original = new SubsystemSlot("Iron Heart Surge", "available", "Item", null, grantKey);
+            var original = new SubsystemSlot("Iron Heart Surge", "available", "Item", grantKey);
 
             var json = (JObject)original.ToJson();
             Assert.IsNotNull(json["slot"]);
@@ -90,10 +86,10 @@ namespace PlayMore35.Tests {
             var key1 = ProgressionSlotKey.Class("Warblade", 1);
             var key2 = ProgressionSlotKey.Class("Warblade", 2);
 
-            var slot1 = new SubsystemSlot("Steel Wind", "available", "Warblade", null, key1);
-            var slot2 = new SubsystemSlot("Steel Wind", "available", "Warblade", null, key1);
-            var slotDiffGrant = new SubsystemSlot("Steel Wind", "available", "Warblade", null, key2);
-            var slotNullGrant = new SubsystemSlot("Steel Wind", "available", "Warblade", null, null);
+            var slot1 = new SubsystemSlot("Steel Wind", "available", "Warblade", key1);
+            var slot2 = new SubsystemSlot("Steel Wind", "available", "Warblade", key1);
+            var slotDiffGrant = new SubsystemSlot("Steel Wind", "available", "Warblade", key2);
+            var slotNullGrant = new SubsystemSlot("Steel Wind", "available", "Warblade");
 
             Assert.AreEqual(slot1, slot2);
             Assert.AreEqual(slot1.GetHashCode(), slot2.GetHashCode());
