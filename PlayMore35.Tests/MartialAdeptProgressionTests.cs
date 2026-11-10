@@ -196,7 +196,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             character.classLevels.Clear();
             for (int i = 0; i < 4; i++) character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Study";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Martial Study"));
 
             var session = new CharacterSession(character, catalog);
 
@@ -217,7 +217,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             character.classLevels.Clear();
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Study";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Martial Study"));
 
             var session = new CharacterSession(character, catalog);
 
@@ -239,8 +239,8 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "human" };
             character.classLevels.Clear();
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Study";
-            character.feats["Human"] = "Martial Stance";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Martial Study"));
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Race("human", 1), "Martial Stance"));
 
             var session = new CharacterSession(character, catalog);
 
@@ -262,8 +262,8 @@ namespace PlayMore35.Tests {
             var character = new Character();
             character.classLevels.Clear();
             for (int i = 0; i < 6; i++) character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Study";
-            character.feats["Level 3"] = "Martial Stance";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Martial Study"));
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(3), "Martial Stance"));
 
             var session = new CharacterSession(character, catalog);
 

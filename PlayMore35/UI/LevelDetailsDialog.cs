@@ -22,14 +22,14 @@ namespace PlayMore35 {
         private int levelIndex;
         private List<Label> slotNames = new List<Label>();
         private List<ComboBox> feats = new List<ComboBox>();
-        private Dictionary<string, Label> choiceLabels = new Dictionary<string, Label>();
-        private Dictionary<string, Control> featChoices = new Dictionary<string, Control>();
+        private Dictionary<ProgressionSlotKey, Label> choiceLabels = new Dictionary<ProgressionSlotKey, Label>();
+        private Dictionary<ProgressionSlotKey, Control> featChoices = new Dictionary<ProgressionSlotKey, Control>();
 
         private ElementReceptorControl activeReceptor;
         private ISubsystemElementPicker activePicker;
 
         private class FeatSlotChoiceState {
-            public string FeatSlot;
+            public ProgressionSlotKey FeatSlot;
             public string FeatName;
             public Feat FeatDef;
             public Control SingleChoiceControl;
@@ -43,33 +43,33 @@ namespace PlayMore35 {
         }
 
         public class ElementReceptorBinding {
-            public string FeatSlot { get; }
+            public ProgressionSlotKey FeatSlot { get; }
             public ChoiceDescriptor Descriptor { get; }
 
-            public ElementReceptorBinding(string featSlot, ChoiceDescriptor descriptor) {
-                FeatSlot = featSlot ?? "";
+            public ElementReceptorBinding(ProgressionSlotKey featSlot, ChoiceDescriptor descriptor) {
+                FeatSlot = featSlot;
                 Descriptor = descriptor;
             }
 
             public override string ToString() => $"{FeatSlot}:{Descriptor?.Id}";
             public override bool Equals(object obj) {
                 if (obj is ElementReceptorBinding other) {
-                    return string.Equals(FeatSlot, other.FeatSlot, StringComparison.OrdinalIgnoreCase) &&
+                    return Equals(FeatSlot, other.FeatSlot) &&
                            string.Equals(Descriptor?.Id, other.Descriptor?.Id, StringComparison.OrdinalIgnoreCase);
                 }
                 if (obj is string str) {
-                    return string.Equals($"{FeatSlot}:{Descriptor?.Id}", str, StringComparison.OrdinalIgnoreCase);
+                    return string.Equals(ToString(), str, StringComparison.OrdinalIgnoreCase);
                 }
                 return false;
             }
 
-            public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode($"{FeatSlot}:{Descriptor?.Id}");
+            public override int GetHashCode() => (FeatSlot != null ? FeatSlot.GetHashCode() : 0) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Descriptor?.Id ?? "");
         }
 
         private readonly Dictionary<ElementReceptorControl, ElementReceptorBinding> receptorBindings = new Dictionary<ElementReceptorControl, ElementReceptorBinding>();
 
-        private Dictionary<string, FeatSlotChoiceState> slotChoiceStates = new Dictionary<string, FeatSlotChoiceState>();
-        private Dictionary<string, List<Control>> dynamicSlotControls = new Dictionary<string, List<Control>>();
+        private Dictionary<ProgressionSlotKey, FeatSlotChoiceState> slotChoiceStates = new Dictionary<ProgressionSlotKey, FeatSlotChoiceState>();
+        private Dictionary<ProgressionSlotKey, List<Control>> dynamicSlotControls = new Dictionary<ProgressionSlotKey, List<Control>>();
 
         public LevelDetailsDialog(ICharacterSession session, SubsystemUIRegistry? uiRegistry = null) {
             InitializeComponent();
@@ -108,13 +108,13 @@ namespace PlayMore35 {
             dynamicSlotControls.Clear();
             slotChoiceStates.Clear();
 
-            SortedDictionary<int, List<string>> featSlots = session.GetFeatSlots();
+            SortedDictionary<int, List<ProgressionSlotKey>> featSlots = session.GetFeatSlots();
             if (!featSlots.ContainsKey(levelIndex + 1)) {
                 return;
             }
 
             int featLeft = cboFeat1.Left;
-            foreach (string featSlot in featSlots[levelIndex + 1]) {
+            foreach (ProgressionSlotKey featSlot in featSlots[levelIndex + 1]) {
                 ComboBox featBox = new ComboBox {
                     Top = cboFeat1.Top,
                     Left = featLeft,
@@ -124,10 +124,9 @@ namespace PlayMore35 {
                 foreach (string availableFeat in availableFeats) {
                     featBox.Items.Add(availableFeat);
                 }
-                if (session.Character.feats.ContainsKey(featSlot)) {
-                    string featName = session.Character.feats[featSlot];
+                string? featName = session.GetFeat(featSlot);
+                if (!string.IsNullOrEmpty(featName)) {
                     featBox.SelectedItem = featName;
-
                     PrepareFeatChoice(featName, featSlot, featLeft);
                 }
                 featBox.SelectedValueChanged += SelectFeat(featSlot, featLeft);
@@ -183,7 +182,7 @@ namespace PlayMore35 {
             return formattedText.Trim();
         }
 
-        private void PrepareFeatChoice(string featName, string featSlot, int left) {
+        private void PrepareFeatChoice(string featName, ProgressionSlotKey featSlot, int left) {
             CollapsePickerHost();
             if (dynamicSlotControls.TryGetValue(featSlot, out var existingControls)) {
                 foreach (var c in existingControls) {
@@ -260,8 +259,9 @@ namespace PlayMore35 {
                     Tag = featSlot,
                 };
             }
-            if (session.Character.featChoices.ContainsKey(featSlot)) {
-                choiceBox.Text = session.Character.featChoices[featSlot];
+            string? savedChoice = session.GetFeatChoice(featSlot, "");
+            if (!string.IsNullOrEmpty(savedChoice)) {
+                choiceBox.Text = savedChoice;
             }
             slotControls.Add(choiceBox);
             Controls.Add(choiceBox);
@@ -273,7 +273,7 @@ namespace PlayMore35 {
             UpdateWarnings();
         }
 
-        private void PrepareDeclarativeChoices(Feat featDef, string featSlot, int left) {
+        private void PrepareDeclarativeChoices(Feat featDef, ProgressionSlotKey featSlot, int left) {
             var slotControls = new List<Control>();
             var choiceState = new FeatSlotChoiceState {
                 FeatSlot = featSlot,
@@ -382,10 +382,12 @@ namespace PlayMore35 {
                                 ProgressionChoiceDomain.Feat,
                                 deliveredName,
                                 acquisitionLevel: slotLevel,
-                                slotKey: featSlot,
+                                slotKey: featSlot.ToString(),
                                 targetSource: target,
                                 descriptor: desc,
-                                currentChoices: currentChoices
+                                currentChoices: currentChoices,
+                                slot: featSlot,
+                                overlayAssignments: GetCurrentFeatAssignments()
                             );
                             var warnings = session.ValidateProgressionChoice(progContext);
                             if (warnings != null && warnings.Count > 0) {
@@ -452,10 +454,12 @@ namespace PlayMore35 {
                     ProgressionChoiceDomain.Feat,
                     selectedValue,
                     acquisitionLevel: slotLevel,
-                    slotKey: state.FeatSlot,
+                    slotKey: state.FeatSlot.ToString(),
                     targetSource: target,
                     descriptor: desc,
-                    currentChoices: currentChoices
+                    currentChoices: currentChoices,
+                    slot: state.FeatSlot,
+                    overlayAssignments: GetCurrentFeatAssignments()
                 );
                 var warnings = session.ValidateProgressionChoice(progContext);
                 if (warnings.Count > 0) {
@@ -476,7 +480,7 @@ namespace PlayMore35 {
             PrepareFeats();
         }
 
-        public EventHandler SelectFeat(string featSlot, int left) {
+        public EventHandler SelectFeat(ProgressionSlotKey featSlot, int left) {
             return (object sender, EventArgs e) => {
                 PrepareFeatChoice(
                     ((Control)sender).Text,
@@ -490,16 +494,53 @@ namespace PlayMore35 {
             return cboClass.Text;
         }
 
-        public Dictionary<string, string> GetFeats() {
+        public Dictionary<ProgressionSlotKey, string> GetFeats() {
             return Enumerable.Range(0, feats.Count)
                 .Where(i => feats[i].Text.Any())
-                .ToDictionary(i => (string) feats[i].Tag, i => feats[i].Text);
+                .ToDictionary(i => (ProgressionSlotKey) feats[i].Tag, i => feats[i].Text);
+        }
+
+        private List<FeatAssignment> GetCurrentFeatAssignments() {
+            var assignments = new List<FeatAssignment>();
+            foreach (var state in slotChoiceStates.Values) {
+                if (string.IsNullOrWhiteSpace(state.FeatName)) continue;
+                var choices = new Dictionary<string, string>();
+                if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
+                    foreach (var desc in state.FeatDef.Choices) {
+                        string val = "";
+                        if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
+                            if (ctrl is ElementReceptorControl r) {
+                                val = r.SelectedElement?.Name ?? "";
+                            } else if (ctrl is ComboBox cbo) {
+                                if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                                    val = ExtractBracketedName(cbo.Text);
+                                } else {
+                                    val = cbo.Text;
+                                }
+                            } else {
+                                val = ctrl.Text;
+                            }
+                        } else if (state.AutoResolvedChoices.TryGetValue(desc.Id, out var autoVal)) {
+                            val = autoVal;
+                        }
+                        if (!string.IsNullOrWhiteSpace(val)) {
+                            choices[desc.Id] = val;
+                        }
+                    }
+                } else if (!state.IsMultiChoice) {
+                    if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
+                        choices[""] = state.SingleChoiceControl.Text;
+                    }
+                }
+                assignments.Add(new FeatAssignment(state.FeatSlot, state.FeatName, choices));
+            }
+            return assignments;
         }
 
         private Dictionary<string, string> GetCurrentProgressionChoices() {
             var choices = GetFeatChoices();
             foreach (var feat in GetFeats()) {
-                choices[feat.Key] = feat.Value;
+                choices[feat.Key.ToString()] = feat.Value;
             }
             return choices;
         }
@@ -509,7 +550,7 @@ namespace PlayMore35 {
             foreach (var state in slotChoiceStates.Values) {
                 if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
                     if (!string.IsNullOrWhiteSpace(state.FeatName)) {
-                        result[state.FeatSlot] = state.FeatName;
+                        result[state.FeatSlot.ToString()] = state.FeatName;
                     }
                     foreach (var desc in state.FeatDef.Choices) {
                         string val = "";
@@ -534,7 +575,7 @@ namespace PlayMore35 {
                     }
                 } else if (!state.IsMultiChoice) {
                     if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
-                        result[state.FeatSlot] = state.SingleChoiceControl.Text;
+                        result[state.FeatSlot.ToString()] = state.SingleChoiceControl.Text;
                     }
                 }
             }
@@ -547,27 +588,55 @@ namespace PlayMore35 {
                 if (!string.IsNullOrWhiteSpace(selectedClass)) {
                     c.classLevels[levelIndex] = selectedClass;
                 }
-                foreach (var feat in GetFeats()) {
-                    c.feats[feat.Key] = feat.Value;
-                }
                 foreach (ComboBox featBox in feats) {
-                    string slot = (string)featBox.Tag;
+                    var slot = (ProgressionSlotKey)featBox.Tag;
                     if (string.IsNullOrWhiteSpace(featBox.Text)) {
-                        c.feats.Remove(slot);
+                        c.feats.RemoveAll(fa => fa.Slot.Equals(slot));
                     }
                 }
-                foreach (ComboBox featBox in feats) {
-                    string slot = (string)featBox.Tag;
-                    var keysToRemove = c.featChoices.Keys
-                        .Where(k => k == slot || k.StartsWith(slot + ":"))
-                        .ToList();
-                    foreach (var k in keysToRemove) {
-                        c.featChoices.Remove(k);
+                foreach (var kvp in GetFeats()) {
+                    var slot = kvp.Key;
+                    var featName = kvp.Value;
+                    var existing = c.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+                    if (existing != null) {
+                        if (!string.Equals(existing.Feat, featName, StringComparison.OrdinalIgnoreCase)) {
+                            existing.Feat = featName;
+                            existing.Choices.Clear();
+                        }
+                    } else {
+                        existing = new FeatAssignment(slot, featName);
+                        c.feats.Add(existing);
                     }
                 }
-                foreach (var featChoice in GetFeatChoices()) {
-                    if (!string.IsNullOrWhiteSpace(featChoice.Value)) {
-                        c.featChoices[featChoice.Key] = featChoice.Value;
+                foreach (var state in slotChoiceStates.Values) {
+                    var existing = c.feats.FirstOrDefault(fa => fa.Slot.Equals(state.FeatSlot));
+                    if (existing == null) continue;
+                    if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
+                        foreach (var desc in state.FeatDef.Choices) {
+                            string val = "";
+                            if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
+                                if (ctrl is ElementReceptorControl r) {
+                                    val = r.SelectedElement?.Name ?? "";
+                                } else if (ctrl is ComboBox cbo) {
+                                    if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
+                                        val = ExtractBracketedName(cbo.Text);
+                                    } else {
+                                        val = cbo.Text;
+                                    }
+                                } else {
+                                    val = ctrl.Text;
+                                }
+                            } else if (state.AutoResolvedChoices.TryGetValue(desc.Id, out var autoVal)) {
+                                val = autoVal;
+                            }
+                            if (!string.IsNullOrWhiteSpace(val)) {
+                                existing.Choices[desc.Id] = val;
+                            }
+                        }
+                    } else if (!state.IsMultiChoice) {
+                        if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
+                            existing.Choices[""] = state.SingleChoiceControl.Text;
+                        }
                     }
                 }
             });
@@ -605,10 +674,12 @@ namespace PlayMore35 {
                         ProgressionChoiceDomain.Feat,
                         elem.Name,
                         acquisitionLevel: slotLevel,
-                        slotKey: state.FeatSlot,
+                        slotKey: state.FeatSlot.ToString(),
                         targetSource: targetSource,
                         descriptor: desc,
-                        currentChoices: currentChoices
+                        currentChoices: currentChoices,
+                        slot: state.FeatSlot,
+                        overlayAssignments: GetCurrentFeatAssignments()
                     );
                     return session.ValidateProgressionChoice(progContext);
                 }
@@ -622,10 +693,12 @@ namespace PlayMore35 {
                         ProgressionChoiceDomain.Feat,
                         elem.Name,
                         acquisitionLevel: slotLevel,
-                        slotKey: state.FeatSlot,
+                        slotKey: state.FeatSlot.ToString(),
                         targetSource: targetSource,
                         descriptor: desc,
-                        currentChoices: GetCurrentProgressionChoices()
+                        currentChoices: GetCurrentProgressionChoices(),
+                        slot: state.FeatSlot,
+                        overlayAssignments: GetCurrentFeatAssignments()
                     );
                     var warnings = session.ValidateProgressionChoice(progContext);
                     if (warnings != null && warnings.Count > 0) {

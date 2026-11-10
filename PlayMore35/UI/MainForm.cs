@@ -196,10 +196,10 @@ namespace PlayMore35 {
             };
         }
 
-        private EventHandler SelectFeat(string slot) {
+        private EventHandler SelectFeat(ProgressionSlotKey slot) {
             return (object sender, EventArgs e) => {
                 ComboBox featBox = ((ComboBox)sender);
-                session.Mutate(c => c.feats[slot] = featBox.Text);
+                session.SetFeat(slot, featBox.Text);
                 featBox.Font = new Font(featBox.Font, FontStyle.Regular);
             };
         }
@@ -440,7 +440,7 @@ namespace PlayMore35 {
             foreach (var level in session.GetFeatSlots()) {
                 int featTop = levels[level.Key - 1].Top;
                 int featLeft = cboFeat.Left;
-                foreach (string slot in level.Value) {
+                foreach (ProgressionSlotKey slot in level.Value) {
                     ComboBox featBox = new ComboBox {
                         AutoCompleteMode = AutoCompleteMode.Append,
                         AutoCompleteSource = AutoCompleteSource.ListItems,
@@ -449,11 +449,12 @@ namespace PlayMore35 {
                         Size = cboFeat.Size,
                         Font = scala // why do i need to do this?
                     };
-                    if (session.Character.feats.ContainsKey(slot)) {
-                        featBox.Text = session.Character.feats[slot];
+                    string? featName = session.GetFeat(slot);
+                    if (!string.IsNullOrEmpty(featName)) {
+                        featBox.Text = featName;
                         featBox.Font = new Font(featBox.Font, FontStyle.Regular);
                     } else {
-                        featBox.Text = slot;
+                        featBox.Text = slot.Source;
                         featBox.Font = new Font(featBox.Font, FontStyle.Italic);
                     }
 

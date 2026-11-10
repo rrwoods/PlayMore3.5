@@ -16,8 +16,7 @@ namespace PlayMore35.CharacterChoices {
         IReadOnlyDictionary<int, string> abilityScoreIncrements { get; }
         IReadOnlyList<int> rolledHitDice { get; }
         IReadOnlyDictionary<string, List<int>> skillRanks { get; }
-        IReadOnlyDictionary<string, string> feats { get; }
-        IReadOnlyDictionary<string, string> featChoices { get; }
+        IReadOnlyList<FeatAssignment> feats { get; }
         IReadOnlyList<GpTransaction> transactions { get; }
         IReadOnlyDictionary<string, InventoryLocation> inventory { get; }
         EquippedChoices equipped { get; }

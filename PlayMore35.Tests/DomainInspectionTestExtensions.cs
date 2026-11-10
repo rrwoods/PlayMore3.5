@@ -14,18 +14,11 @@ namespace PlayMore35.Tests {
             return (IEnumerable<Effect>)field.GetValue(pool);
         }
 
-        public static IReadOnlyDictionary<string, string> GetRememberedFeats(this CharacterSession session) {
+        public static IReadOnlyDictionary<ProgressionSlotKey, FeatAssignment> GetRememberedFeats(this CharacterSession session) {
             if (session == null) throw new ArgumentNullException(nameof(session));
             var field = typeof(CharacterSession).GetField("rememberedFeats", BindingFlags.NonPublic | BindingFlags.Instance);
             if (field == null) throw new InvalidOperationException("Field 'rememberedFeats' not found on CharacterSession.");
-            return (IReadOnlyDictionary<string, string>)field.GetValue(session);
-        }
-
-        public static IReadOnlyDictionary<string, string> GetRememberedFeatChoices(this CharacterSession session) {
-            if (session == null) throw new ArgumentNullException(nameof(session));
-            var field = typeof(CharacterSession).GetField("rememberedFeatChoices", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field == null) throw new InvalidOperationException("Field 'rememberedFeatChoices' not found on CharacterSession.");
-            return (IReadOnlyDictionary<string, string>)field.GetValue(session);
+            return (IReadOnlyDictionary<ProgressionSlotKey, FeatAssignment>)field.GetValue(session);
         }
     }
 }

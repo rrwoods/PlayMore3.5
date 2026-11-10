@@ -67,8 +67,9 @@ namespace PlayMore35.Tests {
                     dialog.PrepareLevel(3);
 
                     var featChoices = dialog.GetFeatChoices();
+                    var fighter2Slot = ProgressionSlotKey.Class("Fighter", 2);
                     Assert.IsTrue(
-                        featChoices.TryGetValue("Fighter 2", out var weaponChoice),
+                        featChoices.TryGetValue(fighter2Slot.ToString(), out var weaponChoice),
                         $"Expected 'Fighter 2' feat choice to be present when opening level 4 after level {firstLevelIndex + 1}."
                     );
                     Assert.AreEqual(
@@ -85,9 +86,11 @@ namespace PlayMore35.Tests {
             FormUtils.availableFeats = catalog.Feats.Keys.OrderBy(x => x).ToList();
             var character = new Character();
             character.classLevels = new System.Collections.Generic.List<string> { "Fighter", "Fighter" };
-            character.feats["Fighter 1"] = "Endurance";
-            character.feats["Fighter 2"] = "Weapon Focus";
-            character.featChoices["Fighter 2"] = "dagger";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Class("Fighter", 1), "Endurance"));
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Class("Fighter", 2),
+                "Weapon Focus",
+                new System.Collections.Generic.Dictionary<string, string> { { "", "dagger" } }));
             return new CharacterSession(character, catalog);
         }
 
@@ -118,14 +121,16 @@ namespace PlayMore35.Tests {
                 SimulateLevelDetailsClickAndClose(dialog, 0);
                 dialog.PrepareLevel(1);
 
-                Assert.IsTrue(
-                    session.Character.featChoices.TryGetValue("Fighter 2", out var choiceInSession),
-                    "Expected 'Fighter 2' feat choice to remain in Character.featChoices after closing Level 1 dialog."
+                var fighter2Slot = ProgressionSlotKey.Class("Fighter", 2);
+                var choiceInSession = session.GetFeatChoice(fighter2Slot, "");
+                Assert.IsNotNull(
+                    choiceInSession,
+                    "Expected 'Fighter 2' feat choice to remain in Character after closing Level 1 dialog."
                 );
                 Assert.AreEqual("dagger", choiceInSession);
 
                 var dialogChoices = dialog.GetFeatChoices();
-                Assert.AreEqual("dagger", dialogChoices["Fighter 2"]);
+                Assert.AreEqual("dagger", dialogChoices[fighter2Slot.ToString()]);
             }
         }
 
@@ -135,15 +140,16 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(1);
 
+                var fighter2Slot = ProgressionSlotKey.Class("Fighter", 2);
                 var fighter2Combo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Fighter 2") && cbo.Items.Contains("Endurance"));
+                    .First(cbo => Equals(cbo.Tag, fighter2Slot) && cbo.Items.Contains("Endurance"));
                 fighter2Combo.SelectedItem = "Endurance";
 
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Endurance", session.Character.feats["Fighter 2"]);
-                Assert.IsFalse(
-                    session.Character.featChoices.ContainsKey("Fighter 2"),
+                Assert.AreEqual("Endurance", session.GetFeat(fighter2Slot));
+                Assert.IsNull(
+                    session.GetFeatChoice(fighter2Slot, ""),
                     "Changing 'Fighter 2' from Weapon Focus to Endurance should remove its stale feat choice."
                 );
             }
@@ -166,19 +172,20 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
+                var slot1 = ProgressionSlotKey.Advancement(1);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Martial Study";
 
                 // Class dropdown should not be rendered
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, "Level 1:class"))
+                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
 
                 // Maneuver receptor should be rendered
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 1:maneuver"));
+                    .First(r => Equals(r.Tag, $"{slot1}:maneuver"));
                 Assert.AreEqual(ReceptorState.Unmade, receptor.ViewModel.State);
 
                 // Clicking receptor activates picker
@@ -193,8 +200,8 @@ namespace PlayMore35.Tests {
                 picker.ViewModel.SelectElementByName("Steel Wind");
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Feats", session.Character.featChoices["Level 1:class"]);
-                Assert.AreEqual("Steel Wind", session.Character.featChoices["Level 1:maneuver"]);
+                Assert.AreEqual("Feats", session.GetFeatChoice(slot1, "class"));
+                Assert.AreEqual("Steel Wind", session.GetFeatChoice(slot1, "maneuver"));
             }
         }
 
@@ -205,25 +212,26 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Study";
 
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, "Level 3:class"))
+                    .Where(cbo => Equals(cbo.Tag, $"{slot3}:class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 adept class exists.");
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:maneuver"));
+                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 picker.ViewModel.SelectElementByName("Steel Wind");
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Warblade", session.Character.featChoices["Level 3:class"]);
-                Assert.AreEqual("Steel Wind", session.Character.featChoices["Level 3:maneuver"]);
+                Assert.AreEqual("Warblade", session.GetFeatChoice(slot3, "class"));
+                Assert.AreEqual("Steel Wind", session.GetFeatChoice(slot3, "maneuver"));
             }
         }
 
@@ -234,12 +242,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Study";
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ adept classes exist.");
                 CollectionAssert.AreEquivalent(
                     new[] { "Crusader", "Warblade" },
@@ -249,7 +258,7 @@ namespace PlayMore35.Tests {
 
                 classCombo.SelectedItem = "Crusader";
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:maneuver"));
+                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -257,8 +266,8 @@ namespace PlayMore35.Tests {
 
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Crusader", session.Character.featChoices["Level 3:class"]);
-                Assert.AreEqual("Crusader's Strike", session.Character.featChoices["Level 3:maneuver"]);
+                Assert.AreEqual("Crusader", session.GetFeatChoice(slot3, "class"));
+                Assert.AreEqual("Crusader's Strike", session.GetFeatChoice(slot3, "maneuver"));
             }
         }
 
@@ -269,12 +278,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
+                var slot1 = ProgressionSlotKey.Advancement(1);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Martial Study";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 1:maneuver"));
+                    .First(r => Equals(r.Tag, $"{slot1}:maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -302,12 +312,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Study";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:maneuver"));
+                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -323,21 +334,24 @@ namespace PlayMore35.Tests {
         public void MartialStudy_PrerequisiteMetByEarlierManeuver_NoWarningBadge() {
             // Level 3 Swordsage who already took Burning Blade at Level 1
             var session = CreateAdeptSession("Swordsage", "Swordsage", "Swordsage");
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            var slot3 = ProgressionSlotKey.Advancement(3);
             session.Mutate(c => {
-                c.feats["Level 1"] = "Martial Study";
-                c.featChoices["Level 1:class"] = "Swordsage";
-                c.featChoices["Level 1:maneuver"] = "Burning Blade";
+                c.feats.Add(new FeatAssignment(
+                    slot1,
+                    "Martial Study",
+                    new System.Collections.Generic.Dictionary<string, string> { { "class", "Swordsage" }, { "maneuver", "Burning Blade" } }));
             });
 
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Study";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:maneuver"));
+                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -350,24 +364,26 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void MartialStudy_ReplaceFeatWithOtherFeat_RemovesStaleCompositeChoices() {
             var session = CreateAdeptSession("Fighter");
+            var slot1 = ProgressionSlotKey.Advancement(1);
             session.Mutate(c => {
-                c.feats["Level 1"] = "Martial Study";
-                c.featChoices["Level 1:class"] = "Feats";
-                c.featChoices["Level 1:maneuver"] = "Steel Wind";
+                c.feats.Add(new FeatAssignment(
+                    slot1,
+                    "Martial Study",
+                    new System.Collections.Generic.Dictionary<string, string> { { "class", "Feats" }, { "maneuver", "Steel Wind" } }));
             });
 
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Endurance";
 
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Endurance", session.Character.feats["Level 1"]);
-                Assert.IsFalse(session.Character.featChoices.ContainsKey("Level 1:class"));
-                Assert.IsFalse(session.Character.featChoices.ContainsKey("Level 1:maneuver"));
+                Assert.AreEqual("Endurance", session.GetFeat(slot1));
+                Assert.IsNull(session.GetFeatChoice(slot1, "class"));
+                Assert.IsNull(session.GetFeatChoice(slot1, "maneuver"));
             }
         }
 
@@ -378,19 +394,20 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
+                var slot1 = ProgressionSlotKey.Advancement(1);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Martial Stance";
 
                 // Class dropdown should not be rendered
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, "Level 1:class"))
+                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
 
                 // Stance receptor should be rendered
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 1:stance"));
+                    .First(r => Equals(r.Tag, $"{slot1}:stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -401,8 +418,8 @@ namespace PlayMore35.Tests {
                 picker.ViewModel.SelectElementByName("Punishing Stance");
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Feats", session.Character.featChoices["Level 1:class"]);
-                Assert.AreEqual("Punishing Stance", session.Character.featChoices["Level 1:stance"]);
+                Assert.AreEqual("Feats", session.GetFeatChoice(slot1, "class"));
+                Assert.AreEqual("Punishing Stance", session.GetFeatChoice(slot1, "stance"));
             }
         }
 
@@ -413,25 +430,26 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Stance";
 
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, "Level 3:class"))
+                    .Where(cbo => Equals(cbo.Tag, $"{slot3}:class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 adept class exists.");
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:stance"));
+                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 picker.ViewModel.SelectElementByName("Punishing Stance");
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Warblade", session.Character.featChoices["Level 3:class"]);
-                Assert.AreEqual("Punishing Stance", session.Character.featChoices["Level 3:stance"]);
+                Assert.AreEqual("Warblade", session.GetFeatChoice(slot3, "class"));
+                Assert.AreEqual("Punishing Stance", session.GetFeatChoice(slot3, "stance"));
             }
         }
 
@@ -442,12 +460,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Stance";
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ adept classes exist.");
                 CollectionAssert.AreEquivalent(
                     new[] { "Crusader", "Warblade" },
@@ -457,7 +476,7 @@ namespace PlayMore35.Tests {
 
                 classCombo.SelectedItem = "Crusader";
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:stance"));
+                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -465,8 +484,8 @@ namespace PlayMore35.Tests {
 
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Crusader", session.Character.featChoices["Level 3:class"]);
-                Assert.AreEqual("Iron Guard's Glare", session.Character.featChoices["Level 3:stance"]);
+                Assert.AreEqual("Crusader", session.GetFeatChoice(slot3, "class"));
+                Assert.AreEqual("Iron Guard's Glare", session.GetFeatChoice(slot3, "stance"));
             }
         }
 
@@ -477,12 +496,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
+                var slot1 = ProgressionSlotKey.Advancement(1);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Martial Stance";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 1:stance"));
+                    .First(r => Equals(r.Tag, $"{slot1}:stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -502,12 +522,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Stance";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:stance"));
+                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -529,12 +550,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = "Martial Stance";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 3:stance"));
+                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -547,24 +569,26 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void MartialStance_ReplaceFeatWithOtherFeat_RemovesStaleCompositeChoices() {
             var session = CreateAdeptSession("Fighter");
+            var slot1 = ProgressionSlotKey.Advancement(1);
             session.Mutate(c => {
-                c.feats["Level 1"] = "Martial Stance";
-                c.featChoices["Level 1:class"] = "Feats";
-                c.featChoices["Level 1:stance"] = "Bolstering Voice";
+                c.feats.Add(new FeatAssignment(
+                    slot1,
+                    "Martial Stance",
+                    new System.Collections.Generic.Dictionary<string, string> { { "class", "Feats" }, { "stance", "Bolstering Voice" } }));
             });
 
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Endurance";
 
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Endurance", session.Character.feats["Level 1"]);
-                Assert.IsFalse(session.Character.featChoices.ContainsKey("Level 1:class"));
-                Assert.IsFalse(session.Character.featChoices.ContainsKey("Level 1:stance"));
+                Assert.AreEqual("Endurance", session.GetFeat(slot1));
+                Assert.IsNull(session.GetFeatChoice(slot1, "class"));
+                Assert.IsNull(session.GetFeatChoice(slot1, "stance"));
             }
         }
 
@@ -575,25 +599,27 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
+                var humanSlot = ProgressionSlotKey.Race("human", 1);
                 // Slot "Human": select Martial Study -> Burning Blade (Desert Wind, 0 prereq)
                 var humanFeatCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Human"));
+                    .First(cbo => Equals(cbo.Tag, humanSlot));
                 humanFeatCombo.SelectedItem = "Martial Study";
 
                 var humanReceptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Human:maneuver"));
+                    .First(r => Equals(r.Tag, $"{humanSlot}:maneuver"));
                 humanReceptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var humanPicker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 humanPicker.ViewModel.SelectElementByName("Burning Blade");
 
+                var level1Slot = ProgressionSlotKey.Advancement(1);
                 // Slot "Level 1": select Martial Stance -> Flame's Blessing (Desert Wind, requires 1 Desert Wind maneuver)
                 var level1FeatCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, level1Slot));
                 level1FeatCombo.SelectedItem = "Martial Stance";
 
                 var level1Receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 1:stance"));
+                    .First(r => Equals(r.Tag, $"{level1Slot}:stance"));
                 level1Receptor.PerformClick();
                 var level1Picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 level1Picker.ViewModel.SelectElementByName("Flame's Blessing");
@@ -656,18 +682,19 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
+                var slot1 = ProgressionSlotKey.Advancement(1);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 // Class dropdown should not be rendered
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, "Level 1:class"))
+                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 eligible classes exist.");
 
                 dialog.SaveChanges();
-                Assert.AreEqual("Feats", session.Character.featChoices["Level 1:class"]);
+                Assert.AreEqual("Feats", session.GetFeatChoice(slot1, "class"));
             }
         }
 
@@ -679,17 +706,18 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, "Level 3:class"))
+                    .Where(cbo => Equals(cbo.Tag, $"{slot3}:class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 eligible class exists.");
 
                 dialog.SaveChanges();
-                Assert.AreEqual("Warblade", session.Character.featChoices["Level 3:class"]);
+                Assert.AreEqual("Warblade", session.GetFeatChoice(slot3, "class"));
             }
         }
 
@@ -701,12 +729,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ eligible classes exist.");
                 CollectionAssert.AreEquivalent(
                     new[] { "Crusader", "Warblade" },
@@ -717,7 +746,7 @@ namespace PlayMore35.Tests {
                 classCombo.SelectedItem = "Crusader";
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Crusader", session.Character.featChoices["Level 3:class"]);
+                Assert.AreEqual("Crusader", session.GetFeatChoice(slot3, "class"));
             }
         }
 
@@ -725,16 +754,19 @@ namespace PlayMore35.Tests {
         public void SyntheticClassTargetedFeat_ExistingChoicePreserved_InitializesSelection() {
             var syntheticFeat = CreateSyntheticClassTargetedFeat();
             var (session, _) = CreateSyntheticFeatSession(syntheticFeat, "Warblade", "Crusader", "Crusader");
+            var slot3 = ProgressionSlotKey.Advancement(3);
             session.Mutate(c => {
-                c.feats["Level 3"] = syntheticFeat.Benefit.Name;
-                c.featChoices["Level 3:class"] = "Crusader";
+                c.feats.Add(new FeatAssignment(
+                    slot3,
+                    syntheticFeat.Benefit.Name,
+                    new System.Collections.Generic.Dictionary<string, string> { { "class", "Crusader" } }));
             });
 
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ eligible classes exist.");
                 Assert.AreEqual("Crusader", classCombo.SelectedItem, "Saved class choice should be selected on load.");
             }
@@ -775,19 +807,20 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0);
 
+                var slot1 = ProgressionSlotKey.Advancement(1);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 // 1. Class dropdown should not be rendered (0 adept classes -> auto-resolves to Feats)
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, "Level 1:class"))
+                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
 
                 // 2. Maneuver receptor should be rendered
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .FirstOrDefault(r => Equals(r.Tag, "Level 1:maneuver"));
+                    .FirstOrDefault(r => Equals(r.Tag, $"{slot1}:maneuver"));
                 Assert.IsNotNull(receptor, "Maneuver receptor should be rendered for SubsystemElements choice.");
 
                 receptor.PerformClick();
@@ -807,8 +840,8 @@ namespace PlayMore35.Tests {
                 picker.ViewModel.SelectElementByName("Steel Wind");
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Feats", session.Character.featChoices["Level 1:class"]);
-                Assert.AreEqual("Steel Wind", session.Character.featChoices["Level 1:maneuver"]);
+                Assert.AreEqual("Feats", session.GetFeatChoice(slot1, "class"));
+                Assert.AreEqual("Steel Wind", session.GetFeatChoice(slot1, "maneuver"));
             }
         }
 
@@ -820,16 +853,17 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(2);
 
+                var slot3 = ProgressionSlotKey.Advancement(3);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 3"));
+                    .First(cbo => Equals(cbo.Tag, slot3));
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, "Level 3:class"));
+                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered for 2+ adept classes.");
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .FirstOrDefault(r => Equals(r.Tag, "Level 3:maneuver"));
+                    .FirstOrDefault(r => Equals(r.Tag, $"{slot3}:maneuver"));
                 Assert.IsNotNull(receptor, "Maneuver receptor should be rendered.");
 
                 classCombo.SelectedItem = "Crusader";
@@ -840,8 +874,8 @@ namespace PlayMore35.Tests {
 
                 dialog.SaveChanges();
 
-                Assert.AreEqual("Crusader", session.Character.featChoices["Level 3:class"]);
-                Assert.AreEqual("Crusader's Strike", session.Character.featChoices["Level 3:maneuver"]);
+                Assert.AreEqual("Crusader", session.GetFeatChoice(slot3, "class"));
+                Assert.AreEqual("Crusader's Strike", session.GetFeatChoice(slot3, "maneuver"));
             }
         }
 
@@ -855,11 +889,14 @@ namespace PlayMore35.Tests {
                 var pickerHost = dialog.PickerHost;
                 Assert.AreEqual(0, pickerHost.Height);
 
+                var slot1 = ProgressionSlotKey.Advancement(1);
+                var humanSlot = ProgressionSlotKey.Race("human", 1);
+
                 // Select Martial Study in Level 1 slot
-                var featCombo = dialog.Controls.OfType<ComboBox>().First(cbo => Equals(cbo.Tag, "Level 1"));
+                var featCombo = dialog.Controls.OfType<ComboBox>().First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Martial Study";
 
-                var receptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => Equals(r.Tag, "Level 1:maneuver"));
+                var receptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => Equals(r.Tag, $"{slot1}:maneuver"));
                 Assert.AreEqual(ReceptorState.Unmade, receptor.ViewModel.State);
                 Assert.IsFalse(receptor.IsActiveSelecting);
 
@@ -879,9 +916,9 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(1, pickerHost.Controls.Count);
 
                 // 4. Test Human slot to verify switching active receptors
-                var humanFeatCombo = dialog.Controls.OfType<ComboBox>().First(cbo => Equals(cbo.Tag, "Human"));
+                var humanFeatCombo = dialog.Controls.OfType<ComboBox>().First(cbo => Equals(cbo.Tag, humanSlot));
                 humanFeatCombo.SelectedItem = "Martial Stance";
-                var humanReceptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => Equals(r.Tag, "Human:stance"));
+                var humanReceptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => Equals(r.Tag, $"{humanSlot}:stance"));
 
                 humanReceptor.PerformClick();
                 Assert.IsTrue(humanReceptor.IsActiveSelecting);

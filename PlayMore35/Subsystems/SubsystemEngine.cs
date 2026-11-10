@@ -118,10 +118,10 @@ namespace PlayMore35.Subsystems {
                 }
 
                 if (context.Character != null) {
-                    foreach (var featKvp in context.Character.feats) {
-                        string featSlot = featKvp.Key;
-                        string featName = featKvp.Value;
-                        if (context.Catalog.TryGetFeat(featName, out var feat) && feat.Subsystems != null && feat.Subsystems.Contains(Id)) {
+                    foreach (var fa in context.Character.feats) {
+                        ProgressionSlotKey featSlot = fa.Slot;
+                        string featName = fa.Feat;
+                        if (!string.IsNullOrWhiteSpace(featName) && context.Catalog.TryGetFeat(featName, out var feat) && feat.Subsystems != null && feat.Subsystems.Contains(Id)) {
                             string src = ResolveFeatTargetSource(featSlot);
                             AddSource(src);
                         }
@@ -281,7 +281,7 @@ namespace PlayMore35.Subsystems {
                     for (int i = 0; i < kvp.Value.Count; i++) {
                         var s = kvp.Value[i];
                         if (s != null) {
-                            var copy = new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot);
+                            var copy = new SubsystemSlot(s.Element, s.State, s.Source, s.GrantSlot);
                             group[i] = copy;
                             if (string.Equals(copy.State, "active", StringComparison.OrdinalIgnoreCase)) {
                                 activeSlotOrder.Add(copy);
@@ -313,7 +313,7 @@ namespace PlayMore35.Subsystems {
                 var list = new List<SubsystemSlot>();
                 for (int i = 0; i <= lastIndex; i++) {
                     var s = slots[i];
-                    list.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                    list.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.GrantSlot));
                 }
                 state.Slots[groupKey] = list;
             }
@@ -562,22 +562,22 @@ namespace PlayMore35.Subsystems {
             }
         }
 
-        public void AssignSlot(string groupName, int index, string element, string? state = null, string? source = null, string? featSlot = null) {
+        public void AssignSlot(string groupName, int index, string element, string? state = null, string? source = null, ProgressionSlotKey? grantSlot = null) {
             var group = GetSlotGroup(groupName);
             if (group == null) throw new ArgumentException($"Slot group '{groupName}' not found in subsystem '{Id}'.");
             string targetState = !string.IsNullOrEmpty(state) ? state : GetDefaultState(groupName);
 
             int flatIndex = ResolveFlatSlotIndex(groupName, index, source, createIfMissing: true);
             var existing = (flatIndex >= 0 && flatIndex < group.Slots.Count) ? group[flatIndex] : null;
-            if (existing != null && existing.IsFeatBound && string.IsNullOrEmpty(featSlot)) {
-                throw new InvalidOperationException($"Cannot overwrite feat-bound slot at index {index} (bound to feat '{existing.FeatSlot}').");
+            if (existing != null && existing.IsFeatBound && grantSlot == null) {
+                throw new InvalidOperationException($"Cannot overwrite feat-bound slot at index {index} (bound to feat '{existing.GrantSlot?.ToString() ?? existing.FeatSlot}').");
             }
             if (existing != null && !string.IsNullOrEmpty(existing.Element)) {
                 ResetElementParameters(existing.Element);
                 activeSlotOrder.Remove(existing);
             }
             ResetElementParameters(element);
-            var newSlot = new SubsystemSlot(element, targetState, source ?? existing?.Source, featSlot);
+            var newSlot = new SubsystemSlot(element, targetState, source ?? existing?.Source, grantSlot);
             group[flatIndex] = newSlot;
             if (string.Equals(targetState, "active", StringComparison.OrdinalIgnoreCase)) {
                 activeSlotOrder.Add(newSlot);
@@ -593,7 +593,7 @@ namespace PlayMore35.Subsystems {
                 var existing = group[flatIndex];
                 if (existing != null) {
                     if (existing.IsFeatBound) {
-                        throw new InvalidOperationException($"Cannot clear feat-bound slot at index {index} (bound to feat '{existing.FeatSlot}').");
+                        throw new InvalidOperationException($"Cannot clear feat-bound slot at index {index} (bound to feat '{existing.GrantSlot?.ToString() ?? existing.FeatSlot}').");
                     }
                     if (!string.IsNullOrEmpty(existing.Element)) {
                         ResetElementParameters(existing.Element);
@@ -665,8 +665,8 @@ namespace PlayMore35.Subsystems {
         public TimelineRefreshRequirement ExecuteVerb(string verbName, string? slotGroup = null, int? slotIndex = null, string? elementName = null, string? source = null, List<int>? selectedIndices = null) =>
             _verbPipeline.ExecuteVerb(verbName, slotGroup, slotIndex, elementName, source, selectedIndices);
 
-        private string ResolveFeatTargetSource(string? featSlot = null) {
-            if (context is ICharacterSession session && !string.IsNullOrEmpty(featSlot)) {
+        private string ResolveFeatTargetSource(ProgressionSlotKey? featSlot = null) {
+            if (context is ICharacterSession session && featSlot != null) {
                 return session.ResolveFeatTargetSource(featSlot);
             }
             if (context?.Character != null && context?.Catalog != null) {
@@ -680,7 +680,7 @@ namespace PlayMore35.Subsystems {
             return "Feats";
         }
 
-        public void GrantSlot(string slotGroup, string element, string source, string? featSlot) {
+        public void GrantSlot(string slotGroup, string element, string source, ProgressionSlotKey? grantSlot = null) {
             if (string.IsNullOrEmpty(slotGroup) || string.IsNullOrEmpty(element) || string.IsNullOrEmpty(source)) return;
             var group = GetSlotGroup(slotGroup);
             if (group == null) return;
@@ -691,11 +691,11 @@ namespace PlayMore35.Subsystems {
                 int totalGrantedForSource = group.RawSlots.Count(s =>
                     s != null &&
                     string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase) &&
-                    !string.IsNullOrEmpty(s.FeatSlot));
+                    s.IsFeatBound);
 
                 bool isNew = !group.RawSlots.Any(s =>
                     s != null &&
-                    string.Equals(s.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase) &&
+                    grantSlot != null && s.GrantSlot != null && s.GrantSlot.Equals(grantSlot) &&
                     string.Equals(s.Source, source, StringComparison.OrdinalIgnoreCase));
 
                 if (isNew) {
@@ -709,7 +709,7 @@ namespace PlayMore35.Subsystems {
                 int existingSourceIdx = -1;
                 for (int idx = 0; idx < sourceIndices.Count; idx++) {
                     var s = group[sourceIndices[idx]];
-                    if (!string.IsNullOrEmpty(featSlot) && string.Equals(s.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase)) {
+                    if (grantSlot != null && s.GrantSlot != null && s.GrantSlot.Equals(grantSlot)) {
                         existingSlot = s;
                         existingSourceIdx = idx;
                         break;
@@ -741,7 +741,7 @@ namespace PlayMore35.Subsystems {
                     int targetFlat = -1;
                     for (int idx = baseClassCapacity; idx < updatedIndices.Count; idx++) {
                         var candidate = group[updatedIndices[idx]];
-                        if (string.IsNullOrEmpty(candidate.Element) && string.IsNullOrEmpty(candidate.FeatSlot)) {
+                        if (string.IsNullOrEmpty(candidate.Element) && !candidate.IsFeatBound) {
                             targetFlat = updatedIndices[idx];
                             break;
                         }
@@ -750,13 +750,13 @@ namespace PlayMore35.Subsystems {
                         var more = EnsureSourceSlots(slotGroup, source, updatedIndices.Count + 1);
                         targetFlat = more.Last();
                     }
-                    group[targetFlat] = new SubsystemSlot(element, GetDefaultState(slotGroup), source, featSlot);
+                    group[targetFlat] = new SubsystemSlot(element, GetDefaultState(slotGroup), source, grantSlot);
                 }
             } else {
                 SubsystemSlot? existingSlot = null;
                 for (int idx = 0; idx < group.RawSlots.Count; idx++) {
                     var s = group.RawSlots[idx];
-                    if (s != null && !string.IsNullOrEmpty(featSlot) && string.Equals(s.FeatSlot, featSlot, StringComparison.OrdinalIgnoreCase)) {
+                    if (s != null && grantSlot != null && s.GrantSlot != null && s.GrantSlot.Equals(grantSlot)) {
                         existingSlot = s;
                         break;
                     }
@@ -767,7 +767,7 @@ namespace PlayMore35.Subsystems {
                     int targetIdx = -1;
                     for (int idx = 0; idx < group.RawSlots.Count; idx++) {
                         var s = group.RawSlots[idx];
-                        if (s == null || (string.IsNullOrEmpty(s.Element) && string.IsNullOrEmpty(s.FeatSlot))) {
+                        if (s == null || (string.IsNullOrEmpty(s.Element) && !s.IsFeatBound)) {
                             targetIdx = idx;
                             break;
                         }
@@ -775,19 +775,19 @@ namespace PlayMore35.Subsystems {
                     if (targetIdx == -1) {
                         targetIdx = group.RawSlots.Count;
                     }
-                    group[targetIdx] = new SubsystemSlot(element, GetDefaultState(slotGroup), source, featSlot);
+                    group[targetIdx] = new SubsystemSlot(element, GetDefaultState(slotGroup), source, grantSlot);
                 }
             }
 
             SyncState();
         }
 
-        public void PruneStaleGrantedSlots(IEnumerable<(string SlotGroup, string Source, string FeatSlot)> activeGrants) {
-            bool hasAnyFeatSlots = slotGroups.Values.Any(g => g.RawSlots.Any(s => s != null && !string.IsNullOrEmpty(s.FeatSlot)));
-            if (!hasAnyFeatSlots) return;
+        public void PruneStaleGrantedSlots(IEnumerable<(string SlotGroup, string Source, ProgressionSlotKey GrantSlot)> activeGrants) {
+            bool hasAnyGrantSlots = slotGroups.Values.Any(g => g.RawSlots.Any(s => s != null && s.GrantSlot != null));
+            if (!hasAnyGrantSlots) return;
 
-            var activeSet = new HashSet<(string SlotGroup, string Source, string FeatSlot)>(
-                activeGrants.Select(g => (g.SlotGroup.ToLowerInvariant(), g.Source.ToLowerInvariant(), g.FeatSlot.ToLowerInvariant()))
+            var activeSet = new HashSet<(string SlotGroup, string Source, ProgressionSlotKey GrantSlot)>(
+                activeGrants.Select(g => (g.SlotGroup.ToLowerInvariant(), g.Source.ToLowerInvariant(), g.GrantSlot))
             );
 
             bool anyRemoved = false;
@@ -799,8 +799,8 @@ namespace PlayMore35.Subsystems {
                 for (int i = 0; i < group.RawSlots.Count; i++) {
                     var s = group.RawSlots[i];
                     if (s == null) continue;
-                    if (!string.IsNullOrEmpty(s.FeatSlot)) {
-                        var key = (groupKey.ToLowerInvariant(), (s.Source ?? "").ToLowerInvariant(), s.FeatSlot!.ToLowerInvariant());
+                    if (s.GrantSlot != null) {
+                        var key = (groupKey.ToLowerInvariant(), (s.Source ?? "").ToLowerInvariant(), s.GrantSlot);
                         if (!activeSet.Contains(key)) {
                             activeSlotOrder.Remove(s);
                             removedAny = true;
@@ -960,11 +960,11 @@ namespace PlayMore35.Subsystems {
             return gatedSlotGroups.Select(g => ResolveMaxLevel(g, targetSource)).Max();
         }
 
-        public int CountSamePropertyKnown(string? propertyName, string? propertyValue, string? excludeElementName = null, string? excludeSlot = null) {
+        public int CountSamePropertyKnown(string? propertyName, string? propertyValue, string? excludeElementName = null, ProgressionSlotKey? excludeSlot = null) {
             var distinctKnown = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var s in slotGroups.Values.SelectMany(g => g.Slots)) {
                 if (string.IsNullOrEmpty(s.Element)) continue;
-                if (MatchesSlotKey(s.FeatSlot, excludeSlot)) {
+                if (excludeSlot != null && s.GrantSlot != null && s.GrantSlot.Equals(excludeSlot)) {
                     continue;
                 }
                 if (!string.IsNullOrEmpty(excludeElementName) && string.Equals(s.Element, excludeElementName, StringComparison.OrdinalIgnoreCase)) continue;
@@ -985,7 +985,7 @@ namespace PlayMore35.Subsystems {
             return distinctKnown.Count;
         }
 
-        public IReadOnlyList<ValidationWarning> ValidateChoice(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource = null, string? slotKey = null) {
+        public IReadOnlyList<ValidationWarning> ValidateChoice(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource = null, ProgressionSlotKey? excludeSlot = null) {
             if (string.IsNullOrWhiteSpace(choiceValue)) return Array.Empty<ValidationWarning>();
             if (descriptor != null) {
                 if (!string.Equals(descriptor.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase) &&
@@ -1017,8 +1017,8 @@ namespace PlayMore35.Subsystems {
             }
 
             string? effectiveSource = targetSource;
-            if (string.IsNullOrWhiteSpace(effectiveSource) && !string.IsNullOrEmpty(slotKey)) {
-                effectiveSource = ResolveFeatTargetSource(slotKey);
+            if (string.IsNullOrWhiteSpace(effectiveSource) && excludeSlot != null) {
+                effectiveSource = ResolveFeatTargetSource(excludeSlot);
             }
 
             var warnings = new List<ValidationWarning>();
@@ -1040,7 +1040,7 @@ namespace PlayMore35.Subsystems {
                 string? prereqProp = Definition.PrerequisiteProperty;
                 string? propVal = !string.IsNullOrEmpty(prereqProp) ? chosenElem.GetProperty<string>(prereqProp) : null;
                 if (string.IsNullOrEmpty(prereqProp) || !string.IsNullOrEmpty(propVal)) {
-                    int known = CountSamePropertyKnown(prereqProp, propVal, excludeElementName: chosenElem.Name);
+                    int known = CountSamePropertyKnown(prereqProp, propVal, excludeElementName: chosenElem.Name, excludeSlot: excludeSlot);
                     if (known < prereqCount) {
                         string targetDesc = FormatPrerequisiteDescription(prereqCount, propVal);
                         warnings.Add(new ValidationWarning($"Requires {prereqCount} {targetDesc}, but only {known} known.", ValidationCategory.Prerequisite));
@@ -1072,7 +1072,7 @@ namespace PlayMore35.Subsystems {
                     currentAssignedCount = group.Slots.Count(s =>
                         !string.IsNullOrEmpty(s.Element) &&
                         (string.IsNullOrEmpty(effectiveSource) || string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) &&
-                        (string.IsNullOrEmpty(slotKey) || !MatchesSlotKey(s.FeatSlot, slotKey)));
+                        (excludeSlot == null || s.GrantSlot == null || !s.GrantSlot.Equals(excludeSlot)));
                 }
                 if (currentAssignedCount >= maxCapacity) {
                     string forSource = !string.IsNullOrEmpty(effectiveSource) ? $" for {effectiveSource}" : "";
@@ -1087,13 +1087,6 @@ namespace PlayMore35.Subsystems {
             string elemUnit = Definition.PrerequisiteUnit ?? "element";
             string plural = count == 1 ? elemUnit : $"{elemUnit}s";
             return !string.IsNullOrEmpty(propertyValue) ? $"{propertyValue} {plural}" : plural;
-        }
-
-        private static bool MatchesSlotKey(string? featSlot, string? slotKey) {
-            if (string.IsNullOrEmpty(featSlot) || string.IsNullOrEmpty(slotKey)) return false;
-            return string.Equals(featSlot, slotKey, StringComparison.OrdinalIgnoreCase) ||
-                   featSlot.StartsWith(slotKey + ":", StringComparison.OrdinalIgnoreCase) ||
-                   slotKey.StartsWith(featSlot + ":", StringComparison.OrdinalIgnoreCase);
         }
 
         public List<string> Validate() {

@@ -102,7 +102,7 @@ namespace PlayMore35.Tests {
             var character = new Character();
             character.classLevels.Clear();
             for (int i = 0; i < 4; i++) character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Study";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Martial Study"));
 
             var session = new CharacterSession(character, catalog);
 
@@ -380,8 +380,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Steel Wind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -392,7 +394,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(featSlot, "Feat-bound slot should exist in Warblade known slots.");
             Assert.AreEqual("Steel Wind", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
-            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(1), featSlot.GrantSlot);
             Assert.IsTrue(warbladeSlots.Any(s => s != null && string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -402,8 +404,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Moment of Perfect Mind";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Moment of Perfect Mind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -414,7 +418,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(featSlot, "Feat-bound slot should exist in Feats known slots.");
             Assert.AreEqual("Moment of Perfect Mind", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
-            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(1), featSlot.GrantSlot);
             Assert.IsTrue(featSlots.Any(s => s != null && string.Equals(s.Element, "Moment of Perfect Mind", StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -424,8 +428,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Steel Wind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -458,8 +464,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Steel Wind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -494,8 +502,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade"); // Level 1: 3 class + 1 feat = 4
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Steel Wind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -544,9 +554,10 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Warblade");
             character.classLevels.Add("Crusader");
             character.classLevels.Add("Crusader"); // Level 3: Warblade and Crusader both present
-            character.feats["Level 3"] = "Martial Study";
-            character.featChoices["Level 3:class"] = "Crusader";
-            character.featChoices["Level 3:maneuver"] = "Mountain Hammer";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(3),
+                "Martial Study",
+                new Dictionary<string, string> { { "class", "Crusader" }, { "maneuver", "Mountain Hammer" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -559,7 +570,7 @@ namespace PlayMore35.Tests {
             var crusaderFeatSlot = engine.GetSlots("maneuvers", "Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(crusaderFeatSlot);
             Assert.AreEqual("Mountain Hammer", crusaderFeatSlot.Element);
-            Assert.AreEqual("Level 3", crusaderFeatSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(3), crusaderFeatSlot.GrantSlot);
         }
 
         // Source: Tome of Battle, p. 32
@@ -568,8 +579,10 @@ namespace PlayMore35.Tests {
             var character = new Character { name = "Martial Study Hero", race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Steel Wind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -588,7 +601,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(restoredSlot);
             Assert.AreEqual("Steel Wind", restoredSlot.Element);
             Assert.IsTrue(restoredSlot.IsFeatBound);
-            Assert.AreEqual("Level 1", restoredSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(1), restoredSlot.GrantSlot);
             Assert.AreEqual("available", restoredSlot.State);
         }
 
@@ -598,8 +611,11 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            character.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Steel Wind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -607,12 +623,12 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(engine.GetSlots("maneuvers", "Warblade").Any(s => s != null && string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase)));
 
             // Changing the feat choice updates the projected slot name
-            session.SetFeatChoice("Level 1", "maneuver", "Stone Bones");
+            session.SetFeatChoice(slot1, "maneuver", "Stone Bones");
             Assert.IsTrue(engine.GetSlots("maneuvers", "Warblade").Any(s => s != null && string.Equals(s.Element, "Stone Bones", StringComparison.OrdinalIgnoreCase)));
             Assert.IsFalse(engine.GetSlots("maneuvers", "Warblade").Any(s => s != null && string.Equals(s.Element, "Steel Wind", StringComparison.OrdinalIgnoreCase)));
 
             // Clearing the feat choice removes the projected slot
-            session.SetFeatChoice("Level 1", "maneuver", "");
+            session.SetFeatChoice(slot1, "maneuver", "");
             Assert.IsFalse(engine.GetSlots("maneuvers", "Warblade").Any(s => s != null && string.Equals(s.Element, "Stone Bones", StringComparison.OrdinalIgnoreCase)));
             Assert.IsFalse(engine.GetSlots("maneuvers", "Warblade").Any(s => s != null && s.IsFeatBound));
         }
@@ -623,8 +639,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:stance"] = "Punishing Stance";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Punishing Stance" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -638,7 +656,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(featSlot, "Feat-bound stance slot should exist in Warblade stance slots.");
             Assert.AreEqual("Punishing Stance", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
-            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(1), featSlot.GrantSlot);
             Assert.IsTrue(stanceSlots.Any(s => s != null && string.Equals(s.Element, "Punishing Stance", StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -648,8 +666,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:stance"] = "Bolstering Voice";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Bolstering Voice" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -664,7 +684,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(featSlot, "Feat-bound stance slot should exist in Feats stance slots.");
             Assert.AreEqual("Bolstering Voice", featSlot.Element);
             Assert.IsTrue(featSlot.IsFeatBound);
-            Assert.AreEqual("Level 1", featSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(1), featSlot.GrantSlot);
             Assert.IsTrue(featSlots.Any(s => s != null && string.Equals(s.Element, "Bolstering Voice", StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -674,8 +694,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:stance"] = "Punishing Stance";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Punishing Stance" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -708,8 +730,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:stance"] = "Punishing Stance";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Punishing Stance" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -735,8 +759,10 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:stance"] = "Bolstering Voice";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Bolstering Voice" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -760,9 +786,10 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Warblade");
             character.classLevels.Add("Crusader");
             character.classLevels.Add("Crusader"); // Level 3: Warblade and Crusader both present
-            character.feats["Level 3"] = "Martial Stance";
-            character.featChoices["Level 3:class"] = "Crusader";
-            character.featChoices["Level 3:stance"] = "Iron Guard's Glare";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(3),
+                "Martial Stance",
+                new Dictionary<string, string> { { "class", "Crusader" }, { "stance", "Iron Guard's Glare" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -775,7 +802,7 @@ namespace PlayMore35.Tests {
             var crusaderFeatSlot = engine.GetSlots("stances", "Crusader").FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(crusaderFeatSlot);
             Assert.AreEqual("Iron Guard's Glare", crusaderFeatSlot.Element);
-            Assert.AreEqual("Level 3", crusaderFeatSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(3), crusaderFeatSlot.GrantSlot);
         }
 
         // Source: Tome of Battle, pp. 32, 52
@@ -784,8 +811,10 @@ namespace PlayMore35.Tests {
             var character = new Character { name = "Martial Stance Hero", race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:stance"] = "Punishing Stance";
+            character.feats.Add(new FeatAssignment(
+                ProgressionSlotKey.Advancement(1),
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Punishing Stance" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -804,7 +833,7 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(restoredSlot);
             Assert.AreEqual("Punishing Stance", restoredSlot.Element);
             Assert.IsTrue(restoredSlot.IsFeatBound);
-            Assert.AreEqual("Level 1", restoredSlot.FeatSlot);
+            Assert.AreEqual(ProgressionSlotKey.Advancement(1), restoredSlot.GrantSlot);
             Assert.AreEqual("active", restoredSlot.State);
         }
 
@@ -814,8 +843,11 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:stance"] = "Punishing Stance";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            character.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Punishing Stance" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -823,12 +855,12 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Punishing Stance", StringComparison.OrdinalIgnoreCase)));
 
             // Changing the feat choice updates the projected stance name
-            session.SetFeatChoice("Level 1", "stance", "Hunter's Sense");
+            session.SetFeatChoice(slot1, "stance", "Hunter's Sense");
             Assert.IsTrue(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Hunter's Sense", StringComparison.OrdinalIgnoreCase)));
             Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Punishing Stance", StringComparison.OrdinalIgnoreCase)));
 
             // Clearing the feat choice removes the projected slot
-            session.SetFeatChoice("Level 1", "stance", "");
+            session.SetFeatChoice(slot1, "stance", "");
             Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && string.Equals(s.Element, "Hunter's Sense", StringComparison.OrdinalIgnoreCase)));
             Assert.IsFalse(engine.GetSlots("stances", "Warblade").Any(s => s != null && s.IsFeatBound));
         }
@@ -838,9 +870,11 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade"); // Level 1 Warblade: 3 class slots + 1 feat slot = 4
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:class"] = "Warblade";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            character.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Study",
+                new Dictionary<string, string> { { "class", "Warblade" }, { "maneuver", "Steel Wind" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -860,13 +894,13 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(knownSlots[0]);
             Assert.AreEqual("Steel Wind", knownSlots[0].Element);
             Assert.IsFalse(knownSlots[0].IsFeatBound, "Class progression slot should never be hijacked into a feat-bound slot.");
-            Assert.IsNull(knownSlots[0].FeatSlot);
+            Assert.IsNull(knownSlots[0].GrantSlot);
 
             // Feat slot (slot 3) must be the dedicated feat-bound slot
             Assert.IsNotNull(knownSlots[3]);
             Assert.AreEqual("Steel Wind", knownSlots[3].Element);
             Assert.IsTrue(knownSlots[3].IsFeatBound, "Feat slot should be dedicated and marked IsFeatBound.");
-            Assert.AreEqual("Level 1", knownSlots[3].FeatSlot);
+            Assert.AreEqual(slot1, knownSlots[3].GrantSlot);
 
             // Class slot 0 should still be retrainable / modifiable as a normal class slot
             engine.AssignSlot("maneuvers", 0, "Douse the Flames", source: "Warblade");
@@ -879,9 +913,11 @@ namespace PlayMore35.Tests {
             var character = new Character { race = "Human" };
             character.classLevels.Clear();
             character.classLevels.Add("Warblade"); // Level 1 Warblade: 1 class stance + 1 feat stance = 2
-            character.feats["Level 1"] = "Martial Stance";
-            character.featChoices["Level 1:class"] = "Warblade";
-            character.featChoices["Level 1:stance"] = "Punishing Stance";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            character.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Stance",
+                new Dictionary<string, string> { { "class", "Warblade" }, { "stance", "Punishing Stance" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -899,13 +935,13 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(stanceSlots[0]);
             Assert.AreEqual("Punishing Stance", stanceSlots[0].Element);
             Assert.IsFalse(stanceSlots[0].IsFeatBound, "Class progression stance slot should never be hijacked into a feat-bound slot.");
-            Assert.IsNull(stanceSlots[0].FeatSlot);
+            Assert.IsNull(stanceSlots[0].GrantSlot);
 
             // Feat slot (slot 1) must be dedicated feat-bound slot
             Assert.IsNotNull(stanceSlots[1]);
             Assert.AreEqual("Punishing Stance", stanceSlots[1].Element);
             Assert.IsTrue(stanceSlots[1].IsFeatBound, "Feat stance slot should be dedicated and marked IsFeatBound.");
-            Assert.AreEqual("Level 1", stanceSlots[1].FeatSlot);
+            Assert.AreEqual(slot1, stanceSlots[1].GrantSlot);
         }
     }
 }

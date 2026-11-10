@@ -385,7 +385,7 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["CHA"] = 10;
             character.rolledHitDice = new List<int> { 10, 8 };
             character.skillRanks["Jump"] = new List<int> { 4, 1 };
-            character.feats["Level 1"] = "Power Attack";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Power Attack"));
 
             var session = new CharacterSession(character, catalog);
             var snap0 = session.GetSessionAtLevel(0);
@@ -541,42 +541,54 @@ namespace PlayMore35.Tests {
         public void GetSessionAtLevel_IntraLevelFeats_AreCoVisibleRegardlessOfSlotOrder() {
             var featDef = catalog.GetFeat("Martial Stance");
             var stanceChoiceDesc = featDef.Choices.First(c => c.Id == "stance");
+            var humanSlot = ProgressionSlotKey.Race("human", 1);
+            var slot1 = ProgressionSlotKey.Advancement(1);
 
             // Setup A: Slot "Human" has Martial Study (Burning Blade, Desert Wind), Slot "Level 1" has Martial Stance (Flame's Blessing)
             var charA = new Character { race = "human" };
             charA.classLevels = new List<string> { "Fighter" };
-            charA.feats["Human"] = "Martial Study";
-            charA.featChoices["Human:maneuver"] = "Burning Blade";
-            charA.feats["Level 1"] = "Martial Stance";
-            charA.featChoices["Level 1:stance"] = "Flame's Blessing";
+            charA.feats.Add(new FeatAssignment(
+                humanSlot,
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Burning Blade" } }));
+            charA.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Flame's Blessing" } }));
 
             var sessionA = new CharacterSession(charA, catalog);
             var snapA = sessionA.GetSessionAtLevel(1);
             var warningsA = snapA.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: "Level 1",
+                slotKey: slot1.ToString(),
                 targetSource: "Feats",
-                descriptor: stanceChoiceDesc
+                descriptor: stanceChoiceDesc,
+                slot: slot1
             ));
             Assert.AreEqual(0, warningsA.Count, "Flame's Blessing prerequisite (1 Desert Wind maneuver) is satisfied by co-level Human slot choice.");
 
             // Setup B: Reversed slot order - Slot "Level 1" has Martial Study, Slot "Human" has Martial Stance
             var charB = new Character { race = "human" };
             charB.classLevels = new List<string> { "Fighter" };
-            charB.feats["Level 1"] = "Martial Study";
-            charB.featChoices["Level 1:maneuver"] = "Burning Blade";
-            charB.feats["Human"] = "Martial Stance";
-            charB.featChoices["Human:stance"] = "Flame's Blessing";
+            charB.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Burning Blade" } }));
+            charB.feats.Add(new FeatAssignment(
+                humanSlot,
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Flame's Blessing" } }));
 
             var sessionB = new CharacterSession(charB, catalog);
             var snapB = sessionB.GetSessionAtLevel(1);
             var warningsB = snapB.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: "Human",
+                slotKey: humanSlot.ToString(),
                 targetSource: "Feats",
-                descriptor: stanceChoiceDesc
+                descriptor: stanceChoiceDesc,
+                slot: humanSlot
             ));
             Assert.AreEqual(0, warningsB.Count, "Flame's Blessing prerequisite is satisfied regardless of slot assignment order at same acquisition level.");
         }
@@ -589,32 +601,38 @@ namespace PlayMore35.Tests {
 
             var character = new Character { race = "human" };
             character.classLevels = new List<string> { "Fighter", "Fighter", "Fighter" };
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Burning Blade";
-            character.feats["Level 3"] = "Martial Stance";
-            character.featChoices["Level 3:stance"] = "Flame's Blessing";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            var slot3 = ProgressionSlotKey.Advancement(3);
+            character.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Burning Blade" } }));
+            character.feats.Add(new FeatAssignment(
+                slot3,
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Flame's Blessing" } }));
 
             var session = new CharacterSession(character, catalog);
 
             // At level 1 snapshot: Level 3 feat and choices are completely omitted
             var snap1 = session.GetSessionAtLevel(1);
-            Assert.IsTrue(snap1.Character.feats.ContainsKey("Level 1"));
-            Assert.AreEqual("Martial Study", snap1.Character.feats["Level 1"]);
-            Assert.AreEqual("Burning Blade", snap1.Character.featChoices["Level 1:maneuver"]);
-            Assert.IsFalse(snap1.Character.feats.ContainsKey("Level 3"), "Level 3 feat must not exist in level 1 snapshot.");
-            Assert.IsFalse(snap1.Character.featChoices.ContainsKey("Level 3:stance"), "Level 3 choices must not exist in level 1 snapshot.");
+            Assert.AreEqual("Martial Study", snap1.GetFeat(slot1));
+            Assert.AreEqual("Burning Blade", snap1.GetFeatChoice(slot1, "maneuver"));
+            Assert.IsNull(snap1.GetFeat(slot3), "Level 3 feat must not exist in level 1 snapshot.");
+            Assert.IsNull(snap1.GetFeatChoice(slot3, "stance"), "Level 3 choices must not exist in level 1 snapshot.");
 
             // At level 3 snapshot: Level 3 feat is present, and satisfies prerequisites from Level 1 choice
             var snap3 = session.GetSessionAtLevel(3);
-            Assert.IsTrue(snap3.Character.feats.ContainsKey("Level 1"));
-            Assert.IsTrue(snap3.Character.feats.ContainsKey("Level 3"), "Level 3 feat must exist in level 3 snapshot.");
-            Assert.AreEqual("Flame's Blessing", snap3.Character.featChoices["Level 3:stance"]);
+            Assert.AreEqual("Martial Study", snap3.GetFeat(slot1));
+            Assert.AreEqual("Martial Stance", snap3.GetFeat(slot3), "Level 3 feat must exist in level 3 snapshot.");
+            Assert.AreEqual("Flame's Blessing", snap3.GetFeatChoice(slot3, "stance"));
             var warnings3 = snap3.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: "Level 3",
+                slotKey: slot3.ToString(),
                 targetSource: "Feats",
-                descriptor: stanceChoiceDesc
+                descriptor: stanceChoiceDesc,
+                slot: slot3
             ));
             Assert.AreEqual(0, warnings3.Count, "Level 3 snapshot satisfies Desert Wind prerequisite from level 1 choice.");
         }
@@ -680,17 +698,18 @@ namespace PlayMore35.Tests {
 
             var character = new Character { race = "human" };
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            character.feats.Add(new FeatAssignment(slot1, syntheticFeat.Benefit.Name));
 
             var session = new CharacterSession(character, fakeCatalog);
             var climbBefore = session.GetStatistic("Climb").Value;
             var snapBefore = session.GetSessionAtLevel(1);
 
-            session.SetFeatChoice("Level 1", "Climb");
+            session.SetFeatChoice(slot1, "", "Climb");
 
             var snapAfter = session.GetSessionAtLevel(1);
             Assert.AreNotSame(snapBefore, snapAfter, "SetFeatChoice must invalidate level snapshot cache.");
-            Assert.AreEqual("Climb", session.GetFeatChoice("Level 1"));
+            Assert.AreEqual("Climb", session.GetFeatChoice(slot1, ""));
             Assert.AreEqual(climbBefore + 3, session.GetStatistic("Climb").Value, "SetFeatChoice must recalculate dependent statistics.");
             Assert.AreEqual(climbBefore + 3, snapAfter.GetStatistic("Climb").Value, "New snapshot must reflect updated feat choice.");
         }
@@ -727,7 +746,8 @@ namespace PlayMore35.Tests {
 
             var character = new Character { race = "human" };
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = syntheticFeat.Benefit.Name;
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            character.feats.Add(new FeatAssignment(slot1, syntheticFeat.Benefit.Name));
 
             var session = new CharacterSession(character, fakeCatalog);
             var initialStat = session.GetStatistic("attack bonus:Longsword").Value;
@@ -735,11 +755,11 @@ namespace PlayMore35.Tests {
 
             var snapBefore = session.GetSessionAtLevel(1);
 
-            session.SetFeatChoice("Level 1", "weapon", "Longsword");
+            session.SetFeatChoice(slot1, "weapon", "Longsword");
 
             var snapAfter = session.GetSessionAtLevel(1);
             Assert.AreNotSame(snapBefore, snapAfter, "SetFeatChoice with composite key must invalidate level snapshot cache.");
-            Assert.AreEqual("Longsword", session.GetFeatChoice("Level 1", "weapon"));
+            Assert.AreEqual("Longsword", session.GetFeatChoice(slot1, "weapon"));
             Assert.AreEqual(1, session.GetStatistic("attack bonus:Longsword").Value, "SetFeatChoice with composite key must recalculate dependent statistics.");
             Assert.AreEqual(1, snapAfter.GetStatistic("attack bonus:Longsword").Value, "New snapshot must reflect updated composite feat choice.");
         }
@@ -861,21 +881,25 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             var stanceDesc = catalog.GetFeat("Martial Stance").Choices.First(c => c.Id == "stance");
+            var slot1 = ProgressionSlotKey.Advancement(1);
             var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 1",
+                slotKey: slot1.ToString(),
                 targetSource: "Warblade",
-                descriptor: stanceDesc
+                descriptor: stanceDesc,
+                slot: slot1
             ));
             Assert.IsTrue(lvl1Warnings.Count > 0, "Level 1 snapshot must prune maneuvers beyond capacity so Devoted Spirit prereq is unmet.");
 
+            var slot9 = ProgressionSlotKey.Advancement(9);
             var lvl9Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 9",
+                slotKey: slot9.ToString(),
                 targetSource: "Warblade",
-                descriptor: stanceDesc
+                descriptor: stanceDesc,
+                slot: slot9
             ));
             Assert.AreEqual(0, lvl9Warnings.Count, "Level 9 snapshot retains Slot 3 so Devoted Spirit prereq is satisfied.");
         }
@@ -887,9 +911,10 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(character, catalog);
 
             var desc = new ChoiceDescriptor("maneuver", "Choose Maneuver", "SubsystemElements", "maneuver");
-            session.SetFeatChoice("Level 1", "maneuver", "Steel Wind");
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            session.SetFeatChoice(slot1, "maneuver", "Steel Wind");
 
-            var elem = session.ResolveFeatChoice("Level 1", desc) as SubsystemElement;
+            var elem = session.ResolveFeatChoice(slot1, desc) as SubsystemElement;
             Assert.IsNotNull(elem, "ResolveFeatChoice must resolve element from direct subsystem engine.");
             Assert.AreEqual("Steel Wind", elem.Name);
         }

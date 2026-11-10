@@ -23,10 +23,18 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["CHA"] = 10;
 
             if (feats != null) {
-                var slots = new[] { "Level 1", "Fighter 1", "Fighter 2", "Level 3", "Fighter 4", "Level 6", "Fighter 6" };
+                var slots = new[] {
+                    ProgressionSlotKey.Advancement(1),
+                    ProgressionSlotKey.Class("Fighter", 1),
+                    ProgressionSlotKey.Class("Fighter", 2),
+                    ProgressionSlotKey.Advancement(3),
+                    ProgressionSlotKey.Class("Fighter", 4),
+                    ProgressionSlotKey.Advancement(6),
+                    ProgressionSlotKey.Class("Fighter", 6),
+                };
                 int index = 0;
                 foreach (var feat in feats) {
-                    character.feats[slots[index]] = feat;
+                    character.feats.Add(new FeatAssignment(slots[index], feat));
                     index++;
                 }
             }
