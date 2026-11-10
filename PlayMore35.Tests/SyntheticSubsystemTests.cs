@@ -54,15 +54,9 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("flasks", 1, "Fire Flask", state: "empty");
             engine.AssignSlot("flasks", 2, "Acid Flask", state: "prepared");
 
-            var transition = new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "invoked",
-                FromState = "prepared",
-                ToState = "expended",
-                SlotIndex = 0
-            };
+            var transition = SubsystemStep.Transition("flasks", "expended", fromState: "prepared", selector: "invoked");
 
-            var req = engine.ExecuteTransition(transition);
+            var req = engine.ExecuteStep(transition, new SubsystemTarget(slotIndex: 0));
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
 
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State);
@@ -70,14 +64,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 2).State);
 
             // Target slot 1: from state is "prepared", but slot 1 is "empty" -> no transition
-            var nonMatchingTransition = new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "invoked",
-                FromState = "prepared",
-                ToState = "expended",
-                SlotIndex = 1
-            };
-            engine.ExecuteTransition(nonMatchingTransition);
+            engine.ExecuteStep(transition, new SubsystemTarget(slotIndex: 1));
             Assert.AreEqual("empty", engine.GetSlot("flasks", 1).State);
         }
 
@@ -90,26 +77,16 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("flasks", 2, "Acid Flask", state: "prepared", source: "GuildAlchemist");
 
             // Transition all expended with source GuildAlchemist
-            var transitionSourceA = new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "all",
-                FromState = "expended",
-                ToState = "prepared"
-            };
-            engine.ExecuteTransition(transitionSourceA, targetSource: "GuildAlchemist");
+            var transitionSourceA = SubsystemStep.Transition("flasks", "prepared", fromState: "expended", selector: "all");
+            engine.ExecuteStep(transitionSourceA, new SubsystemTarget(source: "GuildAlchemist"));
 
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 0).State);
             Assert.AreEqual("expended", engine.GetSlot("flasks", 1).State); // Not matched by source
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 2).State);
 
             // Transition all without source filter
-            var transitionAll = new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "all",
-                FromState = "expended",
-                ToState = "prepared"
-            };
-            engine.ExecuteTransition(transitionAll);
+            var transitionAll = SubsystemStep.Transition("flasks", "prepared", fromState: "expended", selector: "all");
+            engine.ExecuteStep(transitionAll);
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 1).State);
         }
 
@@ -121,15 +98,9 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("flasks", 1, "Fire Flask", state: "expended");
             engine.AssignSlot("flasks", 2, "Acid Flask", state: "expended");
 
-            var selectTransition = new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "select",
-                FromState = "expended",
-                ToState = "prepared",
-                SelectedIndices = new List<int> { 1 }
-            };
+            var selectTransition = SubsystemStep.Transition("flasks", "prepared", fromState: "expended", selector: "select");
 
-            engine.ExecuteTransition(selectTransition);
+            engine.ExecuteStep(selectTransition, new SubsystemTarget(selectedIndices: new List<int> { 1 }));
 
             Assert.AreEqual("expended", engine.GetSlot("flasks", 0).State);
             Assert.AreEqual("prepared", engine.GetSlot("flasks", 1).State);
@@ -144,15 +115,9 @@ namespace PlayMore35.Tests {
             engine1.AssignSlot("flasks", 1, "Flask 1", state: "empty");
             engine1.AssignSlot("flasks", 2, "Flask 2", state: "empty");
 
-            var randomTransition = new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "random",
-                FromState = "empty",
-                ToState = "prepared",
-                CountExpression = "2"
-            };
+            var randomTransition = SubsystemStep.Transition("flasks", "prepared", fromState: "empty", selector: "random", countExpression: "2");
 
-            engine1.ExecuteTransition(randomTransition);
+            engine1.ExecuteStep(randomTransition);
             var statesRun1 = new[] {
                 engine1.GetSlot("flasks", 0).State,
                 engine1.GetSlot("flasks", 1).State,
@@ -167,7 +132,7 @@ namespace PlayMore35.Tests {
             engine2.AssignSlot("flasks", 1, "Flask 1", state: "empty");
             engine2.AssignSlot("flasks", 2, "Flask 2", state: "empty");
 
-            engine2.ExecuteTransition(randomTransition);
+            engine2.ExecuteStep(randomTransition);
             var statesRun2 = new[] {
                 engine2.GetSlot("flasks", 0).State,
                 engine2.GetSlot("flasks", 1).State,
@@ -280,14 +245,14 @@ namespace PlayMore35.Tests {
             // Pool recharge via declarative SheetAction (e.g. resting or player action)
             session.PerformAction(new SheetAction {
                 Subsystem = "synthetic_alchemy",
-                PoolOperation = new SubsystemPoolOperation("catalyst", "recharge", 7)
+                Step = SubsystemStep.Pool("catalyst", "recharge", 7)
             });
             Assert.AreEqual(10, engine.GetPoolValue("catalyst"), "Catalyst pool should recharge to full via SheetAction.");
 
             // Pool set via declarative SheetAction
             session.PerformAction(new SheetAction {
                 Subsystem = "synthetic_alchemy",
-                PoolOperation = new SubsystemPoolOperation("heat", "set", 5)
+                Step = SubsystemStep.Pool("heat", "set", 5)
             });
             Assert.AreEqual(5, engine.GetPoolValue("heat"), "Heat pool should be set to 5 via SheetAction.");
         }
@@ -304,26 +269,18 @@ namespace PlayMore35.Tests {
             int baseDex = session.GetStatistic("DEX score").Value;
 
             // Transition to active
-            engine.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "infusions",
-                Selector = "invoked",
-                SlotIndex = 0,
-                FromState = "inactive",
-                ToState = "active"
-            });
+            engine.ExecuteStep(
+                SubsystemStep.Transition("infusions", "active", fromState: "inactive", selector: "invoked"),
+                new SubsystemTarget(slotIndex: 0));
             session.Recalculate();
 
             int activeDex = session.GetStatistic("DEX score").Value;
             Assert.AreEqual(baseDex + 4, activeDex, "Speed Infusion in active state should project +4 DEX modifier onto session.");
 
             // Transition back to inactive
-            engine.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "infusions",
-                Selector = "invoked",
-                SlotIndex = 0,
-                FromState = "active",
-                ToState = "inactive"
-            });
+            engine.ExecuteStep(
+                SubsystemStep.Transition("infusions", "inactive", fromState: "active", selector: "invoked"),
+                new SubsystemTarget(slotIndex: 0));
             session.Recalculate();
 
             int inactiveDex = session.GetStatistic("DEX score").Value;
@@ -354,12 +311,7 @@ namespace PlayMore35.Tests {
             var transitionAction = new SheetAction {
                 Name = "Prepare All Flasks",
                 Subsystem = "synthetic_alchemy",
-                Transition = new SubsystemTransition {
-                    SlotGroup = "flasks",
-                    Selector = "all",
-                    FromState = "expended",
-                    ToState = "prepared"
-                }
+                Step = SubsystemStep.Transition("flasks", "prepared", fromState: "expended", selector: "all")
             };
 
             var reqTrans = session.PerformAction(transitionAction);
@@ -369,7 +321,7 @@ namespace PlayMore35.Tests {
             var poolAction = new SheetAction {
                 Name = "Consume Catalyst",
                 Subsystem = "synthetic_alchemy",
-                PoolOperation = new SubsystemPoolOperation("catalyst", "consume", 4)
+                Step = SubsystemStep.Pool("catalyst", "consume", 4)
             };
 
             var reqPool = session.PerformAction(poolAction);
@@ -402,25 +354,20 @@ namespace PlayMore35.Tests {
             var transitionAction = new SheetAction {
                 Name = "Refill All",
                 Subsystem = "synthetic_alchemy",
-                Transition = new SubsystemTransition {
-                    SlotGroup = "flasks",
-                    Selector = "all",
-                    FromState = "expended",
-                    ToState = "prepared"
-                }
+                Step = SubsystemStep.Transition("flasks", "prepared", fromState: "expended", selector: "all")
             };
             var jsonTrans = (JObject)transitionAction.ToJson();
-            Assert.IsNotNull(jsonTrans["transition"]);
+            Assert.IsNotNull(jsonTrans["step"]);
             var deserializedTrans = SheetAction.FromJson(jsonTrans);
             Assert.IsTrue(transitionAction.Matches(deserializedTrans));
 
             var poolAction = new SheetAction {
                 Name = "Recharge Catalyst",
                 Subsystem = "synthetic_alchemy",
-                PoolOperation = new SubsystemPoolOperation("catalyst", "recharge", 5)
+                Step = SubsystemStep.Pool("catalyst", "recharge", 5)
             };
             var jsonPool = (JObject)poolAction.ToJson();
-            Assert.IsNotNull(jsonPool["pool_operation"]);
+            Assert.IsNotNull(jsonPool["step"]);
             var deserializedPool = SheetAction.FromJson(jsonPool);
             Assert.IsTrue(poolAction.Matches(deserializedPool));
         }
@@ -437,13 +384,8 @@ namespace PlayMore35.Tests {
             var timedAction = new SheetAction {
                 Name = "Temporary Infusion Boost",
                 Subsystem = "synthetic_alchemy",
-                Transition = new SubsystemTransition {
-                    SlotGroup = "infusions",
-                    Selector = "invoked",
-                    SlotIndex = 0,
-                    FromState = "inactive",
-                    ToState = "active"
-                }
+                SlotIndex = 0,
+                Step = SubsystemStep.Transition("infusions", "active", fromState: "inactive", selector: "invoked")
             }.Duration("3 rounds");
 
             session.PerformAction(timedAction);
@@ -475,13 +417,9 @@ namespace PlayMore35.Tests {
 
             // 2. Projection verification
             int baseStr = session.GetStatistic("STR score").Value;
-            engine.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "infusions",
-                Selector = "invoked",
-                SlotIndex = 0,
-                FromState = "inactive",
-                ToState = "active"
-            });
+            engine.ExecuteStep(
+                SubsystemStep.Transition("infusions", "active", fromState: "inactive", selector: "invoked"),
+                new SubsystemTarget(slotIndex: 0));
             session.Recalculate();
             Assert.AreEqual(baseStr + 2, session.GetStatistic("STR score").Value);
 
@@ -492,13 +430,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.Character.paramValues["acid_splash_count"]);
 
             // 4. Random deal with injected seed
-            engine.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "random",
-                FromState = "empty",
-                ToState = "prepared",
-                CountExpression = "1"
-            });
+            engine.ExecuteStep(SubsystemStep.Transition("flasks", "prepared", fromState: "empty", selector: "random", countExpression: "1"));
             Assert.AreEqual(1, engine.GetSlots("flasks").Count(s => s?.State == "prepared"));
 
             // 5. Pool operation via SheetAction
@@ -506,7 +438,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(2, engine.GetPoolValue("heat"));
             session.PerformAction(new SheetAction {
                 Subsystem = "synthetic_alchemy",
-                PoolOperation = new SubsystemPoolOperation("heat", "recharge", 3)
+                Step = SubsystemStep.Pool("heat", "recharge", 3)
             });
             Assert.AreEqual(5, engine.GetPoolValue("heat"));
 

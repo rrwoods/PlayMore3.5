@@ -335,6 +335,105 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             Assert.IsNull(engine.GetSlotElement("vestiges", 1));
         }
+
+        [TestMethod]
+        public void SheetAction_WithStep_SerializesAndDeserializes_ViaStepKeyOnly() {
+            var step = SubsystemStep.Transition("vestiges", "empty", fromState: "*", selector: "invoked");
+            var action = new SheetAction {
+                Name = "Unbind Vestige",
+                Subsystem = "pact_magic",
+                SlotIndex = 0,
+                Step = step
+            };
+
+            var json = (JObject)action.ToJson();
+            Assert.IsNotNull(json["step"], "Must serialize under 'step' key.");
+            Assert.IsNull(json["transition"], "Must NOT serialize under 'transition' key.");
+            Assert.IsNull(json["pool_operation"], "Must NOT serialize under 'pool_operation' key.");
+
+            var deserialized = SheetAction.FromJson(json);
+            Assert.IsNotNull(deserialized.Step);
+            Assert.AreEqual("transition", deserialized.Step.Type);
+            Assert.AreEqual("vestiges", deserialized.Step.SlotGroup);
+            Assert.AreEqual("empty", deserialized.Step.ToState);
+            Assert.AreEqual("*", deserialized.Step.FromState);
+
+            // Legacy keys "transition" and "pool_operation" are not read as Step
+            var legacyJson = new JObject(
+                new JProperty("name", "Legacy Action"),
+                new JProperty("subsystem", "pact_magic"),
+                new JProperty("transition", new JObject(
+                    new JProperty("slot_group", "vestiges"),
+                    new JProperty("to", "empty")
+                )),
+                new JProperty("pool_operation", new JObject(
+                    new JProperty("pool", "catalyst"),
+                    new JProperty("op", "consume"),
+                    new JProperty("amount", 2)
+                ))
+            );
+            var parsedLegacy = SheetAction.FromJson(legacyJson);
+            Assert.IsNull(parsedLegacy.Step, "Legacy fallback keys must not populate Step.");
+        }
+
+        [TestMethod]
+        public void SheetAction_WithDuration_RevertsTransitionStepSymmetrically() {
+            var (context, _, _) = CreateTestContext();
+            var catalog = new GameRulesCatalog();
+            var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), context);
+            context.SubsystemsMap["pact_magic"] = engine;
+
+            context.Effects.AddStat(new Statistic("number of vestiges"));
+            context.Effects.AddEffect(new Effect("Vestige Slot").AddModifier("number of vestiges", new Modifier(2, ModifierTypes.UNTYPED)));
+            engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
+
+            var action = new SheetAction {
+                Name = "Temporary Vestige Corruption",
+                Subsystem = "pact_magic",
+                SlotGroup = "vestiges",
+                SlotIndex = 0,
+                Step = SubsystemStep.Transition("vestiges", "poor_pact", fromState: "good_pact")
+            }.Duration("2 rounds");
+
+            action.Perform(context);
+            Assert.AreEqual("poor_pact", engine.GetSlotState("vestiges", 0));
+
+            // Advance 1 round: still corrupt
+            context.Timeline.Advance(1);
+            Assert.AreEqual("poor_pact", engine.GetSlotState("vestiges", 0));
+
+            // Advance 1 more round: duration expires, reversion fires swapping from/to
+            context.Timeline.Advance(1);
+            Assert.AreEqual("good_pact", engine.GetSlotState("vestiges", 0));
+        }
+
+        [TestMethod]
+        public void SheetAction_WithDuration_RevertsPoolStepSymmetrically() {
+            var (context, _, _) = CreateTestContext();
+            var syntheticDef = new SubsystemDefinition("alchemy", "Alchemy");
+            syntheticDef.Pools["heat"] = new PoolDefinition("heat", defaultCapacity: 10);
+            var engine = new SubsystemEngine(syntheticDef, context);
+            context.SubsystemsMap["alchemy"] = engine;
+
+            engine.SetPoolValue("heat", 5);
+
+            var action = new SheetAction {
+                Name = "Heat Surge",
+                Subsystem = "alchemy",
+                Step = SubsystemStep.Pool("heat", "consume", 3)
+            }.Duration("3 rounds");
+
+            action.Perform(context);
+            Assert.AreEqual(2, engine.GetPoolValue("heat"));
+
+            // Advance 2 rounds: still active
+            context.Timeline.Advance(2);
+            Assert.AreEqual(2, engine.GetPoolValue("heat"));
+
+            // Advance 1 more round to round 3: expiration reverts consume -> recharge
+            context.Timeline.Advance(1);
+            Assert.AreEqual(5, engine.GetPoolValue("heat"));
+        }
     }
 }
 

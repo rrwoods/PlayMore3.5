@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayMore35.Effects;
 using PlayMore35.Subsystems;
@@ -18,8 +19,8 @@ namespace PlayMore35.Global {
         public int? SlotIndex { get; set; } = null;
         public string Element { get; set; } = null;
         public string Source { get; set; } = null;
-        public SubsystemTransition Transition { get; set; } = null;
-        public SubsystemPoolOperation PoolOperation { get; set; } = null;
+        [JsonProperty("step")]
+        public SubsystemStep? Step { get; set; }
         internal string duration = null; // null for instantaneous, effect will not be reversed
         internal readonly List<string> flagsToSet = new List<string>();
         internal readonly List<string> flagsToClear = new List<string>();
@@ -48,8 +49,7 @@ namespace PlayMore35.Global {
                 if (SlotIndex.HasValue) json["slot_index"] = SlotIndex.Value;
                 if (!string.IsNullOrEmpty(Element)) json["element"] = Element;
                 if (!string.IsNullOrEmpty(Source)) json["source"] = Source;
-                if (Transition != null) json["transition"] = Transition.ToJson();
-                if (PoolOperation != null) json["pool_operation"] = PoolOperation.ToJson();
+                if (Step != null) json["step"] = Step.ToJson();
             }
 
             return json;
@@ -80,8 +80,7 @@ namespace PlayMore35.Global {
                 if (json["slot_index"] != null) SlotIndex = (int)json["slot_index"];
                 if (json["element"] != null) Element = (string)json["element"];
                 if (json["source"] != null) Source = (string)json["source"];
-                if (json["transition"] is JObject transObj) Transition = new SubsystemTransition(transObj);
-                if (json["pool_operation"] is JObject poolObj) PoolOperation = new SubsystemPoolOperation(poolObj);
+                if (json["step"] is JObject stepObj) Step = new SubsystemStep(stepObj);
             }
         }
 
@@ -105,22 +104,23 @@ namespace PlayMore35.Global {
                 revert.Element = Element;
                 revert.Source = Source;
 
-                if (Transition != null) {
-                    revert.Transition = new SubsystemTransition {
-                        SlotGroup = Transition.SlotGroup,
-                        Selector = Transition.Selector,
-                        FromState = Transition.ToState,
-                        ToState = Transition.FromState,
-                        SlotIndex = Transition.SlotIndex ?? SlotIndex,
-                        SelectedIndices = Transition.SelectedIndices != null ? new List<int>(Transition.SelectedIndices) : null
-                    };
-                }
-
-                if (PoolOperation != null) {
-                    string invOp = PoolOperation.Op == "consume" ? "recharge"
-                                 : PoolOperation.Op == "recharge" ? "consume"
-                                 : PoolOperation.Op;
-                    revert.PoolOperation = new SubsystemPoolOperation(PoolOperation.Pool, invOp, PoolOperation.Amount);
+                if (Step != null) {
+                    if (Step.IsTransition) {
+                        revert.Step = SubsystemStep.Transition(
+                            slotGroup: Step.SlotGroup,
+                            toState: Step.FromState ?? "",
+                            fromState: Step.ToState,
+                            selector: Step.Selector,
+                            countExpression: Step.CountExpression,
+                            onEmptyVerb: Step.OnEmptyVerb);
+                    } else if (string.Equals(Step.Type, "pool", StringComparison.OrdinalIgnoreCase)) {
+                        string invOp = string.Equals(Step.Op, "consume", StringComparison.OrdinalIgnoreCase) ? "recharge"
+                                     : string.Equals(Step.Op, "recharge", StringComparison.OrdinalIgnoreCase) ? "consume"
+                                     : Step.Op;
+                        revert.Step = SubsystemStep.Pool(Step.PoolId, invOp, Step.Amount);
+                    } else {
+                        revert.Step = Step;
+                    }
                 }
             }
 
@@ -196,11 +196,8 @@ namespace PlayMore35.Global {
                     if (!string.IsNullOrEmpty(Verb)) {
                         var req = engine.ExecuteVerb(Verb, target);
                         if (req > requirement) requirement = req;
-                    } else if (Transition != null) {
-                        var req = engine.ExecuteTransition(Transition, target);
-                        if (req > requirement) requirement = req;
-                    } else if (PoolOperation != null) {
-                        var req = engine.ExecutePoolOperation(PoolOperation);
+                    } else if (Step != null) {
+                        var req = engine.ExecuteStep(Step, target);
                         if (req > requirement) requirement = req;
                     }
                 }

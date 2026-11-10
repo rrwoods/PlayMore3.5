@@ -95,8 +95,8 @@ namespace PlayMore35.Tests {
             };
 
             engine.Definition.Verbs["throw_and_detonate"] = new List<SubsystemStep> {
-                new SubsystemStep(type: "transition", slotGroup: "flasks", selector: "invoked", fromState: "prepared", toState: "expended"),
-                new SubsystemStep(type: "invoke_element_verb", verb: "detonate")
+                SubsystemStep.Transition("flasks", "expended", fromState: "prepared", selector: "invoked"),
+                SubsystemStep.ElementVerb("detonate")
             };
 
             engine.AssignSlot("flasks", 0, "Fire Flask", state: "prepared");
@@ -113,13 +113,9 @@ namespace PlayMore35.Tests {
         public void ExecuteStep_AssignStep_DirectlyAssignsSlotAndState() {
             var (engine, pipeline) = CreateAlchemyEngine();
 
-            var assignStep = new SubsystemStep(
-                type: "assign",
-                slotGroup: "flasks",
-                toState: "prepared"
-            );
+            var assignStep = SubsystemStep.Assign("flasks", "prepared");
 
-            var req = pipeline.ExecuteStep(assignStep, slotGroup: "flasks", targetSlotIndex: 1, targetElement: "Acid Flask");
+            var req = pipeline.ExecuteStep(assignStep, new SubsystemTarget(slotGroup: "flasks", slotIndex: 1, element: "Acid Flask"));
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             var slot = engine.GetSlots("flasks")[1];
@@ -136,7 +132,7 @@ namespace PlayMore35.Tests {
                 type: "action",
                 action: new SheetAction {
                     Subsystem = "synthetic_alchemy",
-                    PoolOperation = new SubsystemPoolOperation("catalyst", "recharge", 4)
+                    Step = SubsystemStep.Pool("catalyst", "recharge", 4)
                 }
             );
 
@@ -152,22 +148,22 @@ namespace PlayMore35.Tests {
         #region Random Selection Fallback (on_empty_verb)
 
         [TestMethod]
-        public void ExecuteTransition_RandomSelector_TransitionsCandidate_WithoutExecutingFallback() {
+        public void ExecuteStep_Transition_RandomSelector_TransitionsCandidate_WithoutExecutingFallback() {
             var (engine, pipeline) = CreateManeuverEngine(new Random(42));
 
             engine.AssignSlot("maneuvers", 0, "Steel Wind", state: "withheld");
             engine.AssignSlot("maneuvers", 1, "Sapphire Nightmare Blade", state: "withheld");
 
-            var transition = new SubsystemTransition {
-                SlotGroup = "maneuvers",
-                Selector = "random",
-                FromState = "withheld",
-                ToState = "available",
-                CountExpression = "1",
-                OnEmptyVerb = "deal"
-            };
+            var step = SubsystemStep.Transition(
+                slotGroup: "maneuvers",
+                selector: "random",
+                fromState: "withheld",
+                toState: "available",
+                countExpression: "1",
+                onEmptyVerb: "deal"
+            );
 
-            var req = pipeline.ExecuteTransition(transition);
+            var req = pipeline.ExecuteStep(step);
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             var slots = engine.GetSlots("maneuvers");
@@ -178,7 +174,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void ExecuteTransition_RandomSelector_ExecutesOnEmptyVerb_WhenNoCandidatesMatch() {
+        public void ExecuteStep_Transition_RandomSelector_ExecutesOnEmptyVerb_WhenNoCandidatesMatch() {
             var (engine, pipeline) = CreateManeuverEngine(new Random(42));
 
             // Set up all slots in expended (zero in withheld)
@@ -191,16 +187,16 @@ namespace PlayMore35.Tests {
                 new SubsystemStep(type: "transition", slotGroup: "maneuvers", selector: "random", countExpression: "1", fromState: "withheld", toState: "available")
             };
 
-            var transition = new SubsystemTransition {
-                SlotGroup = "maneuvers",
-                Selector = "random",
-                FromState = "withheld",
-                ToState = "available",
-                CountExpression = "1",
-                OnEmptyVerb = "deal"
-            };
+            var step = SubsystemStep.Transition(
+                slotGroup: "maneuvers",
+                selector: "random",
+                fromState: "withheld",
+                toState: "available",
+                countExpression: "1",
+                onEmptyVerb: "deal"
+            );
 
-            var req = pipeline.ExecuteTransition(transition);
+            var req = pipeline.ExecuteStep(step);
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             var slots = engine.GetSlots("maneuvers");
@@ -211,22 +207,22 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void ExecuteTransition_RandomSelector_TransitionsMultipleCandidates_WhenCountExceedsOne() {
+        public void ExecuteStep_Transition_RandomSelector_TransitionsMultipleCandidates_WhenCountExceedsOne() {
             var (engine, pipeline) = CreateManeuverEngine(new Random(42));
 
             engine.AssignSlot("maneuvers", 0, "Steel Wind", state: "withheld");
             engine.AssignSlot("maneuvers", 1, "Sapphire Nightmare Blade", state: "withheld");
             engine.AssignSlot("maneuvers", 2, "Leading the Attack", state: "withheld");
 
-            var transition = new SubsystemTransition {
-                SlotGroup = "maneuvers",
-                Selector = "random",
-                FromState = "withheld",
-                ToState = "available",
-                CountExpression = "2"
-            };
+            var step = SubsystemStep.Transition(
+                slotGroup: "maneuvers",
+                selector: "random",
+                fromState: "withheld",
+                toState: "available",
+                countExpression: "2"
+            );
 
-            var req = pipeline.ExecuteTransition(transition);
+            var req = pipeline.ExecuteStep(step);
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             var slots = engine.GetSlots("maneuvers");
@@ -235,21 +231,21 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void ExecuteTransition_RandomSelector_TransitionsAllCandidates_WhenCountExceedsCandidateTotal() {
+        public void ExecuteStep_Transition_RandomSelector_TransitionsAllCandidates_WhenCountExceedsCandidateTotal() {
             var (engine, pipeline) = CreateManeuverEngine(new Random(42));
 
             engine.AssignSlot("maneuvers", 0, "Steel Wind", state: "withheld");
             engine.AssignSlot("maneuvers", 1, "Sapphire Nightmare Blade", state: "withheld");
 
-            var transition = new SubsystemTransition {
-                SlotGroup = "maneuvers",
-                Selector = "random",
-                FromState = "withheld",
-                ToState = "available",
-                CountExpression = "5"
-            };
+            var step = SubsystemStep.Transition(
+                slotGroup: "maneuvers",
+                selector: "random",
+                fromState: "withheld",
+                toState: "available",
+                countExpression: "5"
+            );
 
-            var req = pipeline.ExecuteTransition(transition);
+            var req = pipeline.ExecuteStep(step);
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             var slots = engine.GetSlots("maneuvers");
@@ -262,22 +258,21 @@ namespace PlayMore35.Tests {
         #region Active Slot Clamping
 
         [TestMethod]
-        public void ExecuteTransition_ActiveSlotClamping_DeactivatesOldestSlot_WhenExceedingCapacity() {
+        public void ExecuteStep_Transition_ActiveSlotClamping_DeactivatesOldestSlot_WhenExceedingCapacity() {
             var (engine, pipeline) = CreateManeuverEngine();
 
             // stances capacity is 1 by default
             engine.AssignSlot("stances", 0, "Iron Guard's Glare", state: "active");
             engine.AssignSlot("stances", 1, "Thicket of Blades", state: "inactive");
 
-            var transition = new SubsystemTransition {
-                SlotGroup = "stances",
-                Selector = "invoked",
-                FromState = "*",
-                ToState = "active",
-                SlotIndex = 1
-            };
+            var step = SubsystemStep.Transition(
+                slotGroup: "stances",
+                selector: "invoked",
+                fromState: "*",
+                toState: "active"
+            );
 
-            var req = pipeline.ExecuteTransition(transition);
+            var req = pipeline.ExecuteStep(step, new SubsystemTarget(slotIndex: 1));
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0));
@@ -285,7 +280,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void ExecuteTransition_ActiveSlotClamping_UsesSelectedIndices_ToDeactivateSpecificSlot() {
+        public void ExecuteStep_Transition_ActiveSlotClamping_UsesSelectedIndices_ToDeactivateSpecificSlot() {
             var (engine, pipeline) = CreateManeuverEngine();
 
             // Set active stances capacity to 2 via context
@@ -298,16 +293,14 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 2, "Stance C", state: "inactive");
 
             // Deactivate Slot 1 ("Stance B") explicitly via SelectedIndices
-            var transition = new SubsystemTransition {
-                SlotGroup = "stances",
-                Selector = "invoked",
-                FromState = "*",
-                ToState = "active",
-                SlotIndex = 2,
-                SelectedIndices = new List<int> { 1 }
-            };
+            var step = SubsystemStep.Transition(
+                slotGroup: "stances",
+                selector: "invoked",
+                fromState: "*",
+                toState: "active"
+            );
 
-            var req = pipeline.ExecuteTransition(transition);
+            var req = pipeline.ExecuteStep(step, new SubsystemTarget(slotIndex: 2, selectedIndices: new List<int> { 1 }));
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             Assert.AreEqual("active", engine.GetSlotState("stances", 0));
@@ -316,7 +309,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void ExecuteTransition_ActiveSlotClamping_PreservesFifoOrder_AcrossConsecutiveTransitions() {
+        public void ExecuteStep_Transition_ActiveSlotClamping_PreservesFifoOrder_AcrossConsecutiveTransitions() {
             var (engine, pipeline) = CreateManeuverEngine();
 
             // stances capacity is 1
@@ -324,44 +317,39 @@ namespace PlayMore35.Tests {
             engine.AssignSlot("stances", 1, "Stance 1", state: "inactive");
             engine.AssignSlot("stances", 2, "Stance 2", state: "inactive");
 
+            var step = SubsystemStep.Transition(slotGroup: "stances", selector: "invoked", fromState: "*", toState: "active");
+
             // Activate Slot 0
-            pipeline.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "stances", Selector = "invoked", FromState = "*", ToState = "active", SlotIndex = 0
-            });
+            pipeline.ExecuteStep(step, new SubsystemTarget(slotIndex: 0));
             Assert.AreEqual("active", engine.GetSlotState("stances", 0));
 
             // Activate Slot 1 (clamps Slot 0)
-            pipeline.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "stances", Selector = "invoked", FromState = "*", ToState = "active", SlotIndex = 1
-            });
+            pipeline.ExecuteStep(step, new SubsystemTarget(slotIndex: 1));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0));
             Assert.AreEqual("active", engine.GetSlotState("stances", 1));
 
             // Activate Slot 2 (clamps Slot 1)
-            pipeline.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "stances", Selector = "invoked", FromState = "*", ToState = "active", SlotIndex = 2
-            });
+            pipeline.ExecuteStep(step, new SubsystemTarget(slotIndex: 2));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 0));
             Assert.AreEqual("inactive", engine.GetSlotState("stances", 1));
             Assert.AreEqual("active", engine.GetSlotState("stances", 2));
         }
 
         [TestMethod]
-        public void ExecuteTransition_ActiveSlotClamping_NoOp_WhenSlotAlreadyActive() {
+        public void ExecuteStep_Transition_ActiveSlotClamping_NoOp_WhenSlotAlreadyActive() {
             var (engine, pipeline) = CreateManeuverEngine();
 
             engine.AssignSlot("stances", 0, "Stance 0", state: "active");
             engine.AssignSlot("stances", 1, "Stance 1", state: "inactive");
 
-            var transition = new SubsystemTransition {
-                SlotGroup = "stances",
-                Selector = "invoked",
-                FromState = "*",
-                ToState = "active",
-                SlotIndex = 0
-            };
+            var step = SubsystemStep.Transition(
+                slotGroup: "stances",
+                selector: "invoked",
+                fromState: "*",
+                toState: "active"
+            );
 
-            var req = pipeline.ExecuteTransition(transition);
+            var req = pipeline.ExecuteStep(step, new SubsystemTarget(slotIndex: 0));
 
             Assert.AreEqual(TimelineRefreshRequirement.FullReload, req);
             Assert.AreEqual("active", engine.GetSlotState("stances", 0));
@@ -373,52 +361,52 @@ namespace PlayMore35.Tests {
         #region Pool Operations
 
         [TestMethod]
-        public void ExecutePoolOperation_Consume_DecrementsPoolValue() {
+        public void ExecuteStep_PoolStep_Consume_DecrementsPoolValue() {
             var (engine, pipeline) = CreateAlchemyEngine();
 
             engine.SetPoolValue("catalyst", 10);
-            var op = new SubsystemPoolOperation("catalyst", "consume", 4);
+            var step = SubsystemStep.Pool("catalyst", "consume", 4);
 
-            var req = pipeline.ExecutePoolOperation(op);
+            var req = pipeline.ExecuteStep(step);
 
             Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, req);
             Assert.AreEqual(6, engine.GetPoolValue("catalyst"));
         }
 
         [TestMethod]
-        public void ExecutePoolOperation_Recharge_IncrementsPoolValue() {
+        public void ExecuteStep_PoolStep_Recharge_IncrementsPoolValue() {
             var (engine, pipeline) = CreateAlchemyEngine();
 
             engine.SetPoolValue("heat", 2);
-            var op = new SubsystemPoolOperation("heat", "recharge", 3);
+            var step = SubsystemStep.Pool("heat", "recharge", 3);
 
-            var req = pipeline.ExecutePoolOperation(op);
+            var req = pipeline.ExecuteStep(step);
 
             Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, req);
             Assert.AreEqual(5, engine.GetPoolValue("heat"));
         }
 
         [TestMethod]
-        public void ExecutePoolOperation_Set_SetsPoolValueDirectly() {
+        public void ExecuteStep_PoolStep_Set_SetsPoolValueDirectly() {
             var (engine, pipeline) = CreateAlchemyEngine();
 
             engine.SetPoolValue("catalyst", 2);
-            var op = new SubsystemPoolOperation("catalyst", "set", 8);
+            var step = SubsystemStep.Pool("catalyst", "set", 8);
 
-            var req = pipeline.ExecutePoolOperation(op);
+            var req = pipeline.ExecuteStep(step);
 
             Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, req);
             Assert.AreEqual(8, engine.GetPoolValue("catalyst"));
         }
 
         [TestMethod]
-        public void ExecutePoolOperation_NullOrEmptyOperation_ReturnsNoneWithoutMutation() {
+        public void ExecuteStep_PoolStep_NullOrEmptyOperation_ReturnsNoneWithoutMutation() {
             var (engine, pipeline) = CreateAlchemyEngine();
 
             engine.SetPoolValue("heat", 2);
 
-            Assert.AreEqual(TimelineRefreshRequirement.None, pipeline.ExecutePoolOperation(null));
-            Assert.AreEqual(TimelineRefreshRequirement.None, pipeline.ExecutePoolOperation(new SubsystemPoolOperation("", "consume", 1)));
+            Assert.AreEqual(TimelineRefreshRequirement.None, pipeline.ExecuteStep(null));
+            Assert.AreEqual(TimelineRefreshRequirement.None, pipeline.ExecuteStep(SubsystemStep.Pool("", "consume", 1)));
             Assert.AreEqual(2, engine.GetPoolValue("heat"));
         }
 
@@ -453,7 +441,7 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("deal", step.OnEmptyVerb);
             Assert.AreEqual("strike", step.Verb);
             Assert.AreSame(action, step.Action);
-            Assert.AreEqual("catalyst", step.Pool);
+            Assert.AreEqual("catalyst", step.PoolId);
             Assert.AreEqual("recharge", step.Op);
             Assert.AreEqual(5, step.Amount);
             Assert.IsTrue(step.IsTransition);

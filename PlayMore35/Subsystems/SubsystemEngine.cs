@@ -627,14 +627,8 @@ namespace PlayMore35.Subsystems {
             SetPoolValue(poolId, current + amount);
         }
 
-        public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation? operation) =>
-            _verbPipeline.ExecutePoolOperation(operation);
-
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, SubsystemTarget target) =>
-            _verbPipeline.ExecuteTransition(transition, target);
-
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, int? targetSlotIndex = null, string? targetElement = null, string? targetSource = null) =>
-            _verbPipeline.ExecuteTransition(transition, targetSlotIndex, targetElement, targetSource);
+        public TimelineRefreshRequirement ExecuteStep(SubsystemStep step, SubsystemTarget? target = null) =>
+            _verbPipeline.ExecuteStep(step, target);
 
         public TimelineRefreshRequirement InvokeElementVerb(string verbName, SubsystemSlot slot) =>
             _verbPipeline.InvokeElementVerb(verbName, slot);

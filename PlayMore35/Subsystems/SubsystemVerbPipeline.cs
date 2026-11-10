@@ -91,9 +91,10 @@ namespace PlayMore35.Subsystems {
                 return TimelineRefreshRequirement.None;
             }
 
+            var target = new SubsystemTarget(slotGroup, slotIndex, elementName, effectiveSource, selectedIndices);
             TimelineRefreshRequirement requirement = TimelineRefreshRequirement.None;
             foreach (var step in steps) {
-                var req = ExecuteStep(step, slotGroup, slotIndex, elementName, effectiveSource, invokedSlot, selectedIndices);
+                var req = ExecuteStep(step, target);
                 if (step.IsTransition && req == TimelineRefreshRequirement.None) {
                     break;
                 }
@@ -121,27 +122,25 @@ namespace PlayMore35.Subsystems {
                 return TimelineRefreshRequirement.None;
             }
 
+            var target = new SubsystemTarget(element: slot.Element, source: slot.Source);
             TimelineRefreshRequirement requirement = TimelineRefreshRequirement.None;
             foreach (var step in steps) {
-                var req = ExecuteStep(step, slotGroup: null, targetSlotIndex: null, targetElement: slot.Element, targetSource: slot.Source, invokedSlot: slot);
+                var req = ExecuteStep(step, target);
                 if (req > requirement) requirement = req;
             }
             return requirement;
         }
 
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, SubsystemTarget? target) {
-            return ExecuteTransition(transition, target?.SlotIndex, target?.Element, target?.Source);
-        }
-
-        public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, int? targetSlotIndex = null, string? targetElement = null, string? targetSource = null) {
-            if (transition == null || string.IsNullOrEmpty(transition.SlotGroup)) return TimelineRefreshRequirement.None;
-            var group = engine.GetSlotGroup(transition.SlotGroup);
+        private TimelineRefreshRequirement ExecuteTransitionStep(SubsystemStep step, SubsystemTarget? target) {
+            string groupName = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : target?.SlotGroup ?? "";
+            if (string.IsNullOrEmpty(groupName)) return TimelineRefreshRequirement.None;
+            var group = engine.GetSlotGroup(groupName);
             if (group == null) return TimelineRefreshRequirement.None;
 
-            string selector = transition.Selector?.ToLowerInvariant() ?? "invoked";
-            string from = transition.FromState ?? "";
-            string to = transition.ToState ?? "";
-            engine.Definition.SlotGroups.TryGetValue(transition.SlotGroup, out var groupDef);
+            string selector = step.Selector?.ToLowerInvariant() ?? "invoked";
+            string from = step.FromState ?? "";
+            string to = step.ToState ?? "";
+            engine.Definition.SlotGroups.TryGetValue(groupName, out var groupDef);
             bool anyTransitioned = false;
 
             bool MatchesFrom(SubsystemSlot slot) {
@@ -149,7 +148,10 @@ namespace PlayMore35.Subsystems {
                 return MatchesState(slot.State, from);
             }
 
-            int rawIndex = transition.SlotIndex ?? targetSlotIndex ?? -1;
+            int rawIndex = target?.SlotIndex ?? -1;
+            string? targetElement = target?.Element;
+            string? targetSource = target?.Source;
+            var selectedIndices = target?.SelectedIndices;
 
             void TransitionSlot(SubsystemSlot slot) {
                 string priorState = slot.State;
@@ -176,8 +178,8 @@ namespace PlayMore35.Subsystems {
                         string inactiveState = !string.IsNullOrEmpty(groupDef.DefaultState) ? groupDef.DefaultState : "inactive";
                         while (currentlyActive.Count >= maxActive) {
                             SubsystemSlot? toDeactivate = null;
-                            if (rawIndex >= 0 && transition.SelectedIndices != null && transition.SelectedIndices.Count > 0) {
-                                int repFlatIdx = engine.ResolveFlatSlotIndex(transition.SlotGroup, transition.SelectedIndices[0], targetSource, false);
+                            if (rawIndex >= 0 && selectedIndices != null && selectedIndices.Count > 0) {
+                                int repFlatIdx = engine.ResolveFlatSlotIndex(groupName, selectedIndices[0], targetSource, false);
                                 if (repFlatIdx >= 0 && repFlatIdx < group.Slots.Count) {
                                     var candidate = group.Slots[repFlatIdx];
                                     if (currentlyActive.Contains(candidate)) {
@@ -205,15 +207,15 @@ namespace PlayMore35.Subsystems {
                     engine.ResetElementParameters(elemName);
                     slot.Element = "";
                 } else if (!string.Equals(priorState, to, StringComparison.OrdinalIgnoreCase)) {
-                    engine.ResetDeactivatedParameters(elemName, transition.SlotGroup, priorState, to);
+                    engine.ResetDeactivatedParameters(elemName, groupName, priorState, to);
                 }
             }
 
             switch (selector) {
                 case "invoked":
-                    if (rawIndex < 0 && string.IsNullOrEmpty(targetElement) && transition.SelectedIndices != null && transition.SelectedIndices.Count > 0) {
-                        foreach (var idx in transition.SelectedIndices) {
-                            int flatIdx = engine.ResolveFlatSlotIndex(transition.SlotGroup, idx, targetSource, false);
+                    if (rawIndex < 0 && string.IsNullOrEmpty(targetElement) && selectedIndices != null && selectedIndices.Count > 0) {
+                        foreach (var idx in selectedIndices) {
+                            int flatIdx = engine.ResolveFlatSlotIndex(groupName, idx, targetSource, false);
                             if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
                                 var slot = group.Slots[flatIdx];
                                 if (MatchesFrom(slot)) {
@@ -225,7 +227,7 @@ namespace PlayMore35.Subsystems {
                     }
                     SubsystemSlot? targetSlot = null;
                     if (rawIndex >= 0) {
-                        int flatIdx = engine.ResolveFlatSlotIndex(transition.SlotGroup, rawIndex, targetSource, false);
+                        int flatIdx = engine.ResolveFlatSlotIndex(groupName, rawIndex, targetSource, false);
                         if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
                             targetSlot = group[flatIdx];
                         }
@@ -253,10 +255,9 @@ namespace PlayMore35.Subsystems {
                     break;
 
                 case "select":
-                    var selected = transition.SelectedIndices;
-                    if (selected != null && selected.Count > 0) {
-                        foreach (var idx in selected) {
-                            int flatIdx = engine.ResolveFlatSlotIndex(transition.SlotGroup, idx, targetSource, false);
+                    if (selectedIndices != null && selectedIndices.Count > 0) {
+                        foreach (var idx in selectedIndices) {
+                            int flatIdx = engine.ResolveFlatSlotIndex(groupName, idx, targetSource, false);
                             if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
                                 var slot = group.Slots[flatIdx];
                                 if (MatchesFrom(slot)) {
@@ -265,9 +266,9 @@ namespace PlayMore35.Subsystems {
                             }
                         }
                     } else {
-                        int selIndex = transition.SlotIndex ?? targetSlotIndex ?? -1;
+                        int selIndex = rawIndex;
                         if (selIndex >= 0) {
-                            int flatIdx = engine.ResolveFlatSlotIndex(transition.SlotGroup, selIndex, targetSource, false);
+                            int flatIdx = engine.ResolveFlatSlotIndex(groupName, selIndex, targetSource, false);
                             if (flatIdx >= 0 && flatIdx < group.Slots.Count) {
                                 var slot = group.Slots[flatIdx];
                                 if (MatchesFrom(slot)) {
@@ -286,10 +287,10 @@ namespace PlayMore35.Subsystems {
 
                 case "random":
                     var candidates = GetMatchingSlots(group, from, targetSource);
-                    if (candidates.Count == 0 && !string.IsNullOrEmpty(transition.OnEmptyVerb)) {
-                        return ExecuteVerb(transition.OnEmptyVerb, transition.SlotGroup, targetSlotIndex, targetElement, targetSource);
+                    if (candidates.Count == 0 && !string.IsNullOrEmpty(step.OnEmptyVerb)) {
+                        return ExecuteVerb(step.OnEmptyVerb, groupName, rawIndex >= 0 ? (int?)rawIndex : null, targetElement, targetSource, selectedIndices);
                     }
-                    int count = ResolveCount(transition.CountExpression, targetSource);
+                    int count = ResolveCount(step.CountExpression, targetSource);
                     if (candidates.Count <= count) {
                         foreach (var c in candidates) {
                             TransitionSlot(c);
@@ -313,23 +314,6 @@ namespace PlayMore35.Subsystems {
             return TimelineRefreshRequirement.FullReload;
         }
 
-        public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation? operation) {
-            if (operation == null || string.IsNullOrEmpty(operation.Pool)) return TimelineRefreshRequirement.None;
-            string op = operation.Op?.ToLowerInvariant() ?? "consume";
-            switch (op) {
-                case "consume":
-                    engine.ConsumePool(operation.Pool, operation.Amount);
-                    break;
-                case "recharge":
-                    engine.RechargePool(operation.Pool, operation.Amount);
-                    break;
-                case "set":
-                    engine.SetPoolValue(operation.Pool, operation.Amount);
-                    break;
-            }
-            return TimelineRefreshRequirement.RecomputeDerived;
-        }
-
         private List<SubsystemStep>? ResolveVerbSteps(string verbName, string? source) {
             if (!string.IsNullOrEmpty(source) && engine.Context?.Catalog != null) {
                 if (engine.Context.Catalog.TryGetClass(source!, out var cls) && cls.Subsystems != null && cls.Subsystems.TryGetValue(engine.Id, out var subFeature)) {
@@ -344,22 +328,18 @@ namespace PlayMore35.Subsystems {
             return null;
         }
 
-        public TimelineRefreshRequirement ExecuteStep(
-            SubsystemStep step,
-            string? slotGroup = null,
-            int? targetSlotIndex = null,
-            string? targetElement = null,
-            string? targetSource = null,
-            SubsystemSlot? invokedSlot = null,
-            List<int>? selectedIndices = null) {
+        public TimelineRefreshRequirement ExecuteStep(SubsystemStep step, SubsystemTarget? target = null) {
             if (step == null) return TimelineRefreshRequirement.None;
             string type = step.Type?.ToLowerInvariant() ?? "";
 
             switch (type) {
                 case "assign":
-                    string? groupName = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : slotGroup;
+                    string? groupName = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : target?.SlotGroup;
                     string targetState = !string.IsNullOrEmpty(step.ToState) ? step.ToState : "assigned";
-                    int selIndex = targetSlotIndex ?? -1;
+                    int selIndex = target?.SlotIndex ?? -1;
+                    string? targetSource = target?.Source;
+                    string? targetElement = target?.Element;
+
                     if (selIndex == -1 && !string.IsNullOrEmpty(groupName)) {
                         var slots = engine.GetSlots(groupName, targetSource);
                         for (int i = 0; i < slots.Count; i++) {
@@ -376,27 +356,20 @@ namespace PlayMore35.Subsystems {
                     return TimelineRefreshRequirement.FullReload;
 
                 case "transition":
-                    var transition = new SubsystemTransition {
-                        SlotGroup = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : slotGroup,
-                        Selector = step.Selector,
-                        FromState = step.FromState,
-                        ToState = step.ToState,
-                        CountExpression = step.CountExpression,
-                        OnEmptyVerb = step.OnEmptyVerb,
-                        SlotIndex = targetSlotIndex,
-                        SelectedIndices = selectedIndices
-                    };
-                    return ExecuteTransition(transition, targetSlotIndex, targetElement, targetSource);
+                    return ExecuteTransitionStep(step, target);
 
                 case "invoke_element_verb":
-                    var slot = invokedSlot;
-                    if (slot == null && !string.IsNullOrEmpty(slotGroup)) {
-                        if (targetSlotIndex.HasValue && targetSlotIndex.Value >= 0) {
-                            slot = engine.GetSlot(slotGroup, targetSlotIndex.Value, targetSource);
-                        }
+                    string elemGroup = !string.IsNullOrEmpty(step.SlotGroup) ? step.SlotGroup : target?.SlotGroup ?? "";
+                    int? elemIndex = target?.SlotIndex;
+                    string? elemName = target?.Element;
+                    string? elemSource = target?.Source;
+
+                    SubsystemSlot? slot = null;
+                    if (!string.IsNullOrEmpty(elemGroup) && elemIndex.HasValue && elemIndex.Value >= 0) {
+                        slot = engine.GetSlot(elemGroup, elemIndex.Value, elemSource);
                     }
-                    if (slot == null && !string.IsNullOrEmpty(targetElement)) {
-                        slot = new SubsystemSlot(targetElement, "invoked", targetSource);
+                    if (slot == null && !string.IsNullOrEmpty(elemName)) {
+                        slot = new SubsystemSlot(elemName, "invoked", elemSource);
                     }
                     return slot != null && !string.IsNullOrEmpty(step.Verb) ? InvokeElementVerb(step.Verb, slot) : TimelineRefreshRequirement.None;
 
@@ -407,8 +380,20 @@ namespace PlayMore35.Subsystems {
                     return TimelineRefreshRequirement.None;
 
                 case "pool":
-                    var poolOp = new SubsystemPoolOperation(step.Pool, step.Op, step.Amount);
-                    return ExecutePoolOperation(poolOp);
+                    if (string.IsNullOrEmpty(step.PoolId)) return TimelineRefreshRequirement.None;
+                    string op = step.Op?.ToLowerInvariant() ?? "consume";
+                    switch (op) {
+                        case "consume":
+                            engine.ConsumePool(step.PoolId, step.Amount);
+                            break;
+                        case "recharge":
+                            engine.RechargePool(step.PoolId, step.Amount);
+                            break;
+                        case "set":
+                            engine.SetPoolValue(step.PoolId, step.Amount);
+                            break;
+                    }
+                    return TimelineRefreshRequirement.RecomputeDerived;
 
                 default:
                     return TimelineRefreshRequirement.None;

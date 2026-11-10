@@ -465,7 +465,8 @@ public class ReachabilityAnalyzer {
     private static readonly HashSet<string> CoreDomainEngineInterfaces = new(StringComparer.Ordinal) {
         "ICharacterSession",
         "IRulesCatalog",
-        "ISubsystemEngine"
+        "ISubsystemEngine",
+        "IReadOnlyCharacter"
     };
 
     private static readonly HashSet<string> CoreDomainEngineImplementations = new(StringComparer.Ordinal) {
@@ -478,10 +479,12 @@ public class ReachabilityAnalyzer {
         "EffectPool",
         "ModifierTypes",
         "SubsystemDefinition",
+        "SubsystemStep",
         "TaxonomyEntry",
         "SubsystemElement",
         "SubsystemSlotGroup",
-        "SubsystemUIRegistry"
+        "SubsystemUIRegistry",
+        "ReadOnlyCharacter"
     };
 
     private static readonly string[] CoreDomainEngineImplementationNames = {
@@ -494,10 +497,12 @@ public class ReachabilityAnalyzer {
         "EffectPool",
         "ModifierTypes",
         "SubsystemDefinition",
+        "SubsystemStep",
         "TaxonomyEntry",
         "SubsystemElement",
         "SubsystemSlotGroup",
-        "SubsystemUIRegistry"
+        "SubsystemUIRegistry",
+        "ReadOnlyCharacter"
     };
 
     private static bool IsProductionRoot(IMethodSymbol symbol) {
