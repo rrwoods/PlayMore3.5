@@ -100,6 +100,18 @@ _Avoid_: Character build, profile, sheet state
 A character build selection made at a specific acquisition level (such as a feat, class level, martial maneuver, spell, or vestige) subject to level gating and prerequisite validation.
 _Avoid_: Build choice, character option, level selection, build decision
 
+**Progression Slot**:
+A named capacity receptacle during character progression (such as an advancement feat, racial bonus feat, class bonus feat, or gear grant) that holds a progression choice.
+_Avoid_: Feat slot, build slot, bonus feat slot
+
+**Progression Slot Key**:
+An immutable value module identifying a progression or gear assignment receptacle (composed of slot kind, source, and level), decoupled from character progression state and acquisition level.
+_Avoid_: Slot string, receptacle key, feat slot key
+
+**Feat Assignment**:
+A character build binding that assigns a specific feat and its associated inline choices to a progression slot.
+_Avoid_: Feat choice entry, slot selection, feat record
+
 **Progression Choice Context**:
 An evaluative descriptor encapsulating acquisition level, choice domain, target source, and candidate value for uniform prerequisite and level-gate validation.
 _Avoid_: Validation context, choice request, choice descriptor, validation parameters
