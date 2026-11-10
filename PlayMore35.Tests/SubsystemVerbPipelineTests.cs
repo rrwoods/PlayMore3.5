@@ -422,19 +422,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(2, engine.GetPoolValue("heat"));
         }
 
-        [TestMethod]
-        public void ExecuteOperation_AliasForExecutePoolOperation_BehavesIdentically() {
-            var (engine, pipeline) = CreateAlchemyEngine();
-
-            engine.SetPoolValue("catalyst", 10);
-            var op = new SubsystemPoolOperation("catalyst", "consume", 3);
-
-            var req = pipeline.ExecuteOperation(op);
-
-            Assert.AreEqual(TimelineRefreshRequirement.RecomputeDerived, req);
-            Assert.AreEqual(7, engine.GetPoolValue("catalyst"));
-        }
-
         #endregion
 
         #region SubsystemStep Encapsulation

@@ -7,6 +7,7 @@ using PlayMore35.Items;
 using PlayMore35.Subsystems;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PlayMore35.Tests {
     [TestClass]
@@ -179,6 +180,31 @@ namespace PlayMore35.Tests {
             Assert.IsTrue(character.Timeline.Combat);
             Assert.AreEqual(roundZero, character.Timeline.RoundZero);
             Assert.AreEqual(roundZero.AddSeconds(42 * 6), character.Timeline.CurrentTime);
+        }
+
+        [TestMethod]
+        public void Timeline_ActiveActions_YieldsAcrossScheduledAndEncounterActions_AllocationFree() {
+            var timeline = new Timeline();
+            var schedAction1 = new SheetAction { Name = "Sched1" };
+            var schedAction2 = new SheetAction { Name = "Sched2" };
+            var encounterAction = new SheetAction { Name = "Enc1" };
+
+            timeline.Schedule(schedAction1, "1 round");
+            timeline.Schedule(schedAction2, "2 rounds");
+            timeline.Schedule(encounterAction, "1 encounter");
+
+            Assert.AreEqual(2, timeline.ScheduledActionCount);
+            Assert.AreEqual(1, timeline.GetScheduledActions(1).Count);
+            Assert.AreSame(schedAction1, timeline.GetScheduledActions(1)[0]);
+            Assert.AreEqual(1, timeline.GetScheduledActions(2).Count);
+            Assert.AreSame(schedAction2, timeline.GetScheduledActions(2)[0]);
+            Assert.AreEqual(0, timeline.GetScheduledActions(99).Count);
+
+            var active = timeline.ActiveActions.ToList();
+            Assert.AreEqual(3, active.Count);
+            CollectionAssert.Contains(active, schedAction1);
+            CollectionAssert.Contains(active, schedAction2);
+            CollectionAssert.Contains(active, encounterAction);
         }
     }
 }

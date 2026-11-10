@@ -31,6 +31,50 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
+        public void Character_ParameterlessConstructor_GuaranteesAll15CollectionsNonNull() {
+            var character = new Character();
+            Assert.IsNotNull(character.assignedAbilityScores);
+            Assert.IsNotNull(character.bonusLanguages);
+            Assert.IsNotNull(character.classLevels);
+            Assert.IsNotNull(character.abilityScoreIncrements);
+            Assert.IsNotNull(character.rolledHitDice);
+            Assert.IsNotNull(character.skillRanks);
+            Assert.IsNotNull(character.feats);
+            Assert.IsNotNull(character.transactions);
+            Assert.IsNotNull(character.inventory);
+            Assert.IsNotNull(character.equipped);
+            Assert.IsNotNull(character.sessions);
+            Assert.IsNotNull(character.externalEffects);
+            Assert.IsNotNull(character.Subsystems);
+            Assert.IsNotNull(character.flagValues);
+            Assert.IsNotNull(character.paramValues);
+            Assert.IsNotNull(character.Timeline);
+            Assert.IsNotNull(character.RoutinePreferences);
+        }
+
+        [TestMethod]
+        public void Character_JsonConstructor_WithEmptyObject_GuaranteesAll15CollectionsNonNull() {
+            var character = new Character(new Newtonsoft.Json.Linq.JObject());
+            Assert.IsNotNull(character.assignedAbilityScores);
+            Assert.IsNotNull(character.bonusLanguages);
+            Assert.IsNotNull(character.classLevels);
+            Assert.IsNotNull(character.abilityScoreIncrements);
+            Assert.IsNotNull(character.rolledHitDice);
+            Assert.IsNotNull(character.skillRanks);
+            Assert.IsNotNull(character.feats);
+            Assert.IsNotNull(character.transactions);
+            Assert.IsNotNull(character.inventory);
+            Assert.IsNotNull(character.equipped);
+            Assert.IsNotNull(character.sessions);
+            Assert.IsNotNull(character.externalEffects);
+            Assert.IsNotNull(character.Subsystems);
+            Assert.IsNotNull(character.flagValues);
+            Assert.IsNotNull(character.paramValues);
+            Assert.IsNotNull(character.Timeline);
+            Assert.IsNotNull(character.RoutinePreferences);
+        }
+
+        [TestMethod]
         public void CharacterContext_GetStatistic_EvaluatesActiveModifiersAndExplanations() {
             var character = new Character();
             var pool = new EffectPool(character);

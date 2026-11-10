@@ -461,46 +461,6 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void PactMagic_SlotLevelValidation_ReflectsVestigeLevelAndMaxVestigeLevel() {
-            var vestige1 = CreateTestVestige("Aym", 1, 15);
-            var vestige2 = CreateTestVestige("Savnok", 2, 15);
-            var contentProvider = new FakeRulesCatalog(vestiges: new[] { vestige1, vestige2 }, inner: new GameRulesCatalog());
-            var character = new Character();
-            character.classLevels[0] = "Binder";
-            character.assignedAbilityScores["STR"] = 10;
-            character.assignedAbilityScores["CON"] = 10;
-            var session = new CharacterSession(character, contentProvider);
-            var engine = session.GetSubsystem("pact_magic");
-
-            // Empty slot is valid
-            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
-
-            // Slot 0: Level 1 vestige is valid
-            engine.AssignSlot("vestiges", 0, "Aym", "good_pact", "Binder");
-            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
-
-            // Slot 0: Level 2 vestige is bound without exception (Enable, Don't Enforce)
-            engine.AssignSlot("vestiges", 0, "Savnok", "good_pact", "Binder");
-            Assert.AreEqual("Savnok", engine.GetSlot("vestiges", 0).Element);
-            Assert.IsFalse(engine.IsSlotLevelValid("vestiges", 0));
-
-            // Dynamically increase max vestige level to 2 (Binder level 3)
-            character.classLevels.Add("Binder");
-            character.classLevels.Add("Binder");
-            session.Recalculate();
-            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
-
-            // Unbind resets to valid
-            session.PerformAction(new SheetAction {
-                Subsystem = "pact_magic",
-                SlotGroup = "vestiges",
-                SlotIndex = 0,
-                Verb = "unbind"
-            });
-            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
-        }
-
-        [TestMethod]
         public void SubsystemElement_ImplementsIPropertyProvider_AndExposesGenericProperties() {
             var catalog = new GameRulesCatalog();
             var engine = new SubsystemEngine(catalog.GetSubsystem("pact_magic"), new FakeCharacterContext(catalog: catalog));
@@ -842,10 +802,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, pactEngine.ValidateChoice(null, aym.Name, "Binder").Count);
             Assert.IsTrue(pactEngine.ValidateChoice(null, savnok.Name, "Binder").Any(w => w.Category == ValidationCategory.LevelGate));
 
-            // Savnok in slot 0 is overleveled
-            pactEngine.AssignSlot("vestiges", 0, "Savnok", "good_pact", "Binder");
-            Assert.IsFalse(pactEngine.IsSlotLevelValid("vestiges", 0));
-
             // Modify Savnok's projected level by -1
             var reduceSavnok = new Effect("Savnok Affinity")
                 .AddModifier("level:Savnok", new Modifier(-1, ModifierTypes.UNTYPED));
@@ -855,16 +811,15 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, session.GetStatistic("level:Savnok").Value);
             Assert.AreEqual(1, savnok.GetStatistic("level", session).Value);
 
-            // Savnok is now valid in slot 0 and passes level gate
+            // Savnok is now valid and passes level gate
             Assert.AreEqual(0, pactEngine.ValidateChoice(null, savnok.Name, "Binder").Count);
-            Assert.IsTrue(pactEngine.IsSlotLevelValid("vestiges", 0));
 
             // Removing modifier restores Savnok to level 2
             ctx.Effects.RemoveEffect(reduceSavnok.Name);
 
             Assert.AreEqual(2, session.GetStatistic("level:Savnok").Value);
             Assert.AreEqual(2, savnok.GetStatistic("level", session).Value);
-            Assert.IsFalse(pactEngine.IsSlotLevelValid("vestiges", 0));
+            Assert.IsTrue(pactEngine.ValidateChoice(null, savnok.Name, "Binder").Any(w => w.Category == ValidationCategory.LevelGate));
         }
     }
 }

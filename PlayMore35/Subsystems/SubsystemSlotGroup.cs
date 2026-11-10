@@ -33,21 +33,6 @@ namespace PlayMore35.Subsystems {
 
         public int MaxLevel => maxLevelProvider != null ? maxLevelProvider() : int.MaxValue;
 
-        public bool IsSlotLevelValid(int slotIndex) {
-            ValidateIndex(slotIndex);
-            if (levelSelector == null) {
-                return true;
-            }
-            if (slotIndex >= slots.Count) {
-                return true;
-            }
-            TSlot item = slots[slotIndex];
-            if (EqualityComparer<TSlot>.Default.Equals(item, default(TSlot)!)) {
-                return true;
-            }
-            return levelSelector(item) <= MaxLevel;
-        }
-
         public IReadOnlyList<TSlot> Slots {
             get {
                 int count = Math.Max(Capacity, slots.Count);
@@ -65,12 +50,16 @@ namespace PlayMore35.Subsystems {
         public TSlot this[int index] {
             get {
                 ValidateIndex(index);
-                EnsureCapacity(index + 1);
+                while (slots.Count <= index) {
+                    slots.Add(slotFactory());
+                }
                 return slots[index];
             }
             set {
                 ValidateIndex(index);
-                EnsureCapacity(index + 1);
+                while (slots.Count <= index) {
+                    slots.Add(slotFactory());
+                }
                 slots[index] = value;
             }
         }
@@ -89,12 +78,6 @@ namespace PlayMore35.Subsystems {
         private static void ValidateIndex(int index) {
             if (index < 0) {
                 throw new ArgumentOutOfRangeException(nameof(index), $"Slot index {index} must be non-negative.");
-            }
-        }
-
-        private void EnsureCapacity(int size) {
-            while (slots.Count < size) {
-                slots.Add(slotFactory());
             }
         }
     }

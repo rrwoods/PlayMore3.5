@@ -17,28 +17,28 @@ namespace PlayMore35.Rules {
     public class GameRulesCatalog : IRulesCatalog {
         private readonly string? saveDir;
 
-        public IReadOnlyDictionary<string, Race> Races { get; private set; } = null!;
-        public IReadOnlyDictionary<string, CharacterClass> Classes { get; private set; } = null!;
-        public IReadOnlyDictionary<string, Feat> Feats { get; private set; } = null!;
-        public IReadOnlyDictionary<string, Weapon> Weapons { get; private set; } = null!;
-        public IReadOnlyDictionary<string, Armor> Armors { get; private set; } = null!;
-        public IReadOnlyDictionary<string, Shield> Shields { get; private set; } = null!;
-        public IReadOnlyDictionary<string, WeaponProperty> WeaponProperties { get; private set; } = null!;
-        public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; private set; } = null!;
-        public IReadOnlyDictionary<string, Item> Items { get; private set; } = null!;
-        public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; private set; } = null!;
-        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; private set; } = null!;
+        public IReadOnlyDictionary<string, Race> Races { get; private set; } = new Dictionary<string, Race>();
+        public IReadOnlyDictionary<string, CharacterClass> Classes { get; private set; } = new Dictionary<string, CharacterClass>();
+        public IReadOnlyDictionary<string, Feat> Feats { get; private set; } = new Dictionary<string, Feat>();
+        public IReadOnlyDictionary<string, Weapon> Weapons { get; private set; } = new Dictionary<string, Weapon>();
+        public IReadOnlyDictionary<string, Armor> Armors { get; private set; } = new Dictionary<string, Armor>();
+        public IReadOnlyDictionary<string, Shield> Shields { get; private set; } = new Dictionary<string, Shield>();
+        public IReadOnlyDictionary<string, WeaponProperty> WeaponProperties { get; private set; } = new Dictionary<string, WeaponProperty>();
+        public IReadOnlyDictionary<string, ArmorProperty> ArmorProperties { get; private set; } = new Dictionary<string, ArmorProperty>();
+        public IReadOnlyDictionary<string, Item> Items { get; private set; } = new Dictionary<string, Item>();
+        public IReadOnlyDictionary<string, ExternalEffect> ExternalEffects { get; private set; } = new Dictionary<string, ExternalEffect>();
+        public IReadOnlyDictionary<string, SubsystemDefinition> Subsystems { get; private set; } = new Dictionary<string, SubsystemDefinition>();
 
-        public IReadOnlyDictionary<string, int> CoreFeatSlots { get; private set; } = null!;
-        public IReadOnlyList<Statistic> CoreStats { get; private set; } = null!;
-        public IReadOnlyList<Effect> CoreEffects { get; private set; } = null!;
-        public IReadOnlyDictionary<string, FlagDefinition> CoreFlags { get; private set; } = null!;
-        public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters { get; private set; } = null!;
-        public JToken CoreRulesJson { get; private set; } = null!;
+        public IReadOnlyDictionary<string, int> CoreFeatSlots { get; private set; } = new Dictionary<string, int>();
+        public IReadOnlyList<Statistic> CoreStats { get; private set; } = new List<Statistic>();
+        public IReadOnlyList<Effect> CoreEffects { get; private set; } = new List<Effect>();
+        public IReadOnlyDictionary<string, FlagDefinition> CoreFlags { get; private set; } = new Dictionary<string, FlagDefinition>();
+        public IReadOnlyDictionary<string, ParameterDefinition> CoreParameters { get; private set; } = new Dictionary<string, ParameterDefinition>();
+        public JToken CoreRulesJson { get; private set; } = new JObject();
 
-        private IReadOnlyList<string> weaponNames = null!;
-        private IReadOnlyList<string> martialWeaponNames = null!;
-        private IReadOnlyList<string> exoticWeaponNames = null!;
+        private IReadOnlyList<string> weaponNames = new List<string>();
+        private IReadOnlyList<string> martialWeaponNames = new List<string>();
+        private IReadOnlyList<string> exoticWeaponNames = new List<string>();
         private static readonly IReadOnlyList<string> crossbows = new string[] { "hand crossbow", "light crossbow" };
         private static readonly Lazy<GameRulesCatalog> DefaultCatalog = new Lazy<GameRulesCatalog>(() => new GameRulesCatalog(null, true));
 

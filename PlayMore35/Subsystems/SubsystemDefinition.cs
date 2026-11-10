@@ -107,6 +107,9 @@ namespace PlayMore35.Subsystems {
     }
 
     public class LevelGatingDefinition : IJsonable {
+        public static readonly LevelGatingDefinition None = new LevelGatingDefinition();
+        public bool IsEnabled => !string.IsNullOrEmpty(ElementStatistic);
+
         public string ElementStatistic { get; set; } = "";
         public string? MaxLevelLabel { get; set; } = null;
 
@@ -166,10 +169,10 @@ namespace PlayMore35.Subsystems {
     public class SlotGroupDefinition : IJsonable {
         public string Name { get; set; } = "";
         public string? Filter { get; set; }
-        public string CapacityStat { get; set; } = null;
+        public string? CapacityStat { get; set; }
         public List<StateCapacityDefinition> StateCapacities { get; } = new List<StateCapacityDefinition>();
         public int FixedCapacity { get; set; } = 0;
-        public MaxLevelDefinition MaxLevel { get; set; } = null;
+        public MaxLevelDefinition? MaxLevel { get; set; }
         public List<Effect> Effects { get; } = new List<Effect>();
         private readonly List<JObject> _rawEffectJson = new List<JObject>();
         private readonly Dictionary<string, List<Effect>> _effectsBySourceCache = new Dictionary<string, List<Effect>>(StringComparer.OrdinalIgnoreCase);
@@ -263,7 +266,7 @@ namespace PlayMore35.Subsystems {
     public class PoolDefinition : IJsonable {
         public string Id { get; set; } = "";
         public string Name { get; set; } = "";
-        public string CapacityStat { get; set; } = null;
+        public string? CapacityStat { get; set; }
         public int DefaultCapacity { get; set; } = 0;
 
         public PoolDefinition(
@@ -418,7 +421,7 @@ namespace PlayMore35.Subsystems {
         public List<EffectProjectionRule> Projections { get; } = new List<EffectProjectionRule>();
         public List<string> RequiredElementProperties { get; } = new List<string>();
         public Dictionary<string, List<string>> ElementStatistics { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-        public LevelGatingDefinition LevelGating { get; set; } = null;
+        public LevelGatingDefinition LevelGating { get; set; } = LevelGatingDefinition.None;
         public Dictionary<string, Dictionary<string, TaxonomyEntry>> Taxonomies { get; } = new Dictionary<string, Dictionary<string, TaxonomyEntry>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, SubsystemElement> Elements { get; } = new Dictionary<string, SubsystemElement>(StringComparer.OrdinalIgnoreCase);
         public List<SheetAction> Actions { get; } = new List<SheetAction>();
@@ -520,8 +523,8 @@ namespace PlayMore35.Subsystems {
                 }
             }
 
-            if (LevelGating != null) {
-                if (string.IsNullOrEmpty(LevelGating.ElementStatistic) || !ElementStatistics.ContainsKey(LevelGating.ElementStatistic)) {
+            if (LevelGating != LevelGatingDefinition.None) {
+                if (!LevelGating.IsEnabled || !ElementStatistics.ContainsKey(LevelGating.ElementStatistic)) {
                     throw new InvalidOperationException($"Subsystem '{Id}' level gating references element statistic '{LevelGating.ElementStatistic}' which is not defined in element_statistics.");
                 }
             }
@@ -633,7 +636,7 @@ namespace PlayMore35.Subsystems {
                 subJson["required_element_properties"] = new JArray(RequiredElementProperties);
             }
 
-            if (LevelGating != null) {
+            if (LevelGating.IsEnabled) {
                 subJson["level_gating"] = LevelGating.ToJson();
             }
 

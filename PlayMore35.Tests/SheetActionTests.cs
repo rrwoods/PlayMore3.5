@@ -261,7 +261,7 @@ namespace PlayMore35.Tests {
 
             var character = new Character(json);
 
-            var scheduledActions = character.Timeline.ScheduledActions.Values.SelectMany(x => x).ToList();
+            var scheduledActions = character.Timeline.ActiveActions.ToList();
             var unbindAction = scheduledActions.FirstOrDefault(a => a.Subsystem == "pact_magic" && a.Verb == "unbind");
 
             Assert.IsNotNull(unbindAction, "Scheduled unbind action in Odric.json should deserialize as declarative SheetAction.");
@@ -294,7 +294,7 @@ namespace PlayMore35.Tests {
 
             var timeline = new Timeline(timelineJson);
 
-            var actions = timeline.ScheduledActions[15];
+            var actions = timeline.GetScheduledActions(15);
             Assert.AreEqual(1, actions.Count);
             Assert.AreEqual("pact_magic", actions[0].Subsystem);
             Assert.AreEqual("vestiges", actions[0].SlotGroup);

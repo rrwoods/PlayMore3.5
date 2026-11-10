@@ -354,7 +354,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("martial_maneuvers", minimalDef.Name);
             Assert.IsNull(minimalDef.PrerequisiteUnit);
             Assert.IsNull(minimalDef.PrerequisiteProperty);
-            Assert.IsNull(minimalDef.LevelGating);
+            Assert.AreSame(LevelGatingDefinition.None, minimalDef.LevelGating);
+            Assert.IsFalse(minimalDef.LevelGating.IsEnabled);
             Assert.IsNotNull(minimalDef.SlotGroups);
             Assert.AreEqual(0, minimalDef.SlotGroups.Count);
             Assert.IsNotNull(minimalDef.Verbs);

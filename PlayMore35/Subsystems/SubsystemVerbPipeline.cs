@@ -330,9 +330,6 @@ namespace PlayMore35.Subsystems {
             return TimelineRefreshRequirement.RecomputeDerived;
         }
 
-        public TimelineRefreshRequirement ExecuteOperation(SubsystemPoolOperation? operation) =>
-            ExecutePoolOperation(operation);
-
         private List<SubsystemStep>? ResolveVerbSteps(string verbName, string? source) {
             if (!string.IsNullOrEmpty(source) && engine.Context?.Catalog != null) {
                 if (engine.Context.Catalog.TryGetClass(source!, out var cls) && cls.Subsystems != null && cls.Subsystems.TryGetValue(engine.Id, out var subFeature)) {
