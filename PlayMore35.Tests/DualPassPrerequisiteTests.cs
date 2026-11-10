@@ -166,7 +166,7 @@ namespace PlayMore35.Tests {
             var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 1",
+                slot: ProgressionSlotKey.Advancement(1),
                 targetSource: "Feats",
                 descriptor: stanceDesc
             ));
@@ -205,7 +205,7 @@ namespace PlayMore35.Tests {
             var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 1",
+                slot: ProgressionSlotKey.Advancement(1),
                 targetSource: "Feats",
                 descriptor: stanceDesc
             ));
@@ -243,7 +243,7 @@ namespace PlayMore35.Tests {
             var warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Mountain Hammer",
-                slotKey: "Level 1",
+                slot: ProgressionSlotKey.Advancement(1),
                 targetSource: "Feats",
                 descriptor: desc
             ));
@@ -279,7 +279,7 @@ namespace PlayMore35.Tests {
             var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 1",
+                slot: ProgressionSlotKey.Advancement(1),
                 targetSource: "Feats",
                 descriptor: stanceDesc
             ));
@@ -291,7 +291,7 @@ namespace PlayMore35.Tests {
             var lvl3Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 3",
+                slot: ProgressionSlotKey.Advancement(3),
                 targetSource: "Feats",
                 descriptor: stanceDesc
             ));
@@ -319,12 +319,13 @@ namespace PlayMore35.Tests {
             using (var dialog = new LevelDetailsDialog(session)) {
                 dialog.PrepareLevel(0); // Level 1
 
+                var slotKey = ProgressionSlotKey.Advancement(1);
                 var featCombo = dialog.Controls.OfType<ComboBox>()
-                    .First(cbo => Equals(cbo.Tag, "Level 1"));
+                    .First(cbo => Equals(cbo.Tag, slotKey));
                 featCombo.SelectedItem = "Martial Stance";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, "Level 1:stance"));
+                    .First(r => r.Tag is LevelDetailsDialog.ElementReceptorBinding binding && Equals(binding.FeatSlot, slotKey) && binding.Descriptor?.Id == "stance");
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -422,8 +423,8 @@ namespace PlayMore35.Tests {
             character.abilityScoreIncrements[4] = "STR";
             character.rolledHitDice = new List<int> { 10, 8, 8, 8 };
             character.skillRanks["Jump"] = new List<int> { 1, 1, 1, 1 };
-            character.feats["Level 1"] = "Weapon Focus";
-            character.feats["Level 4"] = "Power Attack";
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Weapon Focus"));
+            character.feats.Add(new FeatAssignment(ProgressionSlotKey.Class("Fighter", 4), "Power Attack"));
 
             var session = new CharacterSession(character, fakeCatalog);
 
@@ -551,7 +552,7 @@ namespace PlayMore35.Tests {
             var context = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 1",
+                slot: ProgressionSlotKey.Advancement(1),
                 targetSource: "Feats",
                 descriptor: stanceDesc
             );
@@ -590,7 +591,7 @@ namespace PlayMore35.Tests {
             var context = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Mountain Hammer",
-                slotKey: "Level 1",
+                slot: ProgressionSlotKey.Advancement(1),
                 targetSource: "Feats",
                 descriptor: desc
             );
@@ -741,7 +742,7 @@ namespace PlayMore35.Tests {
             var context = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Power Attack",
-                slotKey: "Level 1"
+                slot: ProgressionSlotKey.Advancement(1)
             );
 
             var warnings = session.ValidateProgressionChoice(context);
@@ -926,12 +927,14 @@ namespace PlayMore35.Tests {
 
             var session = new CharacterSession(character, catalog);
 
-            var inFlightChoices = new Dictionary<string, string> {
-                ["Level 1"] = "Martial Study",
-                ["Level 1:maneuver"] = "Steel Wind"
+            var overlayAssignments = new List<FeatAssignment> {
+                new FeatAssignment(
+                    ProgressionSlotKey.Advancement(1),
+                    "Martial Study",
+                    new Dictionary<string, string> { ["maneuver"] = "Steel Wind" })
             };
 
-            var snapshot = session.CreateSessionAtLevel(1, includeEquipped: false, inFlightChoices);
+            var snapshot = session.CreateSessionAtLevel(1, includeEquipped: false, overlayAssignments: overlayAssignments);
             var engine = snapshot.GetSubsystem("martial_maneuvers");
             Assert.IsNotNull(engine);
 
@@ -966,17 +969,14 @@ namespace PlayMore35.Tests {
             var liveSession = new CharacterSession(character, fakeCatalog);
             var snapshotSession = liveSession.GetSessionAtLevel(10, includeEquipped: true);
 
-            var inFlight = new Dictionary<string, string> {
-                ["Level 1"] = "Martial Stance"
-            };
-
+            var slotKey = ProgressionSlotKey.Advancement(1);
             var progContext = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: "Level 1",
+                slot: slotKey,
                 targetSource: "Feats",
                 descriptor: stanceDesc,
-                currentChoices: inFlight
+                overlayAssignments: new[] { new FeatAssignment(slotKey, "Martial Stance") }
             );
 
             var warnings = snapshotSession.ValidateProgressionChoice(progContext);

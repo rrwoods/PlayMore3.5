@@ -70,14 +70,18 @@ namespace PlayMore35.Global {
         bool IsClassSkill(string skill, int levelIndex);
         int SkillPointsRemainingAtLevel(int levelIndex);
         int TotalSkillRanks(string skill);
-        SortedDictionary<int, List<string>> GetFeatSlots();
-        int GetFeatSlotLevel(string featSlot);
-        string ResolveFeatTargetSource(string featSlot);
-        IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string filter = null);
-        void SetFeatChoice(string featSlot, string choice);
-        void SetFeatChoice(string featSlot, string key, string choice);
-        string GetFeatChoice(string featSlot, string key = null);
+        SortedDictionary<int, List<ProgressionSlotKey>> GetFeatSlots();
+        int GetFeatSlotLevel(ProgressionSlotKey slot);
+        string? GetFeat(ProgressionSlotKey slot);
+        void SetFeat(ProgressionSlotKey slot, string feat);
+        string? GetFeatChoice(ProgressionSlotKey slot, string choiceId);
+        void SetFeatChoice(ProgressionSlotKey slot, string choiceId, string value);
+        void ClearFeat(ProgressionSlotKey slot);
+        string ResolveFeatTargetSource(ProgressionSlotKey? slot);
+        IReadOnlyList<string> GetEligibleClassesAtLevel(int level, string? filter = null);
         IReadOnlyList<ValidationWarning> ValidateProgressionChoice(ProgressionChoiceContext context);
+        ICharacterSession CreateSessionAtLevel(int level, ProgressionSlotKey? validatingSlot = null);
+        ICharacterSession GetSessionAtLevel(int level, ProgressionSlotKey? validatingSlot = null);
         void AddLevel();
     }
 }

@@ -23,8 +23,7 @@ namespace PlayMore35.CharacterChoices {
         public Dictionary<int, string> abilityScoreIncrements;
         public List<int> rolledHitDice;
         public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
-        public Dictionary<string, string> feats; // {feat slot -> feat name}
-        public Dictionary<string, string> featChoices; // {feat slot -> choice} --- "choice" here is e.g. a weapon for Weapon Focus
+        public List<FeatAssignment> feats = new List<FeatAssignment>();
 
         public List<GpTransaction> transactions;
         // All items available to the character that are not currently equipped
@@ -59,8 +58,7 @@ namespace PlayMore35.CharacterChoices {
                     .Where(x => x.Value.Sum() > 0)
                     .Select(x => new JProperty(x.Key, new JArray(x.Value)))
                 )),
-                new JProperty("feats", new JObject(feats.Select(x => new JProperty(x.Key, x.Value)))),
-                new JProperty("feat choices", new JObject(featChoices.Select(x => new JProperty(x.Key, x.Value)))),
+                new JProperty("feats", new JArray(feats.Select(f => f.ToJson()))),
                 new JProperty("transactions", new JArray(transactions.Select(x => x.ToJson()))),
                 new JProperty("inventory", new JObject(
                     inventory.Select(x => new JProperty(x.Key, x.Value.ToJson()))
@@ -117,13 +115,9 @@ namespace PlayMore35.CharacterChoices {
                 )
                 : new Dictionary<string, List<int>>();
 
-            feats = json["feats"] is JObject featsObj
-                ? featsObj.Properties().ToDictionary(x => x.Name, x => (string)x.Value!)
-                : new Dictionary<string, string>();
-
-            featChoices = json["feat choices"] is JObject featChoicesObj
-                ? featChoicesObj.Properties().ToDictionary(x => x.Name, x => (string)x.Value!)
-                : new Dictionary<string, string>();
+            feats = json["feats"] is JArray featsArr
+                ? featsArr.OfType<JObject>().Select(o => new FeatAssignment(o)).ToList()
+                : new List<FeatAssignment>();
 
             transactions = json["transactions"] is JArray transArr
                 ? transArr.Select(x => new GpTransaction((JObject)x)).OrderBy(t => t.GameTime).ThenBy(t => t.RealDate).ToList()
@@ -193,8 +187,7 @@ namespace PlayMore35.CharacterChoices {
             bonusLanguages = new List<string>();
             rolledHitDice = new List<int>();
             skillRanks = new Dictionary<string, List<int>>();
-            feats = new Dictionary<string, string>();
-            featChoices = new Dictionary<string, string>();
+            feats = new List<FeatAssignment>();
 
             transactions = new List<GpTransaction>();
             inventory = new Dictionary<string, InventoryLocation>();

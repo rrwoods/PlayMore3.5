@@ -23,8 +23,7 @@ namespace PlayMore35.CharacterChoices {
         public IReadOnlyDictionary<int, string> abilityScoreIncrements => character.abilityScoreIncrements;
         public IReadOnlyList<int> rolledHitDice => character.rolledHitDice;
         public IReadOnlyDictionary<string, List<int>> skillRanks => character.skillRanks;
-        public IReadOnlyDictionary<string, string> feats => character.feats;
-        public IReadOnlyDictionary<string, string> featChoices => character.featChoices;
+        public IReadOnlyList<FeatAssignment> feats => character.feats;
         public IReadOnlyList<GpTransaction> transactions => character.transactions;
         public IReadOnlyDictionary<string, InventoryLocation> inventory => character.inventory;
         public EquippedChoices equipped => character.equipped;

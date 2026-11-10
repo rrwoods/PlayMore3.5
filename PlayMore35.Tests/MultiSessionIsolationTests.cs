@@ -139,11 +139,11 @@ namespace PlayMore35.Tests {
             CollectionAssert.AreEqual(new[] { "Binder", "Barbarian", "Fighter", "Fighter" }, session.Character.classLevels.ToList());
 
             // Assert feats & choices
-            Assert.AreEqual("Improved Binding", session.Character.feats["Level 1"]);
-            Assert.AreEqual("Constant Guardian", session.Character.feats["Level 3"]);
-            Assert.AreEqual("Endurance", session.Character.feats["Fighter 1"]);
-            Assert.AreEqual("Weapon Focus", session.Character.feats["Fighter 2"]);
-            Assert.AreEqual("dagger", session.Character.featChoices["Fighter 2"]);
+            Assert.AreEqual("Improved Binding", session.GetFeat(ProgressionSlotKey.Advancement(1)));
+            Assert.AreEqual("Constant Guardian", session.GetFeat(ProgressionSlotKey.Advancement(3)));
+            Assert.AreEqual("Endurance", session.GetFeat(ProgressionSlotKey.Class("Fighter", 1)));
+            Assert.AreEqual("Weapon Focus", session.GetFeat(ProgressionSlotKey.Class("Fighter", 2)));
+            Assert.AreEqual("dagger", session.GetFeatChoice(ProgressionSlotKey.Class("Fighter", 2), "weapon"));
 
             // Assert Subsystems: Pact Magic
             Assert.IsTrue(character.Subsystems.ContainsKey("pact_magic"), "Should contain pact_magic subsystem.");
@@ -195,7 +195,7 @@ namespace PlayMore35.Tests {
             // Verify essential keys exist in output
             string[] requiredKeys = {
                 "name", "gender", "alignment", "assigned", "bonus languages", "race", "classes",
-                "incremented", "hit die rolls", "skill ranks", "feats", "feat choices", "transactions",
+                "incremented", "hit die rolls", "skill ranks", "feats", "transactions",
                 "inventory", "equipped", "sessions", "effects", "subsystems", "routine preferences",
                 "flag values", "parameter values", "time"
             };

@@ -12,7 +12,7 @@ namespace PlayMore35.Subsystems {
         public string Source { get; set; } = "";
         public string? FeatSlot { get; set; } = null;
         public ProgressionSlotKey? GrantSlot { get; set; } = null;
-        public bool IsFeatBound => !string.IsNullOrEmpty(FeatSlot);
+        public bool IsFeatBound => GrantSlot != null || !string.IsNullOrEmpty(FeatSlot);
         public bool IsGrantedByEquippedItem =>
             (GrantSlot != null && GrantSlot.Kind == SlotKind.Item) ||
             (!string.IsNullOrEmpty(FeatSlot) && FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) ||
@@ -21,7 +21,14 @@ namespace PlayMore35.Subsystems {
 
         public SubsystemSlot() { }
 
-        public SubsystemSlot(string? element, string? state, string? source = null, string? featSlot = null, ProgressionSlotKey? grantSlot = null) {
+        public SubsystemSlot(string? element, string? state, string? source = null, ProgressionSlotKey? grantSlot = null) {
+            Element = element ?? "";
+            State = state ?? "";
+            Source = source ?? "";
+            GrantSlot = grantSlot;
+        }
+
+        public SubsystemSlot(string? element, string? state, string? source, string? featSlot, ProgressionSlotKey? grantSlot = null) {
             Element = element ?? "";
             State = state ?? "";
             Source = source ?? "";

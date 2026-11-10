@@ -120,8 +120,8 @@ namespace PlayMore35.Tests {
                 session.Mutate(c => {
                     c.classLevels.Add("Barbarian");
                     c.classLevels.Add("Barbarian");
-                    c.feats["Level 1"] = "Track";
-                    c.feats["Level 3"] = "Endurance";
+                    c.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "Track"));
+                    c.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(3), "Endurance"));
                 });
 
                 var textEffects = session.GetTextEffects();

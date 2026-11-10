@@ -13,10 +13,12 @@ namespace PlayMore35.Global {
         public ProgressionChoiceDomain Domain { get; set; }
         public int AcquisitionLevel { get; set; }
         public string? SlotKey { get; set; }
+        public ProgressionSlotKey? Slot { get; set; }
         public string ChoiceValue { get; set; } = "";
         public string? TargetSource { get; set; }
         public ChoiceDescriptor? Descriptor { get; set; }
         public IReadOnlyDictionary<string, string>? CurrentChoices { get; set; }
+        public IEnumerable<FeatAssignment>? OverlayAssignments { get; set; }
 
         public ProgressionChoiceContext(
             ProgressionChoiceDomain domain,
@@ -25,7 +27,9 @@ namespace PlayMore35.Global {
             string? slotKey = null,
             string? targetSource = null,
             ChoiceDescriptor? descriptor = null,
-            IReadOnlyDictionary<string, string>? currentChoices = null) {
+            IReadOnlyDictionary<string, string>? currentChoices = null,
+            ProgressionSlotKey? slot = null,
+            IEnumerable<FeatAssignment>? overlayAssignments = null) {
             Domain = domain;
             ChoiceValue = choiceValue;
             AcquisitionLevel = acquisitionLevel;
@@ -33,6 +37,8 @@ namespace PlayMore35.Global {
             TargetSource = targetSource;
             Descriptor = descriptor;
             CurrentChoices = currentChoices;
+            Slot = slot;
+            OverlayAssignments = overlayAssignments;
         }
     }
 }

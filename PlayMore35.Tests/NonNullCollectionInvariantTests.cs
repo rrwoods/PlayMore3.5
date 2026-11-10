@@ -19,7 +19,6 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(character.rolledHitDice);
             Assert.IsNotNull(character.skillRanks);
             Assert.IsNotNull(character.feats);
-            Assert.IsNotNull(character.featChoices);
             Assert.IsNotNull(character.transactions);
             Assert.IsNotNull(character.inventory);
             Assert.IsNotNull(character.sessions);
@@ -41,7 +40,6 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(character.rolledHitDice);
             Assert.IsNotNull(character.skillRanks);
             Assert.IsNotNull(character.feats);
-            Assert.IsNotNull(character.featChoices);
             Assert.IsNotNull(character.transactions);
             Assert.IsNotNull(character.inventory);
             Assert.IsNotNull(character.sessions);

@@ -68,15 +68,43 @@
       4
     ]
   },
-  "feats": {
-    "Level 1": "Improved Binding",
-    "Level 3": "Constant Guardian",
-    "Fighter 1": "Endurance",
-    "Fighter 2": "Weapon Focus"
-  },
-  "feat choices": {
-    "Fighter 2": "dagger"
-  },
+  "feats": [
+    {
+      "slot": {
+        "kind": "Advancement",
+        "source": "Advancement",
+        "level": 1
+      },
+      "feat": "Improved Binding"
+    },
+    {
+      "slot": {
+        "kind": "Advancement",
+        "source": "Advancement",
+        "level": 3
+      },
+      "feat": "Constant Guardian"
+    },
+    {
+      "slot": {
+        "kind": "Class",
+        "source": "Fighter",
+        "level": 1
+      },
+      "feat": "Endurance"
+    },
+    {
+      "slot": {
+        "kind": "Class",
+        "source": "Fighter",
+        "level": 2
+      },
+      "feat": "Weapon Focus",
+      "choices": {
+        "weapon": "dagger"
+      }
+    }
+  ],
   "transactions": [],
   "inventory": {
     "on person": {

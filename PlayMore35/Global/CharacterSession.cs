@@ -20,8 +20,7 @@ namespace PlayMore35.Global {
         private readonly Dictionary<string, SubsystemEngine> _subsystems = new Dictionary<string, SubsystemEngine>(StringComparer.OrdinalIgnoreCase);
         private int normalSizeCategory;
 
-        private readonly Dictionary<string, string> rememberedFeats = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, string> rememberedFeatChoices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<ProgressionSlotKey, FeatAssignment> rememberedFeats = new Dictionary<ProgressionSlotKey, FeatAssignment>();
         private readonly ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession> _levelSessionCache =
             new ConcurrentDictionary<(int level, bool includeEquipped), ICharacterSession>();
 
@@ -264,15 +263,17 @@ namespace PlayMore35.Global {
                 equippedItems.SlotlessItems.Add(item);
             }
 
-            var activeGrants = new List<(string Subsystem, string SlotGroup, string Element, string Source, string FeatSlot)>();
+            var activeGrants = new List<(string Subsystem, string SlotGroup, string Element, string Source, ProgressionSlotKey GrantSlot)>();
 
-            foreach (var feat in character.feats) {
-                string featSlot = feat.Key;
-                string featName = feat.Value;
+            foreach (var fa in character.feats) {
+                ProgressionSlotKey featSlot = fa.Slot;
+                string featName = fa.Feat;
+                if (string.IsNullOrWhiteSpace(featName)) continue;
                 var featDef = catalog.GetFeat(featName);
+                if (featDef == null) continue;
                 var featChoicesList = new List<string>();
                 var choicesDict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                foreach (var kvp in character.featChoices) {
+                foreach (var kvp in fa.Choices) {
                     choicesDict[kvp.Key] = kvp.Value;
                 }
 
@@ -287,9 +288,22 @@ namespace PlayMore35.Global {
                             }
                         }
                     }
-                } else if (character.featChoices.TryGetValue(featSlot, out var c) && !string.IsNullOrWhiteSpace(c)) {
-                    featChoicesList.Add(c);
-                    choicesDict[""] = c;
+                } else {
+                    string? singleChoice = null;
+                    if (!string.IsNullOrEmpty(featDef.ChoiceDescription) && fa.Choices.TryGetValue(featDef.ChoiceDescription, out var namedChoice)) {
+                        singleChoice = namedChoice;
+                    } else if (fa.Choices.TryGetValue("", out var emptyChoice)) {
+                        singleChoice = emptyChoice;
+                    } else if (fa.Choices.Count == 1) {
+                        singleChoice = fa.Choices.Values.First();
+                    }
+                    if (!string.IsNullOrWhiteSpace(singleChoice)) {
+                        featChoicesList.Add(singleChoice);
+                        choicesDict[""] = singleChoice;
+                        if (!string.IsNullOrEmpty(featDef.ChoiceDescription)) {
+                            choicesDict[featDef.ChoiceDescription] = singleChoice;
+                        }
+                    }
                 }
 
                 effects.GenerateFeatEffects(
@@ -333,7 +347,8 @@ namespace PlayMore35.Global {
                         if (!string.IsNullOrEmpty(slotGrant.Subsystem) &&
                             !string.IsNullOrEmpty(slotGrant.SlotGroup) &&
                             !string.IsNullOrEmpty(slotGrant.Element)) {
-                            activeGrants.Add((slotGrant.Subsystem, slotGrant.SlotGroup, slotGrant.Element, slotGrant.Source ?? "Item", "Equipped:" + item.ItemEffect.Name));
+                            var itemSlotKey = ProgressionSlotKey.Item(item.ItemEffect.Name);
+                            activeGrants.Add((slotGrant.Subsystem, slotGrant.SlotGroup, slotGrant.Element, slotGrant.Source ?? "Item", itemSlotKey));
                         }
                     }
                 }
@@ -345,10 +360,10 @@ namespace PlayMore35.Global {
                 }
 
                 var engineGrants = activeGrants.Where(g => string.Equals(g.Subsystem, engine.Id, StringComparison.OrdinalIgnoreCase)).ToList();
-                engine.PruneStaleGrantedSlots(engineGrants.Select(g => (g.SlotGroup, g.Source, g.FeatSlot)));
+                engine.PruneStaleGrantedSlots(engineGrants.Select(g => (g.SlotGroup, g.Source, g.GrantSlot)));
 
                 foreach (var g in engineGrants) {
-                    engine.GrantSlot(g.SlotGroup, g.Element, g.Source, g.FeatSlot);
+                    engine.GrantSlot(g.SlotGroup, g.Element, g.Source, g.GrantSlot);
                 }
 
                 if (engine.IsActive || character.Subsystems.ContainsKey(engine.Id)) {
@@ -728,27 +743,27 @@ namespace PlayMore35.Global {
             }
         }
 
-        private void AddFeatSlot(SortedDictionary<int, List<string>> feats, string slotName, int level) {
+        private void AddFeatSlot(SortedDictionary<int, List<ProgressionSlotKey>> feats, ProgressionSlotKey slotKey, int level) {
             if (feats.ContainsKey(level)) {
-                feats[level].Add(slotName);
+                feats[level].Add(slotKey);
             } else {
-                feats[level] = new List<string> { slotName };
+                feats[level] = new List<ProgressionSlotKey> { slotKey };
             }
         }
 
-        public SortedDictionary<int, List<string>> GetFeatSlots() {
+        public SortedDictionary<int, List<ProgressionSlotKey>> GetFeatSlots() {
             int level = character.classLevels.Count;
-            SortedDictionary<int, List<string>> feats = new SortedDictionary<int, List<string>>();
+            SortedDictionary<int, List<ProgressionSlotKey>> feats = new SortedDictionary<int, List<ProgressionSlotKey>>();
             var race = catalog.GetRace(character.race);
             foreach (var feat in race.BonusFeats) {
                 if (feat.Value <= level) {
-                    AddFeatSlot(feats, feat.Key, feat.Value);
+                    AddFeatSlot(feats, ProgressionSlotKey.Race(character.race, feat.Value), feat.Value);
                 }
             }
             if (effects.featSlots != null) {
                 foreach (var feat in effects.featSlots) {
                     if (feat.Value <= level) {
-                        AddFeatSlot(feats, feat.Key, feat.Value);
+                        AddFeatSlot(feats, ProgressionSlotKey.Advancement(feat.Value), feat.Value);
                     }
                 }
             }
@@ -758,120 +773,153 @@ namespace PlayMore35.Global {
                 var classDef = catalog.GetClass(@class);
                 foreach (var feat in classDef.BonusFeats) {
                     if (feat.Value == classLevel) {
-                        AddFeatSlot(feats, feat.Key, levelIndex + 1);
+                        AddFeatSlot(feats, ProgressionSlotKey.Class(@class, classLevel), levelIndex + 1);
                     }
                 }
             }
             return feats;
         }
 
-        private static bool MatchesFeatSlot(string choiceKey, string slot) =>
-            string.Equals(choiceKey, slot, StringComparison.OrdinalIgnoreCase) ||
-            choiceKey.StartsWith(slot + ":", StringComparison.OrdinalIgnoreCase);
-
         private void ReconcileFeats() {
-            var activeSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var activeSlots = new HashSet<ProgressionSlotKey>();
             foreach (var levelSlots in GetFeatSlots().Values) {
                 foreach (var slot in levelSlots) {
                     activeSlots.Add(slot);
                 }
             }
 
-            // 1. Clean up active slots: if explicitly cleared to empty/whitespace, remove and clear memory
-            var activeKeys = character.feats.Keys.Where(slot => activeSlots.Contains(slot)).ToList();
-            foreach (var slot in activeKeys) {
-                if (string.IsNullOrWhiteSpace(character.feats[slot])) {
-                    character.feats.Remove(slot);
-                    rememberedFeats.Remove(slot);
-                    var choiceKeysToRemove = character.featChoices.Keys.Where(k => MatchesFeatSlot(k, slot)).ToList();
-                    foreach (var ck in choiceKeysToRemove) {
-                        character.featChoices.Remove(ck);
-                        rememberedFeatChoices.Remove(ck);
-                    }
+            // 1. Clean up active slots: if explicitly cleared to empty/whitespace AND has no choices, remove and clear memory
+            var activeAssignments = character.feats.Where(fa => activeSlots.Contains(fa.Slot)).ToList();
+            foreach (var fa in activeAssignments) {
+                if (string.IsNullOrWhiteSpace(fa.Feat) && fa.Choices.Count == 0) {
+                    character.feats.Remove(fa);
+                    rememberedFeats.Remove(fa.Slot);
                 } else {
-                    rememberedFeats.Remove(slot);
+                    rememberedFeats.Remove(fa.Slot);
                 }
             }
 
-            // 2. Deactivate: move inactive slots and choices from Character to session memory
-            var inactiveSlots = character.feats.Keys.Where(slot => !activeSlots.Contains(slot)).ToList();
-            foreach (var slot in inactiveSlots) {
-                string featName = character.feats[slot];
-                if (!string.IsNullOrWhiteSpace(featName)) {
-                    rememberedFeats[slot] = featName;
+            // 2. Deactivate: move inactive slots and inlined choices from Character to session memory
+            var inactiveAssignments = character.feats.Where(fa => !activeSlots.Contains(fa.Slot)).ToList();
+            foreach (var fa in inactiveAssignments) {
+                if (!string.IsNullOrWhiteSpace(fa.Feat) || fa.Choices.Count > 0) {
+                    rememberedFeats[fa.Slot] = fa;
                 }
-                character.feats.Remove(slot);
-
-                var matchingChoiceKeys = character.featChoices.Keys.Where(k => MatchesFeatSlot(k, slot)).ToList();
-                foreach (var ck in matchingChoiceKeys) {
-                    string choiceVal = character.featChoices[ck];
-                    if (!string.IsNullOrWhiteSpace(choiceVal)) {
-                        rememberedFeatChoices[ck] = choiceVal;
-                    }
-                    character.featChoices.Remove(ck);
-                }
-            }
-
-            var orphanChoiceKeys = character.featChoices.Keys.Where(k => {
-                string slotName = k.Contains(':') ? k.Substring(0, k.IndexOf(':')) : k;
-                return !activeSlots.Contains(slotName);
-            }).ToList();
-            foreach (var ck in orphanChoiceKeys) {
-                string choiceVal = character.featChoices[ck];
-                if (!string.IsNullOrWhiteSpace(choiceVal)) {
-                    rememberedFeatChoices[ck] = choiceVal;
-                }
-                character.featChoices.Remove(ck);
+                character.feats.Remove(fa);
             }
 
             // 3. Restore: for active slots not currently chosen, restore from remembered memory if present
             foreach (var slot in activeSlots) {
-                if (!character.feats.ContainsKey(slot)) {
-                    if (rememberedFeats.TryGetValue(slot, out var rememberedFeat) && !string.IsNullOrWhiteSpace(rememberedFeat)) {
-                        character.feats[slot] = rememberedFeat;
+                if (!character.feats.Any(fa => fa.Slot.Equals(slot))) {
+                    if (rememberedFeats.TryGetValue(slot, out var remembered) && (!string.IsNullOrWhiteSpace(remembered.Feat) || remembered.Choices.Count > 0)) {
+                        character.feats.Add(remembered);
                         rememberedFeats.Remove(slot);
-
-                        var choicesToRestore = rememberedFeatChoices.Keys.Where(k => MatchesFeatSlot(k, slot)).ToList();
-                        foreach (var ck in choicesToRestore) {
-                            character.featChoices[ck] = rememberedFeatChoices[ck];
-                            rememberedFeatChoices.Remove(ck);
-                        }
                     }
                 }
             }
         }
 
-        public int GetFeatSlotLevel(string featSlot) {
-            if (string.IsNullOrEmpty(featSlot)) return 0;
+        public int GetFeatSlotLevel(ProgressionSlotKey slot) {
+            if (slot == null) return 0;
             foreach (var levelEntry in GetFeatSlots()) {
-                if (levelEntry.Value.Contains(featSlot, StringComparer.OrdinalIgnoreCase)) {
+                if (levelEntry.Value.Contains(slot)) {
                     return levelEntry.Key;
                 }
-            }
-            if (featSlot.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) &&
-                int.TryParse(featSlot.Substring(6), out int parsedLevel)) {
-                return parsedLevel;
             }
             return 0;
         }
 
-        public string ResolveFeatTargetSource(string featSlot) {
-            if (character.feats.TryGetValue(featSlot, out var featName)) {
-                var featDef = catalog.GetFeat(featName);
-                var classChoice = featDef?.Choices?.FirstOrDefault(c => string.Equals(c.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase));
-                if (classChoice != null) {
-                    return ResolveClassChoice(featSlot, classChoice);
+        public string? GetFeat(ProgressionSlotKey slot) {
+            if (slot == null) return null;
+            var assignment = character.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+            return assignment?.Feat;
+        }
+
+        public void SetFeat(ProgressionSlotKey slot, string feat) {
+            if (slot == null) throw new ArgumentNullException(nameof(slot));
+            Mutate(c => {
+                var existing = c.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+                if (existing != null) {
+                    if (!string.Equals(existing.Feat, feat, StringComparison.OrdinalIgnoreCase)) {
+                        existing.Feat = feat ?? "";
+                        existing.Choices.Clear();
+                    }
+                } else {
+                    c.feats.Add(new FeatAssignment(slot, feat ?? ""));
+                }
+                if (string.IsNullOrWhiteSpace(feat)) {
+                    rememberedFeats.Remove(slot);
+                }
+            });
+        }
+
+        public string? GetFeatChoice(ProgressionSlotKey slot, string choiceId) {
+            if (slot == null) return null;
+            var assignment = character.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+            if (assignment == null) return null;
+            if (assignment.Choices.TryGetValue(choiceId ?? "", out var val)) {
+                return val;
+            }
+            if (!string.IsNullOrEmpty(assignment.Feat)) {
+                var featDef = catalog.GetFeat(assignment.Feat);
+                if (featDef != null && !string.IsNullOrEmpty(featDef.ChoiceDescription)) {
+                    if (string.IsNullOrEmpty(choiceId) && assignment.Choices.TryGetValue(featDef.ChoiceDescription, out var descVal)) {
+                        return descVal;
+                    }
+                    if (string.Equals(choiceId, featDef.ChoiceDescription, StringComparison.OrdinalIgnoreCase) && assignment.Choices.TryGetValue("", out var emptyVal)) {
+                        return emptyVal;
+                    }
+                }
+            }
+            if (assignment.Choices.Count == 1) {
+                return assignment.Choices.Values.First();
+            }
+            return null;
+        }
+
+        public void SetFeatChoice(ProgressionSlotKey slot, string choiceId, string value) {
+            if (slot == null) throw new ArgumentNullException(nameof(slot));
+            Mutate(c => {
+                var assignment = c.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+                if (assignment == null) {
+                    assignment = new FeatAssignment(slot, "");
+                    c.feats.Add(assignment);
+                }
+                assignment.Choices[choiceId ?? ""] = value ?? "";
+            });
+        }
+
+        public void ClearFeat(ProgressionSlotKey slot) {
+            if (slot == null) return;
+            Mutate(c => {
+                c.feats.RemoveAll(fa => fa.Slot.Equals(slot));
+                rememberedFeats.Remove(slot);
+            });
+        }
+
+        public string ResolveFeatTargetSource(ProgressionSlotKey? slot) {
+            if (slot != null) {
+                var assignment = character.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+                if (assignment != null && !string.IsNullOrWhiteSpace(assignment.Feat)) {
+                    var featDef = catalog.GetFeat(assignment.Feat);
+                    var classChoice = featDef?.Choices?.FirstOrDefault(c => string.Equals(c.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase));
+                    if (classChoice != null) {
+                        return ResolveClassChoice(slot, classChoice);
+                    }
                 }
             }
 
-            int level = GetFeatSlotLevel(featSlot);
+            int level = slot != null ? GetFeatSlotLevel(slot) : 0;
             var adeptClasses = GetEligibleClassesAtLevel(level, "adept");
 
-            if (character.featChoices.TryGetValue($"{featSlot}:class", out var chosenClass) && !string.IsNullOrWhiteSpace(chosenClass)) {
-                var matched = adeptClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
-                if (matched != null) return matched;
-                if (string.Equals(chosenClass, "Feats", StringComparison.OrdinalIgnoreCase)) return "Feats";
-                return chosenClass;
+            if (slot != null) {
+                var assignment = character.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+                if (assignment != null && assignment.Choices.TryGetValue("class", out var chosenClass) && !string.IsNullOrWhiteSpace(chosenClass)) {
+                    var matched = adeptClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
+                    if (matched != null) return matched;
+                    if (string.Equals(chosenClass, "Feats", StringComparison.OrdinalIgnoreCase)) return "Feats";
+                    return chosenClass;
+                }
             }
 
             if (adeptClasses.Count == 0) {
@@ -880,22 +928,26 @@ namespace PlayMore35.Global {
             return adeptClasses[0];
         }
 
-        public object? ResolveFeatChoice(string featSlot, ChoiceDescriptor descriptor) {
+        public object? ResolveFeatChoice(ProgressionSlotKey slot, ChoiceDescriptor descriptor) {
             if (descriptor == null) return null;
             if (string.Equals(descriptor.Domain, "CharacterClasses", StringComparison.OrdinalIgnoreCase)) {
-                return ResolveClassChoice(featSlot, descriptor);
+                return ResolveClassChoice(slot, descriptor);
             }
 
             string? rawChoice = null;
             string choiceKey = descriptor.Id;
-            if (!string.IsNullOrEmpty(choiceKey) &&
-                character.featChoices.TryGetValue($"{featSlot}:{choiceKey}", out var val) &&
-                !string.IsNullOrWhiteSpace(val)) {
-                rawChoice = val;
-            } else if (character.featChoices.TryGetValue(featSlot, out var defaultChoice) &&
-                       !string.IsNullOrWhiteSpace(defaultChoice)) {
-                rawChoice = defaultChoice;
-            } else if (!string.IsNullOrEmpty(descriptor.Fallback)) {
+            var assignment = character.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+            if (assignment != null) {
+                if (!string.IsNullOrEmpty(choiceKey) &&
+                    assignment.Choices.TryGetValue(choiceKey, out var val) &&
+                    !string.IsNullOrWhiteSpace(val)) {
+                    rawChoice = val;
+                } else if (assignment.Choices.TryGetValue("", out var defaultChoice) &&
+                           !string.IsNullOrWhiteSpace(defaultChoice)) {
+                    rawChoice = defaultChoice;
+                }
+            }
+            if (string.IsNullOrEmpty(rawChoice) && !string.IsNullOrEmpty(descriptor.Fallback)) {
                 rawChoice = descriptor.Fallback;
             }
 
@@ -911,14 +963,15 @@ namespace PlayMore35.Global {
             return rawChoice;
         }
 
-        public string ResolveClassChoice(string featSlot, ChoiceDescriptor descriptor) {
+        public string ResolveClassChoice(ProgressionSlotKey slot, ChoiceDescriptor descriptor) {
             if (descriptor == null) return "";
-            int level = GetFeatSlotLevel(featSlot);
+            int level = GetFeatSlotLevel(slot);
             var eligibleClasses = GetEligibleClassesAtLevel(level, descriptor.Filter);
 
             string choiceKey = descriptor.Id;
-            if (!string.IsNullOrEmpty(choiceKey) &&
-                character.featChoices.TryGetValue($"{featSlot}:{choiceKey}", out var chosenClass) &&
+            var assignment = character.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
+            if (assignment != null && !string.IsNullOrEmpty(choiceKey) &&
+                assignment.Choices.TryGetValue(choiceKey, out var chosenClass) &&
                 !string.IsNullOrWhiteSpace(chosenClass)) {
                 var matched = eligibleClasses.FirstOrDefault(c => string.Equals(c, chosenClass, StringComparison.OrdinalIgnoreCase));
                 if (matched != null) return matched;
@@ -964,36 +1017,19 @@ namespace PlayMore35.Global {
                 .AsReadOnly();
         }
 
-        public void SetFeatChoice(string featSlot, string choice) {
-            Mutate(c => {
-                c.featChoices[featSlot] = choice;
-            });
-        }
-
-        public void SetFeatChoice(string featSlot, string key, string choice) {
-            Mutate(c => {
-                c.featChoices[$"{featSlot}:{key}"] = choice;
-            });
-        }
-
-        public string GetFeatChoice(string featSlot, string? key = null) {
-            if (string.IsNullOrEmpty(key)) {
-                return character.featChoices.TryGetValue(featSlot, out var choice) ? choice : "";
-            }
-            return character.featChoices.TryGetValue($"{featSlot}:{key}", out var compChoice) ? compChoice : "";
-        }
-
         private IReadOnlyList<ValidationWarning> EvaluateDualPass(
             int evalLevel,
             Func<CharacterSession, IReadOnlyList<ValidationWarning>> evaluate,
-            IReadOnlyDictionary<string, string>? currentChoices = null,
-            string? validatingSlotKey = null) {
+            ProgressionSlotKey? validatingSlot = null,
+            IEnumerable<FeatAssignment>? overlayAssignments = null,
+            IReadOnlyDictionary<string, string>? currentChoices = null) {
             int totalLevels = character.classLevels.Count;
-            bool hasOverlay = currentChoices != null && currentChoices.Count > 0;
+            bool hasOverlay = overlayAssignments != null && overlayAssignments.Any();
+            bool hasChoices = currentChoices != null && currentChoices.Any();
 
             if (evalLevel >= 0 && evalLevel <= totalLevels) {
-                var intrinsicSnapshot = hasOverlay
-                    ? CreateSessionAtLevel(evalLevel, includeEquipped: false, currentChoices, validatingSlotKey)
+                var intrinsicSnapshot = (hasOverlay || hasChoices || validatingSlot != null)
+                    ? CreateSessionAtLevel(evalLevel, includeEquipped: false, validatingSlot, overlayAssignments, currentChoices)
                     : (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: false);
                 var intrinsicWarnings = evaluate(intrinsicSnapshot);
 
@@ -1001,8 +1037,8 @@ namespace PlayMore35.Global {
                     return Array.Empty<ValidationWarning>();
                 }
 
-                var equippedSnapshot = hasOverlay
-                    ? CreateSessionAtLevel(evalLevel, includeEquipped: true, currentChoices, validatingSlotKey)
+                var equippedSnapshot = (hasOverlay || hasChoices || validatingSlot != null)
+                    ? CreateSessionAtLevel(evalLevel, includeEquipped: true, validatingSlot, overlayAssignments, currentChoices)
                     : (CharacterSession)GetSessionAtLevel(evalLevel, includeEquipped: true);
                 var equippedWarnings = evaluate(equippedSnapshot);
 
@@ -1035,52 +1071,55 @@ namespace PlayMore35.Global {
             }
 
             // ProgressionChoiceDomain.Feat or Subsystem
-            int slotLevel = !string.IsNullOrEmpty(context.SlotKey) ? GetFeatSlotLevel(context.SlotKey) : 0;
+            int slotLevel = context.Slot != null ? GetFeatSlotLevel(context.Slot) : 0;
             int totalLevels = character.classLevels.Count;
             int acquisitionLevel = context.AcquisitionLevel > 0
                 ? context.AcquisitionLevel
                 : (slotLevel > 0 ? slotLevel : totalLevels);
 
-            var currentChoices = context.CurrentChoices != null
-                ? context.CurrentChoices.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-                : null;
+            List<FeatAssignment> overlayAssignments = context.OverlayAssignments != null
+                ? new List<FeatAssignment>(context.OverlayAssignments)
+                : new List<FeatAssignment>();
 
-            string? validatingKey = context.Descriptor != null && !string.IsNullOrEmpty(context.SlotKey) && !string.IsNullOrEmpty(context.Descriptor.Id)
-                ? $"{context.SlotKey}:{context.Descriptor.Id}"
-                : context.SlotKey;
+            if (context.Slot != null) {
+                var assignment = overlayAssignments.FirstOrDefault(fa => fa.Slot.Equals(context.Slot))
+                    ?? character.feats.FirstOrDefault(fa => fa.Slot.Equals(context.Slot));
+                var overlay = assignment != null
+                    ? new FeatAssignment(assignment.Slot, assignment.Feat, assignment.Choices)
+                    : new FeatAssignment(context.Slot, "");
 
-            if (context.Domain == ProgressionChoiceDomain.Feat && context.Descriptor != null && !string.IsNullOrEmpty(context.SlotKey)) {
-                bool hasFeatInSlot = character.feats.ContainsKey(context.SlotKey!) || (currentChoices != null && currentChoices.ContainsKey(context.SlotKey!));
-                if (!hasFeatInSlot) {
-                    var parentFeat = catalog.FindFeatByChoiceDescriptor(context.Descriptor);
-                    if (parentFeat != null) {
-                        currentChoices = currentChoices != null ? new Dictionary<string, string>(currentChoices) : new Dictionary<string, string>();
-                        currentChoices[context.SlotKey!] = parentFeat.Benefit?.Name ?? "";
+                if (context.Domain == ProgressionChoiceDomain.Feat && context.Descriptor == null) {
+                    overlay.Feat = context.ChoiceValue;
+                } else if (context.Descriptor != null) {
+                    if (string.IsNullOrEmpty(overlay.Feat)) {
+                        var parentFeat = catalog.FindFeatByChoiceDescriptor(context.Descriptor);
+                        if (parentFeat != null) {
+                            overlay.Feat = parentFeat.Benefit?.Name ?? "";
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(context.TargetSource) && !overlay.Choices.ContainsKey("class")) {
+                        overlay.Choices["class"] = context.TargetSource!;
+                    }
+                    if (!string.IsNullOrEmpty(context.Descriptor.Id)) {
+                        overlay.Choices.Remove(context.Descriptor.Id);
                     }
                 }
-                if (!string.IsNullOrEmpty(context.TargetSource)) {
-                    string classChoiceKey = $"{context.SlotKey}:class";
-                    if ((currentChoices == null || !currentChoices.ContainsKey(classChoiceKey)) && !character.featChoices.ContainsKey(classChoiceKey)) {
-                        currentChoices = currentChoices != null ? new Dictionary<string, string>(currentChoices) : new Dictionary<string, string>();
-                        currentChoices[classChoiceKey] = context.TargetSource!;
-                    }
-                }
+                overlayAssignments.RemoveAll(fa => fa.Slot.Equals(context.Slot));
+                overlayAssignments.Add(overlay);
             }
 
             return EvaluateDualPass(
                 acquisitionLevel,
-                s => s.EvaluateSubsystemWarnings(context.Descriptor, context.ChoiceValue, context.TargetSource, context.SlotKey),
-                currentChoices,
-                validatingKey);
+                s => s.EvaluateSubsystemWarnings(context.Descriptor, context.ChoiceValue, context.TargetSource, context.Slot),
+                validatingSlot: context.Slot,
+                overlayAssignments: overlayAssignments,
+                currentChoices: context.CurrentChoices);
         }
 
         private IReadOnlyList<ValidationWarning> ValidateClassProgressionChoice(ProgressionChoiceContext context) {
             int acquisitionLevel = context.AcquisitionLevel;
-            if (acquisitionLevel <= 0 && !string.IsNullOrEmpty(context.SlotKey)) {
-                if (context.SlotKey!.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) &&
-                    int.TryParse(context.SlotKey.Substring(6), out int parsed)) {
-                    acquisitionLevel = parsed;
-                }
+            if (acquisitionLevel <= 0 && context.Slot != null) {
+                acquisitionLevel = GetFeatSlotLevel(context.Slot);
             }
             if (acquisitionLevel <= 0) {
                 acquisitionLevel = Math.Max(1, character.classLevels.Count);
@@ -1090,8 +1129,7 @@ namespace PlayMore35.Global {
             return EvaluateDualPass(
                 evalLevel,
                 s => s.EvaluateClassWarnings(context.ChoiceValue),
-                context.CurrentChoices,
-                context.SlotKey);
+                validatingSlot: context.Slot);
         }
 
         private static readonly Dictionary<string, (string StatName, string Abbr)> AbilityScoreMap = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase) {
@@ -1162,7 +1200,7 @@ namespace PlayMore35.Global {
                 }
 
                 // 4. Feat requirement: check if character has the feat
-                bool hasFeat = character.feats.Values.Any(f => string.Equals(f, clause, StringComparison.OrdinalIgnoreCase));
+                bool hasFeat = character.feats.Any(f => string.Equals(f.Feat, clause, StringComparison.OrdinalIgnoreCase));
                 if (!hasFeat) {
                     warnings.Add(new ValidationWarning($"Requires {clause} feat.", ValidationCategory.Prerequisite));
                 }
@@ -1171,7 +1209,7 @@ namespace PlayMore35.Global {
             return warnings.AsReadOnly();
         }
 
-        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, string? slotKey = null) {
+        private IReadOnlyList<ValidationWarning> EvaluateSubsystemWarnings(ChoiceDescriptor? descriptor, string choiceValue, string? targetSource, ProgressionSlotKey? slot = null) {
             IEnumerable<SubsystemEngine> candidateEngines = _subsystems.Values;
 
             if (descriptor != null &&
@@ -1195,7 +1233,7 @@ namespace PlayMore35.Global {
 
             var allWarnings = new List<ValidationWarning>();
             foreach (var engine in targetEngines) {
-                var warnings = engine.ValidateChoice(descriptor, choiceValue, targetSource, slotKey);
+                var warnings = engine.ValidateChoice(descriptor, choiceValue, targetSource, slot);
                 if (warnings != null && warnings.Count > 0) {
                     allWarnings.AddRange(warnings);
                 }
@@ -1432,27 +1470,25 @@ namespace PlayMore35.Global {
             return _levelSessionCache.GetOrAdd((level, includeEquipped), key => CreateSessionAtLevel(key.level, key.includeEquipped));
         }
 
+        public virtual ICharacterSession GetSessionAtLevel(int level, ProgressionSlotKey? validatingSlot) {
+            if (validatingSlot == null) {
+                return GetSessionAtLevel(level, includeEquipped: false);
+            }
+            return CreateSessionAtLevel(level, includeEquipped: false, validatingSlot);
+        }
+
+        ICharacterSession ICharacterSession.GetSessionAtLevel(int level, ProgressionSlotKey? validatingSlot) =>
+            GetSessionAtLevel(level, validatingSlot);
+
+        public ICharacterSession CreateSessionAtLevel(int level, ProgressionSlotKey? validatingSlot = null) =>
+            CreateSessionAtLevel(level, includeEquipped: false, validatingSlot);
+
         internal CharacterSession CreateSessionAtLevel(
             int level,
-            bool includeEquipped,
-            IReadOnlyDictionary<string, string>? currentChoices = null,
-            string? validatingSlotKey = null) {
-            var slotLevels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            foreach (var levelEntry in GetFeatSlots()) {
-                foreach (var slot in levelEntry.Value) {
-                    slotLevels[slot] = levelEntry.Key;
-                }
-            }
-
-            int ResolveSlotLevel(string slot) {
-                if (slotLevels.TryGetValue(slot, out int slotLvl)) return slotLvl;
-                if (slot.StartsWith("Level ", StringComparison.OrdinalIgnoreCase) &&
-                    int.TryParse(slot.Substring(6), out int parsedLevel)) {
-                    return parsedLevel;
-                }
-                return 0;
-            }
-
+            bool includeEquipped = false,
+            ProgressionSlotKey? validatingSlot = null,
+            IEnumerable<FeatAssignment>? overlayAssignments = null,
+            IReadOnlyDictionary<string, string>? currentChoices = null) {
             var sliced = new Character {
                 name = character.name,
                 gender = character.gender,
@@ -1467,8 +1503,7 @@ namespace PlayMore35.Global {
                 rolledHitDice = character.rolledHitDice.Take(level).ToList(),
                 skillRanks = character.skillRanks
                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Take(level).ToList()),
-                feats = new Dictionary<string, string>(),
-                featChoices = new Dictionary<string, string>(),
+                feats = new List<FeatAssignment>(),
                 equipped = includeEquipped ? character.equipped.Clone() : new EquippedChoices(),
                 inventory = new Dictionary<string, InventoryLocation>(),
                 transactions = new List<GpTransaction>(),
@@ -1480,21 +1515,14 @@ namespace PlayMore35.Global {
                 RoutinePreferences = new AttackRoutinePreferences()
             };
 
-            foreach (var kvp in character.feats) {
-                int slotLevel = ResolveSlotLevel(kvp.Key);
+            foreach (var fa in character.feats) {
+                int slotLevel = GetFeatSlotLevel(fa.Slot);
                 if (slotLevel > 0 && slotLevel <= level) {
-                    sliced.feats[kvp.Key] = kvp.Value;
-                }
-            }
-
-            foreach (var kvp in character.featChoices) {
-                if (!string.IsNullOrEmpty(validatingSlotKey) && MatchesFeatSlot(kvp.Key, validatingSlotKey)) {
-                    continue;
-                }
-                string slot = kvp.Key.Contains(':') ? kvp.Key.Substring(0, kvp.Key.IndexOf(':')) : kvp.Key;
-                int slotLevel = ResolveSlotLevel(slot);
-                if (slotLevel > 0 && slotLevel <= level) {
-                    sliced.featChoices[kvp.Key] = kvp.Value;
+                    if (validatingSlot != null && fa.Slot.Equals(validatingSlot)) {
+                        sliced.feats.Add(new FeatAssignment(fa.Slot, fa.Feat));
+                    } else {
+                        sliced.feats.Add(new FeatAssignment(fa.Slot, fa.Feat, fa.Choices));
+                    }
                 }
             }
 
@@ -1506,23 +1534,21 @@ namespace PlayMore35.Global {
                 foreach (var slotGrp in kvp.Value.Slots) {
                     var slotsList = new List<SubsystemSlot>();
                     foreach (var s in slotGrp.Value) {
-                        if (!string.IsNullOrEmpty(validatingSlotKey) &&
-                            !string.IsNullOrEmpty(s.FeatSlot) &&
-                            (MatchesFeatSlot(s.FeatSlot, validatingSlotKey) || MatchesFeatSlot(validatingSlotKey, s.FeatSlot))) {
+                        if (validatingSlot != null && s.GrantSlot != null && s.GrantSlot.Equals(validatingSlot)) {
                             continue;
                         }
                         if (s.IsGrantedByEquippedItem) {
                             if (includeEquipped) {
-                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.GrantSlot));
                             }
-                        } else if (!string.IsNullOrEmpty(s.FeatSlot)) {
-                            int slotLevel = ResolveSlotLevel(s.FeatSlot);
+                        } else if (s.GrantSlot != null) {
+                            int slotLevel = GetFeatSlotLevel(s.GrantSlot);
                             if (slotLevel > 0 && slotLevel <= level) {
-                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.GrantSlot));
                             }
                         } else {
                             if (level > 0 && (string.IsNullOrEmpty(s.Source) || sliced.classLevels.Contains(s.Source, StringComparer.OrdinalIgnoreCase))) {
-                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.FeatSlot));
+                                slotsList.Add(new SubsystemSlot(s.Element, s.State, s.Source, s.GrantSlot));
                             }
                         }
                     }
@@ -1531,42 +1557,58 @@ namespace PlayMore35.Global {
                 sliced.Subsystems[kvp.Key] = subState;
             }
 
+            if (overlayAssignments != null && level > 0) {
+                foreach (var overlay in overlayAssignments) {
+                    int slotLevel = GetFeatSlotLevel(overlay.Slot);
+                    if (slotLevel <= 0 || slotLevel <= level) {
+                        var existing = sliced.feats.FirstOrDefault(fa => fa.Slot.Equals(overlay.Slot));
+                        if (existing != null) {
+                            existing.Feat = overlay.Feat;
+                            existing.Choices.Clear();
+                            if (validatingSlot == null || !overlay.Slot.Equals(validatingSlot)) {
+                                foreach (var c in overlay.Choices) {
+                                    existing.Choices[c.Key] = c.Value;
+                                }
+                            } else if (overlay.Choices.TryGetValue("class", out var chosenClass)) {
+                                existing.Choices["class"] = chosenClass;
+                            }
+                        } else {
+                            var choices = (validatingSlot != null && overlay.Slot.Equals(validatingSlot))
+                                ? (overlay.Choices.TryGetValue("class", out var chosenClass) ? new Dictionary<string, string> { ["class"] = chosenClass } : new Dictionary<string, string>())
+                                : overlay.Choices;
+                            sliced.feats.Add(new FeatAssignment(overlay.Slot, overlay.Feat, choices));
+                        }
+                    }
+                }
+            }
+
             if (currentChoices != null && level > 0) {
                 foreach (var kvp in currentChoices) {
                     if (string.IsNullOrWhiteSpace(kvp.Key) || string.IsNullOrWhiteSpace(kvp.Value)) {
                         continue;
                     }
-                    if (!string.IsNullOrEmpty(validatingSlotKey) && MatchesFeatSlot(kvp.Key, validatingSlotKey)) {
+                    if (validatingSlot != null && kvp.Key.StartsWith(validatingSlot.ToString(), StringComparison.OrdinalIgnoreCase)) {
                         continue;
                     }
-                    string slot = kvp.Key.Contains(':') ? kvp.Key.Substring(0, kvp.Key.IndexOf(':')) : kvp.Key;
-                    int slotLevel = ResolveSlotLevel(slot);
-                    if (slotLevel <= 0 || slotLevel <= level) {
-                        sliced.featChoices[kvp.Key] = kvp.Value;
-                        if (!kvp.Key.Contains(':')) {
-                            if (catalog.TryGetFeat(kvp.Value, out _)) {
-                                sliced.feats[kvp.Key] = kvp.Value;
-                            } else if (catalog.Subsystems != null) {
-                                foreach (var subDef in catalog.Subsystems.Values) {
-                                    if (subDef.Elements.TryGetValue(kvp.Value, out var elem) && elem != null) {
-                                        string? targetGroup = subDef.SlotGroups.Keys.FirstOrDefault(g => {
-                                            subDef.SlotGroups.TryGetValue(g, out var gDef);
-                                            return gDef != null && (string.IsNullOrEmpty(gDef.Filter) || elem.MatchesFilter(gDef.Filter, subDef));
-                                        });
-                                        if (!string.IsNullOrEmpty(targetGroup)) {
-                                            if (!sliced.Subsystems.TryGetValue(subDef.Id, out var subState)) {
-                                                subState = new SubsystemState();
-                                                sliced.Subsystems[subDef.Id] = subState;
-                                            }
-                                            if (!subState.Slots.TryGetValue(targetGroup, out var slotList)) {
-                                                slotList = new List<SubsystemSlot>();
-                                                subState.Slots[targetGroup] = slotList;
-                                            }
-                                            string source = sliced.classLevels.FirstOrDefault(c => IsClassEligible(c, subDef.Id)) ?? "Feats";
-                                            string defaultState = subDef.SlotGroups[targetGroup].DefaultState;
-                                            slotList.Add(new SubsystemSlot(elem.Name, defaultState, source, null));
-                                        }
+                    if (catalog.Subsystems != null) {
+                        foreach (var subDef in catalog.Subsystems.Values) {
+                            if (subDef.Elements.TryGetValue(kvp.Value, out var elem) && elem != null) {
+                                string? targetGroup = subDef.SlotGroups.Keys.FirstOrDefault(g => {
+                                    subDef.SlotGroups.TryGetValue(g, out var gDef);
+                                    return gDef != null && (string.IsNullOrEmpty(gDef.Filter) || elem.MatchesFilter(gDef.Filter, subDef));
+                                });
+                                if (!string.IsNullOrEmpty(targetGroup)) {
+                                    if (!sliced.Subsystems.TryGetValue(subDef.Id, out var subState)) {
+                                        subState = new SubsystemState();
+                                        sliced.Subsystems[subDef.Id] = subState;
                                     }
+                                    if (!subState.Slots.TryGetValue(targetGroup, out var slotList)) {
+                                        slotList = new List<SubsystemSlot>();
+                                        subState.Slots[targetGroup] = slotList;
+                                    }
+                                    string source = sliced.classLevels.FirstOrDefault(c => IsClassEligible(c, subDef.Id)) ?? "Feats";
+                                    string defaultState = subDef.SlotGroups[targetGroup].DefaultState;
+                                    slotList.Add(new SubsystemSlot(elem.Name, defaultState, source, null));
                                 }
                             }
                         }

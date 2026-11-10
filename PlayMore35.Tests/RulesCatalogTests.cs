@@ -721,7 +721,7 @@ namespace PlayMore35.Tests {
             StringAssert.Contains(exClass.Message, "Psion");
 
             var charBadFeat = new Character { race = "human" };
-            charBadFeat.feats["Level 1"] = "EpicSpellcasting";
+            charBadFeat.feats.Add(new FeatAssignment(ProgressionSlotKey.Advancement(1), "EpicSpellcasting"));
             var exFeat = Assert.ThrowsException<KeyNotFoundException>(() => new CharacterSession(charBadFeat, catalog));
             StringAssert.Contains(exFeat.Message, "EpicSpellcasting");
 

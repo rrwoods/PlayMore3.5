@@ -875,22 +875,23 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(engine);
 
             // Grant slot for Warblade
-            engine.GrantSlot("maneuvers", "Steel Wind", "Warblade", "Level 1");
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            engine.GrantSlot("maneuvers", "Steel Wind", "Warblade", slot1);
             var slots = engine.GetSlots("maneuvers", "Warblade");
             var granted = slots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(granted);
             Assert.AreEqual("Steel Wind", granted.Element);
-            Assert.AreEqual("Level 1", granted.FeatSlot);
+            Assert.AreEqual(slot1, granted.GrantSlot);
 
             // Update granted slot element
-            engine.GrantSlot("maneuvers", "Mountain Hammer", "Warblade", "Level 1");
+            engine.GrantSlot("maneuvers", "Mountain Hammer", "Warblade", slot1);
             slots = engine.GetSlots("maneuvers", "Warblade");
             granted = slots.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(granted);
             Assert.AreEqual("Mountain Hammer", granted.Element);
 
             // Pruning removes when not active
-            engine.PruneStaleGrantedSlots(Enumerable.Empty<(string, string, string)>());
+            engine.PruneStaleGrantedSlots(Enumerable.Empty<(string, string, ProgressionSlotKey)>());
             slots = engine.GetSlots("maneuvers", "Warblade");
             Assert.IsFalse(slots.Any(s => s != null && s.IsFeatBound));
         }
@@ -903,10 +904,16 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Warblade");
             character.classLevels.Add("Warblade");
             character.classLevels.Add("Warblade");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Steel Wind";
-            character.feats["Level 3"] = "Martial Stance";
-            character.featChoices["Level 3:stance"] = "Punishing Stance";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            var slot3 = ProgressionSlotKey.Advancement(3);
+            character.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Steel Wind" } }));
+            character.feats.Add(new FeatAssignment(
+                slot3,
+                "Martial Stance",
+                new Dictionary<string, string> { { "stance", "Punishing Stance" } }));
 
             var session = new CharacterSession(character, catalog);
             var engine = session.GetSubsystem("martial_maneuvers")!;
@@ -916,13 +923,13 @@ namespace PlayMore35.Tests {
             var maneuverSlot = maneuvers.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(maneuverSlot);
             Assert.AreEqual("Steel Wind", maneuverSlot.Element);
-            Assert.AreEqual("Level 1", maneuverSlot.FeatSlot);
+            Assert.AreEqual(slot1, maneuverSlot.GrantSlot);
 
             var stances = engine.GetSlots("stances", "Warblade");
             var stanceSlot = stances.FirstOrDefault(s => s != null && s.IsFeatBound);
             Assert.IsNotNull(stanceSlot);
             Assert.AreEqual("Punishing Stance", stanceSlot.Element);
-            Assert.AreEqual("Level 3", stanceSlot.FeatSlot);
+            Assert.AreEqual(slot3, stanceSlot.GrantSlot);
         }
 
         [TestMethod]
@@ -987,7 +994,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0, fighterSources.Count);
 
             // 2. Pure Fighter with Martial Study -> discovers "Feats" source
-            fighterChar.feats["Level 1"] = "Martial Study";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            fighterChar.feats.Add(new FeatAssignment(slot1, "Martial Study"));
             fighterSession.Recalculate();
             fighterSources = fighterEngine.GetActiveSources();
             Assert.AreEqual(1, fighterSources.Count);
@@ -1004,8 +1012,10 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Warblade", warbladeSources[0]);
 
             // 4. Warblade with Martial Study assigned to Warblade -> only "Warblade" source
-            warbladeChar.feats["Level 1"] = "Martial Study";
-            warbladeChar.featChoices["Level 1:class"] = "Warblade";
+            warbladeChar.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Study",
+                new Dictionary<string, string> { { "class", "Warblade" } }));
             warbladeSession.Recalculate();
             warbladeSources = warbladeEngine.GetActiveSources();
             Assert.AreEqual(1, warbladeSources.Count);
@@ -1029,7 +1039,8 @@ namespace PlayMore35.Tests {
             StringAssert.Contains(warningsBefore[0].Message, "Requires 1 Desert Wind maneuver, but only 0 known.");
 
             // Directly grant a Desert Wind maneuver slot to the engine (declarative active slot state)
-            engine.GrantSlot("maneuvers", "Burning Blade", "Feats", "Level 1");
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            engine.GrantSlot("maneuvers", "Burning Blade", "Feats", slot1);
 
             // Now validating Flame's Blessing purely checks slotGroups and satisfies prerequisite without any temporal slicing or character feats lookup
             var warningsAfter = engine.ValidateChoice(stanceDescriptor, "Flame's Blessing", "Feats");
@@ -1048,9 +1059,13 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Fighter");
             character.classLevels.Add("Fighter");
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Study";
-            character.featChoices["Level 1:maneuver"] = "Burning Blade";
-            character.feats["Level 3"] = "Martial Stance";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            var slot3 = ProgressionSlotKey.Advancement(3);
+            character.feats.Add(new FeatAssignment(
+                slot1,
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Burning Blade" } }));
+            character.feats.Add(new FeatAssignment(slot3, "Martial Stance"));
 
             var liveSession = new CharacterSession(character, catalog);
             var snapSession = liveSession.GetSessionAtLevel(3);
@@ -1058,9 +1073,10 @@ namespace PlayMore35.Tests {
             var context = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: "Level 3",
+                slotKey: slot3.ToString(),
                 targetSource: "Feats",
-                descriptor: stanceDescriptor
+                descriptor: stanceDescriptor,
+                slot: slot3
             );
 
             var liveWarnings = liveSession.ValidateProgressionChoice(context);
@@ -1082,18 +1098,23 @@ namespace PlayMore35.Tests {
             character.classLevels.Add("Fighter");
             character.classLevels.Add("Fighter");
             character.classLevels.Add("Fighter");
-            character.feats["Level 1"] = "Martial Stance";
-            character.feats["Level 3"] = "Martial Study";
-            character.featChoices["Level 3:maneuver"] = "Burning Blade";
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            var slot3 = ProgressionSlotKey.Advancement(3);
+            character.feats.Add(new FeatAssignment(slot1, "Martial Stance"));
+            character.feats.Add(new FeatAssignment(
+                slot3,
+                "Martial Study",
+                new Dictionary<string, string> { { "maneuver", "Burning Blade" } }));
 
             var liveSession = new CharacterSession(character, catalog);
 
             var context = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: "Level 1",
+                slotKey: slot1.ToString(),
                 targetSource: "Feats",
-                descriptor: stanceDescriptor
+                descriptor: stanceDescriptor,
+                slot: slot1
             );
 
             var warnings = liveSession.ValidateProgressionChoice(context);
@@ -1462,15 +1483,18 @@ namespace PlayMore35.Tests {
             var warnings0 = engine.ValidateChoice(stanceDescriptor, "Punishing Stance", "Feats");
             Assert.IsFalse(warnings0.Any(w => w.Category == ValidationCategory.Capacity));
 
+            var slot1 = ProgressionSlotKey.Advancement(1);
+            var slot3 = ProgressionSlotKey.Advancement(3);
+
             // Assign 1 slot for Feats bound to "Level 1"
-            engine.GrantSlot("stances", "Punishing Stance", "Feats", "Level 1");
+            engine.GrantSlot("stances", "Punishing Stance", "Feats", slot1);
 
             // Validating for another slot ("Level 3") exceeds capacity (1)
-            var warnings1 = engine.ValidateChoice(stanceDescriptor, "Blood in the Water", "Feats", "Level 3");
+            var warnings1 = engine.ValidateChoice(stanceDescriptor, "Blood in the Water", "Feats", slot3);
             Assert.IsTrue(warnings1.Any(w => w.Category == ValidationCategory.Capacity && w.Message.Contains("Selection exceeds stances capacity (1) for Feats.")));
 
             // Validating for the same slot ("Level 1") excludes it and does NOT warn
-            var warningsReSelect = engine.ValidateChoice(stanceDescriptor, "Blood in the Water", "Feats", "Level 1");
+            var warningsReSelect = engine.ValidateChoice(stanceDescriptor, "Blood in the Water", "Feats", slot1);
             Assert.IsFalse(warningsReSelect.Any(w => w.Category == ValidationCategory.Capacity));
         }
 
