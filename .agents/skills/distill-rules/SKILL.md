@@ -43,6 +43,7 @@ Call the Skill tool with "grilling" to walk the design tree with the user before
 - **Schema Selection & Design**: Confirming established schemas (`Feats`, `Maneuvers`, `Vestiges`, or `General Rules Skeleton`) or negotiating a draft schema for novel entity types.
 - **Content Scope & Fluff Pruning**: Boundaries between actionable tabletop mechanics and narrative fluff for descriptive prose, atmospheric sidebars, or table guidance.
 - **Rules Dysfunctions & Table Rulings**: Contradictions in RAW or impossible prerequisites requiring human arbitration per ADR-0001.
+- **Implied Rules**: Unwritten premises or consequences presupposed by the distilled text; capture human-supplied supporting citations and settle inlined formulations.
 
 Once the interview completes:
 - Register any newly approved schema in `docs/agents/rules-template.md` under `### Rules reference schemas`.
@@ -67,6 +68,9 @@ Read the section directly from `rules-md/` using `read_file`.
   - Add `- **Rules Dysfunction** (<dysfunction:id>): <State the contradiction in RAW>`
   - Add `- **Human-Approved Correction**: <State the table ruling>`
   - If no human ruling has been recorded yet, pause and request human arbitration per ADR-0001.
+- **Implied Rules**: When an implied rule is identified during distillation (or supplied by the user):
+  - Capture the human-supplied supporting primary source citations.
+  - Inline the rule directly into the destination file in standard tabletop language, formatted just like any other rule, with a parenthetical citation: `(implied by *<Sourcebook 1>*, p. <Page>, and *<Sourcebook 2>*, p. <Page>)`.
 
 ---
 
@@ -98,4 +102,4 @@ Read the section directly from `rules-md/` using `read_file`.
    - Target file path(s) and line count(s).
    - Number of entities distilled.
    - Any newly registered schemas added to `docs/agents/rules-template.md`.
-   - Any rules dysfunctions identified or arbitrated.
+   - Any rules dysfunctions or implied rules identified, formulated, or arbitrated.

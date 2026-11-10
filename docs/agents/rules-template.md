@@ -50,12 +50,50 @@ When an ability modifies an underlying system mechanic via an explicit formula (
 When writing or updating reference documents in `docs/rules/`:
 - **Positive reference entry format**: Author entries as positive, structured reference documentation (**Reference Entries** and **Rules Skeletons** per `GLOSSARY.md` and ADR-0011). State active rules, formulas, and data properties directly, citing the primary sourcebook and page.
 - **Tabletop vocabulary domain**: Write `docs/rules/` exclusively in the language of the sourcebooks and tabletop play. Describe how rules operate for characters and players (in-game choices, action economy, eligibility, and official 3.5e bonus types). Reserve software constructs—such as engine stat keys, C# types, and internal engine modifier categories—for resource catalogs and source code.
+- **Implied rules inlining**: Inline implied rules directly into relevant domain mechanics files in standard tabletop language, formatted just like any other rule, with a parenthetical citation: `(implied by *<Sourcebook 1>*, p. <Page>, and *<Sourcebook 2>*, p. <Page>)`. See [Implied rules formalization and authoring](#implied-rules-formalization-and-authoring).
 - **Deconstruct branching benefits**: Structure multi-part or conditional mechanics as dedicated sub-bullets under `- **Benefit**:`, isolating distinct prerequisites, conditions (such as adept vs. non-adept), and secondary outcomes (such as skill grants or recovery limits).
 - **Complete operative mechanics**: Detail the full mechanical gameplay rules so the entry is a self-contained rules reference, capturing all operational consequences rather than relying on brief summaries.
 - **Paired dysfunction templating**: When documenting rules dysfunctions, provide both the `- **Rules Dysfunction** (<tag>)` field detailing the contradiction in rules-as-written and the `- **Human-Approved Correction**` field detailing the human table ruling.
 - **Retirement of task-list checklist syntax**: Task-list checklist syntax (`- [ ]`) is strictly retired across `docs/rules/`. Rules documentation serves purely as reference facts and schemas, not as an in-file task tracker. Use markdown section headings (`### <Name>`) and structured field lists instead of checkbox items.
 - **Pure mechanics**: Restrict content to actionable mechanics: data properties, formulas, action types, prerequisite trees, associated skills or weapons, and stacking rules. Omit narrative flavor summaries to keep entries concise and files strictly within the 300-line cap.
 - **Subsystem-specific scope**: Only document universal mechanics when a subsystem explicitly modifies or overrides baseline behavior. Rely on canonical core mechanics files (`docs/rules/mechanics/`) for standard action economy and combat rules.
+
+### Implied rules formalization and authoring
+
+An **Implied Rule** (see `GLOSSARY.md` and ADR-0020) is a systemic 3.5e game principle or constraint not explicitly codified in a single operative passage of the core rulebooks, but whose existence is logically presupposed by explicit rules, exceptions, or consequences.
+
+#### 1. Evidentiary standard & boundaries
+- **Presuppositional Proof**: Candidate implied rules must be supported by primary source text whose printed rules only make sense if the unwritten rule is true.
+  - *Standard threshold*: At least two distinct primary source citations (or one primary citation plus an official errata/FAQ gloss) demonstrating consequences of the rule.
+  - *Acceptable temporary state*: A single primary source rule explicitly carving out an exception from an unwritten general rule ("Unlike normal, you can...").
+- **Table Fiat Boundary**: Unwritten rules lacking textual presupposition in primary sources are classified as **Table Fiat** or **House Rules** per ADR-0001, not Implied Rules.
+
+#### 2. Inlining format & siting
+- **Deepen before splitting**: Per ADR-0020, implied rules are inlined directly into the relevant domain mechanics file (`docs/rules/mechanics/` or `docs/rules/subsystems/`) alongside related written rules, avoiding siloed directories or registries.
+- **Natural formatting**: Implied rules are formatted to look **just like any other rule**, maintaining the paragraph or bullet style of the surrounding section, with a parenthetical citation to supporting sources:
+  `- A character cannot wield a two-handed weapon in one hand without a specialized ability or feature (implied by *Player's Handbook*, p. 113, and *Complete Warrior*, p. 158).`
+
+#### 3. Step-by-step creation & arbitration workflow
+1. **Discovery**: An unwritten premise or talked-around consequence is identified during planning, issue drafting, rules extraction, or during an interactive `/distill-rules` session.
+2. **Evidence Supply (Human Arbiter)**: The human maintainer explicitly supplies the supporting primary source citations and quotes demonstrating where the sourcebooks talk around the rule.
+3. **Draft Formulation (Agent)**: The agent drafts the inlined rule formulation in tabletop language, matching the section's format and attaching the parenthetical citations.
+4. **Arbitration Gate (Human Arbiter)**: The human maintainer reviews and approves or refines the formulation. Prior to human confirmation, the candidate rule is an unarbitrated Domain Specification; once approved and written to `docs/rules/`, it functions as an Environmental Fact.
+5. **Write-Back & Implementation**: The approved text is committed to `docs/rules/`. Implementation code and tests proceed test-first.
+
+#### 4. Code and test citation syntax
+Unit tests verifying an implied rule cite the rule title/topic and the rules library section anchor:
+```csharp
+// Source: Implied Rule: Two-Handed Weapons in One Hand (see docs/rules/mechanics/combat.md#wielding-weapons)
+```
+
+#### 5. Reversal accounting & evolution
+Because unwritten rules rely on human interpretation of scattered consequences, maintainer understanding may evolve:
+- **In-place updates**: Directly update or remove the inlined rule in `docs/rules/`, and refactor affected tests/code in the same commit.
+- **Reversal Accounting**: The git commit and PR description must explicitly document what was flawed in the prior reasoning (per project design integrity rules).
+- **Table Fiat Transition**: If an implied rule is determined not to be an implied core rule but the maintainer wishes to retain it as a table preference, recategorize it as Table Fiat / House Rule per ADR-0001.
+
+#### 6. Engine modeling
+Implied rules represent baseline 3.5e mechanics and are modeled as standard core mechanics in the C# engine without special runtime tags or speculative toggle plumbing.
 
 ### Rules reference schemas
 
@@ -293,5 +331,5 @@ Use this checklist during triage, planning, and code review:
 Enforce rules provenance at phase gates rather than relying on in-flight self-interception:
 - **Spec Gate (`/to-spec`)**: A rules-bearing task cannot be marked `ready-for-agent` without Section 2 (Rules Provenance) completed with sourcebook, page number, and verbatim quote (either retrieved from a populated `docs/rules/` entry or newly confirmed by the maintainer and written to `docs/rules/`).
 - **Modifier Types Integrity Gate**: When implementing an ability or catalog entry whose primary source specifies a bonus type missing from `ModifierTypes.All`, pause and request human arbitration: present the primary source citation, its verbatim stacking text, and propose adding the type to `PlayMore35.Effects.ModifierTypes` and `docs/rules/mechanics/stacking-and-modifiers.md`.
-- **TDD Gate (`/tdd`)**: Every unit test verifying a game rule must cite the primary source in a comment directly above the test method (`// Source: <Sourcebook Name>, p. <Number>`). If the citation is missing from `docs/rules/`, pause and request the source from the user before proceeding.
+- **TDD Gate (`/tdd`)**: Every unit test verifying a game rule must cite the primary source in a comment directly above the test method (`// Source: <Sourcebook Name>, p. <Number>` or `// Source: Implied Rule: <Name> (see docs/rules/mechanics/<file>.md#<anchor>)`). If the citation is missing from `docs/rules/`, pause and request the source from the user before proceeding.
 - **Review & Pre-commit Gate (`/code-review`, `git commit`)**: Audit all modified rules logic and `PlayMore35/Resources/*.json` entries strictly against the verified primary source quote in `docs/rules/` or the issue. Confirm that unit tests cite the primary source, that newly arbitrated citations were written to `docs/rules/`, and that no unarbitrated mechanical assumptions crept into the implementation.
