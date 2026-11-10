@@ -192,6 +192,10 @@ _Avoid_: Action tracker, action lock, turn budget
 An elemental slot state transition, element execution, or resource pool operation provided by the subsystem engine, or a named composite operation configured by a subsystem or class feature.
 _Avoid_: Subsystem action, engine mutation, custom recovery
 
+**Subsystem Step**:
+A discrete atomic action unit within a subsystem verb sequence or sheet action, specifying a slot transition, resource pool operation, element verb invocation, slot assignment, or nested sheet action.
+_Avoid_: Subsystem transition, pool operation, verb step, subsystem instruction
+
 **Slot State**:
 The current lifecycle condition of a subsystem slot (such as Unreadied, Withheld, Available, or Expended for maneuvers, or Good Pact, Poor Pact, or Empty for pact magic) governed by the subsystem's state machine.
 _Avoid_: Slot status, slot mode
