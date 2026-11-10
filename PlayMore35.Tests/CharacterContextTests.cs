@@ -31,7 +31,7 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void Character_ParameterlessConstructor_GuaranteesAll15CollectionsNonNull() {
+        public void Character_ParameterlessConstructor_GuaranteesAllCollectionsNonNull() {
             var character = new Character();
             Assert.IsNotNull(character.assignedAbilityScores);
             Assert.IsNotNull(character.bonusLanguages);

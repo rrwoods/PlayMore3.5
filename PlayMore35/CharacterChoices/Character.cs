@@ -174,42 +174,7 @@ namespace PlayMore35.CharacterChoices {
                 : new Timeline();
         }
 
-        public Character() {
-            name = "";
-            gender = "";
-            alignment = "";
-            assignedAbilityScores = new Dictionary<string, int> {
-                ["STR"] = 8,
-                ["DEX"] = 8,
-                ["CON"] = 8,
-                ["INT"] = 8,
-                ["WIS"] = 8,
-                ["CHA"] = 8,
-            };
-            race = "";
-
-            classLevels = new List<string> { DEFAULT_CLASS };
-
-            abilityScoreIncrements = new Dictionary<int, string>();
-            bonusLanguages = new List<string>();
-            rolledHitDice = new List<int>();
-            skillRanks = new Dictionary<string, List<int>>();
-            feats = new List<FeatAssignment>();
-
-            transactions = new List<GpTransaction>();
-            inventory = new Dictionary<string, InventoryLocation>();
-            equipped = new EquippedChoices();
-            sessions = new List<XpSessionEntry>();
-
-            externalEffects = new List<string>();
-            Subsystems = new Dictionary<string, SubsystemState>(StringComparer.OrdinalIgnoreCase);
-
-            flagValues = new Dictionary<string, bool>();
-            paramValues = new Dictionary<string, int>();
-
-            Timeline = new Timeline();
-            RoutinePreferences = new AttackRoutinePreferences();
-        }
+        public Character() { }
 
 
         public Dictionary<string, int> SummarizeClassLevels() {

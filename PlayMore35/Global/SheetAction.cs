@@ -86,7 +86,7 @@ namespace PlayMore35.Global {
 
         public SheetAction() { }
 
-        private SheetAction Revert() {
+        internal SheetAction Revert() {
             SheetAction revert = new SheetAction {
                 Name = Name
             };
@@ -104,23 +104,31 @@ namespace PlayMore35.Global {
                 revert.Element = Element;
                 revert.Source = Source;
 
-                if (Step != null) {
-                    if (Step.IsTransition) {
+                if (Step == null) {
+                    revert.Step = null;
+                } else if (Step.IsTransition) {
+                    if (!string.IsNullOrEmpty(Step.FromState) && !string.IsNullOrEmpty(Step.ToState)) {
                         revert.Step = SubsystemStep.Transition(
                             slotGroup: Step.SlotGroup,
-                            toState: Step.FromState ?? "",
+                            toState: Step.FromState,
                             fromState: Step.ToState,
                             selector: Step.Selector,
                             countExpression: Step.CountExpression,
                             onEmptyVerb: Step.OnEmptyVerb);
-                    } else if (string.Equals(Step.Type, "pool", StringComparison.OrdinalIgnoreCase)) {
-                        string invOp = string.Equals(Step.Op, "consume", StringComparison.OrdinalIgnoreCase) ? "recharge"
-                                     : string.Equals(Step.Op, "recharge", StringComparison.OrdinalIgnoreCase) ? "consume"
-                                     : Step.Op;
+                    } else {
+                        revert.Step = null;
+                    }
+                } else if (string.Equals(Step.Type, "pool", StringComparison.OrdinalIgnoreCase)) {
+                    string invOp = string.Equals(Step.Op, "consume", StringComparison.OrdinalIgnoreCase) ? "recharge"
+                                 : string.Equals(Step.Op, "recharge", StringComparison.OrdinalIgnoreCase) ? "consume"
+                                 : null;
+                    if (invOp != null) {
                         revert.Step = SubsystemStep.Pool(Step.PoolId, invOp, Step.Amount);
                     } else {
-                        revert.Step = Step;
+                        revert.Step = null;
                     }
+                } else {
+                    revert.Step = null;
                 }
             }
 

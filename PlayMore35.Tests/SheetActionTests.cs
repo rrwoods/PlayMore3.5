@@ -434,6 +434,91 @@ namespace PlayMore35.Tests {
             context.Timeline.Advance(1);
             Assert.AreEqual(5, engine.GetPoolValue("heat"));
         }
+
+        [TestMethod]
+        public void SheetAction_Revert_NonReversibleSteps_SetsStepToNull() {
+            var assignAction = new SheetAction {
+                Subsystem = "pact_magic",
+                Step = SubsystemStep.Assign("vestiges", "assigned")
+            };
+            Assert.IsNull(assignAction.Revert().Step, "Assign step must revert to Step = null.");
+
+            var verbAction = new SheetAction {
+                Subsystem = "martial_maneuvers",
+                Step = SubsystemStep.ElementVerb("expend")
+            };
+            Assert.IsNull(verbAction.Revert().Step, "ElementVerb step must revert to Step = null.");
+
+            var transitionNoFrom = new SheetAction {
+                Subsystem = "pact_magic",
+                Step = SubsystemStep.Transition("vestiges", "empty", fromState: null)
+            };
+            Assert.IsNull(transitionNoFrom.Revert().Step, "Transition without FromState must revert to Step = null.");
+
+            var transitionEmptyFrom = new SheetAction {
+                Subsystem = "pact_magic",
+                Step = SubsystemStep.Transition("vestiges", "empty", fromState: "")
+            };
+            Assert.IsNull(transitionEmptyFrom.Revert().Step, "Transition with empty FromState must revert to Step = null.");
+
+            var poolSetAction = new SheetAction {
+                Subsystem = "alchemy",
+                Step = SubsystemStep.Pool("heat", "set", 5)
+            };
+            Assert.IsNull(poolSetAction.Revert().Step, "Pool set operation must revert to Step = null.");
+
+            var nullStepAction = new SheetAction {
+                Subsystem = "alchemy",
+                Step = null
+            };
+            Assert.IsNull(nullStepAction.Revert().Step, "Null step must remain null on Revert().");
+        }
+
+        [TestMethod]
+        public void SheetAction_Revert_ReversibleSteps_InvertsSymmetrically() {
+            var transitionAction = new SheetAction {
+                Name = "Corrupt Vestige",
+                Subsystem = "pact_magic",
+                Step = SubsystemStep.Transition(
+                    slotGroup: "vestiges",
+                    toState: "corrupt",
+                    fromState: "pure",
+                    selector: "first",
+                    countExpression: "2",
+                    onEmptyVerb: "warn")
+            };
+            var transitionRevert = transitionAction.Revert();
+            Assert.IsNotNull(transitionRevert.Step);
+            Assert.IsTrue(transitionRevert.Step.IsTransition);
+            Assert.AreEqual("vestiges", transitionRevert.Step.SlotGroup);
+            Assert.AreEqual("pure", transitionRevert.Step.ToState);
+            Assert.AreEqual("corrupt", transitionRevert.Step.FromState);
+            Assert.AreEqual("first", transitionRevert.Step.Selector);
+            Assert.AreEqual("2", transitionRevert.Step.CountExpression);
+            Assert.AreEqual("warn", transitionRevert.Step.OnEmptyVerb);
+
+            var consumeAction = new SheetAction {
+                Subsystem = "alchemy",
+                Step = SubsystemStep.Pool("heat", "consume", 3)
+            };
+            var consumeRevert = consumeAction.Revert();
+            Assert.IsNotNull(consumeRevert.Step);
+            Assert.AreEqual("pool", consumeRevert.Step.Type);
+            Assert.AreEqual("heat", consumeRevert.Step.PoolId);
+            Assert.AreEqual("recharge", consumeRevert.Step.Op);
+            Assert.AreEqual(3, consumeRevert.Step.Amount);
+
+            var rechargeAction = new SheetAction {
+                Subsystem = "alchemy",
+                Step = SubsystemStep.Pool("heat", "recharge", 5)
+            };
+            var rechargeRevert = rechargeAction.Revert();
+            Assert.IsNotNull(rechargeRevert.Step);
+            Assert.AreEqual("pool", rechargeRevert.Step.Type);
+            Assert.AreEqual("heat", rechargeRevert.Step.PoolId);
+            Assert.AreEqual("consume", rechargeRevert.Step.Op);
+            Assert.AreEqual(5, rechargeRevert.Step.Amount);
+        }
     }
 }
 
