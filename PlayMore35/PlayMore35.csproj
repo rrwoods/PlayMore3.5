@@ -129,6 +129,9 @@
     </Compile>
     <Compile Include="CharacterChoices\CharacterClass.cs" />
     <Compile Include="CharacterChoices\ExternalEffect.cs" />
+    <Compile Include="CharacterChoices\SlotKind.cs" />
+    <Compile Include="CharacterChoices\ProgressionSlotKey.cs" />
+    <Compile Include="CharacterChoices\FeatAssignment.cs" />
     <Compile Include="CharacterChoices\Feat.cs" />
     <Compile Include="CharacterChoices\Race.cs" />
     <Compile Include="CharacterChoices\EquippedChoices.cs" />
