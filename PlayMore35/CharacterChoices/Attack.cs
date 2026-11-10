@@ -178,6 +178,26 @@ namespace PlayMore35.Items {
                 strengthRating) {
         }
 
+        private static bool IsTwoHanded(Weapon.Hand hand) =>
+            hand == Weapon.Hand.TWO_HANDED || hand == Weapon.Hand.TWO_HANDED_TWF;
+
+        private static Weapon.Effort DetermineEffort(Weapon.Hand hand, Weapon weapon, int sizeDiscrepancy) {
+            Weapon.Effort adjusted = weapon.EffortCategory + sizeDiscrepancy;
+            return (IsTwoHanded(hand) && adjusted >= Weapon.Effort.ONE_HANDED)
+                ? Weapon.Effort.TWO_HANDED
+                : adjusted;
+        }
+
+        private static Weapon.Proficiency DetermineProficiency(Weapon.Hand hand, AttackMode atk, bool familiar) {
+            if (familiar) {
+                return Weapon.Proficiency.MARTIAL;
+            }
+            if (atk.ProficencyCategory == Weapon.Proficiency.ONE_HANDED_EXOTIC) {
+                return IsTwoHanded(hand) ? Weapon.Proficiency.MARTIAL : Weapon.Proficiency.EXOTIC;
+            }
+            return atk.ProficencyCategory;
+        }
+
         private Attack(Weapon weapon, int wpnSizeCategory, int sizeDiscrepancy, AttackMode atk, Weapon.Hand hand, bool familiar)
             : this(
                 weapon.Name,
@@ -186,8 +206,8 @@ namespace PlayMore35.Items {
                 threatRange: atk.ThreatRange,
                 weaponTags: weapon.Tags,
                 weaponSizeCategory: wpnSizeCategory,
-                proficiency: familiar ? Weapon.Proficiency.MARTIAL : (atk.ProficencyCategory == Weapon.Proficiency.ONE_HANDED_EXOTIC ? ((hand == Weapon.Hand.TWO_HANDED || hand == Weapon.Hand.TWO_HANDED_TWF) ? Weapon.Proficiency.MARTIAL : Weapon.Proficiency.EXOTIC) : atk.ProficencyCategory),
-                effort: weapon.EffortCategory + sizeDiscrepancy,
+                proficiency: DetermineProficiency(hand, atk, familiar),
+                effort: DetermineEffort(hand, weapon, sizeDiscrepancy),
                 hand: hand) {
         }
 

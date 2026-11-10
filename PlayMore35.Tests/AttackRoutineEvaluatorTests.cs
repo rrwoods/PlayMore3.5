@@ -199,5 +199,61 @@ namespace PlayMore35.Tests {
             Assert.IsNotNull(meleeAndThrown, "Expected a visible Full Attack TWF routine with melee morningstar and thrown dagger");
             Assert.AreEqual(10, meleeAndThrown.Attacks[1].RangeIncrement);
         }
+
+        // Source: Player's Handbook 3.5, p. 113, p. 134
+        [TestMethod]
+        public void EvaluateRoutines_SoloOneHandedWeapon_CountsAsTwoHanded_WithOneAndHalfStrAndEffectiveTwoHandedEffort() {
+            var session = CreateSessionWithFighter(1, strScore: 14); // STR 14 (+2 mod)
+            session.Mutate(c => c.equipped.PrimaryHandWeapon = new WeaponChoice { Name = "morningstar" });
+
+            var routines = session.GetAllRoutines();
+            var standard = routines.FirstOrDefault(r => r.ActionType == RoutineActionType.Standard && r.Category == RoutineCategory.PrimarySolo);
+            Assert.IsNotNull(standard, "Solo one-handed weapon must generate standard PrimarySolo routine");
+            Assert.AreEqual(1, standard.Attacks.Count);
+
+            var soloAttack = standard.Attacks[0];
+            Assert.AreEqual(Weapon.Hand.TWO_HANDED, soloAttack.Hand, "Empty off-hand should wield one-handed weapon with two hands");
+            Assert.AreEqual(Weapon.Effort.TWO_HANDED, soloAttack.Effort, "Wielding with two hands promotes effective effort to TWO_HANDED");
+            Assert.AreEqual("1d8+3", soloAttack.BaseDamage.ToString(), "Two-handed wielding gets 1.5x STR bonus (+3)");
+
+            // Equipping a shield reverts morningstar to one-handed grip and effort
+            session.Mutate(c => c.equipped.OffHandShield = new ArmorChoice { Name = "heavy wooden shield", IsShield = true });
+            var shieldRoutines = session.GetAllRoutines();
+            var shieldStandard = shieldRoutines.FirstOrDefault(r => r.ActionType == RoutineActionType.Standard && r.Category == RoutineCategory.PrimarySolo);
+            Assert.IsNotNull(shieldStandard);
+
+            var shieldAttack = shieldStandard.Attacks[0];
+            Assert.AreEqual(Weapon.Hand.ONE_HANDED, shieldAttack.Hand, "Shield equipped should force primary weapon to ONE_HANDED");
+            Assert.AreEqual(Weapon.Effort.ONE_HANDED, shieldAttack.Effort, "Shield equipped keeps effort as ONE_HANDED");
+            Assert.AreEqual("1d8+2", shieldAttack.BaseDamage.ToString(), "One-handed wielding gets 1.0x STR bonus (+2)");
+        }
+
+        // Source: Player's Handbook 3.5, p. 113, p. 134
+        [TestMethod]
+        public void EvaluateRoutines_OdricSession_UnequipShield_PromotesMorningstarToTwoHanded() {
+            string odricPath = TestEnvironment.FindOdricJsonPath();
+            string jsonText = System.IO.File.ReadAllText(odricPath);
+            var odric = new Character(Newtonsoft.Json.Linq.JObject.Parse(jsonText));
+            var session = new CharacterSession(odric, new GameRulesCatalog());
+
+            // Odric starts with morningstar and heavy wooden shield equipped
+            var startRoutines = session.GetAllRoutines();
+            var startStandard = startRoutines.FirstOrDefault(r => r.ActionType == RoutineActionType.Standard && r.Category == RoutineCategory.PrimarySolo);
+            Assert.IsNotNull(startStandard);
+            var startAtk = startStandard.Attacks[0];
+            Assert.AreEqual(Weapon.Hand.ONE_HANDED, startAtk.Hand);
+            Assert.AreEqual(Weapon.Effort.ONE_HANDED, startAtk.Effort);
+            Assert.AreEqual("1d8+2", startAtk.BaseDamage.ToString());
+
+            // Unequipping shield allows Odric to two-hand his morningstar
+            session.Mutate(c => c.equipped.OffHandShield = null);
+            var twoHandRoutines = session.GetAllRoutines();
+            var twoHandStandard = twoHandRoutines.FirstOrDefault(r => r.ActionType == RoutineActionType.Standard && r.Category == RoutineCategory.PrimarySolo);
+            Assert.IsNotNull(twoHandStandard);
+            var twoHandAtk = twoHandStandard.Attacks[0];
+            Assert.AreEqual(Weapon.Hand.TWO_HANDED, twoHandAtk.Hand);
+            Assert.AreEqual(Weapon.Effort.TWO_HANDED, twoHandAtk.Effort);
+            Assert.AreEqual("1d8+3", twoHandAtk.BaseDamage.ToString());
+        }
     }
 }

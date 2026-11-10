@@ -1,6 +1,6 @@
 # Weapons
 
-Systemic combat rules, weapon categories, size scaling, and master weapon tables from *Player's Handbook* Chapter 7: Equipment (pp. 112–122).
+Systemic combat rules, weapon categories, size scaling, and master weapon tables from *Player's Handbook* Chapter 7: Equipment (pp. 112–122) and Chapter 8: Combat (p. 134).
 
 ---
 
@@ -24,9 +24,9 @@ Systemic combat rules, weapon categories, size scaling, and master weapon tables
 
 ## 2. Weapon Encumbrance & Handling
 
-- **Light Weapons**: Usable in one hand and while grappling. Add Strength bonus in primary hand, or 1/2 Strength bonus in off-hand. Two-handed wielding provides no additional damage bonus. Unarmed strikes are treated as light weapons.
-- **One-Handed Weapons**: Usable in primary or off-hand (1× or 0.5× Str bonus). When wielded with two hands in melee, add **1-1/2 times** Strength bonus to damage.
-- **Two-Handed Weapons**: Require two hands. Add **1-1/2 times** Strength bonus to melee damage rolls.
+- **Light Weapons**: Usable in one hand and while grappling. Add Strength bonus in primary hand, or 1/2 Strength bonus in off-hand. Two-handed wielding provides no additional damage bonus (*PHB* p. 113, p. 134). Unarmed strikes are treated as light weapons.
+- **One-Handed Weapons**: Usable in primary or off-hand (1× or 0.5× Str bonus). When wielded with two hands in melee combat, add **1-1/2 times** Strength bonus to damage rolls (*PHB* p. 113, p. 134).
+- **Two-Handed Weapons**: Require two hands. Add **1-1/2 times** Strength bonus to melee damage rolls (*PHB* p. 113, p. 134).
 
 ---
 
