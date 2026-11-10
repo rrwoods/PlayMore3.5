@@ -62,10 +62,17 @@ namespace PlayMore35 {
                 if (obj is ElementReceptorBinding other) {
                     return Equals(other);
                 }
-                if (obj is string str) {
-                    return string.Equals(ToString(), str, StringComparison.OrdinalIgnoreCase);
-                }
                 return false;
+            }
+
+            public static bool operator ==(ElementReceptorBinding? left, ElementReceptorBinding? right) {
+                if (ReferenceEquals(left, right)) return true;
+                if (ReferenceEquals(left, null)) return false;
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(ElementReceptorBinding? left, ElementReceptorBinding? right) {
+                return !(left == right);
             }
 
             public override int GetHashCode() => (FeatSlot != null ? FeatSlot.GetHashCode() : 0) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Descriptor?.Id ?? "");
@@ -548,22 +555,6 @@ namespace PlayMore35 {
                 assignments.Add(new FeatAssignment(slot, featName, choices));
             }
             return assignments;
-        }
-
-        public Dictionary<string, string> GetFeatChoices() {
-            var result = new Dictionary<string, string>();
-            foreach (var fa in GetCurrentFeatAssignments()) {
-                if (fa.Choices.Count == 0) continue;
-                if (fa.Choices.TryGetValue("", out var singleChoice)) {
-                    result[fa.Slot.ToString()] = singleChoice;
-                } else {
-                    result[fa.Slot.ToString()] = fa.Feat;
-                    foreach (var choice in fa.Choices) {
-                        result[$"{fa.Slot}:{choice.Key}"] = choice.Value;
-                    }
-                }
-            }
-            return result;
         }
 
         public void SaveChanges() {

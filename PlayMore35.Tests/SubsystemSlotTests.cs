@@ -38,18 +38,6 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void IsGrantedByEquippedItem_RecognizesSourceFallbacks() {
-            var legacySourceItem = new SubsystemSlot("Iron Heart Surge", "available", "Item");
-            Assert.IsTrue(legacySourceItem.IsGrantedByEquippedItem);
-
-            var legacySourceEquipped = new SubsystemSlot("Iron Heart Surge", "available", "Equipped");
-            Assert.IsTrue(legacySourceEquipped.IsGrantedByEquippedItem);
-
-            var normalSlot = new SubsystemSlot("Steel Wind", "available", "Warblade");
-            Assert.IsFalse(normalSlot.IsGrantedByEquippedItem);
-        }
-
-        [TestMethod]
         public void JsonRoundTrip_WithGrantSlot_SerializesAndDeserializes() {
             var grantKey = ProgressionSlotKey.Item("Crown of White Raven");
             var original = new SubsystemSlot("Iron Heart Surge", "available", "Item", grantKey);

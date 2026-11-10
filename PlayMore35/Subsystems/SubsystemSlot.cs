@@ -12,10 +12,7 @@ namespace PlayMore35.Subsystems {
         public string Source { get; set; } = "";
         public ProgressionSlotKey? GrantSlot { get; set; } = null;
         public bool IsFeatBound => GrantSlot != null;
-        public bool IsGrantedByEquippedItem =>
-            (GrantSlot != null && GrantSlot.Kind == SlotKind.Item) ||
-            string.Equals(Source, "Item", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(Source, "Equipped", StringComparison.OrdinalIgnoreCase);
+        public bool IsGrantedByEquippedItem => GrantSlot?.Kind == SlotKind.Item;
 
         public SubsystemSlot() { }
 

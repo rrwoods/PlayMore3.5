@@ -12,7 +12,6 @@ namespace PlayMore35.Global {
     public class ProgressionChoiceContext {
         public ProgressionChoiceDomain Domain { get; set; }
         public int AcquisitionLevel { get; set; }
-        public string? SlotKey { get; set; }
         public ProgressionSlotKey? Slot { get; set; }
         public string ChoiceValue { get; set; } = "";
         public string? TargetSource { get; set; }
@@ -24,7 +23,6 @@ namespace PlayMore35.Global {
             ProgressionChoiceDomain domain,
             string choiceValue,
             int acquisitionLevel = 0,
-            string? slotKey = null,
             string? targetSource = null,
             ChoiceDescriptor? descriptor = null,
             IReadOnlyDictionary<string, string>? currentChoices = null,
@@ -33,7 +31,6 @@ namespace PlayMore35.Global {
             Domain = domain;
             ChoiceValue = choiceValue;
             AcquisitionLevel = acquisitionLevel;
-            SlotKey = slotKey;
             TargetSource = targetSource;
             Descriptor = descriptor;
             CurrentChoices = currentChoices;

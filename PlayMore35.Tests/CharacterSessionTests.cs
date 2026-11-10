@@ -561,7 +561,6 @@ namespace PlayMore35.Tests {
             var warningsA = snapA.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: slot1.ToString(),
                 targetSource: "Feats",
                 descriptor: stanceChoiceDesc,
                 slot: slot1
@@ -585,7 +584,6 @@ namespace PlayMore35.Tests {
             var warningsB = snapB.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: humanSlot.ToString(),
                 targetSource: "Feats",
                 descriptor: stanceChoiceDesc,
                 slot: humanSlot
@@ -629,7 +627,6 @@ namespace PlayMore35.Tests {
             var warnings3 = snap3.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: slot3.ToString(),
                 targetSource: "Feats",
                 descriptor: stanceChoiceDesc,
                 slot: slot3
@@ -885,7 +882,6 @@ namespace PlayMore35.Tests {
             var lvl1Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: slot1.ToString(),
                 targetSource: "Warblade",
                 descriptor: stanceDesc,
                 slot: slot1
@@ -896,7 +892,6 @@ namespace PlayMore35.Tests {
             var lvl9Warnings = session.ValidateProgressionChoice(new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Martial Spirit",
-                slotKey: slot9.ToString(),
                 targetSource: "Warblade",
                 descriptor: stanceDesc,
                 slot: slot9

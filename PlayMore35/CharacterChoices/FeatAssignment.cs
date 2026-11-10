@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace PlayMore35.CharacterChoices {
     public class FeatAssignment : IJsonable, IEquatable<FeatAssignment> {
-        public ProgressionSlotKey Slot { get; set; }
+        public ProgressionSlotKey Slot { get; }
         public string Feat { get; set; }
         public Dictionary<string, string> Choices { get; }
 
@@ -17,17 +17,28 @@ namespace PlayMore35.CharacterChoices {
                 : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public FeatAssignment(JObject json) {
+        public FeatAssignment(JObject json)
+            : this(
+                ParseSlot(json),
+                (string?)json?["feat"] ?? "",
+                ParseChoices(json)) {
+        }
+
+        private static ProgressionSlotKey ParseSlot(JObject json) {
             if (json == null) throw new ArgumentNullException(nameof(json));
             var slotObj = (JObject?)json["slot"] ?? throw new ArgumentException("Missing 'slot' property", nameof(json));
-            Slot = new ProgressionSlotKey(slotObj);
-            Feat = (string?)json["feat"] ?? "";
-            Choices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            if (json["choices"] is JObject choicesObj) {
+            return new ProgressionSlotKey(slotObj);
+        }
+
+        private static Dictionary<string, string>? ParseChoices(JObject json) {
+            if (json?["choices"] is JObject choicesObj) {
+                var choices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var prop in choicesObj.Properties()) {
-                    Choices[prop.Name] = (string?)prop.Value ?? "";
+                    choices[prop.Name] = (string?)prop.Value ?? "";
                 }
+                return choices;
             }
+            return null;
         }
 
         public JToken ToJson() {
