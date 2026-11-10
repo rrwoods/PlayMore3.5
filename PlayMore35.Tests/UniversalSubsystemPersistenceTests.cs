@@ -250,13 +250,9 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(9, character.Subsystems["synthetic_alchemy"].Pools["catalyst"]);
 
             // 4. Transitions update Character.Subsystems
-            engine.ExecuteTransition(new SubsystemTransition {
-                SlotGroup = "flasks",
-                Selector = "invoked",
-                SlotIndex = 0,
-                FromState = "prepared",
-                ToState = "expended"
-            });
+            engine.ExecuteStep(
+                SubsystemStep.Transition("flasks", "expended", fromState: "prepared", selector: "invoked"),
+                new SubsystemTarget(slotIndex: 0));
             Assert.AreEqual("expended", character.Subsystems["synthetic_alchemy"].Slots["flasks"][0].State);
         }
 

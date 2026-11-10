@@ -11,7 +11,7 @@ Every subsystem implementation must adhere to these five architectural invariant
    - `CharacterSession` owns active `SubsystemEngine` instances directly (querying them via `GetSubsystem(id)` and `Subsystems`) and dispatches `LoadState`, `GrantSlot`, `ExportState`, and `ContributeEffects` without per-subsystem C# subclasses, interface shims (`ISubsystemEngine`), or registry wrappers.
 
 2. **Declarative State Machines and Primitive Verbs**:
-   - Subsystem mechanics—slot groups, finite state machines, level gating, and composite verbs—are defined declaratively in JSON and executed through three primitive verbs (`ExecuteTransition`, `InvokeElementVerb`, and `ExecutePoolOperation`).
+   - Subsystem mechanics—slot groups, finite state machines, level gating, and composite verbs—are defined declaratively in JSON and executed through canonical steps (`ExecuteStep` and `InvokeElementVerb`).
    - Core C# engine code (`SubsystemEngine`, `CharacterSession`, `EffectPool`, `SheetAction`) has zero literacy of specific character classes (`Warblade`, `Crusader`, `Swordsage`, `Binder`) or specific subsystem elements.
    - Timed and persistent actions on the `Timeline` use the unified `SheetAction` model directly without runtime parser registries.
 

@@ -7,7 +7,7 @@ using PlayMore35.Global;
 using PlayMore35.Rules;
 
 namespace PlayMore35.Subsystems {
-    public class SubsystemStep : IJsonable {
+    public class SubsystemStep : IJsonable, IEquatable<SubsystemStep> {
         public string Type { get; } = "";
         public string SlotGroup { get; } = "";
         public string Selector { get; } = "invoked";
@@ -17,11 +17,36 @@ namespace PlayMore35.Subsystems {
         public string OnEmptyVerb { get; } = "";
         public string Verb { get; } = "";
         public SheetAction? Action { get; } = null;
-        public string Pool { get; } = "";
+        public string PoolId { get; } = "";
         public string Op { get; } = "consume";
         public int Amount { get; } = 0;
 
         public bool IsTransition => string.Equals(Type, "transition", StringComparison.OrdinalIgnoreCase);
+
+        public static SubsystemStep Transition(
+            string slotGroup,
+            string toState,
+            string? fromState = null,
+            string selector = "invoked",
+            string countExpression = "1",
+            string onEmptyVerb = "") =>
+            new SubsystemStep(
+                type: "transition",
+                slotGroup: slotGroup,
+                selector: selector,
+                fromState: fromState,
+                toState: toState,
+                countExpression: countExpression,
+                onEmptyVerb: onEmptyVerb);
+
+        public static SubsystemStep Pool(string pool, string op = "consume", int amount = 0) =>
+            new SubsystemStep(type: "pool", pool: pool, op: op, amount: amount);
+
+        public static SubsystemStep ElementVerb(string verb) =>
+            new SubsystemStep(type: "invoke_element_verb", verb: verb);
+
+        public static SubsystemStep Assign(string slotGroup = "", string toState = "assigned") =>
+            new SubsystemStep(type: "assign", slotGroup: slotGroup, toState: toState);
 
         public SubsystemStep(
             string type = "",
@@ -45,7 +70,7 @@ namespace PlayMore35.Subsystems {
             OnEmptyVerb = onEmptyVerb ?? "";
             Verb = verb ?? "";
             Action = action;
-            Pool = pool ?? "";
+            PoolId = pool ?? "";
             Op = op ?? "consume";
             Amount = amount;
         }
@@ -76,10 +101,46 @@ namespace PlayMore35.Subsystems {
             if (!string.IsNullOrEmpty(OnEmptyVerb)) json["on_empty_verb"] = OnEmptyVerb;
             if (!string.IsNullOrEmpty(Verb)) json["verb"] = Verb;
             if (Action != null) json["action"] = Action.ToJson();
-            if (!string.IsNullOrEmpty(Pool)) json["pool"] = Pool;
+            if (!string.IsNullOrEmpty(PoolId)) json["pool"] = PoolId;
             if (!string.IsNullOrEmpty(Op)) json["op"] = Op;
             if (Amount != 0) json["amount"] = Amount;
             return json;
+        }
+
+        public bool Equals(SubsystemStep? other) {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(Type, other.Type, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(SlotGroup, other.SlotGroup, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(Selector, other.Selector, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(FromState, other.FromState, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(ToState, other.ToState, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(CountExpression, other.CountExpression, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(OnEmptyVerb, other.OnEmptyVerb, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(Verb, other.Verb, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(PoolId, other.PoolId, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(Op, other.Op, StringComparison.OrdinalIgnoreCase) &&
+                   Amount == other.Amount &&
+                   Equals(Action, other.Action);
+        }
+
+        public override bool Equals(object? obj) => Equals(obj as SubsystemStep);
+
+        public override int GetHashCode() {
+            unchecked {
+                int hash = (Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Type) : 0);
+                hash = (hash * 397) ^ (SlotGroup != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(SlotGroup) : 0);
+                hash = (hash * 397) ^ (Selector != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Selector) : 0);
+                hash = (hash * 397) ^ (FromState != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(FromState) : 0);
+                hash = (hash * 397) ^ (ToState != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(ToState) : 0);
+                hash = (hash * 397) ^ (CountExpression != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(CountExpression) : 0);
+                hash = (hash * 397) ^ (OnEmptyVerb != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(OnEmptyVerb) : 0);
+                hash = (hash * 397) ^ (Verb != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Verb) : 0);
+                hash = (hash * 397) ^ (PoolId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(PoolId) : 0);
+                hash = (hash * 397) ^ (Op != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Op) : 0);
+                hash = (hash * 397) ^ Amount;
+                return hash;
+            }
         }
     }
 

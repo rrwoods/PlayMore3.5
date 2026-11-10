@@ -23,6 +23,7 @@ namespace PlayMore35.Global {
                 if (action.SlotIndex != other.SlotIndex) return false;
                 if (!string.Equals(action.Element, other.Element, StringComparison.OrdinalIgnoreCase)) return false;
                 if (!string.Equals(action.Source, other.Source, StringComparison.OrdinalIgnoreCase)) return false;
+                if (!Equals(action.Step, other.Step)) return false;
             }
 
             return true;
