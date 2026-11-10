@@ -447,7 +447,8 @@ namespace PlayMore35 {
                         Top = featTop,
                         Left = featLeft,
                         Size = cboFeat.Size,
-                        Font = scala // why do i need to do this?
+                        Font = scala, // why do i need to do this?
+                        Tag = slot
                     };
                     string? featName = session.GetFeat(slot);
                     if (!string.IsNullOrEmpty(featName)) {
