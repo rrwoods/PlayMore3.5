@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using PlayMore35.CharacterChoices;
 using PlayMore35.Global;
 
 namespace PlayMore35.Subsystems {
@@ -10,19 +11,22 @@ namespace PlayMore35.Subsystems {
         public string State { get; set; } = "";
         public string Source { get; set; } = "";
         public string? FeatSlot { get; set; } = null;
+        public ProgressionSlotKey? GrantSlot { get; set; } = null;
         public bool IsFeatBound => !string.IsNullOrEmpty(FeatSlot);
         public bool IsGrantedByEquippedItem =>
+            (GrantSlot != null && GrantSlot.Kind == SlotKind.Item) ||
             (!string.IsNullOrEmpty(FeatSlot) && FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) ||
             string.Equals(Source, "Item", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(Source, "Equipped", StringComparison.OrdinalIgnoreCase);
 
         public SubsystemSlot() { }
 
-        public SubsystemSlot(string? element, string? state, string? source = null, string? featSlot = null) {
+        public SubsystemSlot(string? element, string? state, string? source = null, string? featSlot = null, ProgressionSlotKey? grantSlot = null) {
             Element = element ?? "";
             State = state ?? "";
             Source = source ?? "";
             FeatSlot = featSlot;
+            GrantSlot = grantSlot;
         }
 
         public SubsystemSlot(JObject? json) {
@@ -31,6 +35,9 @@ namespace PlayMore35.Subsystems {
             State = (string?)(json["state"] ?? "") ?? "";
             Source = (string?)(json["source"] ?? "") ?? "";
             FeatSlot = (string?)json["feat_slot"];
+            if (json["slot"] is JObject slotObj) {
+                GrantSlot = new ProgressionSlotKey(slotObj);
+            }
         }
 
         public JToken ToJson() {
@@ -42,6 +49,9 @@ namespace PlayMore35.Subsystems {
             if (!string.IsNullOrEmpty(FeatSlot)) {
                 json["feat_slot"] = FeatSlot;
             }
+            if (GrantSlot != null) {
+                json["slot"] = GrantSlot.ToJson();
+            }
             return json;
         }
 
@@ -51,7 +61,8 @@ namespace PlayMore35.Subsystems {
             return string.Equals(Element, other.Element, StringComparison.OrdinalIgnoreCase) &&
                    string.Equals(State, other.State, StringComparison.OrdinalIgnoreCase) &&
                    string.Equals(Source, other.Source, StringComparison.OrdinalIgnoreCase) &&
-                   string.Equals(FeatSlot, other.FeatSlot, StringComparison.OrdinalIgnoreCase);
+                   string.Equals(FeatSlot, other.FeatSlot, StringComparison.OrdinalIgnoreCase) &&
+                   Equals(GrantSlot, other.GrantSlot);
         }
 
         public override bool Equals(object? obj) {
@@ -64,6 +75,7 @@ namespace PlayMore35.Subsystems {
                 hash = (hash * 397) ^ (State != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(State) : 0);
                 hash = (hash * 397) ^ (Source != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Source) : 0);
                 hash = (hash * 397) ^ (FeatSlot != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(FeatSlot) : 0);
+                hash = (hash * 397) ^ (GrantSlot != null ? GrantSlot.GetHashCode() : 0);
                 return hash;
             }
         }
