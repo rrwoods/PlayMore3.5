@@ -940,5 +940,90 @@ namespace PlayMore35.Tests {
                 Assert.AreEqual(0, pickerHost.Controls.Count);
             }
         }
+
+        [TestMethod]
+        public void ControlTags_AreTypedProgressionSlotKey_AndElementReceptorBinding() {
+            var session = CreateAdeptSession("Warblade", "Crusader", "Crusader");
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(2);
+
+                var slot3 = ProgressionSlotKey.Advancement(3);
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => cbo.Tag is ProgressionSlotKey k && k.Equals(slot3));
+                Assert.IsInstanceOfType(featCombo.Tag, typeof(ProgressionSlotKey));
+                Assert.AreEqual(slot3, (ProgressionSlotKey)featCombo.Tag);
+
+                featCombo.SelectedItem = "Martial Study";
+
+                // Class choice ComboBox Tag must be typed ElementReceptorBinding
+                var classCombo = dialog.Controls.OfType<ComboBox>()
+                    .FirstOrDefault(cbo => cbo.Tag is LevelDetailsDialog.ElementReceptorBinding binding
+                                           && binding.FeatSlot.Equals(slot3)
+                                           && binding.Descriptor.Id == "class");
+                Assert.IsNotNull(classCombo, "Class dropdown should have typed ElementReceptorBinding in Tag.");
+                var classBinding = (LevelDetailsDialog.ElementReceptorBinding)classCombo.Tag;
+                Assert.AreEqual(slot3, classBinding.FeatSlot);
+                Assert.AreEqual("class", classBinding.Descriptor.Id);
+
+                // Maneuver receptor Tag must be typed ElementReceptorBinding
+                var receptor = dialog.Controls.OfType<ElementReceptorControl>()
+                    .FirstOrDefault(r => r.Tag is LevelDetailsDialog.ElementReceptorBinding binding
+                                         && binding.FeatSlot.Equals(slot3)
+                                         && binding.Descriptor.Id == "maneuver");
+                Assert.IsNotNull(receptor, "Receptor should have typed ElementReceptorBinding in Tag.");
+                var receptorBinding = (LevelDetailsDialog.ElementReceptorBinding)receptor.Tag;
+                Assert.AreEqual(slot3, receptorBinding.FeatSlot);
+                Assert.AreEqual("maneuver", receptorBinding.Descriptor.Id);
+            }
+        }
+
+        [TestMethod]
+        public void ClearingFeat_RemovesReceptorAndChoiceControls_AndRemovesAssignmentOnSave() {
+            var session = CreateAdeptSession("Fighter");
+            var slot1 = ProgressionSlotKey.Advancement(1);
+
+            using (var dialog = new LevelDetailsDialog(session)) {
+                dialog.PrepareLevel(0);
+
+                var featCombo = dialog.Controls.OfType<ComboBox>()
+                    .First(cbo => Equals(cbo.Tag, slot1));
+                featCombo.SelectedItem = "Martial Study";
+
+                var receptor = dialog.Controls.OfType<ElementReceptorControl>()
+                    .FirstOrDefault(r => r.Tag is LevelDetailsDialog.ElementReceptorBinding b && b.FeatSlot.Equals(slot1));
+                Assert.IsNotNull(receptor, "Receptor should be rendered when Martial Study is selected.");
+
+                receptor.PerformClick();
+                var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
+                var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
+                picker.ViewModel.SelectElementByName("Steel Wind");
+
+                var assignmentsBeforeClear = dialog.GetCurrentFeatAssignments();
+                Assert.AreEqual(1, assignmentsBeforeClear.Count);
+                Assert.AreEqual("Martial Study", assignmentsBeforeClear[0].Feat);
+                Assert.AreEqual("Steel Wind", assignmentsBeforeClear[0].Choices["maneuver"]);
+
+                // Now clear the feat
+                featCombo.Text = "";
+
+                // Receptor and choice controls should be removed
+                var remainingReceptors = dialog.Controls.OfType<ElementReceptorControl>().ToList();
+                Assert.AreEqual(0, remainingReceptors.Count, "All receptors should be removed after feat is cleared.");
+
+                var remainingChoiceLabels = dialog.Controls.OfType<Label>()
+                    .Where(l => l.Text.StartsWith("Choose "))
+                    .ToList();
+                Assert.AreEqual(0, remainingChoiceLabels.Count, "All choice labels should be removed after feat is cleared.");
+
+                Assert.AreEqual(0, dialog.GetFeatChoices().Count, "GetFeatChoices() should be empty after feat is cleared.");
+                Assert.AreEqual(0, dialog.GetCurrentFeatAssignments().Count, "GetCurrentFeatAssignments() should be empty after feat is cleared.");
+
+                // Save changes and verify Character has no orphan assignment
+                dialog.SaveChanges();
+                Assert.IsNull(session.GetFeat(slot1));
+                Assert.IsNull(session.GetFeatChoice(slot1, "maneuver"));
+                Assert.IsFalse(session.Character.feats.Any(fa => fa.Slot.Equals(slot1)), "Feat assignment should be removed from Character.feats.");
+            }
+        }
     }
 }

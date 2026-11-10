@@ -42,20 +42,25 @@ namespace PlayMore35 {
             public bool IsMultiChoice => FeatDef != null && FeatDef.Choices.Any();
         }
 
-        public class ElementReceptorBinding {
+        public class ElementReceptorBinding : IEquatable<ElementReceptorBinding> {
             public ProgressionSlotKey FeatSlot { get; }
             public ChoiceDescriptor Descriptor { get; }
 
             public ElementReceptorBinding(ProgressionSlotKey featSlot, ChoiceDescriptor descriptor) {
-                FeatSlot = featSlot;
-                Descriptor = descriptor;
+                FeatSlot = featSlot ?? throw new ArgumentNullException(nameof(featSlot));
+                Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             }
 
-            public override string ToString() => $"{FeatSlot}:{Descriptor?.Id}";
-            public override bool Equals(object obj) {
+            public bool Equals(ElementReceptorBinding? other) {
+                if (other is null) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return Equals(FeatSlot, other.FeatSlot) &&
+                       string.Equals(Descriptor?.Id, other.Descriptor?.Id, StringComparison.OrdinalIgnoreCase);
+            }
+
+            public override bool Equals(object? obj) {
                 if (obj is ElementReceptorBinding other) {
-                    return Equals(FeatSlot, other.FeatSlot) &&
-                           string.Equals(Descriptor?.Id, other.Descriptor?.Id, StringComparison.OrdinalIgnoreCase);
+                    return Equals(other);
                 }
                 if (obj is string str) {
                     return string.Equals(ToString(), str, StringComparison.OrdinalIgnoreCase);
@@ -64,6 +69,8 @@ namespace PlayMore35 {
             }
 
             public override int GetHashCode() => (FeatSlot != null ? FeatSlot.GetHashCode() : 0) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Descriptor?.Id ?? "");
+
+            public override string ToString() => $"{FeatSlot}:{Descriptor?.Id}";
         }
 
         private readonly Dictionary<ElementReceptorControl, ElementReceptorBinding> receptorBindings = new Dictionary<ElementReceptorControl, ElementReceptorBinding>();
@@ -129,7 +136,9 @@ namespace PlayMore35 {
                     featBox.SelectedItem = featName;
                     PrepareFeatChoice(featName, featSlot, featLeft);
                 }
-                featBox.SelectedValueChanged += SelectFeat(featSlot, featLeft);
+                var handler = SelectFeat(featSlot, featLeft, featName ?? "");
+                featBox.SelectedValueChanged += handler;
+                featBox.TextChanged += handler;
                 feats.Add(featBox);
                 Controls.Add(featBox);
 
@@ -190,16 +199,19 @@ namespace PlayMore35 {
                         receptorBindings.Remove(r);
                     }
                     Controls.Remove(c);
+                    c.Dispose();
                 }
                 dynamicSlotControls.Remove(featSlot);
                 slotChoiceStates.Remove(featSlot);
             }
-            if (choiceLabels.ContainsKey(featSlot)) {
-                Controls.Remove(choiceLabels[featSlot]);
+            if (choiceLabels.TryGetValue(featSlot, out var lbl)) {
+                Controls.Remove(lbl);
+                lbl.Dispose();
                 choiceLabels.Remove(featSlot);
             }
-            if (featChoices.ContainsKey(featSlot)) {
-                Controls.Remove(featChoices[featSlot]);
+            if (featChoices.TryGetValue(featSlot, out var ctrl)) {
+                Controls.Remove(ctrl);
+                ctrl.Dispose();
                 featChoices.Remove(featSlot);
             }
 
@@ -304,7 +316,7 @@ namespace PlayMore35 {
                             Top = currentTop + (cboFeatChoice.Top - lblFeatChoice.Top),
                             Left = left,
                             Size = cboFeatChoice.Size,
-                            Tag = $"{featSlot}:{desc.Id}"
+                            Tag = new ElementReceptorBinding(featSlot, desc)
                         };
                         foreach (string eligibleClass in eligibleClasses.OrderBy(x => x)) {
                             classBox.Items.Add(eligibleClass);
@@ -376,16 +388,12 @@ namespace PlayMore35 {
                         string deliveredName = elem?.Name;
                         if (!string.IsNullOrWhiteSpace(deliveredName)) {
                             string target = ResolveTargetSource(choiceState, desc);
-                            var currentChoices = GetCurrentProgressionChoices();
-                            currentChoices[$"{featSlot}:{desc.Id}"] = deliveredName;
                             var progContext = new ProgressionChoiceContext(
                                 ProgressionChoiceDomain.Feat,
                                 deliveredName,
                                 acquisitionLevel: slotLevel,
-                                slotKey: featSlot.ToString(),
                                 targetSource: target,
                                 descriptor: desc,
-                                currentChoices: currentChoices,
                                 slot: featSlot,
                                 overlayAssignments: GetCurrentFeatAssignments()
                             );
@@ -415,8 +423,6 @@ namespace PlayMore35 {
         }
 
         private void UpdateWarnings() {
-            var currentChoices = GetCurrentProgressionChoices();
-
             foreach (var state in slotChoiceStates.Values) {
                 var desc = state.WarningDescriptor;
                 if (desc == null && state.FeatDef != null) {
@@ -454,10 +460,8 @@ namespace PlayMore35 {
                     ProgressionChoiceDomain.Feat,
                     selectedValue,
                     acquisitionLevel: slotLevel,
-                    slotKey: state.FeatSlot.ToString(),
                     targetSource: target,
                     descriptor: desc,
-                    currentChoices: currentChoices,
                     slot: state.FeatSlot,
                     overlayAssignments: GetCurrentFeatAssignments()
                 );
@@ -480,10 +484,16 @@ namespace PlayMore35 {
             PrepareFeats();
         }
 
-        public EventHandler SelectFeat(ProgressionSlotKey featSlot, int left) {
+        public EventHandler SelectFeat(ProgressionSlotKey featSlot, int left, string initialFeat = "") {
+            string lastFeat = initialFeat ?? "";
             return (object sender, EventArgs e) => {
+                string currentFeat = ((Control)sender).Text;
+                if (string.Equals(lastFeat, currentFeat, StringComparison.OrdinalIgnoreCase)) {
+                    return;
+                }
+                lastFeat = currentFeat;
                 PrepareFeatChoice(
-                    ((Control)sender).Text,
+                    currentFeat,
                     featSlot,
                     left
                 );
@@ -500,117 +510,13 @@ namespace PlayMore35 {
                 .ToDictionary(i => (ProgressionSlotKey) feats[i].Tag, i => feats[i].Text);
         }
 
-        private List<FeatAssignment> GetCurrentFeatAssignments() {
+        public List<FeatAssignment> GetCurrentFeatAssignments() {
             var assignments = new List<FeatAssignment>();
-            foreach (var state in slotChoiceStates.Values) {
-                if (string.IsNullOrWhiteSpace(state.FeatName)) continue;
+            foreach (var kvp in GetFeats()) {
+                var slot = kvp.Key;
+                var featName = kvp.Value;
                 var choices = new Dictionary<string, string>();
-                if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
-                    foreach (var desc in state.FeatDef.Choices) {
-                        string val = "";
-                        if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
-                            if (ctrl is ElementReceptorControl r) {
-                                val = r.SelectedElement?.Name ?? "";
-                            } else if (ctrl is ComboBox cbo) {
-                                if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                                    val = ExtractBracketedName(cbo.Text);
-                                } else {
-                                    val = cbo.Text;
-                                }
-                            } else {
-                                val = ctrl.Text;
-                            }
-                        } else if (state.AutoResolvedChoices.TryGetValue(desc.Id, out var autoVal)) {
-                            val = autoVal;
-                        }
-                        if (!string.IsNullOrWhiteSpace(val)) {
-                            choices[desc.Id] = val;
-                        }
-                    }
-                } else if (!state.IsMultiChoice) {
-                    if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
-                        choices[""] = state.SingleChoiceControl.Text;
-                    }
-                }
-                assignments.Add(new FeatAssignment(state.FeatSlot, state.FeatName, choices));
-            }
-            return assignments;
-        }
-
-        private Dictionary<string, string> GetCurrentProgressionChoices() {
-            var choices = GetFeatChoices();
-            foreach (var feat in GetFeats()) {
-                choices[feat.Key.ToString()] = feat.Value;
-            }
-            return choices;
-        }
-
-        public Dictionary<string, string> GetFeatChoices() {
-            var result = new Dictionary<string, string>();
-            foreach (var state in slotChoiceStates.Values) {
-                if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
-                    if (!string.IsNullOrWhiteSpace(state.FeatName)) {
-                        result[state.FeatSlot.ToString()] = state.FeatName;
-                    }
-                    foreach (var desc in state.FeatDef.Choices) {
-                        string val = "";
-                        if (state.ChoiceControls.TryGetValue(desc.Id, out var ctrl)) {
-                            if (ctrl is ElementReceptorControl r) {
-                                val = r.SelectedElement?.Name ?? "";
-                            } else if (ctrl is ComboBox cbo) {
-                                if (string.Equals(desc.Domain, "SubsystemElements", StringComparison.OrdinalIgnoreCase)) {
-                                    val = ExtractBracketedName(cbo.Text);
-                                } else {
-                                    val = cbo.Text;
-                                }
-                            } else {
-                                val = ctrl.Text;
-                            }
-                        } else if (state.AutoResolvedChoices.TryGetValue(desc.Id, out var autoVal)) {
-                            val = autoVal;
-                        }
-                        if (!string.IsNullOrWhiteSpace(val)) {
-                            result[$"{state.FeatSlot}:{desc.Id}"] = val;
-                        }
-                    }
-                } else if (!state.IsMultiChoice) {
-                    if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
-                        result[state.FeatSlot.ToString()] = state.SingleChoiceControl.Text;
-                    }
-                }
-            }
-            return result;
-        }
-
-        public void SaveChanges() {
-            session.Mutate(c => {
-                string selectedClass = GetClass();
-                if (!string.IsNullOrWhiteSpace(selectedClass)) {
-                    c.classLevels[levelIndex] = selectedClass;
-                }
-                foreach (ComboBox featBox in feats) {
-                    var slot = (ProgressionSlotKey)featBox.Tag;
-                    if (string.IsNullOrWhiteSpace(featBox.Text)) {
-                        c.feats.RemoveAll(fa => fa.Slot.Equals(slot));
-                    }
-                }
-                foreach (var kvp in GetFeats()) {
-                    var slot = kvp.Key;
-                    var featName = kvp.Value;
-                    var existing = c.feats.FirstOrDefault(fa => fa.Slot.Equals(slot));
-                    if (existing != null) {
-                        if (!string.Equals(existing.Feat, featName, StringComparison.OrdinalIgnoreCase)) {
-                            existing.Feat = featName;
-                            existing.Choices.Clear();
-                        }
-                    } else {
-                        existing = new FeatAssignment(slot, featName);
-                        c.feats.Add(existing);
-                    }
-                }
-                foreach (var state in slotChoiceStates.Values) {
-                    var existing = c.feats.FirstOrDefault(fa => fa.Slot.Equals(state.FeatSlot));
-                    if (existing == null) continue;
+                if (slotChoiceStates.TryGetValue(slot, out var state)) {
                     if (state.FeatDef != null && state.FeatDef.Choices.Any()) {
                         foreach (var desc in state.FeatDef.Choices) {
                             string val = "";
@@ -630,13 +536,58 @@ namespace PlayMore35 {
                                 val = autoVal;
                             }
                             if (!string.IsNullOrWhiteSpace(val)) {
-                                existing.Choices[desc.Id] = val;
+                                choices[desc.Id] = val;
                             }
                         }
                     } else if (!state.IsMultiChoice) {
                         if (state.SingleChoiceControl != null && !string.IsNullOrWhiteSpace(state.SingleChoiceControl.Text)) {
-                            existing.Choices[""] = state.SingleChoiceControl.Text;
+                            choices[""] = state.SingleChoiceControl.Text;
                         }
+                    }
+                }
+                assignments.Add(new FeatAssignment(slot, featName, choices));
+            }
+            return assignments;
+        }
+
+        public Dictionary<string, string> GetFeatChoices() {
+            var result = new Dictionary<string, string>();
+            foreach (var fa in GetCurrentFeatAssignments()) {
+                if (fa.Choices.Count == 0) continue;
+                if (fa.Choices.TryGetValue("", out var singleChoice)) {
+                    result[fa.Slot.ToString()] = singleChoice;
+                } else {
+                    result[fa.Slot.ToString()] = fa.Feat;
+                    foreach (var choice in fa.Choices) {
+                        result[$"{fa.Slot}:{choice.Key}"] = choice.Value;
+                    }
+                }
+            }
+            return result;
+        }
+
+        public void SaveChanges() {
+            session.Mutate(c => {
+                string selectedClass = GetClass();
+                if (!string.IsNullOrWhiteSpace(selectedClass)) {
+                    c.classLevels[levelIndex] = selectedClass;
+                }
+                foreach (ComboBox featBox in feats) {
+                    var slot = (ProgressionSlotKey)featBox.Tag;
+                    if (string.IsNullOrWhiteSpace(featBox.Text)) {
+                        c.feats.RemoveAll(fa => fa.Slot.Equals(slot));
+                    }
+                }
+                foreach (var assignment in GetCurrentFeatAssignments()) {
+                    var existing = c.feats.FirstOrDefault(fa => fa.Slot.Equals(assignment.Slot));
+                    if (existing != null) {
+                        existing.Feat = assignment.Feat;
+                        existing.Choices.Clear();
+                        foreach (var kvp in assignment.Choices) {
+                            existing.Choices[kvp.Key] = kvp.Value;
+                        }
+                    } else {
+                        c.feats.Add(new FeatAssignment(assignment.Slot, assignment.Feat, assignment.Choices));
                     }
                 }
             });
@@ -668,16 +619,12 @@ namespace PlayMore35 {
                 Filter = desc.Filter,
                 AcquisitionLevel = slotLevel,
                 WarningProvider = (elem) => {
-                    var currentChoices = GetCurrentProgressionChoices();
-                    currentChoices[$"{state.FeatSlot}:{desc.Id}"] = elem.Name;
                     var progContext = new ProgressionChoiceContext(
                         ProgressionChoiceDomain.Feat,
                         elem.Name,
                         acquisitionLevel: slotLevel,
-                        slotKey: state.FeatSlot.ToString(),
                         targetSource: targetSource,
                         descriptor: desc,
-                        currentChoices: currentChoices,
                         slot: state.FeatSlot,
                         overlayAssignments: GetCurrentFeatAssignments()
                     );
@@ -693,10 +640,8 @@ namespace PlayMore35 {
                         ProgressionChoiceDomain.Feat,
                         elem.Name,
                         acquisitionLevel: slotLevel,
-                        slotKey: state.FeatSlot.ToString(),
                         targetSource: targetSource,
                         descriptor: desc,
-                        currentChoices: GetCurrentProgressionChoices(),
                         slot: state.FeatSlot,
                         overlayAssignments: GetCurrentFeatAssignments()
                     );
