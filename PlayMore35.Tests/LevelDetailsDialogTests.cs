@@ -26,6 +26,9 @@ namespace PlayMore35.Tests {
             dialog.SaveChanges();
         }
 
+        private static bool MatchesBinding(object? tag, ProgressionSlotKey slot, string descId) =>
+            tag is LevelDetailsDialog.ElementReceptorBinding b && b.FeatSlot.Equals(slot) && string.Equals(b.Descriptor?.Id, descId, StringComparison.OrdinalIgnoreCase);
+
         [TestMethod]
         public void Odric_ClickLevel4ThenOtherLevels_DoesNotShowWeaponFocusChoiceOnOtherLevels() {
             var session = LoadOdricSession();
@@ -48,7 +51,7 @@ namespace PlayMore35.Tests {
                     );
                     Assert.AreEqual(
                         0,
-                        dialog.GetFeatChoices().Count,
+                        dialog.GetCurrentFeatAssignments().Sum(fa => fa.Choices.Count),
                         $"Level {otherLevelIndex + 1} should report 0 feat choices."
                     );
                 }
@@ -66,10 +69,15 @@ namespace PlayMore35.Tests {
                     // Now open level 4 (index 3)
                     dialog.PrepareLevel(3);
 
-                    var featChoices = dialog.GetFeatChoices();
+                    var assignments = dialog.GetCurrentFeatAssignments();
                     var fighter2Slot = ProgressionSlotKey.Class("Fighter", 2);
+                    var f2Assignment = assignments.FirstOrDefault(fa => fa.Slot.Equals(fighter2Slot));
+                    Assert.IsNotNull(
+                        f2Assignment,
+                        $"Expected 'Fighter 2' feat assignment to be present when opening level 4 after level {firstLevelIndex + 1}."
+                    );
                     Assert.IsTrue(
-                        featChoices.TryGetValue(fighter2Slot.ToString(), out var weaponChoice),
+                        f2Assignment.Choices.TryGetValue("", out var weaponChoice),
                         $"Expected 'Fighter 2' feat choice to be present when opening level 4 after level {firstLevelIndex + 1}."
                     );
                     Assert.AreEqual(
@@ -110,7 +118,7 @@ namespace PlayMore35.Tests {
                     choiceLabels.Count,
                     $"Level 1 has no feat with a choice, but dialog still contains: {string.Join(", ", choiceLabels.Select(l => l.Text))}"
                 );
-                Assert.AreEqual(0, dialog.GetFeatChoices().Count);
+                Assert.AreEqual(0, dialog.GetCurrentFeatAssignments().Sum(fa => fa.Choices.Count));
             }
         }
 
@@ -129,8 +137,9 @@ namespace PlayMore35.Tests {
                 );
                 Assert.AreEqual("dagger", choiceInSession);
 
-                var dialogChoices = dialog.GetFeatChoices();
-                Assert.AreEqual("dagger", dialogChoices[fighter2Slot.ToString()]);
+                var dialogAssignment = dialog.GetCurrentFeatAssignments().FirstOrDefault(fa => fa.Slot.Equals(fighter2Slot));
+                Assert.IsNotNull(dialogAssignment);
+                Assert.AreEqual("dagger", dialogAssignment.Choices[""]);
             }
         }
 
@@ -179,13 +188,13 @@ namespace PlayMore35.Tests {
 
                 // Class dropdown should not be rendered
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
+                    .Where(cbo => MatchesBinding(cbo.Tag, slot1, "class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
 
                 // Maneuver receptor should be rendered
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot1}:maneuver"));
+                    .First(r => MatchesBinding(r.Tag, slot1, "maneuver"));
                 Assert.AreEqual(ReceptorState.Unmade, receptor.ViewModel.State);
 
                 // Clicking receptor activates picker
@@ -218,12 +227,12 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Study";
 
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, $"{slot3}:class"))
+                    .Where(cbo => MatchesBinding(cbo.Tag, slot3, "class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 adept class exists.");
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -248,7 +257,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Study";
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
+                    .FirstOrDefault(cbo => MatchesBinding(cbo.Tag, slot3, "class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ adept classes exist.");
                 CollectionAssert.AreEquivalent(
                     new[] { "Crusader", "Warblade" },
@@ -258,7 +267,7 @@ namespace PlayMore35.Tests {
 
                 classCombo.SelectedItem = "Crusader";
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -284,7 +293,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Study";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot1}:maneuver"));
+                    .First(r => MatchesBinding(r.Tag, slot1, "maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -318,7 +327,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Study";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -351,7 +360,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Study";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:maneuver"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "maneuver"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -401,13 +410,13 @@ namespace PlayMore35.Tests {
 
                 // Class dropdown should not be rendered
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
+                    .Where(cbo => MatchesBinding(cbo.Tag, slot1, "class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
 
                 // Stance receptor should be rendered
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot1}:stance"));
+                    .First(r => MatchesBinding(r.Tag, slot1, "stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -436,12 +445,12 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Stance";
 
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, $"{slot3}:class"))
+                    .Where(cbo => MatchesBinding(cbo.Tag, slot3, "class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 adept class exists.");
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -466,7 +475,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Stance";
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
+                    .FirstOrDefault(cbo => MatchesBinding(cbo.Tag, slot3, "class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ adept classes exist.");
                 CollectionAssert.AreEquivalent(
                     new[] { "Crusader", "Warblade" },
@@ -476,7 +485,7 @@ namespace PlayMore35.Tests {
 
                 classCombo.SelectedItem = "Crusader";
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -502,7 +511,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Stance";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot1}:stance"));
+                    .First(r => MatchesBinding(r.Tag, slot1, "stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -528,7 +537,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Stance";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -556,7 +565,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = "Martial Stance";
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{slot3}:stance"));
+                    .First(r => MatchesBinding(r.Tag, slot3, "stance"));
                 receptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -606,7 +615,7 @@ namespace PlayMore35.Tests {
                 humanFeatCombo.SelectedItem = "Martial Study";
 
                 var humanReceptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{humanSlot}:maneuver"));
+                    .First(r => MatchesBinding(r.Tag, humanSlot, "maneuver"));
                 humanReceptor.PerformClick();
                 var pickerHost = dialog.Controls.OfType<Panel>().First(p => p.Name == "pnlPickerHost");
                 var humanPicker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
@@ -619,7 +628,7 @@ namespace PlayMore35.Tests {
                 level1FeatCombo.SelectedItem = "Martial Stance";
 
                 var level1Receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .First(r => Equals(r.Tag, $"{level1Slot}:stance"));
+                    .First(r => MatchesBinding(r.Tag, level1Slot, "stance"));
                 level1Receptor.PerformClick();
                 var level1Picker = pickerHost.Controls.OfType<DefaultElementPicker>().First();
                 level1Picker.ViewModel.SelectElementByName("Flame's Blessing");
@@ -689,7 +698,7 @@ namespace PlayMore35.Tests {
 
                 // Class dropdown should not be rendered
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
+                    .Where(cbo => MatchesBinding(cbo.Tag, slot1, "class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 eligible classes exist.");
 
@@ -712,7 +721,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, $"{slot3}:class"))
+                    .Where(cbo => MatchesBinding(cbo.Tag, slot3, "class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 1 eligible class exists.");
 
@@ -735,7 +744,7 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
+                    .FirstOrDefault(cbo => MatchesBinding(cbo.Tag, slot3, "class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ eligible classes exist.");
                 CollectionAssert.AreEquivalent(
                     new[] { "Crusader", "Warblade" },
@@ -766,7 +775,7 @@ namespace PlayMore35.Tests {
                 dialog.PrepareLevel(2);
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
+                    .FirstOrDefault(cbo => MatchesBinding(cbo.Tag, slot3, "class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered when 2+ eligible classes exist.");
                 Assert.AreEqual("Crusader", classCombo.SelectedItem, "Saved class choice should be selected on load.");
             }
@@ -814,13 +823,13 @@ namespace PlayMore35.Tests {
 
                 // 1. Class dropdown should not be rendered (0 adept classes -> auto-resolves to Feats)
                 var classCombos = dialog.Controls.OfType<ComboBox>()
-                    .Where(cbo => Equals(cbo.Tag, $"{slot1}:class"))
+                    .Where(cbo => MatchesBinding(cbo.Tag, slot1, "class"))
                     .ToList();
                 Assert.AreEqual(0, classCombos.Count, "No class dropdown should be rendered when 0 adept classes exist.");
 
                 // 2. Maneuver receptor should be rendered
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .FirstOrDefault(r => Equals(r.Tag, $"{slot1}:maneuver"));
+                    .FirstOrDefault(r => MatchesBinding(r.Tag, slot1, "maneuver"));
                 Assert.IsNotNull(receptor, "Maneuver receptor should be rendered for SubsystemElements choice.");
 
                 receptor.PerformClick();
@@ -859,11 +868,11 @@ namespace PlayMore35.Tests {
                 featCombo.SelectedItem = syntheticFeat.Benefit.Name;
 
                 var classCombo = dialog.Controls.OfType<ComboBox>()
-                    .FirstOrDefault(cbo => Equals(cbo.Tag, $"{slot3}:class"));
+                    .FirstOrDefault(cbo => MatchesBinding(cbo.Tag, slot3, "class"));
                 Assert.IsNotNull(classCombo, "Class dropdown should be rendered for 2+ adept classes.");
 
                 var receptor = dialog.Controls.OfType<ElementReceptorControl>()
-                    .FirstOrDefault(r => Equals(r.Tag, $"{slot3}:maneuver"));
+                    .FirstOrDefault(r => MatchesBinding(r.Tag, slot3, "maneuver"));
                 Assert.IsNotNull(receptor, "Maneuver receptor should be rendered.");
 
                 classCombo.SelectedItem = "Crusader";
@@ -896,7 +905,7 @@ namespace PlayMore35.Tests {
                 var featCombo = dialog.Controls.OfType<ComboBox>().First(cbo => Equals(cbo.Tag, slot1));
                 featCombo.SelectedItem = "Martial Study";
 
-                var receptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => Equals(r.Tag, $"{slot1}:maneuver"));
+                var receptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => MatchesBinding(r.Tag, slot1, "maneuver"));
                 Assert.AreEqual(ReceptorState.Unmade, receptor.ViewModel.State);
                 Assert.IsFalse(receptor.IsActiveSelecting);
 
@@ -918,7 +927,7 @@ namespace PlayMore35.Tests {
                 // 4. Test Human slot to verify switching active receptors
                 var humanFeatCombo = dialog.Controls.OfType<ComboBox>().First(cbo => Equals(cbo.Tag, humanSlot));
                 humanFeatCombo.SelectedItem = "Martial Stance";
-                var humanReceptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => Equals(r.Tag, $"{humanSlot}:stance"));
+                var humanReceptor = dialog.Controls.OfType<ElementReceptorControl>().First(r => MatchesBinding(r.Tag, humanSlot, "stance"));
 
                 humanReceptor.PerformClick();
                 Assert.IsTrue(humanReceptor.IsActiveSelecting);
@@ -1015,7 +1024,6 @@ namespace PlayMore35.Tests {
                     .ToList();
                 Assert.AreEqual(0, remainingChoiceLabels.Count, "All choice labels should be removed after feat is cleared.");
 
-                Assert.AreEqual(0, dialog.GetFeatChoices().Count, "GetFeatChoices() should be empty after feat is cleared.");
                 Assert.AreEqual(0, dialog.GetCurrentFeatAssignments().Count, "GetCurrentFeatAssignments() should be empty after feat is cleared.");
 
                 // Save changes and verify Character has no orphan assignment

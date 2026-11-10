@@ -13,15 +13,20 @@ namespace PlayMore35.CharacterChoices {
             Level = level;
         }
 
-        public ProgressionSlotKey(JObject json) {
+        public ProgressionSlotKey(JObject json)
+            : this(
+                ParseKind(json),
+                (string?)json?["source"] ?? "",
+                json?["level"] != null ? (int)json["level"]! : 0) {
+        }
+
+        private static SlotKind ParseKind(JObject json) {
             if (json == null) throw new ArgumentNullException(nameof(json));
             var kindVal = (string?)json["kind"] ?? throw new ArgumentException("Missing 'kind' property", nameof(json));
             if (!Enum.TryParse<SlotKind>(kindVal, true, out var kind)) {
                 throw new ArgumentException($"Invalid SlotKind '{kindVal}'", nameof(json));
             }
-            Kind = kind;
-            Source = (string?)json["source"] ?? "";
-            Level = json["level"] != null ? (int)json["level"]! : 0;
+            return kind;
         }
 
         public static ProgressionSlotKey Advancement(int level) =>

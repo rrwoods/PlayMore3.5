@@ -1587,9 +1587,6 @@ namespace PlayMore35.Global {
                     if (string.IsNullOrWhiteSpace(kvp.Key) || string.IsNullOrWhiteSpace(kvp.Value)) {
                         continue;
                     }
-                    if (validatingSlot != null && kvp.Key.StartsWith(validatingSlot.ToString(), StringComparison.OrdinalIgnoreCase)) {
-                        continue;
-                    }
                     if (catalog.Subsystems != null) {
                         foreach (var subDef in catalog.Subsystems.Values) {
                             if (subDef.Elements.TryGetValue(kvp.Value, out var elem) && elem != null) {

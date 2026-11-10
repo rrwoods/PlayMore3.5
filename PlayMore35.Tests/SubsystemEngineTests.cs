@@ -1073,7 +1073,6 @@ namespace PlayMore35.Tests {
             var context = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: slot3.ToString(),
                 targetSource: "Feats",
                 descriptor: stanceDescriptor,
                 slot: slot3
@@ -1111,7 +1110,6 @@ namespace PlayMore35.Tests {
             var context = new ProgressionChoiceContext(
                 ProgressionChoiceDomain.Feat,
                 "Flame's Blessing",
-                slotKey: slot1.ToString(),
                 targetSource: "Feats",
                 descriptor: stanceDescriptor,
                 slot: slot1
