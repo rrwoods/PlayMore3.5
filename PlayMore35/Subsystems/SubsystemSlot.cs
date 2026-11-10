@@ -10,12 +10,10 @@ namespace PlayMore35.Subsystems {
         public string Element { get; set; } = "";
         public string State { get; set; } = "";
         public string Source { get; set; } = "";
-        public string? FeatSlot { get; set; } = null;
         public ProgressionSlotKey? GrantSlot { get; set; } = null;
-        public bool IsFeatBound => GrantSlot != null || !string.IsNullOrEmpty(FeatSlot);
+        public bool IsFeatBound => GrantSlot != null;
         public bool IsGrantedByEquippedItem =>
             (GrantSlot != null && GrantSlot.Kind == SlotKind.Item) ||
-            (!string.IsNullOrEmpty(FeatSlot) && FeatSlot.StartsWith("Equipped:", StringComparison.OrdinalIgnoreCase)) ||
             string.Equals(Source, "Item", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(Source, "Equipped", StringComparison.OrdinalIgnoreCase);
 
@@ -28,20 +26,11 @@ namespace PlayMore35.Subsystems {
             GrantSlot = grantSlot;
         }
 
-        public SubsystemSlot(string? element, string? state, string? source, string? featSlot, ProgressionSlotKey? grantSlot = null) {
-            Element = element ?? "";
-            State = state ?? "";
-            Source = source ?? "";
-            FeatSlot = featSlot;
-            GrantSlot = grantSlot;
-        }
-
         public SubsystemSlot(JObject? json) {
             if (json == null) return;
             Element = (string?)(json["element"] ?? "") ?? "";
             State = (string?)(json["state"] ?? "") ?? "";
             Source = (string?)(json["source"] ?? "") ?? "";
-            FeatSlot = (string?)json["feat_slot"];
             if (json["slot"] is JObject slotObj) {
                 GrantSlot = new ProgressionSlotKey(slotObj);
             }
@@ -53,9 +42,6 @@ namespace PlayMore35.Subsystems {
                 new JProperty("state", State),
                 new JProperty("source", Source)
             );
-            if (!string.IsNullOrEmpty(FeatSlot)) {
-                json["feat_slot"] = FeatSlot;
-            }
             if (GrantSlot != null) {
                 json["slot"] = GrantSlot.ToJson();
             }
@@ -68,7 +54,6 @@ namespace PlayMore35.Subsystems {
             return string.Equals(Element, other.Element, StringComparison.OrdinalIgnoreCase) &&
                    string.Equals(State, other.State, StringComparison.OrdinalIgnoreCase) &&
                    string.Equals(Source, other.Source, StringComparison.OrdinalIgnoreCase) &&
-                   string.Equals(FeatSlot, other.FeatSlot, StringComparison.OrdinalIgnoreCase) &&
                    Equals(GrantSlot, other.GrantSlot);
         }
 
@@ -81,7 +66,6 @@ namespace PlayMore35.Subsystems {
                 int hash = (Element != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Element) : 0);
                 hash = (hash * 397) ^ (State != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(State) : 0);
                 hash = (hash * 397) ^ (Source != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Source) : 0);
-                hash = (hash * 397) ^ (FeatSlot != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(FeatSlot) : 0);
                 hash = (hash * 397) ^ (GrantSlot != null ? GrantSlot.GetHashCode() : 0);
                 return hash;
             }

@@ -26,32 +26,36 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void UniversalSlotModel_SerializesAndDeserializesExplicitly_WithOptionalFeatSlot() {
-            // Slot with FeatSlot
-            var slotWithFeat = new SubsystemSlot("Acid Flask", "prepared", "GuildAlchemist", "Level 1");
-            var jsonWithFeat = (JObject)slotWithFeat.ToJson();
+        public void UniversalSlotModel_SerializesAndDeserializesExplicitly_WithOptionalGrantSlot() {
+            // Slot with GrantSlot
+            var grantKey = ProgressionSlotKey.Class("GuildAlchemist", 1);
+            var slotWithGrant = new SubsystemSlot("Acid Flask", "prepared", "GuildAlchemist", grantKey);
+            var jsonWithGrant = (JObject)slotWithGrant.ToJson();
 
-            Assert.AreEqual("Acid Flask", (string)jsonWithFeat["element"]);
-            Assert.AreEqual("prepared", (string)jsonWithFeat["state"]);
-            Assert.AreEqual("GuildAlchemist", (string)jsonWithFeat["source"]);
-            Assert.AreEqual("Level 1", (string)jsonWithFeat["feat_slot"]);
+            Assert.AreEqual("Acid Flask", (string)jsonWithGrant["element"]);
+            Assert.AreEqual("prepared", (string)jsonWithGrant["state"]);
+            Assert.AreEqual("GuildAlchemist", (string)jsonWithGrant["source"]);
+            Assert.IsNotNull(jsonWithGrant["slot"]);
+            Assert.AreEqual("Class", (string)jsonWithGrant["slot"]!["kind"]!);
+            Assert.AreEqual("GuildAlchemist", (string)jsonWithGrant["slot"]!["source"]!);
+            Assert.AreEqual(1, (int)jsonWithGrant["slot"]!["level"]!);
 
-            var restoredWithFeat = new SubsystemSlot(jsonWithFeat);
-            Assert.AreEqual(slotWithFeat, restoredWithFeat);
-            Assert.AreEqual("Level 1", restoredWithFeat.FeatSlot);
+            var restoredWithGrant = new SubsystemSlot(jsonWithGrant);
+            Assert.AreEqual(slotWithGrant, restoredWithGrant);
+            Assert.AreEqual(grantKey, restoredWithGrant.GrantSlot);
 
-            // Slot without FeatSlot omits feat_slot property
-            var slotWithoutFeat = new SubsystemSlot("Fire Flask", "available", "HedgeWizard");
-            var jsonWithoutFeat = (JObject)slotWithoutFeat.ToJson();
+            // Slot without GrantSlot omits slot property
+            var slotWithoutGrant = new SubsystemSlot("Fire Flask", "available", "HedgeWizard");
+            var jsonWithoutGrant = (JObject)slotWithoutGrant.ToJson();
 
-            Assert.AreEqual("Fire Flask", (string)jsonWithoutFeat["element"]);
-            Assert.AreEqual("available", (string)jsonWithoutFeat["state"]);
-            Assert.AreEqual("HedgeWizard", (string)jsonWithoutFeat["source"]);
-            Assert.IsNull(jsonWithoutFeat["feat_slot"], "feat_slot should be omitted from JSON when null or empty.");
+            Assert.AreEqual("Fire Flask", (string)jsonWithoutGrant["element"]);
+            Assert.AreEqual("available", (string)jsonWithoutGrant["state"]);
+            Assert.AreEqual("HedgeWizard", (string)jsonWithoutGrant["source"]);
+            Assert.IsNull(jsonWithoutGrant["slot"], "slot should be omitted from JSON when null.");
 
-            var restoredWithoutFeat = new SubsystemSlot(jsonWithoutFeat);
-            Assert.AreEqual(slotWithoutFeat, restoredWithoutFeat);
-            Assert.IsNull(restoredWithoutFeat.FeatSlot);
+            var restoredWithoutGrant = new SubsystemSlot(jsonWithoutGrant);
+            Assert.AreEqual(slotWithoutGrant, restoredWithoutGrant);
+            Assert.IsNull(restoredWithoutGrant.GrantSlot);
         }
 
         [TestMethod]
