@@ -19,8 +19,27 @@ namespace PlayMore35.Global {
         private Dictionary<long, List<SheetAction>> scheduledActions = new Dictionary<long, List<SheetAction>>();
         private List<SheetAction> encounterActions = new List<SheetAction>();
 
-        public IReadOnlyDictionary<long, IReadOnlyList<SheetAction>> ScheduledActions =>
-            scheduledActions.ToDictionary(k => k.Key, v => (IReadOnlyList<SheetAction>)v.Value.AsReadOnly());
+        public IEnumerable<SheetAction> ActiveActions {
+            get {
+                foreach (var list in scheduledActions.Values) {
+                    foreach (var action in list) {
+                        yield return action;
+                    }
+                }
+                foreach (var action in encounterActions) {
+                    yield return action;
+                }
+            }
+        }
+
+        public int ScheduledActionCount => scheduledActions.Values.Sum(v => v.Count);
+
+        public IReadOnlyList<SheetAction> GetScheduledActions(long round) {
+            if (scheduledActions.TryGetValue(round, out var actions)) {
+                return actions.AsReadOnly();
+            }
+            return Array.Empty<SheetAction>();
+        }
 
         public IReadOnlyList<SheetAction> EncounterActions => encounterActions.AsReadOnly();
 

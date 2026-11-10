@@ -219,7 +219,7 @@ namespace PlayMore35.Subsystems {
                     if (!tempPool.stats.ContainsKey(s)) {
                         int refVal = ResolveStatOrParam(s, 0);
                         if (s.Equals("character level", StringComparison.OrdinalIgnoreCase) && refVal == 0) {
-                            refVal = context.Character?.classLevels?.Count ?? 0;
+                            refVal = context.Character?.classLevels.Count ?? 0;
                         }
                         tempPool.AddStat(new Statistic(s));
                         if (refVal != 0) {
@@ -504,23 +504,6 @@ namespace PlayMore35.Subsystems {
             return string.IsNullOrEmpty(slot?.State) ? "empty" : slot.State;
         }
 
-        public bool IsSlotLevelValid(string groupName, int slotIndex, string? source = null) {
-            var slot = GetSlot(groupName, slotIndex, source);
-            if (slot == null || string.IsNullOrEmpty(slot.Element)) return true;
-
-            if (Definition.LevelGating == null || string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic)) return true;
-            if (!Definition.SlotGroups.TryGetValue(groupName, out var groupDef)) return true;
-            if (groupDef.MaxLevel == null || string.IsNullOrEmpty(groupDef.MaxLevel.Stat)) return true;
-
-            var elem = GetElement(slot.Element);
-            if (elem == null) return true;
-
-            string effectiveSource = !string.IsNullOrEmpty(source) ? source : slot.Source;
-            int elementLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
-            int maxLevel = ResolveMaxLevel(groupDef, effectiveSource);
-            return elementLevel <= maxLevel;
-        }
-
         public void ResetElementParameters(string elementName) {
             if (string.IsNullOrEmpty(elementName)) return;
             var elem = GetElement(elementName);
@@ -646,9 +629,6 @@ namespace PlayMore35.Subsystems {
 
         public TimelineRefreshRequirement ExecutePoolOperation(SubsystemPoolOperation? operation) =>
             _verbPipeline.ExecutePoolOperation(operation);
-
-        public TimelineRefreshRequirement ExecuteOperation(SubsystemPoolOperation? operation) =>
-            _verbPipeline.ExecuteOperation(operation);
 
         public TimelineRefreshRequirement ExecuteTransition(SubsystemTransition transition, SubsystemTarget target) =>
             _verbPipeline.ExecuteTransition(transition, target);
@@ -914,16 +894,7 @@ namespace PlayMore35.Subsystems {
             }
 
             if (context?.Timeline != null) {
-                var timelineActions = new List<SheetAction>();
-                if (context.Timeline.ScheduledActions != null) {
-                    foreach (var list in context.Timeline.ScheduledActions.Values) {
-                        timelineActions.AddRange(list);
-                    }
-                }
-                if (context.Timeline.EncounterActions != null) {
-                    timelineActions.AddRange(context.Timeline.EncounterActions);
-                }
-                foreach (var action in timelineActions) {
+                foreach (var action in context.Timeline.ActiveActions) {
                     if (action == null) continue;
                     if (!string.IsNullOrEmpty(action.Subsystem) && !string.Equals(action.Subsystem, Id, StringComparison.OrdinalIgnoreCase)) {
                         continue;
@@ -951,7 +922,7 @@ namespace PlayMore35.Subsystems {
         }
 
         private int? GetMaxAllowedElementLevel(string? targetSource = null) {
-            if (Definition.LevelGating == null || string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic)) return null;
+            if (!Definition.LevelGating.IsEnabled) return null;
             var gatedSlotGroups = Definition.SlotGroups.Values
                 .Where(g => g.MaxLevel != null && !string.IsNullOrEmpty(g.MaxLevel.Stat))
                 .ToList();
@@ -1024,11 +995,11 @@ namespace PlayMore35.Subsystems {
             var warnings = new List<ValidationWarning>();
             int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource);
             if (maxAllowed.HasValue) {
-                int elemLevel = chosenElem.GetStatistic(Definition.LevelGating!.ElementStatistic, context).Value;
+                int elemLevel = chosenElem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
                 if (elemLevel > maxAllowed.Value) {
                     string srcSuffix = !string.IsNullOrWhiteSpace(effectiveSource) ? $" for {effectiveSource}" : "";
-                    string maxLabel = !string.IsNullOrEmpty(Definition.LevelGating?.MaxLevelLabel)
-                        ? Definition.LevelGating!.MaxLevelLabel!
+                    string maxLabel = !string.IsNullOrEmpty(Definition.LevelGating.MaxLevelLabel)
+                        ? Definition.LevelGating.MaxLevelLabel
                         : "maximum";
                     warnings.Add(new ValidationWarning($"Level {elemLevel} exceeds {maxLabel} {maxAllowed.Value}{srcSuffix}.", ValidationCategory.LevelGate));
                 }
@@ -1118,7 +1089,7 @@ namespace PlayMore35.Subsystems {
                         }
                     }
 
-                    if (Definition.LevelGating != null && !string.IsNullOrEmpty(Definition.LevelGating.ElementStatistic) && groupDef?.MaxLevel != null) {
+                    if (Definition.LevelGating.IsEnabled && groupDef?.MaxLevel != null) {
                         int elemLevel = elem.GetStatistic(Definition.LevelGating.ElementStatistic, context).Value;
                         int maxLevel = ResolveMaxLevel(groupDef, slot.Source);
                         if (elemLevel > maxLevel) {

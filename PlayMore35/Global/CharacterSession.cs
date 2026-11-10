@@ -1494,8 +1494,8 @@ namespace PlayMore35.Global {
                 gender = character.gender,
                 alignment = character.alignment,
                 race = character.race,
-                bonusLanguages = new List<string>(character.bonusLanguages ?? Enumerable.Empty<string>()),
-                assignedAbilityScores = new Dictionary<string, int>(character.assignedAbilityScores ?? new Dictionary<string, int>()),
+                bonusLanguages = new List<string>(character.bonusLanguages),
+                assignedAbilityScores = new Dictionary<string, int>(character.assignedAbilityScores),
                 classLevels = character.classLevels.Take(level).ToList(),
                 abilityScoreIncrements = character.abilityScoreIncrements
                     .Where(kvp => kvp.Key <= level)

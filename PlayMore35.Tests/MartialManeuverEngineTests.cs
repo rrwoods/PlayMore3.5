@@ -255,14 +255,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(2, engine.GetMaxLevel("maneuvers", "Warblade"));
             Assert.AreEqual(1, engine.GetSlotCapacity("stances", "Warblade"));
             Assert.AreEqual(2, engine.GetMaxLevel("stances", "Warblade"));
-
-            // Slot 0 with level 1 maneuver is valid
-            engine.AssignSlot("maneuvers", 0, "Steel Strike", source: "Warblade");
-            Assert.IsTrue(engine.IsSlotLevelValid("maneuvers", 0, "Warblade"));
-
-            // Slot 1 with level 3 maneuver exceeds max level 2 (ADR-0001: accepts but reports invalid)
-            engine.AssignSlot("maneuvers", 1, "Iron Heart Surge", source: "Warblade");
-            Assert.IsFalse(engine.IsSlotLevelValid("maneuvers", 1, "Warblade"));
         }
 
         // Source: Tome of Battle, p. 39
@@ -889,15 +881,15 @@ namespace PlayMore35.Tests {
             var strikeReq = engine.ExecuteVerb("expend", "maneuvers", 2, source: "Warblade");
             Assert.AreNotEqual(TimelineRefreshRequirement.None, strikeReq);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 2, "Warblade"));
-            Assert.AreEqual(0, timeline.ScheduledActions.Count);
+            Assert.AreEqual(0, timeline.ScheduledActionCount);
 
             // 2. Boost transitions to Expended and schedules SheetAction on Timeline
             var boostReq = engine.ExecuteVerb("expend", "maneuvers", 0, source: "Warblade");
             Assert.AreNotEqual(TimelineRefreshRequirement.None, boostReq);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 0, "Warblade"));
-            Assert.AreEqual(1, timeline.ScheduledActions.Count);
-            Assert.IsTrue(timeline.ScheduledActions.ContainsKey(1));
-            var scheduledAction = timeline.ScheduledActions[1][0];
+            Assert.AreEqual(1, timeline.ScheduledActionCount);
+            Assert.AreEqual(1, timeline.GetScheduledActions(1).Count);
+            var scheduledAction = timeline.GetScheduledActions(1)[0];
             Assert.IsNotNull(scheduledAction);
             Assert.AreEqual("Wind Stride", scheduledAction.Name);
 
@@ -911,12 +903,12 @@ namespace PlayMore35.Tests {
             var counterReq = engine.ExecuteVerb("expend", "maneuvers", 1, source: "Warblade");
             Assert.AreNotEqual(TimelineRefreshRequirement.None, counterReq);
             Assert.AreEqual("expended", engine.GetSlotState("maneuvers", 1, "Warblade"));
-            Assert.AreEqual(2, timeline.ScheduledActions[1].Count);
+            Assert.AreEqual(2, timeline.GetScheduledActions(1).Count);
 
             // 5. Timeline advances 1 round: actions expire, returning refresh requirement, removed from ScheduledActions
             var advanceResult = timeline.Advance(1, context);
             Assert.IsTrue(advanceResult.RefreshRequirement >= TimelineRefreshRequirement.RecomputeDerived);
-            Assert.AreEqual(0, timeline.ScheduledActions.Count);
+            Assert.AreEqual(0, timeline.ScheduledActionCount);
             Assert.AreEqual(2, advanceResult.ExpiredActions.Count);
 
             // 6. ContributeEffects after expiration no longer applies boost effect

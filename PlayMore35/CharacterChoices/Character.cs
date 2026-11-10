@@ -12,36 +12,43 @@ namespace PlayMore35.CharacterChoices {
     public class Character : IJsonable {
         public static readonly string DEFAULT_CLASS = "Barbarian";
 
-        public string name;
-        public string gender;
-        public string alignment;
+        public string name = "";
+        public string gender = "";
+        public string alignment = "";
 
-        public Dictionary<string, int> assignedAbilityScores;
-        public List<string> bonusLanguages;
-        public string race; // templates later
-        public List<string> classLevels;
-        public Dictionary<int, string> abilityScoreIncrements;
-        public List<int> rolledHitDice;
-        public Dictionary<string, List<int>> skillRanks; // {skill name -> ranks at each level}
+        public Dictionary<string, int> assignedAbilityScores = new Dictionary<string, int> {
+            ["STR"] = 8,
+            ["DEX"] = 8,
+            ["CON"] = 8,
+            ["INT"] = 8,
+            ["WIS"] = 8,
+            ["CHA"] = 8,
+        };
+        public List<string> bonusLanguages = new List<string>();
+        public string race = ""; // templates later
+        public List<string> classLevels = new List<string> { DEFAULT_CLASS };
+        public Dictionary<int, string> abilityScoreIncrements = new Dictionary<int, string>();
+        public List<int> rolledHitDice = new List<int>();
+        public Dictionary<string, List<int>> skillRanks = new Dictionary<string, List<int>>(); // {skill name -> ranks at each level}
         public List<FeatAssignment> feats = new List<FeatAssignment>();
 
-        public List<GpTransaction> transactions;
+        public List<GpTransaction> transactions = new List<GpTransaction>();
         // All items available to the character that are not currently equipped
-        public Dictionary<string, InventoryLocation> inventory;
+        public Dictionary<string, InventoryLocation> inventory = new Dictionary<string, InventoryLocation>();
 
-        public EquippedChoices equipped;
+        public EquippedChoices equipped = new EquippedChoices();
 
-        public List<XpSessionEntry> sessions;
+        public List<XpSessionEntry> sessions = new List<XpSessionEntry>();
 
-        public List<string> externalEffects;
+        public List<string> externalEffects = new List<string>();
         public Dictionary<string, SubsystemState> Subsystems { get; set; } = new Dictionary<string, SubsystemState>(StringComparer.OrdinalIgnoreCase);
 
         // THESE ARE NOT the main source of truth for flag and parameter values -- that's EffectPool's responsibility.
         // These are for saving and loading ONLY!
-        public Dictionary<string, bool> flagValues;
-        public Dictionary<string, int> paramValues;
+        public Dictionary<string, bool> flagValues = new Dictionary<string, bool>();
+        public Dictionary<string, int> paramValues = new Dictionary<string, int>();
 
-        public Timeline Timeline { get; set; }
+        public Timeline Timeline { get; set; } = new Timeline();
         public AttackRoutinePreferences RoutinePreferences { get; set; } = new AttackRoutinePreferences();
         public JToken ToJson() {
             return new JObject(
@@ -201,6 +208,7 @@ namespace PlayMore35.CharacterChoices {
             paramValues = new Dictionary<string, int>();
 
             Timeline = new Timeline();
+            RoutinePreferences = new AttackRoutinePreferences();
         }
 
 

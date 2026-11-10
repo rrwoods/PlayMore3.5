@@ -318,117 +318,6 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(int.MaxValue, dynamicSlotGroup.MaxLevel);
         }
 
-        [TestMethod]
-        public void SubsystemSlotGroup_IsSlotLevelValid_ReturnsTrue_WhenNoProviderOrSelectorSupplied() {
-            var slotGroup = new SubsystemSlotGroup<string>(2);
-            slotGroup[0] = "HighLevelThing";
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(1));
-        }
-
-        [TestMethod]
-        public void SubsystemSlotGroup_IsSlotLevelValid_ValidatesLevelAgainstMaxLevel() {
-            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
-                fixedCapacity: 3,
-                maxLevelProvider: () => 3,
-                levelSelector: e => e?.Level ?? 0
-            );
-
-            Assert.AreEqual(3, slotGroup.MaxLevel);
-
-            // Empty slot returns true
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
-
-            // Slotted element <= MaxLevel returns true
-            slotGroup[0] = new TestSlottedElement { Name = "Valid", Level = 3 };
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
-
-            // Slotted element < MaxLevel returns true
-            slotGroup[1] = new TestSlottedElement { Name = "Low", Level = 1 };
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(1));
-
-            // Slotted element > MaxLevel returns false
-            slotGroup[2] = new TestSlottedElement { Name = "High", Level = 4 };
-            Assert.IsFalse(slotGroup.IsSlotLevelValid(2));
-        }
-
-        [TestMethod]
-        public void SubsystemSlotGroup_OutOfLevelAssignment_PreservesEnableDontEnforceWithoutThrowing() {
-            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
-                fixedCapacity: 2,
-                maxLevelProvider: () => 1,
-                levelSelector: e => e?.Level ?? 0
-            );
-
-            var overleveled = new TestSlottedElement { Name = "Overleveled", Level = 9 };
-
-            // ADR-0001: Assignment must not throw or clamp
-            slotGroup[0] = overleveled;
-            Assert.AreSame(overleveled, slotGroup[0]);
-            Assert.IsFalse(slotGroup.IsSlotLevelValid(0));
-        }
-
-        [TestMethod]
-        public void SubsystemSlotGroup_EvaluatesLevelProviderDynamically() {
-            int currentMaxLevel = 2;
-            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
-                capacityProvider: () => 2,
-                maxLevelProvider: () => currentMaxLevel,
-                levelSelector: e => e?.Level ?? 0
-            );
-
-            slotGroup[0] = new TestSlottedElement { Name = "Item", Level = 3 };
-
-            Assert.AreEqual(2, slotGroup.MaxLevel);
-            Assert.IsFalse(slotGroup.IsSlotLevelValid(0));
-
-            // Dynamic progression increases MaxLevel
-            currentMaxLevel = 3;
-            Assert.AreEqual(3, slotGroup.MaxLevel);
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
-
-            // Dynamic regression decreases MaxLevel
-            currentMaxLevel = 1;
-            Assert.AreEqual(1, slotGroup.MaxLevel);
-            Assert.IsFalse(slotGroup.IsSlotLevelValid(0));
-        }
-
-        [TestMethod]
-        public void SubsystemSlotGroup_IsSlotLevelValid_NegativeSlotIndex_ThrowsArgumentOutOfRangeException() {
-            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
-                fixedCapacity: 2,
-                maxLevelProvider: () => 3,
-                levelSelector: e => e?.Level ?? 0
-            );
-
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => slotGroup.IsSlotLevelValid(-1));
-        }
-
-        [TestMethod]
-        public void SubsystemSlotGroup_IsSlotLevelValid_EvaluatesCorrectly_AcrossSlotsBeyondCapacity() {
-            int dynamicMaxLevel = 2;
-            var slotGroup = new SubsystemSlotGroup<TestSlottedElement>(
-                capacityProvider: () => 1,
-                maxLevelProvider: () => dynamicMaxLevel,
-                levelSelector: e => e?.Level ?? 0
-            );
-
-            // Slot 0 (within capacity) has level 2 element -> valid
-            slotGroup[0] = new TestSlottedElement { Name = "Valid", Level = 2 };
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(0));
-
-            // Slot 1 (beyond capacity) has level 3 element -> invalid (level > max level)
-            slotGroup[1] = new TestSlottedElement { Name = "Overleveled", Level = 3 };
-            Assert.IsFalse(slotGroup.IsSlotLevelValid(1));
-
-            // Slot 2 (beyond capacity and unassigned) -> valid (empty slot)
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(2));
-
-            // Dynamic progression increases MaxLevel: slot 1 becomes valid
-            dynamicMaxLevel = 3;
-            Assert.IsTrue(slotGroup.IsSlotLevelValid(1));
-        }
-
         // Source: Tome of Battle, pp. 37–46
         [TestMethod]
         public void GameRulesCatalog_CanLoadFullManeuverCatalog_AndResolveAllNineDisciplines() {
@@ -542,6 +431,17 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, roundTrip.SlotGroups["vestiges"].Effects.Count);
         }
 
+        [TestMethod]
+        public void LevelGatingDefinition_None_HasDisabledState_AndIsDefaultOnSubsystemDefinition() {
+            Assert.IsFalse(LevelGatingDefinition.None.IsEnabled);
+            Assert.AreEqual(string.Empty, LevelGatingDefinition.None.ElementStatistic);
+            Assert.IsNull(LevelGatingDefinition.None.MaxLevelLabel);
+
+            var def = new SubsystemDefinition("test");
+            Assert.AreSame(LevelGatingDefinition.None, def.LevelGating);
+            Assert.IsFalse(def.LevelGating.IsEnabled);
+        }
+
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
         [TestMethod]
         public void SubsystemEngine_ContributeEffects_RegistersSlotGroupMaxLevelAndContributesSlotGroupEffects() {
@@ -566,55 +466,6 @@ namespace PlayMore35.Tests {
 
             Assert.IsTrue(pool.stats.ContainsKey("maximum vestige level"), "Slot group max level stat should be registered in pool.");
             Assert.AreEqual(2, pool.GetStatValue("maximum vestige level", null), "Max level stat should be modified by slot group effects.");
-        }
-
-        // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
-        [TestMethod]
-        public void SubsystemEngine_IsSlotLevelValid_GatesDynamicallyBySlotGroupMaxLevel() {
-            var def = new SubsystemDefinition("pact_magic", "Pact Magic") {
-                LevelGating = new LevelGatingDefinition("level")
-            };
-            def.ElementStatistics["level"] = new List<string>();
-            var group = new SlotGroupDefinition(
-                name: "vestiges",
-                fixedCapacity: 2,
-                maxLevel: new MaxLevelDefinition("maximum vestige level", 1)
-            );
-            def.SlotGroups["vestiges"] = group;
-
-            var elem1 = new SubsystemElement();
-            elem1.Name = "Amon";
-            elem1.SetProperty("level", 1);
-            def.Elements["Amon"] = elem1;
-
-            var elem2 = new SubsystemElement();
-            elem2.Name = "Savnok";
-            elem2.SetProperty("level", 2);
-            def.Elements["Savnok"] = elem2;
-
-            var character = new Character { race = "human" };
-            var session = new CharacterSession(character, new GameRulesCatalog());
-            ICharacterContext ctx = session;
-            ctx.Effects.AddStat(new Statistic("maximum vestige level"));
-            ctx.Effects.AddEffect(new Effect("Base Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.BASE)));
-            var engine = new SubsystemEngine(def, session);
-
-            // With max vestige level = 1:
-            Assert.AreEqual(0, engine.ValidateChoice(null, elem1.Name).Count);
-            Assert.IsTrue(engine.ValidateChoice(null, elem2.Name).Any(w => w.Category == ValidationCategory.LevelGate));
-
-            // Assign slot 0 to Amon (level 1 <= 1) -> valid
-            engine.AssignSlot("vestiges", 0, "Amon", "good_pact");
-            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 0));
-
-            // Assign slot 1 to Savnok (level 2 > 1) -> invalid
-            engine.AssignSlot("vestiges", 1, "Savnok", "good_pact");
-            Assert.IsFalse(engine.IsSlotLevelValid("vestiges", 1));
-
-            // Increase maximum vestige level to 2 dynamically
-            ctx.Effects.AddEffect(new Effect("Boost Max Level").AddModifier("maximum vestige level", new Modifier(1, ModifierTypes.UNTYPED)));
-            Assert.AreEqual(0, engine.ValidateChoice(null, elem2.Name).Count);
-            Assert.IsTrue(engine.IsSlotLevelValid("vestiges", 1));
         }
 
         // Source: Tome of Magic, p. 11 (Table 1–1: The Binder)
