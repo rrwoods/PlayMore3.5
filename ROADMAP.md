@@ -8,16 +8,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
-### Subsystem Literacy
-- We still have slot name parsing.  It might be time to promote slot keys to something more robust than strings.
-
-### Codebase architecture pass
-- There's just ... a lot of code lmao.  Look for dead code.  We already incidentally found some.
-- /improve-codebase-architecture candidates:
-  - there are still too many null guards
-  - look for redundant tests
-  - look for simplification
-
 ### Vestiges tab cleanup
 - It's not clear that "Good" and "Poor" will bind the vestige.  Add a "Binding check:" label, and change the button text to "Succeed" and "Fail"
 - Details panel could use some formatting love
