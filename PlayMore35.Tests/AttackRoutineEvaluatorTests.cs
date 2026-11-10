@@ -200,7 +200,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(10, meleeAndThrown.Attacks[1].RangeIncrement);
         }
 
-        // Source: Player's Handbook 3.5, p. 113, p. 134
+        // Source: Implied Rule: One-Handed Weapons in Two Hands (see docs/rules/mechanics/weapons.md#2-weapon-encumbrance--handling)
+        // Also: Player's Handbook 3.5, p. 113, p. 134
         [TestMethod]
         public void EvaluateRoutines_SoloOneHandedWeapon_CountsAsTwoHanded_WithOneAndHalfStrAndEffectiveTwoHandedEffort() {
             var session = CreateSessionWithFighter(1, strScore: 14); // STR 14 (+2 mod)
@@ -228,7 +229,8 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("1d8+2", shieldAttack.BaseDamage.ToString(), "One-handed wielding gets 1.0x STR bonus (+2)");
         }
 
-        // Source: Player's Handbook 3.5, p. 113, p. 134
+        // Source: Implied Rule: One-Handed Weapons in Two Hands (see docs/rules/mechanics/weapons.md#2-weapon-encumbrance--handling)
+        // Also: Player's Handbook 3.5, p. 113, p. 134
         [TestMethod]
         public void EvaluateRoutines_OdricSession_UnequipShield_PromotesMorningstarToTwoHanded() {
             string odricPath = TestEnvironment.FindOdricJsonPath();
