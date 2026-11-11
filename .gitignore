@@ -12,6 +12,7 @@
 
 # Build results
 reports/
+dist/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

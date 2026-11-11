@@ -165,6 +165,18 @@ namespace PlayMore35.Tests {
             }
         }
 
+        [TestMethod]
+        public void MainForm_LoadsInitialCharacterPath_WhenSupplied() {
+            string odricPath = TestEnvironment.FindOdricJsonPath();
+            using (var form = new MainForm(initialCharacterPath: odricPath)) {
+                form.Show();
+                Application.DoEvents();
+
+                Assert.IsNotNull(form.Session);
+                Assert.AreEqual("Odric Greatshield", form.Session.Character.name);
+            }
+        }
+
         private static TabControl GetTabControl(MainForm form) {
             var field = typeof(MainForm).GetField("tabMain", BindingFlags.NonPublic | BindingFlags.Instance);
             return (TabControl)field.GetValue(form);

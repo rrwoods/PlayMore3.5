@@ -85,9 +85,13 @@ namespace PlayMore35 {
             timelinePanel?.RefreshTimeline();
         }
 
-        public MainForm(ICharacterSession? session = null, SubsystemUIRegistry? uiRegistry = null) {
+        private readonly string? initialCharacterPath;
+        private string? lastCharacterDirectory;
+
+        public MainForm(ICharacterSession? session = null, SubsystemUIRegistry? uiRegistry = null, string? initialCharacterPath = null) {
             this.session = session;
             this.uiRegistry = uiRegistry ?? SubsystemUIRegistry.CreateDefault();
+            this.initialCharacterPath = initialCharacterPath;
             InitializeComponent();
 
             ledgerXp.AlignInputControls(dtpSessionDate, txtSessionDesc, txtSessionXp, btnAddSession);
@@ -1381,6 +1385,11 @@ namespace PlayMore35 {
                 addItemDialog.lstShieldProperties.Items.Add(x);
             });
             session.Catalog.Items.Keys.OrderBy(x => x).ToList().ForEach(x => addItemDialog.lstAddItem.Items.Add(x));
+
+            if (!string.IsNullOrEmpty(initialCharacterPath) && File.Exists(initialCharacterPath)) {
+                string pathToLoad = initialCharacterPath;
+                BeginInvoke(new Action(() => LoadCharacter(pathToLoad)));
+            }
         }
 
         private void RemoveSubsystemTabs() {
@@ -1416,6 +1425,7 @@ namespace PlayMore35 {
         }
 
         public bool LoadCharacter(string filePath) {
+            lastCharacterDirectory = Path.GetDirectoryName(Path.GetFullPath(filePath));
             using (StreamReader reader = new StreamReader(filePath)) {
                 Character loadedCharacter = new Character(JObject.Parse(reader.ReadToEnd()));
                 session = new CharacterSession(loadedCharacter, session.Catalog);
@@ -1433,7 +1443,10 @@ namespace PlayMore35 {
 
         private bool LoadCharacter() {
             using (OpenFileDialog dialog = new OpenFileDialog()) {
-                dialog.InitialDirectory = "c:\\";
+                dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+                dialog.InitialDirectory = !string.IsNullOrEmpty(lastCharacterDirectory) && Directory.Exists(lastCharacterDirectory)
+                    ? lastCharacterDirectory
+                    : AppDomain.CurrentDomain.BaseDirectory;
                 if (dialog.ShowDialog() != DialogResult.OK) {
                     return false;
                 }
@@ -1448,9 +1461,13 @@ namespace PlayMore35 {
         private bool SaveCharacter() {
             SaveFileDialog saveCharacter = new SaveFileDialog {
                 Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
-                FilterIndex = 1
+                FilterIndex = 1,
+                InitialDirectory = !string.IsNullOrEmpty(lastCharacterDirectory) && Directory.Exists(lastCharacterDirectory)
+                    ? lastCharacterDirectory
+                    : AppDomain.CurrentDomain.BaseDirectory
             };
             if (saveCharacter.ShowDialog() == DialogResult.OK) {
+                lastCharacterDirectory = Path.GetDirectoryName(saveCharacter.FileName);
                 File.WriteAllText(saveCharacter.FileName, session.Character.ToJson().ToString());
                 return true;
             }

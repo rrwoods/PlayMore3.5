@@ -18,7 +18,8 @@ $excludeDirs = @(
     ".vs",
     "TestResults",
     "packages",
-    ".idea"
+    ".idea",
+    "dist"
 )
 
 $textExtensions = @(
