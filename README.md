@@ -41,7 +41,8 @@ Activate combat abilities and conditional buffs with a single click:
 
 ### 3. The Combat Timeline
 Combat moves round by round, and so does PlayMore35:
-- Advance combat rounds with a dedicated round advancement control.
+- Advance combat rounds with a dedicated round advancement control, or jump forward out of combat to any future date and time across Years 1–9999.
+- Click the out-of-combat timeline readout to set or adjust the campaign's calendar date and time without advancing active durations or resets.
 - Active buffs, spells, and temporary effects automatically decrement their remaining durations.
 - Expired effects revert cleanly, and scheduled transition states (such as post-rage or post-frenzy fatigue) queue and trigger automatically.
 

@@ -85,6 +85,11 @@ namespace PlayMore35 {
             timelinePanel?.RefreshTimeline();
         }
 
+        private void RefreshLedgerGameTimes() {
+            DisplayXp(scrollToBottom: false);
+            DisplayGold(scrollToBottom: false);
+        }
+
         private readonly string? initialCharacterPath;
         private string? lastCharacterDirectory;
 
@@ -673,13 +678,13 @@ namespace PlayMore35 {
                 : $"{xpNeeded.ToString("#,###")} XP to level {nextLevel}";
 
             var sessions = session.Character.sessions
-                .OrderBy(s => s.GameTime)
+                .OrderBy(s => s.GameRound)
                 .ThenBy(s => s.RealDate)
                 .ToList();
 
             ledgerXp.SetEntries(
                 sessions,
-                s => s.GameTime,
+                s => session.Timeline.GetTimeAtRound(s.GameRound),
                 s => s.RealDate,
                 s => s.Description,
                 s => LedgerFormatters.FormatXpAmount(s.Xp),
@@ -699,9 +704,9 @@ namespace PlayMore35 {
         private void AddSession_Click(object sender, EventArgs e) {
             if (int.TryParse(txtSessionXp.Text, out int value)) {
                 txtSessionXp.BackColor = SystemColors.Window;
-                DateTime gameTime = session.Character.Timeline.CurrentTime;
+                long gameRound = session.Timeline.CurrentRound;
                 DateTime realDate = dtpSessionDate.SelectedDate;
-                session.Mutate(c => c.sessions.Add(new XpSessionEntry(value, txtSessionDesc.Text, gameTime, realDate)));
+                session.Mutate(c => c.sessions.Add(new XpSessionEntry(value, txtSessionDesc.Text, gameRound, realDate)));
                 txtSessionDesc.Text = "";
                 txtSessionXp.Text = "";
                 dtpSessionDate.Reset();
@@ -1192,13 +1197,13 @@ namespace PlayMore35 {
 
         private void DisplayGold(bool scrollToBottom = true) {
             var transactions = session.Character.transactions
-                .OrderBy(t => t.GameTime)
+                .OrderBy(t => t.GameRound)
                 .ThenBy(t => t.RealDate)
                 .ToList();
 
             ledgerGold.SetEntries(
                 transactions,
-                t => t.GameTime,
+                t => session.Timeline.GetTimeAtRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -1218,9 +1223,9 @@ namespace PlayMore35 {
         private void AddTransaction_Click(object sender, EventArgs e) {
             if (decimal.TryParse(txtTransactionGp.Text, out decimal value)) {
                 txtTransactionGp.BackColor = SystemColors.Window;
-                DateTime gameTime = session.Character.Timeline.CurrentTime;
+                long gameRound = session.Timeline.CurrentRound;
                 DateTime realDate = dtpTransactionDate.SelectedDate;
-                session.Mutate(c => c.transactions.Add(new GpTransaction(value, txtTransactionDesc.Text, gameTime, realDate)));
+                session.Mutate(c => c.transactions.Add(new GpTransaction(value, txtTransactionDesc.Text, gameRound, realDate)));
                 txtTransactionDesc.Text = "";
                 txtTransactionGp.Text = "";
                 dtpTransactionDate.Reset();
@@ -1356,7 +1361,7 @@ namespace PlayMore35 {
             foreach (DynamicPanel p in dynamicPanels) {
                 p.Initialize(this);
             }
-            timelinePanel.Initialize(this);
+            timelinePanel.Initialize(session, RefreshEffects, RefreshLedgerGameTimes);
 
             txtHead.Tag = Equipped.Slot.HEAD;
             txtFace.Tag = Equipped.Slot.FACE;
@@ -1436,7 +1441,7 @@ namespace PlayMore35 {
             }
             DisplayCharacter();
             InitializeInventory();
-            timelinePanel.RefreshTimeline();
+            timelinePanel.Initialize(session, RefreshEffects, RefreshLedgerGameTimes);
             RefreshEffects();
             return true;
         }

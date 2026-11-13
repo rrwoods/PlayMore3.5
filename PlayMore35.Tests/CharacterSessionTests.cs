@@ -149,11 +149,11 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(0m, session.Character.TotalGold());
 
-            var t1 = new GpTransaction(250m, "starting wealth", new DateTime(2026, 10, 6, 12, 0, 0), new DateTime(2026, 10, 9));
+            var t1 = new GpTransaction(250m, "starting wealth", 0L, new DateTime(2026, 10, 9));
             session.Mutate(c => c.transactions.Add(t1));
             Assert.AreEqual(250m, session.Character.TotalGold());
 
-            var t2 = new GpTransaction(-75.5m, "heavy horse purchase", new DateTime(2026, 10, 6, 13, 0, 0), new DateTime(2026, 10, 9));
+            var t2 = new GpTransaction(-75.5m, "heavy horse purchase", 600L, new DateTime(2026, 10, 9));
             session.Mutate(c => c.transactions.Add(t2));
             Assert.AreEqual(174.5m, session.Character.TotalGold());
 
@@ -162,26 +162,26 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void CharacterSession_Transactions_OrderedChronologicallyByGameTimeThenRealDate() {
+        public void CharacterSession_Transactions_OrderedChronologicallyByGameRoundThenRealDate() {
             var character = new Character();
             var session = new CharacterSession(character, catalog);
 
-            var tLateGame = new DateTime(2026, 10, 6, 20, 0, 0);
-            var tEarlyGame = new DateTime(2026, 10, 5, 10, 0, 0);
+            long rLateGame = 15000L;
+            long rEarlyGame = 100L;
             var dLateReal = new DateTime(2026, 10, 9);
             var dEarlyReal = new DateTime(2026, 10, 8);
 
-            var txLate = new GpTransaction(100m, "late game transaction", tLateGame, dLateReal);
-            var txEarly = new GpTransaction(50m, "early game transaction", tEarlyGame, dEarlyReal);
-            var txTieGameEarlyReal = new GpTransaction(25m, "tie game early real", tLateGame, dEarlyReal);
-            var txTieAll1 = new GpTransaction(10m, "tie identical 1", tLateGame, dLateReal);
-            var txTieAll2 = new GpTransaction(15m, "tie identical 2", tLateGame, dLateReal);
+            var txLate = new GpTransaction(100m, "late game transaction", rLateGame, dLateReal);
+            var txEarly = new GpTransaction(50m, "early game transaction", rEarlyGame, dEarlyReal);
+            var txTieGameEarlyReal = new GpTransaction(25m, "tie game early real", rLateGame, dEarlyReal);
+            var txTieAll1 = new GpTransaction(10m, "tie identical 1", rLateGame, dLateReal);
+            var txTieAll2 = new GpTransaction(15m, "tie identical 2", rLateGame, dLateReal);
 
             var list = new List<GpTransaction> { txLate, txEarly, txTieGameEarlyReal, txTieAll1, txTieAll2 };
-            var sorted = list.OrderBy(t => t.GameTime).ThenBy(t => t.RealDate).ToList();
+            var sorted = list.OrderBy(t => t.GameRound).ThenBy(t => t.RealDate).ToList();
 
-            Assert.AreSame(txEarly, sorted[0], "Early game time must come first.");
-            Assert.AreSame(txTieGameEarlyReal, sorted[1], "When game time ties, earlier real date must come first.");
+            Assert.AreSame(txEarly, sorted[0], "Early game round must come first.");
+            Assert.AreSame(txTieGameEarlyReal, sorted[1], "When game round ties, earlier real date must come first.");
             Assert.AreSame(txLate, sorted[2], "Later real date comes after earlier real date.");
             Assert.AreSame(txTieAll1, sorted[3], "Identical game and real times must preserve insertion order.");
             Assert.AreSame(txTieAll2, sorted[4], "Identical game and real times must preserve insertion order.");
@@ -194,11 +194,11 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(0, session.Character.TotalExperience());
 
-            var s1 = new XpSessionEntry(300, "session 1", new DateTime(2026, 10, 6, 12, 0, 0), new DateTime(2026, 10, 9));
+            var s1 = new XpSessionEntry(300, "session 1", 0L, new DateTime(2026, 10, 9));
             session.Mutate(c => c.sessions.Add(s1));
             Assert.AreEqual(300, session.Character.TotalExperience());
 
-            var s2 = new XpSessionEntry(500, "session 2", new DateTime(2026, 10, 6, 13, 0, 0), new DateTime(2026, 10, 9));
+            var s2 = new XpSessionEntry(500, "session 2", 600L, new DateTime(2026, 10, 9));
             session.Mutate(c => c.sessions.Add(s2));
             Assert.AreEqual(800, session.Character.TotalExperience());
 
@@ -207,26 +207,26 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void CharacterSession_Sessions_OrderedChronologicallyByGameTimeThenRealDate() {
+        public void CharacterSession_Sessions_OrderedChronologicallyByGameRoundThenRealDate() {
             var character = new Character();
             var session = new CharacterSession(character, catalog);
 
-            var tLateGame = new DateTime(2026, 10, 6, 20, 0, 0);
-            var tEarlyGame = new DateTime(2026, 10, 5, 10, 0, 0);
+            long rLateGame = 15000L;
+            long rEarlyGame = 100L;
             var dLateReal = new DateTime(2026, 10, 9);
             var dEarlyReal = new DateTime(2026, 10, 8);
 
-            var sLate = new XpSessionEntry(100, "late game session", tLateGame, dLateReal);
-            var sEarly = new XpSessionEntry(50, "early game session", tEarlyGame, dEarlyReal);
-            var sTieGameEarlyReal = new XpSessionEntry(25, "tie game early real", tLateGame, dEarlyReal);
-            var sTieAll1 = new XpSessionEntry(10, "tie identical 1", tLateGame, dLateReal);
-            var sTieAll2 = new XpSessionEntry(15, "tie identical 2", tLateGame, dLateReal);
+            var sLate = new XpSessionEntry(100, "late game session", rLateGame, dLateReal);
+            var sEarly = new XpSessionEntry(50, "early game session", rEarlyGame, dEarlyReal);
+            var sTieGameEarlyReal = new XpSessionEntry(25, "tie game early real", rLateGame, dEarlyReal);
+            var sTieAll1 = new XpSessionEntry(10, "tie identical 1", rLateGame, dLateReal);
+            var sTieAll2 = new XpSessionEntry(15, "tie identical 2", rLateGame, dLateReal);
 
             var list = new List<XpSessionEntry> { sLate, sEarly, sTieGameEarlyReal, sTieAll1, sTieAll2 };
-            var sorted = list.OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList();
+            var sorted = list.OrderBy(s => s.GameRound).ThenBy(s => s.RealDate).ToList();
 
-            Assert.AreSame(sEarly, sorted[0], "Early game time must come first.");
-            Assert.AreSame(sTieGameEarlyReal, sorted[1], "When game time ties, earlier real date must come first.");
+            Assert.AreSame(sEarly, sorted[0], "Early game round must come first.");
+            Assert.AreSame(sTieGameEarlyReal, sorted[1], "When game round ties, earlier real date must come first.");
             Assert.AreSame(sLate, sorted[2], "Later real date comes after earlier real date.");
             Assert.AreSame(sTieAll1, sorted[3], "Identical game and real times must preserve insertion order.");
             Assert.AreSame(sTieAll2, sorted[4], "Identical game and real times must preserve insertion order.");
@@ -1225,11 +1225,16 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, spy.RecalculateCallCount, "AdvanceTimeline must recalculate.");
             Assert.AreSame(snap, spy.GetSessionAtLevel(1), "AdvanceTimeline must not evict level session cache.");
 
-            // 2. SetTime
+            // 2. AdvanceTo & SetCampaignTime
             spy.RecalculateCallCount = 0;
-            spy.SetTime(DateTime.UtcNow.AddMinutes(5));
-            Assert.AreEqual(1, spy.RecalculateCallCount, "SetTime must recalculate.");
-            Assert.AreSame(snap, spy.GetSessionAtLevel(1), "SetTime must not evict level session cache.");
+            spy.AdvanceTo(spy.Timeline.CurrentTime.AddMinutes(5));
+            Assert.AreEqual(1, spy.RecalculateCallCount, "AdvanceTo must recalculate.");
+            Assert.AreSame(snap, spy.GetSessionAtLevel(1), "AdvanceTo must not evict level session cache.");
+
+            spy.RecalculateCallCount = 0;
+            spy.SetCampaignTime(new DateTime(612, 5, 14, 20, 15, 0));
+            Assert.AreEqual(new DateTime(612, 5, 14, 20, 15, 0), spy.Timeline.CurrentTime);
+            Assert.AreSame(snap, spy.GetSessionAtLevel(1), "SetCampaignTime must not evict level session cache.");
 
             // 3. StartCombat
             spy.RecalculateCallCount = 0;

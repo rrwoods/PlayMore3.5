@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlayMore35.UI;
 
@@ -6,10 +6,15 @@ namespace PlayMore35.Tests {
     [TestClass]
     public class LedgerFormattersTests {
         [TestMethod]
-        public void FormatGameTime_FormatsAsYearFirstMinuteResolution() {
-            var dt = new DateTime(2026, 10, 6, 20, 11, 45);
-            string formatted = LedgerFormatters.FormatGameTime(dt);
-            Assert.AreEqual("2026-10-06 20:11", formatted);
+        public void FormatGameTime_FormatsAsFourDigitPaddedYearFirstMinuteResolution_IncludingPre1000Years() {
+            var dtModern = new DateTime(2026, 10, 6, 20, 11, 45);
+            Assert.AreEqual("2026-10-06 20:11", LedgerFormatters.FormatGameTime(dtModern));
+
+            var dtPre1000 = new DateTime(612, 5, 14, 20, 15, 0);
+            Assert.AreEqual("0612-05-14 20:15", LedgerFormatters.FormatGameTime(dtPre1000));
+
+            var dtTwoDigitYear = new DateTime(45, 1, 9, 8, 5, 0);
+            Assert.AreEqual("0045-01-09 08:05", LedgerFormatters.FormatGameTime(dtTwoDigitYear));
         }
 
         [TestMethod]

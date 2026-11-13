@@ -127,7 +127,7 @@ namespace PlayMore35.CharacterChoices {
                 : new List<FeatAssignment>();
 
             transactions = json["transactions"] is JArray transArr
-                ? transArr.Select(x => new GpTransaction((JObject)x)).OrderBy(t => t.GameTime).ThenBy(t => t.RealDate).ToList()
+                ? transArr.Select(x => new GpTransaction((JObject)x)).OrderBy(t => t.GameRound).ThenBy(t => t.RealDate).ToList()
                 : new List<GpTransaction>();
 
             inventory = json["inventory"] is JObject invObj
@@ -139,7 +139,7 @@ namespace PlayMore35.CharacterChoices {
                 : new EquippedChoices();
 
             sessions = json["sessions"] is JArray sessArr
-                ? sessArr.Select(x => new XpSessionEntry((JObject)x)).OrderBy(s => s.GameTime).ThenBy(s => s.RealDate).ToList()
+                ? sessArr.Select(x => new XpSessionEntry((JObject)x)).OrderBy(s => s.GameRound).ThenBy(s => s.RealDate).ToList()
                 : new List<XpSessionEntry>();
 
             externalEffects = json["effects"] is JArray effArr

@@ -11,47 +11,48 @@ namespace PlayMore35.Tests {
     public class XpSessionEntryTests {
         [TestMethod]
         public void XpSessionEntry_Constructor_InitializesPropertiesAndNormalizesRealDate() {
-            var gameTime = new DateTime(2026, 10, 6, 20, 11, 30);
+            long gameRound = 28835L;
             var realDateWithTime = new DateTime(2026, 10, 9, 14, 30, 0);
 
-            var entry = new XpSessionEntry(750, "clearing goblin warrens", gameTime, realDateWithTime);
+            var entry = new XpSessionEntry(750, "clearing goblin warrens", gameRound, realDateWithTime);
 
             Assert.AreEqual(750, entry.Xp);
             Assert.AreEqual("clearing goblin warrens", entry.Description);
-            Assert.AreEqual(gameTime, entry.GameTime);
+            Assert.AreEqual(gameRound, entry.GameRound);
             Assert.AreEqual(new DateTime(2026, 10, 9), entry.RealDate);
             Assert.AreEqual(TimeSpan.Zero, entry.RealDate.TimeOfDay, "RealDate must drop wall-clock time-of-day.");
         }
 
         [TestMethod]
         public void XpSessionEntry_SerializationAndDeserialization_RoundtripsAccurately() {
-            var gameTime = new DateTime(2026, 10, 6, 20, 11, 30, DateTimeKind.Utc);
+            long gameRound = 525949200L;
             var realDate = new DateTime(2026, 10, 9);
-            var original = new XpSessionEntry(1200, "defeated ogre chief", gameTime, realDate);
+            var original = new XpSessionEntry(1200, "defeated ogre chief", gameRound, realDate);
 
             JObject json = (JObject)original.ToJson();
 
             Assert.AreEqual(1200, (int)json["xp"]);
             Assert.AreEqual("defeated ogre chief", (string)json["description"]);
-            Assert.AreEqual(gameTime.ToString("O"), (string)json["game_time"]);
+            Assert.AreEqual(gameRound, (long)json["game_round"]);
+            Assert.IsNull(json["game_time"], "XpSessionEntry JSON must emit game_round instead of game_time.");
             Assert.AreEqual("2026-10-09", (string)json["real_date"]);
 
             var deserialized = new XpSessionEntry(json);
 
             Assert.AreEqual(original.Xp, deserialized.Xp);
             Assert.AreEqual(original.Description, deserialized.Description);
-            Assert.AreEqual(original.GameTime, deserialized.GameTime);
+            Assert.AreEqual(original.GameRound, deserialized.GameRound);
             Assert.AreEqual(original.RealDate, deserialized.RealDate);
         }
 
         [TestMethod]
         public void XpSessionEntry_EqualityAndHashCode_FunctionCorrectly() {
-            var gameTime = new DateTime(2026, 10, 6, 20, 11, 30);
+            long gameRound = 120L;
             var realDate = new DateTime(2026, 10, 9);
 
-            var a = new XpSessionEntry(500, "quest reward", gameTime, realDate);
-            var b = new XpSessionEntry(500, "quest reward", gameTime, realDate);
-            var diffXp = new XpSessionEntry(600, "quest reward", gameTime, realDate);
+            var a = new XpSessionEntry(500, "quest reward", gameRound, realDate);
+            var b = new XpSessionEntry(500, "quest reward", gameRound, realDate);
+            var diffXp = new XpSessionEntry(600, "quest reward", gameRound, realDate);
 
             Assert.IsTrue(a.Equals(b));
             Assert.IsTrue(a.Equals((object)b));
@@ -60,34 +61,28 @@ namespace PlayMore35.Tests {
         }
 
         [TestMethod]
-        public void Character_Sessions_SerializesAndDeserializesExplicitSchema() {
+        public void Character_Sessions_SerializesDeserializesAndOrdersByGameRoundThenRealDate() {
             var character = new Character();
-            var s1 = new XpSessionEntry(500, "clearing cellar rats", new DateTime(2026, 10, 6, 20, 11, 30), new DateTime(2026, 10, 9));
-            var s2 = new XpSessionEntry(750, "escorting caravan", new DateTime(2026, 10, 6, 21, 0, 0), new DateTime(2026, 10, 9));
-            character.sessions.Add(s1);
-            character.sessions.Add(s2);
+            var sLate = new XpSessionEntry(750, "escorting caravan", 485L, new DateTime(2026, 10, 9));
+            var sEarly = new XpSessionEntry(500, "clearing cellar rats", 0L, new DateTime(2026, 10, 9));
+            character.sessions.Add(sLate);
+            character.sessions.Add(sEarly);
 
             JObject json = (JObject)character.ToJson();
-            JArray sessionArray = (JArray)json["sessions"];
-            Assert.AreEqual(2, sessionArray.Count);
-            Assert.AreEqual(500, (int)sessionArray[0]["xp"]);
-            Assert.AreEqual("clearing cellar rats", (string)sessionArray[0]["description"]);
-            Assert.AreEqual("2026-10-06T20:11:30.0000000", (string)sessionArray[0]["game_time"]);
-            Assert.AreEqual("2026-10-09", (string)sessionArray[0]["real_date"]);
-
             var reloaded = new Character(json);
             Assert.AreEqual(2, reloaded.sessions.Count);
             Assert.AreEqual(500, reloaded.sessions[0].Xp);
             Assert.AreEqual("clearing cellar rats", reloaded.sessions[0].Description);
-            Assert.AreEqual(new DateTime(2026, 10, 6, 20, 11, 30), reloaded.sessions[0].GameTime);
+            Assert.AreEqual(0L, reloaded.sessions[0].GameRound);
             Assert.AreEqual(new DateTime(2026, 10, 9), reloaded.sessions[0].RealDate);
+            Assert.AreEqual(485L, reloaded.sessions[1].GameRound);
             Assert.AreEqual(1250, reloaded.TotalExperience());
         }
 
         [TestMethod]
         public void Character_ReadOnlyProjections_ExposeXpSessionEntries() {
             var character = new Character();
-            var s = new XpSessionEntry(400, "patrol skirmish", new DateTime(2026, 10, 7, 12, 0, 0), new DateTime(2026, 10, 9));
+            var s = new XpSessionEntry(400, "patrol skirmish", 14400L, new DateTime(2026, 10, 9));
             character.sessions.Add(s);
 
             IReadOnlyCharacter readOnlyChar = new ReadOnlyCharacter(character);
@@ -107,10 +102,10 @@ namespace PlayMore35.Tests {
 
             Assert.AreEqual(1000, character.ExperienceToNextLevel());
 
-            character.sessions.Add(new XpSessionEntry(600, "session 1", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9)));
+            character.sessions.Add(new XpSessionEntry(600, "session 1", 0L, new DateTime(2026, 10, 9)));
             Assert.AreEqual(400, character.ExperienceToNextLevel());
 
-            character.sessions.Add(new XpSessionEntry(450, "session 2", new DateTime(2026, 10, 7), new DateTime(2026, 10, 9)));
+            character.sessions.Add(new XpSessionEntry(450, "session 2", 14400L, new DateTime(2026, 10, 9)));
             Assert.AreEqual(-50, character.ExperienceToNextLevel(), "Negative XP to next level indicates ready to level up.");
         }
 
@@ -126,7 +121,7 @@ namespace PlayMore35.Tests {
             var session = new CharacterSession(odric, new Rules.GameRulesCatalog());
             Assert.AreEqual(0, session.Character.TotalExperience());
 
-            var s = new XpSessionEntry(800, "tomb exploration", new DateTime(2026, 10, 6, 20, 11, 30), new DateTime(2026, 10, 9));
+            var s = new XpSessionEntry(800, "tomb exploration", session.Timeline.CurrentRound, new DateTime(2026, 10, 9));
             session.Mutate(c => c.sessions.Add(s));
             Assert.AreEqual(800, session.Character.TotalExperience());
 
@@ -135,13 +130,15 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(1, reloaded.sessions.Count);
             Assert.AreEqual(800, reloaded.sessions[0].Xp);
             Assert.AreEqual("tomb exploration", reloaded.sessions[0].Description);
+            Assert.AreEqual(session.Timeline.CurrentRound, reloaded.sessions[0].GameRound);
             Assert.AreEqual(800, reloaded.TotalExperience());
         }
 
         [TestMethod]
         public void MainForm_CharacterTab_InitializesLedgerXpAndDateOverridePicker() {
             var character = new Character();
-            var entry = new XpSessionEntry(1500, "Defeated Red Dragon", new DateTime(2026, 10, 6, 20, 0, 0), new DateTime(2026, 10, 9));
+            character.Timeline.SetCampaignTime(new DateTime(612, 5, 14, 20, 0, 0));
+            var entry = new XpSessionEntry(1500, "Defeated Red Dragon", 0L, new DateTime(2026, 10, 9));
             character.sessions.Add(entry);
             var session = new CharacterSession(character, new Rules.GameRulesCatalog());
 
@@ -163,6 +160,7 @@ namespace PlayMore35.Tests {
                 displayXpMethod.Invoke(form, new object[] { false });
 
                 Assert.AreEqual(1, ledger.ViewModel.RowCount);
+                Assert.AreEqual("0612-05-14 20:00", ledger.ViewModel.Rows[0].GameTimeText);
                 Assert.AreEqual("+1,500", ledger.ViewModel.Rows[0].AmountText);
                 Assert.AreEqual("Defeated Red Dragon", ledger.ViewModel.Rows[0].DescriptionText);
             }

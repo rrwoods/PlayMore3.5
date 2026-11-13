@@ -9,18 +9,21 @@ using PlayMore35.UI;
 namespace PlayMore35.Tests {
     [TestClass]
     public class TabularLedgerPanelTests {
+        private static readonly DateTime AnchorTime = new DateTime(2026, 10, 6, 20, 11, 0);
+        private static DateTime ProjectRound(long round) => AnchorTime.AddTicks(round * PlayMore35.Global.Timeline.TicksPerRound);
+
         [TestMethod]
         public void TabularLedgerPanel_SetEntries_CreatesRowsAndHeaders() {
             var panel = new TabularLedgerPanel();
             panel.AmountColumnHeader = "Amount";
 
-            var t1 = new GpTransaction(100m, "starting gold", new DateTime(2026, 10, 6, 20, 11, 0), new DateTime(2026, 10, 9));
-            var t2 = new GpTransaction(-25m, "trail rations", new DateTime(2026, 10, 6, 20, 30, 0), new DateTime(2026, 10, 9));
+            var t1 = new GpTransaction(100m, "starting gold", 0L, new DateTime(2026, 10, 9));
+            var t2 = new GpTransaction(-25m, "trail rations", 190L, new DateTime(2026, 10, 9));
 
             GpTransaction deletedItem = null;
             panel.SetEntries(
                 new[] { t1, t2 },
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -49,10 +52,10 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void TabularLedgerPanel_Selection_HighlightsRow() {
             var panel = new TabularLedgerPanel();
-            var t1 = new GpTransaction(10m, "item 1", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9));
+            var t1 = new GpTransaction(10m, "item 1", 0L, new DateTime(2026, 10, 9));
             panel.SetEntries(
                 new[] { t1 },
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -75,10 +78,10 @@ namespace PlayMore35.Tests {
             var panel = new TabularLedgerPanel();
             panel.ScrollToBottom(); // Empty should not throw
 
-            var t1 = new GpTransaction(10m, "item 1", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9));
+            var t1 = new GpTransaction(10m, "item 1", 0L, new DateTime(2026, 10, 9));
             panel.SetEntries(
                 new[] { t1 },
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -95,12 +98,12 @@ namespace PlayMore35.Tests {
                 AmountColumnHeader = "XP"
             };
 
-            var sessionEntry = new XpSessionEntry(1000, "Session 1 - Dungeon Crawl", new DateTime(2026, 10, 6, 20, 0, 0), new DateTime(2026, 10, 9));
+            var sessionEntry = new XpSessionEntry(1000, "Session 1 - Dungeon Crawl", 0L, new DateTime(2026, 10, 9));
 
             XpSessionEntry deletedEntry = null;
             panel.SetEntries(
                 new[] { sessionEntry },
-                s => s.GameTime,
+                s => ProjectRound(s.GameRound),
                 s => s.RealDate,
                 s => s.Description,
                 s => LedgerFormatters.FormatXpAmount(s.Xp),
@@ -128,7 +131,7 @@ namespace PlayMore35.Tests {
             };
             panel.SetEntries(
                 Array.Empty<GpTransaction>(),
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -146,12 +149,12 @@ namespace PlayMore35.Tests {
             var panel = new TabularLedgerPanel {
                 Size = new System.Drawing.Size(500, 500)
             };
-            var t1 = new GpTransaction(100m, "item 1", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9));
-            var t2 = new GpTransaction(50m, "item 2", new DateTime(2026, 10, 7), new DateTime(2026, 10, 9));
+            var t1 = new GpTransaction(100m, "item 1", 0L, new DateTime(2026, 10, 9));
+            var t2 = new GpTransaction(50m, "item 2", 14400L, new DateTime(2026, 10, 9));
 
             panel.SetEntries(
                 new[] { t1, t2 },
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -172,12 +175,12 @@ namespace PlayMore35.Tests {
                 Size = new System.Drawing.Size(500, 200)
             };
             var items = Enumerable.Range(1, 15).Select(i =>
-                new GpTransaction(i * 10m, $"item {i}", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9))
+                new GpTransaction(i * 10m, $"item {i}", 0L, new DateTime(2026, 10, 9))
             ).ToList();
 
             panel.SetEntries(
                 items,
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -200,12 +203,12 @@ namespace PlayMore35.Tests {
                 form.Show();
 
                 var items = Enumerable.Range(1, 25).Select(i =>
-                    new GpTransaction(i * 10m, $"item {i}", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9))
+                    new GpTransaction(i * 10m, $"item {i}", 0L, new DateTime(2026, 10, 9))
                 ).ToList();
 
                 panel.SetEntries(
                     items,
-                    t => t.GameTime,
+                    t => ProjectRound(t.GameRound),
                     t => t.RealDate,
                     t => t.Description,
                     t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -229,12 +232,12 @@ namespace PlayMore35.Tests {
 
                 // 10 items => header (22) + 10 * 18 (180) = 202px total content height
                 var items = Enumerable.Range(1, 10).Select(i =>
-                    new GpTransaction(i * 10m, $"item {i}", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9))
+                    new GpTransaction(i * 10m, $"item {i}", 0L, new DateTime(2026, 10, 9))
                 ).ToList();
 
                 panel.SetEntries(
                     items,
-                    t => t.GameTime,
+                    t => ProjectRound(t.GameRound),
                     t => t.RealDate,
                     t => t.Description,
                     t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -279,12 +282,12 @@ namespace PlayMore35.Tests {
                 form.Show();
 
                 var items = Enumerable.Range(1, 5).Select(i =>
-                    new GpTransaction(i * 10m, $"item {i}", new DateTime(2026, 10, 6), new DateTime(2026, 10, 9))
+                    new GpTransaction(i * 10m, $"item {i}", 0L, new DateTime(2026, 10, 9))
                 ).ToList();
 
                 panel.SetEntries(
                     items,
-                    t => t.GameTime,
+                    t => ProjectRound(t.GameRound),
                     t => t.RealDate,
                     t => t.Description,
                     t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -301,7 +304,7 @@ namespace PlayMore35.Tests {
                 // Refresh entries while scrolled (simulating tab enter or adding an entry while shrunk)
                 panel.SetEntries(
                     items,
-                    t => t.GameTime,
+                    t => ProjectRound(t.GameRound),
                     t => t.RealDate,
                     t => t.Description,
                     t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -340,8 +343,8 @@ namespace PlayMore35.Tests {
             character.assignedAbilityScores["WIS"] = 10;
             character.assignedAbilityScores["CHA"] = 10;
             for (int i = 1; i <= 5; i++) {
-                character.sessions.Add(new XpSessionEntry(i * 100, $"session {i}", new DateTime(2026, 10, i), new DateTime(2026, 10, i)));
-                character.transactions.Add(new GpTransaction(i * 10m, $"tx {i}", new DateTime(2026, 10, i), new DateTime(2026, 10, i)));
+                character.sessions.Add(new XpSessionEntry(i * 100, $"session {i}", i * 100L, new DateTime(2026, 10, i)));
+                character.transactions.Add(new GpTransaction(i * 10m, $"tx {i}", i * 100L, new DateTime(2026, 10, i)));
             }
             var session = new PlayMore35.Global.CharacterSession(character, catalog);
 
@@ -352,7 +355,7 @@ namespace PlayMore35.Tests {
                 var ledgerXp = (TabularLedgerPanel)form.Controls.Find("ledgerXp", true).First();
                 ledgerXp.SetEntries(
                     character.sessions,
-                    s => s.GameTime,
+                    s => ProjectRound(s.GameRound),
                     s => s.RealDate,
                     s => s.Description,
                     s => LedgerFormatters.FormatXpAmount(s.Xp),
@@ -402,10 +405,10 @@ namespace PlayMore35.Tests {
             var panel = new TabularLedgerPanel {
                 Size = new System.Drawing.Size(TabularLedgerPanel.BASELINE_WIDTH, 500)
             };
-            var t1 = new GpTransaction(100m, "starting gold", new DateTime(2026, 10, 6, 20, 11, 0), new DateTime(2026, 10, 9));
+            var t1 = new GpTransaction(100m, "starting gold", 0L, new DateTime(2026, 10, 9));
             panel.SetEntries(
                 new[] { t1 },
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -536,13 +539,13 @@ namespace PlayMore35.Tests {
             Assert.AreEqual(0m, vm.TotalAmount);
             Assert.AreEqual(0m, vm.Total);
 
-            var t1 = new GpTransaction(150.5m, "quest reward", new DateTime(2026, 10, 1, 10, 0, 0), new DateTime(2026, 10, 5));
-            var t2 = new GpTransaction(-50.25m, "supplies", new DateTime(2026, 10, 2, 12, 0, 0), new DateTime(2026, 10, 5));
-            var t3 = new GpTransaction(25m, "found coins", new DateTime(2026, 10, 3, 14, 0, 0), new DateTime(2026, 10, 6));
+            var t1 = new GpTransaction(150.5m, "quest reward", 100L, new DateTime(2026, 10, 5));
+            var t2 = new GpTransaction(-50.25m, "supplies", 200L, new DateTime(2026, 10, 5));
+            var t3 = new GpTransaction(25m, "found coins", 300L, new DateTime(2026, 10, 6));
 
             vm.SetEntries(
                 new[] { t1, t2, t3 },
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),
@@ -562,11 +565,11 @@ namespace PlayMore35.Tests {
 
             // Switching to XP ledger
             vm.AmountHeader = "XP";
-            var s1 = new XpSessionEntry(1200, "session 1", new DateTime(2026, 10, 1), new DateTime(2026, 10, 5));
-            var s2 = new XpSessionEntry(800, "session 2", new DateTime(2026, 10, 2), new DateTime(2026, 10, 6));
+            var s1 = new XpSessionEntry(1200, "session 1", 100L, new DateTime(2026, 10, 5));
+            var s2 = new XpSessionEntry(800, "session 2", 200L, new DateTime(2026, 10, 6));
             vm.SetEntries(
                 new[] { s1, s2 },
-                s => s.GameTime,
+                s => ProjectRound(s.GameRound),
                 s => s.RealDate,
                 s => s.Description,
                 s => LedgerFormatters.FormatXpAmount(s.Xp),
@@ -584,13 +587,13 @@ namespace PlayMore35.Tests {
         [TestMethod]
         public void TabularLedgerViewModel_SelectionAndDeletion_StateTransitions() {
             var vm = new TabularLedgerViewModel();
-            var t1 = new GpTransaction(10m, "item 1", new DateTime(2026, 10, 1), new DateTime(2026, 10, 2));
-            var t2 = new GpTransaction(20m, "item 2", new DateTime(2026, 10, 3), new DateTime(2026, 10, 4));
+            var t1 = new GpTransaction(10m, "item 1", 10L, new DateTime(2026, 10, 2));
+            var t2 = new GpTransaction(20m, "item 2", 30L, new DateTime(2026, 10, 4));
 
             GpTransaction? deleted = null;
             vm.SetEntries(
                 new[] { t1, t2 },
-                t => t.GameTime,
+                t => ProjectRound(t.GameRound),
                 t => t.RealDate,
                 t => t.Description,
                 t => LedgerFormatters.FormatGoldAmount(t.Amount),

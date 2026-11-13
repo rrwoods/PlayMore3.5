@@ -8,9 +8,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
-### Pre-1900 Timeline Dates
-  - Investigate ways of allowing in-game timeline dates before 1900 (addressing historical date limitations in .NET `DateTimePicker` controls and calendar date math).
-
 ### References for current implementations
 - Tag all content with source (book and page).  Every subsystem element, item, class, race, feat... everything.  (Providing UI for this comes later.)
 - Reference the entirety of Rules Compendium (and create steering that this is always the primary source when it can be cited)

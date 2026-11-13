@@ -60,7 +60,8 @@ namespace PlayMore35.Global {
 
         TimelineAdvanceResult AdvanceTimeline(LengthOfTime duration);
         TimelineAdvanceResult AdvanceTimeline(long rounds);
-        TimelineAdvanceResult SetTime(DateTime time);
+        TimelineAdvanceResult AdvanceTo(DateTime targetTime);
+        void SetCampaignTime(DateTime currentCampaignTime);
         TimelineAdvanceResult StartCombat();
         TimelineAdvanceResult EndCombat();
 

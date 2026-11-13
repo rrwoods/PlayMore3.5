@@ -8,8 +8,12 @@ using System.Linq;
 
 namespace PlayMore35.Global {
     public class Timeline : IJsonable {
+        public const int SecondsPerRound = 6;
+        public const long TicksPerRound = SecondsPerRound * TimeSpan.TicksPerSecond;
+        public static readonly DateTime MaxQuantizedDateTime = new DateTime(9999, 12, 31, 23, 59, 54);
+
         public DateTime RoundZero { get; private set; }
-        public DateTime EncounterStartTime { get; private set; }
+        public DateTime EncounterStartTime => GetTimeAtRound(EncounterStartRound);
         public long EncounterStartRound { get; private set; }
         public long CurrentRound { get; private set; } = 0;
         public bool Combat { get; private set; } = false;
@@ -46,7 +50,6 @@ namespace PlayMore35.Global {
         public JToken ToJson() {
             return new JObject(
                 new JProperty("round zero", RoundZero.ToString("O")),
-                new JProperty("encounter start time", EncounterStartTime.ToString("O")),
                 new JProperty("encounter start round", EncounterStartRound),
                 new JProperty("current round", CurrentRound),
                 new JProperty("combat", Combat),
@@ -63,7 +66,6 @@ namespace PlayMore35.Global {
                 DefaultInitialize();
             } else {
                 RoundZero = DateTime.Parse((string)json["round zero"], CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-                EncounterStartTime = DateTime.Parse((string)json["encounter start time"], CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
                 EncounterStartRound = (long)json["encounter start round"];
                 CurrentRound = (long)json["current round"];
                 Combat = (bool)json["combat"];
@@ -84,12 +86,18 @@ namespace PlayMore35.Global {
         }
 
         private void DefaultInitialize() {
-            DateTime now = DateTime.Now;
-            EncounterStartTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, (now.Second / 6) * 6);
-            RoundZero = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, (now.Second / 6) * 6);
+            RoundZero = QuantizeToRound(DateTime.Now);
         }
 
-        public DateTime CurrentTime => RoundZero.AddSeconds(CurrentRound * 6);
+        public static DateTime QuantizeToRound(DateTime time) {
+            return new DateTime((time.Ticks / TicksPerRound) * TicksPerRound, time.Kind);
+        }
+
+        public DateTime GetTimeAtRound(long round) => RoundZero.AddTicks(round * TicksPerRound);
+
+        public DateTime CurrentTime => GetTimeAtRound(CurrentRound);
+
+        public DateTime MinCampaignTime => new DateTime(CurrentRound * TicksPerRound, RoundZero.Kind);
 
         public TimelineAdvanceResult Advance(long rounds = 1) {
             return Advance(rounds, Context);
@@ -202,9 +210,25 @@ namespace PlayMore35.Global {
             return result;
         }
 
-        public TimelineAdvanceResult SetTime(DateTime time, ICharacterContext context = null) {
-            long targetRound = ((long)(time - RoundZero).TotalSeconds) / 6;
+        public TimelineAdvanceResult AdvanceTo(DateTime targetTime, ICharacterContext context = null) {
+            if (targetTime < CurrentTime) {
+                throw new ArgumentOutOfRangeException(nameof(targetTime), "Target time cannot be earlier than CurrentTime.");
+            }
+            long targetRound = (targetTime.Ticks - RoundZero.Ticks) / TicksPerRound;
             return Advance(targetRound - CurrentRound, context ?? Context);
+        }
+
+        public void SetCampaignTime(DateTime currentCampaignTime) {
+            if (currentCampaignTime > MaxQuantizedDateTime) {
+                throw new ArgumentOutOfRangeException(nameof(currentCampaignTime), "Campaign time cannot exceed 9999-12-31 23:59:54.");
+            }
+            DateTime quantized = QuantizeToRound(currentCampaignTime);
+            long offsetTicks = CurrentRound * TicksPerRound;
+            long newRoundZeroTicks = quantized.Ticks - offsetTicks;
+            if (newRoundZeroTicks < 0 || newRoundZeroTicks > MaxQuantizedDateTime.Ticks) {
+                throw new ArgumentOutOfRangeException(nameof(currentCampaignTime), "Campaign time would place Round Zero outside 0001-01-01..9999-12-31.");
+            }
+            RoundZero = new DateTime(newRoundZeroTicks, currentCampaignTime.Kind);
         }
 
         public TimelineAdvanceResult StartCombat(ICharacterContext context = null) {
@@ -215,7 +239,6 @@ namespace PlayMore35.Global {
             }
 
             this.Combat = true;
-            EncounterStartTime = CurrentTime;
             EncounterStartRound = CurrentRound;
 
             return new TimelineAdvanceResult {

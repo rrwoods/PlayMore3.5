@@ -274,7 +274,6 @@ namespace PlayMore35.Tests {
         public void Timeline_StandaloneDeserialization_DeserializesDeclarativeSubsystemActionWithoutSessionOrRegistration() {
             var timelineJson = new JObject(
                 new JProperty("round zero", "2026-10-06T20:11:30.0000000"),
-                new JProperty("encounter start time", "2026-10-06T20:12:00.0000000"),
                 new JProperty("encounter start round", 5),
                 new JProperty("current round", 10),
                 new JProperty("combat", false),

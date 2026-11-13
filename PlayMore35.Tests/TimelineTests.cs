@@ -15,62 +15,105 @@ namespace PlayMore35.Tests {
 
         [TestMethod]
         public void Advance_IncrementsCurrentRound_AndProjectsCalendarDate() {
-            var roundZero = new DateTime(2026, 1, 1, 12, 0, 0);
-            var json = new JObject(
-                new JProperty("round zero", roundZero.ToString("O")),
-                new JProperty("encounter start time", roundZero.ToString("O")),
-                new JProperty("encounter start round", 0L),
-                new JProperty("current round", 0L),
-                new JProperty("combat", false)
-            );
-            var timeline = new Timeline(json);
+            var roundZero = new DateTime(612, 2, 28, 23, 59, 54); // Leap year 612
+            var timeline = new Timeline();
+            timeline.SetCampaignTime(roundZero);
 
             Assert.AreEqual(0L, timeline.CurrentRound);
             Assert.AreEqual(roundZero, timeline.CurrentTime);
 
-            TimelineAdvanceResult res1 = timeline.Advance(1);
+            timeline.Advance(1);
             Assert.AreEqual(1L, timeline.CurrentRound);
-            Assert.AreEqual(roundZero.AddSeconds(6), timeline.CurrentTime);
+            Assert.AreEqual(new DateTime(612, 2, 29, 0, 0, 0), timeline.CurrentTime);
 
-            TimelineAdvanceResult res10 = timeline.Advance(10);
-            Assert.AreEqual(11L, timeline.CurrentRound);
-            Assert.AreEqual(roundZero.AddSeconds(66), timeline.CurrentTime);
-
-            TimelineAdvanceResult resHour = timeline.Advance(600);
-            Assert.AreEqual(611L, timeline.CurrentRound);
-            Assert.AreEqual(roundZero.AddSeconds(66 + 3600), timeline.CurrentTime);
+            timeline.Advance(14400); // 1 full day across leap day
+            Assert.AreEqual(14401L, timeline.CurrentRound);
+            Assert.AreEqual(new DateTime(612, 3, 1, 0, 0, 0), timeline.CurrentTime);
+            Assert.AreEqual(new DateTime(612, 2, 29, 0, 0, 0), timeline.GetTimeAtRound(1));
         }
 
         [TestMethod]
-        public void SetTime_UpdatesCurrentRound_AndReturnsAdvanceResult() {
-            var roundZero = new DateTime(2026, 1, 1, 12, 0, 0);
-            var json = new JObject(
-                new JProperty("round zero", roundZero.ToString("O")),
-                new JProperty("encounter start time", roundZero.ToString("O")),
-                new JProperty("encounter start round", 0L),
-                new JProperty("current round", 0L),
-                new JProperty("combat", false)
-            );
-            var timeline = new Timeline(json);
+        public void AdvanceTo_UpdatesCurrentRound_AcrossMultiCenturyPre1900Spans() {
+            var roundZero = new DateTime(1, 1, 1, 0, 0, 0);
+            var timeline = new Timeline();
+            timeline.SetCampaignTime(roundZero);
 
-            var targetTime = roundZero.AddMinutes(5); // 300 seconds = 50 rounds
-            TimelineAdvanceResult result = timeline.SetTime(targetTime);
+            var targetTime = new DateTime(1612, 5, 14, 20, 15, 0);
+            TimelineAdvanceResult result = timeline.AdvanceTo(targetTime);
 
-            Assert.AreEqual(50L, timeline.CurrentRound);
+            Assert.IsNotNull(result);
             Assert.AreEqual(targetTime, timeline.CurrentTime);
+
+            var maxTime = new DateTime(9999, 12, 31, 23, 59, 54);
+            timeline.AdvanceTo(maxTime);
+            Assert.AreEqual(maxTime, timeline.CurrentTime);
+        }
+
+        [TestMethod]
+        public void AdvanceTo_ThrowsArgumentOutOfRange_WhenTargetTimePrecedesCurrentTime() {
+            var timeline = new Timeline();
+            timeline.SetCampaignTime(new DateTime(612, 5, 14, 20, 15, 0));
+
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+                timeline.AdvanceTo(new DateTime(612, 5, 14, 20, 14, 54))
+            );
+            Assert.AreEqual(0L, timeline.CurrentRound);
+        }
+
+        [TestMethod]
+        public void SetCampaignTime_RebasesRoundZero_WhilePreservingCurrentRoundScheduledActionsAndParameters() {
+            var initialRoundZero = new DateTime(2026, 10, 6, 20, 11, 30);
+            var timeline = new Timeline();
+            timeline.SetCampaignTime(initialRoundZero);
+            timeline.Advance(5);
+            timeline.StartCombat();
+            timeline.EndCombat();
+            timeline.Advance(28830);
+            var character = new Character { Timeline = timeline };
+            var effects = new EffectPool(character);
+            var dayParam = new ControllableParameter("day_res", character) { Value = 2 };
+            effects.resettableParameters["day"].Add(dayParam);
+            var context = new FakeCharacterContext(character, effects, new Equipped());
+            timeline.Context = context;
+
+            var scheduled = new SheetAction { Name = "Unbind vestige slot 0" };
+            timeline.Schedule(scheduled, "1 day", context); // scheduled at 28835 + 14400 = 43235
+
+            // Set campaign time to May 14, 612, 8:15:05 PM (quantizes to 8:15:00 PM)
+            timeline.SetCampaignTime(new DateTime(612, 5, 14, 20, 15, 5));
+
+            Assert.AreEqual(28835L, timeline.CurrentRound);
+            Assert.AreEqual(new DateTime(612, 5, 14, 20, 15, 0), timeline.CurrentTime);
+            Assert.AreEqual(new DateTime(612, 5, 12, 20, 11, 30), timeline.RoundZero);
+            Assert.AreEqual(new DateTime(612, 5, 12, 20, 12, 0), timeline.EncounterStartTime);
+            Assert.AreEqual(new DateTime(28835L * Timeline.TicksPerRound), timeline.MinCampaignTime);
+            Assert.AreEqual(1, timeline.GetScheduledActions(43235).Count);
+            Assert.AreEqual(2, dayParam.Value, "SetCampaignTime must not reset periodic parameters.");
+
+            var serialized = (JObject)timeline.ToJson();
+            Assert.IsNull(serialized["encounter start time"], "Timeline JSON must omit redundant encounter start time.");
+        }
+
+        [TestMethod]
+        public void SetCampaignTime_ThrowsArgumentOutOfRange_WhenRoundZeroWouldUnderflowOrExceedMax() {
+            var timeline = new Timeline();
+            timeline.SetCampaignTime(new DateTime(612, 5, 14, 0, 0, 0));
+            timeline.Advance(10);
+
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+                timeline.SetCampaignTime(new DateTime(1, 1, 1, 0, 0, 54)) // 9 rounds after MinValue < 10 rounds needed
+            );
+
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+                timeline.SetCampaignTime(new DateTime(9999, 12, 31, 23, 59, 55))
+            );
         }
 
         [TestMethod]
         public void Advance_ZeroesPeriodicParameters_AcrossCadenceThresholds() {
             var roundZero = new DateTime(2026, 1, 1, 0, 0, 0); // Midnight Thursday
-            var json = new JObject(
-                new JProperty("round zero", roundZero.ToString("O")),
-                new JProperty("encounter start time", roundZero.ToString("O")),
-                new JProperty("encounter start round", 0L),
-                new JProperty("current round", 0L),
-                new JProperty("combat", false)
-            );
-            var timeline = new Timeline(json);
+            var timeline = new Timeline();
+            timeline.SetCampaignTime(roundZero);
             var character = new Character { Timeline = timeline };
 
             var effects = new EffectPool(character);
@@ -164,7 +207,6 @@ namespace PlayMore35.Tests {
                 new JProperty("parameter values", new JObject()),
                 new JProperty("time", new JObject(
                     new JProperty("round zero", roundZero.ToString("O")),
-                    new JProperty("encounter start time", roundZero.ToString("O")),
                     new JProperty("encounter start round", 5L),
                     new JProperty("current round", 42L),
                     new JProperty("combat", true),

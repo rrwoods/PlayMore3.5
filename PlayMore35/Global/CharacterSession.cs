@@ -1428,11 +1428,16 @@ namespace PlayMore35.Global {
             return result;
         }
 
-        public TimelineAdvanceResult SetTime(DateTime time) {
+        public TimelineAdvanceResult AdvanceTo(DateTime targetTime) {
             character.Timeline.Context = this;
-            var result = character.Timeline.SetTime(time, this);
+            var result = character.Timeline.AdvanceTo(targetTime, this);
             Recalculate();
             return result;
+        }
+
+        public void SetCampaignTime(DateTime currentCampaignTime) {
+            character.Timeline.Context = this;
+            character.Timeline.SetCampaignTime(currentCampaignTime);
         }
 
         public TimelineAdvanceResult StartCombat() {

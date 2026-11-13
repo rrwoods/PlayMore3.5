@@ -7,31 +7,29 @@ namespace PlayMore35.CharacterChoices {
     public class XpSessionEntry : IJsonable, IEquatable<XpSessionEntry> {
         public int Xp { get; }
         public string Description { get; }
-        public DateTime GameTime { get; }
+        public long GameRound { get; }
         public DateTime RealDate { get; }
 
-        public XpSessionEntry(int xp, string description, DateTime gameTime, DateTime realDate) {
+        public XpSessionEntry(int xp, string description, long gameRound, DateTime realDate) {
             Xp = xp;
             Description = description ?? "";
-            GameTime = gameTime;
+            GameRound = gameRound;
             RealDate = realDate.Date;
         }
 
-        public XpSessionEntry(JObject json) {
-            if (json == null) throw new ArgumentNullException(nameof(json));
-
-            Xp = (int)json["xp"];
-            Description = (string)json["description"] ?? "";
-            GameTime = DateTime.Parse((string)json["game_time"], CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-            RealDate = DateTime.Parse((string)json["real_date"], CultureInfo.InvariantCulture).Date;
-        }
+        public XpSessionEntry(JObject json) : this(
+            json != null ? (int)json["xp"] : throw new ArgumentNullException(nameof(json)),
+            (string)json["description"] ?? "",
+            (long)json["game_round"],
+            DateTime.Parse((string)json["real_date"], CultureInfo.InvariantCulture).Date
+        ) { }
 
         public JToken ToJson() {
             return new JObject(
                 new JProperty("xp", Xp),
                 new JProperty("description", Description),
-                new JProperty("game_time", GameTime.ToString("O")),
-                new JProperty("real_date", RealDate.ToString("yyyy-MM-dd"))
+                new JProperty("game_round", GameRound),
+                new JProperty("real_date", RealDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
             );
         }
 
@@ -40,7 +38,7 @@ namespace PlayMore35.CharacterChoices {
             if (ReferenceEquals(this, other)) return true;
             return Xp == other.Xp &&
                    Description == other.Description &&
-                   GameTime.Equals(other.GameTime) &&
+                   GameRound == other.GameRound &&
                    RealDate.Equals(other.RealDate);
         }
 
@@ -53,14 +51,14 @@ namespace PlayMore35.CharacterChoices {
                 int hash = 17;
                 hash = hash * 31 + Xp.GetHashCode();
                 hash = hash * 31 + (Description != null ? Description.GetHashCode() : 0);
-                hash = hash * 31 + GameTime.GetHashCode();
+                hash = hash * 31 + GameRound.GetHashCode();
                 hash = hash * 31 + RealDate.GetHashCode();
                 return hash;
             }
         }
 
         public override string ToString() {
-            return $"{Xp:+#,###;-#,###;0} XP: {Description} (Game: {GameTime:yyyy-MM-dd HH:mm}, Real: {RealDate:yyyy-MM-dd})";
+            return $"{Xp:+#,###;-#,###;0} XP: {Description} (Round: {GameRound}, Real: {RealDate:yyyy-MM-dd})";
         }
     }
 }
