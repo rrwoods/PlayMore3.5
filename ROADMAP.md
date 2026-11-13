@@ -8,9 +8,13 @@ When starting a new feature, select the highest-priority unblocked item from thi
 
 ## Tier 0: Important and Immediate Consequences of Recently-Implemented Features, and Basic Functionality Necessary To Play The Game
 
+### Pre-1900 Timeline Dates
+  - Investigate ways of allowing in-game timeline dates before 1900 (addressing historical date limitations in .NET `DateTimePicker` controls and calendar date math).
+
 ### References for current implementations
+- Tag all content with source (book and page).  Every subsystem element, item, class, race, feat... everything.  (Providing UI for this comes later.)
 - Reference the entirety of Rules Compendium (and create steering that this is always the primary source when it can be cited)
-- Full references for classes, even when only part of the class is implemented.
+- Full references for all classes in classes.json, even when only part of the class is implemented.
 - Full references for all other content with any implementation
 - Full references for all vestiges
   - Full json for all vestiges, including their signs, then wire the vestige tab's sign display to that data
@@ -94,15 +98,15 @@ Anything in this tier that turns out not to be easy should be deferred.
   - When hovering a stat on the stats page, highlight other stats it affects in one color and stats affecting it in another.  E.g., when hovering Wisdom modifier, highlight Listen and Spot in the first color and Wisdom score in the second color.
 
 ### Rounding out Pact Magic:
-  - When hovering a vestige on the Vestiges tab, I want to know its special requirements (if any), its influence, and its effects.
   - Rushed binding (Tome of Magic p10) (take -10 on the binding check to perform it as a single full-round action)
   - Vestige signs
   - The rest of the binder class (including Suppress Sign)
-  - Include {{vestige save DC}} in relevant Vestige abilities
-  - 24 hr pact irrevocability (adhering to enable-don't-enforce)
-  - Fully document every vestige in the game, in docs/rules/content/vestiges.md (including Zceryll).
-  - Fully document all of binder's statistics and class features.
-  - Fully implement binder's class features.
+    - Include {{vestige save DC}} in relevant Vestige abilities
+    - 24 hr pact irrevocability (adhering to enable-don't-enforce)
+    - Fully document every vestige in the game, in docs/rules/content/vestiges.md (including Zceryll).
+    - Fully document all of binder's statistics and class features.
+    - Fully implement binder's class features.
+      - For Pact Augmentation, invent a way to make game-time choices outside a subsystem.  Dropdown on the stats page in the appropriate area?
   - Eliminate the "EBL for max vestige level" stat.  Implement a way for effects to be conditional on what downstream thing is being computed.  When "max vestige level" is downstream, Improved Binding adds 2 to "effective binder level".
 
 ### Vestiges tab cleanup
@@ -340,6 +344,3 @@ Universal engine improvements, usability enhancements, sanity refactors, and lon
 
 #### Unique Effect Identifiers
   - Remove effects by unique ID rather than name (avoiding accidental removal of unrelated same-named effects when swapping vestiges/items).
-
-#### Pre-1900 Timeline Dates
-  - Investigate ways of allowing in-game timeline dates before 1900 (addressing historical date limitations in .NET `DateTimePicker` controls and calendar date math).
