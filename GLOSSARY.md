@@ -316,6 +316,10 @@ _Avoid_: Gold transaction, coin entry, money transfer
 A recorded experience point grant or deduction associated with a play session, tracking amount, description, in-game timeline time, and real-world date.
 _Avoid_: XP transaction, session entry, XP grant
 
+**Round Zero**:
+The fictional campaign date and time corresponding to round zero on a character's timeline, anchoring all in-game timestamps.
+_Avoid_: Campaign epoch, base timestamp, start clock
+
 **In-Game Time**:
 The fictional campaign date and time on a character's active timeline.
 _Avoid_: Clock time, game round time

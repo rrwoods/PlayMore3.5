@@ -75,7 +75,7 @@ These core invariants govern every architecture decision, rule calculation, and 
 *Managing physical gear, magic item combinations, and historical party wealth.*
 - **Interchangeable Slots & Item Merging**: Support interchangeable ring slots (Ring 1 / Ring 2) and official *Magic Item Compendium* item merging (combining secondary properties at 1.5× cost).
 - **Weapon Modes & Augment Crystals**: Assign properties across distinct weapon modes (melee, thrown, projectile), attach/detach augment crystals with advisory level warnings, and support armor spikes / shield bashes.
-- **Timestamped Ledger (ADR-0009)**: Record gold transactions and XP session awards with dual timestamps: in-game timeline dates (`game_time`) advancing at round-level resolution, and real-world physical session calendar dates (`real_date`).
+- **Timestamped Ledger (ADR-0009, ADR-0023)**: Record gold transactions and XP session awards with dual timestamps: in-game timeline rounds (`game_round`) projected against `RoundZero` at round-level resolution, and real-world physical session calendar dates (`real_date`).
 - **Container Modeling**: Support named storage locations (backpacks, pouches), custom containers with weight-negation properties (*Bag of Holding*), and no-effect name-only carried items.
 
 ### Capability 5: Content Extensibility & Monster Compendium

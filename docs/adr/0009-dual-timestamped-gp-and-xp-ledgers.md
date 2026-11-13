@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: partially superseded by ADR-0023
 ---
 
 # Dual-Timestamped GP and XP Ledgers
@@ -11,6 +11,9 @@ GP transactions and session XP logs in PlayMore35 were previously tracked as raw
 We standardize on strongly-typed, immutable domain models `GpTransaction` and `XpSessionEntry` implementing `IJsonable` with explicit constructor deserialization per [ADR-0008](0008-explicit-constructor-deserialization-and-schema-stability.md), recording dual timestamps:
 
 1. **In-Game Timeline Time (`game_time`)**:
+   > [!WARNING]
+   > **Superseded by [ADR-0023](0023-single-anchor-round-zero-and-pre-1900-timeline-dates.md)**: `GpTransaction` and `XpSessionEntry` now persist `long GameRound` (`"game_round"`) rather than an absolute `DateTime` (`"game_time"`), projecting in-game timestamps dynamically from `Timeline.RoundZero`.
+
    - Sourced from `session.Character.Timeline.CurrentTime` (`DateTime`).
    - Represents the active fictional campaign date and time advancing at round-level resolution.
    - Serialized in ISO-8601 roundtrip (`"O"`) format.
