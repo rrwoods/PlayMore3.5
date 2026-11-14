@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -61,6 +62,110 @@ namespace PlayMore35.Tests {
 
         private static IntPtr MakeLParam(int loWord, int hiWord) {
             return (IntPtr)((hiWord << 16) | (loWord & 0xFFFF));
+        }
+
+        [TestMethod]
+        public void DisplayFeats_AdvancementSlotPlaceholderAndLifecycle_DisplaysLevel1AndRestoresOnClear() {
+            string? initialText = null;
+            FontStyle initialStyle = FontStyle.Regular;
+            string? textAfterClear = null;
+            FontStyle styleAfterClear = FontStyle.Regular;
+            string? featInSessionAfterClear = null;
+
+            Exception? caught = RunOnStaThread(() => {
+                using var form = new MainForm(initialCharacterPath: null);
+                var pagCharacter = GetField<TabPage>(form, "pagCharacter");
+
+                int step = 0;
+                ComboBox? featCombo = null;
+
+                using var timer = new System.Windows.Forms.Timer { Interval = 20 };
+                timer.Tick += (s, e) => {
+                    timer.Stop();
+                    step++;
+                    if (step == 1) {
+                        featCombo = pagCharacter.Controls.OfType<ComboBox>()
+                            .First(c => c.Visible && c.AutoCompleteMode != AutoCompleteMode.None);
+                        initialText = featCombo.Text;
+                        initialStyle = featCombo.Font.Style;
+
+                        // Select a feat
+                        featCombo.SelectedIndex = FindComboIndex(featCombo, "Improved Binding");
+                    } else if (step == 2) {
+                        Assert.AreEqual("Improved Binding", featCombo!.Text);
+                        Assert.AreEqual(FontStyle.Regular, featCombo.Font.Style);
+
+                        // Give featCombo focus, clear the feat text, then shift focus away to trigger Leave
+                        featCombo.Focus();
+                        featCombo.Text = "";
+                        var otherControl = GetField<TextBox>(form, "txtName");
+                        otherControl.Focus();
+                    } else {
+                        var slot = (ProgressionSlotKey)featCombo!.Tag;
+                        textAfterClear = featCombo.Text;
+                        styleAfterClear = featCombo.Font.Style;
+                        featInSessionAfterClear = form.Session.GetFeat(slot);
+                        Application.ExitThread();
+                        return;
+                    }
+                    timer.Start();
+                };
+
+                form.Shown += (s, e) => timer.Start();
+                Application.Run(form);
+            });
+
+            if (caught != null) {
+                Assert.Fail($"Unexpected exception during feat placeholder test: {caught}");
+            }
+            Assert.AreEqual("Level 1", initialText, "Unselected Advancement slot should show 'Level 1' as placeholder.");
+            Assert.AreEqual(FontStyle.Italic, initialStyle, "Placeholder text should be in Italic style.");
+            Assert.AreEqual("Level 1", textAfterClear, "Clearing feat and leaving control should restore 'Level 1' placeholder.");
+            Assert.AreEqual(FontStyle.Italic, styleAfterClear, "Restored placeholder should be in Italic style.");
+            Assert.IsTrue(string.IsNullOrEmpty(featInSessionAfterClear), "Session should have empty feat assignment after clearing.");
+        }
+
+        [TestMethod]
+        public void FeatCombo_Enter_WhenPlaceholderPresent_SelectsAllText() {
+            int selectionLength = 0;
+            int textLength = -1;
+
+            Exception? caught = RunOnStaThread(() => {
+                using var form = new MainForm(initialCharacterPath: null);
+                var pagCharacter = GetField<TabPage>(form, "pagCharacter");
+
+                int step = 0;
+                ComboBox? featCombo = null;
+
+                using var timer = new System.Windows.Forms.Timer { Interval = 20 };
+                timer.Tick += (s, e) => {
+                    timer.Stop();
+                    step++;
+                    if (step == 1) {
+                        featCombo = pagCharacter.Controls.OfType<ComboBox>()
+                            .First(c => c.Visible && c.AutoCompleteMode != AutoCompleteMode.None);
+                        var txtName = GetField<TextBox>(form, "txtName");
+                        txtName.Focus();
+                    } else if (step == 2) {
+                        featCombo!.Focus();
+                    } else {
+                        selectionLength = featCombo!.SelectionLength;
+                        textLength = featCombo.Text.Length;
+                        Application.ExitThread();
+                        return;
+                    }
+                    timer.Start();
+                };
+
+                form.Shown += (s, e) => timer.Start();
+                Application.Run(form);
+            });
+
+            if (caught != null) {
+                Assert.Fail($"Unexpected exception during enter selection test: {caught}");
+            }
+            Assert.IsTrue(textLength > 0, "Placeholder should not be empty.");
+            Assert.AreEqual(textLength, selectionLength, "All placeholder text should be selected on focus enter.");
         }
 
         [TestMethod]
@@ -127,6 +232,52 @@ namespace PlayMore35.Tests {
             Assert.AreEqual("Improved Binding", capturedFeat);
             Assert.AreEqual("Improved Binding", comboText);
             Assert.AreEqual(FontStyle.Regular, finalStyle);
+        }
+
+        [TestMethod]
+        public void DisplayFeats_HumanFighterLevel1_DisplaysLevel1HumanAndFighter1Placeholders() {
+            List<string>? placeholderTexts = null;
+
+            Exception? caught = RunOnStaThread(() => {
+                using var form = new MainForm(initialCharacterPath: null);
+                var pagCharacter = GetField<TabPage>(form, "pagCharacter");
+
+                int step = 0;
+
+                using var timer = new System.Windows.Forms.Timer { Interval = 20 };
+                timer.Tick += (s, e) => {
+                    timer.Stop();
+                    step++;
+                    if (step == 1) {
+                        var cboRace = GetField<ComboBox>(form, "cboRace");
+                        cboRace.SelectedIndex = FindComboIndex(cboRace, "human");
+
+                        var classCombo = pagCharacter.Controls.OfType<ComboBox>()
+                            .First(c => c.Visible && c.Items.Cast<object>().Any(it => it?.ToString() == "Fighter"));
+                        classCombo.SelectedIndex = FindComboIndex(classCombo, "Fighter");
+                    } else {
+                        var featCombos = pagCharacter.Controls.OfType<ComboBox>()
+                            .Where(c => c.Visible && c.Tag is ProgressionSlotKey)
+                            .OrderBy(c => c.Left)
+                            .ToList();
+                        placeholderTexts = featCombos.Select(c => c.Text).ToList();
+                        Application.ExitThread();
+                        return;
+                    }
+                    timer.Start();
+                };
+
+                form.Shown += (s, e) => timer.Start();
+                Application.Run(form);
+            });
+
+            if (caught != null) {
+                Assert.Fail($"Unexpected exception during human fighter feat placeholder test: {caught}");
+            }
+            Assert.IsNotNull(placeholderTexts);
+            CollectionAssert.Contains(placeholderTexts, "Level 1");
+            Assert.IsTrue(placeholderTexts.Any(p => string.Equals(p, "human", StringComparison.OrdinalIgnoreCase)), "Should contain human race bonus feat placeholder.");
+            CollectionAssert.Contains(placeholderTexts, "Fighter 1");
         }
 
         [TestMethod]

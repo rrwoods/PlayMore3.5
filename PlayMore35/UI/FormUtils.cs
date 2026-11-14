@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Linq;
+using PlayMore35.CharacterChoices;
 using PlayMore35.UI;
 
 namespace PlayMore35.Global {
@@ -31,6 +32,18 @@ namespace PlayMore35.Global {
 
         public static string ValueText(int value, bool plus) {
             return ((plus && value >= 0 ? "+" : "") + value).Replace("-", "–");
+        }
+
+        public static string FormatSlotDisplayName(ProgressionSlotKey slot) {
+            if (slot == null) return "";
+            switch (slot.Kind) {
+                case SlotKind.Advancement:
+                    return $"Level {slot.Level}";
+                case SlotKind.Class:
+                    return $"{slot.Source} {slot.Level}".Trim();
+                default:
+                    return slot.Source;
+            }
         }
 
         private static readonly Dictionary<string, string> customShortNames = new Dictionary<string, string> {

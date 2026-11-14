@@ -30,6 +30,37 @@ namespace PlayMore35.Tests {
             tag is LevelDetailsDialog.ElementReceptorBinding b && b.FeatSlot.Equals(slot) && string.Equals(b.Descriptor?.Id, descId, StringComparison.OrdinalIgnoreCase);
 
         [TestMethod]
+        public void PrepareLevel_FeatSlotLabels_UseFriendlyDisplayNames() {
+            var session = LoadOdricSession();
+            using (var dialog = new LevelDetailsDialog(session)) {
+                // Level 1 (index 0): Advancement feat slot -> "Feat: Level 1"
+                dialog.PrepareLevel(0);
+                var lvl1Labels = dialog.Controls.OfType<Label>()
+                    .Where(l => l.Text.StartsWith("Feat: "))
+                    .Select(l => l.Text)
+                    .ToList();
+                CollectionAssert.Contains(lvl1Labels, "Feat: Level 1");
+
+                // Level 3 (index 2): Advancement level 3 + Fighter 1 class bonus feat
+                dialog.PrepareLevel(2);
+                var lvl3Labels = dialog.Controls.OfType<Label>()
+                    .Where(l => l.Text.StartsWith("Feat: "))
+                    .Select(l => l.Text)
+                    .ToList();
+                CollectionAssert.Contains(lvl3Labels, "Feat: Level 3");
+                CollectionAssert.Contains(lvl3Labels, "Feat: Fighter 1");
+
+                // Level 4 (index 3): Fighter 2 class bonus feat
+                dialog.PrepareLevel(3);
+                var lvl4Labels = dialog.Controls.OfType<Label>()
+                    .Where(l => l.Text.StartsWith("Feat: "))
+                    .Select(l => l.Text)
+                    .ToList();
+                CollectionAssert.Contains(lvl4Labels, "Feat: Fighter 2");
+            }
+        }
+
+        [TestMethod]
         public void Odric_ClickLevel4ThenOtherLevels_DoesNotShowWeaponFocusChoiceOnOtherLevels() {
             var session = LoadOdricSession();
             using (var dialog = new LevelDetailsDialog(session)) {

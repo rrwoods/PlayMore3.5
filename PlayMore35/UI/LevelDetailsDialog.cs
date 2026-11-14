@@ -152,7 +152,7 @@ namespace PlayMore35 {
                 Label slotName = new Label {
                     Top = lblFeatSlot1.Top,
                     Left = featLeft,
-                    Text = $"Feat: {featSlot}"
+                    Text = $"Feat: {FormUtils.FormatSlotDisplayName(featSlot)}"
                 };
                 slotNames.Add(slotName);
                 Controls.Add(slotName);

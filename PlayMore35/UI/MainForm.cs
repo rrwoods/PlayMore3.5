@@ -205,20 +205,63 @@ namespace PlayMore35 {
             };
         }
 
-        private EventHandler SelectFeat(ProgressionSlotKey slot) {
+        private EventHandler Feat_Enter(ProgressionSlotKey slot) {
             return (object sender, EventArgs e) => {
                 ComboBox featBox = (ComboBox)sender;
-                session.SetFeat(slot, featBox.Text);
-                if (featBox.Font.Style != FontStyle.Regular) {
+                string placeholder = FormUtils.FormatSlotDisplayName(slot);
+                if (featBox.Font.Style != FontStyle.Regular || string.Equals(featBox.Text, placeholder, StringComparison.OrdinalIgnoreCase)) {
                     if (IsHandleCreated && !IsDisposed) {
                         BeginInvoke((Action)(() => {
-                            if (!featBox.IsDisposed && featBox.Parent != null && featBox.Font.Style != FontStyle.Regular) {
-                                featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                            if (!featBox.IsDisposed && featBox.Parent != null) {
+                                featBox.SelectAll();
                             }
                         }));
                     } else {
-                        featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                        featBox.SelectAll();
                     }
+                }
+            };
+        }
+
+        private void RegularizeFeatFont(ComboBox featBox) {
+            if (featBox.Font.Style != FontStyle.Regular) {
+                if (IsHandleCreated && !IsDisposed) {
+                    BeginInvoke((Action)(() => {
+                        if (!featBox.IsDisposed && featBox.Parent != null && featBox.Font.Style != FontStyle.Regular) {
+                            featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                        }
+                    }));
+                } else {
+                    featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                }
+            }
+        }
+
+        private EventHandler Feat_Leave(ProgressionSlotKey slot) {
+            return (object sender, EventArgs e) => {
+                ComboBox featBox = (ComboBox)sender;
+                string placeholder = FormUtils.FormatSlotDisplayName(slot);
+                if (string.IsNullOrWhiteSpace(featBox.Text) || string.Equals(featBox.Text, placeholder, StringComparison.OrdinalIgnoreCase)) {
+                    session.SetFeat(slot, "");
+                    featBox.SelectedIndex = -1;
+                    featBox.Text = placeholder;
+                    featBox.Font = new Font(featBox.Font, FontStyle.Italic);
+                } else {
+                    session.SetFeat(slot, featBox.Text);
+                    RegularizeFeatFont(featBox);
+                }
+            };
+        }
+
+        private EventHandler SelectFeat(ProgressionSlotKey slot) {
+            return (object sender, EventArgs e) => {
+                ComboBox featBox = (ComboBox)sender;
+                string placeholder = FormUtils.FormatSlotDisplayName(slot);
+                if (string.IsNullOrWhiteSpace(featBox.Text) || string.Equals(featBox.Text, placeholder, StringComparison.OrdinalIgnoreCase)) {
+                    session.SetFeat(slot, "");
+                } else {
+                    session.SetFeat(slot, featBox.Text);
+                    RegularizeFeatFont(featBox);
                 }
             };
         }
@@ -469,12 +512,13 @@ namespace PlayMore35 {
                         Font = scala, // why do i need to do this?
                         Tag = slot
                     };
+                    string placeholder = FormUtils.FormatSlotDisplayName(slot);
                     string? featName = session.GetFeat(slot);
                     if (!string.IsNullOrEmpty(featName)) {
                         featBox.Text = featName;
                         featBox.Font = new Font(featBox.Font, FontStyle.Regular);
                     } else {
-                        featBox.Text = slot.Source;
+                        featBox.Text = placeholder;
                         featBox.Font = new Font(featBox.Font, FontStyle.Italic);
                     }
 
@@ -482,6 +526,8 @@ namespace PlayMore35 {
                         featBox.Items.Add(feat);
                     }
                     featBox.SelectedValueChanged += SelectFeat(slot);
+                    featBox.Enter += Feat_Enter(slot);
+                    featBox.Leave += Feat_Leave(slot);
                     feats.Add(featBox);
                     featLeft += featBox.Width + (cboFeat.Left - btnLevelDetails.Right);
                     pagCharacter.Controls.Add(featBox);
