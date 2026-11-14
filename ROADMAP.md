@@ -13,8 +13,6 @@ When starting a new feature, select the highest-priority unblocked item from thi
 - Reference the entirety of Rules Compendium (and create steering that this is always the primary source when it can be cited)
 - Full references for all classes in classes.json, even when only part of the class is implemented.
 - Full references for all other content with any implementation
-- Full references for all vestiges
-  - Full json for all vestiges, including their signs, then wire the vestige tab's sign display to that data
 
 ### Extend element picker over non-subsystem choices
 - taller default element picker.  like 3 more lines in the list of items, and quadruple the height of the details pane
@@ -74,6 +72,11 @@ Features required for the author's primary active character, alongside immediate
 ## Tier 1.5: "Easy" UX and other intermediate tasks
 
 Anything in this tier that turns out not to be easy should be deferred.
+
+### Column 1 skill UX
+  - If a column 1 skill (like Diplomacy) has subskill effects (like dream dwarf's bonus to checks against earth creatures):
+    - Put an asterisk next to the skill modifier in column 1
+    - Indicate in the tooltip that the player should look in the skills section for more details (or, possibly, just show the extra modifier in the tooltip)
 
 ### Action Highlighter:
   - Track the player's available actions (default to standard + move + swift at the start of each turn, if no effects are granting extra actions).
