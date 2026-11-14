@@ -207,9 +207,19 @@ namespace PlayMore35 {
 
         private EventHandler SelectFeat(ProgressionSlotKey slot) {
             return (object sender, EventArgs e) => {
-                ComboBox featBox = ((ComboBox)sender);
+                ComboBox featBox = (ComboBox)sender;
                 session.SetFeat(slot, featBox.Text);
-                featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                if (featBox.Font.Style != FontStyle.Regular) {
+                    if (IsHandleCreated && !IsDisposed) {
+                        BeginInvoke((Action)(() => {
+                            if (!featBox.IsDisposed && featBox.Parent != null && featBox.Font.Style != FontStyle.Regular) {
+                                featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                            }
+                        }));
+                    } else {
+                        featBox.Font = new Font(featBox.Font, FontStyle.Regular);
+                    }
+                }
             };
         }
 
