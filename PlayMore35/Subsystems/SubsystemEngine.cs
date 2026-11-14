@@ -985,6 +985,9 @@ namespace PlayMore35.Subsystems {
             if (string.IsNullOrWhiteSpace(effectiveSource) && excludeSlot != null) {
                 effectiveSource = ResolveFeatTargetSource(excludeSlot);
             }
+            if (!string.IsNullOrEmpty(effectiveSource) && (string.Equals(effectiveSource, Id, StringComparison.OrdinalIgnoreCase) || string.Equals(effectiveSource, Name, StringComparison.OrdinalIgnoreCase))) {
+                effectiveSource = GetActiveSources().FirstOrDefault();
+            }
 
             var warnings = new List<ValidationWarning>();
             int? maxAllowed = GetMaxAllowedElementLevel(effectiveSource);
@@ -1016,10 +1019,13 @@ namespace PlayMore35.Subsystems {
             foreach (var grp in slotGroups.Values) {
                 foreach (var s in grp.RawSlots) {
                     if (string.Equals(s.Element, chosenElem.Name, StringComparison.OrdinalIgnoreCase) &&
-                        !string.IsNullOrEmpty(s.Source) && !string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) {
+                        !string.IsNullOrEmpty(s.Source) &&
+                        !string.IsNullOrEmpty(effectiveSource) &&
+                        !string.Equals(s.Source, effectiveSource, StringComparison.OrdinalIgnoreCase)) {
                         string unit = Definition.PrerequisiteUnit ?? "element";
                         string titleUnit = char.ToUpperInvariant(unit[0]) + unit.Substring(1);
-                        warnings.Add(new ValidationWarning($"{titleUnit} '{chosenElem.Name}' is already learned under source '{s.Source}'.", ValidationCategory.SourceConflict));
+                        string verb = Definition.AcquisitionVerb ?? "learned";
+                        warnings.Add(new ValidationWarning($"{titleUnit} '{chosenElem.Name}' is already {verb} under source '{s.Source}'.", ValidationCategory.SourceConflict));
                     }
                 }
             }

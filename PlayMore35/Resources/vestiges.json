@@ -2,6 +2,8 @@
   "subsystem": {
     "id": "pact_magic",
     "name": "Pact Magic",
+    "prerequisite_unit": "vestige",
+    "acquisition_verb": "bound",
     "element_statistics": {
       "binding DC": [
         "binding DCs"

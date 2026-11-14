@@ -572,6 +572,38 @@ namespace PlayMore35.Tests {
             }
         }
 
+        [TestMethod]
+        public void PactMagicTabPage_Odric_UnbindSavnok_SavnokBecomesAvailable() {
+            var odricPath = TestEnvironment.FindOdricJsonPath();
+            string jsonText = System.IO.File.ReadAllText(odricPath);
+            var character = new Character(Newtonsoft.Json.Linq.JObject.Parse(jsonText));
+            var session = new CharacterSession(character, new GameRulesCatalog());
+            session.Recalculate();
+
+            var host = new MockSubsystemUIHost(session);
+            using (var form = new Form())
+            using (var tabControl = new TabControl()) {
+                var tabPage = new PactMagicTabPage(host);
+                tabControl.TabPages.Add(tabPage);
+                form.Controls.Add(tabControl);
+                form.Show();
+                Application.DoEvents();
+
+                var picker = tabPage.Controls.OfType<Panel>().SelectMany(p => p.Controls.OfType<PactMagicElementPicker>()).First();
+                var savnokCard = picker.ViewModel.FindCard("Savnok")!;
+                Assert.IsNotNull(savnokCard);
+                Assert.IsTrue(savnokCard.IsBound, "Savnok should initially be bound in Odric.json");
+
+                // Unbind Savnok
+                savnokCard.Unbind();
+                Application.DoEvents();
+
+                Assert.IsFalse(savnokCard.IsBound, "Savnok should not be bound after unbinding");
+                Assert.AreEqual("Available", savnokCard.StatusText, $"Expected Available after unbinding Savnok, but got '{savnokCard.StatusText}' with tooltip '{savnokCard.StatusTooltip}'");
+                Assert.AreEqual(VestigeCardStatusKind.Available, savnokCard.StatusKind);
+            }
+        }
+
         private class MockSubsystemUIHost : ISubsystemUIHost {
             public ICharacterSession Session { get; }
             public bool RecalculateRequested { get; private set; }
@@ -579,7 +611,10 @@ namespace PlayMore35.Tests {
             public bool TimelineRefreshRequested { get; private set; }
 
             public MockSubsystemUIHost(ICharacterSession session) => Session = session;
-            public void RequestRecalculate() => RecalculateRequested = true;
+            public void RequestRecalculate() {
+                RecalculateRequested = true;
+                Session.Recalculate();
+            }
             public void RequestEffectsRefresh() => EffectsRefreshRequested = true;
             public void RequestTimelineRefresh() => TimelineRefreshRequested = true;
         }

@@ -111,7 +111,7 @@ Anything in this tier that turns out not to be easy should be deferred.
 
 ### Vestiges tab cleanup
 - It's not clear that "Good" and "Poor" will bind the vestige.  Add a "Binding check:" label, and change the button text to "Succeed" and "Fail"
-- Details panel could use some formatting love
+- Details panel could use some formatting love - probably separate labels for sign, influence, and granted abilities, with bold and all-caps headers
 - The user should be able to find vestiges by ability text using the search box (e.g., searching for "swap" should find Savnok, since "swap" appears in the text of Savnok's Move Ally ability)
 
 ### Encumbrance and Carrying Capacity visibility:

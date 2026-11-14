@@ -474,6 +474,7 @@ namespace PlayMore35.Subsystems {
         public string Name { get; set; } = "";
         public string? PrerequisiteUnit { get; set; } = null;
         public string? PrerequisiteProperty { get; set; } = null;
+        public string? AcquisitionVerb { get; set; } = null;
         public Dictionary<string, SlotGroupDefinition> SlotGroups { get; } = new Dictionary<string, SlotGroupDefinition>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> Verbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, List<SubsystemStep>> DefaultElementVerbs { get; } = new Dictionary<string, List<SubsystemStep>>(StringComparer.OrdinalIgnoreCase);
@@ -503,6 +504,7 @@ namespace PlayMore35.Subsystems {
             Name = (string?)subJson["name"] ?? Id;
             PrerequisiteUnit = (string?)subJson["prerequisite_unit"];
             PrerequisiteProperty = (string?)subJson["prerequisite_property"];
+            AcquisitionVerb = (string?)subJson["acquisition_verb"];
 
             if (subJson["level_gating"] is JObject lgObj) {
                 LevelGating = new LevelGatingDefinition(lgObj);

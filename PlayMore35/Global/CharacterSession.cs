@@ -1350,6 +1350,7 @@ namespace PlayMore35.Global {
             if (action == null) return TimelineRefreshRequirement.None;
             var req = action.Perform(this);
             if (req == TimelineRefreshRequirement.FullReload) {
+                InvalidateLevelSnapshots();
                 Recalculate();
             }
             return req;

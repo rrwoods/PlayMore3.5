@@ -24,7 +24,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             : this(host, new PactMagicElementPicker(host.Session, new ElementPickerContext {
                 ElementType = "vestige",
                 WarningProvider = elem => host.Session.ValidateProgressionChoice(
-                    new ProgressionChoiceContext(ProgressionChoiceDomain.Subsystem, elem.Name, targetSource: "pact_magic"))
+                    new ProgressionChoiceContext(ProgressionChoiceDomain.Subsystem, elem.Name, targetSource: host.Session.GetSubsystem("pact_magic")?.GetActiveSources().FirstOrDefault()))
             })) {
         }
 
@@ -205,6 +205,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _host.RequestEffectsRefresh();
             _host.RequestTimelineRefresh();
 
+            _picker.RefreshMaxVestigeLevel();
             _picker.RefreshBindingState();
             _picker.SelectVestige(vestige.Name);
         }
@@ -236,6 +237,7 @@ namespace PlayMore35.UI.Subsystems.PactMagic {
             _host.RequestEffectsRefresh();
             _host.RequestTimelineRefresh();
 
+            _picker.RefreshMaxVestigeLevel();
             _picker.RefreshBindingState();
         }
     }
